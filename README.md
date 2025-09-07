@@ -1,250 +1,119 @@
-# pg-typecraft
+# sql-typecraft
 
-A powerful TypeScript code generator that creates type-safe mappings from PostgreSQL schemas to TypeScript,
-enabling type-safe SQL queries with [**postgres.js**](https://www.npmjs.com/package/postgres).
-
-The generated code needs zero dependencies. It only needs `postgres.js` which you already use.
+A powerful SQL query generator that creates type-safe mappings from database schemas to TypeScript,
+enabling type-safe SQL queries.
 
 [![CI](https://github.com/atopala/pg-typecraft/actions/workflows/ci_github.yml/badge.svg)](https://github.com/atopala/pg-typecraft/actions/workflows/ci_github.yml)
 
-## Table of Contents
+## Quick Links
 
-- [Quickstart](#quickstart)
-- [Features](#features)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Type-Safe Query Examples](#type-safe-query-examples)
-- [Configuration](#configuration)
-- [CI/CD Integration](#cicd-integration)
-- [Contributing](#contributing)
-- [License](#license)
+📖 **[Complete Documentation Wiki](wiki/Home.md)**
+
+- [Installation](wiki/Installation.md) | [Usage](wiki/Usage.md) | [Examples](wiki/Type-Safe-Query-Examples.md)
+- [Subqueries](wiki/Subqueries.md) | [Features](wiki/Features.md) | [postgres.js Setup](wiki/postgres.js.md) | [CI/CD Integration](wiki/CI-CD-Integration.md)
 
 ## Quickstart
-> code sample from the example at: https://github.com/atopala/pg-typecraft
 
-Generate the code from existing postgres db schema `one_sql`.
-Option to include multiple schemas available.
-
+**1. Generate TypeScript types from your database:**
 ```bash
-npx pg-typecraft generate --schema one_sql --uri $POSTGRES_URI --outDir 'src/codegen'
+npx sql-typecraft generate --schema your_schema --uri $POSTGRES_URI --outDir 'src/codegen'
 ```
 
-```typescript 
-import {newOneSqlSchema} from "./codegen/one_sql.schema.ts";
+**2. Write type-safe SQL queries:**
 
-// postgres connection
-const sql = postgres({
+```typescript
+import {OneSqlSchema} from "./codegen/one_sql.schema.ts";
+import {IAccountSelect} from "./one_sql.account-table";
+import {AccountStatusUdt} from "./one_sql-enums";
+import {sql, param} from "one-sql";
+
+// pg
+const db = new Pool({
     host: "localhost",
     user: "postgres",
     database: "postgres",
-    transform: {
-        ...postgres.camel, /* don't forget about this one if generating code with --camelCaseColumns */
-        undefined: null,
-    }
 });
 
-// create the respective table(s) from your schema using existing postgres connection "sql"
-const {Account} = newOneSqlSchema(sql);
-
-// write strongly type SQL to insert a new record into "Account" table using helper functions 
-const [newAccount] = await sql<IAccountSelect[]>`
+// Type-safe insert with auto-completion
+const newAccount = await sql<IAccountSelect>`
     INSERT INTO ${Account}
         ${Account.$values({
-            firstName: "John",
-            lastName: "Doe",
-            email: "john@example.com",
-            status: AccountStatusUdt.CREATED
-        })}
+    firstName: "John",
+    lastName: "Doe",
+    email: "john@example.com"
+})}
     RETURNING ${Account.$all}
-`;
+`.one(db);
 
-const [account] = await sql<IAccountSelect[]>`
+// build a function that finds an account by 'accountId'.
+// this improves performance since the sql query gets re-used by following calls to db
+const findAccountById = sql<IAccountSelect, { accountId: number }>`
     SELECT ${Account.$all}
     FROM ${Account}
-    WHERE ${Account.accountId} = ${newAccount.accountId}
+    WHERE ${Account.accountId} = ${param("accountId")}
 `
+const account = await findAccountById.one(db, { accountId: newAccount.accountId });
 ```
 
-## Features
+> 📖 **[See complete examples in the wiki](wiki/Quickstart.md)**
 
-* Generates TypeScript types from PostgreSQL schemas
-* Supports both ESM and CommonJS modules
-* Type-safe SQL queries using [postgres.js](https://www.npmjs.com/package/postgres)
-* Customizable naming conventions (Pascal case for tables, camel case for columns)
-* Automatic enum type generation
+## Key Features
 
-### Snakecase vs. camelcase
-Naming conventions for Postgres suggest to use **snake_case**, but JavaScript/TypeScript is very much in favor of **camelCase**.
-Luckily both `postgres.js` and `pg-typecraft` are capable to offer a reliant translation layer **snake_case - camelCase** to avoid compromises.
+✅ **Type-safe SQL queries** - Full TypeScript support & code generation for SQL tables, views, columns and sub-queries with auto-completion  
+✅ **Multiple drivers** - Works with `pg` and `postgres.js`  
+✅ **Smart naming** - Automatic snake_case ↔ camelCase conversion  
+✅ **Multiple schemas** - Generate from multiple database schemas  
+✅ **CI/CD ready** - Integrate into your build pipeline
 
-Generate mapping code will always inject **snake_case** tables/columns into the SQL query.
+Next releases planned to support `mssql`, `mysql`, sqlite, etc.
 
-Enable `camel` transformation in the postgres.js connection so that also returned results will be transformed into `camelCase`. 
-
-Keep your Postgres as it is, or develop it using known best practices while coding in TypeScript as it should be. 
+> 📖 **[View all features](wiki/Features.md)** 
 
 ## Installation
 
-You can either install the package locally as dev dependency:
-
 ```bash
-npm install pg-typecraft --save-dev
+# Install as dev dependency
+npm install sql-typecraft --save-dev
+
+# Or use directly with npx
+npx sql-typecraft generate --schema your_schema --uri $POSTGRES_URI --outDir 'src/codegen'
 ```
 
-Or use it directly with npx/pnpx without installation:
-```bash
-# Using npx (npm)
-npx pg-typecraft generate --schema one_sql --uri $POSTGRES_URI --outDir 'src/codegen'
-
-# Using pnpm
-pnpm dlx pg-typecraft generate --schema one_sql --uri $POSTGRES_URI --outDir 'src/codegen'
-```
-
-Loading environment variables from local .env file:
-```bash
-env-cmd -x -f .env pg-typecraft generate --schema one_sql --pascalCaseTables --camelCaseColumns --uri $POSTGRES_URI --outDir 'src/codegen'
-```
+> 📖 **[Installation guide with all options](wiki/Installation.md)**
 
 ## Usage
 
-### Command Line Interface
-
-The basic command structure:
-
 ```bash
-pg-typecraft generate [options]
+sql-typecraft generate --schema your_schema --uri $POSTGRES_URI --outDir 'src/codegen'
 ```
 
-### Options
+**Common options:**
+- `--schema` - db schema name. Possible to include multiple schemas: `--schema schema1 --schema schema2 ...` 
+- `--driver` - db driver: `pg`, `postgres.js`
+- `--pascalCaseTables` - PascalCase table names
+- `--camelCaseColumns` - camelCase column names
 
-- `--schema` - PostgreSQL schema name (default: "public");
-- `--pascalCaseTables` - Convert table names to PascalCase
-- `--camelCaseColumns` - Convert column names to camelCase
-- `--uri` - PostgreSQL connection URI
-- `--outDir` - Output directory for generated files
-- `--help` - Show help information
+Next releases planned to support `mssql`, `mysql`, sqlite, etc.
 
-### Example Usage
+> 📖 **[Complete usage guide](wiki/Usage.md)**
 
-```bash
-pg-typecraft generate --schema one_sql --pascalCaseTables --camelCaseColumns --uri $POSTGRES_URI --outDir 'src/codegen'
-```
 
-Including multiple schemas:
-```bash
-pg-typecraft generate --schema one_sql --schema two_sql --uri $POSTGRES_URI --outDir 'src/codegen'
-```
+## Documentation
 
-## Type-Safe Query Examples
+📖 **[Complete Wiki Documentation](wiki/Home.md)**
 
-### Insert Operation
+- **[Quickstart Guide](wiki/Quickstart.md)** - Get up and running quickly
+- **[Type-Safe Query Examples](wiki/Type-Safe-Query-Examples.md)** - Insert, select, update examples
+- **[Subqueries](wiki/Subqueries.md)** - Build reusable, type-safe query components
+- **[postgres.js Setup](wiki/postgres.js.md)** - Using postgres.js driver
+- **[CI/CD Integration](wiki/CI-CD-Integration.md)** - Automate type generation
 
-```typescript
-import {newOneSqlSchema} from "./codegen/one_sql.schema.js";
-
-const {Account} = newOneSqlSchema(psql);
-
-const [newAccount] = await sql`
-    INSERT INTO ${Account}
-        ${Account.$values({
-            firstName: "John",
-            lastName: "Doe",
-            email: "john@example.com",
-            status: AccountStatusUdt.CREATED
-        })}
-    RETURNING ${Account.$all}
-`;
-```
-
-### Select Operation with Join
-
-```typescript
-import {
-    AccountStatusUdt,
-    IAccountSelect,
-    IOrderJson,
-    newOneSqlSchema,
-    OrderStatusUdt,
-} from "./codegen/one_sql.schema.js";
-
-// create tables from existing schema: Account, Order 
-const {Account, Order} = newOneSqlSchema(sql);
-
-interface AccountWithOrders extends IAccountSelect {
-    // need to use IOrderJson since "createdAt" is now a string due to JSON array aggregation
-    orders: Pick<IOrderJson, "orderId" | "createdAt" | "status">[];
-}
-
-const [accountWithOrders] = await sql<AccountWithOrders[]>`
-    SELECT ${Account.$all},
-           COALESCE(
-                jsonb_agg(orders.*) FILTER (WHERE orders.* IS NOT NULL),
-                '[]'
-           ) as orders
-    FROM ${Account}
-            LEFT JOIN LATERAL (
-        SELECT ${Order.orderId}, ${Order.createdAt}, ${Order.status}
-        FROM ${Order}
-        WHERE ${Order.accountId} = ${Account.accountId}
-        ORDER BY ${Order.createdAt} DESC
-        LIMIT 5
-    ) orders ON true
-    WHERE ${Account.accountId} = ${accountId}
-    GROUP BY ${Account.accountId}`;
-```
-
-### Update Operation
-
-```typescript
-const [accountUpdated] = await sql`
-    UPDATE ${Account}
-    SET ${Account.$set({
-        status: AccountStatusUdt.CONFIRMED,
-    })}
-    WHERE ${Account.accountId} = ${accountId}
-    RETURNING ${Account.$all}
-`;
-```
-
-## Configuration
-
-### postgres.js Setup
-> You can find the complete guide for postgres.js: https://www.npmjs.com/package/postgres 
-
-```typescript
-const sql = postgres({
-    host: "localhost",
-    user: "postgres",
-    database: "postgres",
-    transform: {
-        ...postgres.camel,
-        undefined: null,
-    }
-});
-```
-
-## CI/CD Integration
-
-pg-typecraft can be seamlessly integrated into your CI/CD pipeline to ensure type safety and SQL query validation against your latest database schema.
-This integration helps catch potential database-related issues early in the development cycle.
-
-Please check `CI (GitHub)` workflow in this repository for a CI/CD example:
-> https://github.com/atopala/pg-typecraft/actions/workflows/ci_github.yml
-* Spin off a Postgres container for use during CI/CD
-* Execute db migrations against the Postgres instance
-* Re-generate mapping code with `pg-typecraft` and build 
-* Run automated testing using the re-generated code against the newly provisioned Postgres instance
-
-### Benefits
-* Automatic type generation during build process
-* Early detection of SQL query incompatibilities
-* Validation against the latest database schema
-* Prevention of runtime errors due to schema mismatches
-* Consistent type definitions across development and production environments
 
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+> 📖 **[Contributing Guidelines](wiki/Contributing.md)**
 
 ## License
 

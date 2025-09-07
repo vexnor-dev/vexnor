@@ -13,7 +13,7 @@
    },
    "references": [
       {
-         "path": "../pg-typecraft"
+         "path": "../sql-typecraft"
       }
    ]
 }

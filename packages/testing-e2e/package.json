@@ -4,13 +4,13 @@
    "description": "e2e scenario testing with cucumber.js",
    "type": "module",
    "scripts": {
-      "prebuild:1-codegen": "pnpm run codegen",
-      "prebuild": "run-s 'prebuild:*'",
-      "build": "tsc -b",
-      "test": "env-cmd --no-override -x -r ../../env-dev.json -e db cucumber-js --publish",
       "codegen": "run-s 'codegen:*'",
-      "codegen:1-generate": "env-cmd --no-override -x -r ../../env-dev.json -e db pg-typecraft generate --schema one_sql --pascalCaseTables --camelCaseColumns --host \\$POSTGRES_HOST --port \\$POSTGRES_PORT --database \\$POSTGRES_DATABASE --user \\$POSTGRES_USER --password \\$POSTGRES_PASSWORD --outDir 'src/codegen'",
-      "postcodegen": "pnpx eslint ./src/codegen/**/*.ts --fix"
+      "codegen:1-generate": "env-cmd --no-override -x -r ../../env-dev.json -e db sql-typecraft generate --driver postgres.js --schema one_sql --pascalCaseTables --camelCaseColumns --host \\$POSTGRES_HOST --port \\$POSTGRES_PORT --database \\$POSTGRES_DATABASE --user \\$POSTGRES_USER --password \\$POSTGRES_PASSWORD --outDir 'src/codegen'",
+      "postcodegen": "pnpx eslint ./src/codegen/**/*.ts --fix",
+      "prebuild": "run-s 'codegen'",
+      "build": "tsc -b",
+      "pretest": "run-s 'build'",
+      "test": "env-cmd --no-override -x -r ../../env-dev.json -e db cucumber-js --publish"
    },
    "keywords": [],
    "author": "",
@@ -24,7 +24,7 @@
       "@cucumber/pretty-formatter": "^1.0.1",
       "copyfiles": "^2.4.1",
       "cucumber-html-reporter": "latest",
-      "pg-typecraft": "workspace:^1.0.0",
+      "sql-typecraft": "workspace:^1.0.0",
       "ts-node": "^10.9.2"
    }
 }

@@ -36,9 +36,9 @@ runs:
       run: pnpm install --frozen-lockfile
       shell: bash
 
-    - name: Build pg-typecraft
-      id: build-pg-typecraft
-      run: pnpm --filter='./packages/pg-typecraft' run build
+    - name: Build sql-typecraft
+      id: build-sql-typecraft
+      run: pnpm --filter='./packages/sql-typecraft' run build
       shell: bash
 
     - name: Install dependencies (2)
