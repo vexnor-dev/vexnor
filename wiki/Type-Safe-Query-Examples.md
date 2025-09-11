@@ -15,7 +15,7 @@ const [newAccount] = await sql`
             email: "john@example.com",
             status: AccountStatusUdt.CREATED
         })}
-    RETURNING ${Account.$all}
+    RETURNING ${Account.$$all}
 `;
 ```
 
@@ -39,7 +39,7 @@ interface AccountWithOrders extends IAccountSelect {
 }
 
 const accountWithOrders = await sql<AccountWithOrders, { accountId: number }>`
-    SELECT ${Account.$all},
+    SELECT ${Account.$$all},
            COALESCE(
                 jsonb_agg(orders.*) FILTER (WHERE orders.* IS NOT NULL),
                 '[]'
@@ -65,6 +65,6 @@ const accountUpdated = await sql`
         status: AccountStatusUdt.CONFIRMED,
     })}
     WHERE ${Account.accountId} = ${accountId}
-    RETURNING ${Account.$all}
+    RETURNING ${Account.$$all}
 `.one(db);
 ```

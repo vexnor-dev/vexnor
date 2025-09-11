@@ -56,5 +56,5 @@ export function values<TOptions extends { Insert: RowIn; Update: RowIn }, TTable
    table: TTable,
    inserts: TOptions["Insert"][],
 ): TableInsertValues<TOptions> {
-   return new TableInsertValues<TOptions>(table.$.cols, inserts);
+   return new TableInsertValues<TOptions>(table.$$.cols, inserts);
 }

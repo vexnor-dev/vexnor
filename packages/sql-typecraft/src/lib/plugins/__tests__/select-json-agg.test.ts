@@ -18,33 +18,33 @@ describe("sql plugin: jsonAgg()", () => {
             limit ${param("limit")}`;
 
       const query = sql<IUsersSelect, { city: string; limit: number }>`
-         select ${Users.$.all}, ${jsonAgg(UserOrders)} "orders"
+         select ${Users.$$all}, ${jsonAgg(UserOrders)} "orders"
          from ${Users}
                  left join lateral ( ${jsonAgg(UserOrders)} )
          order by ${Users.userId} asc
       `;
 
       expect(trim(query.sql({ city: "Munich", limit: 5 }))).toBe(
-         trim`select "users_1"."user_id"    "userId",
+         trim`select "users_1"."user_id"    as "userId",
                      "users_1"."name",
                      "users_1"."email",
                      "users_1"."age",
                      "users_1"."city",
                      "users_1"."password",
-                     "users_1"."created_at" "createdAt",
-                     "users_1"."updated_at" "updatedAt",
+                     "users_1"."created_at" as "createdAt",
+                     "users_1"."updated_at" as "updatedAt",
                      coalesce(
                            jsonb_agg("UserOrders".*) filter (where "UserOrders".* is not null),
                            '[]'
-                     )                      "orders"
+                     )                         "orders"
               from "public"."users" "users_1"
                       left join lateral ( (
                  /* --label: UserOrders */
-                 select "orders_1"."order_id"   "orderId",
+                 select "orders_1"."order_id"   as "orderId",
                         "orders_1"."status",
                         "orders_1"."total",
-                        "orders_1"."created_at" "createdAt",
-                        "orders_1"."updated_at" "updatedAt"
+                        "orders_1"."created_at" as "createdAt",
+                        "orders_1"."updated_at" as "updatedAt"
                  from "public"."orders" "orders_1"
                  where "orders_1"."user_id" = "users_1"."user_id"
                  order by "orders_1"."created_at" desc

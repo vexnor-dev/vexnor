@@ -9,7 +9,7 @@ describe("sql subqueries tests", () => {
    test("sub-query from", () => {
       const UsersInCity = sql<IUsersSelect, { city: string }>`
          ${info({ label: "UsersInCity" })}
-         select ${Users.$.all}
+         select ${Users.$$all}
          from ${Users}
          where ${Users.city} = ${param("city")}`;
 
@@ -21,52 +21,52 @@ describe("sql subqueries tests", () => {
       query.buildCache();
       expect(query.values({ age: 21, city: "Munich" })).toEqual(["Munich", 21]);
       expect(trim(query.sql({ age: 21, city: "Munich" }))).toBe(trim`select "UsersInCity".*
-                                                                     from (( /* --label: UsersInCity */ select "users_1"."user_id"    "userId",
-                                                                                   "users_1"."name",
-                                                                                   "users_1"."email",
-                                                                                   "users_1"."age",
-                                                                                   "users_1"."city",
-                                                                                   "users_1"."password",
-                                                                                   "users_1"."created_at" "createdAt",
-                                                                                   "users_1"."updated_at" "updatedAt"
-                                                                            from "public"."users" "users_1"
-                                                                            where "users_1"."city" = ?) "UsersInCity")
+                                                                     from (( /* --label: UsersInCity */ select "users_1"."user_id"    as "userId",
+                                                                                                               "users_1"."name",
+                                                                                                               "users_1"."email",
+                                                                                                               "users_1"."age",
+                                                                                                               "users_1"."city",
+                                                                                                               "users_1"."password",
+                                                                                                               "users_1"."created_at" as "createdAt",
+                                                                                                               "users_1"."updated_at" as "updatedAt"
+                                                                                                        from "public"."users" "users_1"
+                                                                                                        where "users_1"."city" = ?) "UsersInCity")
                                                                      where "UsersInCity"."age" > ?`);
    });
 
    test("sub-query join", () => {
       const UsersInCity = sql<IUsersSelect, { city: string }>`
          ${info({ label: "UsersInCity" })}
-         select ${Users.$.all}
+         select ${Users.$$all}
          from ${Users}
          where ${Users.city} = ${param("city")}
       `;
 
-      const query = sql<IUsersSelect, { age: number; city: string }>`select ${Users.$.all}
+      const query = sql<IUsersSelect, { age: number; city: string }>`select ${Users.$$all}
                                                                      from ${Users}
                                                                              join (${UsersInCity}) on ${Users.userId} = ${UsersInCity.ROW.userId}
                                                                      where ${Users.age} > ${param("age")}`;
 
       expect(query.values({ age: 21, city: "Munich" })).toEqual(["Munich", 21]);
-      expect(trim(query.sql({ age: 21, city: "Munich" }))).toBe(trim`select "users_1"."user_id"    "userId",
+      expect(trim(query.sql({ age: 21, city: "Munich" }))).toBe(trim`select "users_1"."user_id" as "userId",
                                                                             "users_1"."name",
                                                                             "users_1"."email",
                                                                             "users_1"."age",
                                                                             "users_1"."city",
                                                                             "users_1"."password",
-                                                                            "users_1"."created_at" "createdAt",
-                                                                            "users_1"."updated_at" "updatedAt"
+                                                                            "users_1"."created_at" as "createdAt",
+                                                                            "users_1"."updated_at" as "updatedAt"
                                                                      from "public"."users" "users_1"
                                                                              join ((
                                                                         /* --label: UsersInCity */
-                                                                        select "users_1"."user_id"    "userId",
+                                                                        select "users_1"."user_id"  as  "userId",
                                                                                "users_1"."name",
                                                                                "users_1"."email",
                                                                                "users_1"."age",
                                                                                "users_1"."city",
                                                                                "users_1"."password",
-                                                                               "users_1"."created_at" "createdAt",
-                                                                               "users_1"."updated_at" "updatedAt"
+                                                                               "users_1"."created_at" as "createdAt",
+                                                                               "users_1"."updated_at" as "updatedAt"
                                                                         from "public"."users" "users_1"
                                                                         where "users_1"."city" = ?) "UsersInCity")
                                                                      on "users_1"."user_id" = "UsersInCity"."userId"

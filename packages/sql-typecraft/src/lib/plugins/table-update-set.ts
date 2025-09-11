@@ -44,5 +44,5 @@ export function update<T extends { Insert: RowIn; Update: RowIn }>(
    table: SqlTable<T>,
    update: T["Update"],
 ): TableUpdateSet<T> {
-   return new TableUpdateSet<T>(table.$.cols, update);
+   return new TableUpdateSet<T>(table.$$.cols, update);
 }

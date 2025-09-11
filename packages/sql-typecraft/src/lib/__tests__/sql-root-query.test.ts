@@ -16,7 +16,7 @@ describe("sql() tests", () => {
       const query = sql<
          Row,
          { names: string[]; city: string }
-      >`select ${Users.name}, min(${Users.age}), ${Users.city.$("table.name")} user_city, ${Users.createdAt}
+      >`select ${Users.name}, min(${Users.age}), ${Users.city.$$fmt("table.name")} user_city, ${Users.createdAt}
         from ${Users}
         where ${Users.city} = ${param("city")}
           and ${Users.name} in (${param("names")})
@@ -28,7 +28,7 @@ describe("sql() tests", () => {
             `select "users_1"."name",
                     min("users_1"."age"),
                     "users_1"."city"       user_city,
-                    "users_1"."created_at" "createdAt"
+                    "users_1"."created_at" as "createdAt"
              from "public"."users" "users_1"
              where "users_1"."city" = ?
                and "users_1"."name" in (?, ?, ?)
@@ -40,8 +40,8 @@ describe("sql() tests", () => {
          trim(
             `select "users_1"."name",
                     min("users_1"."age"),
-                    "users_1"."city"       user_city,
-                    "users_1"."created_at" "createdAt"
+                    "users_1"."city" user_city,
+                    "users_1"."created_at" as "createdAt"
              from "public"."users" "users_1"
              where "users_1"."city" = $1
                and "users_1"."name" in ($2, $3, $4)

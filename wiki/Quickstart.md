@@ -36,11 +36,11 @@ const {Account, Order} = OneSqlSchema;
         email: "john@example.com",
         status: AccountStatusUdt.CREATED
     })}
-    RETURNING ${Account.$all}`.one(pool);
+    RETURNING ${Account.$$all}`.one(pool);
 
     // retrieve the inserted account
     const account = await sql<IAccountSelect>`
-    SELECT ${Account.$all}
+    SELECT ${Account.$$all}
     FROM ${Account}
     WHERE ${Account.accountId} = ${newAccount.accountId}`.one(db);
 }
@@ -48,7 +48,7 @@ const {Account, Order} = OneSqlSchema;
 {
     // or create a parametrized query to fetch the account by id
     const findAccountById = sql<IAccountSelect, { accountId: string }>`
-    SELECT ${Account.$all}
+    SELECT ${Account.$$all}
     FROM ${Account}
     WHERE ${Account.accountId} = ${param("accountId")}
 `;
@@ -64,7 +64,7 @@ const {Account, Order} = OneSqlSchema;
         status: param("status")
     })}
     WHERE ${Account.accountId} = ${param("accountId")}
-    RETURNING ${Account.$all}
+    RETURNING ${Account.$$all}
 `
     const account = await updateAccountStatusById.run(db, {accountId: 101, status: AccountStatusUdt});
 }

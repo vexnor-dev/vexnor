@@ -13,7 +13,7 @@ describe("sql plugin table.$$values() tests", () => {
             city: "Munich",
             password: "test1234",
          })}
-            returning ${Users.$.all}`;
+            returning ${Users.$$all}`;
 
       expect(query.values()).toEqual(["Bob", "bob@example.com", 24, "Munich", "test1234"]);
       expect(trim(query.sql())).toBe(

@@ -8,7 +8,7 @@ export interface SqlColumnOptions {
    readonly format?: SqlColumnFormat;
 }
 
-export type SqlColumnFormat = "table.name" | "name" | "table.alias" | "alias";
+export type SqlColumnFormat = "table.name" | "name" | "table.alias" | "alias" | "table.name+alias";
 
 export class SqlColumn extends Sql {
    readonly name: string;
@@ -37,7 +37,7 @@ export class SqlColumn extends Sql {
     * Format the SQL Column using the given format
     * @param format
     */
-   $(format: "table.name" | "name" | "table.alias" | "alias"): SqlColumn {
+   $$fmt(format: SqlColumnFormat): SqlColumn {
       return new SqlColumn({
          name: this.name,
          table: this.table,
@@ -73,6 +73,15 @@ export class SqlColumn extends Sql {
       }
 
       switch (this.format) {
+         case "table.name+alias": {
+            if (this.alias === this.name || !this.alias) {
+               push(`${q(this.table)}.${q(this.name)}`);
+               break;
+            }
+
+            push(`${q(this.table)}.${q(this.name)} as ${q(this.alias)}`);
+            break;
+         }
          case "table.name":
             return push(`${q(this.table)}.${q(this.name)}`);
          case "name":
@@ -90,7 +99,7 @@ export class SqlColumn extends Sql {
                break;
             }
 
-            push(`${q(this.table)}.${q(this.name)} ${q(this.alias)}`);
+            push(`${q(this.table)}.${q(this.name)} as ${q(this.alias)}`);
             break;
          }
          case "returning":

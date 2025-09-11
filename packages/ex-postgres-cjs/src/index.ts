@@ -32,7 +32,7 @@ async function main() {
             email: `test_${id}@example.com`,
             status: AccountStatusUdt.CREATED,
          })}
-         returning ${Account.$all}
+         returning ${Account.$$all}
    `;
    console.log("new account:", newAccount);
    ok(newAccount?.accountId, "accountId is required");
@@ -53,7 +53,7 @@ async function main() {
                modifiedAt: new Date(),
             },
          )}
-         returning ${Order.$all}
+         returning ${Order.$$all}
    `;
    ok(newOrders?.length);
 
@@ -63,7 +63,7 @@ async function main() {
          status: AccountStatusUdt.CONFIRMED,
       })}
       where ${Account.accountId} = ${newAccount.accountId}
-      returning ${Account.$all}
+      returning ${Account.$$all}
    `;
    console.log("account updated:", accountUpdated);
 
@@ -72,7 +72,7 @@ async function main() {
    }
 
    const [accountWithLimitedOrders] = await sql<AccountWithOrders[]>`
-      SELECT ${Account.$all},
+      SELECT ${Account.$$all},
              COALESCE(
                    jsonb_agg(orders.*) FILTER (WHERE orders.* IS NOT NULL),
                    '[]'

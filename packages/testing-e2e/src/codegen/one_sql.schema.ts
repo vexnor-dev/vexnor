@@ -14,4 +14,4 @@ export const OneSqlSchema = {
    Order,
    OrderItem,
    Product,
-};
+}

@@ -22,7 +22,7 @@ When(/^Inserting (\d+) new Orders$/, async function (this: TestWorld, countOfOrd
    const newOrders = await sql<IOrderSelect>`
       INSERT INTO ${Order}
          ${Order.$$values(...newOrdersValues)}
-         RETURNING ${Order.$.all}
+         RETURNING ${Order.$$all}
    `.getAll(pool);
    ok(newOrders?.length, "new orders are required");
    deepStrictEqual(newOrders.length, 2);

@@ -10,12 +10,12 @@ import { EnumValues, PgEnum, PgNamespace, PgType } from "./models.js";
 export const findEnums = sql<SqlEnumInfo, { schemas: string[] }>`
          with ${EnumValues} as (select ${PgEnum.oid},
                                        ${PgEnum.enumtypid},
-                                       ${PgEnum.enumlabel.$("table.name")} enum_label,
+                                       ${PgEnum.enumlabel.$$fmt("table.name")} enum_label,
                                        ${PgEnum.enumsortorder}
                                 from ${PgEnum})
-         SELECT ${PgType.typname.$("table.name")}      enum_name,
-                ${PgNamespace.nspname.$("table.name")} enum_schema,
-                json_agg(${EnumValues}) as             enum_values
+         SELECT ${PgType.typname.$$fmt("table.name")}      enum_name,
+                ${PgNamespace.nspname.$$fmt("table.name")} enum_schema,
+                json_agg(${EnumValues}) as                 enum_values
          FROM ${PgType}
                  join ${EnumValues} on ${PgType.oid} = ${EnumValues.enumtypid}
                  join ${PgNamespace} on ${PgNamespace.oid} = ${PgType.typnamespace}

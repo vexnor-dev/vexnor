@@ -17,7 +17,7 @@ When(/^Inserting a new Account$/, async function (this: TestWorld) {
             lastName: `Doe-${id}`,
             email: `john.doe-${id}}@example.com`,
          })}
-         returning ${Account.$.all}
+         returning ${Account.$$all}
    `.getOneRequired(pool);
 
    ok(newAccount?.accountId, "new accountId is required");
@@ -28,7 +28,7 @@ Then(/^Fetch newly inserted Account$/, async function (this: TestWorld) {
    ok(this.accountInserted?.accountId, "accountId is required");
 
    const account = await sql<IAccountSelect>`
-      select ${Account.$.all}
+      select ${Account.$$all}
       from ${Account}
       where ${Account.accountId} = ${this.accountInserted.accountId}
    `.getOneRequired(pool);
@@ -48,7 +48,7 @@ When(
       `;
 
       const findAccounts = sql<AccountWithOrders>`
-         select ${Account.$.all},
+         select ${Account.$$all},
                 coalesce(
                       jsonb_agg(${Orders.ROW.$.all}) filter (where ${Orders.ROW.$.all} is not null),
                       '[]'

@@ -29,13 +29,13 @@ const newAccount = await sql<IAccountSelect>`
          lastName: `Doe_${id}`,
          email: `john.doe_${id}@example.com`,
       })}
-      returning ${Account.$.all}
+      returning ${Account.$$all}
 `.getOneRequired(pool);
 console.log("new account:", newAccount);
 ok(newAccount?.accountId, "accountId is required");
 
 const findAccountById = sql<IAccountSelect, { accountId: string }>`
-   select ${Account.$.all}
+   select ${Account.$$all}
    from ${Account}
    where ${Account.accountId} = ${param("accountId")}
 `;
@@ -60,7 +60,7 @@ const newOrders = await sql<IOrderSelect>`
             modifiedAt: new Date(),
          },
       )}
-      RETURNING ${Order.$.all}
+      RETURNING ${Order.$$all}
 `.getAll(pool);
 ok(newOrders?.length);
 
@@ -70,7 +70,7 @@ const accountUpdated = await sql<IAccountSelect>`
       status: AccountStatusUdt.CONFIRMED,
    })}
    where ${Account.accountId} = ${newAccount.accountId}
-   returning ${Account.$.all}
+   returning ${Account.$$all}
 `.getOneRequired(pool);
 console.log("account updated:", accountUpdated);
 
@@ -86,7 +86,7 @@ const UserOrders = sql<IOrderSelect, { limit: number }>`
    LIMIT ${param("limit")}`;
 
 const findAccountsWithOrders = sql<IAccountWithOrders, { limit: number }>`
-   SELECT ${Account.$.all},
+   SELECT ${Account.$$all},
           ${UserOrders} "orders"
    FROM ${Account}
            LEFT JOIN LATERAL (${UserOrders})

@@ -2,40 +2,38 @@
 import * as lib from "sql-typecraft";
 import * as udt from "./one_sql-enums.js";
 
-export const Order = lib.newTable(
-   {
-      name: "order",
-      schema: "one_sql",
-      types: <{ Insert: IOrderInsert; Update: IOrderUpdate }>{},
-      pk: "order_pk",
-   },
-   {
-      /**
-       * order_id uuid default gen_random_uuid()
-       */
-      orderId: "order_id",
+export const Order = lib.newTable({
+   name: "order",
+   schema: "one_sql",
+   types: <{ Insert: IOrderInsert, Update: IOrderUpdate }>{}, 
+   pk: "order_pk", 
+},{
 
-      /**
-       * status order_status default 'created'::one_sql.order_status
-       */
-      status: "status",
+   /**
+    * order_id uuid default gen_random_uuid()
+   */
+   orderId: "order_id",
 
-      /**
-       * created_at timestamptz
-       */
-      createdAt: "created_at",
+   /**
+    * status order_status default 'created'::one_sql.order_status
+   */
+   status: "status",
 
-      /**
-       * modified_at timestamptz
-       */
-      modifiedAt: "modified_at",
+   /**
+    * created_at timestamptz
+   */
+   createdAt: "created_at",
 
-      /**
-       * account_id uuid
-       */
-      accountId: "account_id",
-   },
-);
+   /**
+    * modified_at timestamptz
+   */
+   modifiedAt: "modified_at",
+
+   /**
+    * account_id uuid
+   */
+   accountId: "account_id",
+});
 
 export type IOrderInsert = {
    orderId?: string;
@@ -43,16 +41,16 @@ export type IOrderInsert = {
    createdAt: Date;
    modifiedAt: Date;
    accountId: string;
-};
+}
 
 export type IOrderUpdate = Partial<IOrderInsert>;
 
 export type IOrderSelect = {
-   readonly orderId: string;
-   readonly status: udt.OrderStatusUdt;
-   readonly createdAt: Date;
-   readonly modifiedAt: Date;
-   readonly accountId: string;
-};
+   readonly orderId: string
+   readonly status: udt.OrderStatusUdt
+   readonly createdAt: Date
+   readonly modifiedAt: Date
+   readonly accountId: string
+}
 
 export type IOrderJson = lib.JsonRow<IOrderSelect>;

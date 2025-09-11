@@ -42,7 +42,7 @@ const newAccount = await sql<IAccountSelect>`
     lastName: "Doe",
     email: "john@example.com"
 })}
-    RETURNING ${Account.$all}
+    RETURNING ${Account.$$all}
 `.one(db);
 
 // build a function that finds an account by 'accountId'.

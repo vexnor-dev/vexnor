@@ -18,7 +18,7 @@ describe("sql plugin: table.$$set tests", () => {
             updatedAt,
          })}
          where ${Users.userId} = ${param("userId")}
-         returning ${Users.$.all}`;
+         returning ${Users.$$all}`;
       expect(query.values({ userId: 101 })).toEqual([
          "Bob",
          "bob@example.com",
@@ -29,7 +29,7 @@ describe("sql plugin: table.$$set tests", () => {
          101,
       ]);
       expect(trim(query.sql({ userId: 101 }))).toBe(
-         trim`update "public"."users" "users_1"
+         trim`update "public"."users"
               set "name"       = ?,
                   "email"      = ?,
                   "age"        = ?,
