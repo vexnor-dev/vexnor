@@ -83,8 +83,8 @@ main
 
                throw new Error(`Invalid database connection parameters: host, database and user are required`);
             });
-            tables = await psql.findTables.many(client, { schemas });
-            enums = await psql.findEnums.many(client, { schemas });
+            tables = await psql.findTables.getAll(client, { schemas });
+            enums = await psql.findEnums.getAll(client, { schemas });
             logger.info(
                {
                   postgres: {

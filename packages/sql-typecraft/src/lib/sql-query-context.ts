@@ -1,3 +1,6 @@
+import { logger } from "../cli/logger.js";
+import { x } from "./x.js";
+
 export type SqlKeyword =
    | "select"
    | "insert"
@@ -12,32 +15,43 @@ export type SqlKeyword =
    | "values"
    | "with"
    | "returning"
-   | "as";
+   | "group by";
 
 export type SqlQueryMode = "root" | "child";
 
 export interface SqlQueryContextOptions {
-   readonly mode: SqlQueryMode;
    readonly keywords?: SqlKeyword[];
-   readonly rawString: string;
+   readonly rawString?: string;
+   readonly queryName: string;
 }
 
 export class SqlQueryContext {
-   queryCount: number = 0;
-   mode: SqlQueryMode;
+   /**
+    * The query level.
+    * Root queries will have level=0.
+    * Children queries will have level=1, 2, 3, etc.
+    */
+   queryLevel = -1;
    private __keywords__: SqlKeyword[] = [];
    private __rawString__?: string;
 
-   constructor(
-      args: {
-         mode: SqlQueryMode;
-         keywords?: SqlKeyword[];
-         rawString?: string;
-      } = { mode: "root" },
-   ) {
-      this.mode = args.mode;
+   /**
+    * The current query name.
+    * This is used to identify the query in the logs.
+    */
+   queryName: string;
+
+   strings: string[] = [];
+   values: unknown[] = [];
+
+   constructor(args: SqlQueryContextOptions) {
       this.__keywords__ = args.keywords ?? [];
       this.__rawString__ = args.rawString;
+      this.queryName = args.queryName;
+   }
+
+   get keywords() {
+      return Object.freeze(this.__keywords__);
    }
 
    get keyword(): SqlKeyword | undefined {
@@ -57,59 +71,68 @@ export class SqlQueryContext {
    next(text: string) {
       this.__rawString__ = text;
       const __text__ = text.toLocaleLowerCase();
-      let maxIndex = -1;
-      let result = undefined;
-      let index = undefined;
-      for (let i = 0; i < keywords.length; i++) {
-         index = -1;
-         switch (keywords[i]) {
-            case "fn":
-               index = getLastFunctionIndex(__text__);
-               if (maxIndex < index) {
-                  result = keywords[i];
-                  maxIndex = index;
-               }
+
+      for (const token of __text__.toLocaleLowerCase().split(/\s+/)) {
+         if (!token) continue;
+
+         for (const keyword of keywords) {
+            if (token === keyword) {
+               this.__keywords__.push(keyword);
                break;
-            default:
-               index = __text__.lastIndexOf(`${keywords[i]} `);
-               if (index === -1) index = __text__.lastIndexOf(` ${keywords[i]}`);
-               if (index === -1) index = __text__.lastIndexOf(`\n${keywords[i]}`);
-               if (maxIndex < index) {
-                  result = keywords[i];
-                  maxIndex = index;
-               }
+            }
+
+            if (checks[keyword]?.includes(token)) {
+               this.__keywords__.push(keyword);
                break;
+            }
          }
       }
 
-      if (result) {
-         this.__keywords__.push(result);
-      } else if (this.keyword === "fn" && text.includes(")")) {
-         this.__keywords__.pop();
+      switch (true) {
+         case __text__.endsWith("(") && !__text__.endsWith(" ("):
+            this.__keywords__.push("fn");
+            break;
+         case __text__.startsWith(")") && this.keyword === "fn":
+            this.__keywords__.pop();
+            break;
       }
 
-      if (this.__keywords__.length > 0) return this.__keywords__[this.__keywords__.length - 1];
-      return undefined;
+      return this.__keywords__.length > 0 ? this.__keywords__[this.__keywords__.length - 1] : undefined;
+   }
+
+   matchKeyword(...keywords: SqlKeyword[]): boolean {
+      if (this.__keywords__.length < keywords.length) {
+         logger.info({ input: keywords, stack: this.__keywords__ }, "matching keywords");
+         return false;
+      }
+      for (let i = 0; i < keywords.length; i++) {
+         if (keywords[i] !== this.__keywords__[this.__keywords__.length - keywords.length + i]) return false;
+      }
+
+      return true;
    }
 }
 
-function getLastFunctionIndex(text: string): number {
-   const matches = Array.from(text.matchAll(/\b[a-zA-Z_][a-zA-Z0-9_]*\s*\(/g));
-   return matches.length > 0 ? matches[matches.length - 1]!.index : -1;
-}
+const keywords: SqlKeyword[] = x(() => {
+   const obj: Record<SqlKeyword, null> = {
+      select: null,
+      insert: null,
+      update: null,
+      delete: null,
+      join: null,
+      from: null,
+      fn: null,
+      on: null,
+      where: null,
+      set: null,
+      values: null,
+      with: null,
+      returning: null,
+      "group by": null,
+   };
+   return Object.keys(obj) as SqlKeyword[];
+});
 
-const keywords = [
-   "select",
-   "insert",
-   "update",
-   "delete",
-   "join",
-   "from",
-   "fn",
-   "on",
-   "where",
-   "set",
-   "values",
-   "with",
-   "returning",
-] as const satisfies readonly SqlKeyword[];
+const checks: Partial<Record<SqlKeyword, string[]>> = {
+   select: ["(select"],
+};

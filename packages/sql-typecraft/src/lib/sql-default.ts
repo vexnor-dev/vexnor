@@ -1,15 +1,13 @@
 import { Sql } from "./sql-base.js";
-import { SqlBuild } from "./sql-types.js";
+import { SqlQueryContext } from "./sql-query-context.js";
 
 export class SqlDefault extends Sql {
    constructor() {
       super();
    }
 
-   build(): SqlBuild {
-      return {
-         strings: ["DEFAULT"],
-      };
+   build(context: SqlQueryContext) {
+      context.strings.push("DEFAULT");
    }
 }
 

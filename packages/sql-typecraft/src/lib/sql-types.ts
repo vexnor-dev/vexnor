@@ -20,7 +20,25 @@ export type SqlBuild = {
    values?: unknown[];
 };
 
-export type SqlRunArgs<TDb, TParams> = TParams extends undefined ? [db: TDb] : [db: TDb, params: TParams];
+export type SqlRunOptions<TDbClient> = {
+   db: TDbClient;
+   config: {
+      label?: string;
+      debug?: boolean;
+   };
+};
+
+export function isSqlRunOptions<TDbClient>(value: unknown): value is SqlRunOptions<TDbClient> {
+   if (Array.isArray(value)) return false;
+   if (typeof value !== "object") return false;
+   if (value === null) return false;
+
+   return "debug" in value;
+}
+
+export type SqlRunArgs<TDbClient, TParams> = TParams extends undefined
+   ? [options: TDbClient | SqlRunOptions<TDbClient>]
+   : [options: TDbClient | SqlRunOptions<TDbClient>, params: TParams];
 export type SqlValuesArgs<TParams> = TParams extends undefined | never ? [] : [params: TParams];
 
 export type SqlQueryRow<TParams extends Record<string, unknown>> = Record<keyof TParams, SqlColumn> & {

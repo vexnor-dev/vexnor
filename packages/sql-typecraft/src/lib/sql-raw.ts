@@ -1,15 +1,13 @@
-import { SqlBuild } from "./sql-types.js";
 import { Sql } from "./sql-base.js";
+import { SqlQueryContext } from "./sql-query-context.js";
 
 export class SqlRaw extends Sql {
    constructor(public readonly value: string) {
       super();
    }
 
-   build(): SqlBuild {
-      return {
-         strings: [this.value],
-      };
+   override build({ strings }: SqlQueryContext) {
+      strings.push(this.value);
    }
 }
 

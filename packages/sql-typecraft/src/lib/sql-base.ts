@@ -1,6 +1,9 @@
 import { SqlQueryContext } from "./sql-query-context.js";
-import { SqlBuild } from "./sql-types.js";
+
+export type SqlBuildOptions = {
+   onAddString?: (text: string) => string;
+};
 
 export abstract class Sql {
-   abstract build(context: SqlQueryContext): SqlBuild;
+   abstract build(context: SqlQueryContext, options?: SqlBuildOptions): void;
 }

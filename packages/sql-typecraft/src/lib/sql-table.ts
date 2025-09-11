@@ -3,9 +3,8 @@ import { SqlQueryContext } from "./sql-query-context.js";
 import { x } from "./x.js";
 import { Sql } from "./sql-base.js";
 import { ok } from "assert";
-import { SqlInsertValues } from "./sql-insert-values.js";
+import { TableInsertValues, TableUpdateSet } from "./plugins/index.js";
 import { RowIn } from "./sql-types.js";
-import { SqlUpdateSet } from "./sql-update-set.js";
 import { generateRandomName } from "./types.js";
 
 export interface SqlTableOptions {
@@ -17,80 +16,96 @@ export interface SqlTableOptions {
 }
 
 export class SqlTable<T extends { Insert: RowIn; Update: RowIn }> extends Sql {
-   readonly $schema?: string;
-   readonly $name: string;
-   readonly $alias?: string;
-   readonly $cols: Record<string, SqlColumn>;
-   readonly $pk?: SqlColumn;
+   private readonly options: SqlTableOptions;
 
    constructor(options: SqlTableOptions) {
       super();
-      this.$schema = options.schema;
-      this.$name = options.name;
-      this.$pk = options.pk;
-      this.$alias = options.alias ?? `${options.name}_${generateRandomName(3)}`;
-      this.$cols = options.cols;
+      this.options = {
+         ...options,
+         alias: options.alias ?? `${options.name}_${generateRandomName(3)}`,
+      };
    }
 
-   get $all(): SqlColumn[] {
-      return Object.values(this.$cols);
+   get $(): SqlTableOptions & { all: SqlColumn[]; as: (alias: string) => SqlTable<T> } {
+      const options = this.options;
+      return {
+         ...this.options,
+         all: Object.values(this.options.cols),
+         as(alias: string): SqlTable<T> {
+            return new SqlTable({
+               ...options,
+               alias,
+            });
+         },
+      };
    }
 
    get [Symbol.toStringTag]() {
       const tokens = [];
-      if (this.$schema) {
-         tokens.push(this.$schema, ".");
+      if (this.$.schema) {
+         tokens.push(this.$.schema, ".");
       }
-      tokens.push(this.$name);
-      if (this.$alias) {
-         tokens.push(" as", this.$alias);
+      tokens.push(this.$.name);
+      if (this.$.alias) {
+         tokens.push(" as", this.$.alias);
       }
 
       return tokens.join();
-   }
-
-   $as(alias: string): SqlTable<T> {
-      return new SqlTable({ name: this.$name, schema: this.$schema, alias, cols: this.$cols });
    }
 
    /**
     * Generates the SQL code for UPDATE set values
     * @param update record with update values
     */
-   $set<U extends T["Update"]>(update: U): Sql {
+   $$set<U extends T["Update"]>(update: U): Sql {
       ok(Object.keys(update), `Update doesn't have any values`);
-      return new SqlUpdateSet(this.$cols, update);
+      return new TableUpdateSet(this.$.cols, update);
    }
 
    /**
     * Generates the SQL code for INSERT
     * @param inserts array of records to insert
     */
-   $values(...inserts: T["Insert"][]): Sql {
+   $$values(...inserts: T["Insert"][]): Sql {
       ok(inserts.length, `No rows for insert`);
-      return new SqlInsertValues<T>(this.$cols, inserts);
+      return new TableInsertValues<T>(this.$.cols, inserts);
    }
 
-   build({ keyword }: SqlQueryContext) {
-      const schema = this.$schema ? `"${this.$schema}".` : "";
+   build({ keyword, strings }: SqlQueryContext) {
+      const schema = this.$.schema ? `"${this.$.schema}".` : "";
       switch (keyword) {
          case "with":
-            return { strings: [`"${this.$name}"`] };
+            strings.push(`"${this.$.name}"`);
+            break;
          case "insert":
-            return { strings: [`${schema}"${this.$name}"`] };
+            strings.push(`${schema}"${this.$.name}"`);
+            break;
          case "update":
-            if (this.$name === this.$alias) return { strings: [`${schema}"${this.$name}"`] };
-            return { strings: [`${schema}"${this.$name}" "${this.$alias}"`] };
+            if (this.$.name === this.$.alias) strings.push(`${schema}"${this.$.name}"`);
+            else strings.push(`${schema}"${this.$.name}" "${this.$.alias}"`);
+            break;
          case "delete":
-            return { strings: [`${schema}"${this.$name}"`] };
+            strings.push(`${schema}"${this.$.name}"`);
+            break;
          case "join":
-            if (this.$name === this.$alias) return { strings: [`${schema}"${this.$name}"`] };
-            else return { strings: [`${schema}"${this.$name}" "${this.$alias}"`] };
+            if (this.$.name === this.$.alias) {
+               strings.push(`${schema}"${this.$.name}"`);
+               break;
+            }
+
+            strings.push(`${schema}"${this.$.name}" "${this.$.alias}"`);
+            break;
          case "from":
-            if (this.$name === this.$alias) return { strings: [`${schema}"${this.$name}"`] };
-            else return { strings: [`${schema}"${this.$name}" "${this.$alias}"`] };
+            if (this.$.name === this.$.alias) {
+               strings.push(`${schema}"${this.$.name}"`);
+               break;
+            }
+
+            strings.push(`${schema}"${this.$.name}" "${this.$.alias}"`);
+            break;
          case "fn":
-            return { strings: [`"${this.$alias ?? this.$name}"`] };
+            strings.push(`"${this.$.alias ?? this.$.name}"`);
+            break;
          default:
             throw new Error(`Unknown command: ${keyword}`);
       }

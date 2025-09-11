@@ -1,9 +1,10 @@
-import { Sql } from "./sql-base.js";
-import { RowIn, SqlBuild } from "./sql-types.js";
-import { SqlColumn } from "./sql-column.js";
-import { SqlQueryContext } from "./sql-query-context.js";
+import { Sql } from "../sql-base.js";
+import { RowIn } from "../sql-types.js";
+import { SqlColumn } from "../sql-column.js";
+import { SqlQueryContext } from "../sql-query-context.js";
+import { SqlTable } from "../sql-table.js";
 
-export class SqlUpdateSet<T extends { Update: RowIn }> extends Sql {
+export class TableUpdateSet<T extends { Update: RowIn }> extends Sql {
    constructor(
       public readonly cols: Record<string, SqlColumn>,
       public readonly update: T["Update"],
@@ -11,16 +12,15 @@ export class SqlUpdateSet<T extends { Update: RowIn }> extends Sql {
       super();
    }
 
-   build(context: SqlQueryContext): SqlBuild {
-      const strings: string[] = [];
-      const values: unknown[] = [];
+   build(context: SqlQueryContext) {
       let i = 0;
+      const { strings, values } = context;
       for (const [key, col] of Object.entries(this.cols)) {
          if (!Object.hasOwn(this.update, key)) continue;
 
          if (i++ > 0) strings.push(", ");
-         const build = col.build(context);
-         strings.push(...build.strings.map((s) => `${s} = ?`));
+         col.build(context);
+         strings.push(" = ?");
          const value = this.update[key as keyof T["Update"]];
          switch (typeof value) {
             case "object":
@@ -37,10 +37,12 @@ export class SqlUpdateSet<T extends { Update: RowIn }> extends Sql {
                break;
          }
       }
-
-      return {
-         strings,
-         values,
-      };
    }
+}
+
+export function update<T extends { Insert: RowIn; Update: RowIn }>(
+   table: SqlTable<T>,
+   update: T["Update"],
+): TableUpdateSet<T> {
+   return new TableUpdateSet<T>(table.$.cols, update);
 }

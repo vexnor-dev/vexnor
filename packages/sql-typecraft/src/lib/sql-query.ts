@@ -1,9 +1,8 @@
 import { QueryResult } from "pg";
-import { RowOut, SqlBuild, SqlRunArgs, SqlValuesArgs } from "./sql-types.js";
+import { isSqlRunOptions, RowOut, SqlBuild, SqlRunArgs, SqlValuesArgs } from "./sql-types.js";
 import { SqlQueryRow } from "./sql-query-row.js";
 import { SqlColumn } from "./sql-column.js";
 import { x } from "./x.js";
-import { SqlTable } from "./sql-table.js";
 import { generateRandomName } from "./types.js";
 import { ok } from "assert";
 import { SqlParam } from "./sql-param.js";
@@ -11,6 +10,8 @@ import { SqlQueryContext } from "./sql-query-context.js";
 import { logger } from "../cli/logger.js";
 import { Sql } from "./sql-base.js";
 import { SqlClient } from "./sql-client.js";
+import { SqlInfo } from "./plugins/index.js";
+import * as crypto from "node:crypto";
 
 const WILDCARD = "?";
 
@@ -18,18 +19,9 @@ export class SqlQuery<
    TRow extends RowOut = RowOut,
    TParams extends Record<string, unknown> | undefined = undefined,
 > extends Sql {
-   /**
-    * SqlColumn for selecting "*" - all columns of current TRow
-    */
-   readonly $all: SqlColumn;
-
-   /**
-    * name of the query.
-    * this gets auto-generated, and can be set
-    */
-   name: string;
-
-   private __queryBuild__?: SqlBuild;
+   readonly name: string;
+   readonly ID: string;
+   private __buildCache__?: SqlBuild;
    private __row__?: SqlQueryRow & Record<keyof TRow, SqlColumn>;
 
    constructor(
@@ -39,20 +31,13 @@ export class SqlQuery<
       super();
       this.rawStrings = rawStrings;
       this.rawValues = rawValues;
-      this.name =
-         x(() => {
-            const table = rawValues.find((v) => v instanceof SqlTable);
-            if (table) return table.$alias ?? table.$name;
+      this.name = x(() => {
+         const info = rawValues.find((v) => v instanceof SqlInfo);
+         if (info) return info.options.label;
 
-            const col = rawValues.find((v) => v instanceof SqlColumn);
-            if (col) return col.table;
-
-            return generateRandomName();
-         }) + "_query";
-      this.$all = new SqlColumn({
-         name: "*",
-         table: this.name,
+         return "query_" + generateRandomName();
       });
+      this.ID = crypto.randomUUID();
    }
 
    get ROW(): SqlQueryRow & Record<keyof TRow, SqlColumn> {
@@ -65,8 +50,8 @@ export class SqlQuery<
       return this.__row__;
    }
 
-   getValues(...[params]: SqlValuesArgs<TParams>): unknown[] {
-      const { values } = this.getBuild();
+   values(...[params]: SqlValuesArgs<TParams>): unknown[] {
+      const { values } = this.buildCache();
       if (!values) return [];
       if (!params) return values ?? [];
       const results: unknown[] = [];
@@ -86,9 +71,9 @@ export class SqlQuery<
       return results;
    }
 
-   getSql(...[params]: SqlValuesArgs<TParams>): string {
-      const { values } = this.getBuild();
-      const strings = [...this.getBuild().strings];
+   sql(...[params]: SqlValuesArgs<TParams>): string {
+      const { values } = this.buildCache();
+      const strings = [...this.buildCache().strings];
       if (!values?.length) return strings.join("");
       if (!params) return strings.join("");
 
@@ -110,8 +95,8 @@ export class SqlQuery<
       return strings.join("");
    }
 
-   getText(...args: SqlValuesArgs<TParams>): string {
-      const sql = this.getSql(...args);
+   text(...args: SqlValuesArgs<TParams>): string {
+      const sql = this.sql(...args);
       const tokens = sql.split(WILDCARD);
       for (let i = 0; i < tokens.length - 1; i++) {
          tokens[i] = tokens[i] + `$${i + 1}`;
@@ -120,17 +105,17 @@ export class SqlQuery<
       return tokens.join("");
    }
 
-   getBuild() {
-      if (this.__queryBuild__) return this.__queryBuild__;
+   buildCache() {
+      if (this.__buildCache__) return this.__buildCache__;
 
-      const context = new SqlQueryContext({ mode: "root" });
+      const context = new SqlQueryContext({ queryName: this.name });
       try {
-         const { values, strings } = this.build(context);
-         this.__queryBuild__ = {
-            strings,
-            values: values ?? [],
+         this.build(context);
+         this.__buildCache__ = {
+            strings: context.strings,
+            values: context.values,
          };
-         return this.__queryBuild__;
+         return this.__buildCache__;
       } catch (err) {
          logger.error({ err, context, rawStrings: this.rawStrings }, "Error building query");
          throw err;
@@ -145,20 +130,29 @@ export class SqlQuery<
     * Executes the query and returns the result
     * @param args
     */
-   async run<TClient extends SqlClient>(...args: SqlRunArgs<TClient, TParams>): Promise<QueryResult<TRow>> {
-      const [client, params] = args;
+   async run<TDbClient extends SqlClient>(...args: SqlRunArgs<TDbClient, TParams>): Promise<QueryResult<TRow>> {
+      const [opts, params] = args;
+      const { db, config: { debug } = {} } = isSqlRunOptions(opts) ? opts : { db: opts };
       const _args_: SqlValuesArgs<TParams> = [params] as SqlValuesArgs<TParams>;
-      return client.query<TRow>({
-         text: this.getText(..._args_),
-         values: this.getValues(..._args_),
-      });
+      try {
+         return db.query<TRow>({
+            text: this.text(..._args_),
+            values: this.values(..._args_),
+         });
+      } catch (err) {
+         if (debug) {
+            console.debug(this.__buildCache__);
+         }
+
+         throw err;
+      }
    }
 
    /**
     * Executes the query and returns exactly one row, or throw error when result not found or more
     * @param args
     */
-   async one<TClient extends SqlClient>(...args: SqlRunArgs<TClient, TParams>): Promise<TRow> {
+   async getOneRequired<TClient extends SqlClient>(...args: SqlRunArgs<TClient, TParams>): Promise<TRow> {
       const rows = await this.run(...args).then((res) => res.rows);
       ok(rows.length === 1, `Expected one row, actual is ${rows.length} rows.`);
       ok(rows[0], `The one row in result is not defined: ${rows[0]}`);
@@ -169,7 +163,7 @@ export class SqlQuery<
     * Executes the query and returns the first row, or undefined when no rows found
     * @param args
     */
-   async any<TClient extends SqlClient>(...args: SqlRunArgs<TClient, TParams>): Promise<TRow | undefined> {
+   async getOneOptional<TClient extends SqlClient>(...args: SqlRunArgs<TClient, TParams>): Promise<TRow | undefined> {
       return this.run(...args).then((res) => (res.rows.length > 0 ? res.rows[0] : undefined));
    }
 
@@ -177,7 +171,7 @@ export class SqlQuery<
     * Executes the query and returns all rows
     * @param args
     */
-   async many<TClient extends SqlClient>(...args: SqlRunArgs<TClient, TParams>): Promise<TRow[]> {
+   async getAll<TClient extends SqlClient>(...args: SqlRunArgs<TClient, TParams>): Promise<TRow[]> {
       return this.run(...args).then((res) => res.rows);
    }
 
@@ -185,90 +179,81 @@ export class SqlQuery<
     * Build the query using the context
     * @param context
     */
-   build(context: SqlQueryContext): SqlBuild {
-      context.queryCount++;
+   build(context: SqlQueryContext) {
+      context.queryLevel++;
+      context.queryName = this.name;
 
       switch (context.keyword) {
          case "join":
          case "from": {
-            const build = this.internalBuild(context);
-            return {
-               strings: ["(", ...build.strings, ")", ` "${this.name}"`],
-               values: build.values,
-            };
+            context.strings.push("(");
+            this.internalBuild(context);
+            context.strings.push(")", ` "${this.name}"`);
+            break;
+         }
+         case "fn": {
+            context.strings.push(`"${this.name}"`);
+            break;
          }
          default: {
-            return this.internalBuild(context);
+            this.internalBuild(context);
+            break;
          }
       }
    }
 
-   private internalBuild(context: SqlQueryContext): SqlBuild {
-      const strings: string[] = [];
-      const values = [];
+   private internalBuild(context: SqlQueryContext) {
       const children = [...this.rawValues];
+      const { strings, values } = context;
       let i = -1;
-      while (children.length) {
+      while (children.length || i < this.rawStrings.length) {
          i++;
+         const rawString = i < this.rawStrings.length ? this.rawStrings[i] : undefined;
+         if (rawString) {
+            strings.push(rawString);
+            context.next(rawString);
+         }
+
+         if (!children.length) break;
+
          const child = children.shift();
-         const rawString = this.rawStrings[i];
-         ok(rawString, `Raw string expected as position ${i}`);
-         strings.push(rawString);
-         context.next(rawString);
-         context.mode = "child";
 
-         try {
+         function buildItem(item: unknown, delimiter = "") {
+            const addString = (text: string) => `${text}${delimiter}`;
             switch (true) {
-               case Array.isArray(child): {
-                  for (let j = 0, item = child[0]; j < child.length; j++, item = child[j]) {
-                     if (j > 0) {
-                        strings.push(", ");
-                     }
-
-                     switch (true) {
-                        case item instanceof Sql: {
-                           const childBuild = item.build(context);
-                           strings.push(...childBuild.strings);
-                           if (childBuild.values?.length) values.push(...childBuild.values);
-                           break;
-                        }
-                        case item instanceof SqlParam:
-                           values.push(item);
-                           strings.push(item.wildcard);
-                           break;
-                        default:
-                           // sql statement params
-                           values.push(item);
-                           strings.push(WILDCARD);
-                           break;
-                     }
-                  }
+               case item instanceof Sql:
+                  item.build(context, { onAddString: addString });
                   break;
-               }
-               case child instanceof Sql: {
-                  const childBuild = child.build(context);
-                  strings.push(...childBuild.strings);
-                  if (childBuild.values?.length) values.push(...childBuild.values);
-                  break;
-               }
-               case child instanceof SqlParam:
-                  values.push(child);
-                  strings.push(child.wildcard);
+               case !item:
+                  values.push(item);
+                  strings.push(addString(WILDCARD));
                   break;
                default:
-                  values.push(child);
-                  strings.push(WILDCARD);
+                  values.push(item);
+                  strings.push(addString(WILDCARD));
                   break;
             }
+         }
+
+         try {
+            if (Array.isArray(child)) {
+               for (let k = 0; k < child.length; k++) {
+                  if (k > 0) {
+                     strings.push(", ");
+                  }
+
+                  buildItem(child[k]);
+               }
+            } else {
+               buildItem(child);
+            }
          } catch (err) {
-            logger.error({ err, context: context, rawString, strings }, "Query context");
+            logger.error(
+               { err, context: context, rawString, child: child instanceof Sql ? child : "xxx" },
+               "Query context",
+            );
             throw err;
          }
       }
-
-      return {
-         strings,
-         values,
-      };
    }
 }

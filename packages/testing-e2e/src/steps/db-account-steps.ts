@@ -1,6 +1,6 @@
 import { Then, When } from "@cucumber/cucumber";
 import { TestWorld } from "../test-world.js";
-import { Account, Order, sql } from "../db.js";
+import { Account, Order, pool, sql } from "../db.js";
 import { AccountStatusUdt } from "../codegen/one_sql-enums.js";
 import crypto from "node:crypto";
 import { IAccountSelect } from "../codegen/one_sql.account-table.js";
@@ -9,16 +9,16 @@ import { AccountWithOrders } from "../types/index.js";
 
 When(/^Inserting a new Account$/, async function (this: TestWorld) {
    const id = crypto.randomUUID().slice(0, 4);
-   const [newAccount] = await sql<IAccountSelect[]>`
+   const newAccount = await sql<IAccountSelect>`
       insert into ${Account}
-         ${Account.$values({
+         ${Account.$$values({
             status: AccountStatusUdt.CREATED,
             firstName: `John-${id}`,
             lastName: `Doe-${id}`,
             email: `john.doe-${id}}@example.com`,
          })}
-         returning ${Account.$all}
-   `;
+         returning ${Account.$.all}
+   `.getOneRequired(pool);
 
    ok(newAccount?.accountId, "new accountId is required");
    this.accountInserted = newAccount;
@@ -27,10 +27,11 @@ When(/^Inserting a new Account$/, async function (this: TestWorld) {
 Then(/^Fetch newly inserted Account$/, async function (this: TestWorld) {
    ok(this.accountInserted?.accountId, "accountId is required");
 
-   const [account] = await sql<IAccountSelect[]>`
-      select ${Account.$all}
+   const account = await sql<IAccountSelect>`
+      select ${Account.$.all}
       from ${Account}
-      where ${Account.accountId} = ${this.accountInserted.accountId}`;
+      where ${Account.accountId} = ${this.accountInserted.accountId}
+   `.getOneRequired(pool);
 
    deepStrictEqual(account, this.accountInserted);
 });
@@ -38,23 +39,28 @@ Then(/^Fetch newly inserted Account$/, async function (this: TestWorld) {
 When(
    /^Fetch top (\d+) accounts including their orders aggregated as json array$/,
    async function (this: TestWorld, countOfAccounts: number) {
-      const accountsWithOrders = await sql<AccountWithOrders[]>`
-         select ${Account.$all},
+      const Orders = sql<AccountWithOrders["orders"][number]>`
+         select ${Order.orderId}, ${Order.createdAt}, ${Order.status}, ${Order.accountId}
+         from ${Order}
+         where ${Order.accountId} = ${Account.accountId}
+         order by ${Order.createdAt} desc
+         limit ${countOfAccounts}
+      `;
+
+      const findAccounts = sql<AccountWithOrders>`
+         select ${Account.$.all},
                 coalesce(
-                      jsonb_agg(orders.*) filter (where orders.* is not null),
+                      jsonb_agg(${Orders.ROW.$.all}) filter (where ${Orders.ROW.$.all} is not null),
                       '[]'
                 ) as orders
          from ${Account}
-                 left join lateral (
-            select ${Order.orderId}, ${Order.createdAt}, ${Order.status}, ${Order.accountId}
-            from ${Order}
-            where ${Order.accountId} = ${Account.accountId}
-            order by ${Order.createdAt} desc
-            limit ${countOfAccounts} -- Get only the 5 most recent orders
-            ) orders ON true
-         where orders is not null
+                 left join lateral ${Orders} ON true
          group by ${Account.accountId}
-         order by ${Account.createdAt} desc`;
+         order by ${Account.createdAt} desc
+      `;
+      this.log(findAccounts.text());
+
+      const accountsWithOrders = await findAccounts.getAll(pool);
 
       ok(accountsWithOrders?.length, "accounts are required");
       this.accountsWithOrders = accountsWithOrders;

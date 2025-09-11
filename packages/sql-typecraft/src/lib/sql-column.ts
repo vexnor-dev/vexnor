@@ -1,6 +1,5 @@
 import { SqlQueryContext } from "./sql-query-context.js";
-import { Sql } from "./sql-base.js";
-import { SqlBuild } from "./sql-types.js";
+import { Sql, SqlBuildOptions } from "./sql-base.js";
 
 export interface SqlColumnOptions {
    readonly name: string;
@@ -46,7 +45,7 @@ export class SqlColumn extends Sql {
       });
    }
 
-   build({ keyword }: SqlQueryContext): SqlBuild {
+   build({ keyword, strings }: SqlQueryContext, options?: SqlBuildOptions) {
       /**
        * Quotes text when different from "*".
        * Used for controlling quoting for column names
@@ -64,41 +63,67 @@ export class SqlColumn extends Sql {
          return `${__q__(text)}`;
       }
 
-      if (this.format) {
-         switch (this.format) {
-            case "table.name":
-               return { strings: [`${q(this.table)}.${q(this.name)}`] };
-            case "name":
-               return { strings: [`${q(this.name)}`] };
-            case "table.alias":
-               return { strings: [`${q(this.table)}."${this.alias ?? this.name}"`] };
-            case "alias":
-               return { strings: [`"${this.alias ?? this.name}"`] };
+      function push(...tokens: string[]) {
+         if (options?.onAddString) {
+            strings.push(...tokens.map(options.onAddString));
+            return;
          }
+
+         strings.push(...tokens);
+      }
+
+      switch (this.format) {
+         case "table.name":
+            return push(`${q(this.table)}.${q(this.name)}`);
+         case "name":
+            return push(`${q(this.name)}`);
+         case "table.alias":
+            return push(`${q(this.table)}."${q(this.alias ?? this.name)}`);
+         case "alias":
+            return push(`${q(this.alias ?? this.name)}`);
       }
 
       switch (keyword) {
          case "select": {
-            if (this.alias === this.name || !this.alias) return { strings: [`${q(this.table)}.${q(this.name)}`] };
-            return { strings: [`${q(this.table)}.${q(this.name)} ${q(this.alias)}`] };
+            if (this.alias === this.name || !this.alias) {
+               push(`${q(this.table)}.${q(this.name)}`);
+               break;
+            }
+
+            push(`${q(this.table)}.${q(this.name)} ${q(this.alias)}`);
+            break;
          }
          case "returning":
-            if (this.alias === this.name || !this.alias) return { strings: [`${q(this.name)}`] };
-            return { strings: [`${q(this.name)} ${q(this.alias)}`] };
+            if (this.alias === this.name || !this.alias) {
+               push(`${q(this.name)}`);
+               break;
+            }
+
+            push(`${q(this.name)} ${q(this.alias)}`);
+            break;
          case "fn":
-            return { strings: [`${q(this.table)}.${q(this.name)}`] };
+            push(`${q(this.table)}.${q(this.name)}`);
+            break;
          case "where":
-            return { strings: [`${q(this.table)}.${q(this.name)}`] };
+            push(`${q(this.table)}.${q(this.name)}`);
+            break;
          case "on":
-            return { strings: [`${q(this.table)}.${q(this.name)}`] };
+            push(`${q(this.table)}.${q(this.name)}`);
+            break;
          case "insert":
-            return { strings: [`${q(this.name)}`] };
+            push(`${q(this.name)}`);
+            break;
          case "values":
-            return { strings: [`${q(this.name)}`] };
+            push(`${q(this.name)}`);
+            break;
          case "set":
-            return { strings: [`${q(this.name)}`] };
+            push(`${q(this.name)}`);
+            break;
+         case "group by":
+            push(`${q(this.table)}.${q(this.name)}`);
+            break;
          default:
-            throw new TypeError(`Unknown command: ${keyword}`);
+            throw new TypeError(`Unknown SQL context keyword: ${keyword}`);
       }
    }
 }

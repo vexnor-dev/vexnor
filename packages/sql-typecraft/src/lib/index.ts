@@ -5,6 +5,6 @@ export * from "./sql-column.js";
 export * from "./types.js";
 export * from "./sql-types.js";
 export * from "./sql-param.js";
-export * from "./sql-json-agg.js";
 export * from "./sql-query.js";
 export * from "./sql-client.js";
+export * from "./plugins/index.js";

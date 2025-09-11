@@ -10,7 +10,7 @@ import {
    OneSqlSchema,
    OrderStatusUdt,
 } from "./codegen/one_sql.schema.js";
-import { jsonAgg, param, sql } from "sql-typecraft";
+import { param, sql } from "sql-typecraft";
 
 const { Account, Order } = OneSqlSchema;
 
@@ -23,30 +23,30 @@ const pool = new Pool({
 const id = crypto.randomUUID().slice(0, 4);
 const newAccount = await sql<IAccountSelect>`
    insert into ${Account}
-      ${Account.$values({
+      ${Account.$$values({
          status: AccountStatusUdt.CREATED,
          firstName: `John_${id}`,
          lastName: `Doe_${id}`,
          email: `john.doe_${id}@example.com`,
       })}
-      returning ${Account.$all}
-`.one(pool);
+      returning ${Account.$.all}
+`.getOneRequired(pool);
 console.log("new account:", newAccount);
 ok(newAccount?.accountId, "accountId is required");
 
 const findAccountById = sql<IAccountSelect, { accountId: string }>`
-   select ${Account.$all}
+   select ${Account.$.all}
    from ${Account}
    where ${Account.accountId} = ${param("accountId")}
 `;
-const account = await findAccountById.one(pool, {
+const account = await findAccountById.getOneRequired(pool, {
    accountId: newAccount.accountId,
 });
 console.log(`account (id=${newAccount.accountId}`, account);
 
 const newOrders = await sql<IOrderSelect>`
    INSERT INTO ${Order}
-      ${Order.$values(
+      ${Order.$$values(
          {
             accountId: newAccount.accountId,
             status: OrderStatusUdt.CREATED,
@@ -60,42 +60,40 @@ const newOrders = await sql<IOrderSelect>`
             modifiedAt: new Date(),
          },
       )}
-      RETURNING ${Order.$all}
-`.many(pool);
+      RETURNING ${Order.$.all}
+`.getAll(pool);
 ok(newOrders?.length);
 
 const accountUpdated = await sql<IAccountSelect>`
    update ${Account}
-   set ${Account.$set({
+   set ${Account.$$set({
       status: AccountStatusUdt.CONFIRMED,
    })}
    where ${Account.accountId} = ${newAccount.accountId}
-   returning ${Account.$all}
-`.one(pool);
+   returning ${Account.$.all}
+`.getOneRequired(pool);
 console.log("account updated:", accountUpdated);
 
 type IAccountWithOrders = IAccountSelect & {
    orders: Pick<IOrderJson, "orderId" | "createdAt" | "status">[];
 };
 
-const jsonAccountOrders = jsonAgg({
-   name: "orders",
-   select: sql<IOrderSelect, { limit: number }>`SELECT ${Order.orderId}, ${Order.createdAt}, ${Order.status}
-                                                FROM ${Order}
-                                                WHERE ${Order.accountId} = ${Account.accountId}
-                                                ORDER BY ${Order.createdAt} DESC
-                                                LIMIT ${param("limit")}`,
-});
+const UserOrders = sql<IOrderSelect, { limit: number }>`
+   SELECT ${Order.orderId}, ${Order.createdAt}, ${Order.status}
+   FROM ${Order}
+   WHERE ${Order.accountId} = ${Account.accountId}
+   ORDER BY ${Order.createdAt} DESC
+   LIMIT ${param("limit")}`;
 
-const findAccountsWithOrders = sql<IAccountWithOrders>`
-   SELECT ${Account.$all},
-          ${jsonAccountOrders}
+const findAccountsWithOrders = sql<IAccountWithOrders, { limit: number }>`
+   SELECT ${Account.$.all},
+          ${UserOrders} "orders"
    FROM ${Account}
-           LEFT JOIN LATERAL ${jsonAccountOrders}
+           LEFT JOIN LATERAL (${UserOrders})
    WHERE ${Account.accountId} = ${newAccount.accountId}
    GROUP BY ${Account.accountId}`;
 
-const accountWithLimitedOrders = await findAccountsWithOrders.one(pool, {
+const accountWithLimitedOrders = await findAccountsWithOrders.getOneRequired(pool, {
    limit: 1,
 });
 

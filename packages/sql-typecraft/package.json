@@ -7,11 +7,13 @@
    "main": "dist/lib/index.js",
    "types": "dist/lib/index.d.ts",
    "keywords": [
-      "sql/-typecraft",
-      "postgres sql",
-      "sql",
+      "sql-typecraft",
       "postgres",
+      "sql",
       "postgres.js",
+      "pg",
+      "mssql",
+      "mysql",
       "strongly typed sql",
       "query builder",
       "orm"
@@ -35,7 +37,10 @@
       "build:1-template-2": "copyfiles -f ./src/lib/types.ts ./dist/@templates",
       "build:2-tsc": "tsc -b",
       "prepack:1-copy-readme": "copyfiles -f \"../../README.md\" .",
-      "prepack": "run-s 'build' 'prepack:*'"
+      "prepack": "run-s 'build' 'prepack:*'",
+      "test": "vitest run",
+      "test:watch": "vitest --watch",
+      "test:run": "vitest run"
    },
    "files": [
       "dist",
@@ -51,8 +56,7 @@
    },
    "devDependencies": {
       "@types/pg": "^8.15.5",
-      "vite": "^7.1.4",
-      "vite-node": "^2.1.9"
+      "vite": "^7.1.4"
    },
    "optionalDependencies": {
       "pg": "^8.16.3",

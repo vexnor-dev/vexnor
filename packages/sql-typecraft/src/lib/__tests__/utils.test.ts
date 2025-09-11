@@ -6,6 +6,6 @@ describe("trim() suite", () => {
       const actual = trim(`
       hello
       world`);
-      expect(actual).toBe(`hello\n world`);
+      expect(actual).toBe(`hello world`);
    });
 });

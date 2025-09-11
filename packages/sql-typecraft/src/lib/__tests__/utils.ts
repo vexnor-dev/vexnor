@@ -9,5 +9,7 @@ export function trim(strings: TemplateStringsArray | string, ...values: never[])
       return strings.join("");
    })
       .replace(/\s+/g, " ")
+      .replace("( ", "(")
+      .replace(" )", ")")
       .trim();
 }
