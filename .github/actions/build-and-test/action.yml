@@ -32,17 +32,13 @@ runs:
         restore-keys: |
           ${{ runner.os }}-pnpm-
 
-    - name: Install dependencies (1)
+    - name: Install dependencies
       run: pnpm install --frozen-lockfile
       shell: bash
 
-    - name: Build sql-typecraft
-      id: build-sql-typecraft
-      run: pnpm --filter='./packages/sql-typecraft' run build
-      shell: bash
-
-    - name: Install dependencies (2)
-      run: pnpm install --frozen-lockfile
+    - name: Build
+      id: build
+      run: pnpm run build
       shell: bash
 
     - name: Wait for Postgres

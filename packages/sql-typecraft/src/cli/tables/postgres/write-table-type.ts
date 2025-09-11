@@ -13,13 +13,13 @@ export function writeTableType(writer: CodeBlockWriter.default, { table }: Print
       .write(`export interface I${tableTypeName} `)
       .inlineBlock(() => {
          if (primary_key) {
-            writer.writeLine(`$pk: postgres.Helper<"${primary_key}">, `);
+            writer.writeLine(`$$pk: postgres.Helper<"${primary_key}">, `);
          }
 
-         writer.writeLine(`$table: "${table_name}",`);
+         writer.writeLine(`$$table: "${table_name}",`);
          // writer.writeLine(`$from: postgres.Helper<"${table_schema}.${table_name}">,`);
          writer.writeLine(
-            `$all: postgres.Helper<["${table_columns.map((col) => `${table_name}.${col.column_name}`).join(`", "`)}"]>,`,
+            `$$all: postgres.Helper<["${table_columns.map((col) => `${table_name}.${col.column_name}`).join(`", "`)}"]>,`,
          );
 
          table_columns.forEach((col) => {
@@ -34,8 +34,8 @@ export function writeTableType(writer: CodeBlockWriter.default, { table }: Print
                .writeLine(`${alias}: postgres.Helper<"${table_name}.${col.column_name}">,`);
          });
 
-         writer.writeLine(`$values(...values: ${tableTypeInsert}[]): postgres.Helper<${tableTypeInsert}[], []>`);
-         writer.writeLine(`$set(value: ${tableTypeUpdate}): postgres.Helper<${tableTypeUpdate}, []>`);
+         writer.writeLine(`$$values(...values: ${tableTypeInsert}[]): postgres.Helper<${tableTypeInsert}[], []>`);
+         writer.writeLine(`$$set(value: ${tableTypeUpdate}): postgres.Helper<${tableTypeUpdate}, []>`);
       })
       .blankLine();
 
@@ -49,23 +49,23 @@ export function writeTableType(writer: CodeBlockWriter.default, { table }: Print
             .write(`const obj: I${tableTypeName} = `)
             .inlineBlock(() => {
                if (primary_key) {
-                  writer.writeLine(`$pk: sql("${primary_key}"), `);
+                  writer.writeLine(`$$pk: sql("${primary_key}"), `);
                }
 
-               writer.writeLine(`$table: "${table_name}",`);
+               writer.writeLine(`$$table: "${table_name}",`);
                // writer.writeLine(`$from: sql("${table_schema}.${table_name}"),`);
                writer.writeLine(
-                  `$all: sql(["${table_columns.map((col) => `${table_name}.${col.column_name}`).join(`", "`)}"]),`,
+                  `$$all: sql(["${table_columns.map((col) => `${table_name}.${col.column_name}`).join(`", "`)}"]),`,
                );
                writer
-                  .write(`$values(...values: ${tableTypeInsert}[])`)
+                  .write(`$$values(...values: ${tableTypeInsert}[])`)
                   .inlineBlock(() => {
                      writer.writeLine(`return sql<${tableTypeInsert}[], []>(values);`);
                   })
                   .write(",")
                   .blankLine();
                writer
-                  .write(`$set(value: ${tableTypeUpdate})`)
+                  .write(`$$set(value: ${tableTypeUpdate})`)
                   .inlineBlock(() => {
                      writer.writeLine(`return sql<${tableTypeUpdate}, []>(value);`);
                   })

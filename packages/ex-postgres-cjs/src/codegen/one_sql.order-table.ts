@@ -4,81 +4,81 @@ import * as lib from "./postgres-library.js";
 import * as udt from "./one_sql-enums.js";
 
 export interface IOrder {
-   $pk: postgres.Helper<"order_pk">;
-   $table: "order";
-   $all: postgres.Helper<
-      ["order.order_id", "order.status", "order.created_at", "order.modified_at", "order.account_id"]
-   >;
+   $$pk: postgres.Helper<"order_pk">, 
+   $$table: "order",
+   $$all: postgres.Helper<["order.order_id", "order.status", "order.created_at", "order.modified_at", "order.account_id"]>,
 
    /**
     * order_id uuid default gen_random_uuid()
-    */
-   orderId: postgres.Helper<"order.order_id">;
+   */
+   orderId: postgres.Helper<"order.order_id">,
 
    /**
     * status order_status default 'created'::one_sql.order_status
-    */
-   status: postgres.Helper<"order.status">;
+   */
+   status: postgres.Helper<"order.status">,
 
    /**
     * created_at timestamptz
-    */
-   createdAt: postgres.Helper<"order.created_at">;
+   */
+   createdAt: postgres.Helper<"order.created_at">,
 
    /**
     * modified_at timestamptz
-    */
-   modifiedAt: postgres.Helper<"order.modified_at">;
+   */
+   modifiedAt: postgres.Helper<"order.modified_at">,
 
    /**
     * account_id uuid
-    */
-   accountId: postgres.Helper<"order.account_id">;
-   $values(...values: IOrderInsert[]): postgres.Helper<IOrderInsert[], []>;
-   $set(value: IOrderUpdate): postgres.Helper<IOrderUpdate, []>;
+   */
+   accountId: postgres.Helper<"order.account_id">,
+   $$values(...values: IOrderInsert[]): postgres.Helper<IOrderInsert[], []>
+   $$set(value: IOrderUpdate): postgres.Helper<IOrderUpdate, []>
 }
 
 export function newOrder(sql: postgres.Sql): IOrder & postgres.Helper<"one_sql.order"> {
    const obj: IOrder = {
-      $pk: sql("order_pk"),
-      $table: "order",
-      $all: sql(["order.order_id", "order.status", "order.created_at", "order.modified_at", "order.account_id"]),
-      $values(...values: IOrderInsert[]) {
+      $$pk: sql("order_pk"), 
+      $$table: "order",
+      $$all: sql(["order.order_id", "order.status", "order.created_at", "order.modified_at", "order.account_id"]),
+      $$values(...values: IOrderInsert[]){
          return sql<IOrderInsert[], []>(values);
       },
 
-      $set(value: IOrderUpdate) {
+      $$set(value: IOrderUpdate){
          return sql<IOrderUpdate, []>(value);
       },
 
+
       /**
        * order_id uuid default gen_random_uuid()
-       */
+      */
       orderId: sql("order.order_id"),
 
       /**
        * status order_status default 'created'::one_sql.order_status
-       */
+      */
       status: sql("order.status"),
 
       /**
        * created_at timestamptz
-       */
+      */
       createdAt: sql("order.created_at"),
 
       /**
        * modified_at timestamptz
-       */
+      */
       modifiedAt: sql("order.modified_at"),
 
       /**
        * account_id uuid
-       */
+      */
       accountId: sql("order.account_id"),
    };
    const from = sql("one_sql.order");
    return Object.assign(from, obj);
 }
+
 
 export type IOrderInsert = {
    orderId?: string;
@@ -86,16 +86,16 @@ export type IOrderInsert = {
    createdAt: Date;
    modifiedAt: Date;
    accountId: string;
-};
+}
 
 export type IOrderUpdate = Partial<IOrderInsert>;
 
 export type IOrderSelect = {
-   readonly orderId: string;
-   readonly status: udt.OrderStatusUdt;
-   readonly createdAt: Date;
-   readonly modifiedAt: Date;
-   readonly accountId: string;
-};
+   readonly orderId: string
+   readonly status: udt.OrderStatusUdt
+   readonly createdAt: Date
+   readonly modifiedAt: Date
+   readonly accountId: string
+}
 
 export type IOrderJson = lib.JsonRow<IOrderSelect>;

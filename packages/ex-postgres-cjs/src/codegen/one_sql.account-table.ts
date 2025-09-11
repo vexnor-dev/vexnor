@@ -4,129 +4,111 @@ import * as lib from "./postgres-library.js";
 import * as udt from "./one_sql-enums.js";
 
 export interface IAccount {
-   $pk: postgres.Helper<"account_pk">;
-   $table: "account";
-   $all: postgres.Helper<
-      [
-         "account.first_name",
-         "account.account_id",
-         "account.status",
-         "account.created_at",
-         "account.modified_at",
-         "account.last_name",
-         "account.notes",
-         "account.email",
-      ]
-   >;
+   $$pk: postgres.Helper<"account_pk">, 
+   $$table: "account",
+   $$all: postgres.Helper<["account.first_name", "account.account_id", "account.status", "account.created_at", "account.modified_at", "account.last_name", "account.notes", "account.email"]>,
 
    /**
     * first_name varchar
-    */
-   firstName: postgres.Helper<"account.first_name">;
+   */
+   firstName: postgres.Helper<"account.first_name">,
 
    /**
     * account_id uuid default gen_random_uuid()
-    */
-   accountId: postgres.Helper<"account.account_id">;
+   */
+   accountId: postgres.Helper<"account.account_id">,
 
    /**
     * status account_status default 'created'::one_sql.account_status
-    */
-   status: postgres.Helper<"account.status">;
+   */
+   status: postgres.Helper<"account.status">,
 
    /**
     * created_at timestamptz default now()
-    */
-   createdAt: postgres.Helper<"account.created_at">;
+   */
+   createdAt: postgres.Helper<"account.created_at">,
 
    /**
     * modified_at timestamptz default now()
-    */
-   modifiedAt: postgres.Helper<"account.modified_at">;
+   */
+   modifiedAt: postgres.Helper<"account.modified_at">,
 
    /**
     * last_name varchar
-    */
-   lastName: postgres.Helper<"account.last_name">;
+   */
+   lastName: postgres.Helper<"account.last_name">,
 
    /**
     * notes text
-    */
-   notes: postgres.Helper<"account.notes">;
+   */
+   notes: postgres.Helper<"account.notes">,
 
    /**
     * email varchar
-    */
-   email: postgres.Helper<"account.email">;
-   $values(...values: IAccountInsert[]): postgres.Helper<IAccountInsert[], []>;
-   $set(value: IAccountUpdate): postgres.Helper<IAccountUpdate, []>;
+   */
+   email: postgres.Helper<"account.email">,
+   $$values(...values: IAccountInsert[]): postgres.Helper<IAccountInsert[], []>
+   $$set(value: IAccountUpdate): postgres.Helper<IAccountUpdate, []>
 }
 
 export function newAccount(sql: postgres.Sql): IAccount & postgres.Helper<"one_sql.account"> {
    const obj: IAccount = {
-      $pk: sql("account_pk"),
-      $table: "account",
-      $all: sql([
-         "account.first_name",
-         "account.account_id",
-         "account.status",
-         "account.created_at",
-         "account.modified_at",
-         "account.last_name",
-         "account.notes",
-         "account.email",
-      ]),
-      $values(...values: IAccountInsert[]) {
+      $$pk: sql("account_pk"), 
+      $$table: "account",
+      $$all: sql(["account.first_name", "account.account_id", "account.status", "account.created_at", "account.modified_at", "account.last_name", "account.notes", "account.email"]),
+      $$values(...values: IAccountInsert[]){
          return sql<IAccountInsert[], []>(values);
       },
 
-      $set(value: IAccountUpdate) {
+      $$set(value: IAccountUpdate){
          return sql<IAccountUpdate, []>(value);
       },
 
+
       /**
        * first_name varchar
-       */
+      */
       firstName: sql("account.first_name"),
 
       /**
        * account_id uuid default gen_random_uuid()
-       */
+      */
       accountId: sql("account.account_id"),
 
       /**
        * status account_status default 'created'::one_sql.account_status
-       */
+      */
       status: sql("account.status"),
 
       /**
        * created_at timestamptz default now()
-       */
+      */
       createdAt: sql("account.created_at"),
 
       /**
        * modified_at timestamptz default now()
-       */
+      */
       modifiedAt: sql("account.modified_at"),
 
       /**
        * last_name varchar
-       */
+      */
       lastName: sql("account.last_name"),
 
       /**
        * notes text
-       */
+      */
       notes: sql("account.notes"),
 
       /**
        * email varchar
-       */
+      */
       email: sql("account.email"),
    };
    const from = sql("one_sql.account");
    return Object.assign(from, obj);
 }
+
 
 export type IAccountInsert = {
    firstName: string;
@@ -137,19 +119,19 @@ export type IAccountInsert = {
    lastName: string;
    notes?: string | null;
    email: string;
-};
+}
 
 export type IAccountUpdate = Partial<IAccountInsert>;
 
 export type IAccountSelect = {
-   readonly firstName: string;
-   readonly accountId: string;
-   readonly status: udt.AccountStatusUdt;
-   readonly createdAt: Date;
-   readonly modifiedAt: Date;
-   readonly lastName: string;
-   readonly notes: string | null;
-   readonly email: string;
-};
+   readonly firstName: string
+   readonly accountId: string
+   readonly status: udt.AccountStatusUdt
+   readonly createdAt: Date
+   readonly modifiedAt: Date
+   readonly lastName: string
+   readonly notes: string | null
+   readonly email: string
+}
 
 export type IAccountJson = lib.JsonRow<IAccountSelect>;

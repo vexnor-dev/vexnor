@@ -26,7 +26,7 @@ async function main() {
 
    const [newAccount] = await sql`
       insert into ${Account}
-         ${Account.$values({
+         ${Account.$$values({
             firstName: `John_${id}`,
             lastName: `Doe_${id}`,
             email: `test_${id}@example.com`,
@@ -39,7 +39,7 @@ async function main() {
 
    const newOrders = await sql`
       insert into ${Order}
-         ${Order.$values(
+         ${Order.$$values(
             {
                accountId: newAccount.accountId,
                status: OrderStatusUdt.CREATED,
@@ -59,7 +59,7 @@ async function main() {
 
    const [accountUpdated] = await sql`
       update ${Account}
-      set ${Account.$set({
+      set ${Account.$$set({
          status: AccountStatusUdt.CONFIRMED,
       })}
       where ${Account.accountId} = ${newAccount.accountId}
@@ -74,7 +74,7 @@ async function main() {
    const [accountWithLimitedOrders] = await sql<AccountWithOrders[]>`
       SELECT ${Account.$$all},
              COALESCE(
-                   jsonb_agg(orders.*) FILTER (WHERE orders.* IS NOT NULL),
+                   jsonb_agg(orders.*) FILTER (WHERE orders IS NOT NULL),
                    '[]'
              ) as orders
       FROM ${Account}

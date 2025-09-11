@@ -22,7 +22,8 @@
     "format": "prettier --write \"./packages/**/*.{js,ts,jsx,tsx,json,md,yml,yaml}\"",
     "build": "run-s 'build:*'",
     "build:1": "pnpm --filter './packages/sql-typecraft' run build",
-    "build:2": "pnpm --filter '!./packages/sql-typecraft' run build",
+    "build:2-install": "pnpm install --frozen-lockfile",
+    "build:3": "pnpm --filter '!./packages/sql-typecraft' run build",
     "test": "run-s 'test:*'",
     "test:1-vitest": "vitest run",
     "test:2-testing-e2e": "pnpm --filter './packages/testing-e2e' run test"
