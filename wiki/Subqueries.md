@@ -14,16 +14,16 @@ import { Users, IUsersSelect } from "./codegen/users";
 
 // Create a reusable subquery
 const UsersInCity = sql<IUsersSelect, { city: string }>`
-    SELECT ${Users.$all}
+    SELECT ${Users.$$all}
     FROM ${Users}
     WHERE ${Users.city} = ${param("city")}
 `;
 
 // Compose it into a larger query with additional filtering
 const query = sql<IUsersSelect, { age: number; city: string }>`
-    SELECT ${UsersInCity.$all}
+    SELECT ${UsersInCity.$$all}
     FROM (${UsersInCity})
-    WHERE ${UsersInCity.row.age} > ${param("age")}
+    WHERE ${UsersInCity.ROW.age} > ${param("age")}
 `;
 
 // Execute with all required parameters
@@ -42,16 +42,16 @@ When using subqueries, the parent query must include **all parameters** from all
 ```typescript
 // Subquery requires { city: string }
 const UsersInCity = sql<IUsersSelect, { city: string }>`
-    SELECT ${Users.$all}
+    SELECT ${Users.$$all}
     FROM ${Users}
     WHERE ${Users.city} = ${param("city")}
 `;
 
 // Parent query must include both { age: number } AND { city: string }
 const query = sql<IUsersSelect, { age: number; city: string }>`
-    SELECT ${UsersInCity.$all}
+    SELECT ${UsersInCity.$$all}
     FROM (${UsersInCity})
-    WHERE ${UsersInCity.row.age} > ${param("age")}
+    WHERE ${UsersInCity.ROW.age} > ${param("age")}
 `;
 ```
 
@@ -66,13 +66,13 @@ Use the `Sql<TRow, TParams>` type to create reusable query components:
 import {Users} from "./users-model";
 
 const UsersByCity = sql<IUsersSelect, { city: string }>`
-    SELECT ${Users.$all} 
+    SELECT ${Users.$$all} 
     FROM ${Users} 
     WHERE ${Users.city} = ${param("city")}
 `;
 
 const UsersByAge = sql<IUsersSelect, { minAge: number }>`
-    SELECT ${Users.$all} 
+    SELECT ${Users.$$all} 
     FROM ${Users} 
     WHERE ${Users.age} >= ${param("minAge")}
 `;
@@ -82,11 +82,17 @@ const ComplexQuery = sql<IUsersSelect, {
     minAge: number;
     city: string
 }>`
-    SELECT ${UsersByCity.$all}
+    SELECT ${UsersByCity.$$all}
     FROM (${UsersByCity})
         JOIN (${UsersByAge}) on ${UsersByCity.userId} = ${UsersByAge.userId}
-    WHERE ${UsersByCity.row.age} >= ${param("minAge")}
+    WHERE ${UsersByCity.ROW.age} >= ${param("minAge")}
 `;
+
+// Master query using both subqueries
+const results = await ComplexQuery.many(db, {
+    city: "Berlin",
+    minAge: 25
+});
 ```
 
 ## Advanced Composition
@@ -95,15 +101,15 @@ const ComplexQuery = sql<IUsersSelect, {
 
 ```typescript
 const YoungUsers = sql<IUsersSelect, { maxAge: number }>`
-    SELECT ${Users.$all}
+    SELECT ${Users.$$all}
     FROM ${Users}
     WHERE ${Users.age} <= ${param("maxAge")}
 `;
 
 const YoungUsersInCity = sql<IUsersSelect, { maxAge: number; city: string }>`
-    SELECT ${YoungUsers.$all}
+    SELECT ${YoungUsers.$$all}
     FROM (${YoungUsers})
-    WHERE ${YoungUsers.row.city} = ${param("city")}
+    WHERE ${YoungUsers.ROW.city} = ${param("city")}
 `;
 ```
 
@@ -111,16 +117,16 @@ const YoungUsersInCity = sql<IUsersSelect, { maxAge: number; city: string }>`
 
 ```typescript
 function buildUserQuery(includeAllAges: boolean) {
-    const baseQuery = sql<IUsersSelect>`SELECT ${Users.$all} FROM ${Users}`;
+    const baseQuery = sql<IUsersSelect>`SELECT ${Users.$$all} FROM ${Users}`;
     
     if (includeAllAges) {
         return baseQuery;
     }
     
     return sql<IUsersSelect, { minAge: number }>`
-        SELECT ${baseQuery.$all}
+        SELECT ${baseQuery.$$all}
         FROM (${baseQuery}) 
-        WHERE ${baseQuery.row.age} >= ${param("minAge")}
+        WHERE ${baseQuery.ROW.age} >= ${param("minAge")}
     `;
 }
 ```
@@ -143,10 +149,10 @@ function buildUserQuery(includeAllAges: boolean) {
 ```typescript
 // Good: Focused, reusable subqueries
 const UsersInCity = sql<IUsersSelect, { city: string }>`
-    SELECT ${Users.$all} FROM ${Users} WHERE ${Users.city} = ${param("city")}
+    SELECT ${Users.$$all} FROM ${Users} WHERE ${Users.city} = ${param("city")}
 `;
 const UsersByAge = sql<IUsersSelect, { minAge: number }>`
-    SELECT ${Users.$all} FROM ${Users} WHERE ${Users.age} >= ${param("minAge")}
+    SELECT ${Users.$$all} FROM ${Users} WHERE ${Users.age} >= ${param("minAge")}
 `;
 
 // Better: With type aliases
@@ -154,10 +160,10 @@ type CityFilter = { city: string };
 type AgeFilter = { minAge: number };
 
 const UsersInCity = sql<IUsersSelect, CityFilter>`
-    SELECT ${Users.$all} FROM ${Users} WHERE ${Users.city} = ${param("city")}
+    SELECT ${Users.$$all} FROM ${Users} WHERE ${Users.city} = ${param("city")}
 `;
 const UsersByAge = sql<IUsersSelect, AgeFilter>`
-    SELECT ${Users.$all} FROM ${Users} WHERE ${Users.age} >= ${param("minAge")}
+    SELECT ${Users.$$all} FROM ${Users} WHERE ${Users.age} >= ${param("minAge")}
 `;
 ```
 

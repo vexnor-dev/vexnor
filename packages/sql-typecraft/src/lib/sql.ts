@@ -12,7 +12,7 @@ import { Sql } from "./sql-base.js";
  * @example
  * ```ts
  * const query = sql<IUserSelect, { userId: string }>`
- * SELECT ${User.$all} FROM ${User} WHERE ${User.userId} = ${param("userId")}`;
+ * SELECT ${User.$$all} FROM ${User} WHERE ${User.userId} = ${param("userId")}`;
 
  * const result = await query.run(db, { userId: "a1" });
  * ```

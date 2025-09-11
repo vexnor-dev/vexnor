@@ -12,11 +12,14 @@ export class SqlQueryRow {
    get $() {
       return {
          name: new SqlRaw(this.name),
-         all: new SqlColumn({
-            name: "*",
-            table: this.name,
-         }),
       };
+   }
+
+   get $$all() {
+      return new SqlColumn({
+         name: "*",
+         table: this.name,
+      });
    }
 
    static proxyHandler: ProxyHandler<SqlQueryRow> = {
@@ -31,6 +34,8 @@ export class SqlQueryRow {
                return target.toString.bind(target);
             case "$":
                return target.$;
+            case "$$all":
+               return target.$$all;
             default:
                return new SqlColumn({
                   name: prop.toString(),

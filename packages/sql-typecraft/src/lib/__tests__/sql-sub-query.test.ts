@@ -14,7 +14,7 @@ describe("sql subqueries tests", () => {
          where ${Users.city} = ${param("city")}`;
 
       const query = sql<IUsersSelect, { age: number; city: string }>`
-         select ${UsersInCity.ROW.$.all}
+         select ${UsersInCity.ROW.$$all}
          from (${UsersInCity})
          where ${UsersInCity.ROW.age} > ${param("age")}`;
 

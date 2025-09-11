@@ -48,7 +48,7 @@ const newAccount = await sql<IAccountSelect>`
 // build a function that finds an account by 'accountId'.
 // this improves performance since the sql query gets re-used by following calls to db
 const findAccountById = sql<IAccountSelect, { accountId: number }>`
-    SELECT ${Account.$all}
+    SELECT ${Account.$$all}
     FROM ${Account}
     WHERE ${Account.accountId} = ${param("accountId")}
 `

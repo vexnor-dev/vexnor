@@ -50,11 +50,11 @@ When(
       const findAccounts = sql<AccountWithOrders>`
          select ${Account.$$all},
                 coalesce(
-                      jsonb_agg(${Orders.ROW.$.all}) filter (where ${Orders.ROW.$.all} is not null),
+                      jsonb_agg(${Orders.ROW.$$all}) filter (where ${Orders.ROW.$$all} is not null),
                       '[]'
                 ) as orders
          from ${Account}
-                 left join lateral ${Orders} ON true
+                 left join lateral (${Orders}) ON true
          group by ${Account.accountId}
          order by ${Account.createdAt} desc
       `;
