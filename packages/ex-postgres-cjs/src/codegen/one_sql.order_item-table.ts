@@ -3,111 +3,129 @@ import postgres from "postgres";
 import * as lib from "./postgres-library.js";
 
 export interface IOrderItem {
-   $$pk: postgres.Helper<"order_item_pk">, 
-   $$table: "order_item",
-   $$all: postgres.Helper<["order_item.product_price", "order_item.order_item_id", "order_item.quantity", "order_item.discount_price", "order_item.modified_at", "order_item.created_at", "order_item.order_id", "order_item.product_id"]>,
+   $$pk: postgres.Helper<"order_item_pk">;
+   $$table: "order_item";
+   $$all: postgres.Helper<
+      [
+         "order_item.product_price",
+         "order_item.order_item_id",
+         "order_item.quantity",
+         "order_item.discount_price",
+         "order_item.modified_at",
+         "order_item.created_at",
+         "order_item.order_id",
+         "order_item.product_id",
+      ]
+   >;
 
    /**
     * product_price numeric
-   */
-   productPrice: postgres.Helper<"order_item.product_price">,
+    */
+   productPrice: postgres.Helper<"order_item.product_price">;
 
    /**
     * order_item_id uuid default gen_random_uuid()
-   */
-   orderItemId: postgres.Helper<"order_item.order_item_id">,
+    */
+   orderItemId: postgres.Helper<"order_item.order_item_id">;
 
    /**
     * quantity int4
-   */
-   quantity: postgres.Helper<"order_item.quantity">,
+    */
+   quantity: postgres.Helper<"order_item.quantity">;
 
    /**
     * discount_price numeric
-   */
-   discountPrice: postgres.Helper<"order_item.discount_price">,
+    */
+   discountPrice: postgres.Helper<"order_item.discount_price">;
 
    /**
     * modified_at timestamptz
-   */
-   modifiedAt: postgres.Helper<"order_item.modified_at">,
+    */
+   modifiedAt: postgres.Helper<"order_item.modified_at">;
 
    /**
     * created_at timestamptz
-   */
-   createdAt: postgres.Helper<"order_item.created_at">,
+    */
+   createdAt: postgres.Helper<"order_item.created_at">;
 
    /**
     * order_id uuid
-   */
-   orderId: postgres.Helper<"order_item.order_id">,
+    */
+   orderId: postgres.Helper<"order_item.order_id">;
 
    /**
     * product_id uuid
-   */
-   productId: postgres.Helper<"order_item.product_id">,
-   $$values(...values: IOrderItemInsert[]): postgres.Helper<IOrderItemInsert[], []>
-   $$set(value: IOrderItemUpdate): postgres.Helper<IOrderItemUpdate, []>
+    */
+   productId: postgres.Helper<"order_item.product_id">;
+   $$values(...values: IOrderItemInsert[]): postgres.Helper<IOrderItemInsert[], []>;
+   $$set(value: IOrderItemUpdate): postgres.Helper<IOrderItemUpdate, []>;
 }
 
 export function newOrderItem(sql: postgres.Sql): IOrderItem & postgres.Helper<"one_sql.order_item"> {
    const obj: IOrderItem = {
-      $$pk: sql("order_item_pk"), 
+      $$pk: sql("order_item_pk"),
       $$table: "order_item",
-      $$all: sql(["order_item.product_price", "order_item.order_item_id", "order_item.quantity", "order_item.discount_price", "order_item.modified_at", "order_item.created_at", "order_item.order_id", "order_item.product_id"]),
-      $$values(...values: IOrderItemInsert[]){
+      $$all: sql([
+         "order_item.product_price",
+         "order_item.order_item_id",
+         "order_item.quantity",
+         "order_item.discount_price",
+         "order_item.modified_at",
+         "order_item.created_at",
+         "order_item.order_id",
+         "order_item.product_id",
+      ]),
+      $$values(...values: IOrderItemInsert[]) {
          return sql<IOrderItemInsert[], []>(values);
       },
 
-      $$set(value: IOrderItemUpdate){
+      $$set(value: IOrderItemUpdate) {
          return sql<IOrderItemUpdate, []>(value);
       },
 
-
       /**
        * product_price numeric
-      */
+       */
       productPrice: sql("order_item.product_price"),
 
       /**
        * order_item_id uuid default gen_random_uuid()
-      */
+       */
       orderItemId: sql("order_item.order_item_id"),
 
       /**
        * quantity int4
-      */
+       */
       quantity: sql("order_item.quantity"),
 
       /**
        * discount_price numeric
-      */
+       */
       discountPrice: sql("order_item.discount_price"),
 
       /**
        * modified_at timestamptz
-      */
+       */
       modifiedAt: sql("order_item.modified_at"),
 
       /**
        * created_at timestamptz
-      */
+       */
       createdAt: sql("order_item.created_at"),
 
       /**
        * order_id uuid
-      */
+       */
       orderId: sql("order_item.order_id"),
 
       /**
        * product_id uuid
-      */
+       */
       productId: sql("order_item.product_id"),
    };
    const from = sql("one_sql.order_item");
    return Object.assign(from, obj);
 }
-
 
 export type IOrderItemInsert = {
    productPrice: string;
@@ -118,19 +136,19 @@ export type IOrderItemInsert = {
    createdAt: Date;
    orderId: string;
    productId: string;
-}
+};
 
 export type IOrderItemUpdate = Partial<IOrderItemInsert>;
 
 export type IOrderItemSelect = {
-   readonly productPrice: string
-   readonly orderItemId: string
-   readonly quantity: number
-   readonly discountPrice: string | null
-   readonly modifiedAt: Date
-   readonly createdAt: Date
-   readonly orderId: string
-   readonly productId: string
-}
+   readonly productPrice: string;
+   readonly orderItemId: string;
+   readonly quantity: number;
+   readonly discountPrice: string | null;
+   readonly modifiedAt: Date;
+   readonly createdAt: Date;
+   readonly orderId: string;
+   readonly productId: string;
+};
 
 export type IOrderItemJson = lib.JsonRow<IOrderItemSelect>;

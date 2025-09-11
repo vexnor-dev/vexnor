@@ -1,5 +1,6 @@
-
 import * as crypto from "node:crypto";
+import postgres, { Row } from "postgres";
+import { ok } from "node:assert";
 
 export type JsonRow<T> =
    T extends Record<string, unknown> ? { [K in keyof T]: T[K] extends Date ? string : T[K] } : never;
@@ -7,9 +8,6 @@ export type JsonRow<T> =
 export function generateRandomName(size = 3): string {
    return crypto.randomBytes(size).toString("base64");
 }
-
-import postgres, { Row } from "postgres";
-import { ok } from "node:assert";
 
 export type PostgresLibrary<T extends Row> = {
    [K in keyof T]: postgres.Helper<T[K]>;
