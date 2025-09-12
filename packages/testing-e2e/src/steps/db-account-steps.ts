@@ -6,6 +6,7 @@ import crypto from "node:crypto";
 import { IAccountSelect } from "../codegen/one_sql.account-table.js";
 import { deepStrictEqual, notDeepStrictEqual, ok } from "node:assert";
 import { AccountWithOrders } from "../types/index.js";
+import { jsonAgg } from "sql-typecraft";
 
 When(/^Inserting a new Account$/, async function (this: TestWorld) {
    const id = crypto.randomUUID().slice(0, 4);
@@ -44,19 +45,15 @@ When(
          from ${Order}
          where ${Order.accountId} = ${Account.accountId}
          order by ${Order.createdAt} desc
-         limit ${countOfAccounts}
       `;
 
       const findAccounts = sql<AccountWithOrders>`
          select ${Account.$$all},
-                coalesce(
-                      jsonb_agg(${Orders.ROW.$$all}) filter (where ${Orders.ROW.$$all} is not null),
-                      '[]'
-                ) as orders
+                ${jsonAgg(Orders)} as orders
          from ${Account}
-                 left join lateral (${Orders}) ON true
-         group by ${Account.accountId}
+                 left join lateral (${jsonAgg(Orders)}) on true
          order by ${Account.createdAt} desc
+         limit ${countOfAccounts}
       `;
       this.log(findAccounts.text());
 

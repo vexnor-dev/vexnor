@@ -1,28 +1,10 @@
 import { logger } from "../cli/logger.js";
-import { x } from "./x.js";
-
-export type SqlKeyword =
-   | "select"
-   | "insert"
-   | "update"
-   | "delete"
-   | "join"
-   | "from"
-   | "fn"
-   | "on"
-   | "where"
-   | "set"
-   | "values"
-   | "with"
-   | "returning"
-   | "group by";
-
-export type SqlQueryMode = "root" | "child";
+import { SQL_KEYWORD_CHECKS, SQL_KEYWORDS, SqlKeyword } from "./sql-keyword.js";
 
 export interface SqlQueryContextOptions {
-   readonly keywords?: SqlKeyword[];
-   readonly rawString?: string;
-   readonly queryName: string;
+   keywords?: SqlKeyword[];
+   rawString?: string;
+   queryName: string;
 }
 
 export class SqlQueryContext {
@@ -32,7 +14,7 @@ export class SqlQueryContext {
     * Children queries will have level=1, 2, 3, etc.
     */
    queryLevel = -1;
-   private __keywords__: SqlKeyword[] = [];
+   private readonly __keywords__: SqlKeyword[] = [];
    private __rawString__?: string;
 
    /**
@@ -45,13 +27,17 @@ export class SqlQueryContext {
    values: unknown[] = [];
 
    constructor(args: SqlQueryContextOptions) {
-      this.__keywords__ = args.keywords ?? [];
+      this.__keywords__ = [];
+      if (args.keywords?.length) {
+         this.__keywords__.push(...args.keywords);
+      }
+
       this.__rawString__ = args.rawString;
       this.queryName = args.queryName;
    }
 
    get keywords() {
-      return Object.freeze(this.__keywords__);
+      return [...this.__keywords__];
    }
 
    get keyword(): SqlKeyword | undefined {
@@ -75,13 +61,13 @@ export class SqlQueryContext {
       for (const token of __text__.toLocaleLowerCase().split(/\s+/)) {
          if (!token) continue;
 
-         for (const keyword of keywords) {
+         for (const keyword of SQL_KEYWORDS) {
             if (token === keyword) {
                this.__keywords__.push(keyword);
                break;
             }
 
-            if (checks[keyword]?.includes(token)) {
+            if (SQL_KEYWORD_CHECKS[keyword]?.includes(token)) {
                this.__keywords__.push(keyword);
                break;
             }
@@ -112,27 +98,3 @@ export class SqlQueryContext {
       return true;
    }
 }
-
-const keywords: SqlKeyword[] = x(() => {
-   const obj: Record<SqlKeyword, null> = {
-      select: null,
-      insert: null,
-      update: null,
-      delete: null,
-      join: null,
-      from: null,
-      fn: null,
-      on: null,
-      where: null,
-      set: null,
-      values: null,
-      with: null,
-      returning: null,
-      "group by": null,
-   };
-   return Object.keys(obj) as SqlKeyword[];
-});
-
-const checks: Partial<Record<SqlKeyword, string[]>> = {
-   select: ["(select"],
-};

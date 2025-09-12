@@ -8,3 +8,4 @@ export * from "./sql-param.js";
 export * from "./sql-query.js";
 export * from "./sql-client.js";
 export * from "./plugins/index.js";
+export * from "./sql-build-error.js";

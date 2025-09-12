@@ -3,7 +3,7 @@ import { SqlQueryContext } from "./sql-query-context.js";
 
 export class SqlParam<TName extends string> extends Sql {
    name: TName;
-   static PREFIX = "@";
+   static PREFIX = "$";
 
    constructor(name: TName) {
       super();

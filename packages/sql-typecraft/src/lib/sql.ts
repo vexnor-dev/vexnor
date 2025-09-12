@@ -18,7 +18,7 @@ import { Sql } from "./sql-base.js";
  * ```
  */
 export function sql<
-   TResult extends RowOut,
+   TResult extends RowOut = RowOut,
    TParams extends Record<string, SqlValue> | undefined = undefined,
    TValue =
       | SqlValue

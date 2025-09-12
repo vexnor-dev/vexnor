@@ -33,7 +33,13 @@ export function isSqlRunOptions<TDbClient>(value: unknown): value is SqlRunOptio
    if (typeof value !== "object") return false;
    if (value === null) return false;
 
-   return "debug" in value;
+   if (!("config" in value)) return false;
+   if (!("db" in value)) return false;
+   if (!value.db) return false;
+   if (typeof value.db !== "object") return false;
+   if (!("query" in value.db)) return false;
+
+   return true;
 }
 
 export type SqlRunArgs<TDbClient, TParams> = TParams extends undefined

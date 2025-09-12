@@ -1,5 +1,6 @@
 import { SqlQueryContext } from "./sql-query-context.js";
 import { Sql, SqlBuildOptions } from "./sql-base.js";
+import { SqlBuildError } from "./sql-build-error.js";
 
 export interface SqlColumnOptions {
    readonly name: string;
@@ -25,12 +26,12 @@ export class SqlColumn extends Sql {
    }
 
    get [Symbol.toStringTag]() {
-      const tokens = ["SqlColumn", "(", this.table, this.name];
+      const tokens = ["SqlColumn", "(", this.table, ".", this.name];
       if (this.alias) {
-         tokens.push(" ", `${this.alias}`);
+         tokens.push(" as ", `${this.alias}`);
       }
       tokens.push(")");
-      return tokens.join();
+      return tokens.join("");
    }
 
    /**
@@ -131,8 +132,17 @@ export class SqlColumn extends Sql {
          case "group by":
             push(`${q(this.table)}.${q(this.name)}`);
             break;
+         case "order by":
+            push(`${q(this.table)}.${q(this.name)}`);
+            break;
          default:
-            throw new TypeError(`Unknown SQL context keyword: ${keyword}`);
+            throw new SqlBuildError(
+               `Unknown SQL context keyword for column '${this.table}.${this.name}' and keyword '${keyword}'`,
+               {
+                  token: this,
+                  strings,
+               },
+            );
       }
    }
 }

@@ -10,7 +10,7 @@ import {
    OneSqlSchema,
    OrderStatusUdt,
 } from "./codegen/one_sql.schema.js";
-import { param, sql } from "sql-typecraft";
+import { jsonAgg, param, sql } from "sql-typecraft";
 
 const { Account, Order } = OneSqlSchema;
 
@@ -30,7 +30,7 @@ const newAccount = await sql<IAccountSelect>`
          email: `john.doe_${id}@example.com`,
       })}
       returning ${Account.$$all}
-`.getOneRequired(pool);
+`.getOneRequired({ db: pool, config: { debug: true } });
 console.log("new account:", newAccount);
 ok(newAccount?.accountId, "accountId is required");
 
@@ -71,7 +71,7 @@ const accountUpdated = await sql<IAccountSelect>`
    })}
    where ${Account.accountId} = ${newAccount.accountId}
    returning ${Account.$$all}
-`.getOneRequired(pool);
+`.getOneRequired({ db: pool, config: { debug: true } });
 console.log("account updated:", accountUpdated);
 
 type IAccountWithOrders = IAccountSelect & {
@@ -87,11 +87,11 @@ const UserOrders = sql<IOrderSelect, { limit: number }>`
 
 const findAccountsWithOrders = sql<IAccountWithOrders, { limit: number }>`
    SELECT ${Account.$$all},
-          ${UserOrders} "orders"
+          ${jsonAgg(UserOrders)} "orders"
    FROM ${Account}
-           LEFT JOIN LATERAL (${UserOrders})
-   WHERE ${Account.accountId} = ${newAccount.accountId}
-   GROUP BY ${Account.accountId}`;
+           LEFT JOIN LATERAL ( ${jsonAgg(UserOrders)})
+   on TRUE
+   WHERE ${Account.accountId} = ${newAccount.accountId}`;
 
 const accountWithLimitedOrders = await findAccountsWithOrders.getOneRequired(pool, {
    limit: 1,

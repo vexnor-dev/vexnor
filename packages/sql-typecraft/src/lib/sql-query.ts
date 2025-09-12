@@ -23,6 +23,7 @@ export class SqlQuery<
    readonly ID: string;
    private __buildCache__?: SqlBuild;
    private __row__?: SqlQueryRow & Record<keyof TRow, SqlColumn>;
+   private debug: string[] = [];
 
    constructor(
       public readonly rawStrings: readonly string[],
@@ -134,16 +135,15 @@ export class SqlQuery<
       const [opts, params] = args;
       const { db, config: { debug } = {} } = isSqlRunOptions(opts) ? opts : { db: opts };
       const _args_: SqlValuesArgs<TParams> = [params] as SqlValuesArgs<TParams>;
+      let queryConfig = undefined;
       try {
-         return db.query<TRow>({
+         queryConfig = {
             text: this.text(..._args_),
             values: this.values(..._args_),
-         });
+         };
+         return await db.query<TRow>(queryConfig);
       } catch (err) {
-         if (debug) {
-            console.debug(this.__buildCache__);
-         }
-
+         console.error(err, "\n", queryConfig?.text ?? "error building query");
          throw err;
       }
    }
@@ -183,22 +183,39 @@ export class SqlQuery<
       context.queryLevel++;
       context.queryName = this.name;
 
+      const wrapStart = () => {
+         if (this.wrap) context.strings.push("(");
+      };
+
+      const wrapEnd = () => {
+         if (this.wrap) context.strings.push(")");
+      };
+
       switch (context.keyword) {
-         case "join":
-         case "from": {
-            context.strings.push("(");
+         case "select":
+            wrapStart();
             this.internalBuild(context);
-            context.strings.push(")", ` "${this.name}"`);
+            wrapEnd();
+            context.strings.push(` as "${this.name}"`);
             break;
-         }
-         case "fn": {
+         case "join":
+            wrapStart();
+            this.internalBuild(context);
+            wrapEnd();
+            context.strings.push(` as "${this.name}"`);
+            break;
+         case "from":
+            wrapStart();
+            this.internalBuild(context);
+            wrapEnd();
+            context.strings.push(` as "${this.name}"`);
+            break;
+         case "fn":
             context.strings.push(`"${this.name}"`);
             break;
-         }
-         default: {
+         default:
             this.internalBuild(context);
             break;
-         }
       }
    }
 
@@ -218,7 +235,7 @@ export class SqlQuery<
 
          const child = children.shift();
 
-         function buildItem(item: unknown, delimiter = "") {
+         function buildToken(item: unknown, delimiter = "") {
             const addString = (text: string) => `${text}${delimiter}`;
             switch (true) {
                case item instanceof Sql:
@@ -242,10 +259,10 @@ export class SqlQuery<
                      strings.push(", ");
                   }
 
-                  buildItem(child[k]);
+                  buildToken(child[k]);
                }
             } else {
-               buildItem(child);
+               buildToken(child);
             }
          } catch (err) {
             logger.error(
