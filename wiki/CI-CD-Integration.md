@@ -4,7 +4,7 @@ Valnor integrates into your CI/CD pipeline to ensure type safety and SQL query v
 This integration helps catch potential database-related issues early in the development cycle.
 
 Please check `CI (GitHub)` workflow in this repository for a CI/CD example:
-> https://github.com/atopala/pg-typecraft/actions/workflows/ci_github.yml
+> https://github.com/atopala/valnor/actions/workflows/ci_github.yml
 * Spin off a Postgres container for use during CI/CD
 * Execute db migrations against the Postgres instance
 * Re-generate mapping code with `Valnor` and build 

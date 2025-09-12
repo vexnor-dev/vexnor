@@ -20,13 +20,13 @@
    ],
    "author": "Adrian Topala",
    "license": "MIT",
-   "repository": "https://github.com/atopala/pg-typecraft",
+   "repository": "https://github.com/atopala/valnor",
    "publishConfig": {
       "access": "public"
    },
-   "homepage": "https://github.com/atopala/pg-typecraft#readme",
+   "homepage": "https://github.com/atopala/valnor#readme",
    "bugs": {
-      "url": "https://github.com/atopala/pg-typecraft/issues"
+      "url": "https://github.com/atopala/valnor/issues"
    },
    "bin": {
       "valnor": "./cli.mjs"

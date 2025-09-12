@@ -2,7 +2,7 @@
 
 Valnor - A powerful TypeScript code generator that creates type-safe mappings from database schemas to TypeScript, enabling type-safe SQL queries.
 
-[![CI](https://github.com/atopala/pg-typecraft/actions/workflows/ci_github.yml/badge.svg)](https://github.com/atopala/pg-typecraft/actions/workflows/ci_github.yml)
+[![CI](https://github.com/atopala/valnor/actions/workflows/ci_github.yml/badge.svg)](https://github.com/atopala/valnor/actions/workflows/ci_github.yml)
 
 ## Wiki Navigation
 
