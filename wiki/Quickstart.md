@@ -1,13 +1,13 @@
 # Quickstart
 
-> code sample from the example at: https://github.com/atopala/sql-typecraft
+> code sample from the example at: https://github.com/atopala/valnor
 
 Generate the code from existing postgres db schema `one_sql`.
 ```bash
-npx sql-typecraft generate --schema one_sql --uri $POSTGRES_URI --outDir 'src/codegen'
+npx valnor generate --schema one_sql --uri $POSTGRES_URI --outDir 'src/codegen'
 
 # It's possible to include more schemas!
-npx sql-typecraft generate --schema one_sql1 --schema one_sql2 --uri $POSTGRES_URI --outDir 'src/codegen'
+npx valnor generate --schema one_sql1 --schema one_sql2 --uri $POSTGRES_URI --outDir 'src/codegen'
 ```
 
 ```typescript 

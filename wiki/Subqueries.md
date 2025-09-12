@@ -4,12 +4,12 @@ Build complex SQL queries by composing reusable subqueries with full type safety
 
 ## Overview
 
-sql-typecraft allows you to create reusable SQL building blocks that can be composed into larger queries. The type system ensures all parameters from subqueries are properly handled in the parent query.
+Valnor allows you to create reusable SQL building blocks that can be composed into larger queries. The type system ensures all parameters from subqueries are properly handled in the parent query.
 
 ## Basic Subquery Example
 
 ```typescript
-import { sql, param } from "sql-typecraft";
+import { sql, param } from "valnor";
 import { Users, IUsersSelect } from "./codegen/users";
 
 // Create a reusable subquery
@@ -21,7 +21,7 @@ const UsersInCity = sql<IUsersSelect, { city: string }>`
 
 // Compose it into a larger query with additional filtering
 const query = sql<IUsersSelect, { age: number; city: string }>`
-    SELECT ${UsersInCity.$$all}
+    SELECT ${UsersInCity.ROW.$$all}
     FROM (${UsersInCity})
     WHERE ${UsersInCity.ROW.age} > ${param("age")}
 `;
@@ -49,7 +49,7 @@ const UsersInCity = sql<IUsersSelect, { city: string }>`
 
 // Parent query must include both { age: number } AND { city: string }
 const query = sql<IUsersSelect, { age: number; city: string }>`
-    SELECT ${UsersInCity.$$all}
+    SELECT ${UsersInCity.ROW.$$all}
     FROM (${UsersInCity})
     WHERE ${UsersInCity.ROW.age} > ${param("age")}
 `;
@@ -82,7 +82,7 @@ const ComplexQuery = sql<IUsersSelect, {
     minAge: number;
     city: string
 }>`
-    SELECT ${UsersByCity.$$all}
+    SELECT ${UsersByCity.ROW.$$all}
     FROM (${UsersByCity})
         JOIN (${UsersByAge}) on ${UsersByCity.userId} = ${UsersByAge.userId}
     WHERE ${UsersByCity.ROW.age} >= ${param("minAge")}
@@ -107,7 +107,7 @@ const YoungUsers = sql<IUsersSelect, { maxAge: number }>`
 `;
 
 const YoungUsersInCity = sql<IUsersSelect, { maxAge: number; city: string }>`
-    SELECT ${YoungUsers.$$all}
+    SELECT ${YoungUsers.ROW.$$all}
     FROM (${YoungUsers})
     WHERE ${YoungUsers.ROW.city} = ${param("city")}
 `;

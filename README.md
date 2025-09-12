@@ -1,4 +1,4 @@
-# sql-typecraft
+# valnor
 
 A powerful SQL query generator that creates type-safe mappings from database schemas to TypeScript,
 enabling type-safe SQL queries.
@@ -16,7 +16,7 @@ enabling type-safe SQL queries.
 
 **1. Generate TypeScript types from your database:**
 ```bash
-npx sql-typecraft generate --schema your_schema --uri $POSTGRES_URI --outDir 'src/codegen'
+npx valnor generate --schema your_schema --uri $POSTGRES_URI --outDir 'src/codegen'
 ```
 
 **2. Write type-safe SQL queries:**
@@ -73,10 +73,10 @@ Next releases planned to support `mssql`, `mysql`, sqlite, etc.
 
 ```bash
 # Install as dev dependency
-npm install sql-typecraft --save-dev
+npm install valnor --save-dev
 
 # Or use directly with npx
-npx sql-typecraft generate --schema your_schema --uri $POSTGRES_URI --outDir 'src/codegen'
+npx valnor generate --schema your_schema --uri $POSTGRES_URI --outDir 'src/codegen'
 ```
 
 > 📖 **[Installation guide with all options](wiki/Installation.md)**
@@ -84,7 +84,7 @@ npx sql-typecraft generate --schema your_schema --uri $POSTGRES_URI --outDir 'sr
 ## Usage
 
 ```bash
-sql-typecraft generate --schema your_schema --uri $POSTGRES_URI --outDir 'src/codegen'
+valnor generate --schema your_schema --uri $POSTGRES_URI --outDir 'src/codegen'
 ```
 
 **Common options:**

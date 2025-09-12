@@ -1,3 +1,3 @@
 # Configuration
 
-This section covers configuration options for sql-typecraft.
+This section covers configuration options for Valnor.

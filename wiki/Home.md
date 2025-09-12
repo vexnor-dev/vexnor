@@ -1,6 +1,6 @@
-# sql-typecraft Wiki
+# Valnor Wiki
 
-A powerful TypeScript code generator that creates type-safe mappings from database schemas to TypeScript, enabling type-safe SQL queries.
+Valnor - A powerful TypeScript code generator that creates type-safe mappings from database schemas to TypeScript, enabling type-safe SQL queries.
 
 [![CI](https://github.com/atopala/pg-typecraft/actions/workflows/ci_github.yml/badge.svg)](https://github.com/atopala/pg-typecraft/actions/workflows/ci_github.yml)
 

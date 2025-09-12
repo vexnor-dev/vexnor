@@ -10,7 +10,7 @@
 ## Snakecase vs. camelcase
 
 Naming conventions for Postgres suggest to use **snake_case** and direct mapping contradicts **camelCase** in JavaScript/TypeScript.
-Luckily both `postgres.js` and `sql-typecraft` are capable to offer a reliant translation layer **snake_case - camelCase** to avoid compromises.
+Luckily both `postgres.js` and `Valnor` are capable to offer a reliant translation layer **snake_case - camelCase** to avoid compromises.
 
 Generated mapping code will always inject **snake_case** columns into the SQL query.
 

@@ -5,7 +5,7 @@
 The basic command structure:
 
 ```bash
-sql-typecraft generate [options]
+valnor generate [options]
 ```
 
 ## Options
@@ -19,13 +19,13 @@ sql-typecraft generate [options]
 - `--outDir` - Output directory for generated files
 - `--help` - Show help information
 
-## Generating database mapping code with sql-typecraft CLI
+## Generating database mapping code with Valnor CLI
 
 ```bash
-sql-typecraft generate --schema one_sql --pascalCaseTables --camelCaseColumns --uri $POSTGRES_URI --outDir 'src/codegen'
+valnor generate --schema one_sql --pascalCaseTables --camelCaseColumns --uri $POSTGRES_URI --outDir 'src/codegen'
 ```
 
 Including multiple schemas:
 ```bash
-sql-typecraft generate --schema one_sql --schema two_sql --uri $POSTGRES_URI --outDir 'src/codegen'
+valnor generate --schema one_sql --schema two_sql --uri $POSTGRES_URI --outDir 'src/codegen'
 ```

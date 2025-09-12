@@ -4,7 +4,7 @@ Example using `postgres.js` instead of `pg`:
 > notice cli option `--driver postgres.js` flag
 
 ```bash
-npx sql-typecraft generate --driver postgres.js --schema one_sql --uri $POSTGRES_URI --outDir 'src/codegen'
+npx valnor generate --driver postgres.js --schema one_sql --uri $POSTGRES_URI --outDir 'src/codegen'
 ```
 
 > You can find the complete guide for postgres.js: https://www.npmjs.com/package/postgres 
