@@ -17,7 +17,7 @@ import { x } from "../lib/x.js";
 const main = new Command();
 
 main
-   .name("sql-typecraft")
+   .name("valnor")
    .description(
       `A powerful TypeScript code generator that creates type-safe mappings from PostgreSQL schemas to TypeScript, enabling type-safe SQL queries with [**postgres.js**](https://www.npmjs.com/package/postgres).`,
    )

@@ -1,12 +1,12 @@
 import { Sql } from "../sql-base.js";
 import { SqlQueryContext } from "../sql-query-context.js";
 import { RowOut } from "../sql-types.js";
-import { SqlQuery } from "../sql-query.js";
+import { SqlQueryAny } from "../sql-query.js";
 import { sql } from "../sql.js";
 import { raw } from "../sql-raw.js";
 
 export class SelectJsonAgg extends Sql {
-   constructor(public readonly select: SqlQuery<any, any>) {
+   constructor(public readonly select: SqlQueryAny) {
       super();
    }
 
@@ -32,7 +32,7 @@ export class SelectJsonAgg extends Sql {
    }
 }
 
-export function jsonAgg(select: SqlQuery<any, any>) {
+export function jsonAgg(select: SqlQueryAny) {
    if (!cache.has(select)) {
       const result = new SelectJsonAgg(select);
       cache.set(select, result);
@@ -41,4 +41,4 @@ export function jsonAgg(select: SqlQuery<any, any>) {
    return cache.get(select)!;
 }
 
-const cache = new WeakMap<SqlQuery, SelectJsonAgg>();
+const cache = new WeakMap<SqlQueryAny, SelectJsonAgg>();

@@ -29,7 +29,7 @@ describe("sql() tests", () => {
                     min("users_1"."age"),
                     "users_1"."city"       user_city,
                     "users_1"."created_at" as "createdAt"
-             from "public"."users" "users_1"
+             from "public"."users" as "users_1"
              where "users_1"."city" = ?
                and "users_1"."name" in (?, ?, ?)
              group by "users_1"."age"`,
@@ -42,7 +42,7 @@ describe("sql() tests", () => {
                     min("users_1"."age"),
                     "users_1"."city" user_city,
                     "users_1"."created_at" as "createdAt"
-             from "public"."users" "users_1"
+             from "public"."users" as "users_1"
              where "users_1"."city" = $1
                and "users_1"."name" in ($2, $3, $4)
              group by "users_1"."age"`,

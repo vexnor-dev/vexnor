@@ -24,7 +24,9 @@ export function sql<
       | SqlValue
       | Sql
       | Sql[]
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       | SqlQuery<any, Partial<TParams>>
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       | SqlQuery<any, Partial<TParams>>[]
       | SqlParams<TParams>,
 >(strings: TemplateStringsArray, ...values: TValue[]): SqlQuery<TResult, TParams> {

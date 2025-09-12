@@ -74,9 +74,9 @@ importers:
       pg:
         specifier: ^8.16.3
         version: 8.16.3
-      sql-typecraft:
+      valnor:
         specifier: workspace:^1.0.0
-        version: link:../sql-typecraft
+        version: link:../valnor
     devDependencies:
       '@types/pg':
         specifier: ^8.15.5
@@ -87,11 +87,42 @@ importers:
       postgres:
         specifier: ^3.4.7
         version: 3.4.7
-      sql-typecraft:
+      valnor:
         specifier: workspace:^1.0.0
-        version: link:../sql-typecraft
+        version: link:../valnor
 
-  packages/sql-typecraft:
+  packages/testing-e2e:
+    dependencies:
+      '@cucumber/cucumber':
+        specifier: ^11.3.0
+        version: 11.3.0
+      '@sinclair/typebox':
+        specifier: ^0.34.36
+        version: 0.34.41
+      pg:
+        specifier: ^8.16.3
+        version: 8.16.3
+    devDependencies:
+      '@cucumber/pretty-formatter':
+        specifier: ^1.0.1
+        version: 1.0.1(@cucumber/cucumber@11.3.0)(@cucumber/messages@27.2.0)
+      '@types/pg':
+        specifier: ^8.15.5
+        version: 8.15.5
+      copyfiles:
+        specifier: ^2.4.1
+        version: 2.4.1
+      cucumber-html-reporter:
+        specifier: latest
+        version: 7.2.0
+      ts-node:
+        specifier: ^10.9.2
+        version: 10.9.2(@types/node@20.14.8)(typescript@5.9.2)
+      valnor:
+        specifier: workspace:^1.0.0
+        version: link:../valnor
+
+  packages/valnor:
     dependencies:
       code-block-writer:
         specifier: ^11.0.3
@@ -122,37 +153,6 @@ importers:
       postgres:
         specifier: ^3.4.7
         version: 3.4.7
-
-  packages/testing-e2e:
-    dependencies:
-      '@cucumber/cucumber':
-        specifier: ^11.3.0
-        version: 11.3.0
-      '@sinclair/typebox':
-        specifier: ^0.34.36
-        version: 0.34.41
-      pg:
-        specifier: ^8.16.3
-        version: 8.16.3
-    devDependencies:
-      '@cucumber/pretty-formatter':
-        specifier: ^1.0.1
-        version: 1.0.1(@cucumber/cucumber@11.3.0)(@cucumber/messages@27.2.0)
-      '@types/pg':
-        specifier: ^8.15.5
-        version: 8.15.5
-      copyfiles:
-        specifier: ^2.4.1
-        version: 2.4.1
-      cucumber-html-reporter:
-        specifier: latest
-        version: 7.2.0
-      sql-typecraft:
-        specifier: workspace:^1.0.0
-        version: link:../sql-typecraft
-      ts-node:
-        specifier: ^10.9.2
-        version: 10.9.2(@types/node@20.14.8)(typescript@5.9.2)
 
 packages:
 

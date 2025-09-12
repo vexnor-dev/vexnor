@@ -6,7 +6,7 @@ import crypto from "node:crypto";
 import { IAccountSelect } from "../codegen/one_sql.account-table.js";
 import { deepStrictEqual, notDeepStrictEqual, ok } from "node:assert";
 import { AccountWithOrders } from "../types/index.js";
-import { jsonAgg } from "sql-typecraft";
+import { jsonAgg } from "valnor";
 
 When(/^Inserting a new Account$/, async function (this: TestWorld) {
    const id = crypto.randomUUID().slice(0, 4);

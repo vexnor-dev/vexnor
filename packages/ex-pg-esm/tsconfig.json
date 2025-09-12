@@ -7,7 +7,7 @@
    },
    "references": [
       {
-         "path": "../sql-typecraft"
+         "path": "../valnor"
       }
    ]
 }

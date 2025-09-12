@@ -10,7 +10,7 @@ import {
    OneSqlSchema,
    OrderStatusUdt,
 } from "./codegen/one_sql.schema.js";
-import { jsonAgg, param, sql } from "sql-typecraft";
+import { jsonAgg, param, sql } from "valnor";
 
 const { Account, Order } = OneSqlSchema;
 

@@ -29,8 +29,8 @@ describe("sql subqueries tests", () => {
                                                                                                                "users_1"."password",
                                                                                                                "users_1"."created_at" as "createdAt",
                                                                                                                "users_1"."updated_at" as "updatedAt"
-                                                                                                        from "public"."users" "users_1"
-                                                                                                        where "users_1"."city" = ?) "UsersInCity")
+                                                                                                        from "public"."users" as "users_1"
+                                                                                                        where "users_1"."city" = ?) as "UsersInCity")
                                                                      where "UsersInCity"."age" > ?`);
    });
 
@@ -56,7 +56,7 @@ describe("sql subqueries tests", () => {
                                                                             "users_1"."password",
                                                                             "users_1"."created_at" as "createdAt",
                                                                             "users_1"."updated_at" as "updatedAt"
-                                                                     from "public"."users" "users_1"
+                                                                     from "public"."users" as "users_1"
                                                                              join ((
                                                                         /* --label: UsersInCity */
                                                                         select "users_1"."user_id"  as  "userId",
@@ -67,8 +67,8 @@ describe("sql subqueries tests", () => {
                                                                                "users_1"."password",
                                                                                "users_1"."created_at" as "createdAt",
                                                                                "users_1"."updated_at" as "updatedAt"
-                                                                        from "public"."users" "users_1"
-                                                                        where "users_1"."city" = ?) "UsersInCity")
+                                                                        from "public"."users" as "users_1"
+                                                                        where "users_1"."city" = ?) as "UsersInCity")
                                                                      on "users_1"."user_id" = "UsersInCity"."userId"
                                                                      where "users_1"."age" > ?`);
    });

@@ -274,3 +274,6 @@ export class SqlQuery<
       }
    }
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type SqlQueryAny = SqlQuery<any, any>;
