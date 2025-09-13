@@ -1,12 +1,13 @@
 import { Then, When } from "@cucumber/cucumber";
 import { TestWorld } from "../test-world.js";
-import { Account, Order, pool, sql } from "../db.js";
+import { pool } from "../db.js";
 import { AccountStatusUdt } from "../codegen/one_sql-enums.js";
 import crypto from "node:crypto";
-import { IAccountSelect } from "../codegen/one_sql.account-table.js";
+import { Account, IAccountSelect } from "../codegen/one_sql.account-table.js";
 import { deepStrictEqual, notDeepStrictEqual, ok } from "node:assert";
 import { AccountWithOrders } from "../types/index.js";
-import { jsonAgg } from "valnor";
+import { jsonAgg, sql } from "valnor";
+import { Order } from "../codegen/one_sql.order-table.js";
 
 When(/^Inserting a new Account$/, async function (this: TestWorld) {
    const id = crypto.randomUUID().slice(0, 4);
@@ -19,7 +20,7 @@ When(/^Inserting a new Account$/, async function (this: TestWorld) {
             email: `john.doe-${id}}@example.com`,
          })}
          returning ${Account.$$all}
-   `.getOneRequired(pool);
+   `.pg.getOneRequired(pool);
 
    ok(newAccount?.accountId, "new accountId is required");
    this.accountInserted = newAccount;
@@ -32,7 +33,7 @@ Then(/^Fetch newly inserted Account$/, async function (this: TestWorld) {
       select ${Account.$$all}
       from ${Account}
       where ${Account.accountId} = ${this.accountInserted.accountId}
-   `.getOneRequired(pool);
+   `.pg.getOneRequired(pool);
 
    deepStrictEqual(account, this.accountInserted);
 });
@@ -57,7 +58,7 @@ When(
       `;
       this.log(findAccounts.text());
 
-      const accountsWithOrders = await findAccounts.getAll(pool);
+      const accountsWithOrders = await findAccounts.pg.getAll(pool);
 
       ok(accountsWithOrders?.length, "accounts are required");
       this.accountsWithOrders = accountsWithOrders;

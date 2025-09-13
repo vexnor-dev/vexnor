@@ -19,6 +19,7 @@
    "license": "ISC",
    "dependencies": {
       "pg": "^8.16.3",
+      "pg-typecraft": "1.0.0-beta4",
       "valnor": "workspace:^1.0.0"
    },
    "devDependencies": {

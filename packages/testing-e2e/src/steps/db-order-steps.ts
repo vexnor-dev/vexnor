@@ -1,9 +1,10 @@
 import { When } from "@cucumber/cucumber";
 import { TestWorld } from "../test-world.js";
 import { deepStrictEqual, ok } from "node:assert";
-import { Order, pool, sql } from "../db.js";
+import { pool } from "../db.js";
 import { OrderStatusUdt } from "../codegen/one_sql-enums.js";
-import { IOrderInsert, IOrderSelect } from "../codegen/one_sql.order-table.js";
+import { IOrderInsert, IOrderSelect, Order } from "../codegen/one_sql.order-table.js";
+import { sql } from "valnor";
 
 When(/^Inserting (\d+) new Orders$/, async function (this: TestWorld, countOfOrders: number) {
    ok(this.accountInserted, "account is required");
@@ -23,7 +24,7 @@ When(/^Inserting (\d+) new Orders$/, async function (this: TestWorld, countOfOrd
       INSERT INTO ${Order}
          ${Order.$$values(...newOrdersValues)}
          RETURNING ${Order.$$all}
-   `.getAll(pool);
+   `.pg.getAll(pool);
    ok(newOrders?.length, "new orders are required");
    deepStrictEqual(newOrders.length, 2);
    for (const order of newOrders) {

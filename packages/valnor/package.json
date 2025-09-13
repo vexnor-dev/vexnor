@@ -3,8 +3,8 @@
    "version": "1.0.0-beta.1",
    "description": "",
    "type": "module",
-   "module": "lib.mjs",
-   "main": "lib.mjs",
+   "module": "dist/lib/index.js",
+   "main": "dist/lib/index.js",
    "types": "dist/lib/index.d.ts",
    "keywords": [
       "valnor",
@@ -38,6 +38,7 @@
       "build:2-tsc": "tsc -b",
       "prepack:1-copy-readme": "copyfiles -f \"../../README.md\" .",
       "prepack": "run-s 'build' 'prepack:*'",
+      "pretest": "run-s 'build'",
       "test": "vitest run",
       "test:watch": "vitest --watch",
       "test:run": "vitest run"
@@ -55,11 +56,27 @@
       "vitest": "^3.2.4"
    },
    "devDependencies": {
+      "@types/better-sqlite3": "^7.6.13",
       "@types/pg": "^8.15.5",
+      "postgres": "^3.4.7",
       "vite": "^7.1.4"
    },
-   "optionalDependencies": {
+   "peerDependencies": {
+      "better-sqlite3": "^12.2.0",
+      "mariadb": "^3.4.5",
+      "mssql": "^11.0.1",
       "pg": "^8.16.3",
       "postgres": "^3.4.7"
+   },
+   "peerDependenciesMeta": {
+      "pg": {
+         "optional": true
+      },
+      "mssql": {
+         "optional": true
+      },
+      "mariadb": {
+         "optional": true
+      }
    }
 }

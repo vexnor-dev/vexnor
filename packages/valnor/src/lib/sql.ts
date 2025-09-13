@@ -18,17 +18,24 @@ import { Sql } from "./sql-base.js";
  * ```
  */
 export function sql<
-   TResult extends RowOut = RowOut,
+   TRow extends RowOut = RowOut,
    TParams extends Record<string, SqlValue> | undefined = undefined,
    TValue =
       | SqlValue
       | Sql
       | Sql[]
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      | SqlQuery<any, Partial<TParams>>
+      | SqlQuery<{ Row: any; Params: Partial<TParams>; QueryResult: object }>
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      | SqlQuery<any, Partial<TParams>>[]
+      | SqlQuery<{ Row: any; Params: Partial<TParams>; QueryResult: object }>[]
       | SqlParams<TParams>,
->(strings: TemplateStringsArray, ...values: TValue[]): SqlQuery<TResult, TParams> {
+>(
+   strings: TemplateStringsArray,
+   ...values: TValue[]
+): SqlQuery<{
+   Row: TRow;
+   QueryResult: { rows: TRow[] };
+   Params: TParams;
+}> {
    return new SqlQuery(strings, values);
 }

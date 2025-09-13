@@ -29,7 +29,7 @@ describe("sql plugin: table.$$set tests", () => {
          101,
       ]);
       expect(trim(query.sql({ userId: 101 }))).toBe(
-         trim`update "public"."users"
+         trim`update "public"."users" as "users_1"
               set "name"       = ?,
                   "email"      = ?,
                   "age"        = ?,

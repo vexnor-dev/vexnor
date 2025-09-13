@@ -2,8 +2,8 @@ import { Sql } from "../sql-base.js";
 import { SqlQueryContext } from "../sql-query-context.js";
 import { RowOut } from "../sql-types.js";
 import { SqlQueryAny } from "../sql-query.js";
-import { sql } from "../sql.js";
 import { raw } from "../sql-raw.js";
+import { sql } from "../sql.js";
 
 export class SelectJsonAgg extends Sql {
    constructor(public readonly select: SqlQueryAny) {

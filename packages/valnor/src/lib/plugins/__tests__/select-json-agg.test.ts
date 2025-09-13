@@ -1,5 +1,4 @@
 import { describe, expect, test } from "vitest";
-import { sql } from "../../sql.js";
 import { IOrdersSelect, Orders } from "../../__tests__/types/orders-model.js";
 import { info } from "../sql-info.js";
 import { IUsersSelect, Users } from "../../__tests__/types/index.js";
@@ -7,6 +6,7 @@ import { param } from "../../sql-param.js";
 import { jsonAgg } from "../select-json-agg.js";
 import { trim } from "../../__tests__/utils.js";
 import { SqlQueryContext } from "../../sql-query-context.js";
+import { sql } from "../../sql.js";
 
 describe("sql plugin jsonAgg() tests", () => {
    const UserOrders = sql<IOrdersSelect, { limit: 5 }>`

@@ -1,5 +1,4 @@
-import { QueryResult } from "pg";
-import { isSqlRunOptions, RowOut, SqlBuild, SqlRunArgs, SqlValuesArgs } from "./sql-types.js";
+import { RowOut, SqlBuild, SqlValuesArgs } from "./sql-types.js";
 import { SqlQueryRow } from "./sql-query-row.js";
 import { SqlColumn } from "./sql-column.js";
 import { x } from "./x.js";
@@ -9,21 +8,16 @@ import { SqlParam } from "./sql-param.js";
 import { SqlQueryContext } from "./sql-query-context.js";
 import { logger } from "../cli/logger.js";
 import { Sql } from "./sql-base.js";
-import { SqlClient } from "./sql-client.js";
 import { SqlInfo } from "./plugins/index.js";
 import * as crypto from "node:crypto";
 
 const WILDCARD = "?";
 
-export class SqlQuery<
-   TRow extends RowOut = RowOut,
-   TParams extends Record<string, unknown> | undefined = undefined,
-> extends Sql {
+export class SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> | undefined }> extends Sql {
    readonly name: string;
    readonly ID: string;
    private __buildCache__?: SqlBuild;
-   private __row__?: SqlQueryRow & Record<keyof TRow, SqlColumn>;
-   private debug: string[] = [];
+   private __row__?: SqlQueryRow & Record<keyof T["Row"], SqlColumn>;
 
    constructor(
       public readonly rawStrings: readonly string[],
@@ -41,17 +35,17 @@ export class SqlQuery<
       this.ID = crypto.randomUUID();
    }
 
-   get ROW(): SqlQueryRow & Record<keyof TRow, SqlColumn> {
+   get ROW(): SqlQueryRow & Record<keyof T["Row"], SqlColumn> {
       if (this.__row__) return this.__row__;
 
       this.__row__ = new Proxy<SqlQueryRow>(
          new SqlQueryRow({ name: this.name }),
          SqlQueryRow.proxyHandler,
-      ) as SqlQueryRow & Record<keyof TRow, SqlColumn>;
+      ) as SqlQueryRow & Record<keyof T["Row"], SqlColumn>;
       return this.__row__;
    }
 
-   values(...[params]: SqlValuesArgs<TParams>): unknown[] {
+   values(...[params]: SqlValuesArgs<T["Params"]>): unknown[] {
       const { values } = this.buildCache();
       if (!values) return [];
       if (!params) return values ?? [];
@@ -72,7 +66,10 @@ export class SqlQuery<
       return results;
    }
 
-   sql(...[params]: SqlValuesArgs<TParams>): string {
+   /**
+    * Get the SQL string with the input values replaced by the ? wildcards
+    */
+   sql(...[params]: SqlValuesArgs<T["Params"]>): string {
       const { values } = this.buildCache();
       const strings = [...this.buildCache().strings];
       if (!values?.length) return strings.join("");
@@ -96,7 +93,7 @@ export class SqlQuery<
       return strings.join("");
    }
 
-   text(...args: SqlValuesArgs<TParams>): string {
+   text(...args: SqlValuesArgs<T["Params"]>): string {
       const sql = this.sql(...args);
       const tokens = sql.split(WILDCARD);
       for (let i = 0; i < tokens.length - 1; i++) {
@@ -125,54 +122,6 @@ export class SqlQuery<
 
    toString() {
       return this.rawStrings.join("?");
-   }
-
-   /**
-    * Executes the query and returns the result
-    * @param args
-    */
-   async run<TDbClient extends SqlClient>(...args: SqlRunArgs<TDbClient, TParams>): Promise<QueryResult<TRow>> {
-      const [opts, params] = args;
-      const { db, config: { debug } = {} } = isSqlRunOptions(opts) ? opts : { db: opts };
-      const _args_: SqlValuesArgs<TParams> = [params] as SqlValuesArgs<TParams>;
-      let queryConfig = undefined;
-      try {
-         queryConfig = {
-            text: this.text(..._args_),
-            values: this.values(..._args_),
-         };
-         return await db.query<TRow>(queryConfig);
-      } catch (err) {
-         console.error(err, "\n", queryConfig?.text ?? "error building query");
-         throw err;
-      }
-   }
-
-   /**
-    * Executes the query and returns exactly one row, or throw error when result not found or more
-    * @param args
-    */
-   async getOneRequired<TClient extends SqlClient>(...args: SqlRunArgs<TClient, TParams>): Promise<TRow> {
-      const rows = await this.run(...args).then((res) => res.rows);
-      ok(rows.length === 1, `Expected one row, actual is ${rows.length} rows.`);
-      ok(rows[0], `The one row in result is not defined: ${rows[0]}`);
-      return rows[0];
-   }
-
-   /**
-    * Executes the query and returns the first row, or undefined when no rows found
-    * @param args
-    */
-   async getOneOptional<TClient extends SqlClient>(...args: SqlRunArgs<TClient, TParams>): Promise<TRow | undefined> {
-      return this.run(...args).then((res) => (res.rows.length > 0 ? res.rows[0] : undefined));
-   }
-
-   /**
-    * Executes the query and returns all rows
-    * @param args
-    */
-   async getAll<TClient extends SqlClient>(...args: SqlRunArgs<TClient, TParams>): Promise<TRow[]> {
-      return this.run(...args).then((res) => res.rows);
    }
 
    /**
@@ -276,4 +225,4 @@ export class SqlQuery<
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type SqlQueryAny = SqlQuery<any, any>;
+export type SqlQueryAny = SqlQuery<any>;

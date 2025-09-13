@@ -82,7 +82,12 @@ export class SqlTable<T extends { Insert: RowIn; Update: RowIn }> extends Sql {
             strings.push(`${schema}"${this.$$.name}"`);
             break;
          case "update":
-            strings.push(`${schema}"${this.$$.name}"`);
+            if (this.$$.name === this.$$.alias) {
+               strings.push(`${schema}"${this.$$.name}"`);
+               break;
+            }
+
+            strings.push(`${schema}"${this.$$.name}" as "${this.$$.alias}"`);
             break;
          case "delete":
             strings.push(`${schema}"${this.$$.name}"`);

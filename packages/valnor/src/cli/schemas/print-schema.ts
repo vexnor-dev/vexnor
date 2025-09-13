@@ -4,7 +4,6 @@ import { ok } from "assert";
 import to from "to-case";
 import { groupBy, SqlOutputFile } from "../types/index.js";
 import { getCodegenContext } from "../codegen-context.js";
-import CodeBlockWriter from "code-block-writer";
 import { x } from "../../lib/x.js";
 import { postgres } from "./postgres/index.js";
 import { pg } from "./pg/index.js";
@@ -18,8 +17,8 @@ export interface WriteSchemaArgs {
 export async function printSchema({ outDir, table_schema, files }: WriteSchemaArgs): Promise<SqlOutputFile> {
    const { newWriter, driver } = getCodegenContext();
    const writer = newWriter();
-   writeSchemaImports(writer, files);
-   const { writeSchemaNew } = x(() => {
+
+   const { writeSchemaNew, writeSchemaImports } = x(() => {
       switch (driver) {
          case "postgres.js":
             return postgres;
@@ -29,6 +28,7 @@ export async function printSchema({ outDir, table_schema, files }: WriteSchemaAr
             throw new Error(`Unknown driver: ${driver}`);
       }
    });
+   writeSchemaImports(writer, files);
    writeSchemaNew(writer, { schema: table_schema, files });
 
    const fileName = `${to.snake(table_schema)}.schema`;
@@ -42,17 +42,6 @@ export async function printSchema({ outDir, table_schema, files }: WriteSchemaAr
 
 export interface WriteSchemasArgs {
    files: SqlOutputFile[];
-}
-
-function writeSchemaImports(writer: CodeBlockWriter.default, files: SqlOutputFile[]) {
-   files.forEach(({ fileName, tableTypeName }) => {
-      if (tableTypeName) {
-         writer.writeLine(`export type * from "./${fileName}.js";`);
-      } else {
-         writer.writeLine(`export * from "./${fileName}.js";`);
-      }
-   });
-   writer.blankLine();
 }
 
 export async function printSchemas({ files }: WriteSchemasArgs): Promise<SqlOutputFile[]> {

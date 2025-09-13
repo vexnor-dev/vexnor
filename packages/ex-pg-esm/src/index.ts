@@ -3,16 +3,15 @@ import * as crypto from "node:crypto";
 import { ok } from "node:assert";
 import { Pool } from "pg";
 import {
+   Account,
    AccountStatusUdt,
    IAccountSelect,
    IOrderJson,
    IOrderSelect,
-   OneSqlSchema,
+   Order,
    OrderStatusUdt,
 } from "./codegen/one_sql.schema.js";
 import { jsonAgg, param, sql } from "valnor";
-
-const { Account, Order } = OneSqlSchema;
 
 const pool = new Pool({
    host: "localhost",
@@ -30,7 +29,7 @@ const newAccount = await sql<IAccountSelect>`
          email: `john.doe_${id}@example.com`,
       })}
       returning ${Account.$$all}
-`.getOneRequired({ db: pool, config: { debug: true } });
+`.pg.getOneRequired({ db: pool });
 console.log("new account:", newAccount);
 ok(newAccount?.accountId, "accountId is required");
 
@@ -39,7 +38,7 @@ const findAccountById = sql<IAccountSelect, { accountId: string }>`
    from ${Account}
    where ${Account.accountId} = ${param("accountId")}
 `;
-const account = await findAccountById.getOneRequired(pool, {
+const account = await findAccountById.pg.getOneRequired(pool, {
    accountId: newAccount.accountId,
 });
 console.log(`account (id=${newAccount.accountId}`, account);
@@ -61,7 +60,7 @@ const newOrders = await sql<IOrderSelect>`
          },
       )}
       RETURNING ${Order.$$all}
-`.getAll(pool);
+`.pg.getAll(pool);
 ok(newOrders?.length);
 
 const accountUpdated = await sql<IAccountSelect>`
@@ -71,7 +70,7 @@ const accountUpdated = await sql<IAccountSelect>`
    })}
    where ${Account.accountId} = ${newAccount.accountId}
    returning ${Account.$$all}
-`.getOneRequired({ db: pool, config: { debug: true } });
+`.pg.getOneRequired(pool);
 console.log("account updated:", accountUpdated);
 
 type IAccountWithOrders = IAccountSelect & {
@@ -93,7 +92,7 @@ const findAccountsWithOrders = sql<IAccountWithOrders, { limit: number }>`
    on TRUE
    WHERE ${Account.accountId} = ${newAccount.accountId}`;
 
-const accountWithLimitedOrders = await findAccountsWithOrders.getOneRequired(pool, {
+const accountWithLimitedOrders = await findAccountsWithOrders.pg.getOneRequired(pool, {
    limit: 1,
 });
 

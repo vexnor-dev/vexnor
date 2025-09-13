@@ -7,7 +7,7 @@ export interface WriteSchemaNewArgs {
    files: SqlOutputFile[];
 }
 
-export function writeSchemaNew(writer: CodeBlockWriter.default, { schema, files }: WriteSchemaNewArgs) {
+export function writeSchemaNew(writer: CodeBlockWriter.default, { files }: WriteSchemaNewArgs) {
    // Write imports for each table file
    files.forEach((file) => {
       if (!file.tableTypeName) return;
@@ -17,19 +17,5 @@ export function writeSchemaNew(writer: CodeBlockWriter.default, { schema, files 
       writer.writeLine(`import { ${pascalTableName} } from "./${file.fileName}.js";`);
    });
    writer.blankLine();
-
-   // Write schema function
-   writer.write(`export const ${to.pascal(schema)}Schema = `).inlineBlock(() => {
-      files.forEach((file) => {
-         if (!file.tableTypeName) return;
-
-         const tableName = file.moduleName;
-         const pascalTableName = to.pascal(tableName);
-
-         // Add typed SQL instance
-         writer.writeLine(`${pascalTableName},`);
-      });
-   });
-
    return writer.toString();
 }

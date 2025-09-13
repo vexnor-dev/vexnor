@@ -1,4 +1,3 @@
-export * from "./sql.js";
 export * from "./sql-table.js";
 export * from "./sql-raw.js";
 export * from "./sql-column.js";
@@ -6,6 +5,7 @@ export * from "./types.js";
 export * from "./sql-types.js";
 export * from "./sql-param.js";
 export * from "./sql-query.js";
-export * from "./sql-client.js";
 export * from "./plugins/index.js";
 export * from "./sql-build-error.js";
+export * from "./sql.js";
+export * from "./clients/index.js";

@@ -83,8 +83,8 @@ main
 
                throw new Error(`Invalid database connection parameters: host, database and user are required`);
             });
-            tables = await psql.findTables.getAll(client, { schemas });
-            enums = await psql.findEnums.getAll(client, { schemas });
+            tables = await psql.findTables.pg.getAll(client, { schemas });
+            enums = await psql.findEnums.pg.getAll(client, { schemas });
             logger.info(
                {
                   postgres: {
@@ -107,7 +107,7 @@ main
                driver,
                pascalCaseTables,
                camelCaseColumns,
-               includeEnums: enums?.length > 0,
+               includeEnums: enums.length > 0,
             });
 
             break;
