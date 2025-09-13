@@ -36,11 +36,6 @@ runs:
       run: pnpm install --frozen-lockfile
       shell: bash
 
-    - name: Build
-      id: build
-      run: pnpm run build
-      shell: bash
-
     - name: Wait for Postgres
       uses: ./.github/actions/wait-for-postgres
 
@@ -59,12 +54,11 @@ runs:
       run: |
         tree ./packages/testing-e2e/src
 
-#    - name: Run tests
-#      id: tests
-#      shell: bash
-#      run: |
-#        pnpm -r run test
-#
+    - name: Build
+      id: build
+      run: pnpm run build
+      shell: bash
+
     - name: Run tests
       id: tests
       shell: bash
