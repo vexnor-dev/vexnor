@@ -61,19 +61,19 @@ export type IAccountInsert = {
    lastName: string;
    notes?: string | null;
    email: string;
-};
+}
 
 export type IAccountUpdate = Partial<IAccountInsert>;
 
 export type IAccountSelect = {
-   readonly firstName: string;
-   readonly accountId: string;
-   readonly status: udt.AccountStatusUdt;
-   readonly createdAt: Date;
-   readonly modifiedAt: Date;
-   readonly lastName: string;
-   readonly notes: string | null;
-   readonly email: string;
-};
+   readonly firstName: string
+   readonly accountId: string
+   readonly status: udt.AccountStatusUdt
+   readonly createdAt: Date
+   readonly modifiedAt: Date
+   readonly lastName: string
+   readonly notes: string | null
+   readonly email: string
+}
 
 export type IAccountJson = lib.JsonRow<IAccountSelect>;

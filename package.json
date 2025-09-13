@@ -12,7 +12,7 @@
   ],
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "db-migrate": "env-cmd --silent -x -f .env postgrator --username \\$POSTGRES_USER --password \\$POSTGRES_PASSWORD --config @db-migrations-postgres/migrate-local.json",
+    "db-migrate": "env-cmd --no-override -x -r ./env-dev.json -e db postgrator --username \\$POSTGRES_USER --password \\$POSTGRES_PASSWORD --config @db-migrations-postgres/migrate-local.json",
     "clean:build": "pnpm -r --parallel exec rimraf dist deploy tsconfig.tsbuildinfo",
     "clean:1-lock-file": "pnpm exec rimraf pnpm-lock.yaml",
     "clean:2-dependencies-r": "pnpm -r --parallel exec rimraf node_modules",
