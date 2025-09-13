@@ -63,27 +63,28 @@ runs:
       id: tests
       shell: bash
       run: |
-        set -e
-        OUTPUT=$(pnpm -r run test)
-        echo "$OUTPUT"
-        REPORT_URL=$(echo "$OUTPUT" | grep -oE 'https://reports.cucumber.io/reports/[a-zA-Z0-9-]+')
-        if [ -n "$GITHUB_ENV" ]; then
-          echo "REPORT_URL=$REPORT_URL" >> "$GITHUB_ENV"
-        fi
-
-        if [ -n "$REPORT_URL" ]; then
-          if [ -n "$GITHUB_STEP_SUMMARY" ]; then
-            echo "🧪 Cucumber Report: [$REPORT_URL]($REPORT_URL)" >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "🧪 Cucumber Report: $REPORT_URL"
-          fi
-        else
-          if [ -n "$GITHUB_STEP_SUMMARY" ]; then
-            echo "❌ Cucumber report URL not found" >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "❌ Cucumber report URL not found"
-          fi
-        fi
+        pnpm test
+#        set -e
+#        OUTPUT=$(pnpm -r run test)
+#        echo "$OUTPUT"
+#        REPORT_URL=$(echo "$OUTPUT" | grep -oE 'https://reports.cucumber.io/reports/[a-zA-Z0-9-]+')
+#        if [ -n "$GITHUB_ENV" ]; then
+#          echo "REPORT_URL=$REPORT_URL" >> "$GITHUB_ENV"
+#        fi
+#
+#        if [ -n "$REPORT_URL" ]; then
+#          if [ -n "$GITHUB_STEP_SUMMARY" ]; then
+#            echo "🧪 Cucumber Report: [$REPORT_URL]($REPORT_URL)" >> "$GITHUB_STEP_SUMMARY"
+#          else
+#            echo "🧪 Cucumber Report: $REPORT_URL"
+#          fi
+#        else
+#          if [ -n "$GITHUB_STEP_SUMMARY" ]; then
+#            echo "❌ Cucumber report URL not found" >> "$GITHUB_STEP_SUMMARY"
+#          else
+#            echo "❌ Cucumber report URL not found"
+#          fi
+#        fi
 
     - name: 💬 Comment report URL on PR
       shell: bash
