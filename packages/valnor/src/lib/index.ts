@@ -9,3 +9,4 @@ export * from "./plugins/index.js";
 export * from "./sql-build-error.js";
 export * from "./sql.js";
 export * from "./clients/index.js";
+export { randomName } from "./random-name.js";

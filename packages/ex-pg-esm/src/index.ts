@@ -87,9 +87,7 @@ const UserOrders = sql<IOrderSelect, { limit: number }>`
 const findAccountsWithOrders = sql<IAccountWithOrders, { limit: number }>`
    SELECT ${Account.$$all},
           ${jsonAgg(UserOrders)} "orders"
-   FROM ${Account}
-           LEFT JOIN LATERAL ( ${jsonAgg(UserOrders)})
-   on TRUE
+   FROM ${Account} ${jsonAgg(UserOrders)}
    WHERE ${Account.accountId} = ${newAccount.accountId}`;
 
 const accountWithLimitedOrders = await findAccountsWithOrders.pg.getOneRequired(pool, {

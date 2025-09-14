@@ -2,7 +2,6 @@ import { RowOut, SqlBuild, SqlValuesArgs } from "./sql-types.js";
 import { SqlQueryRow } from "./sql-query-row.js";
 import { SqlColumn } from "./sql-column.js";
 import { x } from "./x.js";
-import { generateRandomName } from "./types.js";
 import { ok } from "assert";
 import { SqlParam } from "./sql-param.js";
 import { SqlQueryContext } from "./sql-query-context.js";
@@ -10,6 +9,7 @@ import { logger } from "../cli/logger.js";
 import { Sql } from "./sql-base.js";
 import { SqlInfo } from "./plugins/index.js";
 import * as crypto from "node:crypto";
+import { randomName } from "./random-name.js";
 
 const WILDCARD = "?";
 
@@ -30,7 +30,7 @@ export class SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> |
          const info = rawValues.find((v) => v instanceof SqlInfo);
          if (info) return info.options.label;
 
-         return "query_" + generateRandomName();
+         return randomName("query");
       });
       this.ID = crypto.randomUUID();
    }

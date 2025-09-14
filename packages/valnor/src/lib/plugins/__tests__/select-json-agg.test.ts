@@ -1,95 +1,94 @@
-import { describe, expect, test } from "vitest";
-import { IOrdersSelect, Orders } from "../../__tests__/types/orders-model.js";
-import { info } from "../sql-info.js";
-import { IUsersSelect, Users } from "../../__tests__/types/index.js";
-import { param } from "../../sql-param.js";
-import { jsonAgg } from "../select-json-agg.js";
+import { describe, expect, test, vi } from "vitest";
+import { IOrderSelect, Order } from "../../__tests__/codegen/pg/one_sql.order-table.js";
+import { info, jsonAgg, param, sql } from "valnor";
+import { Account, IAccountSelect } from "../../__tests__/codegen/pg/one_sql.account-table.js";
 import { trim } from "../../__tests__/utils.js";
 import { SqlQueryContext } from "../../sql-query-context.js";
-import { sql } from "../../sql.js";
 import { SQL_KEYWORDS } from "../../sql-keyword.js";
 
+vi.mock("../../random-name.js", () => ({
+   randomName: (name: string) => (name === "account" ? "account" : name === "order" ? "order" : name),
+}));
+
 describe("sql plugin jsonAgg() tests", () => {
-   const UserOrders = sql<IOrdersSelect, { limit: 5 }>`
-      ${info({ label: "UserOrders" })}
-      select ${Orders.orderId}, ${Orders.status}, ${Orders.total}, ${Orders.createdAt}, ${Orders.updatedAt}
-      from ${Orders}
-      where ${Orders.userId} = ${Users.userId}
-      order by ${Orders.createdAt} desc
+   const AccountOrders = sql<IOrderSelect, { limit: 5 }>`
+      ${info({ label: "AccountOrders" })}
+      select ${Order.orderId}, ${Order.status}, ${Order.createdAt}, ${Order.modifiedAt}
+      from ${Order}
+      where ${Order.accountId} = ${Account.accountId}
+      order by ${Order.createdAt} desc
       limit ${param("limit")}`;
 
    test("jsonAgg(): select", () => {
       const context = new SqlQueryContext({ queryName: "test", keywords: ["select"] });
-      jsonAgg(UserOrders).build(context);
-      expect(context.strings[0]).toBe(`"${UserOrders.name}_result"`);
+      jsonAgg(AccountOrders).build(context);
+      expect(context.strings[0]).toBe(`"${AccountOrders.name}_result"`);
    });
 
    test.each(SQL_KEYWORDS.filter((z) => !["select", "from"].includes(z)))("jsonAgg(): %s throws error", (keyword) => {
       const context = new SqlQueryContext({ queryName: "test", keywords: [keyword] });
-      expect(() => jsonAgg(UserOrders).build(context)).toThrow("Cannot use jsonAgg() with SQL keyword:");
+      expect(() => jsonAgg(AccountOrders).build(context)).toThrow("Cannot use jsonAgg() with SQL keyword:");
    });
 
    test("jsonAgg(): from", () => {
       const context = new SqlQueryContext({ queryName: "test", keywords: ["from"] });
-      jsonAgg(UserOrders).build(context);
+      jsonAgg(AccountOrders).build(context);
       expect(trim(context.strings.join(""))).toBe(
          trim`
             left join lateral (
-               select coalesce(jsonb_agg("UserOrders".*), '[]') as "UserOrders_result"
-               from ( /* --label: UserOrders */
-                       select "orders_1"."order_id"   as "orderId",
-                              "orders_1"."status",
-                              "orders_1"."total",
-                              "orders_1"."created_at" as "createdAt",
-                              "orders_1"."updated_at" as "updatedAt"
-                       from "public"."orders" as "orders_1"
-                       where "orders_1"."user_id" = "users_1"."user_id"
-                       order by "orders_1"."created_at" desc
-                       limit $limit) as "UserOrders") as "UserOrders" on true
+               select coalesce(jsonb_agg("AccountOrders".*), '[]') as "AccountOrders_result"
+               from ( /* --label: AccountOrders */
+                       select "order"."order_id"   as "orderId",
+                              "order"."status",
+                              "order"."created_at" as "createdAt",
+                              "order"."modified_at" as "modifiedAt"
+                       from "one_sql"."order"
+                       where "order"."account_id" = "account"."account_id"
+                       order by "order"."created_at" desc
+                       limit $limit) as "AccountOrders") as "AccountOrders" on true
          `,
       );
    });
 
    test("jsonAgg() with params", () => {
-      const UserOrders = sql<IOrdersSelect, { limit: 5 }>`
-         ${info({ label: "UserOrders" })}
-         select ${Orders.orderId}, ${Orders.status}, ${Orders.total}, ${Orders.createdAt}, ${Orders.updatedAt}
-         from ${Orders}
-         where ${Orders.userId} = ${Users.userId}
-         order by ${Orders.createdAt} desc
+      const AccountOrders = sql<IOrderSelect, { limit: 5 }>`
+         ${info({ label: "AccountOrders" })}
+         select ${Order.orderId}, ${Order.status}, ${Order.createdAt}, ${Order.modifiedAt}
+         from ${Order}
+         where ${Order.accountId} = ${Account.accountId}
+         order by ${Order.createdAt} desc
          limit ${param("limit")}`;
 
-      const query = sql<IUsersSelect, { city: string; limit: number }>`
-         select ${Users.$$all}, ${jsonAgg(UserOrders)} as "orders"
-         from ${Users} ${jsonAgg(UserOrders)}
-         order by ${Users.userId} asc
+      const query = sql<IAccountSelect, { email: string; limit: number }>`
+         select ${Account.$$all}, ${jsonAgg(AccountOrders)} as "orders"
+         from ${Account} ${jsonAgg(AccountOrders)}
+         order by ${Account.accountId} asc
       `;
 
-      expect(trim(query.sql({ city: "Munich", limit: 5 }))).toBe(
-         trim`select "users_1"."user_id"    as "userId",
-                     "users_1"."name",
-                     "users_1"."email",
-                     "users_1"."age",
-                     "users_1"."city",
-                     "users_1"."password",
-                     "users_1"."created_at" as "createdAt",
-                     "users_1"."updated_at" as "updatedAt",
-                     "UserOrders_result"    as "orders"
-              from "public"."users" as "users_1"
+      expect(trim(query.sql({ email: "test@example.com", limit: 5 }))).toBe(
+         trim`select "account"."first_name"  as "firstName",
+                     "account"."account_id"  as "accountId",
+                     "account"."status",
+                     "account"."created_at"  as "createdAt",
+                     "account"."modified_at" as "modifiedAt",
+                     "account"."last_name"   as "lastName",
+                     "account"."notes",
+                     "account"."email",
+                     "AccountOrders_result"  as "orders"
+              from "one_sql"."account"
                       left join lateral (
-                 select coalesce(jsonb_agg("UserOrders".*), '[]') as "UserOrders_result"
+                 select coalesce(jsonb_agg("AccountOrders".*), '[]') as "AccountOrders_result"
                  from (
-                         /* --label: UserOrders */
-                         select "orders_1"."order_id"   as "orderId",
-                                "orders_1"."status",
-                                "orders_1"."total",
-                                "orders_1"."created_at" as "createdAt",
-                                "orders_1"."updated_at" as "updatedAt"
-                         from "public"."orders" as "orders_1"
-                         where "orders_1"."user_id" = "users_1"."user_id"
-                         order by "orders_1"."created_at" desc
-                         limit ?) as "UserOrders") as "UserOrders" on true
-              order by "users_1"."user_id" asc`,
+                         /* --label: AccountOrders */
+                         select "order"."order_id"    as "orderId",
+                                "order"."status",
+                                "order"."created_at"  as "createdAt",
+                                "order"."modified_at" as "modifiedAt"
+                         from "one_sql"."order"
+                         where "order"."account_id" = "account"."account_id"
+                         order by "order"."created_at" desc
+                         limit ?) as "AccountOrders") as "AccountOrders" on true
+              order by "account"."account_id" asc`,
       );
    });
 });

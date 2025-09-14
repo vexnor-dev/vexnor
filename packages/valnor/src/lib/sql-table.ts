@@ -5,9 +5,9 @@ import { Sql } from "./sql-base.js";
 import { ok } from "assert";
 import { TableInsertValues, TableUpdateSet } from "./plugins/index.js";
 import { RowIn } from "./sql-types.js";
-import { generateRandomName } from "./types.js";
 import { SqlKeyword } from "./sql-keyword.js";
 import { SqlBuildError } from "./sql-build-error.js";
+import { randomName } from "./random-name.js";
 
 export interface SqlTableOptions {
    readonly schema?: string;
@@ -37,7 +37,7 @@ export class SqlTable<T extends { Insert: RowIn; Update: RowIn }> extends Sql {
       super();
       this.options = {
          ...options,
-         alias: options.alias ?? `${options.name}_${generateRandomName(3)}`,
+         alias: options.alias ?? randomName(options.name),
       };
    }
 
@@ -157,7 +157,7 @@ export function newTable<
       Update: RowIn;
    },
 >(options: NewTableOptions<TTypes>, cols: TColumns): SqlTable<TTypes> & SqlTableColumns<TColumns> {
-   const tableName = options.alias ?? `${options.name}_${generateRandomName()}`;
+   const tableName = options.alias ?? randomName(options.name);
    const pk = x(() => {
       if (!options.pk) return undefined;
       if (typeof options.pk === "string") {

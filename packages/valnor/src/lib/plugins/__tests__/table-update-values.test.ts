@@ -1,43 +1,40 @@
-import { describe, expect, test } from "vitest";
-import { sql } from "../../sql.js";
-import { IUsersSelect, Users } from "../../__tests__/types/index.js";
-import { param } from "../../sql-param.js";
+import { describe, expect, test, vi } from "vitest";
+import { param, sql } from "valnor";
+import { Account, IAccountSelect } from "../../__tests__/codegen/pg/one_sql.account-table.js";
 import { trim } from "../../__tests__/utils.js";
+
+vi.mock("../../random-name.js", () => ({
+   randomName: (name: string) => (name === "account" ? "account" : name),
+}));
 
 describe("sql plugin: table.$$set tests", () => {
    test("sql() update with $set()", () => {
-      const updatedAt = new Date();
-      const query = sql<IUsersSelect, { userId: number }>`
-         update ${Users}
-         set ${Users.$$set({
-            name: "Bob",
-            age: 24,
+      const modifiedAt = new Date();
+      const query = sql<IAccountSelect, { accountId: string }>`
+         update ${Account}
+         set ${Account.$$set({
+            firstName: "Bob",
+            lastName: "Smith",
             email: "bob@example.com",
-            city: "Munich",
-            password: "test1234",
-            updatedAt,
+            modifiedAt,
          })}
-         where ${Users.userId} = ${param("userId")}
-         returning ${Users.$$all}`;
-      expect(query.values({ userId: 101 })).toEqual([
+         where ${Account.accountId} = ${param("accountId")}
+         returning ${Account.$$all}`;
+      expect(query.values({ accountId: "123e4567-e89b-12d3-a456-426614174000" })).toEqual([
          "Bob",
+         modifiedAt,
+         "Smith",
          "bob@example.com",
-         24,
-         "Munich",
-         "test1234",
-         updatedAt,
-         101,
+         "123e4567-e89b-12d3-a456-426614174000",
       ]);
-      expect(trim(query.sql({ userId: 101 }))).toBe(
-         trim`update "public"."users" as "users_1"
-              set "name"       = ?,
-                  "email"      = ?,
-                  "age"        = ?,
-                  "city"       = ?,
-                  "password"   = ?,
-                  "updated_at" = ?
-              where "users_1"."user_id" = ?
-              returning "users_1"."user_id" as "userId", "users_1"."name", "users_1"."email", "users_1"."age", "users_1"."city", "users_1"."password", "users_1"."created_at" as "createdAt", "users_1"."updated_at" as "updatedAt"`,
+      expect(trim(query.sql({ accountId: "123e4567-e89b-12d3-a456-426614174000" }))).toBe(
+         trim`update "one_sql"."account"
+              set "first_name"  = ?,
+                  "modified_at" = ?,
+                  "last_name"   = ?,
+                  "email"       = ?
+              where "account"."account_id" = ?
+              returning "account"."first_name" as "firstName", "account"."account_id" as "accountId", "account"."status", "account"."created_at" as "createdAt", "account"."modified_at" as "modifiedAt", "account"."last_name" as "lastName", "account"."notes", "account"."email"`,
       );
    });
 });

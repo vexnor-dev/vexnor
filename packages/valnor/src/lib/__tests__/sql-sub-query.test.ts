@@ -1,75 +1,78 @@
-import { describe, expect, test } from "vitest";
-import { sql } from "../sql.js";
-import { IUsersSelect, Users } from "./types/index.js";
-import { info } from "../plugins/index.js";
-import { param } from "../sql-param.js";
+import { describe, expect, test, vi } from "vitest";
+import { Account, IAccountSelect } from "./codegen/pg/one_sql.account-table.js";
+import { info, param, sql } from "valnor";
 import { trim } from "./utils.js";
+
+vi.mock("../random-name.js", () => ({
+   randomName: (name: string) => (name === "account" ? "account_1" : `${name}_1`),
+}));
 
 describe("sql subqueries tests", () => {
    test("sub-query from", () => {
-      const UsersInCity = sql<IUsersSelect, { city: string }>`
-         ${info({ label: "UsersInCity" })}
-         select ${Users.$$all}
-         from ${Users}
-         where ${Users.city} = ${param("city")}`;
+      const AccountsWithEmail = sql<IAccountSelect, { email: string }>`
+         ${info({ label: "AccountsWithEmail" })}
+         select ${Account.$$all}
+         from ${Account}
+         where ${Account.email} = ${param("email")}`;
 
-      const query = sql<IUsersSelect, { age: number; city: string }>`
-         select ${UsersInCity.ROW.$$all}
-         from (${UsersInCity})
-         where ${UsersInCity.ROW.age} > ${param("age")}`;
+      const query = sql<IAccountSelect, { firstName: string; email: string }>`
+         select ${AccountsWithEmail.ROW.$$all}
+         from (${AccountsWithEmail})
+         where ${AccountsWithEmail.ROW.firstName} = ${param("firstName")}`;
 
       query.buildCache();
-      expect(query.values({ age: 21, city: "Munich" })).toEqual(["Munich", 21]);
-      expect(trim(query.sql({ age: 21, city: "Munich" }))).toBe(trim`select "UsersInCity".*
-                                                                     from (( /* --label: UsersInCity */ select "users_1"."user_id"    as "userId",
-                                                                                                               "users_1"."name",
-                                                                                                               "users_1"."email",
-                                                                                                               "users_1"."age",
-                                                                                                               "users_1"."city",
-                                                                                                               "users_1"."password",
-                                                                                                               "users_1"."created_at" as "createdAt",
-                                                                                                               "users_1"."updated_at" as "updatedAt"
-                                                                                                        from "public"."users" as "users_1"
-                                                                                                        where "users_1"."city" = ?) as "UsersInCity")
-                                                                     where "UsersInCity"."age" > ?`);
+      expect(query.values({ firstName: "John", email: "test@example.com" })).toEqual(["test@example.com", "John"]);
+      expect(trim(query.sql({ firstName: "John", email: "test@example.com" }))).toBe(trim`select "AccountsWithEmail".*
+                                                                     from (( /* --label: AccountsWithEmail */ select "account_1"."first_name"    as "firstName",
+                                                                                                               "account_1"."account_id" as "accountId",
+                                                                                                               "account_1"."status",
+                                                                                                               "account_1"."created_at" as "createdAt",
+                                                                                                               "account_1"."modified_at" as "modifiedAt",
+                                                                                                               "account_1"."last_name" as "lastName",
+                                                                                                               "account_1"."notes",
+                                                                                                               "account_1"."email"
+                                                                                                        from "one_sql"."account" as "account_1"
+                                                                                                        where "account_1"."email" = ?) as "AccountsWithEmail")
+                                                                     where "AccountsWithEmail"."firstName" = ?`);
    });
 
    test("sub-query join", () => {
-      const UsersInCity = sql<IUsersSelect, { city: string }>`
-         ${info({ label: "UsersInCity" })}
-         select ${Users.$$all}
-         from ${Users}
-         where ${Users.city} = ${param("city")}
+      const AccountsWithEmail = sql<IAccountSelect, { email: string }>`
+         ${info({ label: "AccountsWithEmail" })}
+         select ${Account.$$all}
+         from ${Account}
+         where ${Account.email} = ${param("email")}
       `;
 
-      const query = sql<IUsersSelect, { age: number; city: string }>`select ${Users.$$all}
-                                                                     from ${Users}
-                                                                             join (${UsersInCity}) on ${Users.userId} = ${UsersInCity.ROW.userId}
-                                                                     where ${Users.age} > ${param("age")}`;
+      const query = sql<IAccountSelect, { firstName: string; email: string }>`select ${Account.$$all}
+                                                                     from ${Account}
+                                                                             join (${AccountsWithEmail}) on ${Account.accountId} = ${AccountsWithEmail.ROW.accountId}
+                                                                     where ${Account.firstName} = ${param("firstName")}`;
 
-      expect(query.values({ age: 21, city: "Munich" })).toEqual(["Munich", 21]);
-      expect(trim(query.sql({ age: 21, city: "Munich" }))).toBe(trim`select "users_1"."user_id" as "userId",
-                                                                            "users_1"."name",
-                                                                            "users_1"."email",
-                                                                            "users_1"."age",
-                                                                            "users_1"."city",
-                                                                            "users_1"."password",
-                                                                            "users_1"."created_at" as "createdAt",
-                                                                            "users_1"."updated_at" as "updatedAt"
-                                                                     from "public"."users" as "users_1"
+      expect(query.values({ firstName: "John", email: "test@example.com" })).toEqual(["test@example.com", "John"]);
+      expect(trim(query.sql({ firstName: "John", email: "test@example.com" })))
+         .toBe(trim`select "account_1"."first_name" as "firstName",
+                                                                            "account_1"."account_id" as "accountId",
+                                                                            "account_1"."status",
+                                                                            "account_1"."created_at" as "createdAt",
+                                                                            "account_1"."modified_at" as "modifiedAt",
+                                                                            "account_1"."last_name" as "lastName",
+                                                                            "account_1"."notes",
+                                                                            "account_1"."email"
+                                                                     from "one_sql"."account" as "account_1"
                                                                              join ((
-                                                                        /* --label: UsersInCity */
-                                                                        select "users_1"."user_id"  as  "userId",
-                                                                               "users_1"."name",
-                                                                               "users_1"."email",
-                                                                               "users_1"."age",
-                                                                               "users_1"."city",
-                                                                               "users_1"."password",
-                                                                               "users_1"."created_at" as "createdAt",
-                                                                               "users_1"."updated_at" as "updatedAt"
-                                                                        from "public"."users" as "users_1"
-                                                                        where "users_1"."city" = ?) as "UsersInCity")
-                                                                     on "users_1"."user_id" = "UsersInCity"."userId"
-                                                                     where "users_1"."age" > ?`);
+                                                                        /* --label: AccountsWithEmail */
+                                                                        select "account_1"."first_name"  as  "firstName",
+                                                                               "account_1"."account_id" as "accountId",
+                                                                               "account_1"."status",
+                                                                               "account_1"."created_at" as "createdAt",
+                                                                               "account_1"."modified_at" as "modifiedAt",
+                                                                               "account_1"."last_name" as "lastName",
+                                                                               "account_1"."notes",
+                                                                               "account_1"."email"
+                                                                        from "one_sql"."account" as "account_1"
+                                                                        where "account_1"."email" = ?) as "AccountsWithEmail")
+                                                                     on "account_1"."account_id" = "AccountsWithEmail"."accountId"
+                                                                     where "account_1"."first_name" = ?`);
    });
 });

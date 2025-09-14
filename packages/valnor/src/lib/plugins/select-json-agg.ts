@@ -4,6 +4,14 @@ import { SqlQueryAny } from "../sql-query.js";
 import { raw } from "../sql-raw.js";
 import { sql } from "../sql.js";
 
+/**
+ * Sql class that aggregation of a subquery into a JSON array
+ * @example
+ * SELECT ${Account.$$all},
+ *           ${jsonAgg(UserOrders)} "orders"
+ *    FROM ${Account} ${jsonAgg(UserOrders)}
+ *    WHERE ${Account.accountId} = ${newAccount.accountId}
+ */
 export class SelectJsonAgg extends Sql {
    constructor(public readonly select: SqlQueryAny) {
       super();
@@ -35,7 +43,13 @@ export class SelectJsonAgg extends Sql {
 
 /**
  * Creates a new SelectJsonAgg (Sql) object query block.
- * @param select
+ * @param select sql query to aggregate
+ * @returns SelectJsonAgg (Sql) object query block
+ * @example
+ * SELECT ${Account.$$all},
+ *           ${jsonAgg(UserOrders)} "orders"
+ *    FROM ${Account} ${jsonAgg(UserOrders)}
+ *    WHERE ${Account.accountId} = ${newAccount.accountId}
  */
 export function jsonAgg(select: SqlQueryAny) {
    if (!cache.has(select)) {
