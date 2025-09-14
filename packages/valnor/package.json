@@ -32,6 +32,8 @@
       "valnor": "./cli.mjs"
    },
    "scripts": {
+      "codegen": "run-s 'codegen:*' | pino-pretty",
+      "codegen:1-generate": "env-cmd --no-override -x -r ../../env-dev.json -e db node ./cli.mjs generate --driver pg --schema one_sql --pascalCaseTables --camelCaseColumns --host \\$POSTGRES_HOST --port \\$POSTGRES_PORT --database \\$POSTGRES_DATABASE --user \\$POSTGRES_USER --password \\$POSTGRES_PASSWORD --outDir 'src/lib/__tests__/codegen/pg'",
       "build": "run-s 'build:*'",
       "build:1-template-1": "copyfiles -f ./src/include/postgres-library.ts ./dist/@templates",
       "build:1-template-2": "copyfiles -f ./src/lib/types.ts ./dist/@templates",

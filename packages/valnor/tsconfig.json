@@ -10,7 +10,10 @@
       "ESNext"
     ],
     "composite": true,
-
+    "baseUrl": ".",
+    "paths": {
+      "valnor": ["./src/lib/index.ts"]
+    }
   },
   "include": [
     "src/**/*"
