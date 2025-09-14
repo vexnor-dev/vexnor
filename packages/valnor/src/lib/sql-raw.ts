@@ -11,6 +11,6 @@ export class SqlRaw extends Sql {
    }
 }
 
-export function raw(value: string) {
+export function raw(value: string): Sql {
    return new SqlRaw(value);
 }

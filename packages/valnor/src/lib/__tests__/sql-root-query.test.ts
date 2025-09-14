@@ -16,7 +16,7 @@ describe("sql() tests", () => {
       const query = sql<
          Row,
          { names: string[]; city: string }
-      >`select ${Users.name}, min(${Users.age}), ${Users.city.$$fmt("table.name")} user_city, ${Users.createdAt}
+      >`select ${Users.name}, min(${Users.age}), ${Users.city.$$fmt("table.column")} user_city, ${Users.createdAt}
         from ${Users}
         where ${Users.city} = ${param("city")}
           and ${Users.name} in (${param("names")})

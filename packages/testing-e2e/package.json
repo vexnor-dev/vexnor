@@ -10,7 +10,7 @@
       "prebuild": "run-s 'codegen'",
       "build": "tsc -b",
       "pretest": "run-s 'build'",
-      "test": "env-cmd --no-override -x -r ../../env-dev.json -e db cucumber-js --publish"
+      "test": "env-cmd --no-override -x -r ../../env-dev.json -e db cucumber-js --publish | pino-pretty"
    },
    "keywords": [],
    "author": "",

@@ -1,6 +1,5 @@
 import { Sql } from "../sql-base.js";
 import { SqlQueryContext } from "../sql-query-context.js";
-import { RowOut } from "../sql-types.js";
 import { SqlQueryAny } from "../sql-query.js";
 import { raw } from "../sql-raw.js";
 import { sql } from "../sql.js";
@@ -15,14 +14,16 @@ export class SelectJsonAgg extends Sql {
          case "select":
             context.strings.push(`"${this.select.name}_result"`);
             break;
-         case "join": {
+         case "from": {
             const newContext = new SqlQueryContext({ queryName: this.select.name });
             const result = raw(this.select.name + "_result");
-            const join = sql<RowOut>`
-               select coalesce(jsonb_agg(${this.select.ROW.$$all}), '[]') as "${result}"
-               from ${this.select}`;
+            const join = sql`
+              select coalesce(jsonb_agg(${this.select.ROW.$$all}), '[]') as "${result}" 
+               from ${this.select}) as "${raw(this.select.name)}" on true`;
+
             join.build(newContext);
-            context.strings.push(...newContext.strings);
+
+            context.strings.push("left join lateral (", ...newContext.strings);
             context.values.push(...newContext.values);
             break;
          }
@@ -32,6 +33,10 @@ export class SelectJsonAgg extends Sql {
    }
 }
 
+/**
+ * Creates a new SelectJsonAgg (Sql) object query block.
+ * @param select
+ */
 export function jsonAgg(select: SqlQueryAny) {
    if (!cache.has(select)) {
       const result = new SelectJsonAgg(select);

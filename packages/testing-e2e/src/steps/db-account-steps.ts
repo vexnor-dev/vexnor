@@ -51,8 +51,7 @@ When(
       const findAccounts = sql<AccountWithOrders>`
          select ${Account.$$all},
                 ${jsonAgg(Orders)} as orders
-         from ${Account}
-                 left join lateral (${jsonAgg(Orders)}) on true
+         from ${Account} ${jsonAgg(Orders)}
          order by ${Account.createdAt} desc
          limit ${countOfAccounts}
       `;

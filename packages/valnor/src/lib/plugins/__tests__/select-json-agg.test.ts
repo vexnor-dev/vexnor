@@ -7,6 +7,7 @@ import { jsonAgg } from "../select-json-agg.js";
 import { trim } from "../../__tests__/utils.js";
 import { SqlQueryContext } from "../../sql-query-context.js";
 import { sql } from "../../sql.js";
+import { SQL_KEYWORDS } from "../../sql-keyword.js";
 
 describe("sql plugin jsonAgg() tests", () => {
    const UserOrders = sql<IOrdersSelect, { limit: 5 }>`
@@ -23,32 +24,33 @@ describe("sql plugin jsonAgg() tests", () => {
       expect(context.strings[0]).toBe(`"${UserOrders.name}_result"`);
    });
 
-   test("jsonAgg(): from", () => {
-      const context = new SqlQueryContext({ queryName: "test", keywords: ["from"] });
+   test.each(SQL_KEYWORDS.filter((z) => !["select", "from"].includes(z)))("jsonAgg(): %s throws error", (keyword) => {
+      const context = new SqlQueryContext({ queryName: "test", keywords: [keyword] });
       expect(() => jsonAgg(UserOrders).build(context)).toThrow("Cannot use jsonAgg() with SQL keyword:");
    });
 
-   test("jsonAgg(): join", () => {
-      const context = new SqlQueryContext({ queryName: "test", keywords: ["join"] });
+   test("jsonAgg(): from", () => {
+      const context = new SqlQueryContext({ queryName: "test", keywords: ["from"] });
       jsonAgg(UserOrders).build(context);
       expect(trim(context.strings.join(""))).toBe(
          trim`
-            select coalesce(jsonb_agg("UserOrders".*), '[]') as "UserOrders_result"
-            from (/* --label: UserOrders */
-                    select "orders_1"."order_id"   as "orderId",
-                           "orders_1"."status",
-                           "orders_1"."total",
-                           "orders_1"."created_at" as "createdAt",
-                           "orders_1"."updated_at" as "updatedAt"
-                    from "public"."orders" as "orders_1"
-                    where "orders_1"."user_id" = "users_1"."user_id"
-                    order by "orders_1"."created_at" desc
-                    limit $limit) as "UserOrders"
+            left join lateral (
+               select coalesce(jsonb_agg("UserOrders".*), '[]') as "UserOrders_result"
+               from ( /* --label: UserOrders */
+                       select "orders_1"."order_id"   as "orderId",
+                              "orders_1"."status",
+                              "orders_1"."total",
+                              "orders_1"."created_at" as "createdAt",
+                              "orders_1"."updated_at" as "updatedAt"
+                       from "public"."orders" as "orders_1"
+                       where "orders_1"."user_id" = "users_1"."user_id"
+                       order by "orders_1"."created_at" desc
+                       limit $limit) as "UserOrders") as "UserOrders" on true
          `,
       );
    });
 
-   test("subquery with params", () => {
+   test("jsonAgg() with params", () => {
       const UserOrders = sql<IOrdersSelect, { limit: 5 }>`
          ${info({ label: "UserOrders" })}
          select ${Orders.orderId}, ${Orders.status}, ${Orders.total}, ${Orders.createdAt}, ${Orders.updatedAt}
@@ -59,9 +61,7 @@ describe("sql plugin jsonAgg() tests", () => {
 
       const query = sql<IUsersSelect, { city: string; limit: number }>`
          select ${Users.$$all}, ${jsonAgg(UserOrders)} as "orders"
-         from ${Users}
-                 left join lateral ( ${jsonAgg(UserOrders)})
-         on true
+         from ${Users} ${jsonAgg(UserOrders)}
          order by ${Users.userId} asc
       `;
 
@@ -88,7 +88,7 @@ describe("sql plugin jsonAgg() tests", () => {
                          from "public"."orders" as "orders_1"
                          where "orders_1"."user_id" = "users_1"."user_id"
                          order by "orders_1"."created_at" desc
-                         limit ?) as "UserOrders") on true
+                         limit ?) as "UserOrders") as "UserOrders" on true
               order by "users_1"."user_id" asc`,
       );
    });

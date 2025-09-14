@@ -1,6 +1,8 @@
 import { SqlQueryContext } from "./sql-query-context.js";
 import { Sql, SqlBuildOptions } from "./sql-base.js";
+import { x } from "./x.js";
 import { SqlBuildError } from "./sql-build-error.js";
+import { SqlKeyword } from "./sql-keyword.js";
 
 export interface SqlColumnOptions {
    readonly name: string;
@@ -9,7 +11,20 @@ export interface SqlColumnOptions {
    readonly format?: SqlColumnFormat;
 }
 
-export type SqlColumnFormat = "table.name" | "name" | "table.alias" | "alias" | "table.name+alias";
+export type SqlColumnFormat = "table.column" | "column" | "table.alias" | "alias" | "table.column as alias";
+
+const SQL_COLUMN_FORMATS: Partial<Record<SqlKeyword, SqlColumnFormat>> = {
+   select: "table.column as alias",
+   returning: "table.column as alias",
+   fn: "table.column",
+   where: "table.column",
+   on: "table.column",
+   insert: "column",
+   values: "column",
+   set: "column",
+   "group by": "table.column",
+   "order by": "table.column",
+};
 
 export class SqlColumn extends Sql {
    readonly name: string;
@@ -73,69 +88,17 @@ export class SqlColumn extends Sql {
          strings.push(...tokens);
       }
 
-      switch (this.format) {
-         case "table.name+alias": {
-            if (this.alias === this.name || !this.alias) {
-               push(`${q(this.table)}.${q(this.name)}`);
-               break;
-            }
+      const format = x(() => {
+         if (this.format) return this.format;
 
-            push(`${q(this.table)}.${q(this.name)} as ${q(this.alias)}`);
-            break;
+         if (!keyword) {
+            throw new SqlBuildError(`SQL context keyword required for column '${this.table}.${this.name}'`, {
+               token: this,
+               strings,
+            });
          }
-         case "table.name":
-            return push(`${q(this.table)}.${q(this.name)}`);
-         case "name":
-            return push(`${q(this.name)}`);
-         case "table.alias":
-            return push(`${q(this.table)}."${q(this.alias ?? this.name)}`);
-         case "alias":
-            return push(`${q(this.alias ?? this.name)}`);
-      }
 
-      switch (keyword) {
-         case "select": {
-            if (this.alias === this.name || !this.alias) {
-               push(`${q(this.table)}.${q(this.name)}`);
-               break;
-            }
-
-            push(`${q(this.table)}.${q(this.name)} as ${q(this.alias)}`);
-            break;
-         }
-         case "returning":
-            if (this.alias === this.name || !this.alias) {
-               push(`${q(this.name)}`);
-               break;
-            }
-
-            push(`${q(this.name)} ${q(this.alias)}`);
-            break;
-         case "fn":
-            push(`${q(this.table)}.${q(this.name)}`);
-            break;
-         case "where":
-            push(`${q(this.table)}.${q(this.name)}`);
-            break;
-         case "on":
-            push(`${q(this.table)}.${q(this.name)}`);
-            break;
-         case "insert":
-            push(`${q(this.name)}`);
-            break;
-         case "values":
-            push(`${q(this.name)}`);
-            break;
-         case "set":
-            push(`${q(this.name)}`);
-            break;
-         case "group by":
-            push(`${q(this.table)}.${q(this.name)}`);
-            break;
-         case "order by":
-            push(`${q(this.table)}.${q(this.name)}`);
-            break;
-         default:
+         if (!SQL_COLUMN_FORMATS[keyword]) {
             throw new SqlBuildError(
                `Unknown SQL context keyword for column '${this.table}.${this.name}' and keyword '${keyword}'`,
                {
@@ -143,6 +106,29 @@ export class SqlColumn extends Sql {
                   strings,
                },
             );
+         }
+
+         return SQL_COLUMN_FORMATS[keyword];
+      });
+
+      // Use this.format if available
+      switch (format) {
+         case "table.column as alias": {
+            if (this.alias === this.name || !this.alias) {
+               push(`${q(this.table)}.${q(this.name)}`);
+               break;
+            }
+            push(`${q(this.table)}.${q(this.name)} as ${q(this.alias)}`);
+            break;
+         }
+         case "table.column":
+            return push(`${q(this.table)}.${q(this.name)}`);
+         case "column":
+            return push(`${q(this.name)}`);
+         case "table.alias":
+            return push(`${q(this.table)}.${q(this.alias ?? this.name)}`);
+         case "alias":
+            return push(`${q(this.alias ?? this.name)}`);
       }
    }
 }

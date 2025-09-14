@@ -1,6 +1,8 @@
 import { RowOut, SqlParams, SqlValue } from "./sql-types.js";
 import { SqlQuery } from "./sql-query.js";
 import { Sql } from "./sql-base.js";
+import { SqlTable } from "./sql-table.js";
+import { SqlColumn } from "./sql-column.js";
 
 /**
  * Creates a typed SQL query using plain SQL syntax and generated db mapping code.
@@ -20,10 +22,12 @@ import { Sql } from "./sql-base.js";
 export function sql<
    TRow extends RowOut = RowOut,
    TParams extends Record<string, SqlValue> | undefined = undefined,
+   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   TSql extends Sql = Sql | SqlTable<any> | SqlColumn,
    TValue =
       | SqlValue
-      | Sql
-      | Sql[]
+      | TSql
+      | TSql[]
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       | SqlQuery<{ Row: any; Params: Partial<TParams>; QueryResult: object }>
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

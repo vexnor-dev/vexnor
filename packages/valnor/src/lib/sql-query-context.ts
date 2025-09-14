@@ -1,5 +1,5 @@
 import { logger } from "../cli/logger.js";
-import { SQL_KEYWORD_CHECKS, SQL_KEYWORDS, SqlKeyword } from "./sql-keyword.js";
+import { parseSqlKeywords, SQL_KEYWORDS, SqlKeyword } from "./sql-keyword.js";
 
 export interface SqlQueryContextOptions {
    keywords?: SqlKeyword[];
@@ -41,13 +41,7 @@ export class SqlQueryContext {
    }
 
    get keyword(): SqlKeyword | undefined {
-      if (this.__keywords__.length === 0) return undefined;
       return this.__keywords__[this.__keywords__.length - 1];
-   }
-
-   set keyword(keyword: SqlKeyword) {
-      this.__keywords__.length = 0;
-      this.__keywords__.push(keyword);
    }
 
    get rawString(): string | undefined {
@@ -56,34 +50,13 @@ export class SqlQueryContext {
 
    next(text: string) {
       this.__rawString__ = text;
-      const __text__ = text.toLocaleLowerCase();
 
-      for (const token of __text__.toLocaleLowerCase().split(/\s+/)) {
-         if (!token) continue;
-
-         for (const keyword of SQL_KEYWORDS) {
-            if (token === keyword) {
-               this.__keywords__.push(keyword);
-               break;
-            }
-
-            if (SQL_KEYWORD_CHECKS[keyword]?.includes(token)) {
-               this.__keywords__.push(keyword);
-               break;
-            }
-         }
+      if (text.trimStart().startsWith(")") && this.keyword === "fn") {
+         this.__keywords__.pop();
       }
 
-      switch (true) {
-         case __text__.endsWith("(") && !__text__.endsWith(" ("):
-            this.__keywords__.push("fn");
-            break;
-         case __text__.startsWith(")") && this.keyword === "fn":
-            this.__keywords__.pop();
-            break;
-      }
-
-      return this.__keywords__.length > 0 ? this.__keywords__[this.__keywords__.length - 1] : undefined;
+      const keywords = parseSqlKeywords(text);
+      this.__keywords__.push(...keywords);
    }
 
    matchKeyword(...keywords: SqlKeyword[]): boolean {
@@ -97,4 +70,8 @@ export class SqlQueryContext {
 
       return true;
    }
+}
+
+export function isSqlKeywordCandidate(token: string): boolean {
+   return SQL_KEYWORDS.some((keyword) => keyword.startsWith(token));
 }

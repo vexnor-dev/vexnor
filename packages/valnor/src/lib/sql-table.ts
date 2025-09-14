@@ -6,6 +6,8 @@ import { ok } from "assert";
 import { TableInsertValues, TableUpdateSet } from "./plugins/index.js";
 import { RowIn } from "./sql-types.js";
 import { generateRandomName } from "./types.js";
+import { SqlKeyword } from "./sql-keyword.js";
+import { SqlBuildError } from "./sql-build-error.js";
 
 export interface SqlTableOptions {
    readonly schema?: string;
@@ -13,7 +15,20 @@ export interface SqlTableOptions {
    readonly alias?: string;
    readonly pk?: SqlColumn;
    readonly cols: Record<string, SqlColumn>;
+   readonly format?: SqlTableFormat;
 }
+
+export type SqlTableFormat = "table" | "schema.table" | "schema.table as alias" | "alias";
+
+const SQL_TABLE_FORMATS: Partial<Record<SqlKeyword, SqlTableFormat>> = {
+   from: "schema.table as alias",
+   with: "table",
+   insert: "schema.table as alias",
+   update: "schema.table as alias",
+   delete: "schema.table",
+   join: "schema.table as alias",
+   fn: "alias",
+};
 
 export class SqlTable<T extends { Insert: RowIn; Update: RowIn }> extends Sql {
    private readonly options: SqlTableOptions;
@@ -74,14 +89,41 @@ export class SqlTable<T extends { Insert: RowIn; Update: RowIn }> extends Sql {
 
    build({ keyword, strings }: SqlQueryContext) {
       const schema = this.$$.schema ? `"${this.$$.schema}".` : "";
-      switch (keyword) {
-         case "with":
+
+      const format = x(() => {
+         if (this.options.format) return this.options.format;
+
+         if (!keyword) {
+            throw new SqlBuildError(
+               `SQL context keyword required for table '${this.options.schema}.${this.options.schema}'`,
+               {
+                  token: this,
+                  strings,
+               },
+            );
+         }
+
+         if (!SQL_TABLE_FORMATS[keyword]) {
+            throw new SqlBuildError(
+               `Unknown SQL context keyword for column '${this.options.schema}.${this.options.name}' and keyword '${keyword}'`,
+               {
+                  token: this,
+                  strings,
+               },
+            );
+         }
+
+         return SQL_TABLE_FORMATS[keyword];
+      });
+
+      switch (format) {
+         case "table":
             strings.push(`"${this.$$.name}"`);
             break;
-         case "insert":
+         case "schema.table":
             strings.push(`${schema}"${this.$$.name}"`);
             break;
-         case "update":
+         case "schema.table as alias":
             if (this.$$.name === this.$$.alias) {
                strings.push(`${schema}"${this.$$.name}"`);
                break;
@@ -89,23 +131,11 @@ export class SqlTable<T extends { Insert: RowIn; Update: RowIn }> extends Sql {
 
             strings.push(`${schema}"${this.$$.name}" as "${this.$$.alias}"`);
             break;
-         case "delete":
-            strings.push(`${schema}"${this.$$.name}"`);
-            break;
-         case "from":
-         case "join":
-            if (this.$$.name === this.$$.alias) {
-               strings.push(`${schema}"${this.$$.name}"`);
-               break;
-            }
-
-            strings.push(`${schema}"${this.$$.name}" as "${this.$$.alias}"`);
-            break;
-         case "fn":
+         case "alias":
             strings.push(`"${this.$$.alias ?? this.$$.name}"`);
             break;
          default:
-            throw new Error(`Unknown command: ${keyword}`);
+            throw new Error(`Unknown table format: ${format}`);
       }
    }
 }

@@ -9,53 +9,60 @@ describe("QueryContext: next keyword", () => {
    });
 
    test("select", () => {
-      const command = target.next("select ");
-      expect(command).toBe("select");
+      target.next("select ");
+      expect(target.keywords).toEqual(["select"]);
    });
 
-   test("(select", () => {
-      const command = target.next("(select ");
-      expect(command).toBe("select");
+   test("order by", () => {
+      target.next("order by ");
+      expect(target.keywords).toEqual(["order by"]);
+   });
+
+   test.each(["(select", ")select", "select(", "select"])("select with brackets: %s", (input) => {
+      target.next(input);
+      expect(target.keywords).toEqual(["select"]);
+      expect(target.keyword).toEqual("select");
    });
 
    test("from", () => {
-      const command = target.next("select * from users");
-      expect(command).toBe("from");
+      target.next("select * from users");
+      expect(target.keywords).toEqual(["select", "from"]);
    });
 
    test("where", () => {
-      const command = target.next("select * from users where name = 'Bob'");
-      expect(command).toBe("where");
+      target.next("select * from users where name = 'Bob'");
+      expect(target.keywords).toEqual(["select", "from", "where"]);
    });
 
    test("join", () => {
-      const command = target.next("select * from users join orders");
-      expect(command).toBe("join");
+      target.next("select * from users join orders");
+      expect(target.keywords).toEqual(["select", "from", "join"]);
    });
 
    test("join ... on", () => {
-      const command = target.next("select * from users join orders on users.user_id = orders.user_id");
-      expect(command).toBe("on");
+      target.next("select * from users join orders on users.user_id = orders.user_id");
+      expect(target.keywords).toEqual(["select", "from", "join", "on"]);
    });
 
    test("fn", () => {
-      const command = target.next(`, min(`);
-      expect(command).toBe("fn");
+      target.next(`, min(`);
+      expect(target.keywords).toEqual(["fn"]);
    });
 
    test("fn (2)", () => {
-      const command = target.next(`" as enum_schema,\\n                   json_agg(`);
-      expect(command).toBe("fn");
+      target.next(`" as enum_schema,\\n                   json_agg(`);
+      expect(target.keywords).toEqual(["fn"]);
    });
 
    test("fn (3): back to select from fn call", () => {
-      expect(target.next(`select `)).toBe("select");
+      target.next(`select `);
       expect(target.keyword).toBe("select");
-      expect(target.next(`, min(`)).toBe("fn");
-      expect(target.keyword).toBe("fn");
-      expect(target.matchKeyword("select", "fn")).toBe(true);
-      expect(target.next(`), "`)).toBe("select");
-      expect(target.keyword).toBe("select");
+
+      target.next(`, min(`);
+      expect(target.keywords).toEqual(["select", "fn"]);
+
+      target.next(`), "`);
+      expect(target.keywords).toEqual(["select"]);
    });
 
    test("match select ... json_agg(...)", () => {
@@ -64,7 +71,7 @@ describe("QueryContext: next keyword", () => {
          target.next(keyword);
       }
 
-      expect(target.matchKeyword("select", "fn")).toBe(true);
+      expect(target.keywords).toEqual(["select", "fn"]);
    });
 
    test("match select ... join (...)", () => {

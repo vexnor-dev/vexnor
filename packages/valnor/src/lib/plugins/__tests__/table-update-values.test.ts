@@ -37,7 +37,7 @@ describe("sql plugin: table.$$set tests", () => {
                   "password"   = ?,
                   "updated_at" = ?
               where "users_1"."user_id" = ?
-              returning "user_id" "userId", "name", "email", "age", "city", "password", "created_at" "createdAt", "updated_at" "updatedAt"`,
+              returning "users_1"."user_id" as "userId", "users_1"."name", "users_1"."email", "users_1"."age", "users_1"."city", "users_1"."password", "users_1"."created_at" as "createdAt", "users_1"."updated_at" as "updatedAt"`,
       );
    });
 });
