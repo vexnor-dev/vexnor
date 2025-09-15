@@ -1,5 +1,5 @@
 import { SqlQuery } from "../sql-query.js";
-import { isSqlRunOptions, RowOut, SqlRunArgs } from "../sql-types.js";
+import { isSqlRunOptions, QueryInput, RowOut, SqlRunArgs, SqlValuesArgs } from "../sql-types.js";
 import { AsyncQueryHandler } from "./async-query-handler.js";
 import type { QueryResult } from "pg";
 
@@ -13,6 +13,24 @@ export class PgQueryHandler<
 > extends AsyncQueryHandler<T, TDbClient> {
    constructor(readonly sqlQuery: SqlQuery<T>) {
       super(sqlQuery);
+   }
+
+   getOptions(...args: SqlRunArgs<TDbClient, T["Params"]>): QueryInput {
+      // eslint-disable-next-line unused-imports/no-unused-vars
+      const [_, params] = args;
+      const _args_: SqlValuesArgs<T["Params"]> = [params] as SqlValuesArgs<T["Params"]>;
+      let queryInput = undefined;
+      try {
+         queryInput = {
+            sql: this.sqlQuery.getSql(..._args_),
+            text: this.sqlQuery.getText(..._args_),
+            values: this.sqlQuery.getValues(..._args_),
+         };
+         return queryInput;
+      } catch (err) {
+         console.error(err, "\n", queryInput?.text ?? "error building query");
+         throw err;
+      }
    }
 
    resolveRows(result: T["QueryResult"]): T["Row"][] {

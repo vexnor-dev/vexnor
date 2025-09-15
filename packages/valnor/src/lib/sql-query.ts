@@ -10,6 +10,7 @@ import { Sql } from "./sql-base.js";
 import { SqlInfo } from "./plugins/index.js";
 import * as crypto from "node:crypto";
 import { randomName } from "./random-name.js";
+import { SqlDriver } from "../cli/types/index.js";
 
 const WILDCARD = "?";
 
@@ -35,6 +36,36 @@ export class SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> |
       this.ID = crypto.randomUUID();
    }
 
+   /**
+    * Gets the query cache key for the given driver and values
+    * Query builds qre cache for performance optimizations
+    * @param item sql | text
+    * @param driver the db driver
+    * @param values the query param values
+    */
+   getCacheKey({
+      item,
+      driver,
+      values,
+   }: {
+      item: "sql" | "text";
+      driver: SqlDriver;
+      values: Record<string, unknown>;
+   }): string {
+      const key = Object.keys(values)
+         .map((v) => {
+            if (Array.isArray(v)) return v.length;
+
+            return 1;
+         })
+         .join(",");
+      return JSON.stringify(`item=${item}driver=${driver}&key=${key}`);
+   }
+
+   /**
+    * Gets the SQL for this query result: columns and their types
+    * @constructor
+    */
    get ROW(): SqlQueryRow & Record<keyof T["Row"], SqlColumn> {
       if (this.__row__) return this.__row__;
 
@@ -45,7 +76,13 @@ export class SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> |
       return this.__row__;
    }
 
-   values(...[params]: SqlValuesArgs<T["Params"]>): unknown[] {
+   /**
+    * Translates the input params into ready to use query execution values.
+    * Queries can use a mix of static values and dynamic parameters.
+    * This function will create a ready to use array of values
+    * @param params dynamic query parameters
+    */
+   getValues(...[params]: SqlValuesArgs<T["Params"]>): unknown[] {
       const { values } = this.buildCache();
       if (!values) return [];
       if (!params) return values ?? [];
@@ -67,9 +104,10 @@ export class SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> |
    }
 
    /**
-    * Get the SQL string with the input values replaced by the ? wildcards
+    * Get the query text with input values and parameters replaced by the ? wildcards
+    * @example select * from table where id = ? and name = ?
     */
-   sql(...[params]: SqlValuesArgs<T["Params"]>): string {
+   getSql(...[params]: SqlValuesArgs<T["Params"]>): string {
       const { values } = this.buildCache();
       const strings = [...this.buildCache().strings];
       if (!values?.length) return strings.join("");
@@ -93,8 +131,12 @@ export class SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> |
       return strings.join("");
    }
 
-   text(...args: SqlValuesArgs<T["Params"]>): string {
-      const sql = this.sql(...args);
+   /**
+    * Get the query text with input values and parameters replaced by the indexed wildcards (ex. postgres)
+    * @example select * from table where id = $1 and name = $2
+    */
+   getText(...args: SqlValuesArgs<T["Params"]>): string {
+      const sql = this.getSql(...args);
       const tokens = sql.split(WILDCARD);
       for (let i = 0; i < tokens.length - 1; i++) {
          tokens[i] = tokens[i] + `$${i + 1}`;

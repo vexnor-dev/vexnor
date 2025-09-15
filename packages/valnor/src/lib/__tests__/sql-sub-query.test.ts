@@ -21,9 +21,10 @@ describe("sql subqueries tests", () => {
          where ${AccountsWithEmail.ROW.firstName} = ${param("firstName")}`;
 
       query.buildCache();
-      expect(query.values({ firstName: "John", email: "test@example.com" })).toEqual(["test@example.com", "John"]);
-      expect(trim(query.sql({ firstName: "John", email: "test@example.com" }))).toBe(trim`select "AccountsWithEmail".*
-                                                                     from (( /* --label: AccountsWithEmail */ select "account_1"."first_name"    as "firstName",
+      expect(query.getValues({ firstName: "John", email: "test@example.com" })).toEqual(["test@example.com", "John"]);
+      expect(trim(query.getSql({ firstName: "John", email: "test@example.com" })))
+         .toBe(trim`select "AccountsWithEmail".*
+                                                                                             from (( /* --label: AccountsWithEmail */ select "account_1"."first_name"    as "firstName",
                                                                                                                "account_1"."account_id" as "accountId",
                                                                                                                "account_1"."status",
                                                                                                                "account_1"."created_at" as "createdAt",
@@ -33,7 +34,7 @@ describe("sql subqueries tests", () => {
                                                                                                                "account_1"."email"
                                                                                                         from "one_sql"."account" as "account_1"
                                                                                                         where "account_1"."email" = ?) as "AccountsWithEmail")
-                                                                     where "AccountsWithEmail"."firstName" = ?`);
+                                                                                             where "AccountsWithEmail"."firstName" = ?`);
    });
 
    test("sub-query join", () => {
@@ -49,8 +50,8 @@ describe("sql subqueries tests", () => {
                                                                              join (${AccountsWithEmail}) on ${Account.accountId} = ${AccountsWithEmail.ROW.accountId}
                                                                      where ${Account.firstName} = ${param("firstName")}`;
 
-      expect(query.values({ firstName: "John", email: "test@example.com" })).toEqual(["test@example.com", "John"]);
-      expect(trim(query.sql({ firstName: "John", email: "test@example.com" })))
+      expect(query.getValues({ firstName: "John", email: "test@example.com" })).toEqual(["test@example.com", "John"]);
+      expect(trim(query.getSql({ firstName: "John", email: "test@example.com" })))
          .toBe(trim`select "account_1"."first_name" as "firstName",
                                                                             "account_1"."account_id" as "accountId",
                                                                             "account_1"."status",

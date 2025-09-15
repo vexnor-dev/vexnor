@@ -65,7 +65,7 @@ describe("sql plugin jsonAgg() tests", () => {
          order by ${Account.accountId} asc
       `;
 
-      expect(trim(query.sql({ email: "test@example.com", limit: 5 }))).toBe(
+      expect(trim(query.getSql({ email: "test@example.com", limit: 5 }))).toBe(
          trim`select "account"."first_name"  as "firstName",
                      "account"."account_id"  as "accountId",
                      "account"."status",

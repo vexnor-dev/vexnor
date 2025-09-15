@@ -26,7 +26,7 @@ export type QueryInput = {
 
 export type SqlRunOptions<TDbClient> = {
    db: TDbClient;
-   debug?: (args: Readonly<QueryInput>) => void;
+   debug?: (args: Readonly<Record<string, unknown>>) => void;
 };
 
 export function isSqlRunOptions<TDbClient>(value: unknown): value is SqlRunOptions<TDbClient> {

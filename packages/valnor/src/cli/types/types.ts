@@ -1,5 +1,6 @@
 import { SqlLiteralType } from "./sql-literal.js";
 import { logger } from "../logger.js";
+import { x } from "../../lib/x.js";
 
 export interface SqlColumnInfo {
    column_default: string | null;
@@ -70,9 +71,17 @@ export interface ColumnType {
    udt?: string;
 }
 
-export const SqlDrivers = ["postgres.js", "pg"] as const;
+export type SqlDriver = "pg" | "postgres.js" | "mssql" | "mysql" | "better-sqlite3";
 
-export type SqlDriver = (typeof SqlDrivers)[number];
+export const SqlDrivers: SqlDriver[] = x(() => {
+   return Object.keys({
+      pg: null,
+      "postgres.js": null,
+      mssql: null,
+      mysql: null,
+      "better-sqlite3": null,
+   } satisfies Record<SqlDriver, null>) as SqlDriver[];
+});
 
 export interface GetColumnType {
    (columns: SqlColumnInfo): ColumnType;

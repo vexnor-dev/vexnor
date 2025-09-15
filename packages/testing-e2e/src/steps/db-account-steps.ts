@@ -55,7 +55,7 @@ When(
          order by ${Account.createdAt} desc
          limit ${countOfAccounts}
       `;
-      this.log(findAccounts.text());
+      this.log(findAccounts.getText());
 
       const accountsWithOrders = await findAccounts.pg.getAll(pool);
 
