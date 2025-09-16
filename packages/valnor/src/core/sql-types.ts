@@ -4,7 +4,7 @@ import { Sql } from "./sql-base.js";
 
 export type RowIn = object;
 
-export type RowOut = Record<string, unknown>;
+export type RowOut = object;
 
 type _SqlValue_ = Sql | string | number | boolean | null | undefined | Date | bigint | Buffer;
 export type SqlValue = _SqlValue_ | SqlValue[];
