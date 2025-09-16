@@ -11,5 +11,4 @@ export * from "./sql.js";
 export * from "./types.js";
 export * from "./clients/index.js";
 export * from "./plugins/index.js";
-export * from "./driver-types.js";
 export * from "../x.js";

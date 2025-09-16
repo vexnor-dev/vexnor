@@ -10,7 +10,6 @@ import { Sql } from "./sql-base.js";
 import { SqlInfo } from "./plugins/index.js";
 import * as crypto from "node:crypto";
 import { randomName } from "./random-name.js";
-import { SqlDriver } from "./driver-types.js";
 
 const WILDCARD = "?";
 
@@ -43,15 +42,7 @@ export class SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> |
     * @param driver the db driver
     * @param values the query param values
     */
-   getCacheKey({
-      item,
-      driver,
-      values,
-   }: {
-      item: "sql" | "text";
-      driver: SqlDriver;
-      values: Record<string, unknown>;
-   }): string {
+   getCacheKey({ item, driver, values }: GetCacheKeyArgs): string {
       const key = Object.keys(values)
          .map((v) => {
             if (Array.isArray(v)) return v.length;
@@ -268,3 +259,9 @@ export class SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> |
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlQueryAny = SqlQuery<any>;
+
+export type GetCacheKeyArgs = {
+   item: "sql" | "text";
+   driver: string;
+   values: Record<string, unknown>;
+};
