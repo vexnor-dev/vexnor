@@ -1,10 +1,10 @@
-import { isSqlRunOptions, RowOut, SqlQuery, SqlQueryHandler, SqlRunArgs, SqlValuesArgs } from "valnor/core";
+import { isSqlRunOptions, RowOut, SqlQueryHandler, SqlRunArgs, SqlValuesArgs } from "valnor/core";
 import type { Database, RunResult } from "better-sqlite3";
 
 export class BetterSqlite3QueryHandler<
    T extends { Row: RowOut; Params: Record<string, unknown> | undefined; QueryResult: RunResult },
    TDbClient extends Database = Database,
-> extends SqlQueryHandler<T, TDbClient> {
+> extends SqlQueryHandler<T> {
    resolveRows(): T["Row"][] {
       throw new Error("Method not supported: better-sqlite3 result doesn't include any rows");
    }
@@ -58,18 +58,3 @@ export class BetterSqlite3QueryHandler<
       }
    }
 }
-
-const plugin = "sqlite";
-
-// Extend the class type (in scope)
-declare module "valnor/core" {
-   interface SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> | undefined }> {
-      readonly [plugin]: BetterSqlite3QueryHandler<T & { QueryResult: RunResult }>;
-   }
-}
-
-Object.defineProperty(SqlQuery.prototype, plugin, {
-   get: function () {
-      return new BetterSqlite3QueryHandler(this);
-   },
-});

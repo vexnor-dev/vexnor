@@ -8,6 +8,9 @@
    "references": [
       {
          "path": "../valnor"
+      },
+      {
+         "path": "../valnor-postgres"
       }
    ]
 }

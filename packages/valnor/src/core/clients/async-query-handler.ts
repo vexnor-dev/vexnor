@@ -9,7 +9,7 @@ import { ok } from "assert";
 export abstract class AsyncQueryHandler<
    T extends { Row: RowOut; Params: Record<string, unknown> | undefined; QueryResult: object },
    TDbClient extends object,
-> extends SqlQueryHandler<T, TDbClient> {
+> extends SqlQueryHandler<T> {
    protected constructor(readonly sqlQuery: SqlQuery<T>) {
       super(sqlQuery);
    }

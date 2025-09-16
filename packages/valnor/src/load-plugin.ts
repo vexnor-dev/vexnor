@@ -1,4 +1,4 @@
-import { ValnorPlugin } from "./plugin/valnor-plugin.js";
+import { ValnorPlugin } from "./plugin/index.js";
 
 export async function loadPlugin(packageName: string): Promise<ValnorPlugin> {
    const plugin = await import(packageName);
