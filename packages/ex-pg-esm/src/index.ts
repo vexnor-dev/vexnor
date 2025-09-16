@@ -11,7 +11,10 @@ import {
    Order,
    OrderStatusUdt,
 } from "./codegen/one_sql.schema.js";
-import { jsonAgg, param, sql } from "valnor";
+import { jsonAgg, param, sql } from "valnor/core";
+import valnorPostgres from "valnor-postgres";
+
+valnorPostgres.register();
 
 const pool = new Pool({
    host: "localhost",

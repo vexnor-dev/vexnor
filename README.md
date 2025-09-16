@@ -16,13 +16,13 @@ enabling type-safe SQL queries.
 
 **1. Generate TypeScript types from your database:**
 ```bash
-npx valnor generate --schema your_schema --uri $POSTGRES_URI --outDir 'src/codegen'
+npx valnor generate --cli your_schema --uri $POSTGRES_URI --outDir 'src/codegen'
 ```
 
 **2. Write type-safe SQL queries:**
 
 ```typescript
-import {OneSqlSchema} from "./codegen/one_sql.schema.ts";
+import {OneSqlSchema} from "./codegen/one_sql.cli.ts";
 import {IAccountSelect} from "./one_sql.account-table";
 import {AccountStatusUdt} from "./one_sql-enums";
 import {sql, param} from "one-sql";
@@ -76,7 +76,7 @@ Next releases planned to support `mssql`, `mysql`, sqlite, etc.
 npm install valnor --save-dev
 
 # Or use directly with npx
-npx valnor generate --schema your_schema --uri $POSTGRES_URI --outDir 'src/codegen'
+npx valnor generate --cli your_schema --uri $POSTGRES_URI --outDir 'src/codegen'
 ```
 
 > 📖 **[Installation guide with all options](wiki/Installation.md)**
@@ -84,7 +84,7 @@ npx valnor generate --schema your_schema --uri $POSTGRES_URI --outDir 'src/codeg
 ## Usage
 
 ```bash
-valnor generate --schema your_schema --uri $POSTGRES_URI --outDir 'src/codegen'
+valnor generate --cli your_schema --uri $POSTGRES_URI --outDir 'src/codegen'
 ```
 
 **Common options:**

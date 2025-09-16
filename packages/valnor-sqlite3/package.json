@@ -1,0 +1,43 @@
+{
+   "name": "valnor-sqlite3",
+   "version": "1.0.0-beta.1",
+   "description": "SQLite3 plugin for valnor using better-sqlite3",
+   "type": "module",
+   "module": "dist/index.js",
+   "main": "dist/index.js",
+   "types": "dist/index.d.ts",
+   "keywords": [
+      "valnor",
+      "sqlite3",
+      "better-sqlite3",
+      "sql",
+      "plugin"
+   ],
+   "author": "Adrian Topala",
+   "license": "MIT",
+   "repository": "https://github.com/atopala/valnor",
+   "publishConfig": {
+      "access": "public"
+   },
+   "scripts": {
+      "build": "tsc -b",
+      "test": "vitest run",
+      "test:watch": "vitest --watch"
+   },
+   "files": [
+      "dist",
+      "package.json",
+      "README.md"
+   ],
+   "dependencies": {
+      "valnor": "workspace:*"
+   },
+   "devDependencies": {
+      "@types/better-sqlite3": "^7.6.13",
+      "typescript": "^5.5.3",
+      "vitest": "^3.2.4"
+   },
+   "peerDependencies": {
+      "better-sqlite3": "^12.2.0"
+   }
+}

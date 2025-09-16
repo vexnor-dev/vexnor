@@ -1,0 +1,1 @@
+export type SqlDriver = "pg" | "postgres.js" | "mssql" | "mysql" | "better-sqlite3";

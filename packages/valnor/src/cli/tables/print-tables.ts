@@ -1,12 +1,13 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import to from "to-case";
-import { SqlOutputFile, SqlTableInfo } from "../types/index.js";
+import { SqlOutputFile } from "../types/index.js";
 import { getCodegenContext } from "../codegen-context.js";
 import { logger } from "../logger.js";
 import { postgres } from "./postgres/index.js";
 import { pg } from "./pg/index.js";
-import { x } from "../../lib/x.js";
+import { SqlTableInfo } from "../../plugin/index.js";
+import { x } from "../../x.js";
 
 export interface WriteTablesArgs {
    tables: SqlTableInfo[];
@@ -25,6 +26,7 @@ export async function printTables({ tables }: WriteTablesArgs): Promise<SqlOutpu
             throw new Error(`Unsupported driver: ${driver}`);
       }
    });
+
    for (const table of tables) {
       const { table_name, table_schema } = table;
       const output = writeTable({ table });

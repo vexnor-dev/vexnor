@@ -5,14 +5,12 @@ import * as fs from "node:fs/promises";
 import { writeIndex } from "./write-index.js";
 import { printEnums, printSchemas } from "./schemas/index.js";
 import { CodegenContext, CodegenContextModel, getCodegenContext } from "./codegen-context.js";
-import * as psql from "./postgres/index.js";
-import { CommandOptions, SqlDrivers, SqlEnumInfo, SqlTableInfo } from "./types/index.js";
+import { CommandOptions, SqlDrivers } from "./types/index.js";
 import { printTables } from "./tables/index.js";
 import { ok } from "assert";
-import { logger } from "./logger.js";
-import { Pool } from "pg";
 import { writeLibrary } from "./lib/index.js";
-import { x } from "../lib/x.js";
+import { loadPlugin } from "../load-plugin.js";
+import { x } from "../x.js";
 
 const main = new Command();
 
@@ -26,16 +24,18 @@ main
    .description("Generates SQL mapping for specified database")
    .addOption(new Option("--driver <driver>", "Database name").choices(SqlDrivers))
    .addOption(
-      new Option("--uri <uri>", "Database connection URI")
+      new Option("--uri <uri>", "Database URI")
          .conflicts(["host", "port", "user", "password", "database"])
          .makeOptionMandatory(false),
    )
+   .addOption(new Option("--host <host>", "Database host").conflicts(["uri"]).makeOptionMandatory(false))
+   .addOption(new Option("--database <uri>", "Database name").conflicts(["uri"]).makeOptionMandatory(false))
+   .addOption(new Option("--user <host>", "Database connection user").conflicts(["uri"]).makeOptionMandatory(false))
+   .addOption(
+      new Option("--password <uri>", "Database connection password").conflicts(["password"]).makeOptionMandatory(false),
+   )
    .requiredOption("--outDir <directory>", "Output directory to generate the mapping files into")
-   .requiredOption("--schema <schema...>", "Database schema(s) to generate mapping code for")
-   .option("--host <host>", "Database host")
-   .option("--database <database>", "Input database to map")
-   .option("--user <user>", "Database user")
-   .option("--password <password>", "Database password")
+   .requiredOption("--cli <cli...>", "Database cli(s) to generate mapping code for")
    .addOption(new Option("--port <port>", "Database port").preset("5432").argParser(parseInt))
    .option("--pascalCaseTables", "Use PascalCase for table names")
    .option("--camelCaseColumns", "Use camelCase for column names")
@@ -59,62 +59,31 @@ main
          return;
       }
 
-      let context: CodegenContextModel | undefined;
-      let tables: SqlTableInfo[] | undefined;
-      let enums: SqlEnumInfo[] | undefined;
-      switch (driver) {
-         case "pg":
-         case "postgres.js": {
-            logger.info("mapping tables from postgres db");
-            const client = x(() => {
-               new Pool({
-                  connectionString: uri,
-               });
-
-               if (host && database && user) {
-                  return new Pool({
-                     host,
-                     port,
-                     user,
-                     password,
-                     database,
-                  });
-               }
-
-               throw new Error(`Invalid database connection parameters: host, database and user are required`);
-            });
-            tables = await psql.findTables.pg.getAll(client, { schemas });
-            enums = await psql.findEnums.pg.getAll(client, { schemas });
-            logger.info(
-               {
-                  postgres: {
-                     host,
-                     port,
-                     database,
-                     user,
-                     password: password ? "********" : undefined,
-                  },
-                  schemas,
-                  tables: tables.map(({ table_name, table_schema }) => ({ table_schema, table_name })),
-                  enums: enums.map(({ enum_name, enum_schema }) => ({ enum_schema, enum_name })),
-               },
-               `Generating mapping code for ${schemas.join(", ")}`,
-            );
-            await client.end();
-            context = new CodegenContextModel({
-               outDir,
-               getColumnType: psql.getColumnType,
-               driver,
-               pascalCaseTables,
-               camelCaseColumns,
-               includeEnums: enums.length > 0,
-            });
-
-            break;
+      const plugin = await loadPlugin(driver);
+      const { enums, tables } = await x(() => {
+         if (uri) {
+            return plugin.getSchema({ uri, schemas });
          }
-         default:
-            throw new Error(`Unsupported driver: ${driver}`);
-      }
+
+         ok(host && port && user && database && password, "host, port, user, database, and password are required");
+         return plugin.getSchema({
+            schemas,
+            host,
+            port,
+            user,
+            database,
+            password,
+         });
+      });
+
+      const context = new CodegenContextModel({
+         outDir,
+         getColumnType: plugin.getColumnType,
+         driver,
+         pascalCaseTables,
+         camelCaseColumns,
+         includeEnums: enums.length > 0,
+      });
 
       const files = await fs.readdir(outDir);
       for (const file of files) {

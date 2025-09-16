@@ -4,14 +4,14 @@
 
 Generate the code from existing postgres db schema `one_sql`.
 ```bash
-npx valnor generate --schema one_sql --uri $POSTGRES_URI --outDir 'src/codegen'
+npx valnor generate --cli one_sql --uri $POSTGRES_URI --outDir 'src/codegen'
 
 # It's possible to include more schemas!
-npx valnor generate --schema one_sql1 --schema one_sql2 --uri $POSTGRES_URI --outDir 'src/codegen'
+npx valnor generate --cli one_sql1 --cli one_sql2 --uri $POSTGRES_URI --outDir 'src/codegen'
 ```
 
 ```typescript 
-import {OneSqlSchema} from "./codegen/one_sql.schema.ts";
+import {OneSqlSchema} from "./codegen/one_sql.cli.ts";
 import {IAccountSelect} from "./one_sql.account-table";
 import {AccountStatusUdt} from "./one_sql-enums";
 import {sql, param} from "one-sql";
@@ -23,7 +23,7 @@ const db = new Pool({
     database: "postgres",
 });
 
-// create the respective table(s) from your schema using existing postgres connection "sql"
+// create the respective table(s) from your cli using existing postgres connection "sql"
 const {Account, Order} = OneSqlSchema;
 
 {

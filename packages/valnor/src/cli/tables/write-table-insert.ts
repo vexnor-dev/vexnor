@@ -1,8 +1,9 @@
 import CodeBlockWriter from "code-block-writer";
 import { getCodegenContext } from "../codegen-context.js";
-import { PrintTableArgs, SqlLiteralType } from "../types/index.js";
+import { PrintTableArgs } from "../types/index.js";
 import { ok } from "node:assert";
 import to from "to-case";
+import { SqlLiteralType } from "../../plugin/index.js";
 
 export function writeTableInsert(writer: CodeBlockWriter.default, { table }: PrintTableArgs) {
    const { getTableName, getColumnName, getColumnType } = getCodegenContext();

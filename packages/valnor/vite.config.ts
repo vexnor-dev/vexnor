@@ -5,7 +5,7 @@ export default defineConfig({
    plugins: [],
    resolve: {
       alias: {
-         valnor: resolve(__dirname, "./src/lib/index.ts"),
+         valnor: resolve(__dirname, "./src/core/index.ts"),
       },
    },
 });

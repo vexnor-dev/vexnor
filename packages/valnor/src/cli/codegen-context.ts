@@ -1,11 +1,12 @@
 import { AsyncLocalStorage } from "async_hooks";
 import to from "to-case";
-import { ColumnType, SqlColumnInfo, SqlDriver } from "./types/index.js";
+import { SqlDriver } from "./types/index.js";
 import CodeBlockWriter from "code-block-writer";
+import { SqlColumnInfo, SqlColumnType } from "../plugin/index.js";
 
 export class CodegenContextModel {
    readonly outDir: string;
-   readonly getColumnType: (columns: SqlColumnInfo) => ColumnType;
+   readonly getColumnType: (columns: SqlColumnInfo) => SqlColumnType;
    readonly driver: SqlDriver;
    readonly pascalCaseTables?: boolean;
    readonly camelCaseColumns?: boolean;
@@ -15,7 +16,7 @@ export class CodegenContextModel {
 
    constructor(args: {
       outDir: string;
-      getColumnType: (columns: SqlColumnInfo) => ColumnType;
+      getColumnType: (columns: SqlColumnInfo) => SqlColumnType;
       driver: SqlDriver;
       pascalCaseTables?: boolean;
       camelCaseColumns?: boolean;

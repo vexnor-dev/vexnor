@@ -18,14 +18,15 @@
    "dependencies": {
       "@cucumber/cucumber": "^11.3.0",
       "@sinclair/typebox": "^0.34.36",
-      "pg": "^8.16.3"
+      "pg": "^8.16.3",
+      "valnor": "workspace:^1.0.0",
+      "valnor-postgres": "workspace:^1.0.0"
    },
    "devDependencies": {
       "@cucumber/pretty-formatter": "^1.0.1",
       "@types/pg": "^8.15.5",
       "copyfiles": "^2.4.1",
       "cucumber-html-reporter": "latest",
-      "valnor": "workspace:^1.0.0",
       "ts-node": "^10.9.2"
    }
 }

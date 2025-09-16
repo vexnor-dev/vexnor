@@ -4,9 +4,9 @@ import { ok } from "assert";
 import to from "to-case";
 import { groupBy, SqlOutputFile } from "../types/index.js";
 import { getCodegenContext } from "../codegen-context.js";
-import { x } from "../../lib/x.js";
 import { postgres } from "./postgres/index.js";
 import { pg } from "./pg/index.js";
+import { x } from "../../x.js";
 
 export interface WriteSchemaArgs {
    outDir: string;

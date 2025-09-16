@@ -1,0 +1,54 @@
+{
+   "name": "valnor-postgres",
+   "version": "1.0.0-beta.1",
+   "description": "PostgreSQL plugin for valnor supporting pg and postgres.js drivers",
+   "type": "module",
+   "module": "dist/index.js",
+   "main": "dist/index.js",
+   "types": "dist/index.d.ts",
+   "keywords": [
+      "valnor",
+      "postgresql",
+      "postgres",
+      "pg",
+      "postgres.js",
+      "sql",
+      "plugin"
+   ],
+   "author": "Adrian Topala",
+   "license": "MIT",
+   "repository": "https://github.com/atopala/valnor",
+   "publishConfig": {
+      "access": "public"
+   },
+   "scripts": {
+      "build": "tsc -b",
+      "test": "vitest run",
+      "test:watch": "vitest --watch"
+   },
+   "files": [
+      "dist",
+      "package.json",
+      "README.md"
+   ],
+   "dependencies": {
+      "valnor": "workspace:*"
+   },
+   "devDependencies": {
+      "@types/pg": "^8.15.5",
+      "typescript": "^5.5.3",
+      "vitest": "^3.2.4"
+   },
+   "peerDependencies": {
+      "pg": "^8.16.3",
+      "postgres": "^3.4.7"
+   },
+   "peerDependenciesMeta": {
+      "pg": {
+         "optional": true
+      },
+      "postgres": {
+         "optional": true
+      }
+   }
+}

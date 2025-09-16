@@ -5,6 +5,6 @@ export default defineConfig({
       globals: true,
       environment: "node",
       testTimeout: 60_000,
-      projects: ["packages/valnor"],
+      projects: ["packages/valnor-core", "packages/valnor"],
    },
 });

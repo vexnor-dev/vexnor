@@ -22,7 +22,7 @@ export function writeSchemaNew(writer: CodeBlockWriter.default, { schema, files 
    });
    writer.blankLine();
 
-   // Write schema function
+   // Write cli function
    writer.write(`export function new${to.pascal(schema)}Schema(sql: postgres.Sql)`).block(() => {
       writer.write(`return `).block(() => {
          files.forEach((file) => {
