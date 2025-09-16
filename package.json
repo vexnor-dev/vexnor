@@ -12,7 +12,8 @@
   ],
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "db-migrate": "env-cmd --no-override -x -r ./env-dev.json -e db postgrator --username \\$POSTGRES_USER --password \\$POSTGRES_PASSWORD --config @db-migrations-postgres/migrate-local.json",
+    "db-migrate-postgres": "env-cmd --no-override -x -r ./env-dev.json -e db postgrator --username \\$POSTGRES_USER --password \\$POSTGRES_PASSWORD --config @db-postgres/migrate-local.json",
+    "db-migrate-sqlite3": "postgrator --config @db-sqlite3/migrate-local.json",
     "clean:build": "pnpm -r --parallel exec rimraf dist deploy tsconfig.tsbuildinfo",
     "clean:1-lock-file": "pnpm exec rimraf pnpm-lock.yaml",
     "clean:2-dependencies-r": "pnpm -r --parallel exec rimraf node_modules",
@@ -47,6 +48,7 @@
     "postgrator-cli": "^9.0.1",
     "prettier": "^3.4.2",
     "rimraf": "^6.0.1",
+    "sqlite3": "^5.1.7",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.18.2",
     "vite-node": "^2.1.8",

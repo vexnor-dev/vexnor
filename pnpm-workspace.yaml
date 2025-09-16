@@ -6,7 +6,10 @@ packages:
   - '!**/dist/**'
   - '!**/build/**'
   - '!**/deploy/**'
+
 ignoredBuiltDependencies:
   - esbuild
+
 onlyBuiltDependencies:
   - core-js
+  - sqlite3

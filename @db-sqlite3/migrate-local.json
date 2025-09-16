@@ -1,0 +1,8 @@
+{
+  "migrationDirectory": "@db-sqlite3",
+  "migrationPattern": "@db-sqlite3/**",
+  "driver": "sqlite3",
+  "host": "localhost",
+  "database": "./@db-sqlite3/valnor-test.sqlite",
+  "schemaTable": "migration_one_sql"
+}
