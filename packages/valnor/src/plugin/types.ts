@@ -63,3 +63,16 @@ export function newSqlTableInfo({ table_columns, ...args }: SqlTableInfoArgs): S
 export interface SqlEnumValue {
    enum_label: string;
 }
+
+export interface SqlOutputFile {
+   schemaName: string;
+   moduleName: string;
+   fileName: string;
+   tableTypeName?: string;
+}
+
+export interface PrintTableArgs {
+   table: SqlTableInfo;
+}
+
+export type LibraryOutputFile = Pick<SqlOutputFile, "fileName">;

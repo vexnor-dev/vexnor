@@ -5,10 +5,10 @@ import * as fs from "node:fs/promises";
 import { writeIndex } from "./write-index.js";
 import { printEnums, printSchemas } from "./schemas/index.js";
 import { CodegenContext, CodegenContextModel, getCodegenContext } from "./codegen-context.js";
-import { CommandOptions, SqlDrivers } from "./types/index.js";
+import { CommandOptions } from "./types/index.js";
 import { printTables } from "./tables/index.js";
 import { ok } from "assert";
-import { writeLibrary } from "./lib/index.js";
+import { writeLibrary } from "./library/index.js";
 import { loadPlugin } from "../load-plugin.js";
 import { x } from "../x.js";
 
@@ -22,21 +22,27 @@ main
    .command("generate")
    //.argument('<tableName>')
    .description("Generates SQL mapping for specified database")
-   .addOption(new Option("--driver <driver>", "Database name").choices(SqlDrivers))
+   .addOption(new Option("--plugin <plugin>", "Valnor plugin"))
    .addOption(
       new Option("--uri <uri>", "Database URI")
          .conflicts(["host", "port", "user", "password", "database"])
          .makeOptionMandatory(false),
    )
    .addOption(new Option("--host <host>", "Database host").conflicts(["uri"]).makeOptionMandatory(false))
-   .addOption(new Option("--database <uri>", "Database name").conflicts(["uri"]).makeOptionMandatory(false))
-   .addOption(new Option("--user <host>", "Database connection user").conflicts(["uri"]).makeOptionMandatory(false))
    .addOption(
-      new Option("--password <uri>", "Database connection password").conflicts(["password"]).makeOptionMandatory(false),
+      new Option("--port <port>", "Database port")
+         .conflicts(["uri"])
+         .preset(5432)
+         .argParser(parseInt)
+         .makeOptionMandatory(false),
+   )
+   .addOption(new Option("--database <database>", "Database name").conflicts(["uri"]).makeOptionMandatory(false))
+   .addOption(new Option("--user <user>", "Database connection user").conflicts(["uri"]).makeOptionMandatory(false))
+   .addOption(
+      new Option("--password <password>", "Database connection password").conflicts(["uri"]).makeOptionMandatory(false),
    )
    .requiredOption("--outDir <directory>", "Output directory to generate the mapping files into")
-   .requiredOption("--cli <cli...>", "Database cli(s) to generate mapping code for")
-   .addOption(new Option("--port <port>", "Database port").preset("5432").argParser(parseInt))
+   .requiredOption("--schema <schema...>", "Database schema(s) to generate mapping code for")
    .option("--pascalCaseTables", "Use PascalCase for table names")
    .option("--camelCaseColumns", "Use camelCase for column names")
    .action(async (options: CommandOptions) => {
@@ -45,7 +51,7 @@ main
          schema: schemas,
          pascalCaseTables,
          camelCaseColumns,
-         driver,
+         plugin: pluginName,
          host,
          port,
          user,
@@ -59,7 +65,7 @@ main
          return;
       }
 
-      const plugin = await loadPlugin(driver);
+      const plugin = await loadPlugin(pluginName);
       const { enums, tables } = await x(() => {
          if (uri) {
             return plugin.getSchema({ uri, schemas });
@@ -78,8 +84,7 @@ main
 
       const context = new CodegenContextModel({
          outDir,
-         getColumnType: plugin.getColumnType,
-         driver,
+         plugin,
          pascalCaseTables,
          camelCaseColumns,
          includeEnums: enums.length > 0,

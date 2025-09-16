@@ -1,13 +1,9 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import to from "to-case";
-import { SqlOutputFile } from "../types/index.js";
-import { getCodegenContext } from "../codegen-context.js";
+import { getCodegenContext, SqlOutputFile, SqlTableInfo } from "../../plugin/index.js";
 import { logger } from "../logger.js";
-import { postgres } from "./postgres/index.js";
-import { pg } from "./pg/index.js";
-import { SqlTableInfo } from "../../plugin/index.js";
-import { x } from "../../x.js";
+import { writeTable } from "./write-table.js";
 
 export interface WriteTablesArgs {
    tables: SqlTableInfo[];
@@ -15,18 +11,7 @@ export interface WriteTablesArgs {
 
 export async function printTables({ tables }: WriteTablesArgs): Promise<SqlOutputFile[]> {
    const files: SqlOutputFile[] = [];
-   const { outDir, getTableName, driver } = getCodegenContext();
-   const { writeTable } = x(() => {
-      switch (driver) {
-         case "pg":
-            return pg;
-         case "postgres.js":
-            return postgres;
-         default:
-            throw new Error(`Unsupported driver: ${driver}`);
-      }
-   });
-
+   const { outDir, getTableName } = getCodegenContext();
    for (const table of tables) {
       const { table_name, table_schema } = table;
       const output = writeTable({ table });

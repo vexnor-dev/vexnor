@@ -4,6 +4,7 @@
     "POSTGRES_PORT": 5432,
     "POSTGRES_USER": "postgres",
     "POSTGRES_PASSWORD": "postgres",
-    "POSTGRES_DATABASE": "postgres"
+    "POSTGRES_DATABASE": "postgres",
+    "SQLITE_URI": "../../@db-sqlite3/valnor-test.sqlite"
   }
 }

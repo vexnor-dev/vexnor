@@ -1,4 +1,13 @@
-import { GetSchemaArgs, logger, Schema, SqlColumnInfo, SqlColumnType, ValnorPlugin, x } from "valnor/plugin";
+import {
+   GetSchemaArgs,
+   logger,
+   SqlSchema,
+   SqlColumnInfo,
+   SqlColumnType,
+   ValnorPlugin,
+   x,
+   LibraryOutputFile,
+} from "valnor/plugin";
 import { Pool, type QueryResult } from "pg";
 import { findEnums, findTables, getColumnType } from "./cli/index.js";
 import { PgQueryHandler } from "./query/index.js";
@@ -9,13 +18,17 @@ import { RowOut, SqlQuery } from "valnor/core";
  * It can handle
  */
 export class ValnorPostgres extends ValnorPlugin {
+   getLibrary(): LibraryOutputFile[] {
+      return [];
+   }
+
    getColumnType(col: SqlColumnInfo): SqlColumnType {
       return getColumnType(col);
    }
 
-   driver = "valnor";
+   driver = "pg";
 
-   async getSchema(args: GetSchemaArgs): Promise<Schema> {
+   async getSchema(args: GetSchemaArgs): Promise<SqlSchema> {
       const { schemas } = args;
       const pool = x(() => {
          if ("uri" in args) {

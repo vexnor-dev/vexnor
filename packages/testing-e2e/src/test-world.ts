@@ -1,6 +1,6 @@
 import { IWorldOptions, setWorldConstructor, World } from "@cucumber/cucumber";
-import { IAccountSelect } from "./codegen/one_sql.account-table.js";
-import { IOrderSelect } from "./codegen/one_sql.order-table.js";
+import { IAccountSelect } from "./codegen/pg/one_sql.account-table.js";
+import { IOrderSelect } from "./codegen/pg/one_sql.order-table.js";
 import { AccountWithOrders } from "./types/index.js";
 
 /**

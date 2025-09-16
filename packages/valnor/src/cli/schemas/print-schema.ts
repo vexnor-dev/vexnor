@@ -2,11 +2,10 @@ import fs from "fs";
 import path from "path";
 import { ok } from "assert";
 import to from "to-case";
-import { groupBy, SqlOutputFile } from "../types/index.js";
-import { getCodegenContext } from "../codegen-context.js";
-import { postgres } from "./postgres/index.js";
-import { pg } from "./pg/index.js";
-import { x } from "../../x.js";
+import { groupBy } from "../types/index.js";
+import { getCodegenContext, SqlOutputFile } from "../../plugin/index.js";
+import { writeSchemaImports } from "./write-schema-imports.js";
+import { writeSchemaNew } from "./write-schema-new.js";
 
 export interface WriteSchemaArgs {
    outDir: string;
@@ -15,19 +14,9 @@ export interface WriteSchemaArgs {
 }
 
 export async function printSchema({ outDir, table_schema, files }: WriteSchemaArgs): Promise<SqlOutputFile> {
-   const { newWriter, driver } = getCodegenContext();
+   const { newWriter } = getCodegenContext();
    const writer = newWriter();
 
-   const { writeSchemaNew, writeSchemaImports } = x(() => {
-      switch (driver) {
-         case "postgres.js":
-            return postgres;
-         case "pg":
-            return pg;
-         default:
-            throw new Error(`Unknown driver: ${driver}`);
-      }
-   });
    writeSchemaImports(writer, files);
    writeSchemaNew(writer, { schema: table_schema, files });
 

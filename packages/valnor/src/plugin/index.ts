@@ -3,3 +3,4 @@ export * from "./sql-literal.js";
 export * from "./valnor-plugin.js";
 export * from "../logger.js";
 export * from "../x.js";
+export * from "../cli/codegen-context.js";

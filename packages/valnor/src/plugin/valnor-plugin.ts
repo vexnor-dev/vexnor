@@ -1,9 +1,11 @@
-import { SqlColumnInfo, SqlColumnType, SqlEnumInfo, SqlTableInfo } from "./types.js";
+import { LibraryOutputFile, SqlColumnInfo, SqlColumnType, SqlEnumInfo, SqlTableInfo } from "./types.js";
 
 /**
  * Valnor plugin for handling query execution to different DB engines
  */
 export abstract class ValnorPlugin {
+   abstract readonly driver: string;
+
    /**
     * register the current plugin with Valnor
     */
@@ -11,9 +13,11 @@ export abstract class ValnorPlugin {
       //noop
    }
 
-   abstract readonly driver: string;
    abstract getColumnType(col: SqlColumnInfo): SqlColumnType;
-   abstract getSchema(args: GetSchemaArgs): Promise<Schema>;
+
+   abstract getSchema(args: GetSchemaArgs): Promise<SqlSchema>;
+
+   abstract getLibrary(): LibraryOutputFile[];
 }
 
 export type GetSchemaArgs = { schemas: string[] } & (
@@ -21,7 +25,7 @@ export type GetSchemaArgs = { schemas: string[] } & (
    | { host: string; port: number; database: string; user: string; password: string }
 );
 
-export type Schema = {
+export type SqlSchema = {
    tables: SqlTableInfo[];
    enums: SqlEnumInfo[];
 };

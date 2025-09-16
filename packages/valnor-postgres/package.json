@@ -32,6 +32,8 @@
       "README.md"
    ],
    "dependencies": {
+      "code-block-writer": "^11.0.3",
+      "to-case": "^2.0.0",
       "valnor": "workspace:*"
    },
    "devDependencies": {

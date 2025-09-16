@@ -1,17 +1,29 @@
-import { GetSchemaArgs, logger, Schema, SqlColumnInfo, SqlColumnType, ValnorPlugin } from "valnor/plugin";
+import {
+   GetSchemaArgs,
+   logger,
+   SqlSchema,
+   SqlColumnInfo,
+   SqlColumnType,
+   ValnorPlugin,
+   LibraryOutputFile,
+} from "valnor/plugin";
 import Database, { type RunResult } from "better-sqlite3";
-import { findEnums, findTables, getColumnType } from "./cli/index.js";
+import { findTables, getColumnType } from "./cli/index.js";
 import { RowOut, SqlQuery } from "valnor/core";
 import { BetterSqlite3QueryHandler } from "./better-sqlite3-query-handler.js";
 
 export class ValnorSqlite3 extends ValnorPlugin {
-   driver = "sqlite3";
+   getLibrary(): LibraryOutputFile[] {
+      return [];
+   }
+
+   driver = "better-sqlite3";
 
    getColumnType(col: SqlColumnInfo): SqlColumnType {
       return getColumnType(col);
    }
 
-   async getSchema(args: GetSchemaArgs): Promise<Schema> {
+   async getSchema(args: GetSchemaArgs): Promise<SqlSchema> {
       const { schemas } = args;
 
       let db: Database.Database;
@@ -22,8 +34,6 @@ export class ValnorSqlite3 extends ValnorPlugin {
       }
 
       const tables = findTables.sqlite.getAll(db);
-      const enums = findEnums.sqlite.getAll(db);
-
       logger.info(
          {
             sqlite: { database: "uri" in args ? args.uri : "unknown" },
@@ -38,7 +48,7 @@ export class ValnorSqlite3 extends ValnorPlugin {
 
       return {
          tables,
-         enums,
+         enums: [],
       };
    }
 }

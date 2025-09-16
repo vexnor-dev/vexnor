@@ -1,12 +1,10 @@
 import CodeBlockWriter from "code-block-writer";
-import { getCodegenContext } from "../codegen-context.js";
-import { PrintTableArgs } from "../types/index.js";
+import { getCodegenContext, PrintTableArgs, SqlLiteralType } from "../../plugin/index.js";
 import { ok } from "node:assert";
 import to from "to-case";
-import { SqlLiteralType } from "../../plugin/index.js";
 
 export function writeTableInsert(writer: CodeBlockWriter.default, { table }: PrintTableArgs) {
-   const { getTableName, getColumnName, getColumnType } = getCodegenContext();
+   const { getTableName, getColumnName, plugin } = getCodegenContext();
    const { table_columns } = table;
    const tableTypeName = getTableName(table.table_name);
    const tableTypeInsert = `I${tableTypeName}Insert`;
@@ -32,7 +30,7 @@ export function writeTableInsert(writer: CodeBlockWriter.default, { table }: Pri
 
             writer.write(" ");
 
-            const { type, udt } = getColumnType(col);
+            const { type, udt } = plugin.getColumnType(col);
             switch (type) {
                case SqlLiteralType.Udt:
                   ok(udt, `Udt type name is missing for column ${col.column_name}: ${type}`);

@@ -1,30 +1,20 @@
 import { AsyncLocalStorage } from "async_hooks";
 import to from "to-case";
-import { SqlDriver } from "./types/index.js";
 import CodeBlockWriter from "code-block-writer";
-import { SqlColumnInfo, SqlColumnType } from "../plugin/index.js";
+import { ValnorPlugin } from "../plugin/index.js";
 
 export class CodegenContextModel {
    readonly outDir: string;
-   readonly getColumnType: (columns: SqlColumnInfo) => SqlColumnType;
-   readonly driver: SqlDriver;
+   readonly plugin: ValnorPlugin;
    readonly pascalCaseTables?: boolean;
    readonly camelCaseColumns?: boolean;
    readonly includeEnums?: boolean;
    readonly getColumnName: (columnName: string) => string;
    readonly getTableName: (tableName: string) => string;
 
-   constructor(args: {
-      outDir: string;
-      getColumnType: (columns: SqlColumnInfo) => SqlColumnType;
-      driver: SqlDriver;
-      pascalCaseTables?: boolean;
-      camelCaseColumns?: boolean;
-      includeEnums?: boolean;
-   }) {
+   constructor(args: CodegenContextArgs) {
       this.outDir = args.outDir;
-      this.getColumnType = args.getColumnType;
-      this.driver = args.driver;
+      this.plugin = args.plugin;
       this.pascalCaseTables = args.pascalCaseTables;
       this.camelCaseColumns = args.camelCaseColumns;
       this.includeEnums = args.includeEnums;
@@ -50,3 +40,11 @@ export function getCodegenContext(): CodegenContextModel {
 
    return context;
 }
+
+export type CodegenContextArgs = {
+   outDir: string;
+   plugin: ValnorPlugin;
+   pascalCaseTables?: boolean;
+   camelCaseColumns?: boolean;
+   includeEnums?: boolean;
+};

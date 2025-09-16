@@ -1,13 +1,13 @@
 import { Then, When } from "@cucumber/cucumber";
 import { TestWorld } from "../test-world.js";
 import { pool } from "../db.js";
-import { AccountStatusUdt } from "../codegen/one_sql-enums.js";
+import { AccountStatusUdt } from "../codegen/pg/one_sql-enums.js";
 import crypto from "node:crypto";
-import { Account, IAccountSelect } from "../codegen/one_sql.account-table.js";
+import { Account, IAccountSelect } from "../codegen/pg/one_sql.account-table.js";
 import { deepStrictEqual, notDeepStrictEqual, ok } from "node:assert";
 import { AccountWithOrders } from "../types/index.js";
 import { jsonAgg, sql } from "valnor";
-import { Order } from "../codegen/one_sql.order-table.js";
+import { Order } from "../codegen/pg/one_sql.order-table.js";
 
 When(/^Inserting a new Account$/, async function (this: TestWorld) {
    const id = crypto.randomUUID().slice(0, 4);

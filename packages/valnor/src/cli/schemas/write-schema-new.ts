@@ -1,4 +1,4 @@
-import { SqlOutputFile } from "../../types/index.js";
+import { SqlOutputFile } from "../../plugin/index.js";
 import to from "to-case";
 import CodeBlockWriter from "code-block-writer";
 
