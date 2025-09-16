@@ -24,7 +24,7 @@
       "orm"
    ],
    "author": "Adrian Topala",
-   "license": "MIT",
+   "license": "Apache-2.0",
    "repository": "https://github.com/atopala/valnor",
    "publishConfig": {
       "access": "public"
