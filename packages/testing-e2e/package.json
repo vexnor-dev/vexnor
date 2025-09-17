@@ -5,13 +5,13 @@
    "type": "module",
    "scripts": {
       "codegen": "run-s 'codegen:*'",
-      "codegen:1-postgres": "env-cmd --no-override -x -r ../../env-dev.json -e db valnor generate --plugin valnor-postgres --schema one_sql --pascalCaseTables --camelCaseColumns --host \\$POSTGRES_HOST --port \\$POSTGRES_PORT --database \\$POSTGRES_DATABASE --user \\$POSTGRES_USER --password \\$POSTGRES_PASSWORD --outDir 'src/codegen/pg' | pino-pretty",
-      "codegen:2-sqlite": "env-cmd --no-override -x -r ../../env-dev.json -e db valnor generate --plugin valnor-sqlite3 --schema one_sql --pascalCaseTables --camelCaseColumns --uri \\$SQLITE_URI --outDir 'src/codegen/sqlite' | pino-pretty",
+      "codegen:1-postgres": "env-cmd --no-override -x -r ../../env-dev.json -e db valnor generate --plugin valnor-postgres --schema one_sql --pascalCaseTables --camelCaseColumns --host \\$POSTGRES_HOST --port \\$POSTGRES_PORT --database \\$POSTGRES_DATABASE --user \\$POSTGRES_USER --password \\$POSTGRES_PASSWORD --outDir 'src/codegen/pg'",
+      "codegen:2-sqlite": "env-cmd --no-override -x -r ../../env-dev.json -e db valnor generate --plugin valnor-sqlite3 --schema one_sql --pascalCaseTables --camelCaseColumns --uri \\$SQLITE_PATH --outDir 'src/codegen/sqlite'",
       "postcodegen": "pnpx eslint --config ../../eslint.config.mjs ./src/codegen/**/*.ts --fix",
       "prebuild": "run-s 'codegen'",
       "build": "tsc -b",
       "pretest": "run-s 'build'",
-      "test": "env-cmd --no-override -x -r ../../env-dev.json -e db cucumber-js --publish | pino-pretty"
+      "test": "env-cmd --no-override -x -r ../../env-dev.json -e db cucumber-js --publish"
    },
    "keywords": [],
    "author": "",
@@ -19,12 +19,16 @@
    "dependencies": {
       "@cucumber/cucumber": "^11.3.0",
       "@sinclair/typebox": "^0.34.36",
+      "better-sqlite3": "^12.2.0",
+      "env-cmd": "^10.1.0",
       "pg": "^8.16.3",
       "valnor": "workspace:^",
-      "valnor-postgres": "workspace:^"
+      "valnor-postgres": "workspace:^",
+      "valnor-sqlite3": "workspace:^"
    },
    "devDependencies": {
       "@cucumber/pretty-formatter": "^1.0.1",
+      "@types/better-sqlite3": "^7.6.13",
       "@types/pg": "^8.15.5",
       "copyfiles": "^2.4.1",
       "cucumber-html-reporter": "latest",

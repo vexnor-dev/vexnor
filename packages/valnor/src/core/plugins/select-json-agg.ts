@@ -5,7 +5,7 @@ import { raw } from "../sql-raw.js";
 import { sql } from "../sql.js";
 
 /**
- * Sql class that aggregation of a subquery into a JSON array
+ * Sql class that aggregates of a subquery into a JSON array
  * @example
  * SELECT ${Account.$$all},
  *           ${jsonAgg(UserOrders)} "orders"
@@ -26,8 +26,9 @@ export class SelectJsonAgg extends Sql {
             const newContext = new SqlQueryContext({ queryName: this.select.name });
             const result = raw(this.select.name + "_result");
             const join = sql`
-              select coalesce(jsonb_agg(${this.select.ROW.$$all}), '[]') as "${result}" 
-               from ${this.select}) as "${raw(this.select.name)}" on true`;
+               select coalesce(jsonb_agg(${this.select.ROW.$$all}), '[]') as "${result}"
+               from ${this.select}) as "${raw(this.select.name)}"
+               on true`;
 
             join.build(newContext);
 

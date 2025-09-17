@@ -1,3 +1,6 @@
+import { GetEnvVars } from "env-cmd";
+import { processRules } from "eslint-config-prettier/bin/cli.js";
+
 export default function () {
    const common = {
       format: [
@@ -18,9 +21,9 @@ export default function () {
             reportTitle: "E2E Test Report",
          },
       },
-      paths: ["./features/*.feature"],
+      paths: ["./features/postgres.feature", "./features/sqlite.feature"],
       loader: ["ts-node/esm"],
-      import: ["./src/**/*.ts"],
+      import: ["./src/steps/postgres/*.ts", "./src/steps/sqlite/*.ts", "./src/hooks/*.ts", "./src/test-world.ts"],
    };
 
    return {
@@ -39,3 +42,13 @@ export default function () {
       },
    };
 }
+
+const envDevVars = await GetEnvVars({
+   rc: {
+      environments: ["db"],
+      filePath: "../../env-dev.json",
+   },
+   verbose: true,
+});
+
+Object.assign(process.env, envDevVars);

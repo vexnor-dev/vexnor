@@ -33,18 +33,18 @@ export class ValnorSqlite3 extends ValnorPlugin {
          throw new Error("SQLite requires database file path in uri parameter");
       }
 
-      const tables = findTables.sqlite.getAll(db);
-      
+      const tables = findTables.sqlite3.getAll(db);
+
       // Populate columns and primary keys for each table
       for (const table of tables) {
-         const columns = findTableColumns.sqlite.getAll(db, { tableName: table.table_name });
-         const primaryKeys = findPrimaryKey.sqlite.getAll(db, { tableName: table.table_name });
+         const columns = findTableColumns.sqlite3.getAll(db, { tableName: table.table_name });
+         const primaryKeys = findPrimaryKey.sqlite3.getAll(db, { tableName: table.table_name });
          const primaryKey = primaryKeys[0];
-         
+
          table.table_columns = columns;
          table.primary_key = primaryKey?.name;
       }
-      
+
       logger.info(
          {
             sqlite: { database: "uri" in args ? args.uri : "unknown" },
@@ -67,11 +67,11 @@ export class ValnorSqlite3 extends ValnorPlugin {
 // Extend the class type (in scope)
 declare module "valnor/core" {
    interface SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> | undefined }> {
-      readonly sqlite: BetterSqlite3QueryHandler<T & { QueryResult: RunResult }>;
+      readonly sqlite3: BetterSqlite3QueryHandler<T & { QueryResult: RunResult }>;
    }
 }
 
-Object.defineProperty(SqlQuery.prototype, "sqlite", {
+Object.defineProperty(SqlQuery.prototype, "sqlite3", {
    get: function () {
       return new BetterSqlite3QueryHandler(this);
    },

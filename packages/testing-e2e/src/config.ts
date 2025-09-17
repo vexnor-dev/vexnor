@@ -16,9 +16,10 @@ const Config = Type.Object({
          return port;
       })
       .Encode((value) => value.toString()),
+   SQLITE_PATH: Type.String({ minLength: 1 }),
 });
 
-export const { POSTGRES_USER, POSTGRES_DATABASE, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_PORT } = Value.Decode(
+export const { POSTGRES_USER, POSTGRES_DATABASE, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_PORT, SQLITE_PATH } = Value.Decode(
    Config,
    process.env,
 );

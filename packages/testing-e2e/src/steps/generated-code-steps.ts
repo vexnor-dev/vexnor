@@ -1,9 +1,2 @@
-import { Given } from "@cucumber/cucumber";
-import { TestWorld } from "../test-world.js";
-import { ok } from "node:assert";
-import { Account, Order } from "../codegen/pg/one_sql.schema.js";
-
-Given(/^Generated sql mapping code is available in current package$/, function (this: TestWorld) {
-   ok(Account, "Account sql mapping type is not available");
-   ok(Order, "Order sql mapping type is not available");
-});
+// This file has been moved to postgres/generated-code-steps.ts and sqlite/generated-code-steps.ts
+// Please use the database-specific step files instead

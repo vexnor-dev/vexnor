@@ -5,6 +5,6 @@
     "POSTGRES_USER": "postgres",
     "POSTGRES_PASSWORD": "postgres",
     "POSTGRES_DATABASE": "postgres",
-    "SQLITE_URI": "../../@db-sqlite3/valnor-test.sqlite"
+    "SQLITE_PATH": "../../@db-sqlite3/valnor-test.sqlite"
   }
 }
