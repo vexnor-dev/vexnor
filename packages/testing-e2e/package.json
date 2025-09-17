@@ -12,7 +12,7 @@
       "build": "tsc -b",
       "pretest": "run-s 'build'",
       "test": "env-cmd --no-override -x -r ../../env-dev.json -e db c8 cucumber-js --publish",
-      "coverage": "c8 report --reporter=html"
+      "coverage": "c8 report --reporter=html --reporter=text --reporter=lcov"
    },
    "keywords": [],
    "author": "",
