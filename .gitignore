@@ -21,3 +21,4 @@ test-results
 .env
 mailmap.txt
 @db-sqlite3/*.sqlite
+coverage*

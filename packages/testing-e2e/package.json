@@ -11,7 +11,8 @@
       "prebuild": "run-s 'codegen'",
       "build": "tsc -b",
       "pretest": "run-s 'build'",
-      "test": "env-cmd --no-override -x -r ../../env-dev.json -e db cucumber-js --publish"
+      "test": "env-cmd --no-override -x -r ../../env-dev.json -e db c8 cucumber-js --publish",
+      "coverage": "c8 report --reporter=html"
    },
    "keywords": [],
    "author": "",
@@ -30,6 +31,7 @@
       "@cucumber/pretty-formatter": "^1.0.1",
       "@types/better-sqlite3": "^7.6.13",
       "@types/pg": "^8.15.5",
+      "c8": "^10.1.3",
       "copyfiles": "^2.4.1",
       "cucumber-html-reporter": "latest",
       "ts-node": "^10.9.2"

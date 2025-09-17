@@ -1,5 +1,4 @@
 import { GetEnvVars } from "env-cmd";
-import { processRules } from "eslint-config-prettier/bin/cli.js";
 
 export default function () {
    const common = {
