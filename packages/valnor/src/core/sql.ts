@@ -5,18 +5,18 @@ import { SqlTable } from "./sql-table.js";
 import { SqlColumn } from "./sql-column.js";
 
 /**
- * Creates a typed SQL query using plain SQL syntax and generated db mapping code.
- * @typeParam TResult - row result type of the query
- * @typeParam TParams - type of the query parameters (object)
- * @typeParam TValue - item type of the query values
+ * Creates a typed SQL core using plain SQL syntax and generated db mapping code.
+ * @typeParam TResult - row result type of the core
+ * @typeParam TParams - type of the core parameters (object)
+ * @typeParam TValue - item type of the core values
  * @param strings template strings
  * @param values template values
  * @example
  * ```ts
- * const query = sql<IUserSelect, { userId: string }>`
+ * const core = sql<IUserSelect, { userId: string }>`
  * SELECT ${User.$$all} FROM ${User} WHERE ${User.userId} = ${param("userId")}`;
 
- * const result = await query.run(db, { userId: "a1" });
+ * const result = await core.run(db, { userId: "a1" });
  * ```
  */
 export function sql<

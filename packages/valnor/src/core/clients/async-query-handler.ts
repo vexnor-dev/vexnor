@@ -19,7 +19,7 @@ export abstract class AsyncQueryHandler<
    abstract run(...args: SqlRunArgs<TDbClient, T["Params"]>): Promise<T["QueryResult"]>;
 
    /**
-    * Executes the query and returns exactly one row, or throw error when result not found or more
+    * Executes the core and returns exactly one row, or throw error when result not found or more
     * @param args
     */
    async getOneRequired(...args: SqlRunArgs<TDbClient, T["Params"]>): Promise<T["Row"]> {
@@ -30,7 +30,7 @@ export abstract class AsyncQueryHandler<
    }
 
    /**
-    * Executes the query and returns the first row, or undefined when no rows found
+    * Executes the core and returns the first row, or undefined when no rows found
     * @param args
     */
    async getOneOptional(...args: SqlRunArgs<TDbClient, T["Params"]>): Promise<T["Row"] | undefined> {
@@ -39,7 +39,7 @@ export abstract class AsyncQueryHandler<
    }
 
    /**
-    * Executes the query and returns all rows
+    * Executes the core and returns all rows
     * @param args
     */
    async getAll(...args: SqlRunArgs<TDbClient, T["Params"]>): Promise<T["Row"][]> {

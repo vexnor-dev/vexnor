@@ -7,11 +7,14 @@ import { SqlParam } from "./sql-param.js";
 import { SqlQueryContext } from "./sql-query-context.js";
 import { logger } from "./logger.js";
 import { Sql } from "./sql-base.js";
-import { SqlInfo } from "./plugins/index.js";
+import { SqlInfo } from "./charms/index.js";
 import * as crypto from "node:crypto";
 import { randomName } from "./random-name.js";
 
 const WILDCARD = "?";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type SqlQueryAny = SqlQuery<any>;
 
 export class SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> | undefined }> extends Sql {
    readonly name: string;
@@ -36,11 +39,11 @@ export class SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> |
    }
 
    /**
-    * Gets the query cache key for the given driver and values
+    * Gets the core cache key for the given driver and values
     * Query builds qre cache for performance optimizations
     * @param item sql | text
     * @param driver the db driver
-    * @param values the query param values
+    * @param values the core param values
     */
    getCacheKey({ item, driver, values }: GetCacheKeyArgs): string {
       const key = Object.keys(values)
@@ -54,7 +57,7 @@ export class SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> |
    }
 
    /**
-    * Gets the SQL for this query result: columns and their types
+    * Gets the SQL for this core result: columns and their types
     * @constructor
     */
    get ROW(): SqlQueryRow & Record<keyof T["Row"], SqlColumn> {
@@ -68,10 +71,10 @@ export class SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> |
    }
 
    /**
-    * Translates the input params into ready to use query execution values.
+    * Translates the input params into ready to use core execution values.
     * Queries can use a mix of static values and dynamic parameters.
     * This function will create a ready to use array of values
-    * @param params dynamic query parameters
+    * @param params dynamic core parameters
     */
    getValues(...[params]: SqlValuesArgs<T["Params"]>): unknown[] {
       const { values } = this.buildCache();
@@ -95,7 +98,7 @@ export class SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> |
    }
 
    /**
-    * Get the query text with input values and parameters replaced by the ? wildcards
+    * Get the core text with input values and parameters replaced by the ? wildcards
     * @example select * from table where id = ? and name = ?
     */
    getSql(...[params]: SqlValuesArgs<T["Params"]>): string {
@@ -123,7 +126,7 @@ export class SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> |
    }
 
    /**
-    * Get the query text with input values and parameters replaced by the indexed wildcards (ex. postgres)
+    * Get the core text with input values and parameters replaced by the indexed wildcards (ex. postgres)
     * @example select * from table where id = $1 and name = $2
     */
    getText(...args: SqlValuesArgs<T["Params"]>): string {
@@ -148,7 +151,7 @@ export class SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> |
          };
          return this.__buildCache__;
       } catch (err) {
-         logger.error({ err, context, rawStrings: this.rawStrings }, "Error building query");
+         logger.error({ err, context, rawStrings: this.rawStrings }, "Error building core");
          throw err;
       }
    }
@@ -158,7 +161,7 @@ export class SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> |
    }
 
    /**
-    * Build the query using the context
+    * Build the core using the context
     * @param context
     */
    build(context: SqlQueryContext) {
@@ -256,9 +259,6 @@ export class SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> |
       }
    }
 }
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type SqlQueryAny = SqlQuery<any>;
 
 export type GetCacheKeyArgs = {
    item: "sql" | "text";

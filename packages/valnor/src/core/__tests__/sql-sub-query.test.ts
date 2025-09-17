@@ -1,14 +1,14 @@
 import { describe, expect, test, vi } from "vitest";
 import { Account, IAccountSelect } from "./codegen/one_sql.account-table.js";
 import { info, param, sql } from "valnor";
-import { trim } from "./utils.js";
+import { trim } from "../utils.js";
 
 vi.mock("../random-name.js", () => ({
    randomName: (name: string) => (name === "account" ? "account_1" : `${name}_1`),
 }));
 
 describe("sql subqueries tests", () => {
-   test("sub-query from", () => {
+   test("sub-core from", () => {
       const AccountsWithEmail = sql<IAccountSelect, { email: string }>`
          ${info({ label: "AccountsWithEmail" })}
          select ${Account.$$all}
@@ -37,7 +37,7 @@ describe("sql subqueries tests", () => {
                                                                                              where "AccountsWithEmail"."firstName" = ?`);
    });
 
-   test("sub-query join", () => {
+   test("sub-core join", () => {
       const AccountsWithEmail = sql<IAccountSelect, { email: string }>`
          ${info({ label: "AccountsWithEmail" })}
          select ${Account.$$all}

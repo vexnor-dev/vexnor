@@ -1,14 +1,20 @@
 import { describe, expect, test, vi } from "vitest";
-import { IOrderSelect, Order } from "../../__tests__/codegen/one_sql.order-table.js";
-import { info, jsonAgg, param, sql } from "valnor";
-import { Account, IAccountSelect } from "../../__tests__/codegen/one_sql.account-table.js";
-import { trim } from "../../__tests__/utils.js";
-import { SqlQueryContext } from "../../sql-query-context.js";
-import { SQL_KEYWORDS } from "../../sql-keyword.js";
+import { info, param, sql, trim, SqlQueryContext, SQL_KEYWORDS } from "valnor/core";
+import { IOrderSelect, Order } from "./codegen/one_sql.order-table.js";
+import { Account, IAccountSelect } from "./codegen/one_sql.account-table.js";
+import { jsonAgg } from "../select-json-agg.js";
 
-vi.mock("../../random-name.js", () => ({
-   randomName: (name: string) => (name === "account" ? "account" : name === "order" ? "order" : name),
-}));
+vi.mock("node:crypto", async () => {
+   const actual = await vi.importActual("node:crypto");
+   return {
+      ...actual,
+      default: {
+         ...(actual.default as object),
+         randomBytes: () => ({ toString: () => "" }),
+      },
+      randomBytes: () => ({ toString: () => "" }),
+   };
+});
 
 describe("sql plugin jsonAgg() tests", () => {
    const AccountOrders = sql<IOrderSelect, { limit: 5 }>`
@@ -38,13 +44,13 @@ describe("sql plugin jsonAgg() tests", () => {
             left join lateral (
                select coalesce(jsonb_agg("AccountOrders".*), '[]') as "AccountOrders_result"
                from ( /* --label: AccountOrders */
-                       select "order"."order_id"   as "orderId",
-                              "order"."status",
-                              "order"."created_at" as "createdAt",
-                              "order"."modified_at" as "modifiedAt"
-                       from "one_sql"."order"
-                       where "order"."account_id" = "account"."account_id"
-                       order by "order"."created_at" desc
+                       select "order_"."order_id"   as "orderId",
+                              "order_"."status",
+                              "order_"."created_at" as "createdAt",
+                              "order_"."modified_at" as "modifiedAt"
+                       from "one_sql"."order" as "order_"
+                       where "order_"."account_id" = "account_"."account_id"
+                       order by "order_"."created_at" desc
                        limit $limit) as "AccountOrders") as "AccountOrders" on true
          `,
       );
@@ -66,29 +72,29 @@ describe("sql plugin jsonAgg() tests", () => {
       `;
 
       expect(trim(query.getSql({ email: "test@example.com", limit: 5 }))).toBe(
-         trim`select "account"."first_name"  as "firstName",
-                     "account"."account_id"  as "accountId",
-                     "account"."status",
-                     "account"."created_at"  as "createdAt",
-                     "account"."modified_at" as "modifiedAt",
-                     "account"."last_name"   as "lastName",
-                     "account"."notes",
-                     "account"."email",
+         trim`select "account_"."first_name"  as "firstName",
+                     "account_"."account_id"  as "accountId",
+                     "account_"."status",
+                     "account_"."created_at"  as "createdAt",
+                     "account_"."modified_at" as "modifiedAt",
+                     "account_"."last_name"   as "lastName",
+                     "account_"."notes",
+                     "account_"."email",
                      "AccountOrders_result"  as "orders"
-              from "one_sql"."account"
+              from "one_sql"."account" as "account_"
                       left join lateral (
                  select coalesce(jsonb_agg("AccountOrders".*), '[]') as "AccountOrders_result"
                  from (
                          /* --label: AccountOrders */
-                         select "order"."order_id"    as "orderId",
-                                "order"."status",
-                                "order"."created_at"  as "createdAt",
-                                "order"."modified_at" as "modifiedAt"
-                         from "one_sql"."order"
-                         where "order"."account_id" = "account"."account_id"
-                         order by "order"."created_at" desc
+                         select "order_"."order_id"    as "orderId",
+                                "order_"."status",
+                                "order_"."created_at"  as "createdAt",
+                                "order_"."modified_at" as "modifiedAt"
+                         from "one_sql"."order" as "order_"
+                         where "order_"."account_id" = "account_"."account_id"
+                         order by "order_"."created_at" desc
                          limit ?) as "AccountOrders") as "AccountOrders" on true
-              order by "account"."account_id" asc`,
+              order by "account_"."account_id" asc`,
       );
    });
 });

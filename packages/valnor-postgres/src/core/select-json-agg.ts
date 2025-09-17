@@ -1,8 +1,4 @@
-import { Sql } from "../sql-base.js";
-import { SqlQueryContext } from "../sql-query-context.js";
-import { SqlQueryAny } from "../sql-query.js";
-import { raw } from "../sql-raw.js";
-import { sql } from "../sql.js";
+import { Sql, SqlQueryContext, raw, sql, SqlQueryAny } from "valnor/core";
 
 /**
  * Sql class that aggregates of a subquery into a JSON array
@@ -43,9 +39,9 @@ export class SelectJsonAgg extends Sql {
 }
 
 /**
- * Creates a new SelectJsonAgg (Sql) object query block.
- * @param select sql query to aggregate
- * @returns SelectJsonAgg (Sql) object query block
+ * Creates a new SelectJsonAgg (Sql) object core block.
+ * @param select sql core to aggregate
+ * @returns SelectJsonAgg (Sql) object core block
  * @example
  * SELECT ${Account.$$all},
  *           ${jsonAgg(UserOrders)} "orders"

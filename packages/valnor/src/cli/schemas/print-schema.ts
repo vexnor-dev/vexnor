@@ -5,7 +5,6 @@ import to from "to-case";
 import { groupBy } from "../types/index.js";
 import { getCodegenContext, SqlOutputFile } from "../../plugin/index.js";
 import { writeSchemaImports } from "./write-schema-imports.js";
-import { writeSchemaNew } from "./write-schema-new.js";
 
 export interface WriteSchemaArgs {
    outDir: string;
@@ -18,7 +17,6 @@ export async function printSchema({ outDir, table_schema, files }: WriteSchemaAr
    const writer = newWriter();
 
    writeSchemaImports(writer, files);
-   writeSchemaNew(writer, { schema: table_schema, files });
 
    const fileName = `${to.snake(table_schema)}.schema`;
    await fs.promises.writeFile(path.join(outDir, `${fileName}.ts`), writer.toString());

@@ -34,7 +34,7 @@ export class PgQueryHandler<
          };
          return queryInput;
       } catch (err) {
-         console.error(err, "\n", queryInput?.text ?? "error building query");
+         console.error(err, "\n", queryInput?.text ?? "error building core");
          throw err;
       }
    }
@@ -44,7 +44,7 @@ export class PgQueryHandler<
    }
 
    /**
-    * Executes the query and returns the result
+    * Executes the core and returns the result
     * @param args
     */
    async run(...args: SqlRunArgs<TDbClient, T["Params"]>): Promise<T["QueryResult"]> {
@@ -57,7 +57,7 @@ export class PgQueryHandler<
          const { text, values } = queryInput;
          return await db.query({ text, values });
       } catch (err) {
-         console.error(err, "\n", queryInput?.text ?? "error building query");
+         console.error(err, "\n", queryInput?.text ?? "error building core");
          throw err;
       }
    }

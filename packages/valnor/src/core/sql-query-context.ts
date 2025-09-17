@@ -9,7 +9,7 @@ export interface SqlQueryContextOptions {
 
 export class SqlQueryContext {
    /**
-    * The query level.
+    * The core level.
     * Root queries will have level=0.
     * Children queries will have level=1, 2, 3, etc.
     */
@@ -18,8 +18,8 @@ export class SqlQueryContext {
    private __rawString__?: string;
 
    /**
-    * The current query name.
-    * This is used to identify the query in the logs.
+    * The current core name.
+    * This is used to identify the core in the logs.
     */
    queryName: string;
 

@@ -21,13 +21,13 @@ export class BetterSqlite3QueryHandler<
          };
          return queryInput;
       } catch (err) {
-         console.error(err, "\n", queryInput?.sql ?? "error building query");
+         console.error(err, "\n", queryInput?.sql ?? "error building core");
          throw err;
       }
    }
 
    /**
-    * Executes the query and returns the result
+    * Executes the core and returns the result
     * @param args
     */
    run(...args: SqlRunArgs<TDbClient, T["Params"]>): T["QueryResult"] {
@@ -39,7 +39,7 @@ export class BetterSqlite3QueryHandler<
          if (debug) debug(Object.freeze(queryConfig));
          return db.prepare(queryConfig.sql).run(queryConfig.values);
       } catch (err) {
-         console.error(err, "\n", queryConfig?.sql ?? "error building query");
+         console.error(err, "\n", queryConfig?.sql ?? "error building core");
          throw err;
       }
    }
@@ -53,7 +53,7 @@ export class BetterSqlite3QueryHandler<
          if (debug) debug(Object.freeze(queryConfig));
          return db.prepare<unknown[] | object, T["Row"]>(queryConfig.sql).all(queryConfig.values);
       } catch (err) {
-         console.error(err, "\n", queryConfig?.sql ?? "error building query");
+         console.error(err, "\n", queryConfig?.sql ?? "error building core");
          throw err;
       }
    }

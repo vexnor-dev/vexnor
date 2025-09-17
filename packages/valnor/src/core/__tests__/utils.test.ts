@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { trim } from "./utils.js";
+import { trim } from "../utils.js";
 
 describe("trim() suite", () => {
    it("trim() should remove new lines", () => {

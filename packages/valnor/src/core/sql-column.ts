@@ -6,29 +6,40 @@ import { SqlKeyword } from "./sql-keyword.js";
 
 export interface SqlColumnOptions {
    readonly name: string;
-   readonly table: string;
+   readonly table: { name: string; alias?: string };
    readonly alias?: string;
    readonly format?: SqlColumnFormat;
 }
 
-export type SqlColumnFormat = "table.column" | "column" | "table.alias" | "alias" | "table.column as alias";
+export type SqlColumnFormat =
+   | "table.column"
+   | "table.column as alias"
+   | "tableName.column"
+   | "column"
+   | "tableName.alias"
+   | "alias"
+   | "tableName.column as alias"
+   | "tableAlias.column"
+   | "tableAlias.column as alias";
 
 const SQL_COLUMN_FORMATS: Partial<Record<SqlKeyword, SqlColumnFormat>> = {
-   select: "table.column as alias",
-   returning: "table.column as alias",
-   fn: "table.column",
-   where: "table.column",
-   on: "table.column",
-   insert: "column",
+   select: "tableAlias.column as alias",
+   returning: "tableAlias.column as alias",
+   fn: "tableAlias.column",
+   where: "tableAlias.column",
+   on: "tableAlias.column",
+   "insert into": "column",
    values: "column",
    set: "column",
-   "group by": "table.column",
-   "order by": "table.column",
+   "group by": "tableAlias.column",
+   "order by": "tableAlias.column",
 };
+
+const DEFAULT_COLUMN_FORMAT: SqlColumnFormat = "tableAlias.column";
 
 export class SqlColumn extends Sql {
    readonly name: string;
-   readonly table: string;
+   readonly table: { name: string; alias?: string };
    readonly alias?: string;
    readonly format?: SqlColumnFormat;
 
@@ -98,37 +109,39 @@ export class SqlColumn extends Sql {
             });
          }
 
-         if (!SQL_COLUMN_FORMATS[keyword]) {
-            throw new SqlBuildError(
-               `Unknown SQL context keyword for column '${this.table}.${this.name}' and keyword '${keyword}'`,
-               {
-                  token: this,
-                  strings,
-               },
-            );
-         }
-
-         return SQL_COLUMN_FORMATS[keyword];
+         return SQL_COLUMN_FORMATS[keyword] ?? DEFAULT_COLUMN_FORMAT;
       });
 
       // Use this.format if available
       switch (format) {
-         case "table.column as alias": {
+         case "tableName.column as alias": {
             if (this.alias === this.name || !this.alias) {
-               push(`${q(this.table)}.${q(this.name)}`);
+               push(`${q(this.table.name)}.${q(this.name)}`);
                break;
             }
-            push(`${q(this.table)}.${q(this.name)} as ${q(this.alias)}`);
+            push(`${q(this.table.name)}.${q(this.name)} as ${q(this.alias)}`);
             break;
          }
-         case "table.column":
-            return push(`${q(this.table)}.${q(this.name)}`);
+         case "tableName.column":
+            return push(`${q(this.table.name)}.${q(this.name)}`);
          case "column":
             return push(`${q(this.name)}`);
-         case "table.alias":
-            return push(`${q(this.table)}.${q(this.alias ?? this.name)}`);
+         case "tableName.alias":
+            return push(`${q(this.table.name)}.${q(this.alias ?? this.name)}`);
          case "alias":
             return push(`${q(this.alias ?? this.name)}`);
+         case "table.column":
+         case "tableAlias.column":
+            return push(`${q(this.table.alias ?? this.table.name)}.${q(this.name)}`);
+         case "table.column as alias":
+         case "tableAlias.column as alias": {
+            if (this.alias === this.name || !this.alias) {
+               push(`${q(this.table.alias ?? this.table.name)}.${q(this.name)}`);
+               break;
+            }
+            push(`${q(this.table.alias ?? this.table.name)}.${q(this.name)} as ${q(this.alias)}`);
+            break;
+         }
       }
    }
 }

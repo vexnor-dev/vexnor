@@ -1,5 +1,5 @@
 import { ok } from "assert";
-import { x } from "../../x.js";
+import { x } from "../x.js";
 
 export function trim(strings: TemplateStringsArray | string, ...values: never[]): string {
    ok(!values?.length, `Values not expected: ${values}`);

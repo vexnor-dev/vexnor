@@ -18,7 +18,10 @@ export class SqlQueryRow {
    get $$all() {
       return new SqlColumn({
          name: "*",
-         table: this.name,
+         table: {
+            name: this.name,
+            alias: this.name,
+         },
       });
    }
 
@@ -39,7 +42,10 @@ export class SqlQueryRow {
             default:
                return new SqlColumn({
                   name: prop.toString(),
-                  table: target.name,
+                  table: {
+                     name: target.name,
+                     alias: target.name,
+                  },
                });
          }
       },

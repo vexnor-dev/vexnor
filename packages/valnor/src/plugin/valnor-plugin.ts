@@ -1,7 +1,7 @@
 import { LibraryOutputFile, SqlColumnInfo, SqlColumnType, SqlEnumInfo, SqlTableInfo } from "./types.js";
 
 /**
- * Valnor plugin for handling query execution to different DB engines
+ * Valnor plugin for handling core execution to different DB engines
  */
 export abstract class ValnorPlugin {
    abstract readonly driver: string;

@@ -51,7 +51,7 @@ describe("QueryContext: next keyword", () => {
 
    test("fn (2)", () => {
       target.next(`" as enum_schema,\\n                   json_agg(`);
-      expect(target.keywords).toEqual(["fn"]);
+      expect(target.keywords).toEqual(["as", "fn"]);
    });
 
    test("fn (3): back to select from fn call", () => {

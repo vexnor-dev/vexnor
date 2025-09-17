@@ -5,7 +5,7 @@ export default defineConfig({
       globals: true,
       environment: "node",
       testTimeout: 60_000,
-      projects: ["packages/valnor"],
+      projects: ["./packages/valnor"],
       coverage: {
          provider: "v8", // or 'c8', 'istanbul'
          reporter: ["text", "json", "html"],

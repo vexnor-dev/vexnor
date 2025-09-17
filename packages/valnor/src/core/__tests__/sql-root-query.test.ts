@@ -1,11 +1,14 @@
 import { describe, expect, test, vi } from "vitest";
-import { Account } from "./codegen/one_sql.account-table.js";
-import { trim } from "./utils.js";
-import { param, sql } from "valnor";
 
-vi.mock("../random-name.js", () => ({
-   randomName: (name: string) => (name === "account" ? "account_1" : `${name}_1`),
-}));
+vi.mock(import("../random-name.js"), () => {
+   return {
+      randomName: (name: string) => `${name}_1`,
+   };
+});
+
+import { Account } from "./codegen/one_sql.account-table.js";
+import { param, sql } from "valnor";
+import { trim } from "../utils.js";
 
 describe("sql() tests", () => {
    test("sql() select", () => {
@@ -30,7 +33,6 @@ describe("sql() tests", () => {
          "Two",
          "Three",
       ]);
-      // check 'Account' model
       expect(trim(query.getSql({ names, email: "test@example.com" }))).toBe(
          trim(
             `select "account_1"."first_name" as "firstName",

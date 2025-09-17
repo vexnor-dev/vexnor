@@ -10,7 +10,7 @@ import {
 } from "valnor/plugin";
 import { Pool, type QueryResult } from "pg";
 import { findEnums, findTables, getColumnType } from "./cli/index.js";
-import { PgQueryHandler } from "./query/index.js";
+import { PgQueryHandler } from "./core/index.js";
 import { RowOut, SqlQuery } from "valnor/core";
 
 /**

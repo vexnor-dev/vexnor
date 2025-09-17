@@ -15,6 +15,10 @@ export async function writeLibrary(): Promise<LibraryOutputFile[]> {
       output += data;
    }
 
+   if (!output) {
+      return [];
+   }
+
    await fs.writeFile(filePath, output, {
       encoding: "utf8",
    });

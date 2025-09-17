@@ -11,8 +11,8 @@ import {
    Order,
    OrderStatusUdt,
 } from "./codegen/one_sql.schema.js";
-import { jsonAgg, param, sql } from "valnor/core";
-import valnorPostgres from "valnor-postgres";
+import { param, sql } from "valnor/core";
+import valnorPostgres, { jsonAgg } from "valnor-postgres";
 
 valnorPostgres.register();
 

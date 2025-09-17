@@ -6,8 +6,9 @@ import crypto from "node:crypto";
 import { Account, IAccountSelect } from "../../codegen/pg/one_sql.account-table.js";
 import { deepStrictEqual, notDeepStrictEqual, ok } from "node:assert";
 import { AccountWithOrders } from "../../types/index.js";
-import { jsonAgg, sql } from "valnor";
+import { sql } from "valnor";
 import { Order } from "../../codegen/pg/one_sql.order-table.js";
+import { jsonAgg } from "valnor-postgres";
 
 When(/^Inserting a new Account using PostgreSQL$/, async function (this: TestWorld) {
    const id = crypto.randomUUID().slice(0, 4);

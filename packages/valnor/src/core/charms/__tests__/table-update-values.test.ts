@@ -1,10 +1,10 @@
 import { describe, expect, test, vi } from "vitest";
 import { param, sql } from "valnor";
 import { Account, IAccountSelect } from "../../__tests__/codegen/one_sql.account-table.js";
-import { trim } from "../../__tests__/utils.js";
+import { trim } from "../../utils.js";
 
 vi.mock("../../random-name.js", () => ({
-   randomName: (name: string) => (name === "account" ? "account" : name),
+   randomName: (name: string) => `${name}_1`,
 }));
 
 describe("sql plugin: table.$$set tests", () => {
@@ -28,13 +28,13 @@ describe("sql plugin: table.$$set tests", () => {
          "123e4567-e89b-12d3-a456-426614174000",
       ]);
       expect(trim(query.getSql({ accountId: "123e4567-e89b-12d3-a456-426614174000" }))).toBe(
-         trim`update "one_sql"."account"
+         trim`update "one_sql"."account" as "account_1"
               set "first_name"  = ?,
                   "modified_at" = ?,
                   "last_name"   = ?,
                   "email"       = ?
-              where "account"."account_id" = ?
-              returning "account"."first_name" as "firstName", "account"."account_id" as "accountId", "account"."status", "account"."created_at" as "createdAt", "account"."modified_at" as "modifiedAt", "account"."last_name" as "lastName", "account"."notes", "account"."email"`,
+              where "account_1"."account_id" = ?
+              returning "account_1"."first_name" as "firstName", "account_1"."account_id" as "accountId", "account_1"."status", "account_1"."created_at" as "createdAt", "account_1"."modified_at" as "modifiedAt", "account_1"."last_name" as "lastName", "account_1"."notes", "account_1"."email"`,
       );
    });
 });

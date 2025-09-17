@@ -3,7 +3,7 @@ import { SqlQueryContext } from "./sql-query-context.js";
 import { x } from "../x.js";
 import { Sql } from "./sql-base.js";
 import { ok } from "assert";
-import { TableInsertValues, TableUpdateSet } from "./plugins/index.js";
+import { TableInsertValues, TableUpdateSet } from "./charms/index.js";
 import { RowIn } from "./sql-types.js";
 import { SqlKeyword } from "./sql-keyword.js";
 import { SqlBuildError } from "./sql-build-error.js";
@@ -22,13 +22,14 @@ export type SqlTableFormat = "table" | "schema.table" | "schema.table as alias" 
 
 const SQL_TABLE_FORMATS: Partial<Record<SqlKeyword, SqlTableFormat>> = {
    from: "schema.table as alias",
-   with: "table",
-   insert: "schema.table as alias",
    update: "schema.table as alias",
-   delete: "schema.table",
+   "insert into": "schema.table as alias",
+   "delete from": "schema.table as alias",
    join: "schema.table as alias",
    fn: "alias",
 };
+
+const DEFAULT_TABLE_FORMAT: SqlTableFormat = "schema.table";
 
 export class SqlTable<T extends { Insert: RowIn; Update: RowIn }> extends Sql {
    private readonly options: SqlTableOptions;
@@ -49,13 +50,6 @@ export class SqlTable<T extends { Insert: RowIn; Update: RowIn }> extends Sql {
       return Object.values(this.options.cols);
    }
 
-   $$as(alias: string): SqlTable<T> {
-      return new SqlTable({
-         ...this.options,
-         alias,
-      });
-   }
-
    get [Symbol.toStringTag]() {
       const tokens = [];
       if (this.$$.schema) {
@@ -67,6 +61,13 @@ export class SqlTable<T extends { Insert: RowIn; Update: RowIn }> extends Sql {
       }
 
       return tokens.join();
+   }
+
+   $$as(alias: string): SqlTable<T> {
+      return new SqlTable({
+         ...this.options,
+         alias,
+      });
    }
 
    /**
@@ -103,17 +104,7 @@ export class SqlTable<T extends { Insert: RowIn; Update: RowIn }> extends Sql {
             );
          }
 
-         if (!SQL_TABLE_FORMATS[keyword]) {
-            throw new SqlBuildError(
-               `Unknown SQL context keyword for column '${this.options.schema}.${this.options.name}' and keyword '${keyword}'`,
-               {
-                  token: this,
-                  strings,
-               },
-            );
-         }
-
-         return SQL_TABLE_FORMATS[keyword];
+         return SQL_TABLE_FORMATS[keyword] ?? DEFAULT_TABLE_FORMAT;
       });
 
       switch (format) {
@@ -157,24 +148,27 @@ export function newTable<
       Update: RowIn;
    },
 >(options: NewTableOptions<TTypes>, cols: TColumns): SqlTable<TTypes> & SqlTableColumns<TColumns> {
-   const tableName = options.alias ?? randomName(options.name);
+   const table = {
+      name: options.name,
+      alias: options.alias ?? randomName(options.name),
+   };
    const pk = x(() => {
       if (!options.pk) return undefined;
       if (typeof options.pk === "string") {
-         return new SqlColumn({ alias: options.pk, name: options.pk, table: tableName });
+         return new SqlColumn({ alias: options.pk, name: options.pk, table: table });
       }
 
-      return new SqlColumn({ ...options.pk, table: tableName });
+      return new SqlColumn({ ...options.pk, table: table });
    });
    const __cols__ = x(() => {
       const columns: Record<string, SqlColumn> = {};
       for (const [key, value] of Object.entries(cols)) {
          if (typeof value === "string") {
-            columns[key] = new SqlColumn({ alias: key, name: value, table: tableName });
+            columns[key] = new SqlColumn({ alias: key, name: value, table: table });
          } else {
             columns[key] = new SqlColumn({
                ...value,
-               table: tableName,
+               table: table,
                alias: key,
             });
          }
@@ -182,12 +176,12 @@ export function newTable<
 
       return columns;
    });
-   const table = new SqlTable<TTypes>({
+   const result = new SqlTable<TTypes>({
       ...options,
       pk,
-      alias: tableName,
+      alias: table.alias,
       cols: __cols__,
    });
 
-   return Object.assign(table, __cols__) as SqlTable<TTypes> & SqlTableColumns<TColumns>;
+   return Object.assign(result, __cols__) as SqlTable<TTypes> & SqlTableColumns<TColumns>;
 }

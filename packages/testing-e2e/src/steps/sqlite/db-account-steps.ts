@@ -5,8 +5,9 @@ import crypto from "node:crypto";
 import { Account, IAccountSelect } from "../../codegen/sqlite/main.account-table.js";
 import { deepStrictEqual, notDeepStrictEqual, ok } from "node:assert";
 import { AccountWithOrders } from "../../types/index.js";
-import { jsonAgg, sql } from "valnor";
+import { sql } from "valnor";
 import { Order } from "../../codegen/sqlite/main.order-table.js";
+import { jsonAgg } from "valnor-postgres";
 
 When(/^Inserting a new Account using SQLite$/, async function (this: TestWorld) {
    const id = crypto.randomUUID().slice(0, 4);
