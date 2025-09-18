@@ -40,8 +40,8 @@ const DEFAULT_COLUMN_FORMAT: SqlColumnFormat = "tableAlias.column";
 export class SqlColumn extends Sql {
    readonly name: string;
    readonly table: { name: string; alias?: string };
-   readonly alias?: string;
-   readonly format?: SqlColumnFormat;
+   readonly alias?: string = undefined;
+   readonly format?: SqlColumnFormat = undefined;
 
    constructor(options: SqlColumnOptions) {
       super();
@@ -49,6 +49,17 @@ export class SqlColumn extends Sql {
       this.table = options.table;
       this.alias = options.alias;
       this.format = options.format;
+   }
+
+   static getFormat(column: SqlColumn, context: SqlQueryContext): SqlColumnFormat {
+      if (!context.keyword) {
+         throw new SqlBuildError(`SQL context keyword required for column '${column.table.name}.${this.name}'`, {
+            token: column,
+            strings: context.strings,
+         });
+      }
+
+      return SQL_COLUMN_FORMATS[context.keyword] ?? DEFAULT_COLUMN_FORMAT;
    }
 
    get [Symbol.toStringTag]() {

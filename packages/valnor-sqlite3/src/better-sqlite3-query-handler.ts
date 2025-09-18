@@ -1,4 +1,4 @@
-import { isSqlRunOptions, RowOut, SqlQueryHandler, SqlRunArgs, SqlValuesArgs } from "valnor/core";
+import { isSqlRunOptions, RowOut, SqlQueryHandler, SqlRunArgs, SqlValuesArgs } from "valnor";
 import type { Database, RunResult } from "better-sqlite3";
 
 export class BetterSqlite3QueryHandler<

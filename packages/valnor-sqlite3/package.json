@@ -6,7 +6,13 @@
    "module": "dist/index.js",
    "main": "dist/index.js",
    "types": "dist/index.d.ts",
-   "keywords": [
+   "exports": {
+      ".": {
+         "types": "./dist/index.d.ts",
+         "import": "./dist/index.js",
+         "require": "./dist/index.js"
+      }
+   },   "keywords": [
       "valnor",
       "sqlite3",
       "better-sqlite3",

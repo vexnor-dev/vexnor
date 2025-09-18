@@ -19,16 +19,14 @@ export type SqlQueryAny = SqlQuery<any>;
 export class SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> | undefined }> extends Sql {
    readonly name: string;
    readonly ID: string;
-   private __buildCache__?: SqlBuild;
-   private __row__?: SqlQueryRow & Record<keyof T["Row"], SqlColumn>;
+   private __buildCache__?: SqlBuild = undefined;
+   private __row__?: SqlQueryRow & Record<keyof T["Row"], SqlColumn> = undefined;
 
    constructor(
       public readonly rawStrings: readonly string[],
       public readonly rawValues: readonly unknown[],
    ) {
       super();
-      this.rawStrings = rawStrings;
-      this.rawValues = rawValues;
       this.name = x(() => {
          const info = rawValues.find((v) => v instanceof SqlInfo);
          if (info) return info.options.label;

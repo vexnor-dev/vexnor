@@ -31,6 +31,9 @@ const SQL_TABLE_FORMATS: Partial<Record<SqlKeyword, SqlTableFormat>> = {
 
 const DEFAULT_TABLE_FORMAT: SqlTableFormat = "schema.table";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type SqlTableAny = SqlTable<any>;
+
 export class SqlTable<T extends { Insert: RowIn; Update: RowIn }> extends Sql {
    private readonly options: SqlTableOptions;
 
@@ -40,6 +43,17 @@ export class SqlTable<T extends { Insert: RowIn; Update: RowIn }> extends Sql {
          ...options,
          alias: options.alias ?? randomName(options.name),
       };
+   }
+
+   static getFormat(table: SqlTableAny, context: SqlQueryContext): SqlTableFormat {
+      if (!context.keyword) {
+         throw new SqlBuildError(`SQL context keyword required for table '${table.$$.schema}.${table.$$.name}'`, {
+            token: table,
+            strings: context.strings,
+         });
+      }
+
+      return SQL_TABLE_FORMATS[context.keyword] ?? DEFAULT_TABLE_FORMAT;
    }
 
    get $$(): SqlTableOptions {

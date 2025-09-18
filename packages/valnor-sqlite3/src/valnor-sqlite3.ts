@@ -1,23 +1,31 @@
 import {
    GetSchemaArgs,
+   LibraryOutputFile,
    logger,
-   SqlSchema,
    SqlColumnInfo,
    SqlColumnType,
+   SqlSchema,
    ValnorPlugin,
-   LibraryOutputFile,
 } from "valnor/plugin";
 import Database, { type RunResult } from "better-sqlite3";
-import { findTables, findTableColumns, findPrimaryKey, getColumnType } from "./cli/index.js";
-import { RowOut, SqlQuery } from "valnor/core";
+import { findPrimaryKey, findTableColumns, findTables, getColumnType } from "./cli/index.js";
+import {
+   RowOut,
+   SqlColumn,
+   SqlColumnFormat,
+   SqlQuery,
+   SqlQueryContext,
+   SqlTableAny,
+   SqlTableFormat,
+} from "valnor/core";
 import { BetterSqlite3QueryHandler } from "./better-sqlite3-query-handler.js";
 
 export class ValnorSqlite3 extends ValnorPlugin {
+   driver = "better-sqlite3";
+
    getLibrary(): LibraryOutputFile[] {
       return [];
    }
-
-   driver = "better-sqlite3";
 
    getColumnType(col: SqlColumnInfo): SqlColumnType {
       return getColumnType(col);
@@ -61,6 +69,29 @@ export class ValnorSqlite3 extends ValnorPlugin {
          tables,
          enums: [],
       };
+   }
+
+   override getTableFormat(table: SqlTableAny, context: SqlQueryContext): SqlTableFormat {
+      switch (context.keyword) {
+         case "insert into":
+         case "update":
+            return "schema.table";
+         default:
+            return super.getTableFormat(table, context);
+      }
+   }
+
+   override getColumnFormat(column: SqlColumn, context: SqlQueryContext): SqlColumnFormat {
+      switch (context.keyword) {
+         case "insert into":
+            return "column";
+         case "set":
+            return "tableName.column";
+         case "returning":
+            return "tableName.column as alias";
+         default:
+            return super.getColumnFormat(column, context);
+      }
    }
 }
 
