@@ -1,7 +1,7 @@
 import { SqlColumn } from "./sql-column.js";
 import { SqlQueryContext } from "./sql-query-context.js";
 import { x } from "../x.js";
-import { Sql } from "./sql-base.js";
+import { Sql, SqlBuildOptions } from "./sql-base.js";
 import { ok } from "assert";
 import { TableInsertValues, TableUpdateSet } from "./charms/index.js";
 import { RowIn } from "./sql-types.js";
@@ -102,24 +102,13 @@ export class SqlTable<T extends { Insert: RowIn; Update: RowIn }> extends Sql {
       return new TableInsertValues<T>(this.$$.cols, inserts);
    }
 
-   build({ keyword, strings }: SqlQueryContext) {
+   build(context: SqlQueryContext, options?: SqlBuildOptions) {
+      const { strings } = context;
       const schema = this.$$.schema ? `"${this.$$.schema}".` : "";
 
-      const format = x(() => {
-         if (this.options.format) return this.options.format;
-
-         if (!keyword) {
-            throw new SqlBuildError(
-               `SQL context keyword required for table '${this.options.schema}.${this.options.schema}'`,
-               {
-                  token: this,
-                  strings,
-               },
-            );
-         }
-
-         return SQL_TABLE_FORMATS[keyword] ?? DEFAULT_TABLE_FORMAT;
-      });
+      const format = options?.formatProvider
+         ? options.formatProvider.getTableFormat(this, context)
+         : SqlTable.getFormat(this, context);
 
       switch (format) {
          case "table":

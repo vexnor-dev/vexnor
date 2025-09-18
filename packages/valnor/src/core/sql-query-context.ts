@@ -15,7 +15,7 @@ export class SqlQueryContext {
     */
    queryLevel = -1;
    private readonly __keywords__: SqlKeyword[] = [];
-   private __rawString__?: string;
+   private __rawString__?: string = undefined;
 
    /**
     * The current core name.

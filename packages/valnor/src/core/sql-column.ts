@@ -1,6 +1,5 @@
 import { SqlQueryContext } from "./sql-query-context.js";
 import { Sql, SqlBuildOptions } from "./sql-base.js";
-import { x } from "../x.js";
 import { SqlBuildError } from "./sql-build-error.js";
 import { SqlKeyword } from "./sql-keyword.js";
 
@@ -51,6 +50,15 @@ export class SqlColumn extends Sql {
       this.format = options.format;
    }
 
+   get [Symbol.toStringTag]() {
+      const tokens = ["SqlColumn", "(", this.table, ".", this.name];
+      if (this.alias) {
+         tokens.push(" as ", `${this.alias}`);
+      }
+      tokens.push(")");
+      return tokens.join("");
+   }
+
    static getFormat(column: SqlColumn, context: SqlQueryContext): SqlColumnFormat {
       if (!context.keyword) {
          throw new SqlBuildError(`SQL context keyword required for column '${column.table.name}.${this.name}'`, {
@@ -60,15 +68,6 @@ export class SqlColumn extends Sql {
       }
 
       return SQL_COLUMN_FORMATS[context.keyword] ?? DEFAULT_COLUMN_FORMAT;
-   }
-
-   get [Symbol.toStringTag]() {
-      const tokens = ["SqlColumn", "(", this.table, ".", this.name];
-      if (this.alias) {
-         tokens.push(" as ", `${this.alias}`);
-      }
-      tokens.push(")");
-      return tokens.join("");
    }
 
    /**
@@ -83,7 +82,9 @@ export class SqlColumn extends Sql {
       });
    }
 
-   build({ keyword, strings }: SqlQueryContext, options?: SqlBuildOptions) {
+   build(context: SqlQueryContext, options?: SqlBuildOptions) {
+      const { strings } = context;
+
       /**
        * Quotes text when different from "*".
        * Used for controlling quoting for column names
@@ -110,18 +111,9 @@ export class SqlColumn extends Sql {
          strings.push(...tokens);
       }
 
-      const format = x(() => {
-         if (this.format) return this.format;
-
-         if (!keyword) {
-            throw new SqlBuildError(`SQL context keyword required for column '${this.table}.${this.name}'`, {
-               token: this,
-               strings,
-            });
-         }
-
-         return SQL_COLUMN_FORMATS[keyword] ?? DEFAULT_COLUMN_FORMAT;
-      });
+      const format = options?.formatProvider
+         ? options.formatProvider.getColumnFormat(this, context)
+         : SqlColumn.getFormat(this, context);
 
       // Use this.format if available
       switch (format) {

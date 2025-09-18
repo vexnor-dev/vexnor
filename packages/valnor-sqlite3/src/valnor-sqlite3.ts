@@ -9,15 +9,7 @@ import {
 } from "valnor/plugin";
 import Database, { type RunResult } from "better-sqlite3";
 import { findPrimaryKey, findTableColumns, findTables, getColumnType } from "./cli/index.js";
-import {
-   RowOut,
-   SqlColumn,
-   SqlColumnFormat,
-   SqlQuery,
-   SqlQueryContext,
-   SqlTableAny,
-   SqlTableFormat,
-} from "valnor/core";
+import { RowOut, SqlQuery } from "valnor/core";
 import { BetterSqlite3QueryHandler } from "./better-sqlite3-query-handler.js";
 
 export class ValnorSqlite3 extends ValnorPlugin {
@@ -69,29 +61,6 @@ export class ValnorSqlite3 extends ValnorPlugin {
          tables,
          enums: [],
       };
-   }
-
-   override getTableFormat(table: SqlTableAny, context: SqlQueryContext): SqlTableFormat {
-      switch (context.keyword) {
-         case "insert into":
-         case "update":
-            return "schema.table";
-         default:
-            return super.getTableFormat(table, context);
-      }
-   }
-
-   override getColumnFormat(column: SqlColumn, context: SqlQueryContext): SqlColumnFormat {
-      switch (context.keyword) {
-         case "insert into":
-            return "column";
-         case "set":
-            return "tableName.column";
-         case "returning":
-            return "tableName.column as alias";
-         default:
-            return super.getColumnFormat(column, context);
-      }
    }
 }
 

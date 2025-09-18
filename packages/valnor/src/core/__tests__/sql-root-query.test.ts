@@ -27,13 +27,13 @@ describe("sql() tests", () => {
         where ${Account.email} = ${param("email")}
           and ${Account.firstName} in (${param("names")})
         group by ${Account.email}`;
-      expect(query.getValues({ names, email: "test@example.com" })).toEqual([
+      expect(query.getValues({ params: { names, email: "test@example.com" } })).toEqual([
          "test@example.com",
          "One",
          "Two",
          "Three",
       ]);
-      expect(trim(query.getSql({ names, email: "test@example.com" }))).toBe(
+      expect(trim(query.getSql({ params: { names, email: "test@example.com" } }))).toBe(
          trim(
             `select "account_1"."first_name" as "firstName",
                     min("account_1"."email"),

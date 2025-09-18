@@ -1,4 +1,4 @@
-import { Sql, SqlQueryContext, raw, sql, SqlQueryAny } from "valnor/core";
+import { Sql, SqlQueryContext, raw, sql, SqlQueryAny, SqlBuildOptions } from "valnor/core";
 
 /**
  * Sql class that aggregates of a subquery into a JSON array
@@ -13,7 +13,7 @@ export class SelectJsonAgg extends Sql {
       super();
    }
 
-   build(context: SqlQueryContext) {
+   build(context: SqlQueryContext, options: SqlBuildOptions) {
       switch (context.keyword) {
          case "select":
             context.strings.push(`"${this.select.name}_result"`);
@@ -26,7 +26,7 @@ export class SelectJsonAgg extends Sql {
                from ${this.select}) as "${raw(this.select.name)}"
                on true`;
 
-            join.build(newContext);
+            join.build(newContext, options);
 
             context.strings.push("left join lateral (", ...newContext.strings);
             context.values.push(...newContext.values);

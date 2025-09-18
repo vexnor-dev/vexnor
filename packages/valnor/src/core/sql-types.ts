@@ -1,6 +1,6 @@
 import { SqlParam } from "./sql-param.js";
 import { SqlColumn } from "./sql-column.js";
-import { Sql } from "./sql-base.js";
+import { Sql, SqlBuildOptions } from "./sql-base.js";
 
 export type RowIn = object;
 
@@ -45,7 +45,10 @@ export function isSqlRunOptions<TDbClient>(value: unknown): value is SqlRunOptio
 export type SqlRunArgs<TDbClient, TParams> = TParams extends undefined
    ? [options: TDbClient | SqlRunOptions<TDbClient>]
    : [options: TDbClient | SqlRunOptions<TDbClient>, params: TParams];
-export type SqlValuesArgs<TParams> = TParams extends undefined | never ? [] : [params: TParams];
+
+export type SqlValuesArgs<TParams> = TParams extends undefined | never
+   ? { options?: SqlBuildOptions }
+   : { params: TParams; options?: SqlBuildOptions };
 
 export type SqlQueryRow<TParams extends Record<string, unknown>> = Record<keyof TParams, SqlColumn> & {
    $all: SqlColumn[];

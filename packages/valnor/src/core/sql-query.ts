@@ -6,10 +6,11 @@ import { ok } from "assert";
 import { SqlParam } from "./sql-param.js";
 import { SqlQueryContext } from "./sql-query-context.js";
 import { logger } from "./logger.js";
-import { Sql } from "./sql-base.js";
+import { Sql, SqlBuildOptions } from "./sql-base.js";
 import { SqlInfo } from "./charms/index.js";
 import * as crypto from "node:crypto";
 import { randomName } from "./random-name.js";
+import { SqlFormatProvider } from "./sql-format-provider.js";
 
 const WILDCARD = "?";
 
@@ -72,11 +73,13 @@ export class SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> |
     * Translates the input params into ready to use core execution values.
     * Queries can use a mix of static values and dynamic parameters.
     * This function will create a ready to use array of values
-    * @param params dynamic core parameters
+    * @param args
     */
-   getValues(...[params]: SqlValuesArgs<T["Params"]>): unknown[] {
-      const { values } = this.buildCache();
+   getValues(args: SqlValuesArgs<T["Params"]>): unknown[] {
+      const options = args.options ?? { formatProvider: new SqlFormatProvider() };
+      const { values } = this.buildCache(options);
       if (!values) return [];
+      const params = "params" in args ? args.params : undefined;
       if (!params) return values ?? [];
       const results: unknown[] = [];
       for (let i = 0; i < values.length; i++) {
@@ -99,10 +102,11 @@ export class SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> |
     * Get the core text with input values and parameters replaced by the ? wildcards
     * @example select * from table where id = ? and name = ?
     */
-   getSql(...[params]: SqlValuesArgs<T["Params"]>): string {
-      const { values } = this.buildCache();
-      const strings = [...this.buildCache().strings];
+   getSql(args: SqlValuesArgs<T["Params"]>): string {
+      const options = args.options ?? { formatProvider: new SqlFormatProvider() };
+      const { values, strings } = this.buildCache(options);
       if (!values?.length) return strings.join("");
+      const params = "params" in args ? args.params : undefined;
       if (!params) return strings.join("");
 
       for (let i = 0, str = strings[0]; i < strings.length; i++, str = strings[i]) {
@@ -127,8 +131,8 @@ export class SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> |
     * Get the core text with input values and parameters replaced by the indexed wildcards (ex. postgres)
     * @example select * from table where id = $1 and name = $2
     */
-   getText(...args: SqlValuesArgs<T["Params"]>): string {
-      const sql = this.getSql(...args);
+   getText(args: SqlValuesArgs<T["Params"]>): string {
+      const sql = this.getSql(args);
       const tokens = sql.split(WILDCARD);
       for (let i = 0; i < tokens.length - 1; i++) {
          tokens[i] = tokens[i] + `$${i + 1}`;
@@ -137,12 +141,12 @@ export class SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> |
       return tokens.join("");
    }
 
-   buildCache() {
+   buildCache(options: SqlBuildOptions) {
       if (this.__buildCache__) return this.__buildCache__;
 
       const context = new SqlQueryContext({ queryName: this.name });
       try {
-         this.build(context);
+         this.build(context, options);
          this.__buildCache__ = {
             strings: context.strings,
             values: context.values,
@@ -161,8 +165,9 @@ export class SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> |
    /**
     * Build the core using the context
     * @param context
+    * @param options
     */
-   build(context: SqlQueryContext) {
+   build(context: SqlQueryContext, options: SqlBuildOptions) {
       context.queryLevel++;
       context.queryName = this.name;
 
@@ -177,19 +182,19 @@ export class SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> |
       switch (context.keyword) {
          case "select":
             wrapStart();
-            this.internalBuild(context);
+            this.internalBuild(context, options);
             wrapEnd();
             context.strings.push(` as "${this.name}"`);
             break;
          case "join":
             wrapStart();
-            this.internalBuild(context);
+            this.internalBuild(context, options);
             wrapEnd();
             context.strings.push(` as "${this.name}"`);
             break;
          case "from":
             wrapStart();
-            this.internalBuild(context);
+            this.internalBuild(context, options);
             wrapEnd();
             context.strings.push(` as "${this.name}"`);
             break;
@@ -197,12 +202,12 @@ export class SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> |
             context.strings.push(`"${this.name}"`);
             break;
          default:
-            this.internalBuild(context);
+            this.internalBuild(context, options);
             break;
       }
    }
 
-   private internalBuild(context: SqlQueryContext) {
+   private internalBuild(context: SqlQueryContext, options: SqlBuildOptions) {
       const children = [...this.rawValues];
       const { strings, values } = context;
       let i = -1;
@@ -222,7 +227,7 @@ export class SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> |
             const addString = (text: string) => `${text}${delimiter}`;
             switch (true) {
                case item instanceof Sql:
-                  item.build(context, { onAddString: addString });
+                  item.build(context, options);
                   break;
                case !item:
                   values.push(item);
@@ -258,8 +263,12 @@ export class SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> |
    }
 }
 
-export type GetCacheKeyArgs = {
+export interface GetCacheKeyArgs {
    item: "sql" | "text";
    driver: string;
    values: Record<string, unknown>;
-};
+}
+
+export interface SqlQueryBuildOptions {
+   formatProvider?: SqlFormatProvider;
+}

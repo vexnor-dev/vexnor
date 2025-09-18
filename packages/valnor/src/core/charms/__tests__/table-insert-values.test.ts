@@ -17,8 +17,8 @@ describe("sql plugin table.$$values() tests", () => {
          })}
             returning ${Account.$$all}`;
 
-      expect(query.getValues()).toEqual(["Bob", "Smith", "bob@example.com"]);
-      expect(trim(query.getSql())).toBe(
+      expect(query.getValues({})).toEqual(["Bob", "Smith", "bob@example.com"]);
+      expect(trim(query.getSql({}))).toBe(
          trim(
             `insert into "one_sql"."account" as "account_1" ("first_name", "last_name", "email")
              values (?, ?, ?)

@@ -20,9 +20,12 @@ describe("sql subqueries tests", () => {
          from (${AccountsWithEmail})
          where ${AccountsWithEmail.ROW.firstName} = ${param("firstName")}`;
 
-      query.buildCache();
-      expect(query.getValues({ firstName: "John", email: "test@example.com" })).toEqual(["test@example.com", "John"]);
-      expect(trim(query.getSql({ firstName: "John", email: "test@example.com" })))
+      query.buildCache({});
+      expect(query.getValues({ params: { firstName: "John", email: "test@example.com" } })).toEqual([
+         "test@example.com",
+         "John",
+      ]);
+      expect(trim(query.getSql({ params: { firstName: "John", email: "test@example.com" } })))
          .toBe(trim`select "AccountsWithEmail".*
                                                                                              from (( /* --label: AccountsWithEmail */ select "account_1"."first_name"    as "firstName",
                                                                                                                "account_1"."account_id" as "accountId",
@@ -50,8 +53,11 @@ describe("sql subqueries tests", () => {
                                                                              join (${AccountsWithEmail}) on ${Account.accountId} = ${AccountsWithEmail.ROW.accountId}
                                                                      where ${Account.firstName} = ${param("firstName")}`;
 
-      expect(query.getValues({ firstName: "John", email: "test@example.com" })).toEqual(["test@example.com", "John"]);
-      expect(trim(query.getSql({ firstName: "John", email: "test@example.com" })))
+      expect(query.getValues({ params: { firstName: "John", email: "test@example.com" } })).toEqual([
+         "test@example.com",
+         "John",
+      ]);
+      expect(trim(query.getSql({ params: { firstName: "John", email: "test@example.com" } })))
          .toBe(trim`select "account_1"."first_name" as "firstName",
                                                                             "account_1"."account_id" as "accountId",
                                                                             "account_1"."status",

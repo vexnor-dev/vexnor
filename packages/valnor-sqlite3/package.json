@@ -12,7 +12,8 @@
          "import": "./dist/index.js",
          "require": "./dist/index.js"
       }
-   },   "keywords": [
+   },
+   "keywords": [
       "valnor",
       "sqlite3",
       "better-sqlite3",
@@ -40,8 +41,7 @@
    },
    "devDependencies": {
       "@types/better-sqlite3": "^7.6.13",
-      "typescript": "^5.5.3",
-      "vitest": "^3.2.4"
+      "typescript": "^5.5.3"
    },
    "peerDependencies": {
       "better-sqlite3": "^12.2.0"

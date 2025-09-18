@@ -20,14 +20,14 @@ describe("sql plugin: table.$$set tests", () => {
          })}
          where ${Account.accountId} = ${param("accountId")}
          returning ${Account.$$all}`;
-      expect(query.getValues({ accountId: "123e4567-e89b-12d3-a456-426614174000" })).toEqual([
+      expect(query.getValues({ params: { accountId: "123e4567-e89b-12d3-a456-426614174000" } })).toEqual([
          "Bob",
          modifiedAt,
          "Smith",
          "bob@example.com",
          "123e4567-e89b-12d3-a456-426614174000",
       ]);
-      expect(trim(query.getSql({ accountId: "123e4567-e89b-12d3-a456-426614174000" }))).toBe(
+      expect(trim(query.getSql({ params: { accountId: "123e4567-e89b-12d3-a456-426614174000" } }))).toBe(
          trim`update "one_sql"."account" as "account_1"
               set "first_name"  = ?,
                   "modified_at" = ?,
