@@ -1,6 +1,6 @@
 {
-  "migrationDirectory": "@db-migrations-postgres",
-  "migrationPattern": "@db-migrations-postgres/**",
+  "migrationDirectory": "@db-postgres",
+  "migrationPattern": "@db-postgres/**",
   "driver": "pg",
   "host": "localhost",
   "database": "postgres",
