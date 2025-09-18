@@ -63,7 +63,7 @@ When(
       `;
       this.log(findAccounts.getText());
 
-      const accountsWithOrders = await findAccounts.sqlite3.getAll(db);
+      const accountsWithOrders = findAccounts.sqlite3.getAll(db);
 
       ok(accountsWithOrders?.length, "accounts are required");
       this.accountsWithOrders = accountsWithOrders;
