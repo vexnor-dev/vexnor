@@ -1,5 +1,5 @@
 import { describe, expect, test, vi } from "vitest";
-import { info, param, sql, trim, SqlQueryContext, SQL_KEYWORDS } from "valnor/core";
+import { info, param, sql, trim, SqlQueryContext, SQL_KEYWORDS } from "valnor";
 import { IOrderSelect, Order } from "./codegen/one_sql.order-table.js";
 import { Account, IAccountSelect } from "./codegen/one_sql.account-table.js";
 import { jsonAgg } from "../select-json-agg.js";
@@ -27,18 +27,18 @@ describe("sql plugin jsonAgg() tests", () => {
 
    test("jsonAgg(): select", () => {
       const context = new SqlQueryContext({ queryName: "test", keywords: ["select"] });
-      jsonAgg(AccountOrders).build(context);
+      jsonAgg(AccountOrders).build(context, {});
       expect(context.strings[0]).toBe(`"${AccountOrders.name}_result"`);
    });
 
    test.each(SQL_KEYWORDS.filter((z) => !["select", "from"].includes(z)))("jsonAgg(): %s throws error", (keyword) => {
       const context = new SqlQueryContext({ queryName: "test", keywords: [keyword] });
-      expect(() => jsonAgg(AccountOrders).build(context)).toThrow("Cannot use jsonAgg() with SQL keyword:");
+      expect(() => jsonAgg(AccountOrders).build(context, {})).toThrow("Cannot use jsonAgg() with SQL keyword:");
    });
 
    test("jsonAgg(): from", () => {
       const context = new SqlQueryContext({ queryName: "test", keywords: ["from"] });
-      jsonAgg(AccountOrders).build(context);
+      jsonAgg(AccountOrders).build(context, {});
       expect(trim(context.strings.join(""))).toBe(
          trim`
             left join lateral (
@@ -71,7 +71,7 @@ describe("sql plugin jsonAgg() tests", () => {
          order by ${Account.accountId} asc
       `;
 
-      expect(trim(query.getSql({ email: "test@example.com", limit: 5 }))).toBe(
+      expect(trim(query.getSql({ params: { email: "test@example.com", limit: 5 } }))).toBe(
          trim`select "account_"."first_name"  as "firstName",
                      "account_"."account_id"  as "accountId",
                      "account_"."status",

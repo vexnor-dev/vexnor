@@ -14,14 +14,18 @@ type PgClient = {
 };
 
 export class PgQueryHandler<
-   T extends { Row: RowOut; Params: Record<string, unknown> | undefined; QueryResult: QueryResult },
-   TDbClient extends PgClient = PgClient,
-> extends AsyncQueryHandler<T, TDbClient> {
-   constructor(readonly sqlQuery: SqlQuery<T>) {
+   T extends { Row: RowOut; Params: Record<string, unknown> | undefined },
+> extends AsyncQueryHandler<{
+   Row: T["Row"];
+   Params: T["Params"];
+   QueryResult: QueryResult<T["Row"]>;
+   Client: PgClient;
+}> {
+   constructor(readonly sqlQuery: SqlQuery<{ Row: T["Row"]; Params: T["Params"] }>) {
       super(sqlQuery);
    }
 
-   getOptions(...args: SqlRunArgs<TDbClient, T["Params"]>): QueryInput {
+   getOptions(...args: SqlRunArgs<PgClient, T["Params"]>): QueryInput {
       // eslint-disable-next-line unused-imports/no-unused-vars
       const [_, params] = args;
       const _args_: SqlValuesArgs<T["Params"]> = { params } as SqlValuesArgs<T["Params"]>;
@@ -39,7 +43,7 @@ export class PgQueryHandler<
       }
    }
 
-   resolveRows(result: T["QueryResult"]): T["Row"][] {
+   resolveRows(result: QueryResult<T["Row"]>): T["Row"][] {
       return result.rows;
    }
 
@@ -47,7 +51,7 @@ export class PgQueryHandler<
     * Executes the core and returns the result
     * @param args
     */
-   async run(...args: SqlRunArgs<TDbClient, T["Params"]>): Promise<T["QueryResult"]> {
+   async run(...args: SqlRunArgs<PgClient, T["Params"]>): Promise<QueryResult<T["Row"]>> {
       const [opts] = args;
       const { db, debug } = isSqlRunOptions(opts) ? opts : { db: opts };
       let queryInput = undefined;

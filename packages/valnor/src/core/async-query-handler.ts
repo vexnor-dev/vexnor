@@ -1,5 +1,5 @@
-import { RowOut, SqlRunArgs } from "../sql-types.js";
-import { SqlQuery } from "../sql-query.js";
+import { RowOut, SqlRunArgs } from "./sql-types.js";
+import { SqlQuery } from "./sql-query.js";
 import { SqlQueryHandler } from "./sql-query-handler.js";
 import { ok } from "assert";
 
@@ -7,8 +7,7 @@ import { ok } from "assert";
  * Default SqlQueryHandler
  */
 export abstract class AsyncQueryHandler<
-   T extends { Row: RowOut; Params: Record<string, unknown> | undefined; QueryResult: object },
-   TDbClient extends object,
+   T extends { Row: RowOut; Params: Record<string, unknown> | undefined; QueryResult: object; Client: object },
 > extends SqlQueryHandler<T> {
    protected constructor(readonly sqlQuery: SqlQuery<T>) {
       super(sqlQuery);
@@ -16,13 +15,13 @@ export abstract class AsyncQueryHandler<
 
    abstract resolveRows(res: T["QueryResult"]): T["Row"][];
 
-   abstract run(...args: SqlRunArgs<TDbClient, T["Params"]>): Promise<T["QueryResult"]>;
+   abstract run(...args: SqlRunArgs<T["Client"], T["Params"]>): Promise<T["QueryResult"]>;
 
    /**
     * Executes the core and returns exactly one row, or throw error when result not found or more
     * @param args
     */
-   async getOneRequired(...args: SqlRunArgs<TDbClient, T["Params"]>): Promise<T["Row"]> {
+   async getOneRequired(...args: SqlRunArgs<T["Client"], T["Params"]>): Promise<T["Row"]> {
       const rows = await this.getAll(...args);
       ok(rows.length === 1, `Expected one row, actual is ${rows.length} rows.`);
       ok(rows[0], `The one row in result is not defined: ${rows[0]}`);
@@ -33,7 +32,7 @@ export abstract class AsyncQueryHandler<
     * Executes the core and returns the first row, or undefined when no rows found
     * @param args
     */
-   async getOneOptional(...args: SqlRunArgs<TDbClient, T["Params"]>): Promise<T["Row"] | undefined> {
+   async getOneOptional(...args: SqlRunArgs<T["Client"], T["Params"]>): Promise<T["Row"] | undefined> {
       const rows = await this.getAll(...args);
       return rows.length > 0 ? rows[0] : undefined;
    }
@@ -42,7 +41,7 @@ export abstract class AsyncQueryHandler<
     * Executes the core and returns all rows
     * @param args
     */
-   async getAll(...args: SqlRunArgs<TDbClient, T["Params"]>): Promise<T["Row"][]> {
+   async getAll(...args: SqlRunArgs<T["Client"], T["Params"]>): Promise<T["Row"][]> {
       return await this.run(...args).then((res) => this.resolveRows(res));
    }
 }

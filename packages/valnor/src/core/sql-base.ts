@@ -22,5 +22,10 @@ export abstract class Sql {
       });
    }
 
+   /**
+    * Build the Sql token using the context and options
+    * @param context
+    * @param options
+    */
    abstract build(context: SqlQueryContext, options?: SqlBuildOptions): void;
 }

@@ -47,7 +47,7 @@ export type SqlRunArgs<TDbClient, TParams> = TParams extends undefined
    : [options: TDbClient | SqlRunOptions<TDbClient>, params: TParams];
 
 export type SqlValuesArgs<TParams> = TParams extends undefined | never
-   ? { options?: SqlBuildOptions }
+   ? { options?: SqlBuildOptions } | void
    : { params: TParams; options?: SqlBuildOptions };
 
 export type SqlQueryRow<TParams extends Record<string, unknown>> = Record<keyof TParams, SqlColumn> & {

@@ -61,7 +61,7 @@ When(
          order by ${Account.createdAt} desc
          limit ${countOfAccounts}
       `;
-      this.log(findAccounts.getText());
+      this.log(findAccounts.getText({}));
 
       const accountsWithOrders = findAccounts.sqlite3.getAll(db);
 

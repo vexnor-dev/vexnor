@@ -76,10 +76,10 @@ export class SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> |
     * @param args
     */
    getValues(args: SqlValuesArgs<T["Params"]>): unknown[] {
-      const options = args.options ?? { formatProvider: new SqlFormatProvider() };
+      const options = args?.options ?? { formatProvider: new SqlFormatProvider() };
       const { values } = this.buildCache(options);
       if (!values) return [];
-      const params = "params" in args ? args.params : undefined;
+      const params = args && "params" in args ? args.params : undefined;
       if (!params) return values ?? [];
       const results: unknown[] = [];
       for (let i = 0; i < values.length; i++) {
@@ -103,10 +103,10 @@ export class SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> |
     * @example select * from table where id = ? and name = ?
     */
    getSql(args: SqlValuesArgs<T["Params"]>): string {
-      const options = args.options ?? { formatProvider: new SqlFormatProvider() };
+      const options = args?.options ?? { formatProvider: new SqlFormatProvider() };
       const { values, strings } = this.buildCache(options);
       if (!values?.length) return strings.join("");
-      const params = "params" in args ? args.params : undefined;
+      const params = args && "params" in args ? args.params : undefined;
       if (!params) return strings.join("");
 
       for (let i = 0, str = strings[0]; i < strings.length; i++, str = strings[i]) {

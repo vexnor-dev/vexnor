@@ -38,7 +38,6 @@ export function sql<
    ...values: TValue[]
 ): SqlQuery<{
    Row: TRow;
-   QueryResult: { rows: TRow[] };
    Params: TParams;
 }> {
    return new SqlQuery(strings, values);

@@ -74,7 +74,8 @@
   },
   "devDependencies": {
     "@types/pg": "^8.15.5",
-    "@vitest/coverage-v8": "^3.2.4"
+    "@vitest/coverage-v8": "^3.2.4",
+    "vitest": "^3.2.4"
   },
   "peerDependencies": {
     "mariadb": "^3.4.5",
