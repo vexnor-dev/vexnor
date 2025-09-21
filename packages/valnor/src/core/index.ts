@@ -17,3 +17,4 @@ export * from "./utils.js";
 export * from "./sql-format-provider.js";
 export * from "./sql-query-handler.js";
 export * from "./async-query-handler.js";
+export * from "./random-name.js";

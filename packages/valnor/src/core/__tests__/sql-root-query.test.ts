@@ -1,26 +1,19 @@
 import { describe, expect, test, vi } from "vitest";
+import { Account, IAccountSelect } from "./codegen/one_sql.schema.js";
+import { param, trim, sql } from "valnor";
 
-vi.mock(import("../random-name.js"), () => {
+vi.mock("../random-name.js", (valnor) => {
    return {
+      ...valnor,
       randomName: (name: string) => `${name}_1`,
    };
 });
 
-import { Account } from "./codegen/one_sql.account-table.js";
-import { param, sql } from "valnor";
-import { trim } from "../utils.js";
-
 describe("sql() tests", () => {
    test("sql() select", () => {
       const names = ["One", "Two", "Three"];
-      type Row = {
-         firstName: string;
-         email: string;
-         user_email: string;
-         createdAt: Date;
-      };
       const query = sql<
-         Row,
+         IAccountSelect,
          { names: string[]; email: string }
       >`select ${Account.firstName}, min(${Account.email}), ${Account.email.$$fmt("table.column")} user_email, ${Account.createdAt}
         from ${Account}
