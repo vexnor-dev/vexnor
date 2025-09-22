@@ -196,6 +196,37 @@ importers:
         specifier: ^3.2.4
         version: 3.2.4(@types/node@24.5.2)(yaml@2.8.1)
 
+  packages/valnor-mssql:
+    dependencies:
+      code-block-writer:
+        specifier: ^11.0.3
+        version: 11.0.3
+      mssql:
+        specifier: ^11.0.1
+        version: 11.0.1
+      to-case:
+        specifier: ^2.0.0
+        version: 2.0.0
+      valnor:
+        specifier: workspace:^
+        version: link:../valnor
+    devDependencies:
+      '@types/mssql':
+        specifier: ^9.1.5
+        version: 9.1.8
+      '@vitest/coverage-v8':
+        specifier: ^3.2.4
+        version: 3.2.4(vitest@3.2.4(@types/node@24.5.2)(yaml@2.8.1))
+      npm-run-all:
+        specifier: ^4.1.5
+        version: 4.1.5
+      typescript:
+        specifier: ^5.5.3
+        version: 5.9.2
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/node@24.5.2)(yaml@2.8.1)
+
   packages/valnor-postgres:
     dependencies:
       code-block-writer:
@@ -1034,6 +1065,9 @@ packages:
 
   '@types/lodash@4.17.20':
     resolution: {integrity: sha512-H3MHACvFUEiujabxhaI/ImO6gUrd8oOurg7LQtS7mbwIXA/cUqWrvBsaeJ23aZEPk1TAYkurjfMbSELfoCXlGA==}
+
+  '@types/mssql@9.1.8':
+    resolution: {integrity: sha512-mt9h5jWj+DYE5jxnKaWSV/GqDf9FV52XYVk6T3XZF69noEe+JJV6MKirii48l81+cjmAkSq+qeKX+k61fHkYrQ==}
 
   '@types/node@20.19.0':
     resolution: {integrity: sha512-hfrc+1tud1xcdVTABC2JiomZJEklMcXYNTVtZLAeqTVWD+qL5jkHKT+1lOtqDdGxt+mB53DTtiz673vfjU8D1Q==}
@@ -4620,6 +4654,14 @@ snapshots:
   '@types/json5@0.0.29': {}
 
   '@types/lodash@4.17.20': {}
+
+  '@types/mssql@9.1.8':
+    dependencies:
+      '@types/node': 20.19.0
+      tarn: 3.0.2
+      tedious: 18.6.1
+    transitivePeerDependencies:
+      - supports-color
 
   '@types/node@20.19.0':
     dependencies:

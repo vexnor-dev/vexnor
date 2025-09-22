@@ -28,16 +28,6 @@ export type SqlEnumInfo = {
    enum_values: SqlEnumValue[];
 };
 
-export interface SqlColumnInfo {
-   column_default: string | null;
-   column_name: string;
-   domain_name?: string;
-   udt_name?: string;
-   is_nullable: "YES" | "NO";
-   is_updatable: "YES" | "NO";
-   numeric_precision_radix?: number;
-}
-
 export interface SqlColumnType {
    type: SqlLiteralType;
    udt?: string;
