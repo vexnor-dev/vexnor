@@ -1,30 +1,9 @@
 import { ok } from "assert";
 import { SqlColumn } from "./sql-column.js";
 import { SqlRaw } from "./sql-raw.js";
+import { RowOut } from "./sql-types.js";
 
 export class SqlQueryRow {
-   private readonly name: string;
-
-   constructor({ name }: { name: string }) {
-      this.name = name;
-   }
-
-   get $() {
-      return {
-         name: new SqlRaw(this.name),
-      };
-   }
-
-   get $$all() {
-      return new SqlColumn({
-         name: "*",
-         table: {
-            name: this.name,
-            alias: this.name,
-         },
-      });
-   }
-
    static proxyHandler: ProxyHandler<SqlQueryRow> = {
       getPrototypeOf(target) {
          ok(typeof target.constructor.prototype === "object", "prototype is not an instance");
@@ -50,4 +29,26 @@ export class SqlQueryRow {
          }
       },
    };
+   readonly $: { name: SqlRaw };
+   readonly $$all: SqlColumn;
+   private readonly name: string;
+
+   constructor({ name }: { name: string }) {
+      this.name = name;
+      this.$ = {
+         name: new SqlRaw(this.name),
+      };
+      this.$$all = new SqlColumn({
+         name: "*",
+         table: {
+            name: this.name,
+            alias: this.name,
+         },
+      });
+   }
+}
+
+export function newSqlQueryRow<T extends { Row: RowOut }>(args: { name: string }) {
+   return new Proxy<SqlQueryRow>(new SqlQueryRow(args), SqlQueryRow.proxyHandler) as SqlQueryRow &
+      Record<keyof T["Row"], SqlColumn>;
 }

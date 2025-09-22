@@ -1,5 +1,5 @@
 import { RowOut, SqlBuild, SqlValuesArgs } from "./sql-types.js";
-import { SqlQueryRow } from "./sql-query-row.js";
+import { newSqlQueryRow, SqlQueryRow } from "./sql-query-row.js";
 import { SqlColumn } from "./sql-column.js";
 import { x } from "../x.js";
 import { ok } from "assert";
@@ -9,7 +9,7 @@ import { logger } from "./logger.js";
 import { Sql, SqlBuildOptions } from "./sql-base.js";
 import { SqlInfo } from "./charms/index.js";
 import * as crypto from "node:crypto";
-import { randomName } from "./random-name.js";
+import { Random } from "./random.js";
 import { SqlFormatProvider } from "./sql-format-provider.js";
 
 const WILDCARD = "?";
@@ -21,7 +21,7 @@ export class SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> |
    readonly name: string;
    readonly ID: string;
    private __buildCache__?: SqlBuild = undefined;
-   private __row__?: SqlQueryRow & Record<keyof T["Row"], SqlColumn> = undefined;
+   readonly ROW: SqlQueryRow & Record<keyof T["Row"], SqlColumn>;
 
    constructor(
       public readonly rawStrings: readonly string[],
@@ -32,9 +32,10 @@ export class SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> |
          const info = rawValues.find((v) => v instanceof SqlInfo);
          if (info) return info.options.label;
 
-         return randomName("query");
+         return Random.name("query");
       });
       this.ID = crypto.randomUUID();
+      this.ROW = newSqlQueryRow({ name: this.name });
    }
 
    /**
@@ -53,20 +54,6 @@ export class SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> |
          })
          .join(",");
       return JSON.stringify(`item=${item}driver=${driver}&key=${key}`);
-   }
-
-   /**
-    * Gets the SQL for this core result: columns and their types
-    * @constructor
-    */
-   get ROW(): SqlQueryRow & Record<keyof T["Row"], SqlColumn> {
-      if (this.__row__) return this.__row__;
-
-      this.__row__ = new Proxy<SqlQueryRow>(
-         new SqlQueryRow({ name: this.name }),
-         SqlQueryRow.proxyHandler,
-      ) as SqlQueryRow & Record<keyof T["Row"], SqlColumn>;
-      return this.__row__;
    }
 
    /**

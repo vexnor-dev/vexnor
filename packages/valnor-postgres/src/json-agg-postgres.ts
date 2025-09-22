@@ -1,14 +1,13 @@
-import { Sql, SqlQueryContext, raw, sql, SqlQueryAny, SqlBuildOptions } from "valnor/core";
+import { raw, Sql, sql, SqlBuildOptions, SqlQueryAny, SqlQueryContext } from "valnor";
 
 /**
  * Sql class that aggregates of a subquery into a JSON array
  * @example
- * SELECT ${Account.$$all},
- *           ${jsonAgg(UserOrders)} "orders"
- *    FROM ${Account} ${jsonAgg(UserOrders)}
- *    WHERE ${Account.accountId} = ${newAccount.accountId}
+ * SELECT ${Account.$$all}, ${jsonAgg(UserOrders)} "orders"
+ * FROM ${Account} ${jsonAgg(UserOrders)}
+ * WHERE ${Account.accountId} = ${param("accountId")}
  */
-export class SelectJsonAgg extends Sql {
+export class JsonAggPostgres extends Sql {
    constructor(public readonly select: SqlQueryAny) {
       super();
    }
@@ -43,18 +42,17 @@ export class SelectJsonAgg extends Sql {
  * @param select sql core to aggregate
  * @returns SelectJsonAgg (Sql) object core block
  * @example
- * SELECT ${Account.$$all},
- *           ${jsonAgg(UserOrders)} "orders"
- *    FROM ${Account} ${jsonAgg(UserOrders)}
- *    WHERE ${Account.accountId} = ${newAccount.accountId}
- */
+ * SELECT ${Account.$$all}, ${jsonAgg(UserOrders)} "orders"
+ * FROM ${Account} ${jsonAgg(UserOrders)}
+ * WHERE ${Account.accountId} = ${param("accountId")}
+ * */
 export function jsonAgg(select: SqlQueryAny) {
    if (!cache.has(select)) {
-      const result = new SelectJsonAgg(select);
+      const result = new JsonAggPostgres(select);
       cache.set(select, result);
    }
 
    return cache.get(select)!;
 }
 
-const cache = new WeakMap<SqlQueryAny, SelectJsonAgg>();
+const cache = new WeakMap<SqlQueryAny, JsonAggPostgres>();

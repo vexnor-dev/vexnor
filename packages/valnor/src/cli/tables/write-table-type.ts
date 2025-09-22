@@ -9,7 +9,7 @@ export function writeTableType(writer: CodeBlockWriter.default, { table }: Print
    const tableTypeUpdate = `I${tableTypeName}Update`;
 
    writer
-      .write(`export const ${tableTypeName} = lib.newTable(`)
+      .write(`export const ${tableTypeName} = valnor.newSqlTable(`)
       .inlineBlock(() => {
          writer
             .writeLine(`name: "${table_name}",`)

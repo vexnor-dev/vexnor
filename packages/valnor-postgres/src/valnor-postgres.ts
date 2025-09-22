@@ -10,8 +10,8 @@ import {
 } from "valnor/plugin";
 import { Pool, type QueryResult } from "pg";
 import { findEnums, findTables, getColumnType } from "./cli/index.js";
-import { PgQueryHandler } from "./core/index.js";
-import { RowOut, SqlQuery } from "valnor/core";
+import { PgQueryHandler } from "./pg-query-handler.js";
+import { RowOut, SqlQuery } from "valnor";
 
 /**
  * Valnor plugin for postgres.
@@ -74,7 +74,7 @@ export class ValnorPostgres extends ValnorPlugin {
 }
 
 // Extend the class type (in scope)
-declare module "valnor/core" {
+declare module "valnor" {
    interface SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> | undefined }> {
       readonly pg: PgQueryHandler<T & { QueryResult: QueryResult }>;
    }

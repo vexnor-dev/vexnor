@@ -1,5 +1,5 @@
 import { SqlTableInfo } from "valnor/plugin";
-import { param, sql } from "valnor/core";
+import { param, sql } from "valnor";
 
 import { Columns, TableConstraints } from "./models.js";
 

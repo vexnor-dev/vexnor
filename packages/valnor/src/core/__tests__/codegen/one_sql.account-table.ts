@@ -2,53 +2,55 @@
 import * as lib from "valnor";
 import * as udt from "./one_sql-enums.js";
 
-export const Account = lib.newTable({
-   name: "account",
-   schema: "one_sql",
-   types: <{ Insert: IAccountInsert, Update: IAccountUpdate }>{}, 
-   pk: "account_pk", 
-},{
+export const Account = lib.newSqlTable(
+   {
+      name: "account",
+      schema: "one_sql",
+      types: <{ Insert: IAccountInsert; Update: IAccountUpdate }>{},
+      pk: "account_pk",
+   },
+   {
+      /**
+       * first_name varchar
+       */
+      firstName: "first_name",
 
-   /**
-    * first_name varchar
-   */
-   firstName: "first_name",
+      /**
+       * account_id uuid default gen_random_uuid()
+       */
+      accountId: "account_id",
 
-   /**
-    * account_id uuid default gen_random_uuid()
-   */
-   accountId: "account_id",
+      /**
+       * status account_status default 'created'::one_sql.account_status
+       */
+      status: "status",
 
-   /**
-    * status account_status default 'created'::one_sql.account_status
-   */
-   status: "status",
+      /**
+       * created_at timestamptz default now()
+       */
+      createdAt: "created_at",
 
-   /**
-    * created_at timestamptz default now()
-   */
-   createdAt: "created_at",
+      /**
+       * modified_at timestamptz default now()
+       */
+      modifiedAt: "modified_at",
 
-   /**
-    * modified_at timestamptz default now()
-   */
-   modifiedAt: "modified_at",
+      /**
+       * last_name varchar
+       */
+      lastName: "last_name",
 
-   /**
-    * last_name varchar
-   */
-   lastName: "last_name",
+      /**
+       * notes text
+       */
+      notes: "notes",
 
-   /**
-    * notes text
-   */
-   notes: "notes",
-
-   /**
-    * email varchar
-   */
-   email: "email",
-});
+      /**
+       * email varchar
+       */
+      email: "email",
+   },
+);
 
 export type IAccountInsert = {
    firstName: string;
@@ -59,19 +61,19 @@ export type IAccountInsert = {
    lastName: string;
    notes?: string | null;
    email: string;
-}
+};
 
 export type IAccountUpdate = Partial<IAccountInsert>;
 
 export type IAccountSelect = {
-   readonly firstName: string
-   readonly accountId: string
-   readonly status: udt.AccountStatusUdt
-   readonly createdAt: Date
-   readonly modifiedAt: Date
-   readonly lastName: string
-   readonly notes: string | null
-   readonly email: string
-}
+   readonly firstName: string;
+   readonly accountId: string;
+   readonly status: udt.AccountStatusUdt;
+   readonly createdAt: Date;
+   readonly modifiedAt: Date;
+   readonly lastName: string;
+   readonly notes: string | null;
+   readonly email: string;
+};
 
 export type IAccountJson = lib.JsonRow<IAccountSelect>;

@@ -1,4 +1,4 @@
-import { sql, param } from "valnor/core";
+import { sql, param } from "valnor";
 import type { SqlTableInfo, SqlColumnInfo } from "valnor/plugin";
 import { SqliteMaster } from "./models.js";
 
@@ -20,12 +20,12 @@ export const findTableColumns = sql<SqlColumnInfo, { tableName: string }>`
       dflt_value as column_default,
       'YES' as is_updatable,
       type as udt_name
-   FROM pragma_table_info(${param('tableName')})
+   FROM pragma_table_info(${param("tableName")})
 `;
 
 export const findPrimaryKey = sql<{ name: string }, { tableName: string }>`
    SELECT name
-   FROM pragma_table_info(${param('tableName')})
+   FROM pragma_table_info(${param("tableName")})
    WHERE pk = 1
    LIMIT 1
 `;

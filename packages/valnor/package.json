@@ -12,11 +12,6 @@
       "types": "./dist/core/index.d.ts",
       "require": "./dist/core/index.js"
     },
-    "./core": {
-      "import": "./dist/core/index.js",
-      "types": "./dist/core/index.d.ts",
-      "require": "./dist/core/index.js"
-    },
     "./plugin": {
       "import": "./dist/plugin/index.js",
       "types": "./dist/plugin/index.d.ts",

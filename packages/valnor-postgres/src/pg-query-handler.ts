@@ -1,12 +1,4 @@
-import {
-   AsyncQueryHandler,
-   isSqlRunOptions,
-   QueryInput,
-   RowOut,
-   SqlQuery,
-   SqlRunArgs,
-   SqlValuesArgs,
-} from "valnor/core";
+import { AsyncQueryHandler, isSqlRunOptions, QueryInput, RowOut, SqlQuery, SqlRunArgs, SqlValuesArgs } from "valnor";
 import type { QueryResult } from "pg";
 
 type PgClient = {

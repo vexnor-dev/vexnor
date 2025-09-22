@@ -9,7 +9,7 @@ import {
 } from "valnor/plugin";
 import Database, { type RunResult } from "better-sqlite3";
 import { findPrimaryKey, findTableColumns, findTables, getColumnType } from "./cli/index.js";
-import { RowOut, SqlQuery } from "valnor/core";
+import { RowOut, SqlQuery } from "valnor";
 import { BetterSqlite3QueryHandler } from "./better-sqlite3-query-handler.js";
 
 export class ValnorSqlite3 extends ValnorPlugin {
@@ -65,7 +65,7 @@ export class ValnorSqlite3 extends ValnorPlugin {
 }
 
 // Extend the class type (in scope)
-declare module "valnor/core" {
+declare module "valnor" {
    interface SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> | undefined }> {
       readonly sqlite3: BetterSqlite3QueryHandler<T & { QueryResult: RunResult }>;
    }

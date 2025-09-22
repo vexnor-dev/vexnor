@@ -31,7 +31,8 @@
     "build:5-rest": "pnpm --filter '!./packages/valnor' --filter '!./packages/valnor' --filter '!./packages/valnor-sqlite3' --filter '!./packages/valnor-postgres' run build",
     "codegen": "run-s 'codegen:*' | pino-pretty",
     "codegen:1-generate-core": "env-cmd --no-override -x -r ./env-dev.json -e db node ./packages/valnor/cli.mjs generate --plugin valnor-postgres --schema one_sql --pascalCaseTables --camelCaseColumns --host \\$POSTGRES_HOST --port \\$POSTGRES_PORT --database \\$POSTGRES_DATABASE --user \\$POSTGRES_USER --password \\$POSTGRES_PASSWORD --outDir 'packages/valnor/src/core/__tests__/codegen'",
-    "codegen:2-generate-postgres": "env-cmd --no-override -x -r ./env-dev.json -e db node ./packages/valnor/cli.mjs generate --plugin valnor-postgres --schema one_sql --pascalCaseTables --camelCaseColumns --host \\$POSTGRES_HOST --port \\$POSTGRES_PORT --database \\$POSTGRES_DATABASE --user \\$POSTGRES_USER --password \\$POSTGRES_PASSWORD --outDir 'packages/valnor-postgres/src/core/__tests__/codegen'",
+    "codegen:2-generate-postgres": "env-cmd --no-override -x -r ./env-dev.json -e db node ./packages/valnor/cli.mjs generate --plugin valnor-postgres --schema one_sql --pascalCaseTables --camelCaseColumns --host \\$POSTGRES_HOST --port \\$POSTGRES_PORT --database \\$POSTGRES_DATABASE --user \\$POSTGRES_USER --password \\$POSTGRES_PASSWORD --outDir 'packages/valnor-postgres/src/__tests__/codegen'",
+    "codegen:2-generate-sqlite3": "env-cmd --no-override -x -r ./env-dev.json -e db node ./packages/valnor/cli.mjs generate --plugin valnor-sqlite3 --schema one_sql --pascalCaseTables --camelCaseColumns --uri \\$SQLITE_PATH --outDir 'packages/valnor-sqlite3/src/__tests__'",
     "pretest": "run-s 'codegen'",
     "test": "run-s 'test:*'",
     "test:1-vitest": "vitest run",
@@ -40,6 +41,7 @@
   "devDependencies": {
     "@eslint/js": "^9.17.0",
     "@types/node": "20.19.0",
+    "@vitest/coverage-v8": "^3.2.4",
     "add": "^2.0.6",
     "copyfiles": "^2.4.1",
     "env-cmd": "^10.1.0",

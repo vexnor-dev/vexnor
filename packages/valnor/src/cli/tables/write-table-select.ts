@@ -37,5 +37,5 @@ export function writeTableSelect(writer: CodeBlockWriter.default, { table }: Pri
          });
       })
       .blankLine()
-      .write(`export type I${tableTypeName}Json = lib.JsonRow<I${tableTypeName}Select>;`);
+      .write(`export type I${tableTypeName}Json = valnor.JsonRow<I${tableTypeName}Select>;`);
 }

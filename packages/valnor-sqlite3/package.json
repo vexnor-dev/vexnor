@@ -27,8 +27,10 @@
       "access": "public"
    },
    "scripts": {
+      "codegen": "env-cmd --no-override -x -r ../../env-dev.json -e db valnor generate --plugin valnor-sqlite3 --schema one_sql --pascalCaseTables --camelCaseColumns --uri \\$SQLITE_PATH --outDir 'src/__tests__/codegen' | pino-pretty",
       "build": "tsc -b",
-      "test": "vitest run",
+      "pretest": "run-s 'build'",
+      "test": "vitest --coverage run",
       "test:watch": "vitest --watch"
    },
    "files": [
@@ -41,7 +43,8 @@
    },
    "devDependencies": {
       "@types/better-sqlite3": "^7.6.13",
-      "typescript": "^5.5.3"
+      "typescript": "^5.5.3",
+      "vitest": "^3.2.4"
    },
    "peerDependencies": {
       "better-sqlite3": "^12.2.0"

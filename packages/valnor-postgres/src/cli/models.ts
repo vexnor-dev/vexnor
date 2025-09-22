@@ -1,6 +1,6 @@
-import { newTable } from "valnor/core";
+import { newSqlTable } from "valnor";
 
-export const PgType = newTable(
+export const PgType = newSqlTable(
    {
       schema: "pg_catalog",
       name: "pg_type",
@@ -14,7 +14,7 @@ export const PgType = newTable(
    },
 );
 
-export const PgEnum = newTable(
+export const PgEnum = newSqlTable(
    {
       name: "pg_enum",
       schema: "pg_catalog",
@@ -27,7 +27,7 @@ export const PgEnum = newTable(
    },
 );
 
-export const EnumValues = newTable(
+export const EnumValues = newSqlTable(
    {
       name: "enum_values",
    },
@@ -38,7 +38,7 @@ export const EnumValues = newTable(
    },
 );
 
-export const PgNamespace = newTable(
+export const PgNamespace = newSqlTable(
    {
       name: "pg_namespace",
       schema: "pg_catalog",
@@ -49,7 +49,7 @@ export const PgNamespace = newTable(
    },
 );
 
-export const Columns = newTable(
+export const Columns = newSqlTable(
    {
       name: "columns",
       schema: "information_schema",
@@ -79,7 +79,7 @@ export const Columns = newTable(
    },
 );
 
-export const TableConstraints = newTable(
+export const TableConstraints = newSqlTable(
    {
       name: "table_constraints",
       schema: "information_schema",

@@ -1,7 +1,7 @@
-import { PgQueryHandler } from "./core/index.js";
-import { sql } from "valnor/core";
+import { PgQueryHandler } from "./pg-query-handler.js";
+import { sql } from "valnor";
 import { Pool } from "pg";
-import { Account, IAccountSelect } from "./core/__tests__/codegen/one_sql.account-table.js";
+import { Account, IAccountSelect } from "./__tests__/codegen/one_sql.account-table.js";
 
 const query = sql<IAccountSelect>`SELECT ${Account.$$all} FROM ${Account} WHERE ${Account.status} = 'created' limit 100`;
 

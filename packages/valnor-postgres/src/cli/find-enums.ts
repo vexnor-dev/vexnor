@@ -1,5 +1,5 @@
 import { SqlEnumInfo } from "valnor/plugin";
-import { param, sql } from "valnor/core";
+import { param, sql } from "valnor";
 import { EnumValues, PgEnum, PgNamespace, PgType } from "./models.js";
 
 /**

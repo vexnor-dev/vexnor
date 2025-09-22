@@ -1,7 +1,7 @@
 import { RowOut, SqlParams, SqlValue } from "./sql-types.js";
 import { SqlQuery } from "./sql-query.js";
 import { Sql } from "./sql-base.js";
-import { SqlTable } from "./sql-table.js";
+import { SqlTableAny } from "./sql-table.js";
 import { SqlColumn } from "./sql-column.js";
 
 /**
@@ -22,8 +22,7 @@ import { SqlColumn } from "./sql-column.js";
 export function sql<
    TRow extends RowOut = RowOut,
    TParams extends Record<string, SqlValue> | undefined = undefined,
-   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-   TSql extends Sql = Sql | SqlTable<any> | SqlColumn,
+   TSql extends Sql = Sql | SqlTableAny | SqlColumn,
    TValue =
       | SqlValue
       | TSql

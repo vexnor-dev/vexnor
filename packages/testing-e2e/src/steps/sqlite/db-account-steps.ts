@@ -7,7 +7,7 @@ import { deepStrictEqual, notDeepStrictEqual, ok } from "node:assert";
 import { AccountWithOrders } from "../../types/index.js";
 import { sql } from "valnor";
 import { Order } from "../../codegen/sqlite/main.order-table.js";
-import { jsonAgg } from "valnor-postgres";
+import { jsonGroupArray } from "valnor-sqlite3";
 
 When(/^Inserting a new Account using SQLite$/, async function (this: TestWorld) {
    const id = crypto.randomUUID().slice(0, 4);
@@ -56,8 +56,8 @@ When(
 
       const findAccounts = sql<AccountWithOrders>`
          select ${Account.$$all},
-                ${jsonAgg(Orders)} as orders
-         from ${Account} ${jsonAgg(Orders)}
+                ${jsonGroupArray(Orders)} as orders
+         from ${Account} ${jsonGroupArray(Orders)}
          order by ${Account.createdAt} desc
          limit ${countOfAccounts}
       `;

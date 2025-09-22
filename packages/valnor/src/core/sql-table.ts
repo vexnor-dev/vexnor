@@ -7,7 +7,7 @@ import { TableInsertValues, TableUpdateSet } from "./charms/index.js";
 import { RowIn } from "./sql-types.js";
 import { SqlKeyword } from "./sql-keyword.js";
 import { SqlBuildError } from "./sql-build-error.js";
-import { randomName } from "./random-name.js";
+const { Random } = await import("./random.js");
 
 export interface SqlTableOptions {
    readonly schema?: string;
@@ -41,7 +41,7 @@ export class SqlTable<T extends { Insert: RowIn; Update: RowIn }> extends Sql {
       super();
       this.options = {
          ...options,
-         alias: options.alias ?? randomName(options.name),
+         alias: options.alias ?? Random.name(options.name),
       };
    }
 
@@ -144,7 +144,7 @@ export interface NewTableOptions<TTypes> {
    readonly types?: TTypes;
 }
 
-export function newTable<
+export function newSqlTable<
    TColumns extends Record<string, SqlColumn | string>,
    TTypes extends {
       Insert: RowIn;
@@ -153,7 +153,7 @@ export function newTable<
 >(options: NewTableOptions<TTypes>, cols: TColumns): SqlTable<TTypes> & SqlTableColumns<TColumns> {
    const table = {
       name: options.name,
-      alias: options.alias ?? randomName(options.name),
+      alias: options.alias ?? Random.name(options.name),
    };
    const pk = x(() => {
       if (!options.pk) return undefined;
