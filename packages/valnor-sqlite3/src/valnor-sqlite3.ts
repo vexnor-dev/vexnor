@@ -7,10 +7,11 @@ import {
    SqlSchema,
    ValnorPlugin,
 } from "valnor/plugin";
-import Database, { type RunResult } from "better-sqlite3";
+import Database from "better-sqlite3";
 import { findPrimaryKey, findTableColumns, findTables, getColumnType } from "./cli/index.js";
-import { RowOut, SqlQuery } from "valnor";
+import { Params, RowOut, SqlQuery } from "valnor";
 import { BetterSqlite3QueryHandler } from "./better-sqlite3-query-handler.js";
+import { resolve } from "node:path";
 
 export class ValnorSqlite3 extends ValnorPlugin {
    driver = "better-sqlite3";
@@ -28,17 +29,18 @@ export class ValnorSqlite3 extends ValnorPlugin {
 
       let db: Database.Database;
       if ("uri" in args) {
+         logger.info({ URI: resolve(args.uri) }, "Opening Sqlite3 database connection");
          db = new Database(args.uri);
       } else {
          throw new Error("SQLite requires database file path in uri parameter");
       }
 
-      const tables = findTables.sqlite3.getAll(db);
+      const tables = findTables.sqlite3.getAll({ db });
 
       // Populate columns and primary keys for each table
       for (const table of tables) {
-         const columns = findTableColumns.sqlite3.getAll(db, { tableName: table.table_name });
-         const primaryKeys = findPrimaryKey.sqlite3.getAll(db, { tableName: table.table_name });
+         const columns = findTableColumns.sqlite3.getAll({ db, params: { tableName: table.table_name } });
+         const primaryKeys = findPrimaryKey.sqlite3.getAll({ db, params: { tableName: table.table_name } });
          const primaryKey = primaryKeys[0];
 
          table.table_columns = columns;
@@ -66,8 +68,8 @@ export class ValnorSqlite3 extends ValnorPlugin {
 
 // Extend the class type (in scope)
 declare module "valnor" {
-   interface SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> | undefined }> {
-      readonly sqlite3: BetterSqlite3QueryHandler<T & { QueryResult: RunResult }>;
+   interface SqlQuery<T extends { Row: RowOut; Params?: Params }> {
+      readonly sqlite3: BetterSqlite3QueryHandler<T>;
    }
 }
 

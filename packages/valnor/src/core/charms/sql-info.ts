@@ -11,11 +11,11 @@ export class SqlInfo extends Sql {
    }
 
    build({ strings }: SqlQueryContext) {
-      strings.push("/*");
+      strings.push("\n/*");
       for (const [key, value] of Object.entries(this.options)) {
          strings.push(` --${key}: ${value} `);
       }
-      strings.push("*/");
+      strings.push("*/\n");
    }
 }
 

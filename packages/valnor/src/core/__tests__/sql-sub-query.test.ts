@@ -8,7 +8,7 @@ vi.mock("../random-name.js", () => ({
 }));
 
 describe("sql subqueries tests", () => {
-   test("sub-core from", () => {
+   test("sub-query from", () => {
       const AccountsWithEmail = sql<IAccountSelect, { email: string }>`
          ${info({ label: "AccountsWithEmail" })}
          select ${Account.$$all}
@@ -17,7 +17,7 @@ describe("sql subqueries tests", () => {
 
       const query = sql<IAccountSelect, { firstName: string; email: string }>`
          select ${AccountsWithEmail.ROW.$$all}
-         from (${AccountsWithEmail})
+         from ${AccountsWithEmail}
          where ${AccountsWithEmail.ROW.firstName} = ${param("firstName")}`;
 
       query.buildCache({});
@@ -27,7 +27,7 @@ describe("sql subqueries tests", () => {
       ]);
       expect(trim(query.getSql({ params: { firstName: "John", email: "test@example.com" } })))
          .toBe(trim`select "AccountsWithEmail".*
-                                                                                             from (( /* --label: AccountsWithEmail */ select "account_1"."first_name"    as "firstName",
+                                                                                             from ( /* --label: AccountsWithEmail */ select "account_1"."first_name"    as "firstName",
                                                                                                                "account_1"."account_id" as "accountId",
                                                                                                                "account_1"."status",
                                                                                                                "account_1"."created_at" as "createdAt",
@@ -36,7 +36,7 @@ describe("sql subqueries tests", () => {
                                                                                                                "account_1"."notes",
                                                                                                                "account_1"."email"
                                                                                                         from "one_sql"."account" as "account_1"
-                                                                                                        where "account_1"."email" = ?) as "AccountsWithEmail")
+                                                                                                        where "account_1"."email" = ?) as "AccountsWithEmail"
                                                                                              where "AccountsWithEmail"."firstName" = ?`);
    });
 

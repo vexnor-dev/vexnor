@@ -39,4 +39,35 @@ describe("sql() tests", () => {
          ),
       );
    });
+
+   test("sql() without any values", () => {
+      const query = sql<IAccountSelect>`select ${Account.firstName}
+                                        from ${Account}
+                                        where ${Account.email} = 'bob@example.com'`;
+      expect(query.getValues({})).toEqual([]);
+      expect(trim(query.getSql({}))).toBe(
+         trim(
+            `select "account_1"."first_name" as "firstName"
+             from "one_sql"."account" as "account_1"
+             where "account_1"."email" = 'bob@example.com'
+            `,
+         ),
+      );
+   });
+
+   test("sql() with value as param", () => {
+      const email = "bob@example.com";
+      const query = sql<IAccountSelect>`select ${Account.firstName}
+                                        from ${Account}
+                                        where ${Account.email} = ${email}`;
+      expect(query.getValues({})).toEqual(["bob@example.com"]);
+      expect(trim(query.getSql({}))).toBe(
+         trim(
+            `select "account_1"."first_name" as "firstName"
+             from "one_sql"."account" as "account_1"
+             where "account_1"."email" = ?
+            `,
+         ),
+      );
+   });
 });

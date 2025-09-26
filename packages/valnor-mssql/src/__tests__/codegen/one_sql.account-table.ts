@@ -3,74 +3,74 @@ import * as valnor from "valnor";
 
 export const Account = valnor.newSqlTable({
    name: "account",
-   schema: "main",
-   types: <{ Insert: IAccountInsert, Update: IAccountUpdate }>{}, 
+   schema: "one_sql",
+   types: <{ Select: IAccountSelect, Insert: IAccountInsert, Update: IAccountUpdate }>{}, 
    pk: "account_id", 
 },{
 
    /**
-    * account_id TEXT default lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-4' || substr(lower(hex(randomblob(2))),2) || '-' || substr('89ab',abs(random()) % 4 + 1, 1) || substr(lower(hex(randomblob(2))),2) || '-' || lower(hex(randomblob(6)))
+    * account_id uniqueidentifier default (newid())
    */
    accountId: "account_id",
 
    /**
-    * status TEXT default 'created'
+    * status varchar default ('created')
    */
    status: "status",
 
    /**
-    * email TEXT
+    * email varchar
    */
    email: "email",
 
    /**
-    * first_name TEXT
+    * first_name varchar
    */
    firstName: "first_name",
 
    /**
-    * last_name TEXT
+    * last_name varchar
    */
    lastName: "last_name",
 
    /**
-    * notes TEXT
+    * notes varchar
    */
    notes: "notes",
 
    /**
-    * created_at TEXT default datetime('now')
+    * created_at datetimeoffset default (sysdatetimeoffset())
    */
    createdAt: "created_at",
 
    /**
-    * modified_at TEXT default datetime('now')
+    * modified_at datetimeoffset default (sysdatetimeoffset())
    */
    modifiedAt: "modified_at",
 });
 
 export type IAccountInsert = {
-   accountId?: string | null;
+   accountId?: string;
    status?: string;
    email: string;
    firstName: string;
    lastName: string;
    notes?: string | null;
-   createdAt?: string;
-   modifiedAt?: string;
+   createdAt?: Date;
+   modifiedAt?: Date;
 }
 
 export type IAccountUpdate = Partial<IAccountInsert>;
 
 export type IAccountSelect = {
-   readonly accountId: string | null
+   readonly accountId: string
    readonly status: string
    readonly email: string
    readonly firstName: string
    readonly lastName: string
    readonly notes: string | null
-   readonly createdAt: string
-   readonly modifiedAt: string
+   readonly createdAt: Date
+   readonly modifiedAt: Date
 }
 
 export type IAccountJson = valnor.JsonRow<IAccountSelect>;

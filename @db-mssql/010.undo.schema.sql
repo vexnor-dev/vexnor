@@ -1,0 +1,8 @@
+BEGIN TRANSACTION;
+
+IF EXISTS (SELECT * FROM sys.schemas WHERE name = 'one_sql')
+BEGIN
+    DROP SCHEMA one_sql;
+END
+
+COMMIT;

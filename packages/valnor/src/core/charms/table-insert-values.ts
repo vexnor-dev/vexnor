@@ -2,7 +2,6 @@ import { SqlQueryContext } from "../sql-query-context.js";
 import { Sql } from "../sql-base.js";
 import { SqlColumn } from "../sql-column.js";
 import { RowIn } from "../sql-types.js";
-import { SqlTable } from "../sql-table.js";
 import { SqlBuildError } from "../sql-build-error.js";
 
 export class TableInsertValues<T extends { Insert: RowIn }> extends Sql {
@@ -74,11 +73,4 @@ export class TableInsertValues<T extends { Insert: RowIn }> extends Sql {
          strings.push(")");
       }
    }
-}
-
-export function values<TOptions extends { Insert: RowIn; Update: RowIn }, TTable extends SqlTable<TOptions>>(
-   table: TTable,
-   inserts: TOptions["Insert"][],
-): TableInsertValues<TOptions> {
-   return new TableInsertValues<TOptions>(table.$$.cols, inserts);
 }

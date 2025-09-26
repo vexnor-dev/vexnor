@@ -18,3 +18,4 @@ export * from "./sql-format-provider.js";
 export * from "./sql-query-handler.js";
 export * from "./async-query-handler.js";
 export * from "./random.js";
+export * from "./new-sql-table.js";

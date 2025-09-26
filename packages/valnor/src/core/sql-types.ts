@@ -1,13 +1,12 @@
 import { SqlParam } from "./sql-param.js";
 import { SqlColumn } from "./sql-column.js";
-import { Sql, SqlBuildOptions } from "./sql-base.js";
+import { SqlFormatProvider } from "./sql-format-provider.js";
 
 export type RowIn = object;
 
 export type RowOut = object;
 
-type _SqlValue_ = Sql | string | number | boolean | null | undefined | Date | bigint | Buffer;
-export type SqlValue = _SqlValue_ | SqlValue[];
+export type Params = Record<string, unknown>;
 
 export type SqlParams<T> =
    T extends Record<string, unknown> ? (keyof T extends string ? SqlParam<`${keyof T}`> : never) : never;
@@ -17,39 +16,29 @@ export type SqlBuild = {
    values?: unknown[];
 };
 
-export type QueryInput = {
-   name?: string | undefined;
-   text: string;
-   values: unknown[];
-   sql: string;
-};
-
-export type SqlRunOptions<TDbClient> = {
-   db: TDbClient;
+export type SqlBuildOptions = {
+   onAddString?: (text: string) => string;
+   formatProvider?: SqlFormatProvider;
    debug?: (args: Readonly<Record<string, unknown>>) => void;
 };
 
-export function isSqlRunOptions<TDbClient>(value: unknown): value is SqlRunOptions<TDbClient> {
-   if (Array.isArray(value)) return false;
-   if (typeof value !== "object") return false;
-   if (value === null) return false;
-
-   if (!("db" in value)) return false;
-   if (!value.db) return false;
-   if (typeof value.db !== "object") return false;
-   if (!("query" in value.db)) return false;
-
-   return true;
-}
-
 export type SqlRunArgs<TDbClient, TParams> = TParams extends undefined
-   ? [options: TDbClient | SqlRunOptions<TDbClient>]
-   : [options: TDbClient | SqlRunOptions<TDbClient>, params: TParams];
+   ? { db: TDbClient; options?: SqlBuildOptions }
+   : { db: TDbClient; params: TParams; options?: SqlBuildOptions };
 
-export type SqlValuesArgs<TParams> = TParams extends undefined | never
-   ? { options?: SqlBuildOptions } | void
+export type SqlInputArgs<TParams> = TParams extends undefined
+   ? { options?: SqlBuildOptions }
    : { params: TParams; options?: SqlBuildOptions };
 
 export type SqlQueryRow<TParams extends Record<string, unknown>> = Record<keyof TParams, SqlColumn> & {
    $all: SqlColumn[];
 };
+
+export type JsonRow<T> =
+   T extends Record<string, unknown> ? { [K in keyof T]: T[K] extends Date ? string : T[K] } : never;
+
+export function hasParams(value: unknown): value is { params: Record<string, unknown> } {
+   if (!value) return false;
+   if (typeof value !== "object") return false;
+   return "params" in value;
+}

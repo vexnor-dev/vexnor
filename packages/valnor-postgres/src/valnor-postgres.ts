@@ -8,16 +8,18 @@ import {
    x,
    LibraryOutputFile,
 } from "valnor/plugin";
-import { Pool, type QueryResult } from "pg";
+import { Pool } from "pg";
 import { findEnums, findTables, getColumnType } from "./cli/index.js";
-import { PgQueryHandler } from "./pg-query-handler.js";
-import { RowOut, SqlQuery } from "valnor";
+import { PostgresQueryHandler } from "./postgres-query-handler.js";
+import { Params, RowOut, SqlQuery } from "valnor";
 
 /**
  * Valnor plugin for postgres.
  * It can handle
  */
 export class ValnorPostgres extends ValnorPlugin {
+   driver = "pg";
+
    getLibrary(): LibraryOutputFile[] {
       return [];
    }
@@ -25,8 +27,6 @@ export class ValnorPostgres extends ValnorPlugin {
    getColumnType(col: SqlColumnInfo): SqlColumnType {
       return getColumnType(col);
    }
-
-   driver = "pg";
 
    async getSchema(args: GetSchemaArgs): Promise<SqlSchema> {
       const { schemas } = args;
@@ -50,8 +50,12 @@ export class ValnorPostgres extends ValnorPlugin {
 
          throw new Error(`Invalid database connection parameters: host, database and user are required`);
       });
-      const tables = await findTables.pg.getAll(pool, { schemas });
-      const enums = await findEnums.pg.getAll(pool, { schemas });
+      const tables = await findTables.pg.getAll({
+         db: pool,
+         params: { schemas },
+         options: {},
+      });
+      const enums = await findEnums.pg.getAll({ db: pool, params: { schemas } });
       logger.info(
          {
             postgres: x(() => {
@@ -75,13 +79,13 @@ export class ValnorPostgres extends ValnorPlugin {
 
 // Extend the class type (in scope)
 declare module "valnor" {
-   interface SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> | undefined }> {
-      readonly pg: PgQueryHandler<T & { QueryResult: QueryResult }>;
+   interface SqlQuery<T extends { Row: RowOut; Params?: Params }> {
+      readonly pg: PostgresQueryHandler<T>;
    }
 }
 
 Object.defineProperty(SqlQuery.prototype, "pg", {
    get: function () {
-      return new PgQueryHandler(this);
+      return new PostgresQueryHandler(this);
    },
 });

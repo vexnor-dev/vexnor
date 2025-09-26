@@ -1,10 +1,9 @@
 import { SqlColumn } from "./sql-column.js";
 import { SqlQueryContext } from "./sql-query-context.js";
-import { x } from "../x.js";
-import { Sql, SqlBuildOptions } from "./sql-base.js";
+import { Sql } from "./sql-base.js";
 import { ok } from "assert";
 import { TableInsertValues, TableUpdateSet } from "./charms/index.js";
-import { RowIn } from "./sql-types.js";
+import { RowIn, RowOut, SqlBuildOptions } from "./sql-types.js";
 import { SqlKeyword } from "./sql-keyword.js";
 import { SqlBuildError } from "./sql-build-error.js";
 const { Random } = await import("./random.js");
@@ -34,7 +33,7 @@ const DEFAULT_TABLE_FORMAT: SqlTableFormat = "schema.table";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlTableAny = SqlTable<any>;
 
-export class SqlTable<T extends { Insert: RowIn; Update: RowIn }> extends Sql {
+export class SqlTable<T extends { Select: RowOut; Insert?: RowIn; Update?: RowIn }> extends Sql {
    private readonly options: SqlTableOptions;
 
    constructor(options: SqlTableOptions) {
@@ -88,18 +87,19 @@ export class SqlTable<T extends { Insert: RowIn; Update: RowIn }> extends Sql {
     * Generates the SQL code for UPDATE set values
     * @param update record with update values
     */
-   $$set<U extends T["Update"]>(update: U): Sql {
+   $$set<U extends T["Update"]>(update: U): T["Update"] extends undefined ? never : Sql {
+      ok(update, `Update is required`);
       ok(Object.keys(update), `Update doesn't have any values`);
-      return new TableUpdateSet(this.$$.cols, update);
+      return new TableUpdateSet(this.$$.cols, update) as unknown as T["Update"] extends undefined ? never : Sql;
    }
 
    /**
     * Generates the SQL code for INSERT
     * @param inserts array of records to insert
     */
-   $$values(...inserts: T["Insert"][]): Sql {
-      ok(inserts.length, `No rows for insert`);
-      return new TableInsertValues<T>(this.$$.cols, inserts);
+   $$values(...inserts: T["Insert"][]): T["Insert"] extends undefined ? never : Sql {
+      ok(insertsAreValid(inserts), `Invalid inserts`);
+      return new TableInsertValues(this.$$.cols, inserts) as never as T["Insert"] extends undefined ? never : Sql;
    }
 
    build(context: SqlQueryContext, options?: SqlBuildOptions) {
@@ -134,57 +134,7 @@ export class SqlTable<T extends { Insert: RowIn; Update: RowIn }> extends Sql {
    }
 }
 
-type SqlTableColumns<T> = T extends Record<string, SqlColumn | string> ? { [K in keyof T]: SqlColumn } : never;
-
-export interface NewTableOptions<TTypes> {
-   readonly schema?: string;
-   readonly name: string;
-   readonly alias?: string;
-   readonly pk?: SqlColumn | string;
-   readonly types?: TTypes;
-}
-
-export function newSqlTable<
-   TColumns extends Record<string, SqlColumn | string>,
-   TTypes extends {
-      Insert: RowIn;
-      Update: RowIn;
-   },
->(options: NewTableOptions<TTypes>, cols: TColumns): SqlTable<TTypes> & SqlTableColumns<TColumns> {
-   const table = {
-      name: options.name,
-      alias: options.alias ?? Random.name(options.name),
-   };
-   const pk = x(() => {
-      if (!options.pk) return undefined;
-      if (typeof options.pk === "string") {
-         return new SqlColumn({ alias: options.pk, name: options.pk, table: table });
-      }
-
-      return new SqlColumn({ ...options.pk, table: table });
-   });
-   const __cols__ = x(() => {
-      const columns: Record<string, SqlColumn> = {};
-      for (const [key, value] of Object.entries(cols)) {
-         if (typeof value === "string") {
-            columns[key] = new SqlColumn({ alias: key, name: value, table: table });
-         } else {
-            columns[key] = new SqlColumn({
-               ...value,
-               table: table,
-               alias: key,
-            });
-         }
-      }
-
-      return columns;
-   });
-   const result = new SqlTable<TTypes>({
-      ...options,
-      pk,
-      alias: table.alias,
-      cols: __cols__,
-   });
-
-   return Object.assign(result, __cols__) as SqlTable<TTypes> & SqlTableColumns<TColumns>;
+function insertsAreValid(values: unknown[]): values is RowIn[] {
+   if (!values.length) return false;
+   return !values.some((value) => !value);
 }

@@ -1,4 +1,4 @@
-import { RowOut, SqlParams, SqlValue } from "./sql-types.js";
+import { RowOut, SqlParams } from "./sql-types.js";
 import { SqlQuery } from "./sql-query.js";
 import { Sql } from "./sql-base.js";
 import { SqlTableAny } from "./sql-table.js";
@@ -41,3 +41,6 @@ export function sql<
 }> {
    return new SqlQuery(strings, values);
 }
+
+type _SqlValue_ = Sql | string | number | boolean | null | undefined | Date | bigint | Buffer;
+export type SqlValue = _SqlValue_ | SqlValue[];

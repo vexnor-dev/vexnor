@@ -13,6 +13,11 @@ describe("QueryContext: next keyword", () => {
       expect(target.keywords).toEqual(["select"]);
    });
 
+   test.each(["'select '"])("select with quotes: %s", (input) => {
+      target.next(input);
+      expect(target.keywords).toEqual([]);
+   });
+
    test("order by", () => {
       target.next("order by ");
       expect(target.keywords).toEqual(["order by"]);

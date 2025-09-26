@@ -1,11 +1,6 @@
 import { SqlQueryContext } from "./sql-query-context.js";
 import { x } from "../x.js";
-import { SqlFormatProvider } from "./sql-format-provider.js";
-
-export type SqlBuildOptions = {
-   onAddString?: (text: string) => string;
-   formatProvider?: SqlFormatProvider;
-};
+import { SqlBuildOptions } from "./sql-types.js";
 
 export type SqlOptions = {
    wrap?: boolean;

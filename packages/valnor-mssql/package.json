@@ -32,7 +32,8 @@
       "pretest": "run-s 'build'",
       "test": "vitest --coverage run",
       "test:watch": "vitest --watch",
-      "test:run": "vitest run"
+      "test:run": "vitest run",
+      "dev":  "env-cmd --no-override -x -r ../../env-dev.json -e db vite-node src/test.ts | pino-pretty"
    },
    "files": [
       "dist",

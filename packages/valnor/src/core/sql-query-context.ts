@@ -14,8 +14,8 @@ export class SqlQueryContext {
     * Children queries will have level=1, 2, 3, etc.
     */
    queryLevel = -1;
-   private readonly __keywords__: SqlKeyword[] = [];
-   private __rawString__?: string = undefined;
+   readonly keywords: SqlKeyword[] = [];
+   rawString?: string;
 
    /**
     * The current core name.
@@ -27,48 +27,52 @@ export class SqlQueryContext {
    values: unknown[] = [];
 
    constructor(args: SqlQueryContextOptions) {
-      this.__keywords__ = [];
+      this.keywords = [];
       if (args.keywords?.length) {
-         this.__keywords__.push(...args.keywords);
+         this.keywords.push(...args.keywords);
       }
 
-      this.__rawString__ = args.rawString;
+      this.rawString = args.rawString;
       this.queryName = args.queryName;
    }
 
-   get keywords() {
-      return [...this.__keywords__];
-   }
-
    get keyword(): SqlKeyword | undefined {
-      return this.__keywords__[this.__keywords__.length - 1];
-   }
-
-   get rawString(): string | undefined {
-      return this.__rawString__;
+      return this.keywords[this.keywords.length - 1];
    }
 
    next(text: string) {
-      this.__rawString__ = text;
+      this.rawString = text;
 
       if (text.trimStart().startsWith(")") && this.keyword === "fn") {
-         this.__keywords__.pop();
+         this.keywords.pop();
       }
 
       const keywords = parseSqlKeywords(text);
-      this.__keywords__.push(...keywords);
+      this.keywords.push(...keywords);
    }
 
    matchKeyword(...keywords: SqlKeyword[]): boolean {
-      if (this.__keywords__.length < keywords.length) {
-         logger.info({ input: keywords, stack: this.__keywords__ }, "matching keywords");
+      if (this.keywords.length < keywords.length) {
+         logger.info({ input: keywords, stack: this.keywords }, "matching keywords");
          return false;
       }
       for (let i = 0; i < keywords.length; i++) {
-         if (keywords[i] !== this.__keywords__[this.__keywords__.length - keywords.length + i]) return false;
+         if (keywords[i] !== this.keywords[this.keywords.length - keywords.length + i]) return false;
       }
 
       return true;
+   }
+
+   /**
+    * Create a new child context and
+    * @param args
+    */
+   child(args: SqlQueryContextOptions) {
+      const result = new SqlQueryContext(args);
+      result.strings = this.strings;
+      result.values = this.values;
+
+      return result;
    }
 }
 

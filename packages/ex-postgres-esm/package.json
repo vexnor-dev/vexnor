@@ -6,7 +6,7 @@
    "module": "./dist/index.js",
    "scripts": {
       "codegen": "run-s 'codegen:*' | pino-pretty",
-      "codegen:1-generate": "env-cmd --no-override -x -r ../../env-dev.json -e db valnor generate --driver pg --schema one_sql --pascalCaseTables --camelCaseColumns --host \\$POSTGRES_HOST --port \\$POSTGRES_PORT --database \\$POSTGRES_DATABASE --user \\$POSTGRES_USER --password \\$POSTGRES_PASSWORD --outDir 'src/codegen'",
+      "codegen:1-generate": "env-cmd --no-override -x -r ../../env-dev.json -e db valnor generate --plugin valnor-postgres --schema one_sql --pascalCaseTables --camelCaseColumns --host \\$POSTGRES_HOST --port \\$POSTGRES_PORT --database \\$POSTGRES_DATABASE --user \\$POSTGRES_USER --password \\$POSTGRES_PASSWORD --outDir 'src/codegen'",
       "postcodegen": "pnpx eslint --config ../../eslint.config.mjs ./src/codegen/**/*.ts --fix",
       "prebuild": "run-s 'codegen'",
       "build": "tsc -b",

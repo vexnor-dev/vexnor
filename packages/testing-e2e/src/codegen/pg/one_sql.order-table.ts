@@ -5,7 +5,7 @@ import * as udt from "./one_sql-enums.js";
 export const Order = valnor.newSqlTable({
    name: "order",
    schema: "one_sql",
-   types: <{ Insert: IOrderInsert, Update: IOrderUpdate }>{}, 
+   types: <{ Select: IOrderSelect, Insert: IOrderInsert, Update: IOrderUpdate }>{}, 
    pk: "order_pk", 
 },{
 

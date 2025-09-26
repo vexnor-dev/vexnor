@@ -5,6 +5,7 @@ export function writeTableType(writer: CodeBlockWriter.default, { table }: Print
    const { getTableName, getColumnName } = getCodegenContext();
    const { table_name, table_columns, table_schema, primary_key } = table;
    const tableTypeName = getTableName(table_name);
+   const tableTypeSelect = `I${tableTypeName}Select`;
    const tableTypeInsert = `I${tableTypeName}Insert`;
    const tableTypeUpdate = `I${tableTypeName}Update`;
 
@@ -14,7 +15,9 @@ export function writeTableType(writer: CodeBlockWriter.default, { table }: Print
          writer
             .writeLine(`name: "${table_name}",`)
             .writeLine(`schema: "${table_schema}",`)
-            .writeLine(`types: <{ Insert: ${tableTypeInsert}, Update: ${tableTypeUpdate} }>{}, `);
+            .writeLine(
+               `types: <{ Select: ${tableTypeSelect}, Insert: ${tableTypeInsert}, Update: ${tableTypeUpdate} }>{}, `,
+            );
          if (primary_key) {
             writer.writeLine(`pk: "${primary_key}", `);
          }

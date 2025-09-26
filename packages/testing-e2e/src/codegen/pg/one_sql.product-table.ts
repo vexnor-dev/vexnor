@@ -4,7 +4,7 @@ import * as valnor from "valnor";
 export const Product = valnor.newSqlTable({
    name: "product",
    schema: "one_sql",
-   types: <{ Insert: IProductInsert, Update: IProductUpdate }>{}, 
+   types: <{ Select: IProductSelect, Insert: IProductInsert, Update: IProductUpdate }>{}, 
    pk: "product_pk", 
 },{
 

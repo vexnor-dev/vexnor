@@ -1,7 +1,8 @@
 import { SqlQueryContext } from "./sql-query-context.js";
-import { Sql, SqlBuildOptions } from "./sql-base.js";
+import { Sql } from "./sql-base.js";
 import { SqlBuildError } from "./sql-build-error.js";
 import { SqlKeyword } from "./sql-keyword.js";
+import { SqlBuildOptions } from "./sql-types.js";
 
 export interface SqlColumnOptions {
    readonly name: string;
@@ -32,6 +33,7 @@ const SQL_COLUMN_FORMATS: Partial<Record<SqlKeyword, SqlColumnFormat>> = {
    set: "column",
    "group by": "tableAlias.column",
    "order by": "tableAlias.column",
+   as: "alias",
 };
 
 const DEFAULT_COLUMN_FORMAT: SqlColumnFormat = "tableAlias.column";
@@ -111,9 +113,8 @@ export class SqlColumn extends Sql {
          strings.push(...tokens);
       }
 
-      const format = options?.formatProvider
-         ? options.formatProvider.getColumnFormat(this, context)
-         : SqlColumn.getFormat(this, context);
+      const format =
+         this.format ?? options?.formatProvider?.getColumnFormat(this, context) ?? SqlColumn.getFormat(this, context);
 
       // Use this.format if available
       switch (format) {

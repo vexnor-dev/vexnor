@@ -1,4 +1,4 @@
-import { RowOut, SqlBuild, SqlValuesArgs } from "./sql-types.js";
+import { hasParams, Params, RowOut, SqlBuild, SqlBuildOptions, SqlInputArgs } from "./sql-types.js";
 import { newSqlQueryRow, SqlQueryRow } from "./sql-query-row.js";
 import { SqlColumn } from "./sql-column.js";
 import { x } from "../x.js";
@@ -6,22 +6,22 @@ import { ok } from "assert";
 import { SqlParam } from "./sql-param.js";
 import { SqlQueryContext } from "./sql-query-context.js";
 import { logger } from "./logger.js";
-import { Sql, SqlBuildOptions } from "./sql-base.js";
+import { Sql } from "./sql-base.js";
 import { SqlInfo } from "./charms/index.js";
 import * as crypto from "node:crypto";
 import { Random } from "./random.js";
 import { SqlFormatProvider } from "./sql-format-provider.js";
 
-const WILDCARD = "?";
+export const WILDCARD = "?";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlQueryAny = SqlQuery<any>;
 
-export class SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> | undefined }> extends Sql {
+export class SqlQuery<T extends { Row: RowOut; Params?: Params }> extends Sql {
    readonly name: string;
    readonly ID: string;
-   private __buildCache__?: SqlBuild = undefined;
    readonly ROW: SqlQueryRow & Record<keyof T["Row"], SqlColumn>;
+   private __buildCache__?: SqlBuild = undefined;
 
    constructor(
       public readonly rawStrings: readonly string[],
@@ -60,14 +60,13 @@ export class SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> |
     * Translates the input params into ready to use core execution values.
     * Queries can use a mix of static values and dynamic parameters.
     * This function will create a ready to use array of values
+    * @param params
     * @param args
     */
-   getValues(args: SqlValuesArgs<T["Params"]>): unknown[] {
-      const options = args?.options ?? { formatProvider: new SqlFormatProvider() };
-      const { values } = this.buildCache(options);
+   getValues({ options, ...args }: SqlInputArgs<T["Params"]>): unknown[] {
+      const { values } = this.buildCache(options ?? { formatProvider: new SqlFormatProvider() });
       if (!values) return [];
-      const params = args && "params" in args ? args.params : undefined;
-      if (!params) return values ?? [];
+      if (!hasParams(args)) return values ?? [];
       const results: unknown[] = [];
       for (let i = 0; i < values.length; i++) {
          const param = values[i];
@@ -77,7 +76,7 @@ export class SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> |
             continue;
          }
 
-         const value = params[param.name];
+         const value = args.params[param.name];
          if (Array.isArray(value)) results.push(...value);
          else results.push(value);
       }
@@ -89,12 +88,10 @@ export class SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> |
     * Get the core text with input values and parameters replaced by the ? wildcards
     * @example select * from table where id = ? and name = ?
     */
-   getSql(args: SqlValuesArgs<T["Params"]>): string {
-      const options = args?.options ?? { formatProvider: new SqlFormatProvider() };
-      const { values, strings } = this.buildCache(options);
+   getSql({ options, ...args }: SqlInputArgs<T["Params"]>): string {
+      const { values, strings } = this.buildCache(options ?? { formatProvider: new SqlFormatProvider() });
       if (!values?.length) return strings.join("");
-      const params = args && "params" in args ? args.params : undefined;
-      if (!params) return strings.join("");
+      if (!hasParams(args)) return strings.join("");
 
       for (let i = 0, str = strings[0]; i < strings.length; i++, str = strings[i]) {
          ok(str, `Token not found at position: ${i}`);
@@ -103,7 +100,7 @@ export class SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> |
 
          const param = values.find((p) => p instanceof SqlParam && p.wildcard === str);
          ok(param instanceof SqlParam, `Param not found for token: ${str}`);
-         const value = params[param.name];
+         const value = args.params[param.name];
          if (Array.isArray(value)) {
             strings[i] = Array(value.length).fill(WILDCARD).join(", ");
          } else {
@@ -118,11 +115,11 @@ export class SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> |
     * Get the core text with input values and parameters replaced by the indexed wildcards (ex. postgres)
     * @example select * from table where id = $1 and name = $2
     */
-   getText(args: SqlValuesArgs<T["Params"]>): string {
+   getText(args: SqlInputArgs<T["Params"]>, format: (index: number) => string): string {
       const sql = this.getSql(args);
       const tokens = sql.split(WILDCARD);
       for (let i = 0; i < tokens.length - 1; i++) {
-         tokens[i] = tokens[i] + `$${i + 1}`;
+         tokens[i] += format(i);
       }
 
       return tokens.join("");

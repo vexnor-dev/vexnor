@@ -1,24 +1,28 @@
 import {
    GetSchemaArgs,
-   SqlSchema,
-   SqlColumnInfo,
-   SqlColumnType,
-   ValnorPlugin,
    LibraryOutputFile,
    logger,
-   x,
+   SqlColumnInfo,
+   SqlColumnType,
+   SqlSchema,
    SqlTableInfo,
+   ValnorPlugin,
+   x,
 } from "valnor/plugin";
-import { type IResult, ConnectionPool } from "mssql";
+import mssql from "mssql";
 import { MssqlQueryHandler } from "./mssql-query-handler.js";
-import { RowOut, SqlQuery } from "valnor";
+import { Params, RowOut, SqlQuery } from "valnor";
 import { getColumnType } from "./get-column-type.js";
 import { findTables } from "./cli/find-tables.js";
+
+const { ConnectionPool } = mssql;
 
 /**
  * Valnor plugin for MS SQL Server.
  */
 export class ValnorMssql extends ValnorPlugin {
+   driver = "mssql";
+
    getLibrary(): LibraryOutputFile[] {
       return [];
    }
@@ -27,11 +31,8 @@ export class ValnorMssql extends ValnorPlugin {
       return getColumnType(col);
    }
 
-   driver = "mssql";
-
    async getSchema(args: GetSchemaArgs): Promise<SqlSchema> {
       const { schemas } = args;
-
       const pool = x(() => {
          if ("uri" in args) {
             return new ConnectionPool(args.uri);
@@ -55,17 +56,23 @@ export class ValnorMssql extends ValnorPlugin {
          throw new Error(`Invalid database connection parameters: host, database and user are required`);
       });
 
-      const connection = await pool.connect();
-
+      let connection = undefined;
       try {
-         const result = await findTables.mssql.getAll(connection, { schemas });
-
+         connection = await pool.connect();
+         const result = await findTables.mssql.getAll({
+            db: connection.request(),
+            params: { schemas },
+            options: {
+               debug: (args) => {
+                  console.log(args);
+               },
+            },
+         });
          const tables = result.map((row: SqlTableInfo) => ({
             ...row,
             table_columns:
                typeof row.table_columns === "string" ? JSON.parse(row.table_columns || "[]") : row.table_columns,
          }));
-
          logger.info(
             {
                mssql: x(() => {
@@ -76,21 +83,20 @@ export class ValnorMssql extends ValnorPlugin {
             },
             `Generating mapping code for ${schemas.join(", ")}`,
          );
-
          return {
             tables,
             enums: [], // MS SQL Server doesn't have enums in the same way as PostgreSQL
          };
       } finally {
-         await connection.close();
+         await connection?.close();
       }
    }
 }
 
 // Extend the class type (in scope)
 declare module "valnor" {
-   interface SqlQuery<T extends { Row: RowOut; Params: Record<string, unknown> | undefined }> {
-      readonly mssql: MssqlQueryHandler<T & { QueryResult: IResult<T["Row"]> }>;
+   interface SqlQuery<T extends { Row: RowOut; Params?: Params }> {
+      readonly mssql: MssqlQueryHandler<T>;
    }
 }
 

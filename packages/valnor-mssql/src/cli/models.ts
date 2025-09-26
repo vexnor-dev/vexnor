@@ -1,4 +1,5 @@
 import { newSqlTable } from "valnor";
+import { SqlColumnInfo } from "valnor/plugin";
 
 export const Tables = newSqlTable(
    {
@@ -16,17 +17,19 @@ export const Columns = newSqlTable(
    {
       name: "COLUMNS",
       schema: "INFORMATION_SCHEMA",
+      types: <{ Select: SqlColumnInfo }>{},
    },
    {
-      table_name: "TABLE_NAME",
-      table_schema: "TABLE_SCHEMA",
+      is_updatable: "IS_UPDATABLE",
       column_name: "COLUMN_NAME",
-      data_type: "DATA_TYPE",
+      udt_name: "DATA_TYPE",
       is_nullable: "IS_NULLABLE",
       column_default: "COLUMN_DEFAULT",
-      character_maximum_length: "CHARACTER_MAXIMUM_LENGTH",
-      numeric_precision: "NUMERIC_PRECISION",
-      numeric_scale: "NUMERIC_SCALE",
+      numeric_precision_radix: "NUMERIC_PRECISION_RADIX",
+      domain_name: "DOMAIN_NAME",
+      table_schema: "TABLE_SCHEMA",
+      table_name: "TABLE_NAME",
+      ordinal_position: "ORDINAL_POSITION",
    },
 );
 
@@ -40,5 +43,18 @@ export const TableConstraints = newSqlTable(
       table_name: "TABLE_NAME",
       table_schema: "TABLE_SCHEMA",
       constraint_type: "CONSTRAINT_TYPE",
+   },
+);
+
+export const KeyColumnUsage = newSqlTable(
+   {
+      name: "KEY_COLUMN_USAGE",
+      schema: "INFORMATION_SCHEMA",
+   },
+   {
+      constraint_name: "CONSTRAINT_NAME",
+      column_name: "COLUMN_NAME",
+      table_name: "TABLE_NAME",
+      table_schema: "TABLE_SCHEMA",
    },
 );

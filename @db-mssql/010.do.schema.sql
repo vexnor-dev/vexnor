@@ -1,0 +1,8 @@
+BEGIN TRANSACTION;
+
+IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'one_sql')
+BEGIN
+    EXEC('CREATE SCHEMA one_sql');
+END
+
+COMMIT;

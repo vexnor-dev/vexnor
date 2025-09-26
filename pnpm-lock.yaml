@@ -81,22 +81,6 @@ importers:
         specifier: ^3.2.4
         version: 3.2.4(@types/node@20.19.0)(yaml@2.8.1)
 
-  packages/ex-pg-esm:
-    dependencies:
-      pg:
-        specifier: ^8.16.3
-        version: 8.16.3
-      valnor:
-        specifier: workspace:^1.0.0
-        version: link:../valnor
-      valnor-postgres:
-        specifier: workspace:^1.0.0
-        version: link:../valnor-postgres
-    devDependencies:
-      '@types/pg':
-        specifier: ^8.15.5
-        version: 8.15.5
-
   packages/ex-postgres-cjs:
     dependencies:
       pg:
@@ -107,6 +91,22 @@ importers:
         version: link:../valnor
       valnor-postgres:
         specifier: workspace:^
+        version: link:../valnor-postgres
+    devDependencies:
+      '@types/pg':
+        specifier: ^8.15.5
+        version: 8.15.5
+
+  packages/ex-postgres-esm:
+    dependencies:
+      pg:
+        specifier: ^8.16.3
+        version: 8.16.3
+      valnor:
+        specifier: workspace:^1.0.0
+        version: link:../valnor
+      valnor-postgres:
+        specifier: workspace:^1.0.0
         version: link:../valnor-postgres
     devDependencies:
       '@types/pg':

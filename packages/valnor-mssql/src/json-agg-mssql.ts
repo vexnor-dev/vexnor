@@ -1,4 +1,4 @@
-import { raw, Sql, sql, SqlBuildOptions, SqlQueryAny, SqlQueryContext } from "valnor";
+import { Sql, SqlBuildOptions, SqlQueryAny, SqlQueryContext } from "valnor";
 
 /**
  * Sql class that aggregates of a subquery into a JSON array
@@ -8,29 +8,19 @@ import { raw, Sql, sql, SqlBuildOptions, SqlQueryAny, SqlQueryContext } from "va
  * WHERE ${Account.accountId} = ${param("accountId")}
  */
 export class JsonAggMssql extends Sql {
-   constructor(public readonly select: SqlQueryAny) {
+   constructor(public readonly query: SqlQueryAny) {
       super();
    }
 
    build(context: SqlQueryContext, options: SqlBuildOptions) {
       switch (context.keyword) {
          case "select":
-            context.strings.push(`"${this.select.name}_result"`);
+            context.strings.push(`"${this.query.name}_result"."${this.query.name}"`);
             break;
          case "from": {
-            const newContext = new SqlQueryContext({ queryName: this.select.name });
-            const result = raw(this.select.name + "_result");
-            const join = sql`
-               select ISNULL((
-                  select ${this.select.ROW.$$all}
-                  from ${this.select}
-                  FOR JSON PATH
-               ), '[]') as "${result}"`;
-
-            join.build(newContext, options);
-
-            context.strings.push("cross apply (", ...newContext.strings, ") as " + this.select.name);
-            context.values.push(...newContext.values);
+            context.strings.push("outer apply (\nselect coalesce((\n");
+            this.query.build(context.child({ queryName: this.query.name }), options);
+            context.strings.push(`\nfor json path), '[]'\n) as "${this.query.name}")\nas "${this.query.name}_result"`);
             break;
          }
          default:
@@ -39,22 +29,45 @@ export class JsonAggMssql extends Sql {
    }
 }
 
+export class JsonAggMssqlSelect extends Sql {
+   constructor(public readonly query: SqlQueryAny) {
+      super();
+   }
+
+   // eslint-disable-next-line unused-imports/no-unused-vars
+   build(context: SqlQueryContext, _: SqlBuildOptions) {
+      context.strings.push(`"${this.query.name}_result"."${this.query.name}"`);
+   }
+}
+
+export class JsonAggMssqlBody extends Sql {
+   constructor(public readonly query: SqlQueryAny) {
+      super();
+   }
+
+   build(context: SqlQueryContext, options: SqlBuildOptions) {
+      context.strings.push("outer apply (\nselect coalesce((\n");
+      this.query.build(context.child({ queryName: this.query.name }), options);
+      context.strings.push(`\nfor json path), '[]'\n) as "${this.query.name}")\nas "${this.query.name}_result"`);
+   }
+}
+
 /**
  * Creates a new SelectJsonAgg (Sql) object query block.
- * @param select sql query to aggregate
+ * @param query sql query to aggregate
  * @returns SelectJsonAgg (Sql) object query block
  * @example
  * SELECT ${Account.$$all}, ${jsonAgg(UserOrders)} "orders"
  * FROM ${Account} ${jsonAgg(UserOrders)}
  * WHERE ${Account.accountId} = ${param("accountId")}
  * */
-export function jsonAgg(select: SqlQueryAny) {
-   if (!cache.has(select)) {
-      const result = new JsonAggMssql(select);
-      cache.set(select, result);
+export function jsonAgg(query: SqlQueryAny) {
+   if (!cache.has(query)) {
+      const result = { select: new JsonAggMssqlSelect(query), body: new JsonAggMssqlBody(query) };
+      cache.set(query, result);
    }
 
-   return cache.get(select)!;
+   return cache.get(query)!;
 }
 
-const cache = new WeakMap<SqlQueryAny, JsonAggMssql>();
+const cache = new WeakMap<SqlQueryAny, { select: JsonAggMssqlSelect; body: JsonAggMssqlBody }>();

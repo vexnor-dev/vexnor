@@ -27,7 +27,7 @@
       "access": "public"
    },
    "scripts": {
-      "codegen": "env-cmd --no-override -x -r ../../env-dev.json -e db valnor generate --plugin valnor-sqlite3 --schema one_sql --pascalCaseTables --camelCaseColumns --uri \\$SQLITE_PATH --outDir 'src/__tests__/codegen' | pino-pretty",
+      "codegen": "valnor generate --plugin valnor-sqlite3 --schema one_sql --pascalCaseTables --camelCaseColumns --uri '../../@db-sqlite3/valnor-test.sqlite' --outDir 'src/__tests__/codegen' | pino-pretty",
       "build": "tsc -b",
       "pretest": "run-s 'build'",
       "test": "vitest --coverage run",

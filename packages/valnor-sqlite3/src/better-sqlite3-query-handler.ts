@@ -1,29 +1,31 @@
-import { isSqlRunOptions, RowOut, SqlQueryHandler, SqlRunArgs, SqlValuesArgs } from "valnor";
+import { Params, RowOut, SqlQueryHandler, SqlRunArgs } from "valnor";
 import type { Database, RunResult } from "better-sqlite3";
 import { Sqlite3FormatProvider } from "./sqlite3-format-provider.js";
 
-export class BetterSqlite3QueryHandler<
-   T extends { Row: RowOut; Params: Record<string, unknown> | undefined; QueryResult: RunResult },
-   TDbClient extends Database = Database,
-> extends SqlQueryHandler<T> {
+export class BetterSqlite3QueryHandler<T extends { Row: RowOut; Params?: Params }> extends SqlQueryHandler<{
+   Row: T["Row"];
+   Params?: T["Params"];
+   QueryResult: RunResult;
+   QueryClient: Request;
+}> {
    static FormatProvider = new Sqlite3FormatProvider();
 
    resolveRows(): T["Row"][] {
       throw new Error("Method not supported: better-sqlite3 result doesn't include any rows");
    }
 
-   getOptions(...args: SqlRunArgs<TDbClient, T["Params"]>) {
-      // eslint-disable-next-line unused-imports/no-unused-vars
-      const [_, params] = args;
-      const _args_: SqlValuesArgs<T["Params"]> = {
-         params,
-         options: { formatProvider: BetterSqlite3QueryHandler.FormatProvider },
-      } as SqlValuesArgs<T["Params"]>;
+   getOptions(args: SqlRunArgs<Database, T["Params"]>) {
       let queryInput = undefined;
       try {
          queryInput = {
-            sql: this.sqlQuery.getSql(_args_),
-            values: this.sqlQuery.getValues(_args_),
+            sql: this.sqlQuery.getSql({
+               ...args,
+               options: {
+                  ...args.options,
+                  formatProvider: BetterSqlite3QueryHandler.FormatProvider,
+               },
+            }),
+            values: this.sqlQuery.getValues(args),
          };
          return queryInput;
       } catch (err) {
@@ -36,12 +38,11 @@ export class BetterSqlite3QueryHandler<
     * Executes the core and returns the result
     * @param args
     */
-   run(...args: SqlRunArgs<TDbClient, T["Params"]>): T["QueryResult"] {
-      const [opts] = args;
-      const { db, debug } = isSqlRunOptions(opts) ? opts : { db: opts };
+   run(args: SqlRunArgs<Database, T["Params"]>): RunResult {
+      const { db, options: { debug } = {} } = args;
       let queryConfig = undefined;
       try {
-         queryConfig = this.getOptions(...args);
+         queryConfig = this.getOptions(args);
          if (debug) debug(Object.freeze(queryConfig));
          return db.prepare(queryConfig.sql).run(queryConfig.values);
       } catch (err) {
@@ -50,12 +51,11 @@ export class BetterSqlite3QueryHandler<
       }
    }
 
-   getAll(...args: SqlRunArgs<TDbClient, T["Params"]>): T["Row"][] {
-      const [opts] = args;
-      const { db, debug } = isSqlRunOptions(opts) ? opts : { db: opts };
+   getAll(args: SqlRunArgs<Database, T["Params"]>): T["Row"][] {
       let queryConfig = undefined;
+      const { db, options: { debug } = {} } = args;
       try {
-         queryConfig = this.getOptions(...args);
+         queryConfig = this.getOptions(args);
          if (debug) debug(Object.freeze(queryConfig));
          return db.prepare<unknown[] | object, T["Row"]>(queryConfig.sql).all(queryConfig.values);
       } catch (err) {

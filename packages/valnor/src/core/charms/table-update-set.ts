@@ -2,7 +2,6 @@ import { Sql } from "../sql-base.js";
 import { RowIn } from "../sql-types.js";
 import { SqlColumn } from "../sql-column.js";
 import { SqlQueryContext } from "../sql-query-context.js";
-import { SqlTable } from "../sql-table.js";
 
 export class TableUpdateSet<T extends { Update: RowIn }> extends Sql {
    constructor(
@@ -38,11 +37,4 @@ export class TableUpdateSet<T extends { Update: RowIn }> extends Sql {
          }
       }
    }
-}
-
-export function update<T extends { Insert: RowIn; Update: RowIn }>(
-   table: SqlTable<T>,
-   update: T["Update"],
-): TableUpdateSet<T> {
-   return new TableUpdateSet<T>(table.$$.cols, update);
 }

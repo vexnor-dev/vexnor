@@ -3,52 +3,52 @@ import * as valnor from "valnor";
 
 export const Order = valnor.newSqlTable({
    name: "order",
-   schema: "main",
-   types: <{ Insert: IOrderInsert, Update: IOrderUpdate }>{}, 
+   schema: "one_sql",
+   types: <{ Select: IOrderSelect, Insert: IOrderInsert, Update: IOrderUpdate }>{}, 
    pk: "order_id", 
 },{
 
    /**
-    * order_id TEXT default lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-4' || substr(lower(hex(randomblob(2))),2) || '-' || substr('89ab',abs(random()) % 4 + 1, 1) || substr(lower(hex(randomblob(2))),2) || '-' || lower(hex(randomblob(6)))
+    * order_id uniqueidentifier default (newid())
    */
    orderId: "order_id",
 
    /**
-    * status TEXT default 'created'
+    * status varchar default ('created')
    */
    status: "status",
 
    /**
-    * created_at TEXT
+    * created_at datetimeoffset default (sysdatetimeoffset())
    */
    createdAt: "created_at",
 
    /**
-    * modified_at TEXT
+    * modified_at datetimeoffset default (sysdatetimeoffset())
    */
    modifiedAt: "modified_at",
 
    /**
-    * account_id TEXT
+    * account_id uniqueidentifier
    */
    accountId: "account_id",
 });
 
 export type IOrderInsert = {
-   orderId?: string | null;
+   orderId?: string;
    status?: string;
-   createdAt: string;
-   modifiedAt: string;
+   createdAt?: Date;
+   modifiedAt?: Date;
    accountId: string;
 }
 
 export type IOrderUpdate = Partial<IOrderInsert>;
 
 export type IOrderSelect = {
-   readonly orderId: string | null
+   readonly orderId: string
    readonly status: string
-   readonly createdAt: string
-   readonly modifiedAt: string
+   readonly createdAt: Date
+   readonly modifiedAt: Date
    readonly accountId: string
 }
 
