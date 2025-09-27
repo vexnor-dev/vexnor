@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { info, param, sql, SQL_KEYWORDS, SqlQueryContext, trim } from "valnor";
+import { info, param, sql, SqlQueryContext, trim } from "valnor";
 import { jsonGroupArray } from "../json-group-array-sqlite3.js";
 import { IOrderSelect, Order } from "./codegen/main.order-table.js";
 import { Account, IAccountSelect } from "./codegen/main.account-table.js";
@@ -13,18 +13,22 @@ describe("jsonAgg (SQLite)", () => {
       limit ${param("limit")}`;
 
    test("jsonAgg(): select", () => {
-      const context = new SqlQueryContext({ queryName: "test", keywords: ["select"] });
+      const context = new SqlQueryContext({ queryName: "test" });
+      context.next("select");
       jsonGroupArray(AccountOrders).build(context, {});
       expect(context.strings[0]).toBe(`"AccountOrders_result"`);
    });
 
-   test.each(SQL_KEYWORDS.filter((z) => !["select", "from"].includes(z)))("jsonAgg(): %s throws error", (keyword) => {
-      const context = new SqlQueryContext({ queryName: "test", keywords: [keyword] });
+   const INVALID_KEYWORDS_FOR_JSON_AGG = ['where', 'group by', 'order by', 'update', 'delete from'];
+   test.each(INVALID_KEYWORDS_FOR_JSON_AGG)("jsonAgg(): %s throws error", (keyword) => {
+      const context = new SqlQueryContext({ queryName: "test" });
+      context.next(keyword);
       expect(() => jsonGroupArray(AccountOrders).build(context, {})).toThrow("Cannot use jsonAgg() with SQL keyword:");
    });
 
    test("jsonAgg(): from", () => {
-      const context = new SqlQueryContext({ queryName: "test", keywords: ["from"] });
+      const context = new SqlQueryContext({ queryName: "test" });
+      context.next("from");
       jsonGroupArray(AccountOrders).build(context, {});
       expect(trim(context.strings.join(""))).toBe(
          trim`
