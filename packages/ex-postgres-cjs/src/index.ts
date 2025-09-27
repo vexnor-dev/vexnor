@@ -27,7 +27,7 @@ async function main() {
             status: AccountStatusUdt.CREATED,
          })}
          returning ${Account.$$all}
-   `.pg.getOneRequired(pool);
+   `.pg.getOneRequired({ db: pool });
    console.log("new account:", newAccount);
    ok(newAccount?.accountId, "accountId is required");
 
@@ -48,7 +48,7 @@ async function main() {
             },
          )}
          returning ${Order.$$all}
-   `.pg.getAll(pool);
+   `.pg.getAll({ db: pool });
    ok(newOrders?.length);
 
    const accountUpdated = await sql<IAccountSelect>`
@@ -58,7 +58,7 @@ async function main() {
       })}
       where ${Account.accountId} = ${newAccount.accountId}
       returning ${Account.$$all}
-   `.pg.getOneRequired(pool);
+   `.pg.getOneRequired({ db: pool });
    console.log("account updated:", accountUpdated);
 
    interface AccountWithOrders extends IAccountSelect {
@@ -80,7 +80,7 @@ async function main() {
          LIMIT 5 -- Get only the 5 most recent orders
          ) orders ON true
       WHERE ${Account.accountId} = ${newAccount.accountId}
-      GROUP BY ${Account.accountId}`.pg.getAll(pool);
+      GROUP BY ${Account.accountId}`.pg.getAll({ db: pool });
 
    console.log("account with orders:\n", accountWithLimitedOrders);
 }

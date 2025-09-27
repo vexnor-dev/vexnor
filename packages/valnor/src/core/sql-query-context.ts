@@ -1,5 +1,5 @@
 import { ITokenizer } from "./sql-tokenizer.js";
-import { MAJOR_KEYWORDS, SUBQUERY_STARTERS } from "./sql-constants.js";
+import { MAJOR_KEYWORDS, SUBQUERY_STARTERS } from "./sql-constants.js"; // Corrected to relative import
 
 export interface SqlQueryContextOptions {
   queryName: string;
@@ -44,8 +44,6 @@ export class SqlQueryContext {
   next(text: string) {
     this.rawString = text;
     const tokens = this.tokenizer.tokenize(text);
-    console.log(`[${this.queryName}] SqlQueryContext.next received text:`, text);
-    console.log(`[${this.queryName}] SqlQueryContext.next tokens:`, tokens);
 
     for (let i = 0; i < tokens.length; i++) {
       const token = tokens[i]!;
@@ -81,7 +79,6 @@ export class SqlQueryContext {
       } else {
         this.currentStack.push(token);
       }
-      console.log(`[${this.queryName}] SqlQueryContext.next after token '${token}', stack:`, this.currentStack);
     }
   }
 

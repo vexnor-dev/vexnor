@@ -41,9 +41,9 @@ const findAccountById = sql<IAccountSelect, { accountId: string }>`
    from ${Account}
    where ${Account.accountId} = ${param("accountId")}
 `;
-const account = await findAccountById.pg.getOneRequired(pool, {
+const account = await findAccountById.pg.getOneRequired({ db: pool, params: {
    accountId: newAccount.accountId,
-});
+} });
 console.log(`account (id=${newAccount.accountId}`, account);
 
 const newOrders = await sql<IOrderSelect>`
@@ -63,7 +63,7 @@ const newOrders = await sql<IOrderSelect>`
          },
       )}
       RETURNING ${Order.$$all}
-`.pg.getAll(pool);
+`.pg.getAll({ db: pool });
 ok(newOrders?.length);
 
 const accountUpdated = await sql<IAccountSelect>`
@@ -73,7 +73,7 @@ const accountUpdated = await sql<IAccountSelect>`
    })}
    where ${Account.accountId} = ${newAccount.accountId}
    returning ${Account.$$all}
-`.pg.getOneRequired(pool);
+`.pg.getOneRequired({ db: pool });
 console.log("account updated:", accountUpdated);
 
 type IAccountWithOrders = IAccountSelect & {
@@ -93,9 +93,9 @@ const findAccountsWithOrders = sql<IAccountWithOrders, { limit: number }>`
    FROM ${Account} ${jsonAgg(UserOrders)}
    WHERE ${Account.accountId} = ${newAccount.accountId}`;
 
-const accountWithLimitedOrders = await findAccountsWithOrders.pg.getOneRequired(pool, {
+const accountWithLimitedOrders = await findAccountsWithOrders.pg.getOneRequired({ db: pool, params: {
    limit: 1,
-});
+} });
 
 console.log("account with orders:\n", accountWithLimitedOrders);
 console.log("end");
