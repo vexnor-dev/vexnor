@@ -1,6 +1,6 @@
 import { SqlBuildError } from "./sql-build-error.js";
 
-// --- Final Architecture: Stateful, Dictionary-Aware Lexical Analyzer v3 ---
+// --- Final Architecture: True Stateful Lexical Analyzer ---
 
 const MAJOR_KEYWORDS: string[] = [
   "partition by", "order by", "group by", "insert into", "delete from",
@@ -52,19 +52,24 @@ export class SqlQueryContext {
 
       if (token === "(") {
         const prevToken = this.currentStack.length > 0 ? this.currentStack[this.currentStack.length - 1] : undefined;
-        const nextMeaningfulToken = tokens.slice(i + 1).find(t => t.trim());
 
-        if (nextMeaningfulToken === "select" || (prevToken && SUBQUERY_STARTERS.includes(prevToken))) {
-          this.contextParenDepths.push(this.parenDepth);
-          this.keywordStacks.push([]);
-        } else if (prevToken === 'over') {
+        if (prevToken === 'over') {
           this.currentStack.pop(); // consume 'over'
           this.contextParenDepths.push(this.parenDepth);
           this.keywordStacks.push(['over']);
+        } else if (prevToken && SUBQUERY_STARTERS.includes(prevToken)) {
+          this.contextParenDepths.push(this.parenDepth);
+          this.keywordStacks.push([prevToken]);
         } else if (prevToken && /^[a-z_]/.test(prevToken) && !MAJOR_KEYWORDS.includes(prevToken)) {
           this.currentStack.pop(); // It's a function call, consume the name
           this.contextParenDepths.push(this.parenDepth);
           this.keywordStacks.push(['fn']);
+        } else {
+           const nextMeaningfulToken = tokens.slice(i + 1).find(t => t.trim());
+           if(nextMeaningfulToken === 'select') {
+              this.contextParenDepths.push(this.parenDepth);
+              this.keywordStacks.push([]);
+           }
         }
         this.parenDepth++;
       } else if (token === ")") {
@@ -87,22 +92,12 @@ export class SqlQueryContext {
     while (i < text.length) {
       const remaining = lowerText.substring(i);
 
-      // 1. Skip whitespace
       const wsMatch = remaining.match(/^\s+/);
       if (wsMatch) {
         i += wsMatch[0].length;
         continue;
       }
 
-      // 2. Handle all quote/comment types
-      const quoteMatch = remaining.match(/^(\'|\"|`|$$)/);
-      if (quoteMatch) {
-        const quoteChar = quoteMatch[1]!;
-        const ender = quoteChar === '$$' ? '$$' : quoteChar;
-        const end = lowerText.indexOf(ender, i + quoteChar.length);
-        i = end === -1 ? text.length : end + ender.length;
-        continue;
-      }
       if (remaining.startsWith('--')) {
         const end = lowerText.indexOf('\n', i);
         i = end === -1 ? text.length : end;
@@ -114,7 +109,15 @@ export class SqlQueryContext {
         continue;
       }
 
-      // 3. Multi-word keywords
+      const quoteMatch = remaining.match(/^('|"|`|\$\$)/);
+      if (quoteMatch) {
+        const quoteChar = quoteMatch[1]!;
+        const ender = quoteChar === '$$' ? '$$' : quoteChar;
+        const end = lowerText.indexOf(ender, i + quoteChar.length);
+        i = end === -1 ? text.length : end + ender.length;
+        continue; // Skip the content of the string
+      }
+
       let matched = false;
       for (const keyword of MAJOR_KEYWORDS) {
         if (remaining.startsWith(keyword) && (remaining.length === keyword.length || /\W/.test(remaining[keyword.length]!))) {
@@ -126,7 +129,6 @@ export class SqlQueryContext {
       }
       if (matched) continue;
 
-      // 4. Single character tokens
       const char = remaining[0]!;
       if ('(),'.includes(char)) {
         tokens.push(char);
@@ -134,7 +136,6 @@ export class SqlQueryContext {
         continue;
       }
 
-      // 5. Identifiers, operators, and forbidden params
       const tokenMatch = remaining.match(/^[a-z_][\w]*|^[0-9]+.?[0-9]*|^[-><>=!*+\/%]+|^[?@]|\$[0-9]+/);
       if (tokenMatch) {
         const token = tokenMatch[0]!;
@@ -146,7 +147,7 @@ export class SqlQueryContext {
         continue;
       }
 
-      i++; // Failsafe
+      i++;
     }
     return tokens;
   }
