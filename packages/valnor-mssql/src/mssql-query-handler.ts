@@ -1,5 +1,6 @@
 import { AsyncQueryHandler, Params, RowOut, SqlQuery, SqlRunArgs } from "valnor";
 import { IResult, Request } from "mssql";
+import { MssqlTokenizer } from "./mssql-tokenizer.js";
 
 export class MssqlQueryHandler<T extends { Row: RowOut; Params?: Params }> extends AsyncQueryHandler<{
    Row: T["Row"];
@@ -16,9 +17,20 @@ export class MssqlQueryHandler<T extends { Row: RowOut; Params?: Params }> exten
    getOptions(args: SqlRunArgs<Request, T["Params"]>) {
       let queryInput = undefined;
       try {
+         // Create a new options object to inject the tokenizer
+         const optionsWithTokenizer = {
+            ...args.options,
+            tokenizer: new MssqlTokenizer(this.sqlQuery.name),
+         };
+
+         const newArgs = {
+            ...args,
+            options: optionsWithTokenizer,
+         };
+
          queryInput = {
-            sql: this.sqlQuery.getText(args, MssqlQueryHandler.paramFormat),
-            params: this.sqlQuery.getValues(args),
+            sql: this.sqlQuery.getText(newArgs, MssqlQueryHandler.paramFormat),
+            params: this.sqlQuery.getValues(newArgs),
          };
          return queryInput;
       } catch (err) {

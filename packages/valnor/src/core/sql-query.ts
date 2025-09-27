@@ -11,6 +11,7 @@ import { SqlInfo } from "./charms/index.js";
 import * as crypto from "node:crypto";
 import { Random } from "./random.js";
 import { SqlFormatProvider } from "./sql-format-provider.js";
+import { DefaultTokenizer } from "./default-tokenizer.js";
 
 export const WILDCARD = "?";
 
@@ -128,7 +129,8 @@ export class SqlQuery<T extends { Row: RowOut; Params?: Params }> extends Sql {
    buildCache(options: SqlBuildOptions) {
       if (this.__buildCache__) return this.__buildCache__;
 
-      const context = new SqlQueryContext({ queryName: this.name });
+      const tokenizer = options?.tokenizer ?? new DefaultTokenizer(this.name);
+      const context = new SqlQueryContext({ queryName: this.name, tokenizer });
       try {
          this.build(context, options);
          this.__buildCache__ = {

@@ -1,0 +1,7 @@
+export const MAJOR_KEYWORDS: string[] = [
+  "partition by", "order by", "group by", "insert into", "delete from",
+  "select", "from", "where", "join", "on", "having", "limit", "offset",
+  "update", "returning", "values", "set", "fn", "over"
+].sort((a, b) => b.length - a.length); // Sort is essential for the tokenizer
+
+export const SUBQUERY_STARTERS: string[] = ["from", "join", "in"];

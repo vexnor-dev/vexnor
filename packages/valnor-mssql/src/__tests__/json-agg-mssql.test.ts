@@ -3,6 +3,7 @@ import { info, param, sql, SqlQueryContext, trim } from "valnor";
 import { Account, IAccountSelect, IOrderSelect, Order } from "./codegen/one_sql.schema.js";
 import { jsonAgg } from "../json-agg-mssql.js";
 import { MssqlQueryHandler } from "../mssql-query-handler.js";
+import { MssqlTokenizer } from "../mssql-tokenizer.js";
 
 describe("sql plugin jsonAgg() tests", () => {
    const AccountOrders = sql<IOrderSelect, { limit: 5 }>`
@@ -14,7 +15,7 @@ describe("sql plugin jsonAgg() tests", () => {
       offset 0 rows fetch next ${param("limit")} rows only`;
 
    test("jsonAgg(): select build", () => {
-      const context = new SqlQueryContext({ queryName: "test" });
+      const context = new SqlQueryContext({ queryName: "test", tokenizer: new MssqlTokenizer("test") });
       context.next("select");
       jsonAgg(AccountOrders).select.build(context, {});
       expect(context.strings[0]).toBe(`"AccountOrders_result"."AccountOrders"`);
@@ -36,7 +37,7 @@ describe("sql plugin jsonAgg() tests", () => {
    // });
 
    test("jsonAgg(): from", () => {
-      const context = new SqlQueryContext({ queryName: "test" });
+      const context = new SqlQueryContext({ queryName: "test", tokenizer: new MssqlTokenizer("test") });
       context.next("from");
       jsonAgg(AccountOrders).body.build(context, {});
       expect(trim(context.strings.join(""))).toBe(

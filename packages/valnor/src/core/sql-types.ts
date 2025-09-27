@@ -1,6 +1,7 @@
 import { SqlParam } from "./sql-param.js";
 import { SqlColumn } from "./sql-column.js";
 import { SqlFormatProvider } from "./sql-format-provider.js";
+import { ITokenizer } from "./sql-tokenizer.js";
 
 export type RowIn = object;
 
@@ -19,6 +20,7 @@ export type SqlBuild = {
 export type SqlBuildOptions = {
    onAddString?: (text: string) => string;
    formatProvider?: SqlFormatProvider;
+   tokenizer?: ITokenizer;
    debug?: (args: Readonly<Record<string, unknown>>) => void;
 };
 

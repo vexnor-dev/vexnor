@@ -1,5 +1,6 @@
 import { AsyncQueryHandler, Params, RowOut, SqlQuery, SqlRunArgs } from "valnor";
 import type { QueryResult } from "pg";
+import { PostgresTokenizer } from "./postgres-tokenizer.js";
 
 export type PostgresClient = {
    query: (queryConfig: { text: string; values: unknown[] }) => Promise<QueryResult>;
@@ -18,9 +19,20 @@ export class PostgresQueryHandler<T extends { Row: RowOut; Params?: Params }> ex
    getOptions(args: SqlRunArgs<PostgresClient, T["Params"]>) {
       let queryInput = undefined;
       try {
+         // Create a new options object to inject the tokenizer
+         const optionsWithTokenizer = {
+            ...args.options,
+            tokenizer: new PostgresTokenizer(this.sqlQuery.name),
+         };
+
+         const newArgs = {
+            ...args,
+            options: optionsWithTokenizer,
+         };
+
          queryInput = {
-            text: this.sqlQuery.getText(args, (index) => `$${index + 1}`),
-            values: this.sqlQuery.getValues(args),
+            text: this.sqlQuery.getText(newArgs, (index) => `$${index + 1}`),
+            values: this.sqlQuery.getValues(newArgs),
          };
          return queryInput;
       } catch (err) {
