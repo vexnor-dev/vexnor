@@ -14,7 +14,8 @@ describe("sql plugin jsonAgg() tests", () => {
       offset 0 rows fetch next ${param("limit")} rows only`;
 
    test("jsonAgg(): select build", () => {
-      const context = new SqlQueryContext({ queryName: "test", keywords: ["select"] });
+      const context = new SqlQueryContext({ queryName: "test" });
+      context.next("select");
       jsonAgg(AccountOrders).select.build(context, {});
       expect(context.strings[0]).toBe(`"AccountOrders_result"."AccountOrders"`);
    });
@@ -35,7 +36,8 @@ describe("sql plugin jsonAgg() tests", () => {
    // });
 
    test("jsonAgg(): from", () => {
-      const context = new SqlQueryContext({ queryName: "test", keywords: ["from"] });
+      const context = new SqlQueryContext({ queryName: "test" });
+      context.next("from");
       jsonAgg(AccountOrders).body.build(context, {});
       expect(trim(context.strings.join(""))).toBe(
          trim`

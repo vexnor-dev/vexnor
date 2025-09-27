@@ -12,8 +12,7 @@
   ],
   "exclude": [
     "dist",
-    "node_modules",
-    "src/**/__tests__"
+    "node_modules"
   ],
   "references": [
     {
