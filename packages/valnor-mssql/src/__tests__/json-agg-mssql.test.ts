@@ -24,7 +24,7 @@ describe("sql plugin jsonAgg() tests", () => {
          SELECT ${jsonAgg(AccountOrders).select}
       `;
 
-      expect(query.getText({}, MssqlQueryHandler.paramFormat)).toBe(
+      expect(trim(query.getText({}, MssqlQueryHandler.paramFormat))).toBe(
          trim(`SELECT "AccountOrders_result"."AccountOrders"`),
       );
    });
