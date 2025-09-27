@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { info, param, sql, trim, SqlQueryContext, SQL_KEYWORDS } from "valnor";
+import { info, param, sql, trim, SqlQueryContext } from "valnor";
 import { IOrderSelect, Order } from "./codegen/one_sql.order-table.js";
 import { Account, IAccountSelect } from "./codegen/one_sql.account-table.js";
 import { jsonAgg } from "../json-agg-postgres.js";
@@ -14,18 +14,22 @@ describe("sql plugin jsonAgg() tests", () => {
       limit ${param("limit")}`;
 
    test("jsonAgg(): select", () => {
-      const context = new SqlQueryContext({ queryName: "test", keywords: ["select"] });
+      const context = new SqlQueryContext({ queryName: "test" });
+      context.next("select");
       jsonAgg(AccountOrders).build(context, {});
       expect(context.strings[0]).toBe(`"AccountOrders_result"`);
    });
 
-   test.each(SQL_KEYWORDS.filter((z) => !["select", "from"].includes(z)))("jsonAgg(): %s throws error", (keyword) => {
-      const context = new SqlQueryContext({ queryName: "test", keywords: [keyword] });
+   const INVALID_KEYWORDS_FOR_JSON_AGG = ['where', 'group by', 'order by', 'update', 'delete from'];
+   test.each(INVALID_KEYWORDS_FOR_JSON_AGG)("jsonAgg(): %s throws error", (keyword) => {
+      const context = new SqlQueryContext({ queryName: "test" });
+      context.next(keyword);
       expect(() => jsonAgg(AccountOrders).build(context, {})).toThrow("Cannot use jsonAgg() with SQL keyword:");
    });
 
    test("jsonAgg(): from", () => {
-      const context = new SqlQueryContext({ queryName: "test", keywords: ["from"] });
+      const context = new SqlQueryContext({ queryName: "test" });
+      context.next("from");
       jsonAgg(AccountOrders).build(context, {});
       expect(trim(context.strings.join(""))).toBe(
          trim`
