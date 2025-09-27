@@ -20,7 +20,7 @@ export default function () {
             reportTitle: "E2E Test Report",
          },
       },
-      paths: ["./features/postgres.feature", "./features/sqlite.feature"],
+      paths: ["./features/*.feature"],
       loader: ["ts-node/esm"],
       import: ["./src/steps/postgres/*.ts", "./src/steps/sqlite/*.ts", "./src/hooks/*.ts", "./src/test-world.ts"],
    };

@@ -20,7 +20,7 @@ When(/^Inserting a new Account using SQLite$/, async function (this: TestWorld) 
             email: `john.doe-${id}}@example.com`,
          })}
          returning ${Account.$$all}
-   `.sqlite3.getAll(db);
+   `.sqlite3.getAll({ db: db });
 
    const newAccount = newAccounts[0];
    if (!newAccount) throw new Error("Failed to insert account");
@@ -36,7 +36,7 @@ Then(/^Fetch newly inserted Account using SQLite$/, async function (this: TestWo
       select ${Account.$$all}
       from ${Account}
       where ${Account.accountId} = ${this.accountInserted.accountId}
-   `.sqlite3.getAll(db);
+   `.sqlite3.getAll({ db: db });
 
    const account = accounts[0];
    if (!account) throw new Error("Account not found");
@@ -61,9 +61,8 @@ When(
          order by ${Account.createdAt} desc
          limit ${countOfAccounts}
       `;
-      this.log(findAccounts.getText({}));
 
-      const accountsWithOrders = findAccounts.sqlite3.getAll(db);
+      const accountsWithOrders = findAccounts.sqlite3.getAll({ db });
 
       ok(accountsWithOrders?.length, "accounts are required");
       this.accountsWithOrders = accountsWithOrders;

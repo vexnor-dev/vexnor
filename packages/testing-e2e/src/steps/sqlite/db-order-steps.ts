@@ -24,7 +24,7 @@ When(/^Inserting (\d+) new Orders using SQLite$/, async function (this: TestWorl
       INSERT INTO ${Order}
          ${Order.$$values(...newOrdersValues)}
          RETURNING ${Order.$$all}
-   `.sqlite3.getAll(db);
+   `.sqlite3.getAll({ db });
    ok(newOrders?.length, "new orders are required");
    deepStrictEqual(newOrders.length, 2);
    for (const order of newOrders) {

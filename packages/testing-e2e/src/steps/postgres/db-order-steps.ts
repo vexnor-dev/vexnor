@@ -25,7 +25,7 @@ When(/^Inserting (\d+) new Orders using PostgreSQL$/, async function (this: Test
       INSERT INTO ${Order}
          ${Order.$$values(...newOrdersValues)}
          RETURNING ${Order.$$all}
-   `.pg.getAll(pool);
+   `.pg.getAll({ db: pool });
    ok(newOrders?.length, "new orders are required");
    deepStrictEqual(newOrders.length, 2);
    for (const order of newOrders) {

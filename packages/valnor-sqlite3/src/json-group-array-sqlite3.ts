@@ -23,23 +23,23 @@ export class JsonGroupArraySqlite3 extends Sql {
 
    build(context: SqlQueryContext, options: SqlBuildOptions) {
       switch (context.keyword) {
-         case "select":
-            context.strings.push(`"${this.select.name}_result"`);
-            break;
-         case "from": {
-            // Pass the tokenizer from the parent context to the new sub-context
-            const result = raw(this.select.name + "_result");
-            context.strings.push("left join lateral (");
-            // Use raw SQL for json_group_array and json
-            const join = sql`
-               select coalesce(json_group_array(json_object(${this.select.ROW.$$all})), '[]') as "${result}"
-               from ${this.select}) as "${raw(this.select.name)}"
-               on true`;
-            join.build(context.child({ queryName: this.select.name }), options);
+         case "select": {
+            // Build the full correlated subquery.
+            // This structure ensures that if the sub-select has an ORDER BY,
+            // the rows are sorted *before* being passed to json_group_array.
+            const subquery = sql`
+               select coalesce(json_group_array(json_object(${this.select.ROW.$$all})), '[]')
+               from (${this.select}) as "${raw(this.select.name)}"`;
+            subquery.build(context.child({ queryName: this.select.name }), options);
             break;
          }
+         case "from":
+            // A correlated subquery in the SELECT list does not add anything to the FROM clause.
+            // This case now does nothing, which is the correct behavior.
+            return;
          default:
-            throw new TypeError(`Cannot use jsonAgg() with SQL keyword: ${context.keyword}`);
+            // Corrected the error message to reflect the function name.
+            throw new TypeError(`Cannot use jsonGroupArray() with SQL keyword: ${context.keyword}`);
       }
    }
 }

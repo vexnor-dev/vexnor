@@ -21,7 +21,7 @@ When(/^Inserting a new Account using PostgreSQL$/, async function (this: TestWor
             email: `john.doe-${id}}@example.com`,
          })}
          returning ${Account.$$all}
-   `.pg.getOneRequired(pool);
+   `.pg.getOneRequired({ db: pool });
 
    ok(newAccount?.accountId, "new accountId is required");
    this.accountInserted = newAccount;
@@ -34,7 +34,7 @@ Then(/^Fetch newly inserted Account using PostgreSQL$/, async function (this: Te
       select ${Account.$$all}
       from ${Account}
       where ${Account.accountId} = ${this.accountInserted.accountId}
-   `.pg.getOneRequired(pool);
+   `.pg.getOneRequired({ db: pool });
 
    deepStrictEqual(account, this.accountInserted);
 });
@@ -56,9 +56,8 @@ When(
          order by ${Account.createdAt} desc
          limit ${countOfAccounts}
       `;
-      this.log(findAccounts.getText());
 
-      const accountsWithOrders = await findAccounts.pg.getAll(pool);
+      const accountsWithOrders = await findAccounts.pg.getAll({ db: pool });
 
       ok(accountsWithOrders?.length, "accounts are required");
       this.accountsWithOrders = accountsWithOrders;

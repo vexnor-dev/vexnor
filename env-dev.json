@@ -9,6 +9,7 @@
     "MSSQL_PORT": 1433,
     "MSSQL_DATABASE": "valnor",
     "MSSQL_USER": "valnor_dev",
-    "MSSQL_PASSWORD": "P@ssw0rd!"
+    "MSSQL_PASSWORD": "P@ssw0rd!",
+    "SQLITE_PATH": "../../@db-sqlite3/valnor-test.sqlite"
   }
 }

@@ -6,7 +6,7 @@
    "scripts": {
       "codegen": "run-s 'codegen:*'",
       "codegen:1-postgres": "env-cmd --no-override -x -r ../../env-dev.json -e db valnor generate --plugin valnor-postgres --schema one_sql --pascalCaseTables --camelCaseColumns --host \\$POSTGRES_HOST --port \\$POSTGRES_PORT --database \\$POSTGRES_DATABASE --user \\$POSTGRES_USER --password \\$POSTGRES_PASSWORD --outDir 'src/codegen/pg'",
-      "codegen:2-sqlite": "env-cmd --no-override -x -r ../../env-dev.json -e db valnor generate --plugin valnor-sqlite3 --schema one_sql --pascalCaseTables --camelCaseColumns --uri \\$SQLITE_PATH --outDir 'src/codegen/sqlite'",
+      "codegen:2-sqlite": "valnor generate --plugin valnor-sqlite3 --schema one_sql --pascalCaseTables --camelCaseColumns --uri '../../@db-sqlite3/valnor-test.sqlite' --outDir 'src/codegen/sqlite'",
       "postcodegen": "pnpx eslint --config ../../eslint.config.mjs ./src/codegen/**/*.ts --fix",
       "prebuild": "run-s 'codegen'",
       "build": "tsc -b",

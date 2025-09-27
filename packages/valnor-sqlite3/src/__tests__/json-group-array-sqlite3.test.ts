@@ -5,7 +5,7 @@ import { IOrderSelect, Order } from "./codegen/main.order-table.js";
 import { Account, IAccountSelect } from "./codegen/main.account-table.js";
 import { Sqlite3Tokenizer } from "../sqlite3-tokenizer.js";
 
-describe("jsonAgg (SQLite)", () => {
+describe("jsonGroupArray (SQLite)", () => {
    const AccountOrders = sql<IOrderSelect, { limit: number }>`
       ${info({ label: "AccountOrders" })}
       select ${Order.orderId}, ${Order.status}
@@ -13,21 +13,21 @@ describe("jsonAgg (SQLite)", () => {
       where ${Order.accountId} = ${Account.accountId}
       limit ${param("limit")}`;
 
-   test("jsonAgg(): select", () => {
+   test("jsonGroupArray(): select", () => {
       const context = new SqlQueryContext({ queryName: "test", tokenizer: new Sqlite3Tokenizer("test") });
       context.next("select"); // Moved this line BEFORE the build call
       jsonGroupArray(AccountOrders).build(context, {});
       expect(context.strings[0]).toBe(`"AccountOrders_result"`);
    });
 
-   const INVALID_KEYWORDS_FOR_JSON_AGG = ['where', 'group by', 'order by', 'update', 'delete from'];
-   test.each(INVALID_KEYWORDS_FOR_JSON_AGG)("jsonAgg(): %s throws error", (keyword) => {
+   const INVALID_KEYWORDS_FOR_JSON_AGG = ["where", "group by", "order by", "update", "delete from"];
+   test.each(INVALID_KEYWORDS_FOR_JSON_AGG)("jsonGroupArray(): %s throws error", (keyword) => {
       const context = new SqlQueryContext({ queryName: "test", tokenizer: new Sqlite3Tokenizer("test") });
       context.next(keyword);
       expect(() => jsonGroupArray(AccountOrders).build(context, {})).toThrow("Cannot use jsonAgg() with SQL keyword:");
    });
 
-   test("jsonAgg(): from", () => {
+   test("jsonGroupArray(): from", () => {
       const context = new SqlQueryContext({ queryName: "test", tokenizer: new Sqlite3Tokenizer("test") });
       context.next("from"); // Moved this line BEFORE the build call
       jsonGroupArray(AccountOrders).build(context, {});
@@ -44,7 +44,7 @@ describe("jsonAgg (SQLite)", () => {
       );
    });
 
-   test("jsonAgg() with params", () => {
+   test("jsonGroupArray() with params", () => {
       const query = sql<IAccountSelect & { orders: IOrderSelect[] }, { limit: number }>`
          select ${Account.$$all}, ${jsonGroupArray(AccountOrders)} as "orders"
          from ${Account} ${jsonGroupArray(AccountOrders)}
