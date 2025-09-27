@@ -152,9 +152,6 @@ export class SqlQuery<T extends { Row: RowOut; Params?: Params }> extends Sql {
     * @param options
     */
    build(context: SqlQueryContext, options: SqlBuildOptions) {
-      context.queryLevel++;
-      context.queryName = this.name;
-
       const wrapStart = () => {
          if (this.wrap) context.strings.push("(");
       };

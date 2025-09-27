@@ -1,6 +1,7 @@
 import { Sql } from "./sql-base.js";
 
 export type SqlBuildErrorOptions = {
+   queryName?: string;
    strings?: string[];
    token?: Sql;
 };

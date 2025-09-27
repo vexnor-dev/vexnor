@@ -1,7 +1,5 @@
 import { SqlQueryContext } from "./sql-query-context.js";
 import { Sql } from "./sql-base.js";
-import { SqlBuildError } from "./sql-build-error.js";
-import { SqlKeyword } from "./sql-keyword.js";
 import { SqlBuildOptions } from "./sql-types.js";
 
 export interface SqlColumnOptions {
@@ -22,7 +20,7 @@ export type SqlColumnFormat =
    | "tableAlias.column"
    | "tableAlias.column as alias";
 
-const SQL_COLUMN_FORMATS: Partial<Record<SqlKeyword, SqlColumnFormat>> = {
+const SQL_COLUMN_FORMATS: Partial<Record<string, SqlColumnFormat>> = {
    select: "tableAlias.column as alias",
    returning: "tableAlias.column as alias",
    fn: "tableAlias.column",
@@ -33,7 +31,6 @@ const SQL_COLUMN_FORMATS: Partial<Record<SqlKeyword, SqlColumnFormat>> = {
    set: "column",
    "group by": "tableAlias.column",
    "order by": "tableAlias.column",
-   as: "alias",
 };
 
 const DEFAULT_COLUMN_FORMAT: SqlColumnFormat = "tableAlias.column";
@@ -59,17 +56,6 @@ export class SqlColumn extends Sql {
       }
       tokens.push(")");
       return tokens.join("");
-   }
-
-   static getFormat(column: SqlColumn, context: SqlQueryContext): SqlColumnFormat {
-      if (!context.keyword) {
-         throw new SqlBuildError(`SQL context keyword required for column '${column.table.name}.${this.name}'`, {
-            token: column,
-            strings: context.strings,
-         });
-      }
-
-      return SQL_COLUMN_FORMATS[context.keyword] ?? DEFAULT_COLUMN_FORMAT;
    }
 
    /**
@@ -114,7 +100,13 @@ export class SqlColumn extends Sql {
       }
 
       const format =
-         this.format ?? options?.formatProvider?.getColumnFormat(this, context) ?? SqlColumn.getFormat(this, context);
+         this.format ??
+         options?.formatProvider?.getColumnFormat(context) ??
+         (() => {
+            const formattingKeyword = context.keyword;
+            return formattingKeyword ? SQL_COLUMN_FORMATS[formattingKeyword] : null;
+         })() ??
+         DEFAULT_COLUMN_FORMAT;
 
       // Use this.format if available
       switch (format) {

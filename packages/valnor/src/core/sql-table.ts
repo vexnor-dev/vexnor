@@ -4,8 +4,6 @@ import { Sql } from "./sql-base.js";
 import { ok } from "assert";
 import { TableInsertValues, TableUpdateSet } from "./charms/index.js";
 import { RowIn, RowOut, SqlBuildOptions } from "./sql-types.js";
-import { SqlKeyword } from "./sql-keyword.js";
-import { SqlBuildError } from "./sql-build-error.js";
 const { Random } = await import("./random.js");
 
 export interface SqlTableOptions {
@@ -19,7 +17,7 @@ export interface SqlTableOptions {
 
 export type SqlTableFormat = "table" | "schema.table" | "schema.table as alias" | "alias";
 
-const SQL_TABLE_FORMATS: Partial<Record<SqlKeyword, SqlTableFormat>> = {
+const SQL_TABLE_FORMATS: Partial<Record<string, SqlTableFormat>> = {
    from: "schema.table as alias",
    update: "schema.table as alias",
    "insert into": "schema.table as alias",
@@ -42,17 +40,6 @@ export class SqlTable<T extends { Select: RowOut; Insert?: RowIn; Update?: RowIn
          ...options,
          alias: options.alias ?? Random.name(options.name),
       };
-   }
-
-   static getFormat(table: SqlTableAny, context: SqlQueryContext): SqlTableFormat {
-      if (!context.keyword) {
-         throw new SqlBuildError(`SQL context keyword required for table '${table.$$.schema}.${table.$$.name}'`, {
-            token: table,
-            strings: context.strings,
-         });
-      }
-
-      return SQL_TABLE_FORMATS[context.keyword] ?? DEFAULT_TABLE_FORMAT;
    }
 
    get $$(): SqlTableOptions {
@@ -106,9 +93,14 @@ export class SqlTable<T extends { Select: RowOut; Insert?: RowIn; Update?: RowIn
       const { strings } = context;
       const schema = this.$$.schema ? `"${this.$$.schema}".` : "";
 
-      const format = options?.formatProvider
-         ? options.formatProvider.getTableFormat(this, context)
-         : SqlTable.getFormat(this, context);
+      const format =
+         this.options.format ??
+         options?.formatProvider?.getTableFormat(context) ??
+         (() => {
+            const formattingKeyword = context.keyword;
+            return formattingKeyword ? SQL_TABLE_FORMATS[formattingKeyword] : null;
+         })() ??
+         DEFAULT_TABLE_FORMAT;
 
       switch (format) {
          case "table":
