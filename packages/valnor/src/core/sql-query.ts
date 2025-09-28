@@ -65,7 +65,7 @@ export class SqlQuery<T extends { Row: RowOut; Params?: Params }> extends Sql {
     * @param args
     */
    getValues({ options, ...args }: SqlInputArgs<T["Params"]>): unknown[] {
-      const { values } = this.buildCache(options ?? { formatProvider: new SqlFormatProvider() });
+      const { values } = this.buildCache(options ?? { formatter: new SqlFormatProvider() });
       if (!values) return [];
       if (!hasParams(args)) return values ?? [];
       const results: unknown[] = [];
@@ -90,7 +90,7 @@ export class SqlQuery<T extends { Row: RowOut; Params?: Params }> extends Sql {
     * @example select * from table where id = ? and name = ?
     */
    getSql({ options, ...args }: SqlInputArgs<T["Params"]>): string {
-      const { values, strings } = this.buildCache(options ?? { formatProvider: new SqlFormatProvider() });
+      const { values, strings } = this.buildCache(options ?? { formatter: new SqlFormatProvider() });
       if (!values?.length) return strings.join("");
       if (!hasParams(args)) return strings.join("");
 

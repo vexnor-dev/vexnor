@@ -101,7 +101,7 @@ export class SqlColumn extends Sql {
 
       const format =
          this.format ??
-         options?.formatProvider?.getColumnFormat(context) ??
+         options?.formatter?.getColumnFormat(context) ??
          (() => {
             const formattingKeyword = context.keyword;
             return formattingKeyword ? SQL_COLUMN_FORMATS[formattingKeyword] : null;

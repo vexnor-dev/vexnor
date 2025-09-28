@@ -95,7 +95,7 @@ export class SqlTable<T extends { Select: RowOut; Insert?: RowIn; Update?: RowIn
 
       const format =
          this.options.format ??
-         options?.formatProvider?.getTableFormat(context) ??
+         options?.formatter?.getTableFormat(context) ??
          (() => {
             const formattingKeyword = context.keyword;
             return formattingKeyword ? SQL_TABLE_FORMATS[formattingKeyword] : null;

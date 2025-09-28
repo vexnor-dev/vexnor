@@ -19,7 +19,7 @@ export type SqlBuild = {
 
 export type SqlBuildOptions = {
    onAddString?: (text: string) => string;
-   formatProvider?: SqlFormatProvider;
+   formatter?: SqlFormatProvider;
    tokenizer?: ITokenizer;
    debug?: (args: Readonly<Record<string, unknown>>) => void;
 };
