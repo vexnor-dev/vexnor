@@ -1,4 +1,4 @@
-import { raw, Sql, sql, SqlBuildOptions, SqlQueryAny, SqlQueryContext } from "valnor";
+import { Sql, sql, SqlBuildOptions, SqlQueryAny, SqlQueryContext } from "valnor";
 
 /**
  * Sql class that aggregates a subquery into a JSON array for SQLite
@@ -27,10 +27,12 @@ export class JsonGroupArraySqlite3 extends Sql {
             // Build the full correlated subquery.
             // This structure ensures that if the sub-select has an ORDER BY,
             // the rows are sorted *before* being passed to json_group_array.
-            const subquery = sql`
+            context.strings.push("(");
+            const subquery = sql<object>`
                select coalesce(json_group_array(json_object(${this.select.ROW.$$all})), '[]')
-               from (${this.select}) as "${raw(this.select.name)}"`;
+               from ${this.select}`;
             subquery.build(context.child({ queryName: this.select.name }), options);
+            context.strings.push(")");
             break;
          }
          case "from":

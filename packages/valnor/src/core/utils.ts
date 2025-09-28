@@ -11,5 +11,6 @@ export function trim(strings: TemplateStringsArray | string, ...values: never[])
       .replace(/\s+/g, " ")
       .replace("( ", "(")
       .replace(" )", ")")
+      .replace(" /*", "/*")
       .trim();
 }
