@@ -11,9 +11,6 @@ export class Sqlite3Tokenizer extends DefaultTokenizer {
       let i = 0;
       const lowerText = text.toLowerCase();
 
-      console.log(`[${this.queryName}] Sqlite3Tokenizer.tokenize received text:`, text);
-      console.log(`[${this.queryName}] Sqlite3Tokenizer.tokenize using MAJOR_KEYWORDS:`, MAJOR_KEYWORDS);
-
       while (i < text.length) {
          const remaining = lowerText.substring(i);
 
@@ -79,7 +76,6 @@ export class Sqlite3Tokenizer extends DefaultTokenizer {
 
          i++;
       }
-      console.log(`[${this.queryName}] Sqlite3Tokenizer.tokenize produced tokens:`, tokens);
       return tokens;
    }
 }
