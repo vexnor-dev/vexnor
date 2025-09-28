@@ -19,15 +19,12 @@ export class PostgresQueryHandler<T extends { Row: RowOut; Params?: Params }> ex
    getOptions(args: SqlRunArgs<PostgresClient, T["Params"]>) {
       let queryInput = undefined;
       try {
-         // Create a new options object to inject the tokenizer
-         const optionsWithTokenizer = {
-            ...args.options,
-            tokenizer: new PostgresTokenizer(this.sqlQuery.name),
-         };
-
          const newArgs = {
             ...args,
-            options: optionsWithTokenizer,
+            options: {
+               ...args.options,
+               tokenizer: new PostgresTokenizer(this.sqlQuery.name),
+            },
          };
 
          queryInput = {
