@@ -1,6 +1,6 @@
 import { Params, RowOut, SqlQueryHandler, SqlRunArgs } from "valnor";
 import type { Database, RunResult } from "better-sqlite3";
-import { Sqlite3FormatProvider } from "./sqlite3-format-provider.js";
+import { Sqlite3Formatter } from "./sqlite3-formatter.js";
 import { Sqlite3Tokenizer } from "./sqlite3-tokenizer.js";
 
 export class BetterSqlite3QueryHandler<T extends { Row: RowOut; Params?: Params }> extends SqlQueryHandler<{
@@ -9,7 +9,7 @@ export class BetterSqlite3QueryHandler<T extends { Row: RowOut; Params?: Params 
    QueryResult: RunResult;
    QueryClient: Request;
 }> {
-   static FormatProvider = new Sqlite3FormatProvider();
+   static FormatProvider = new Sqlite3Formatter();
 
    resolveRows(): T["Row"][] {
       throw new Error("Method not supported: better-sqlite3 result doesn't include any rows");

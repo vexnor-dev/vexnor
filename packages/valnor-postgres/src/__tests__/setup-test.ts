@@ -1,5 +1,6 @@
-import { Random } from "valnor";
+import { vi } from "vitest";
+import * as valnor from "valnor";
 
-Random.name = function (text: string) {
+vi.spyOn(valnor, "randomName").mockImplementation((text: string) => {
    return `${text}_1`;
-};
+});

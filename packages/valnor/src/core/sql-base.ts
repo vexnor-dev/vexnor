@@ -1,4 +1,4 @@
-import { SqlQueryContext } from "./sql-query-context.js";
+import { SqlQueryContext } from "./query/index.js";
 import { x } from "../x.js";
 import { SqlBuildOptions } from "./sql-types.js";
 

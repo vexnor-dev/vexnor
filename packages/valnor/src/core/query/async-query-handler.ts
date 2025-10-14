@@ -1,4 +1,4 @@
-import { Params, RowOut, SqlRunArgs } from "./sql-types.js";
+import { Params, RowOut, SqlRunArgs } from "../sql-types.js";
 import { SqlQuery } from "./sql-query.js";
 import { SqlQueryHandler } from "./sql-query-handler.js";
 import { ok } from "assert";

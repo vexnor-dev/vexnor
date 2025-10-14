@@ -1,10 +1,12 @@
 import { describe, expect, test, vi } from "vitest";
 import { Account, IAccountSelect } from "./codegen/one_sql.account-table.js";
-import { info, param, sql } from "valnor";
 import { trim } from "../utils.js";
+import { sql } from "../sql.js";
+import { info } from "../charms/index.js";
+import { param } from "../query/index.js";
 
-vi.mock("../random-name.js", () => ({
-   randomName: (name: string) => (name === "account" ? "account_1" : `${name}_1`),
+vi.mock("../random.js", () => ({
+   randomName: (name: string) => `${name}_1`,
 }));
 
 describe("sql subqueries tests", () => {

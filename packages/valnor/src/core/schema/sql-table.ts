@@ -1,10 +1,11 @@
 import { SqlColumn } from "./sql-column.js";
-import { SqlQueryContext } from "./sql-query-context.js";
-import { Sql } from "./sql-base.js";
+import { SqlQueryContext } from "../query/index.js";
+import { Sql } from "../sql-base.js";
 import { ok } from "assert";
-import { TableInsertValues, TableUpdateSet } from "./charms/index.js";
-import { RowIn, RowOut, SqlBuildOptions } from "./sql-types.js";
-const { Random } = await import("./random.js");
+import { TableInsertValues, TableUpdateSet } from "../charms/index.js";
+import { RowIn, RowOut } from "../sql-types.js";
+import { SqlTableFormat } from "../sql-formatter.js";
+import { randomName } from "../random.js";
 
 export interface SqlTableOptions {
    readonly schema?: string;
@@ -14,19 +15,6 @@ export interface SqlTableOptions {
    readonly cols: Record<string, SqlColumn>;
    readonly format?: SqlTableFormat;
 }
-
-export type SqlTableFormat = "table" | "schema.table" | "schema.table as alias" | "alias";
-
-const SQL_TABLE_FORMATS: Partial<Record<string, SqlTableFormat>> = {
-   from: "schema.table as alias",
-   update: "schema.table as alias",
-   "insert into": "schema.table as alias",
-   "delete from": "schema.table as alias",
-   join: "schema.table as alias",
-   fn: "alias",
-};
-
-const DEFAULT_TABLE_FORMAT: SqlTableFormat = "schema.table";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlTableAny = SqlTable<any>;
@@ -38,7 +26,7 @@ export class SqlTable<T extends { Select: RowOut; Insert?: RowIn; Update?: RowIn
       super();
       this.options = {
          ...options,
-         alias: options.alias ?? Random.name(options.name),
+         alias: options.alias ?? randomName(options.name),
       };
    }
 
@@ -89,19 +77,11 @@ export class SqlTable<T extends { Select: RowOut; Insert?: RowIn; Update?: RowIn
       return new TableInsertValues(this.$$.cols, inserts) as never as T["Insert"] extends undefined ? never : Sql;
    }
 
-   build(context: SqlQueryContext, options?: SqlBuildOptions) {
+   build(context: SqlQueryContext) {
       const { strings } = context;
       const schema = this.$$.schema ? `"${this.$$.schema}".` : "";
 
-      const format =
-         this.options.format ??
-         options?.formatter?.getTableFormat(context) ??
-         (() => {
-            const formattingKeyword = context.keyword;
-            return formattingKeyword ? SQL_TABLE_FORMATS[formattingKeyword] : null;
-         })() ??
-         DEFAULT_TABLE_FORMAT;
-
+      const format = this.options.format ?? context.formatter.getTableFormat(context);
       switch (format) {
          case "table":
             strings.push(`"${this.$$.name}"`);

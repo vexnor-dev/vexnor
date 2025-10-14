@@ -6,9 +6,9 @@ import { IOrderInsert, IOrderSelect, Order } from "../../codegen/sqlite/main.ord
 import { sql } from "valnor";
 
 When(/^Inserting (\d+) new Orders using SQLite$/, async function (this: TestWorld, countOfOrders: number) {
-   ok(this.accountInserted, "account is required");
+   ok(this.sqlite.accountInserted, "account is required");
 
-   const accountId = this.accountInserted.accountId;
+   const accountId = this.sqlite.accountInserted.accountId;
    if (!accountId) throw new Error("Account ID is required");
    const newOrdersValues: IOrderInsert[] = [];
    for (let i = 0; i < countOfOrders; i++) {
@@ -32,5 +32,5 @@ When(/^Inserting (\d+) new Orders using SQLite$/, async function (this: TestWorl
       deepStrictEqual(order.accountId, accountId);
    }
 
-   this.ordersInserted = newOrders;
+   this.sqlite.ordersInserted = newOrders;
 });

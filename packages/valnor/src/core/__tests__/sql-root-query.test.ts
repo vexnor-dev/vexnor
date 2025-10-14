@@ -1,13 +1,12 @@
 import { describe, expect, test, vi } from "vitest";
 import { Account, IAccountSelect } from "./codegen/one_sql.schema.js";
-import { param, trim, sql } from "valnor";
+import { sql } from "../sql.js";
+import { param } from "../query/index.js";
+import { trim } from "../utils.js";
 
-vi.mock("../random-name.js", (valnor) => {
-   return {
-      ...valnor,
-      randomName: (name: string) => `${name}_1`,
-   };
-});
+vi.mock("../random.js", () => ({
+   randomName: (name: string) => `${name}_1`,
+}));
 
 describe("sql() tests", () => {
    test("sql() select", () => {

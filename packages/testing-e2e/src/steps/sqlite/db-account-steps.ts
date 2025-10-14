@@ -26,22 +26,22 @@ When(/^Inserting a new Account using SQLite$/, async function (this: TestWorld) 
    if (!newAccount) throw new Error("Failed to insert account");
 
    ok(newAccount?.accountId, "new accountId is required");
-   this.accountInserted = newAccount;
+   this.sqlite.accountInserted = newAccount;
 });
 
 Then(/^Fetch newly inserted Account using SQLite$/, async function (this: TestWorld) {
-   ok(this.accountInserted?.accountId, "accountId is required");
+   ok(this.sqlite.accountInserted?.accountId, "accountId is required");
 
    const accounts = sql<IAccountSelect>`
       select ${Account.$$all}
       from ${Account}
-      where ${Account.accountId} = ${this.accountInserted.accountId}
+      where ${Account.accountId} = ${this.sqlite.accountInserted.accountId}
    `.sqlite3.getAll({ db: db });
 
    const account = accounts[0];
    if (!account) throw new Error("Account not found");
 
-   deepStrictEqual(account, this.accountInserted);
+   deepStrictEqual(account, this.sqlite.accountInserted);
 });
 
 When(
@@ -65,13 +65,13 @@ When(
       const accountsWithOrders = findAccounts.sqlite3.getAll({ db });
 
       ok(accountsWithOrders?.length, "accounts are required");
-      this.accountsWithOrders = accountsWithOrders;
+      this.sqlite.accountsWithOrders = accountsWithOrders;
    },
 );
 
 When(/^Accounts should have respective orders using SQLite$/, function (this: TestWorld) {
-   ok(this.accountsWithOrders?.length, "accounts with orders are required");
-   for (const account of this.accountsWithOrders) {
+   ok(this.sqlite.accountsWithOrders?.length, "accounts with orders are required");
+   for (const account of this.sqlite.accountsWithOrders) {
       notDeepStrictEqual(account.orders.length, 0, `Account ${account.accountId}: orders are required`);
 
       for (const order of account.orders) {

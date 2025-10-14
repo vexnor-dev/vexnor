@@ -1,9 +1,9 @@
 import { describe, expect, test, vi } from "vitest";
-import { sql } from "valnor";
 import { Account, IAccountSelect } from "../../__tests__/codegen/one_sql.account-table.js";
 import { trim } from "../../utils.js";
+import { sql } from "../../sql.js";
 
-vi.mock("../../random-name.js", () => ({
+vi.mock("../../random.js", () => ({
    randomName: (name: string) => `${name}_1`,
 }));
 

@@ -1,4 +1,4 @@
-import { Sql } from "./sql-base.js";
+import { Sql } from "../sql-base.js";
 import { SqlQueryContext } from "./sql-query-context.js";
 
 export class SqlParam<TName extends string> extends Sql {

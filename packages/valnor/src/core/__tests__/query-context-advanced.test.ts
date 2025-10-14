@@ -1,13 +1,17 @@
 import { beforeEach, describe, expect, test } from "vitest";
-import { SqlQueryContext } from "../sql-query-context.js";
+import { SqlQueryContext } from "../query/sql-query-context.js";
 import { DefaultTokenizer } from "../default-tokenizer.js";
-import { SqlBuildError } from "../sql-build-error.js";
+import { SqlFormatter } from "../sql-formatter.js";
 
 describe("Advanced QueryContext Engine Stress Tests", () => {
    let context!: SqlQueryContext;
 
    beforeEach(() => {
-      context = new SqlQueryContext({ queryName: "test", tokenizer: new DefaultTokenizer("test") });
+      context = new SqlQueryContext({
+         queryName: "test",
+         tokenizer: new DefaultTokenizer("test"),
+         formatter: new SqlFormatter(),
+      });
    });
 
    test("BREAK THE PARSER: should not create a new context for simple expression grouping", () => {

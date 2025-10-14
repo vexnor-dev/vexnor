@@ -1,8 +1,8 @@
 import { SqlColumn } from "./sql-column.js";
-import { RowIn, RowOut } from "./sql-types.js";
-import { x } from "../x.js";
+import { RowIn, RowOut } from "../sql-types.js";
+import { x } from "../../x.js";
 import { SqlTable } from "./sql-table.js";
-import { Random } from "./random.js";
+import { randomName } from "../random.js";
 
 type SqlTableColumns<T> = T extends Record<string, SqlColumn | string> ? { [K in keyof T]: SqlColumn } : never;
 
@@ -24,7 +24,7 @@ export function newSqlTable<
 >(options: NewTableOptions<TTypes>, cols: TColumns): SqlTable<TTypes> & SqlTableColumns<TColumns> {
    const table = {
       name: options.name,
-      alias: options.alias ?? Random.name(options.name),
+      alias: options.alias ?? randomName(options.name),
    };
    const pk = x(() => {
       if (!options.pk) return undefined;

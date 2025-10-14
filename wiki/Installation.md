@@ -9,10 +9,10 @@ npm install valnor
 Or use it directly with npx/pnpx without installation:
 ```bash
 # Using npx (npm)
-npx valnor generate --driver pg --cli one_sql --uri $POSTGRES_URI --outDir 'src/codegen'
+npx valnor generate --driver postgres --cli one_sql --uri $POSTGRES_URI --outDir 'src/codegen'
 
 # Using pnpm
-pnpm dlx valnor generate --driver pg --cli one_sql --uri $POSTGRES_URI --outDir 'src/codegen'
+pnpm dlx valnor generate --driver postgres --cli one_sql --uri $POSTGRES_URI --outDir 'src/codegen'
 ```
 
 Loading environment variables from local .env file:

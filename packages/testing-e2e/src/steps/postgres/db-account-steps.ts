@@ -1,13 +1,13 @@
 import { Then, When } from "@cucumber/cucumber";
 import { TestWorld } from "../../test-world.js";
 import { pool } from "../../db/postgres.js";
-import { AccountStatusUdt } from "../../codegen/pg/one_sql-enums.js";
+import { AccountStatusUdt } from "../../codegen/postgres/one_sql-enums.js";
 import crypto from "node:crypto";
-import { Account, IAccountSelect } from "../../codegen/pg/one_sql.account-table.js";
+import { Account, IAccountSelect } from "../../codegen/postgres/one_sql.account-table.js";
 import { deepStrictEqual, notDeepStrictEqual, ok } from "node:assert";
 import { AccountWithOrders } from "../../types/index.js";
 import { sql } from "valnor";
-import { Order } from "../../codegen/pg/one_sql.order-table.js";
+import { Order } from "../../codegen/postgres/one_sql.order-table.js";
 import { jsonAgg } from "valnor-postgres";
 
 When(/^Inserting a new Account using PostgreSQL$/, async function (this: TestWorld) {
@@ -23,20 +23,21 @@ When(/^Inserting a new Account using PostgreSQL$/, async function (this: TestWor
          returning ${Account.$$all}
    `.pg.getOneRequired({ db: pool });
 
+   ok(newAccount, "new account not inserted");
    ok(newAccount?.accountId, "new accountId is required");
-   this.accountInserted = newAccount;
+   this.pg.accountInserted = newAccount;
 });
 
 Then(/^Fetch newly inserted Account using PostgreSQL$/, async function (this: TestWorld) {
-   ok(this.accountInserted?.accountId, "accountId is required");
+   ok(this.pg.accountInserted?.accountId, "accountId is required");
 
    const account = await sql<IAccountSelect>`
       select ${Account.$$all}
       from ${Account}
-      where ${Account.accountId} = ${this.accountInserted.accountId}
+      where ${Account.accountId} = ${this.pg.accountInserted.accountId}
    `.pg.getOneRequired({ db: pool });
 
-   deepStrictEqual(account, this.accountInserted);
+   deepStrictEqual(account, this.pg.accountInserted);
 });
 
 When(
@@ -60,13 +61,13 @@ When(
       const accountsWithOrders = await findAccounts.pg.getAll({ db: pool });
 
       ok(accountsWithOrders?.length, "accounts are required");
-      this.accountsWithOrders = accountsWithOrders;
+      this.pg.accountsWithOrders = accountsWithOrders;
    },
 );
 
 When(/^Accounts should have respective orders using PostgreSQL$/, function (this: TestWorld) {
-   ok(this.accountsWithOrders?.length, "accounts with orders are required");
-   for (const account of this.accountsWithOrders) {
+   ok(this.pg.accountsWithOrders?.length, "accounts with orders are required");
+   for (const account of this.pg.accountsWithOrders) {
       notDeepStrictEqual(account.orders.length, 0, `Account ${account.accountId}: orders are required`);
 
       for (const order of account.orders) {

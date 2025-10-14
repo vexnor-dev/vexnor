@@ -1,25 +1,30 @@
 {
-   "extends": "../../tsconfig.json",
-   "compilerOptions": {
-      "outDir": "./dist",
-      "rootDir": "./src",
-      "composite": false
-   },
-   "include": ["src/**/*"],
-   "ts-node": {
-      "files": true,
-      "experimentalResolver": true,
-      "esm": true
-   },
-   "references": [
-      {
-         "path": "../valnor"
-      },
-      {
-         "path": "../valnor-postgres"
-      },
-      {
-         "path": "../valnor-sqlite3"
-      }
-   ]
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "composite": false
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "ts-node": {
+    "files": true,
+    "experimentalResolver": true,
+    "esm": true
+  },
+  "references": [
+    {
+      "path": "../valnor"
+    },
+    {
+      "path": "../valnor-postgres"
+    },
+    {
+      "path": "../valnor-sqlite3"
+    },
+    {
+      "path": "../valnor-mssql"
+    }
+  ]
 }

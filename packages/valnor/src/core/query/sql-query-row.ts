@@ -1,7 +1,7 @@
 import { ok } from "assert";
-import { SqlColumn } from "./sql-column.js";
+import { SqlColumn } from "../schema/index.js";
 import { SqlRaw } from "./sql-raw.js";
-import { RowOut } from "./sql-types.js";
+import { RowOut } from "../sql-types.js";
 
 export class SqlQueryRow {
    static proxyHandler: ProxyHandler<SqlQueryRow> = {

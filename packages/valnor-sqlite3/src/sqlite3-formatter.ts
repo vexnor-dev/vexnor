@@ -1,6 +1,6 @@
-import { SqlColumnFormat, SqlFormatProvider, SqlQueryContext, SqlTableFormat } from "valnor";
+import { SqlColumnFormat, SqlFormatter, SqlQueryContext, SqlTableFormat } from "valnor";
 
-export class Sqlite3FormatProvider extends SqlFormatProvider {
+export class Sqlite3Formatter extends SqlFormatter {
    override getColumnFormat(context: SqlQueryContext): SqlColumnFormat {
       switch (context.keyword) {
          case "insert into":

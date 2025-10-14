@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { info, param, sql, trim, SqlQueryContext } from "valnor";
+import { info, param, sql, SqlQueryContext, trim } from "valnor";
 import { IOrderSelect, Order } from "./codegen/one_sql.order-table.js";
 import { Account, IAccountSelect } from "./codegen/one_sql.account-table.js";
 import { jsonAgg } from "../json-agg-postgres.js";
@@ -21,7 +21,7 @@ describe("sql plugin jsonAgg() tests", () => {
       expect(context.strings[0]).toBe(`"AccountOrders_result"`);
    });
 
-   const INVALID_KEYWORDS_FOR_JSON_AGG = ['where', 'group by', 'order by', 'update', 'delete from'];
+   const INVALID_KEYWORDS_FOR_JSON_AGG = ["where", "group by", "order by", "update", "delete from"];
    test.each(INVALID_KEYWORDS_FOR_JSON_AGG)("jsonAgg(): %s throws error", (keyword) => {
       const context = new SqlQueryContext({ queryName: "test", tokenizer: new PostgresTokenizer("test") });
       context.next(keyword);

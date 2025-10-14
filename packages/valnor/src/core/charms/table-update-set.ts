@@ -1,7 +1,7 @@
 import { Sql } from "../sql-base.js";
 import { RowIn } from "../sql-types.js";
-import { SqlColumn } from "../sql-column.js";
-import { SqlQueryContext } from "../sql-query-context.js";
+import { SqlColumn } from "../schema/sql-column.js";
+import { SqlQueryContext } from "../query/sql-query-context.js";
 
 export class TableUpdateSet<T extends { Update: RowIn }> extends Sql {
    constructor(

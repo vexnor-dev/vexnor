@@ -1,6 +1,7 @@
-import { SqlQueryContext } from "./sql-query-context.js";
-import { Sql } from "./sql-base.js";
-import { SqlBuildOptions } from "./sql-types.js";
+import { SqlQueryContext } from "../query/index.js";
+import { Sql } from "../sql-base.js";
+import { SqlBuildOptions } from "../sql-types.js";
+import { SqlColumnFormat } from "../sql-formatter.js";
 
 export interface SqlColumnOptions {
    readonly name: string;
@@ -8,32 +9,6 @@ export interface SqlColumnOptions {
    readonly alias?: string;
    readonly format?: SqlColumnFormat;
 }
-
-export type SqlColumnFormat =
-   | "table.column"
-   | "table.column as alias"
-   | "tableName.column"
-   | "column"
-   | "tableName.alias"
-   | "alias"
-   | "tableName.column as alias"
-   | "tableAlias.column"
-   | "tableAlias.column as alias";
-
-const SQL_COLUMN_FORMATS: Partial<Record<string, SqlColumnFormat>> = {
-   select: "tableAlias.column as alias",
-   returning: "tableAlias.column as alias",
-   fn: "tableAlias.column",
-   where: "tableAlias.column",
-   on: "tableAlias.column",
-   "insert into": "column",
-   values: "column",
-   set: "column",
-   "group by": "tableAlias.column",
-   "order by": "tableAlias.column",
-};
-
-const DEFAULT_COLUMN_FORMAT: SqlColumnFormat = "tableAlias.column";
 
 export class SqlColumn extends Sql {
    readonly name: string;
@@ -99,14 +74,7 @@ export class SqlColumn extends Sql {
          strings.push(...tokens);
       }
 
-      const format =
-         this.format ??
-         options?.formatter?.getColumnFormat(context) ??
-         (() => {
-            const formattingKeyword = context.keyword;
-            return formattingKeyword ? SQL_COLUMN_FORMATS[formattingKeyword] : null;
-         })() ??
-         DEFAULT_COLUMN_FORMAT;
+      const format = this.format ?? context.formatter.getColumnFormat(context);
 
       // Use this.format if available
       switch (format) {

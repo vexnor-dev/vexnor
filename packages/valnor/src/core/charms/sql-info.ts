@@ -1,5 +1,5 @@
 import { Sql } from "../sql-base.js";
-import { SqlQueryContext } from "../sql-query-context.js";
+import { SqlQueryContext } from "../query/index.js";
 
 type SqlInfoOptions = {
    label: string;

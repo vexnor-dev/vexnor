@@ -127,12 +127,18 @@ importers:
       env-cmd:
         specifier: ^10.1.0
         version: 10.1.0
+      mssql:
+        specifier: ^11.0.1
+        version: 11.0.1
       pg:
         specifier: ^8.16.3
         version: 8.16.3
       valnor:
         specifier: workspace:^
         version: link:../valnor
+      valnor-mssql:
+        specifier: workspace:^
+        version: link:../valnor-mssql
       valnor-postgres:
         specifier: workspace:^
         version: link:../valnor-postgres
@@ -146,6 +152,9 @@ importers:
       '@types/better-sqlite3':
         specifier: ^7.6.13
         version: 7.6.13
+      '@types/mssql':
+        specifier: ^9.1.8
+        version: 9.1.8
       '@types/pg':
         specifier: ^8.15.5
         version: 8.15.5
@@ -160,7 +169,7 @@ importers:
         version: 7.2.0
       ts-node:
         specifier: ^10.9.2
-        version: 10.9.2(@types/node@24.5.2)(typescript@5.9.2)
+        version: 10.9.2(@types/node@20.19.0)(typescript@5.9.2)
 
   packages/valnor:
     dependencies:
@@ -7513,14 +7522,14 @@ snapshots:
 
   ts-dedent@2.2.0: {}
 
-  ts-node@10.9.2(@types/node@24.5.2)(typescript@5.9.2):
+  ts-node@10.9.2(@types/node@20.19.0)(typescript@5.9.2):
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
       '@tsconfig/node10': 1.0.11
       '@tsconfig/node12': 1.0.11
       '@tsconfig/node14': 1.0.3
       '@tsconfig/node16': 1.0.4
-      '@types/node': 24.5.2
+      '@types/node': 20.19.0
       acorn: 8.15.0
       acorn-walk: 8.3.4
       arg: 4.1.3

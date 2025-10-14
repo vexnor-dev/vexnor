@@ -1,29 +1,36 @@
-import { ITokenizer } from "./sql-tokenizer.js";
-import { MAJOR_KEYWORDS, SUBQUERY_STARTERS } from "./sql-constants.js"; // Corrected to relative import
+import { ITokenizer } from "../sql-tokenizer.js";
+import { MAJOR_KEYWORDS, SUBQUERY_STARTERS } from "../sql-constants.js";
+import { SqlFormatter } from "../sql-formatter.js";
+import { ISqlQueryContext } from "../sql-types.js";
+import { DefaultTokenizer } from "../default-tokenizer.js"; // Corrected to relative import
 
 export interface SqlQueryContextOptions {
    queryName: string;
-   tokenizer: ITokenizer;
+   tokenizer?: ITokenizer;
+   formatter?: SqlFormatter;
 }
 
-export class SqlQueryContext {
+export class SqlQueryContext implements ISqlQueryContext {
+   readonly tokenizer: ITokenizer;
+   readonly formatter: SqlFormatter;
    readonly queryName: string;
-   private readonly tokenizer: ITokenizer;
    rawString?: string;
    strings: string[] = [];
    values: unknown[] = [];
-
    private readonly keywordStacks: string[][] = [[]];
    private readonly contextParenDepths: number[] = [0];
-   private parenDepth = 0;
+   private parentDepth = 0;
+   private count = 0;
 
    constructor(args: SqlQueryContextOptions) {
       this.queryName = args.queryName;
-      this.tokenizer = args.tokenizer;
+      this.tokenizer = args.tokenizer ?? new DefaultTokenizer(this.queryName);
+      this.formatter = args.formatter ?? new SqlFormatter();
    }
 
-   private get currentStack(): string[] {
-      return this.keywordStacks[this.keywordStacks.length - 1]!;
+   get counter() {
+      this.count++;
+      return this.count;
    }
 
    get keyword(): string | undefined {
@@ -35,6 +42,10 @@ export class SqlQueryContext {
          }
       }
       return undefined;
+   }
+
+   private get currentStack(): string[] {
+      return this.keywordStacks[this.keywordStacks.length - 1]!;
    }
 
    next(text: string) {
@@ -50,28 +61,28 @@ export class SqlQueryContext {
 
             if (prevToken === "over") {
                this.currentStack.pop(); // consume 'over'
-               this.contextParenDepths.push(this.parenDepth);
+               this.contextParenDepths.push(this.parentDepth);
                this.keywordStacks.push(["over"]);
             } else if (prevToken && SUBQUERY_STARTERS.includes(prevToken)) {
-               this.contextParenDepths.push(this.parenDepth);
+               this.contextParenDepths.push(this.parentDepth);
                this.keywordStacks.push([prevToken]);
             } else if (prevToken && /^[a-z_]/.test(prevToken) && !MAJOR_KEYWORDS.includes(prevToken)) {
                this.currentStack.pop(); // It's a function call, consume the name
-               this.contextParenDepths.push(this.parenDepth);
+               this.contextParenDepths.push(this.parentDepth);
                this.keywordStacks.push(["fn"]);
             } else {
                const nextMeaningfulToken = tokens.slice(i + 1).find((t) => t.trim());
                if (nextMeaningfulToken === "select") {
-                  this.contextParenDepths.push(this.parenDepth);
+                  this.contextParenDepths.push(this.parentDepth);
                   this.keywordStacks.push([]);
                }
             }
-            this.parenDepth++;
+            this.parentDepth++;
          } else if (token === ")") {
-            this.parenDepth--;
+            this.parentDepth--;
             if (
                this.keywordStacks.length > 1 &&
-               this.parenDepth === this.contextParenDepths[this.contextParenDepths.length - 1]!
+               this.parentDepth === this.contextParenDepths[this.contextParenDepths.length - 1]!
             ) {
                this.keywordStacks.pop();
                this.contextParenDepths.pop();
@@ -83,7 +94,7 @@ export class SqlQueryContext {
    }
 
    child(args: { queryName: string }): SqlQueryContext {
-      const result = new SqlQueryContext({ ...args, tokenizer: this.tokenizer });
+      const result = new SqlQueryContext({ ...args, tokenizer: this.tokenizer, formatter: this.formatter });
       result.strings = this.strings;
       result.values = this.values;
       return result;

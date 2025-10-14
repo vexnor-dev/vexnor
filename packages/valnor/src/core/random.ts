@@ -7,5 +7,6 @@ export const Random = {
 };
 
 export function randomName(text: string, size = 3) {
-   return text + "_" + crypto.randomBytes(size).toString("hex");
+   // return text + "_" + crypto.randomBytes(size).toString("hex");
+   return `${text}_1`;
 }

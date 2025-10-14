@@ -1,6 +1,17 @@
-import { SqlColumnFormat } from "./sql-column.js";
-import { SqlQueryContext } from "./sql-query-context.js";
-import { SqlTableFormat } from "./sql-table.js";
+import { ISqlQueryContext } from "./sql-types.js";
+
+export type SqlTableFormat = "table" | "schema.table" | "schema.table as alias" | "alias";
+
+export type SqlColumnFormat =
+   | "table.column"
+   | "table.column as alias"
+   | "tableName.column"
+   | "column"
+   | "tableName.alias"
+   | "alias"
+   | "tableName.column as alias"
+   | "tableAlias.column"
+   | "tableAlias.column as alias";
 
 // Default formatting rules, moved here to centralize logic.
 const SQL_COLUMN_FORMATS: Partial<Record<string, SqlColumnFormat>> = {
@@ -29,30 +40,29 @@ const SQL_TABLE_FORMATS: Partial<Record<string, SqlTableFormat>> = {
 
 const DEFAULT_TABLE_FORMAT: SqlTableFormat = "schema.table";
 
-export class SqlFormatProvider {
+export class SqlFormatter {
    constructor() {}
 
    /**
     * Gets the column format for the given column and query context
     * @param context
     */
-   getColumnFormat(context: SqlQueryContext): SqlColumnFormat {
-      const formattingKeyword = context.keyword;
-      if (!formattingKeyword) {
+   getColumnFormat(context: ISqlQueryContext): SqlColumnFormat {
+      if (!context.keyword) {
          return DEFAULT_COLUMN_FORMAT;
       }
-      return SQL_COLUMN_FORMATS[formattingKeyword] ?? DEFAULT_COLUMN_FORMAT;
+
+      return SQL_COLUMN_FORMATS[context.keyword] ?? DEFAULT_COLUMN_FORMAT;
    }
 
    /**
     * Gets the table format for the given table and query context
     * @param context
     */
-   getTableFormat(context: SqlQueryContext): SqlTableFormat {
-      const formattingKeyword = context.keyword;
-      if (!formattingKeyword) {
+   getTableFormat(context: ISqlQueryContext): SqlTableFormat {
+      if (!context.keyword) {
          return DEFAULT_TABLE_FORMAT;
       }
-      return SQL_TABLE_FORMATS[formattingKeyword] ?? DEFAULT_TABLE_FORMAT;
+      return SQL_TABLE_FORMATS[context.keyword] ?? DEFAULT_TABLE_FORMAT;
    }
 }

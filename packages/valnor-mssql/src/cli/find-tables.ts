@@ -13,7 +13,7 @@ const TableColumns = sql<SqlColumnInfo>`
           CASE
              WHEN COLUMNPROPERTY(OBJECT_ID(${Columns.table_schema} + '.' + ${Columns.table_name}), ${Columns.column_name}, 'IsComputed') = 1
                 THEN 'NO'
-             ELSE 'YES' END as ${Columns.is_updatable}
+             ELSE 'YES' END as "is_updatable"
    FROM ${Columns}
    WHERE ${Columns.table_schema} = ${Tables.table_schema}
      AND ${Columns.table_name} = ${Tables.table_name}
@@ -30,7 +30,7 @@ export const TablePrimaryKey = sql<
 >`
    SELECT DISTINCT ${TableConstraints.table_schema},
                    ${TableConstraints.table_name},
-                   ${KeyColumnUsage.column_name} as "primary_key"
+                   ${KeyColumnUsage.column_name.$$fmt("table.column")} as "primary_key"
    FROM ${TableConstraints}
            JOIN ${KeyColumnUsage} ON ${TableConstraints.constraint_name} = ${KeyColumnUsage.constraint_name}
       AND ${TableConstraints.table_schema} = ${KeyColumnUsage.table_schema}

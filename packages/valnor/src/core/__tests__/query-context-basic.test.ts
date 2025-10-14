@@ -1,13 +1,18 @@
 import { beforeEach, describe, expect, test } from "vitest";
-import { SqlQueryContext } from "../sql-query-context.js";
+import { SqlQueryContext } from "../query/index.js";
 import { SqlBuildError } from "../sql-build-error.js";
 import { DefaultTokenizer } from "../default-tokenizer.js";
+import { SqlFormatter } from "../sql-formatter.js";
 
 describe("New QueryContext Engine", () => {
    let context!: SqlQueryContext;
 
    beforeEach(() => {
-      context = new SqlQueryContext({ queryName: "test", tokenizer: new DefaultTokenizer("test") });
+      context = new SqlQueryContext({
+         queryName: "test",
+         tokenizer: new DefaultTokenizer("test"),
+         formatter: new SqlFormatter(),
+      });
    });
 
    describe("Formatting Keyword (Ghosting)", () => {

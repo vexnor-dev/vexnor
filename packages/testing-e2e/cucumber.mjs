@@ -22,7 +22,7 @@ export default function () {
       },
       paths: ["./features/*.feature"],
       loader: ["ts-node/esm"],
-      import: ["./src/steps/postgres/*.ts", "./src/steps/sqlite/*.ts", "./src/hooks/*.ts", "./src/test-world.ts"],
+      import: ["./src/steps/**", "./src/hooks/*.ts", "./src/test-world.ts"],
    };
 
    return {

@@ -27,7 +27,7 @@ import {IAccountSelect} from "./one_sql.account-table";
 import {AccountStatusUdt} from "./one_sql-enums";
 import {sql, param} from "one-sql";
 
-// pg
+// postgres
 const db = new Pool({
     host: "localhost",
     user: "postgres",
