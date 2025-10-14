@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, test } from "vitest";
-import { SqlQueryContext } from "../query/sql-query-context.js";
+import { SqlQueryContext } from "../query/index.js";
 import { DefaultTokenizer } from "../default-tokenizer.js";
 import { SqlFormatter } from "../sql-formatter.js";
 

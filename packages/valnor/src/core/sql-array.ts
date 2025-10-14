@@ -1,5 +1,4 @@
-import { SqlParam } from "./query/sql-param.js";
-import { SqlQueryContext } from "./query/sql-query-context.js";
+import { SqlParam, SqlQueryContext } from "./query/index.js";
 
 export class SqlArray<TName extends string> extends SqlParam<TName> {
    build(context: SqlQueryContext) {

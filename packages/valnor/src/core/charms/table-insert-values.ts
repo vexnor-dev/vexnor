@@ -1,6 +1,6 @@
-import { SqlQueryContext } from "../query/sql-query-context.js";
+import { SqlQueryContext } from "../query/index.js";
 import { Sql } from "../sql-base.js";
-import { SqlColumn } from "../schema/sql-column.js";
+import { SqlColumn } from "../schema/index.js";
 import { RowIn } from "../sql-types.js";
 import { SqlBuildError } from "../sql-build-error.js";
 

@@ -1,8 +1,7 @@
 import { RowOut, SqlParams } from "./sql-types.js";
-import { SqlQuery } from "./query/sql-query.js";
+import { SqlQuery } from "./query/index.js";
 import { Sql } from "./sql-base.js";
-import { SqlTableAny } from "./schema/sql-table.js";
-import { SqlColumn } from "./schema/sql-column.js";
+import { SqlColumn, SqlTableAny } from "./schema/index.js";
 
 /**
  * Creates a typed SQL core using plain SQL syntax and generated db mapping code.
