@@ -1,5 +1,5 @@
 begin;
 
-drop table one_sql.product;
+drop table valnor_test.product;
 
 commit;

@@ -13,7 +13,7 @@ import mssql from "mssql";
 import { MssqlQueryHandler } from "./mssql-query-handler.js";
 import { Params, RowOut, SqlQuery } from "valnor";
 import { getColumnType } from "./get-column-type.js";
-import { findTables } from "./cli/find-tables.js";
+import { findTables } from "./schema/find-tables.js";
 
 const { ConnectionPool } = mssql;
 
@@ -59,15 +59,20 @@ export class ValnorMssql extends ValnorPlugin {
       let connection = undefined;
       try {
          connection = await pool.connect();
-         const result = await findTables.mssql.getAll({
-            db: connection.request(),
-            params: { schemas },
-            options: {
-               debug: (args) => {
-                  console.log(args);
+         const result = await findTables.mssql
+            .getAll({
+               db: connection.request(),
+               params: { schemas },
+               options: {
+                  debug: (args) => {
+                     console.log(args.text);
+                  },
                },
-            },
-         });
+            })
+            .catch((err) => {
+               console.error(err);
+               throw err;
+            });
          const tables = result.map((row: SqlTableInfo) => ({
             ...row,
             table_columns:

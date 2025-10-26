@@ -3,7 +3,7 @@
 ## Insert Operation
 
 ```typescript
-import {newOneSqlSchema} from "./codegen/one_sql.cli.js";
+import {newOneSqlSchema} from "./models/one_sql.cli.js";
 
 const {Account} = newOneSqlSchema(psql);
 
@@ -28,7 +28,7 @@ import {
     IOrderJson,
     newOneSqlSchema,
     OrderStatusUdt,
-} from "./codegen/one_sql.cli.js";
+} from "./models/one_sql.cli.js";
 
 // create tables from existing cli: Account, Order 
 const {Account, Order} = newOneSqlSchema(sql);

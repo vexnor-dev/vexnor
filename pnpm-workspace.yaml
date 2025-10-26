@@ -2,7 +2,6 @@ packages:
   - packages/**
   - examples/**
   - tests/**
-  - '!**/tests/**'
   - '!**/dist/**'
   - '!**/build/**'
   - '!**/deploy/**'

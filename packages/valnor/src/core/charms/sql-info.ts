@@ -10,7 +10,7 @@ export class SqlInfo extends Sql {
       super();
    }
 
-   build({ strings }: SqlQueryContext) {
+   $build({ strings }: SqlQueryContext) {
       strings.push("\n/*");
       for (const [key, value] of Object.entries(this.options)) {
          strings.push(` --${key}: ${value} `);

@@ -9,5 +9,9 @@ CREATE TABLE account (
     last_name TEXT NOT NULL,
     notes TEXT,
     created_at TEXT NOT NULL DEFAULT (datetime('now')),
-    modified_at TEXT NOT NULL DEFAULT (datetime('now'))
+    modified_at TEXT NOT NULL DEFAULT (datetime('now')),
+    parent_id TEXT,
+    FOREIGN KEY (parent_id) REFERENCES account (account_id) ON DELETE SET NULL
 );
+
+CREATE INDEX idx_account_parent_id ON account (parent_id);

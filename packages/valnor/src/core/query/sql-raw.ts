@@ -6,7 +6,7 @@ export class SqlRaw extends Sql {
       super();
    }
 
-   override build({ strings }: SqlQueryContext) {
+   override $build({ strings }: SqlQueryContext) {
       strings.push(this.value);
    }
 }

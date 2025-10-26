@@ -15,7 +15,7 @@ export class SqlParam<TName extends string> extends Sql {
       return `${SqlParam.PREFIX}${this.name}`;
    }
 
-   build({ strings, values }: SqlQueryContext): void {
+   $build({ strings, values }: SqlQueryContext): void {
       values.push(this);
       strings.push(this.wildcard);
    }

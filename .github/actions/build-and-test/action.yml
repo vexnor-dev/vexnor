@@ -43,8 +43,8 @@ runs:
       shell: bash
       run: pnpm -w run db-migrate
 
-    - name: Run codegen
-      id: codegen
+    - name: Run models
+      id: models
       shell: bash
       run: |
         pnpm --filter='./packages/testing-e2e' run codegen || pino

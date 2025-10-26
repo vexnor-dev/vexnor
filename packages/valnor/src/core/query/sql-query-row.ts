@@ -21,7 +21,7 @@ export class SqlQueryRow {
             default:
                return new SqlColumn({
                   name: prop.toString(),
-                  table: {
+                  tableInfo: {
                      name: target.name,
                      alias: target.name,
                   },
@@ -40,7 +40,7 @@ export class SqlQueryRow {
       };
       this.$$all = new SqlColumn({
          name: "*",
-         table: {
+         tableInfo: {
             name: this.name,
             alias: this.name,
          },

@@ -9,7 +9,7 @@ import {
    LibraryOutputFile,
 } from "valnor/plugin";
 import { Pool } from "pg";
-import { findEnums, findTables, getColumnType } from "./cli/index.js";
+import { findEnums, findTables, getColumnType } from "./schema/index.js";
 import { PostgresQueryHandler } from "./postgres-query-handler.js";
 import { Params, RowOut, SqlQuery } from "valnor";
 
@@ -38,22 +38,27 @@ export class ValnorPostgres extends ValnorPlugin {
          }
 
          const { host, port, database, user, password } = args;
-         if (host && database && user) {
-            return new Pool({
-               host,
-               port,
-               user,
-               password,
-               database,
-            });
-         }
+         if (!host) throw new Error("Invalid database connection parameters: host is required");
+         if (!port) throw new Error("Invalid database connection parameters: port is required");
+         if (!user) throw new Error("Invalid database connection parameters: user is required");
+         if (!database) throw new Error("Invalid database connection parameters: database is required");
 
-         throw new Error(`Invalid database connection parameters: host, database and user are required`);
+         return new Pool({
+            host,
+            port,
+            user,
+            password,
+            database,
+         });
       });
       const tables = await findTables.pg.getAll({
          db: pool,
          params: { schemas },
-         options: {},
+         options: {
+            debug: (args) => {
+               console.log(args.text);
+            },
+         },
       });
       const enums = await findEnums.pg.getAll({ db: pool, params: { schemas } });
       logger.info(

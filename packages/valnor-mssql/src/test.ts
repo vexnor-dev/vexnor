@@ -23,12 +23,12 @@ ok(MSSQL_PORT, "MSSQL_PORT is required");
 // });
 // await pool.connect();
 //
-// const keys = await TablePrimaryKey.mssql.getAll({ db: pool.request(), params: { schemas: ["one_sql"] } });
+// const keys = await TablePrimaryKey.mssql.getAll({ db: pool.request(), params: { schemas: ["valnor_test"] } });
 // console.log(keys);
 
 const plugin = new ValnorMssql();
 const tables = await plugin.getSchema({
-   schemas: ["one_sql"],
+   schemas: ["valnor_test"],
    database: MSSQL_DATABASE,
    user: MSSQL_USER,
    password: MSSQL_PASSWORD,

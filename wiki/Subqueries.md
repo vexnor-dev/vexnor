@@ -10,7 +10,7 @@ Valnor allows you to create reusable SQL building blocks that can be composed in
 
 ```typescript
 import { sql, param } from "valnor";
-import { Users, IUsersSelect } from "./codegen/users";
+import { Users, IUsersSelect } from "./models/users";
 
 // Create a reusable subquery
 const UsersInCity = sql<IUsersSelect, { city: string }>`

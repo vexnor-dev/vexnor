@@ -1,6 +1,6 @@
 BEGIN TRANSACTION;
 
-CREATE TABLE one_sql.product
+CREATE TABLE valnor_test.product
 (
     product_id   uniqueidentifier NOT NULL DEFAULT NEWID(),
     created_at   datetimeoffset   NOT NULL DEFAULT SYSDATETIMEOFFSET(),
@@ -10,8 +10,10 @@ CREATE TABLE one_sql.product
     discount     decimal(18, 2)   NULL,
     is_available bit              NOT NULL DEFAULT 1,
     is_published bit              NOT NULL DEFAULT 0,
+    metadata     nvarchar(max),
 
-    CONSTRAINT product_pk PRIMARY KEY (product_id)
+    CONSTRAINT product_pk PRIMARY KEY (product_id),
+    CONSTRAINT product_metadata_is_json CHECK (ISJSON(metadata) > 0)
 );
 
 COMMIT;

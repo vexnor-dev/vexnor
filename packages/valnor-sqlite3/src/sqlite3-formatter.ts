@@ -1,14 +1,14 @@
-import { SqlColumnFormat, SqlFormatter, SqlQueryContext, SqlTableFormat } from "valnor";
+import { SqlColumnFormat, DefaultFormatter, SqlQueryContext, SqlTableFormat } from "valnor";
 
-export class Sqlite3Formatter extends SqlFormatter {
+export class Sqlite3Formatter extends DefaultFormatter {
    override getColumnFormat(context: SqlQueryContext): SqlColumnFormat {
       switch (context.keyword) {
          case "insert into":
-            return "column";
+            return "columnName";
          case "set":
-            return "tableName.column";
+            return "tableName.columnName";
          case "returning":
-            return "tableName.column as alias";
+            return "tableName.columnName as columnAlias";
          default:
             return super.getColumnFormat(context);
       }
@@ -18,7 +18,7 @@ export class Sqlite3Formatter extends SqlFormatter {
       switch (context.keyword) {
          case "insert into":
          case "update":
-            return "schema.table";
+            return "schema.tableName";
          default:
             return super.getTableFormat(context);
       }

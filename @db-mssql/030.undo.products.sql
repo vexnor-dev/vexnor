@@ -1,8 +1,8 @@
 BEGIN TRANSACTION;
 
-IF OBJECT_ID('one_sql.product', 'U') IS NOT NULL
+IF OBJECT_ID('valnor_test.product', 'U') IS NOT NULL
 BEGIN
-    DROP TABLE one_sql.product;
+    DROP TABLE valnor_test.product;
 END
 
 COMMIT;

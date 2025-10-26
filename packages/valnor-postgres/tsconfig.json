@@ -17,6 +17,9 @@
   "references": [
     {
       "path": "../valnor"
+    },
+    {
+      "path": "../../tests/test-utils"
     }
   ]
 }

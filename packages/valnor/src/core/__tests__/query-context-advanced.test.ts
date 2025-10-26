@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, test } from "vitest";
 import { SqlQueryContext } from "../query/index.js";
 import { DefaultTokenizer } from "../default-tokenizer.js";
-import { SqlFormatter } from "../sql-formatter.js";
+import { DefaultFormatter } from "../default-formatter.js";
 
 describe("Advanced QueryContext Engine Stress Tests", () => {
    let context!: SqlQueryContext;
@@ -10,7 +10,7 @@ describe("Advanced QueryContext Engine Stress Tests", () => {
       context = new SqlQueryContext({
          queryName: "test",
          tokenizer: new DefaultTokenizer("test"),
-         formatter: new SqlFormatter(),
+         formatter: new DefaultFormatter(),
       });
    });
 

@@ -1,9 +1,9 @@
 begin;
 
-drop table one_sql.order_item;
+drop table valnor_test.order_item;
 
-drop table one_sql.order;
+drop table valnor_test.order;
 
-drop type one_sql.order_status;
+drop type valnor_test.order_status;
 
 commit;

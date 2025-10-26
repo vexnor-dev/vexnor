@@ -19,7 +19,7 @@ import { SqlColumn, SqlTableAny } from "./schema/index.js";
  * ```
  */
 export function sql<
-   TRow extends RowOut = RowOut,
+   TRow extends RowOut = Record<string, unknown>,
    TParams extends Record<string, SqlValue> | undefined = undefined,
    TSql extends Sql = Sql | SqlTableAny | SqlColumn,
    TValue =

@@ -1,7 +1,7 @@
 begin;
 
-drop table one_sql.account;
+drop table valnor_test.account;
 
-drop type one_sql.account_status;
+drop type valnor_test.account_status;
 
 commit;

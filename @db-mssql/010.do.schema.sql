@@ -1,8 +1,8 @@
 BEGIN TRANSACTION;
 
-IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'one_sql')
+IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'valnor_test')
 BEGIN
-    EXEC('CREATE SCHEMA one_sql');
+    EXEC('CREATE SCHEMA valnor_test');
 END
 
 COMMIT;

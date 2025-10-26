@@ -1,0 +1,48 @@
+{
+  "name": "testing-e2e",
+  "version": "1.0.0",
+  "description": "e2e scenario testing with cucumber.js",
+  "type": "module",
+  "scripts": {
+    "codegen": "run-s 'codegen:*'",
+    "codegen:1-postgres": "env-cmd --no-override -x -r ../../env-dev.json -e db valnor generate --plugin valnor-postgres --schema valnor_test --pascalCaseTables --camelCaseColumns --host \\$POSTGRES_HOST --port \\$POSTGRES_PORT --database \\$POSTGRES_DATABASE --user \\$POSTGRES_USER --password \\$POSTGRES_PASSWORD --outDir 'src/codegen/postgres' | pino-pretty",
+    "codegen:2-sqlite": "valnor generate --plugin valnor-sqlite3 --schema valnor_test --pascalCaseTables --camelCaseColumns --uri '../../@db-sqlite3/valnor-test.sqlite' --outDir 'src/codegen/sqlite' | pino-pretty",
+    "codegen:3-mssql": "env-cmd --no-override -x -r ../../env-dev.json -e db valnor generate --plugin valnor-mssql --schema valnor_test --pascalCaseTables --camelCaseColumns --host \\$MSSQL_HOST --port \\$MSSQL_PORT --database \\$MSSQL_DATABASE --user \\$MSSQL_USER --password \\$MSSQL_PASSWORD --outDir 'src/codegen/mssql' | pino-pretty",
+    "postcodegen": "pnpx eslint --config ../../eslint.config.mjs ./src/codegen/**/*.ts --fix",
+    "prebuild": "run-s 'codegen'",
+    "build": "tsc -b",
+    "pretest": "run-s 'build'",
+    "test": "run-s 'test:e2e' 'test:unit'",
+    "test:e2e": "env-cmd --no-override -x -r ../../env-dev.json -e db c8 cucumber-js --publish",
+    "test:unit": "vitest run --coverage",
+    "coverage": "c8 report --reporter=html --reporter=text --reporter=lcov"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@cucumber/cucumber": "^11.3.0",
+    "@sinclair/typebox": "^0.34.36",
+    "better-sqlite3": "^12.4.1",
+    "env-cmd": "^10.1.0",
+    "mssql": "^11.0.1",
+    "pg": "^8.16.3",
+    "valnor": "workspace:^",
+    "valnor-mssql": "workspace:^",
+    "valnor-postgres": "workspace:^",
+    "valnor-sqlite3": "workspace:^"
+  },
+  "devDependencies": {
+    "@cucumber/pretty-formatter": "^1.0.1",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/mssql": "^9.1.8",
+    "@types/pg": "^8.15.5",
+    "@vitest/coverage-v8": "^1.6.0",
+    "c8": "^10.1.3",
+    "copyfiles": "^2.4.1",
+    "cucumber-html-reporter": "latest",
+    "npm-run-all": "^4.1.5",
+    "ts-node": "^10.9.2",
+    "vitest": "^1.6.0"
+  }
+}

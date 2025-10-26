@@ -5,6 +5,7 @@ export enum SqlLiteralType {
    Date = "Date",
    BigInt = "BigInt",
    Buffer = "Buffer",
+   Unknown = "unknown",
    Udt = "Udt",
 }
 

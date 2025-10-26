@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, test } from "vitest";
 import { SqlQueryContext } from "../query/index.js";
 import { SqlBuildError } from "../sql-build-error.js";
 import { DefaultTokenizer } from "../default-tokenizer.js";
-import { SqlFormatter } from "../sql-formatter.js";
+import { DefaultFormatter } from "../default-formatter.js";
 
 describe("New QueryContext Engine", () => {
    let context!: SqlQueryContext;
@@ -11,7 +11,14 @@ describe("New QueryContext Engine", () => {
       context = new SqlQueryContext({
          queryName: "test",
          tokenizer: new DefaultTokenizer("test"),
-         formatter: new SqlFormatter(),
+         formatter: new DefaultFormatter(),
+      });
+   });
+
+   describe("QueryContext alias()", () => {
+      test("alias should init with _1 suffix", () => {
+         const actual = context.alias({ name: "Account", schema: "valnor_test" });
+         expect(actual).toBe("A_1");
       });
    });
 
@@ -38,6 +45,11 @@ describe("New QueryContext Engine", () => {
       test("should return the major keyword after a CASE statement with an alias", () => {
          context.next("select case when a > 1 then 'big' end as status,");
          expect(context.keyword).toBe("select");
+      });
+
+      test("should correctly identify 'delete from' keyword", () => {
+         context.next("delete from users");
+         expect(context.keyword).toBe("delete from");
       });
    });
 

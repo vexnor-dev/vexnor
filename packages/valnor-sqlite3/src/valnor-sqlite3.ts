@@ -8,7 +8,7 @@ import {
    ValnorPlugin,
 } from "valnor/plugin";
 import Database from "better-sqlite3";
-import { findPrimaryKey, findTableColumns, findTables, getColumnType } from "./cli/index.js";
+import { findPrimaryKeys, findTableColumns, findTables, getColumnType } from "./schema/index.js";
 import { Params, RowOut, SqlQuery } from "valnor";
 import { BetterSqlite3QueryHandler } from "./better-sqlite3-query-handler.js";
 import { resolve } from "node:path";
@@ -40,11 +40,10 @@ export class ValnorSqlite3 extends ValnorPlugin {
       // Populate columns and primary keys for each table
       for (const table of tables) {
          const columns = findTableColumns.sqlite3.getAll({ db, params: { tableName: table.table_name } });
-         const primaryKeys = findPrimaryKey.sqlite3.getAll({ db, params: { tableName: table.table_name } });
-         const primaryKey = primaryKeys[0];
+         const primaryKeys = findPrimaryKeys.sqlite3.getAll({ db, params: { tableName: table.table_name } });
 
          table.table_columns = columns;
-         table.primary_key = primaryKey?.name;
+         table.primary_keys = primaryKeys.map((z) => z.name);
       }
 
       logger.info(

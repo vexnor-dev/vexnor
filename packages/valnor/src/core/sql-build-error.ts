@@ -1,9 +1,10 @@
 import { Sql } from "./sql-base.js";
 
-export type SqlBuildErrorOptions = {
+export type SqlBuildErrorOptions = Record<string, unknown> & {
    queryName?: string;
    strings?: string[];
    token?: Sql;
+   data?: Record<string, unknown>;
 };
 
 export class SqlBuildError extends Error {

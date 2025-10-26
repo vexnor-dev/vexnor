@@ -2,6 +2,7 @@ import { Params, RowOut, SqlQueryHandler, SqlRunArgs } from "valnor";
 import type { Database, RunResult } from "better-sqlite3";
 import { Sqlite3Formatter } from "./sqlite3-formatter.js";
 import { Sqlite3Tokenizer } from "./sqlite3-tokenizer.js";
+import { ok } from "assert";
 
 export class BetterSqlite3QueryHandler<T extends { Row: RowOut; Params?: Params }> extends SqlQueryHandler<{
    Row: T["Row"];
@@ -9,7 +10,7 @@ export class BetterSqlite3QueryHandler<T extends { Row: RowOut; Params?: Params 
    QueryResult: RunResult;
    QueryClient: Request;
 }> {
-   static FormatProvider = new Sqlite3Formatter();
+   static Formatter = new Sqlite3Formatter();
 
    resolveRows(): T["Row"][] {
       throw new Error("Method not supported: better-sqlite3 result doesn't include any rows");
@@ -21,7 +22,7 @@ export class BetterSqlite3QueryHandler<T extends { Row: RowOut; Params?: Params 
          // Create a new options object to inject the tokenizer
          const optionsWithTokenizer = {
             ...args.options,
-            formatProvider: BetterSqlite3QueryHandler.FormatProvider,
+            formatProvider: BetterSqlite3QueryHandler.Formatter,
             tokenizer: new Sqlite3Tokenizer(this.sqlQuery.name),
          };
 
@@ -69,5 +70,17 @@ export class BetterSqlite3QueryHandler<T extends { Row: RowOut; Params?: Params 
          console.error(err, "\n", queryConfig?.sql ?? "error building core");
          throw err;
       }
+   }
+
+   getOneOptional(args: SqlRunArgs<Database, T["Params"]>): T["Row"] | undefined {
+      const rows = this.getAll(args);
+      return rows.length > 0 ? rows[0] : undefined;
+   }
+
+   getOneRequired(args: SqlRunArgs<Database, T["Params"]>): T["Row"] {
+      const rows = this.getAll(args);
+      ok(rows.length === 1, `Expected one row, actual is ${rows.length} rows.`);
+      ok(rows[0], `The one row in result is not defined: ${rows[0]}`);
+      return rows[0];
    }
 }

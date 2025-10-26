@@ -9,13 +9,17 @@ export interface SqlColumnInfo {
    is_nullable: "YES" | "NO";
    is_updatable: "YES" | "NO";
    numeric_precision_radix?: number;
+   data_type?: string;
+   ordinal_position?: number;
+   table_schema: string;
+   table_name: string;
 }
 
 export type SqlTableInfo = {
    table_name: string;
    table_columns: SqlColumnInfo[];
    table_schema: string;
-   primary_key?: string;
+   primary_keys: string[];
 };
 
 export interface SqlEnumValue {
@@ -31,6 +35,7 @@ export type SqlEnumInfo = {
 export interface SqlColumnType {
    type: SqlLiteralType;
    udt?: string;
+   isArray?: boolean;
 }
 
 export type SqlTableInfoArgs = Omit<SqlTableInfo, "table_columns"> & { table_columns: string };

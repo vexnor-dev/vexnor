@@ -3,7 +3,7 @@ import CodeBlockWriter from "code-block-writer";
 
 export function writeTableType(writer: CodeBlockWriter.default, { table }: PrintTableArgs) {
    const { getTableName, getColumnName } = getCodegenContext();
-   const { table_name, table_columns, table_schema, primary_key } = table;
+   const { table_name, table_columns, table_schema, primary_keys } = table;
    const tableTypeName = getTableName(table_name);
    const tableTypeSelect = `I${tableTypeName}Select`;
    const tableTypeInsert = `I${tableTypeName}Insert`;
@@ -18,8 +18,8 @@ export function writeTableType(writer: CodeBlockWriter.default, { table }: Print
             .writeLine(
                `types: <{ Select: ${tableTypeSelect}, Insert: ${tableTypeInsert}, Update: ${tableTypeUpdate} }>{}, `,
             );
-         if (primary_key) {
-            writer.writeLine(`pk: "${primary_key}", `);
+         if (primary_keys) {
+            writer.writeLine(`pk: ["${primary_keys.join('","')}]", `);
          }
       })
       .write(",")

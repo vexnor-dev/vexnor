@@ -6,7 +6,7 @@ export class SqlDefault extends Sql {
       super();
    }
 
-   build(context: SqlQueryContext) {
+   $build(context: SqlQueryContext) {
       context.strings.push("DEFAULT");
    }
 }

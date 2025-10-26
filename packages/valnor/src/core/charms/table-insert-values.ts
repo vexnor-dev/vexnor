@@ -1,12 +1,17 @@
 import { SqlQueryContext } from "../query/index.js";
 import { Sql } from "../sql-base.js";
-import { SqlColumn } from "../schema/index.js";
-import { RowIn } from "../sql-types.js";
+import { RowIn, RowOut } from "../sql-types.js";
 import { SqlBuildError } from "../sql-build-error.js";
+import { SqlColumn } from "../schema/index.js";
 
-export class TableInsertValues<T extends { Insert: RowIn }> extends Sql {
+export class TableInsertValues<
+   T extends {
+      Insert: RowIn;
+      Select: RowOut;
+   },
+> extends Sql {
    constructor(
-      public readonly cols: Record<string, SqlColumn>,
+      public readonly columns: Record<keyof T["Select"], SqlColumn>,
       public readonly inserts: T["Insert"][],
    ) {
       super();
@@ -24,14 +29,14 @@ export class TableInsertValues<T extends { Insert: RowIn }> extends Sql {
          if (i !== 0) continue;
 
          for (const key of insertKeys) {
-            if (!cols[key]) {
-               throw new SqlBuildError(`Column ${key} does not exist`);
+            if (!columns[key as keyof T["Select"]]) {
+               throw new SqlBuildError(`Column ${String(key)} does not exist`);
             }
          }
       }
    }
 
-   build(context: SqlQueryContext) {
+   $build(context: SqlQueryContext) {
       const { strings, values } = context;
       strings.push("(");
       let i = 0;
@@ -41,9 +46,10 @@ export class TableInsertValues<T extends { Insert: RowIn }> extends Sql {
             strings.push(", ");
          }
 
-         const col = this.cols[key]!;
-         col.build(context);
+         const col = this.columns[key as keyof T["Select"]]!;
+         col.$build(context);
       }
+
       strings.push(")", " values ");
       for (let i = 0; i < this.inserts.length; i++) {
          const insert = this.inserts[i]!;

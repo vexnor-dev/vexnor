@@ -1,5 +1,5 @@
 import { SqlParam } from "./query/index.js";
-import { SqlFormatter } from "./sql-formatter.js";
+import { DefaultFormatter } from "./default-formatter.js";
 import { ITokenizer } from "./sql-tokenizer.js";
 
 export type RowIn = object;
@@ -17,6 +17,8 @@ export type SqlBuild = {
 };
 
 export type SqlBuildOptions = {
+   formatter?: DefaultFormatter;
+   tokenizer?: ITokenizer;
    onAddString?: (text: string) => string;
    debug?: (args: Readonly<Record<string, unknown>>) => void;
 };
@@ -26,10 +28,8 @@ export type SqlRunArgs<TDbClient, TParams> = TParams extends undefined
    : { db: TDbClient; params: TParams; options?: SqlBuildOptions };
 
 export type SqlInputArgs<TParams> = TParams extends undefined
-   ? { options?: SqlBuildOptions; config?: SqlQueryConfig }
-   : { params: TParams; options?: SqlBuildOptions; config?: SqlQueryConfig };
-
-export type SqlQueryConfig = { formatter?: SqlFormatter; tokenizer?: ITokenizer };
+   ? { options?: SqlBuildOptions }
+   : { params: TParams; options?: SqlBuildOptions };
 
 export type JsonRow<T> =
    T extends Record<string, unknown> ? { [K in keyof T]: T[K] extends Date ? string : T[K] } : never;
@@ -42,4 +42,12 @@ export function hasParams(value: unknown): value is { params: Record<string, unk
 
 export interface ISqlQueryContext {
    keyword?: string;
+}
+
+const QueryTypeValues = ["select", "update", "delete", "insert", "with", "merge"] as const;
+
+export type QueryType = (typeof QueryTypeValues)[number];
+
+export function isQueryType(value: string): value is QueryType {
+   return QueryTypeValues.includes(value as QueryType);
 }

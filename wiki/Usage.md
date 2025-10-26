@@ -22,10 +22,10 @@ valnor generate [options]
 ## Generating database mapping code with Valnor CLI
 
 ```bash
-valnor generate --cli one_sql --pascalCaseTables --camelCaseColumns --uri $POSTGRES_URI --outDir 'src/codegen'
+valnor generate --cli one_sql --pascalCaseTables --camelCaseColumns --uri $POSTGRES_URI --outDir 'src/models'
 ```
 
 Including multiple schemas:
 ```bash
-valnor generate --cli one_sql --cli two_sql --uri $POSTGRES_URI --outDir 'src/codegen'
+valnor generate --cli one_sql --cli two_sql --uri $POSTGRES_URI --outDir 'src/models'
 ```

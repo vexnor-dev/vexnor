@@ -1,17 +1,13 @@
 import { SqlColumn } from "./sql-column.js";
 import { RowIn, RowOut } from "../sql-types.js";
-import { x } from "../../x.js";
-import { SqlTable } from "./sql-table.js";
-import { randomName } from "../random.js";
+import { SqlTable, SqlTableCallable, SqlTableColumns } from "./sql-table.js";
 
-type SqlTableColumns<T> = T extends Record<string, SqlColumn | string> ? { [K in keyof T]: SqlColumn } : never;
-
-export interface NewTableOptions<TTypes> {
+export interface NewTableOptions<T extends { Select: RowOut }> {
    readonly schema?: string;
    readonly name: string;
    readonly alias?: string;
-   readonly pk?: SqlColumn | string;
-   readonly types?: TTypes;
+   readonly pk?: Array<keyof T["Select"]>;
+   readonly types?: T;
 }
 
 export function newSqlTable<
@@ -21,43 +17,14 @@ export function newSqlTable<
       Insert?: RowIn;
       Update?: RowIn;
    },
->(options: NewTableOptions<TTypes>, cols: TColumns): SqlTable<TTypes> & SqlTableColumns<TColumns> {
-   const table = {
-      name: options.name,
-      alias: options.alias ?? randomName(options.name),
-   };
-   const pk = x(() => {
-      if (!options.pk) return undefined;
-      if (typeof options.pk === "string") {
-         return new SqlColumn({ alias: options.pk, name: options.pk, table: table });
-      }
-
-      return new SqlColumn({ ...options.pk, table: table });
-   });
-   const __cols__ = x(() => {
-      const columns: Record<string, SqlColumn> = {};
-      for (const [key, value] of Object.entries(cols)) {
-         if (typeof value === "string") {
-            columns[key] = new SqlColumn({ alias: key, name: value, table: table });
-         } else if (value instanceof SqlColumn) {
-            columns[key] = new SqlColumn({
-               ...value,
-               table: table,
-               alias: key,
-            });
-         } else {
-            throw new Error(`Column ${key} must be a string or SqlColumn instance`);
-         }
-      }
-
-      return columns;
-   });
-   const result = new SqlTable<TTypes>({
+>(
+   options: NewTableOptions<TTypes>,
+   columns: TColumns,
+): SqlTable<TTypes & { Columns: TColumns }> &
+   SqlTableColumns<TColumns> &
+   SqlTableCallable<TTypes & { Columns: TColumns }> {
+   return SqlTable.newTable<TTypes & { Columns: TColumns }>({
       ...options,
-      pk,
-      alias: table.alias,
-      cols: __cols__,
+      columns,
    });
-
-   return Object.assign(result, __cols__) as SqlTable<TTypes> & SqlTableColumns<TColumns>;
 }
