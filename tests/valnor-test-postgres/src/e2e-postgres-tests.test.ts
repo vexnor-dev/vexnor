@@ -32,12 +32,13 @@ describe.sequential("valnor postgres e2e tests", () => {
       {
          const newAccountsArgs = [];
          for (let i = 0; i < ROOT_COUNT; i++) {
+            const index = String(i).padStart(3, "0");
             const id = crypto.randomUUID().slice(0, 4);
             newAccountsArgs.push({
                status: AccountStatusUdt.CREATED,
-               firstName: `John-${i}-${id} (root)`,
-               lastName: `Doe-${i}-${id} (root)`,
-               email: `john.doe.root-${i}-${id}@example.com`,
+               firstName: `John-${index}-${id} (root)`,
+               lastName: `Doe-${index}-${id} (root)`,
+               email: `john.doe.root-${index}-${id}@example.com`,
             });
          }
          const accounts = await sql<IAccountSelect>`
@@ -52,7 +53,9 @@ describe.sequential("valnor postgres e2e tests", () => {
       }
 
       for (let i = 0; i < rootAccounts.length; i++) {
+         const rootIndex = String(i).padStart(3, "0");
          for (let k = 0; k < CHILD_FACTOR; k++) {
+            const childIndex = String(k).padStart(3, "0");
             const id = crypto.randomUUID().slice(0, 4);
             const parent = rootAccounts[i];
             ok(parent);
@@ -61,9 +64,9 @@ describe.sequential("valnor postgres e2e tests", () => {
             insert into ${Account}
                ${Account.$$values({
                   status: AccountStatusUdt.CREATED,
-                  firstName: `John-${i}-${k}-${id} (child ${k})`,
-                  lastName: `Doe-${i}-${k}-${id} (child ${k})`,
-                  email: `john.doe.child-${i}-${k}-${id}@example.com`,
+                  firstName: `John-${rootIndex}-${childIndex}-${id} (child ${childIndex})`,
+                  lastName: `Doe-${rootIndex}-${childIndex}-${id} (child ${childIndex})`,
+                  email: `john.doe.child-${rootIndex}-${childIndex}-${id}@example.com`,
                   parentId: parent.accountId,
                })}
                returning ${Account.$$all}
@@ -71,9 +74,9 @@ describe.sequential("valnor postgres e2e tests", () => {
             expect(account).toEqual(
                expect.objectContaining({
                   status: AccountStatusUdt.CREATED,
-                  firstName: `John-${i}-${k}-${id} (child ${k})`,
-                  lastName: `Doe-${i}-${k}-${id} (child ${k})`,
-                  email: `john.doe.child-${i}-${k}-${id}@example.com`,
+                  firstName: `John-${rootIndex}-${childIndex}-${id} (child ${childIndex})`,
+                  lastName: `Doe-${rootIndex}-${childIndex}-${id} (child ${childIndex})`,
+                  email: `john.doe.child-${rootIndex}-${childIndex}-${id}@example.com`,
                   parentId: parent.accountId,
                }),
             );
@@ -89,19 +92,21 @@ describe.sequential("valnor postgres e2e tests", () => {
 
    test(`Fetch all ${ROOT_COUNT} root accounts`, async () => {
       const actual = await sql<IAccountSelect>`
-    select ${Account.$$all}
-    from ${Account}
-    where ${Account.accountId} in (${rootAccounts.map((z) => z.accountId)})
-`.pg.getAll({ db: pool });
+         select ${Account.$$all}
+         from ${Account}
+         where ${Account.accountId} in (${rootAccounts.map((z) => z.accountId)})
+         order by ${Account.email}
+      `.pg.getAll({ db: pool });
       expect(actual).toEqual(rootAccounts);
    });
 
    test(`Fetch all ${ROOT_COUNT * CHILD_FACTOR} children accounts`, async () => {
       const actual = await sql<IAccountSelect>`
-    select ${Account.$$all}
-    from ${Account}
-    where ${Account.accountId} in (${childAccounts.map((z) => z.accountId)})
-`.pg.getAll({ db: pool });
+         select ${Account.$$all}
+         from ${Account}
+         where ${Account.accountId} in (${childAccounts.map((z) => z.accountId)})
+         order by ${Account.email}
+      `.pg.getAll({ db: pool });
       expect(actual).toEqual(childAccounts);
    });
 
@@ -131,6 +136,8 @@ describe.sequential("valnor postgres e2e tests", () => {
                 ${Account`parent`.email`parentEmail`}
          from ${Account}
                  join ${Account`parent`} on ${Account`parent`.accountId} = ${Account.parentId}
+         where ${Account.accountId} in (${childAccounts.map((z) => z.accountId)})
+         order by ${Account.email}
       `.pg.getAll({
          db: pool,
       });
@@ -153,22 +160,16 @@ describe.sequential("valnor postgres e2e tests", () => {
          select ${Account`children`.$$all}
          from ${Account`children`}
          where ${Account`children`.parentId} = ${Account.accountId}
-         order by ${Account`children`.accountId}
+         order by ${Account`children`.email}
       `;
 
       const actual = await sql<IAccountSelect & { children: IAccountJson[] }>`
          select ${Account.$$all}, ${jsonAgg(accountChildren)} as children
          from ${Account} ${jsonAgg(accountChildren)}
-         where ${Account.parentId} is null
+         where ${Account.accountId} in (${rootAccounts.map((z) => z.accountId)})
+         order by ${Account.email}
       `.pg
-         .getAll({
-            db: pool,
-            options: {
-               debug: (data) => {
-                  console.log(data.text);
-               },
-            },
-         })
+         .getAll({ db: pool })
          .then((accounts) =>
             accounts.map((account) => ({
                ...account,
@@ -180,13 +181,21 @@ describe.sequential("valnor postgres e2e tests", () => {
             })),
          );
 
-      const expected = rootAccounts.map((rootAccount) => {
-         const children = childAccounts
-            .filter((c) => c.parentId === rootAccount.accountId)
-            .sort((a, b) => a.accountId.localeCompare(b.accountId));
+      const childrenByParentId = (() => {
+         const result = new Map<string, IAccountSelect[]>();
+         for (const child of childAccounts) {
+            ok(child.parentId);
+            if (!result.has(child.parentId)) result.set(child.parentId, []);
+            result.get(child.parentId)!.push(child);
+         }
+
+         return result;
+      })();
+
+      const expected = rootAccounts.map((account) => {
          return {
-            ...rootAccount,
-            children,
+            ...account,
+            children: childrenByParentId.get(account.accountId),
          };
       });
 

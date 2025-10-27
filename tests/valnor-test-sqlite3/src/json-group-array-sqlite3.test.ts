@@ -43,19 +43,20 @@ describe("jsonGroupArray (SQLite)", () => {
       `;
 
       expect(query.getSql({ params: { limit: 5 } }))
-         .toEqualQuery(`select "a_1"."account_id"                                         as "accountId",
-                                      "a_1"."status",
-                                      "a_1"."email",
-                                      "a_1"."first_name"                                         as "firstName",
-                                      "a_1"."last_name"                                          as "lastName",
-                                      "a_1"."notes",
-                                      "a_1"."created_at"                                         as "createdAt",
-                                      "a_1"."modified_at"                                        as "modifiedAt",
-                                      (select coalesce(json_group_array(json_object("AccountOrders".*)), '[]')
-                                       from ( /* --label: AccountOrders */ select "o_2"."order_id" as "orderId", "o_2"."status"
-                                                                          from "main"."order" as "o_2"
-                                                                          where "o_2"."account_id" = "a_1"."account_id"
-                                                                          limit ?) as "AccountOrders") as "orders"
-                               from "main"."account" as "a_1"`);
+         .toEqualQuery(`select "a_1"."account_id"                                                as "accountId",
+                               "a_1"."status",
+                               "a_1"."email",
+                               "a_1"."first_name"                                                as "firstName",
+                               "a_1"."last_name"                                                 as "lastName",
+                               "a_1"."notes",
+                               "a_1"."created_at"                                                as "createdAt",
+                               "a_1"."modified_at"                                               as "modifiedAt",
+                               "a_1"."parent_id"                                                 as "parentId",
+                               (select coalesce(json_group_array(json_object("AccountOrders".*)), '[]')
+                                from ( /* --label: AccountOrders */ select "o_2"."order_id" as "orderId", "o_2"."status"
+                                                                    from "main"."order" as "o_2"
+                                                                    where "o_2"."account_id" = "a_1"."account_id"
+                                                                    limit ?) as "AccountOrders") as "orders"
+                        from "main"."account" as "a_1"`);
    });
 });

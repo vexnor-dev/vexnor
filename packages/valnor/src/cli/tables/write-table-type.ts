@@ -19,7 +19,7 @@ export function writeTableType(writer: CodeBlockWriter.default, { table }: Print
                `types: <{ Select: ${tableTypeSelect}, Insert: ${tableTypeInsert}, Update: ${tableTypeUpdate} }>{}, `,
             );
          if (primary_keys) {
-            writer.writeLine(`pk: ["${primary_keys.join('","')}]", `);
+            writer.writeLine(`pk: ["${primary_keys.map((pk) => getColumnName(pk)).join('","')}"], `);
          }
       })
       .write(",")

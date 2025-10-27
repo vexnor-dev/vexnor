@@ -1,17 +1,18 @@
 import { beforeAll, describe, expect, test } from "vitest";
 import crypto, { randomUUID } from "node:crypto";
-import assert, { ok } from "node:assert";
+import { ok } from "node:assert";
 import { param, sql } from "valnor";
-import { Account, IAccountInsert, IAccountJson, IAccountSelect } from "./codegen/valnor_test.account-table.js";
-import { pool } from "./mssql-pool.js";
-import { jsonAgg } from "valnor-mssql";
-import "./after-all.js";
+import { jsonGroupArray } from "valnor-sqlite3";
+import { Account, IAccountInsert, IAccountJson, IAccountSelect } from "./codegen/main.account-table.js";
+import Database from "better-sqlite3";
+import { SQLITE_PATH } from "./config.js";
 
-describe.sequential("valnor mssql e2e tests", () => {
+describe.sequential("valnor sqlite3 e2e tests", () => {
    const rootAccounts: IAccountSelect[] = [];
    const childAccounts: IAccountSelect[] = [];
    const ROOT_COUNT = 100;
    const CHILD_FACTOR = 3;
+   const db = new Database(SQLITE_PATH);
 
    const findAccountById = sql<IAccountSelect, { accountId: string }>`
       select ${Account.$$all}
@@ -20,45 +21,41 @@ describe.sequential("valnor mssql e2e tests", () => {
    `;
 
    beforeAll(async () => {
-      await pool.connect();
       await sql<object>`
          delete
          from ${Account}
-      `.mssql.run({ db: pool.request() });
+         where ${Account.accountId} <> ${randomUUID()}
+      `.sqlite3.run({ db: db });
    });
 
    beforeAll(async () => {
+      // insert accounts
       {
-         const newAccountsArgs = [];
+         const newAccountsArgs: IAccountInsert[] = [];
          for (let i = 0; i < ROOT_COUNT; i++) {
-            const id = crypto.randomUUID().slice(0, 4);
             const index = String(i).padStart(3, "0");
+            const id = crypto.randomUUID().slice(0, 4);
             newAccountsArgs.push({
-               status: "CREATED",
+               accountId: randomUUID(),
+               status: "created",
                firstName: `John-${index}-${id} (root)`,
                lastName: `Doe-${index}-${id} (root)`,
                email: `john.doe.root-${index}-${id}@example.com`,
             });
          }
-         const accounts = await sql<IAccountSelect>`
+         await sql<IAccountSelect>`
             insert into ${Account}
-               ${Account.$$cols(...newAccountsArgs)}
-               output ${Account`inserted`.$$all}
-               ${Account.$$rows(...newAccountsArgs)}
-         `.mssql
-            .getAll({
-               db: pool.request(),
-               options: {
-                  debug: (data) => {
-                     console.log(data.text);
-                  },
-               },
-            })
-            .catch((err) => console.error(err));
+               ${Account.$$values(...newAccountsArgs)}
+         `.sqlite3.run({ db });
+
+         const accounts = await sql<IAccountSelect>`
+            select ${Account.$$all}
+            from ${Account}
+            where ${Account.accountId} in (${newAccountsArgs.map((z) => z.accountId)})
+         `.sqlite3.getAll({ db });
 
          ok(accounts?.length, "root accounts not inserted");
-         assert.deepEqual(accounts.length, ROOT_COUNT);
-         // expect(accounts.length).toBe(ROOT_COUNT);
+         expect(accounts.length).toBe(100);
          rootAccounts.push(...accounts);
       }
 
@@ -67,25 +64,32 @@ describe.sequential("valnor mssql e2e tests", () => {
          for (let k = 0; k < CHILD_FACTOR; k++) {
             const childIndex = String(k).padStart(3, "0");
             const id = crypto.randomUUID().slice(0, 4);
-            const parent = rootAccounts[i]!;
+            const parent = rootAccounts[i];
             ok(parent);
 
-            const accountInsert: IAccountInsert = {
-               status: "CREATED",
+            const newAccount: IAccountInsert = {
+               accountId: randomUUID(),
+               status: "created",
                firstName: `John-${rootIndex}-${childIndex}-${id} (child ${childIndex})`,
                lastName: `Doe-${rootIndex}-${childIndex}-${id} (child ${childIndex})`,
                email: `john.doe.child-${rootIndex}-${childIndex}-${id}@example.com`,
                parentId: parent.accountId,
             };
-            const account = await sql<IAccountSelect>`
+
+            await sql<IAccountSelect>`
                insert into ${Account}
-                  ${Account.$$cols(accountInsert)}
-                  output ${Account`inserted`.$$all}
-                  ${Account.$$rows(accountInsert)}
-            `.mssql.getOneRequired({ db: pool.request() });
+                  ${Account.$$values(newAccount)}
+            `.sqlite3.run({ db });
+
+            const account = await sql<IAccountSelect>`
+               select ${Account.$$all}
+               from ${Account}
+               where ${Account.accountId} = ${newAccount.accountId};
+            `.sqlite3.getOneRequired({ db });
+
             expect(account).toEqual(
                expect.objectContaining({
-                  status: "CREATED",
+                  status: "created",
                   firstName: `John-${rootIndex}-${childIndex}-${id} (child ${childIndex})`,
                   lastName: `Doe-${rootIndex}-${childIndex}-${id} (child ${childIndex})`,
                   email: `john.doe.child-${rootIndex}-${childIndex}-${id}@example.com`,
@@ -107,35 +111,33 @@ describe.sequential("valnor mssql e2e tests", () => {
          select ${Account.$$all}
          from ${Account}
          where ${Account.accountId} in (${rootAccounts.map((z) => z.accountId)})
-         order by ${Account.email}
-      `.mssql.getAll({ db: pool.request() });
-
+      `.sqlite3.getAll({ db });
       expect(actual).toEqual(rootAccounts);
    });
 
    test(`Fetch all ${ROOT_COUNT * CHILD_FACTOR} children accounts`, async () => {
       const actual = await sql<IAccountSelect>`
-    select ${Account.$$all}
-    from ${Account}
-    where ${Account.accountId} in (${childAccounts.map((z) => z.accountId)})
-    order by ${Account.email} asc
-`.mssql.getAll({ db: pool.request() });
+         select ${Account.$$all}
+         from ${Account}
+         where ${Account.accountId} in (${childAccounts.map((z) => z.accountId)})
+         order by ${Account.email}
+      `.sqlite3.getAll({ db });
       expect(actual).toEqual(childAccounts);
    });
 
    test("Fetch account required by id", async () => {
       const expected = rootAccounts[0];
       ok(expected);
-      const actual = await findAccountById.mssql.getOneRequired({
-         db: pool.request(),
+      const actual = await findAccountById.sqlite3.getOneRequired({
+         db,
          params: { accountId: expected.accountId },
       });
       expect(actual).toEqual(expected);
    });
 
    test("Fetch account optional by id", async () => {
-      const actual = await findAccountById.mssql.getOneOptional({
-         db: pool.request(),
+      const actual = await findAccountById.sqlite3.getOneOptional({
+         db,
          params: { accountId: randomUUID() },
       });
       expect(actual).toBeUndefined();
@@ -149,23 +151,21 @@ describe.sequential("valnor mssql e2e tests", () => {
                 ${Account`parent`.email`parentEmail`}
          from ${Account}
                  join ${Account`parent`} on ${Account`parent`.accountId} = ${Account.parentId}
-         where ${Account.accountId} in (${childAccounts.map((z) => z.accountId)})
-         order by ${Account.email}
-      `.mssql.getAll({
-         db: pool.request(),
+      `.sqlite3.getAll({
+         db,
       });
       expect(actual).toBeDefined();
-      const expected = childAccounts.map((child) => {
-         const parent = rootAccounts.find((parent) => parent.accountId === child.parentId);
+      const expected = childAccounts.map((z) => {
+         const parent = rootAccounts.find((p) => p.accountId === z.parentId);
          ok(parent);
          return {
-            ...child,
+            ...z,
             parentFirstName: parent.firstName,
             parentLastName: parent.lastName,
             parentEmail: parent.email,
          };
       });
-      expect(actual[0]).toEqual(expected[0]);
+      expect(actual).toEqual(expected);
    });
 
    test("Fetch root accounts and their children as json array", async () => {
@@ -173,20 +173,19 @@ describe.sequential("valnor mssql e2e tests", () => {
          select ${Account`children`.$$all}
          from ${Account`children`}
          where ${Account`children`.parentId} = ${Account.accountId}
-         order by ${Account`children`.email}
+         order by ${Account`children`.accountId}
       `;
 
-      const actual = await sql<IAccountSelect & { children: string }>`
-         select ${Account.$$all}, ${jsonAgg(accountChildren)} as children
-         from ${Account} ${jsonAgg(accountChildren)}
-         where ${Account.accountId} in (${rootAccounts.map((z) => z.accountId)})
-         order by ${Account.email}
-      `.mssql
-         .getAll({ db: pool.request() })
+      const actual = await sql<IAccountSelect & { children: IAccountJson[] }>`
+         select ${Account.$$all}, ${jsonGroupArray(accountChildren)} as children
+         from ${Account} ${jsonGroupArray(accountChildren)}
+         where ${Account.parentId} in (${rootAccounts.map((z) => z.accountId)})
+      `.sqlite3
+         .getAll({ db })
          .then((accounts) =>
             accounts.map((account) => ({
                ...account,
-               children: (JSON.parse(account.children) as IAccountJson[]).map((child) => ({
+               children: account.children.map((child) => ({
                   ...child,
                   createdAt: new Date(child.createdAt),
                   modifiedAt: new Date(child.modifiedAt),
@@ -218,26 +217,26 @@ describe.sequential("valnor mssql e2e tests", () => {
    test("Update account by id", async () => {
       const expected = rootAccounts[0];
       ok(expected);
-      const actual = await sql<IAccountSelect>`
+      await sql<IAccountSelect>`
          update ${Account}
          set ${Account.firstName} = ${expected.firstName + "+test"}
-         output ${Account`inserted`.$$all}
          where ${Account.accountId} = ${expected.accountId}
-      `.mssql.getOneRequired({ db: pool.request() });
+      `.sqlite3.run({ db });
+
+      const actual = await findAccountById.sqlite3.getOneRequired({
+         db,
+         params: { accountId: expected.accountId },
+      });
+
       expect(actual).toEqual({ ...expected, firstName: expected.firstName + "+test" });
    });
 
    test("Delete test accounts", async () => {
-      const { rowsAffected } = await sql<object>`
-         delete
-         from ${Account}
-         where ${Account.accountId} in (${childAccounts.map((z) => z.accountId)});
-
+      const { changes } = await sql<object>`
          delete
          from ${Account}
          where ${Account.accountId} in (${rootAccounts.map((z) => z.accountId)})
-      `.mssql.run({ db: pool.request() });
-
-      expect(rowsAffected[0]! + rowsAffected[1]!).toEqual(ROOT_COUNT + ROOT_COUNT * CHILD_FACTOR);
+      `.sqlite3.run({ db });
+      expect(changes).toEqual(rootAccounts.length);
    });
 });

@@ -50,7 +50,7 @@ describe("sql plugin jsonAgg() tests", () => {
                      where "o_1"."account_id" = "a_2"."account_id"
                      order by "o_1"."created_at" desc
                      offset 0 rows fetch next $limit rows only
-                     for json path
+                     for json path, include_null_values
                   ), '[]') as "AccountOrders") as "AccountOrders_result"
          `,
       );
@@ -86,7 +86,7 @@ describe("sql plugin jsonAgg() tests", () => {
                      where "o_2"."account_id" = "a_1"."account_id"
                      order by "o_2"."created_at" desc
                      offset 0 rows fetch next @param_0 rows only
-                 for json path
+                 for json path, include_null_values
                  ), '[]') as "AccountOrders") as "AccountOrders_result"
           where "a_1"."email" = @param_1
           order by "a_1"."account_id" asc`,

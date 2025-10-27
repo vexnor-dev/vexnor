@@ -1,24 +1,27 @@
 {
-  "name": "@valnor/valnor-sqlite3-test",
-  "version": "1.0.0-beta.1",
-  "description": "Integration tests for valnor",
-  "type": "module",
-  "author": "Adrian Topala",
-  "license": "Apache-2.0",
-  "scripts": {
-    "codegen": "env-cmd --no-override -x -r ../../env-dev.json -e db node ../../packages/valnor/cli.mjs generate --plugin valnor-postgres --schema valnor_test --pascalCaseTables --camelCaseColumns --host \\$POSTGRES_HOST --port \\$POSTGRES_PORT --database \\$POSTGRES_DATABASE --user \\$POSTGRES_USER --password \\$POSTGRES_PASSWORD --outDir './src/codegen' | pino-pretty",
-    "test": "vitest --coverage run",
-    "test:watch": "vitest --watch",
-    "test:run": "vitest run",
-    "build": "tsc -b"
-  },
-  "dependencies": {
-    "valnor": "workspace:*",
-    "valnor-sqlite3": "workspace:*"
-  },
-  "devDependencies": {
-    "vitest": "^3.2.4",
-    "@vitest/coverage-v8": "^3.2.4",
-    "@valnor/test-utils": "workspace:*"
-  }
+   "name": "@valnor/valnor-sqlite3-test",
+   "version": "1.0.0-beta.1",
+   "description": "Integration tests for valnor",
+   "type": "module",
+   "author": "Adrian Topala",
+   "license": "Apache-2.0",
+   "scripts": {
+      "codegen": "env-cmd --no-override -x -r ../../env-dev.json -e sqlite3 node ../../packages/valnor/cli.mjs generate --plugin valnor-sqlite3 --schema main --pascalCaseTables --camelCaseColumns --uri \\$SQLITE_PATH --outDir './src/codegen' | pino-pretty",
+      "test": "vitest --coverage run",
+      "test:watch": "vitest --watch",
+      "test:run": "vitest run",
+      "build": "tsc -b"
+   },
+   "dependencies": {
+      "@sinclair/typebox": "^0.34.41",
+      "better-sqlite3": "^12.4.1",
+      "valnor": "workspace:*",
+      "valnor-sqlite3": "workspace:*"
+   },
+   "devDependencies": {
+      "@types/better-sqlite3": "^7.6.13",
+      "@valnor/test-utils": "workspace:*",
+      "@vitest/coverage-v8": "^3.2.4",
+      "vitest": "^3.2.4"
+   }
 }
