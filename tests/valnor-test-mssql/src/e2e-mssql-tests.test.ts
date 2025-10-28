@@ -1,11 +1,10 @@
-import { beforeAll, describe, expect, test } from "vitest";
+import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import crypto, { randomUUID } from "node:crypto";
 import assert, { ok } from "node:assert";
 import { param, sql } from "valnor";
 import { Account, IAccountInsert, IAccountJson, IAccountSelect } from "./codegen/valnor_test.account-table.js";
 import { pool } from "./mssql-pool.js";
 import { jsonAgg } from "valnor-mssql";
-import "./after-all.js";
 
 describe.sequential("valnor mssql e2e tests", () => {
    const rootAccounts: IAccountSelect[] = [];
@@ -19,11 +18,16 @@ describe.sequential("valnor mssql e2e tests", () => {
       where ${Account.accountId} = ${param("accountId")}
    `;
 
+   afterAll(async () => {
+      await pool.close();
+   });
+
    beforeAll(async () => {
       await pool.connect();
       await sql<object>`
          delete
          from ${Account}
+         where ${Account.accountId} <> ${randomUUID()}
       `.mssql.run({ db: pool.request() });
    });
 

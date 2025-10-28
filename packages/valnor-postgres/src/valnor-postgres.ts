@@ -51,7 +51,7 @@ export class ValnorPostgres extends ValnorPlugin {
             database,
          });
       });
-      const tables = await findTables.pg.getAll({
+      const tables = await findTables.postgres.getAll({
          db: pool,
          params: { schemas },
          options: {
@@ -60,7 +60,7 @@ export class ValnorPostgres extends ValnorPlugin {
             },
          },
       });
-      const enums = await findEnums.pg.getAll({ db: pool, params: { schemas } });
+      const enums = await findEnums.postgres.getAll({ db: pool, params: { schemas } });
       logger.info(
          {
             postgres: x(() => {
@@ -85,11 +85,11 @@ export class ValnorPostgres extends ValnorPlugin {
 // Extend the class type (in scope)
 declare module "valnor" {
    interface SqlQuery<T extends { Row: RowOut; Params?: Params }> {
-      readonly pg: PostgresQueryHandler<T>;
+      readonly postgres: PostgresQueryHandler<T>;
    }
 }
 
-Object.defineProperty(SqlQuery.prototype, "pg", {
+Object.defineProperty(SqlQuery.prototype, "postgres", {
    get: function () {
       return new PostgresQueryHandler(this);
    },

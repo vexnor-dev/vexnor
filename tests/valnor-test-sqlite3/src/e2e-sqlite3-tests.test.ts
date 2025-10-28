@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, test } from "vitest";
+import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import crypto, { randomUUID } from "node:crypto";
 import { ok } from "node:assert";
 import { param, sql } from "valnor";
@@ -19,6 +19,10 @@ describe.sequential("valnor sqlite3 e2e tests", () => {
       from ${Account}
       where ${Account.accountId} = ${param("accountId")}
    `;
+
+   afterAll(async () => {
+      db.close();
+   });
 
    beforeAll(async () => {
       await sql<object>`
@@ -179,7 +183,7 @@ describe.sequential("valnor sqlite3 e2e tests", () => {
       const actual = await sql<IAccountSelect & { children: IAccountJson[] }>`
          select ${Account.$$all}, ${jsonGroupArray(accountChildren)} as children
          from ${Account} ${jsonGroupArray(accountChildren)}
-         where ${Account.parentId} in (${rootAccounts.map((z) => z.accountId)})
+         where ${Account.accountId} in (${rootAccounts.map((z) => z.accountId)})
       `.sqlite3
          .getAll({ db })
          .then((accounts) =>
