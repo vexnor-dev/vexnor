@@ -1,9 +1,11 @@
-import { Params, RowOut, SqlRunArgs, AsyncQueryHandler, SqlQuery } from "valnor";
+import { SqlQueryParams, SqlQueryRowOut, SqlRunArgs, AsyncQueryHandler, SqlQuery } from "valnor";
 import type { Database, RunResult } from "better-sqlite3";
 import { Sqlite3Formatter } from "./sqlite3-formatter.js";
 import { Sqlite3Tokenizer } from "./sqlite3-tokenizer.js";
 
-export class BetterSqlite3QueryHandler<T extends { Row: RowOut; Params?: Params }> extends AsyncQueryHandler<{
+export class BetterSqlite3QueryHandler<
+   T extends { Row: SqlQueryRowOut; Params?: SqlQueryParams },
+> extends AsyncQueryHandler<{
    Row: T["Row"];
    Params?: T["Params"];
    QueryResult: RunResult;
@@ -11,8 +13,8 @@ export class BetterSqlite3QueryHandler<T extends { Row: RowOut; Params?: Params 
 }> {
    static Formatter = new Sqlite3Formatter();
 
-   constructor(readonly sqlQuery: SqlQuery<{ Row: T["Row"]; Params: T["Params"] }>) {
-      super(sqlQuery);
+   constructor(readonly query: SqlQuery<{ Row: T["Row"]; Params: T["Params"] }>) {
+      super(query);
    }
 
    resolveRows(): T["Row"][] {
@@ -26,7 +28,7 @@ export class BetterSqlite3QueryHandler<T extends { Row: RowOut; Params?: Params 
          const optionsWithTokenizer = {
             ...args.options,
             formatProvider: BetterSqlite3QueryHandler.Formatter,
-            tokenizer: new Sqlite3Tokenizer(this.sqlQuery.name),
+            tokenizer: new Sqlite3Tokenizer(this.query.name),
          };
 
          const newArgs = {
@@ -35,8 +37,8 @@ export class BetterSqlite3QueryHandler<T extends { Row: RowOut; Params?: Params 
          };
 
          queryInput = {
-            sql: this.sqlQuery.getSql(newArgs),
-            values: this.sqlQuery.getValues(newArgs),
+            sql: this.query.getSql(newArgs),
+            values: this.query.getValues(newArgs),
          };
          return queryInput;
       } catch (err) {

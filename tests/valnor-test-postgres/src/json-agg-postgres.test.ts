@@ -31,7 +31,7 @@ describe("sql plugin jsonAgg() tests", () => {
       const context = new SqlQueryContext({ queryName: "test", tokenizer: new PostgresTokenizer("test") });
       context.next("from");
       jsonAgg(AccountOrders).$build(context, {});
-      expect(context.strings.join("")).toEqualQuery(
+      expect(context.text).toEqualQuery(
          `
             left join lateral (
                select coalesce(jsonb_agg("AccountOrders".*), '[]') as "AccountOrders_result"

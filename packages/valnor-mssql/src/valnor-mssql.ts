@@ -11,7 +11,7 @@ import {
 } from "valnor/plugin";
 import mssql from "mssql";
 import { MssqlQueryHandler } from "./mssql-query-handler.js";
-import { Params, RowOut, SqlQuery } from "valnor";
+import { SqlQueryParams, SqlQueryRowOut, SqlQuery } from "valnor";
 import { getColumnType } from "./get-column-type.js";
 import { findTables } from "./schema/find-tables.js";
 
@@ -100,7 +100,7 @@ export class ValnorMssql extends ValnorPlugin {
 
 // Extend the class type (in scope)
 declare module "valnor" {
-   interface SqlQuery<T extends { Row: RowOut; Params?: Params }> {
+   interface SqlQuery<T extends { Row: SqlQueryRowOut; Params?: SqlQueryParams }> {
       readonly mssql: MssqlQueryHandler<T>;
    }
 }

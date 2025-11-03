@@ -49,6 +49,19 @@ export class SqlQueryContext implements ISqlQueryContext {
       return undefined;
    }
 
+   /**
+    * The current keyword
+    */
+   *keywords(): IterableIterator<string> {
+      const stack = this.currentStack;
+      for (let i = stack.length - 1; i >= 0; i--) {
+         const keyword = stack[i]!;
+         if (MAJOR_KEYWORDS.includes(keyword)) {
+            yield keyword;
+         }
+      }
+   }
+
    private get currentStack(): string[] {
       return this.keywordStacks[this.keywordStacks.length - 1]!;
    }
@@ -132,5 +145,9 @@ export class SqlQueryContext implements ISqlQueryContext {
          strings: this.strings,
          values: this.values,
       });
+   }
+
+   get text() {
+      return this.strings.join("");
    }
 }

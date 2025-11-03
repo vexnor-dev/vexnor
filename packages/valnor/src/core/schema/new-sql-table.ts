@@ -1,8 +1,7 @@
-import { SqlColumn } from "./sql-column.js";
-import { RowIn, RowOut } from "../sql-types.js";
+import { RowIn, SqlQueryRowOut } from "../sql-types.js";
 import { SqlTable, SqlTableCallable, SqlTableColumns } from "./sql-table.js";
 
-export interface NewTableOptions<T extends { Select: RowOut }> {
+export interface NewTableOptions<T extends { Select: SqlQueryRowOut }> {
    readonly schema?: string;
    readonly name: string;
    readonly alias?: string;
@@ -11,19 +10,19 @@ export interface NewTableOptions<T extends { Select: RowOut }> {
 }
 
 export function newSqlTable<
-   TColumns extends Record<keyof TTypes["Select"], SqlColumn | string>,
-   TTypes extends {
-      Select: RowOut;
+   Columns extends Record<keyof Types["Select"], string>,
+   Types extends {
+      Select: SqlQueryRowOut;
       Insert?: RowIn;
       Update?: RowIn;
    },
 >(
-   options: NewTableOptions<TTypes>,
-   columns: TColumns,
-): SqlTable<TTypes & { Columns: TColumns }> &
-   SqlTableColumns<TColumns> &
-   SqlTableCallable<TTypes & { Columns: TColumns }> {
-   return SqlTable.newTable<TTypes & { Columns: TColumns }>({
+   options: NewTableOptions<Types>,
+   columns: Columns,
+): SqlTable<Types & { Columns: Columns }> &
+   SqlTableColumns<Types["Select"]> &
+   SqlTableCallable<Types & { Columns: Columns }> {
+   return SqlTable.newTable<Types & { Columns: Columns }>({
       ...options,
       columns,
    });

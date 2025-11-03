@@ -1,5 +1,5 @@
 import { SqlTableInfo } from "valnor/plugin";
-import { param, sql } from "valnor";
+import { param, rowType, sql } from "valnor";
 
 import { Columns, TableConstraints } from "./models.js";
 
@@ -7,10 +7,11 @@ import { Columns, TableConstraints } from "./models.js";
  * Query all tables in the given cli(s)
  * @param client
  */
-export const findTables = sql<SqlTableInfo, { schemas: string[] }>`
+export const findTables = sql`
+   ${rowType<SqlTableInfo>()}
    with cols as (select ${Columns.$$all}
                  from ${Columns}
-                 where ${Columns.table_schema} in (${param("schemas")}))
+                 where ${Columns.table_schema} in (${param.string("schemas").array()}))
    select ${Columns`cols`.table_name},
           ${Columns`cols`.table_schema},
           json_agg(${Columns`cols`} order by ${Columns`cols`.ordinal_position}) as table_columns,

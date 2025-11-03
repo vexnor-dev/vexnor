@@ -1,5 +1,4 @@
-import { newSqlTable } from "../../schema/index.js";
-import { JsonRow } from "../../sql-types.js";
+import { JsonRow, newSqlTable } from "../../schema/index.js";
 
 export const Product = newSqlTable(
    {

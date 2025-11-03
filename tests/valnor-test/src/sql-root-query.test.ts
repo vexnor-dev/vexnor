@@ -1,17 +1,18 @@
 import { describe, expect, test } from "vitest";
 import { Account, IAccountSelect, IOrderItemSelect, Order, OrderItem } from "./codegen/valnor_test.schema.js";
-import { param, sql } from "valnor";
+import { param, rowType, sql } from "valnor";
 import "@valnor/test-utils";
 import { randomUUID } from "node:crypto";
 
 describe("sql() tests", () => {
    test("sql() select", () => {
       const names = ["One", "Two", "Three"];
-      const query = sql<IAccountSelect, { names: string[]; email: string }>`
+      const query = sql`
+        ${rowType<IAccountSelect>()}
          select ${Account.firstName}, min(${Account.email}), ${Account.email`user_email`}, ${Account.createdAt}
          from ${Account}
-         where ${Account.email} = ${param("email")}
-           and ${Account.firstName} in (${param("names")})
+         where ${Account.email} = ${param.string("email")}
+           and ${Account.firstName} in (${param.array("names")})
          group by ${Account.email}`;
       expect(query.getValues({ params: { names, email: "test@example.com" } })).toEqual([
          "test@example.com",
@@ -31,7 +32,8 @@ describe("sql() tests", () => {
    });
 
    test("sql() without any values", () => {
-      const query = sql<IAccountSelect>`
+      const query = sql`
+         ${rowType<IAccountSelect>()}
          select ${Account.firstName}
          from ${Account}
          where ${Account.email} = 'bob@example.com'`;
@@ -45,7 +47,8 @@ describe("sql() tests", () => {
 
    test("sql() with value as param", () => {
       const email = "bob@example.com";
-      const query = sql<IAccountSelect>`
+      const query = sql`
+        ${rowType<IAccountSelect>()}
          select ${Account.firstName}
          from ${Account}
          where ${Account.email} = ${email}`;
@@ -58,7 +61,8 @@ describe("sql() tests", () => {
    });
 
    test("sql query with joins", () => {
-      const query = sql<IOrderItemSelect & { firstName: string; lastName: string }>`
+      const query = sql`
+        ${rowType<IOrderItemSelect>()}
          select ${OrderItem.productId},
                 ${OrderItem.orderId},
                 ${OrderItem.productPrice},
@@ -69,7 +73,8 @@ describe("sql() tests", () => {
          from ${OrderItem}
                  join ${Order} on ${OrderItem.orderId} = ${Order.orderId}
                  join ${Account} on ${Account.accountId} = ${Order.accountId}`;
-      expect(query.getSql({})).toEqualQuery(`
+
+      expect(query.getSql({ params: {} })).toEqualQuery(`
          select "oi_1"."product_id"    as "productId",
                 "oi_1"."order_id"      as "orderId",
                 "oi_1"."product_price" as "productPrice",
@@ -83,7 +88,8 @@ describe("sql() tests", () => {
    });
 
    test("sql query with self-join and explicit alias", () => {
-      const query = sql<IAccountSelect & { parentEmail: string }>`
+      const query = sql`
+        ${rowType<IAccountSelect & { parentEmail: string }>()}
          select ${Account.email},
                 ${Account`parent`.email`parentEmail`}
          from ${Account}
@@ -97,7 +103,7 @@ describe("sql() tests", () => {
    });
 
    test("sql() insert statement should not have an alias on the target table", () => {
-      const query = sql<object>`
+      const query = sql`
          insert into ${Account} (${Account.email}, ${Account.firstName})
          values ('test@example.com', 'Test')`;
 
@@ -109,7 +115,7 @@ describe("sql() tests", () => {
    });
 
    test("sql() update statement should not have an alias on the target table or its columns", () => {
-      const query = sql<object>`
+      const query = sql`
          update ${Account}
          set ${Account.firstName} = 'Bob'
          where ${Account.accountId} = '123'`;
@@ -124,7 +130,7 @@ describe("sql() tests", () => {
 
    test("sql() complex update statement with join should use aliases", () => {
       // This pattern is common in T-SQL. The target table is aliased in the FROM clause.
-      const query = sql<object>`
+      const query = sql`
          update ${Account}
          set ${Account.firstName} = 'Staged Name'
          from ${Account}
@@ -142,7 +148,7 @@ describe("sql() tests", () => {
 
    test("sql delete from", () => {
       const noid = randomUUID();
-      const query = sql<object>`
+      const query = sql`
          delete
          from ${Account}
          where ${Account.accountId} <> ${noid}`;

@@ -1,6 +1,6 @@
-import { hasParams, Params, RowOut, SqlBuild, SqlBuildOptions, SqlInputArgs } from "../sql-types.js";
+import { hasParams, SqlQueryParams, SqlQueryRowOut, SqlBuild, SqlBuildOptions, SqlInputArgs } from "../sql-types.js";
 import { newSqlQueryRow, SqlQueryRow } from "./sql-query-row.js";
-import { SqlColumn, SqlTable } from "../schema/index.js";
+import { SqlColumnAny, SqlTable } from "../schema/index.js";
 import { x } from "../../x.js";
 import { ok } from "assert";
 import { SqlParam } from "./sql-param.js";
@@ -16,9 +16,9 @@ export const WILDCARD = "?";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlQueryAny = SqlQuery<any>;
 
-export class SqlQuery<T extends { Row: RowOut; Params?: Params }> extends Sql {
+export class SqlQuery<T extends { Row: SqlQueryRowOut; Params?: SqlQueryParams }> extends Sql {
    readonly name: string;
-   readonly ROW: SqlQueryRow & Record<keyof T["Row"], SqlColumn>;
+   readonly ROW: SqlQueryRow & Record<keyof T["Row"], SqlColumnAny>;
    private __buildCache__?: SqlBuild = undefined;
 
    constructor(

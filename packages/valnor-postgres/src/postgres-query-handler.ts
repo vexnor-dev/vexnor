@@ -1,4 +1,4 @@
-import { AsyncQueryHandler, Params, RowOut, SqlQuery, SqlRunArgs } from "valnor";
+import { AsyncQueryHandler, SqlQueryParams, SqlQueryRowOut, SqlQuery, SqlRunArgs } from "valnor";
 import type { QueryResult } from "pg";
 import { PostgresTokenizer } from "./postgres-tokenizer.js";
 
@@ -6,14 +6,16 @@ export type PostgresClient = {
    query: (queryConfig: { text: string; values: unknown[] }) => Promise<QueryResult>;
 };
 
-export class PostgresQueryHandler<T extends { Row: RowOut; Params?: Params }> extends AsyncQueryHandler<{
+export class PostgresQueryHandler<
+   T extends { Row: SqlQueryRowOut; Params?: SqlQueryParams },
+> extends AsyncQueryHandler<{
    Row: T["Row"];
    Params: T["Params"];
    QueryResult: QueryResult<T["Row"]>;
    QueryClient: PostgresClient;
 }> {
-   constructor(readonly sqlQuery: SqlQuery<T>) {
-      super(sqlQuery);
+   constructor(readonly query: SqlQuery<T>) {
+      super(query);
    }
 
    getOptions(args: SqlRunArgs<PostgresClient, T["Params"]>) {
@@ -23,13 +25,13 @@ export class PostgresQueryHandler<T extends { Row: RowOut; Params?: Params }> ex
             ...args,
             options: {
                ...args.options,
-               tokenizer: new PostgresTokenizer(this.sqlQuery.name),
+               tokenizer: new PostgresTokenizer(this.query.name),
             },
          };
 
          queryInput = {
-            text: this.sqlQuery.getText(newArgs, (index) => `$${index + 1}`),
-            values: this.sqlQuery.getValues(newArgs),
+            text: this.query.getText(newArgs, (index) => `$${index + 1}`),
+            values: this.query.getValues(newArgs),
          };
          return queryInput;
       } catch (err) {

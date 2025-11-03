@@ -1,16 +1,16 @@
 import { Sql } from "../sql-base.js";
 import { SqlQueryContext } from "../query/index.js";
-import { RowIn, RowOut } from "../sql-types.js";
-import { SqlColumn } from "../schema/index.js";
+import { RowIn, SqlQueryRowOut } from "../sql-types.js";
+import { SqlColumnAny } from "../schema/index.js";
 
 export class TableInsertRows<
    T extends {
       Insert: RowIn;
-      Select: RowOut;
+      Select: SqlQueryRowOut;
    },
 > extends Sql {
    constructor(
-      public readonly columns: Record<keyof T["Select"], SqlColumn>,
+      public readonly columns: Record<keyof T["Select"], SqlColumnAny>,
       public readonly inserts: T["Insert"][],
    ) {
       super();

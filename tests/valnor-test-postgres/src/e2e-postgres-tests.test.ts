@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import crypto, { randomUUID } from "node:crypto";
 import { ok } from "node:assert";
-import { param, sql } from "valnor";
+import { param, row, rowType, sql } from "valnor";
 import { Account, IAccountJson, IAccountSelect } from "./codegen/valnor_test.account-table.js";
 import { AccountStatusUdt } from "./codegen/valnor_test-enums.js";
 import { pool } from "./postgres-pool.js";
@@ -13,10 +13,10 @@ describe.sequential("valnor postgres e2e tests", () => {
    const ROOT_COUNT = 100;
    const CHILD_FACTOR = 3;
 
-   const findAccountById = sql<IAccountSelect, { accountId: string }>`
-      select ${Account.$$all}
+   const findAccountById = sql`
+         select ${row(Account.$$all)}
       from ${Account}
-      where ${Account.accountId} = ${param("accountId")}
+      where ${Account.accountId} = ${param.string("accountId")}
    `;
 
    afterAll(async () => {
@@ -24,7 +24,7 @@ describe.sequential("valnor postgres e2e tests", () => {
    });
 
    beforeAll(async () => {
-      await sql<object>`
+      await sql`
          delete
          from ${Account}
          where ${Account.accountId} <> ${randomUUID()}
@@ -45,10 +45,10 @@ describe.sequential("valnor postgres e2e tests", () => {
                email: `john.doe.root-${index}-${id}@example.com`,
             });
          }
-         const accounts = await sql<IAccountSelect>`
+         const accounts = await sql`
             insert into ${Account}
                ${Account.$$values(...newAccountsArgs)}
-               returning ${Account.$$all}
+               returning ${row(Account.$$all)}
          `.postgres.getAll({ db: pool });
 
          ok(accounts?.length, "root accounts not inserted");
@@ -64,7 +64,8 @@ describe.sequential("valnor postgres e2e tests", () => {
             const parent = rootAccounts[i];
             ok(parent);
 
-            const account = await sql<IAccountSelect>`
+            const account = await sql`
+            ${rowType<IAccountSelect>()}
             insert into ${Account}
                ${Account.$$values({
                   status: AccountStatusUdt.CREATED,
@@ -95,7 +96,8 @@ describe.sequential("valnor postgres e2e tests", () => {
    });
 
    test(`Fetch all ${ROOT_COUNT} root accounts`, async () => {
-      const actual = await sql<IAccountSelect>`
+      const actual = await sql`
+         ${rowType<IAccountSelect>()}
          select ${Account.$$all}
          from ${Account}
          where ${Account.accountId} in (${rootAccounts.map((z) => z.accountId)})
@@ -105,7 +107,8 @@ describe.sequential("valnor postgres e2e tests", () => {
    });
 
    test(`Fetch all ${ROOT_COUNT * CHILD_FACTOR} children accounts`, async () => {
-      const actual = await sql<IAccountSelect>`
+      const actual = await sql`
+        ${rowType<IAccountSelect>()}
          select ${Account.$$all}
          from ${Account}
          where ${Account.accountId} in (${childAccounts.map((z) => z.accountId)})
@@ -133,7 +136,8 @@ describe.sequential("valnor postgres e2e tests", () => {
    });
 
    test("Self join account: fetch accounts with parent info (firstName, lastName, email)", async () => {
-      const actual = await sql<IAccountSelect>`
+      const actual = await sql`
+        ${rowType<IAccountSelect>()}
          select ${Account.$$all},
                 ${Account`parent`.firstName`parentFirstName`},
                 ${Account`parent`.lastName`parentLastName`},
@@ -160,14 +164,16 @@ describe.sequential("valnor postgres e2e tests", () => {
    });
 
    test("Fetch root accounts and their children as json array", async () => {
-      const accountChildren = sql<IAccountSelect>`
+      const accountChildren = sql`
+        ${rowType<IAccountSelect>()}
          select ${Account`children`.$$all}
          from ${Account`children`}
          where ${Account`children`.parentId} = ${Account.accountId}
          order by ${Account`children`.email}
       `;
 
-      const actual = await sql<IAccountSelect & { children: IAccountJson[] }>`
+      const actual = await sql`
+         ${rowType<IAccountSelect & { children: IAccountJson[] }>()}
          select ${Account.$$all}, ${jsonAgg(accountChildren)} as children
          from ${Account} ${jsonAgg(accountChildren)}
          where ${Account.accountId} in (${rootAccounts.map((z) => z.accountId)})
@@ -209,7 +215,8 @@ describe.sequential("valnor postgres e2e tests", () => {
    test("Update account by id", async () => {
       const expected = rootAccounts[0];
       ok(expected);
-      const actual = await sql<IAccountSelect>`
+      const actual = await sql`
+            ${rowType<IAccountSelect>()}
          update ${Account}
          set ${Account.firstName} = ${expected.firstName + "+test"}
          where ${Account.accountId} = ${expected.accountId}
@@ -219,7 +226,7 @@ describe.sequential("valnor postgres e2e tests", () => {
    });
 
    test("Delete test accounts", async () => {
-      const { rowCount } = await sql<object>`
+      const { rowCount } = await sql`
          delete
          from ${Account}
          where ${Account.accountId} in (${rootAccounts.map((z) => z.accountId)})

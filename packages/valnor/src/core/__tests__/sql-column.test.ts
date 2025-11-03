@@ -6,7 +6,7 @@ describe("SqlTable tests", () => {
       const actual = Account.firstName`parentFirstName`;
       console.log(actual);
       expect(actual.name).toEqual("first_name");
-      expect(actual.alias).toEqual("parentFirstName");
+      expect(actual.key).toEqual("parentFirstName");
       expect(actual.tableInfo).toEqual({
          schema: "valnor_test",
          name: "account",
@@ -23,6 +23,6 @@ describe("SqlTable tests", () => {
          alias: "parent",
       });
       expect(actual.name).toEqual("first_name");
-      expect(actual.alias).toEqual("parentFirstName");
+      expect(actual.key).toEqual("parentFirstName");
    });
 });

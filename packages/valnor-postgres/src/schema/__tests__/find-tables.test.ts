@@ -4,9 +4,7 @@ import "@valnor/test-utils";
 
 describe("Find Tables tests", () => {
    test("Find Tables query should match expected SQL", () => {
-      const query = findTables.getSql({
-         params: { schemas: ["public"] },
-      });
+      const query = findTables.getSql({ params: { schemas: ["public"] } });
 
       expect(query).toEqualQuery(`
          with cols as (select "c_1"."table_name",

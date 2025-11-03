@@ -20,6 +20,7 @@ export const MAJOR_KEYWORDS: string[] = [
    "fn",
    "over",
    "output",
+   "exists",
 ].sort((a, b) => b.length - a.length); // Sort is essential for the tokenizer
 
 export const SUBQUERY_STARTERS: string[] = ["from", "join", "in"];

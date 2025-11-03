@@ -4,6 +4,9 @@ export const PgType = newSqlTable(
    {
       schema: "pg_catalog",
       name: "pg_type",
+      types: <
+         { Select: { oid: number; typname: string; typcategory: string; typnamespace: number; typelem: number } }
+      >{},
    },
    {
       oid: "oid",
@@ -18,6 +21,7 @@ export const PgEnum = newSqlTable(
    {
       name: "pg_enum",
       schema: "pg_catalog",
+      types: <{ Select: { oid: number; enumtypid: number; enumlabel: string; enumsortorder: number } }>{},
    },
    {
       oid: "oid",
@@ -30,6 +34,7 @@ export const PgEnum = newSqlTable(
 export const EnumValues = newSqlTable(
    {
       name: "enum_values",
+      types: <{ Select: { enumtypid: number; enumlabel: string; enumsortorder: number } }>{},
    },
    {
       enumtypid: "enumtypid",
@@ -42,6 +47,7 @@ export const PgNamespace = newSqlTable(
    {
       name: "pg_namespace",
       schema: "pg_catalog",
+      types: <{ Select: { oid: number; nspname: string } }>{},
    },
    {
       oid: "oid",
@@ -53,6 +59,7 @@ export const Columns = newSqlTable(
    {
       name: "columns",
       schema: "information_schema",
+      types: <{ Select: IColumnsSelect }>{},
    },
    {
       table_name: "table_name",
@@ -81,10 +88,38 @@ export const Columns = newSqlTable(
    },
 );
 
+export type IColumnsSelect = {
+   readonly table_name: string;
+   readonly table_schema: string;
+   readonly column_name: string;
+   readonly data_type: string;
+   readonly is_nullable: string;
+   readonly column_default: string | null;
+   readonly character_maximum_length: number | null;
+   readonly numeric_precision: number | null;
+   readonly numeric_scale: number | null;
+   readonly is_identity: string;
+   readonly identity_generation: string | null;
+   readonly identity_start: number | null;
+   readonly identity_increment: number | null;
+   readonly identity_maximum: number | null;
+   readonly identity_minimum: number | null;
+   readonly identity_cycle: string;
+   readonly is_generated: string;
+   readonly generation_expression: string | null;
+   readonly is_updatable: string;
+   // readonly is_unique: string;
+   // readonly is_primary_key: string;
+   readonly ordinal_position: number;
+};
+
 export const TableConstraints = newSqlTable(
    {
       name: "table_constraints",
       schema: "information_schema",
+      types: <
+         { Select: { constraint_name: string; table_name: string; table_schema: string; constraint_type: string } }
+      >{},
    },
    {
       constraint_name: "constraint_name",

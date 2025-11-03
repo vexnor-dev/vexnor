@@ -1,19 +1,13 @@
-import { RowOut, Sql, SqlColumn, SqlParams, SqlQuery, SqlTableAny, SqlValue } from "valnor";
+import { InferParamsFromQueryTokens, InferRowFromQueryTokens, SqlQuery, SqlQueryToken } from "valnor";
 import { PostgresQueryHandler } from "./postgres-query-handler.js";
 
-export function sql<
-   TRow extends RowOut = Record<string, unknown>,
-   TParams extends Record<string, SqlValue> | undefined = undefined,
-   TSql extends Sql = Sql | SqlTableAny | SqlColumn,
-   TValue =
-      | SqlValue
-      | TSql
-      | TSql[]
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      | SqlQuery<{ Row: any; Params: Partial<TParams>; QueryResult: object }>
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      | SqlQuery<{ Row: any; Params: Partial<TParams>; QueryResult: object }>[]
-      | SqlParams<TParams>,
->(strings: TemplateStringsArray, ...values: TValue[]): PostgresQueryHandler<{ Row: TRow; Params: TParams }> {
-   return new PostgresQueryHandler(new SqlQuery(strings, values));
+export function sql<Token extends SqlQueryToken = SqlQueryToken, Tokens extends Token[] = Token[]>(
+   strings: TemplateStringsArray,
+   ...values: Tokens[]
+) {
+   const query = new SqlQuery<{
+      Row: InferRowFromQueryTokens<typeof values>;
+      Params: InferParamsFromQueryTokens<typeof values>;
+   }>(strings, values);
+   return new PostgresQueryHandler(query);
 }

@@ -1,53 +1,73 @@
-import { SqlColumn, SqlColumnCallable } from "./sql-column.js";
+import { SqlColumn, SqlColumnAny, SqlColumnCallable } from "./sql-column.js";
 import { SqlQueryContext } from "../query/index.js";
 import { Sql } from "../sql-base.js";
 import { ok } from "assert";
 import { TableInsertCols, TableInsertRows, TableInsertValues, TableUpdateSet } from "../charms/index.js";
-import { RowIn, RowOut } from "../sql-types.js";
+import { RowIn, SqlQueryRowOut, SqlColumnType } from "../sql-types.js";
 import { SqlTableFormat } from "../default-formatter.js";
+import { SqlSelectAll } from "./sql-select-all.js";
 
 export interface SqlTableOptions<
    T extends {
-      Select: RowOut;
+      Select: SqlQueryRowOut;
    },
 > {
    readonly schema?: string;
    readonly name: string;
    readonly alias?: string;
-   readonly columns: Record<keyof T["Select"], SqlColumn | string>;
+   readonly columns: Record<keyof T["Select"], string>;
    readonly format?: SqlTableFormat;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlTableAny = SqlTable<any>;
 
-export type SqlTableColumns<T> =
-   T extends Record<string, SqlColumn | string> ? { [K in keyof T]: SqlColumn & SqlColumnCallable } : never;
+export type SqlTableColumns<Select> =
+   Select extends Record<string, unknown>
+      ? {
+           [K in keyof Select as Select[K] extends SqlColumnType
+              ? K extends string
+                 ? K
+                 : never
+              : never]: K extends string
+              ? SqlColumn<{
+                   Key: K;
+                   Type: Select[K];
+                }> &
+                   SqlColumnCallable<{
+                      Key: K;
+                      Type: Select[K];
+                   }>
+              : never;
+        }
+      : never;
 
 export interface SqlTableCallable<
    T extends {
-      Select: RowOut;
+      Select: SqlQueryRowOut;
       Insert?: RowIn;
       Update?: RowIn;
-      Columns: Record<keyof T["Select"], SqlColumn | string>;
    },
 > {
-   (strings: TemplateStringsArray): SqlTable<T> & SqlTableColumns<T["Columns"]>;
+   (strings: TemplateStringsArray): SqlTable<T> & SqlTableColumns<T["Select"]>;
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type SqlTableCallableAny = SqlTableCallable<any>;
 
 export class SqlTable<
    T extends {
-      Select: RowOut;
+      Select: SqlQueryRowOut;
       Insert?: RowIn;
       Update?: RowIn;
-      Columns: Record<keyof T["Select"], SqlColumn | string>;
    },
 > extends Sql {
-   readonly $columnsByAlias: Record<keyof T["Select"], SqlColumn & SqlColumnCallable>;
+   readonly $columnsByKey: SqlTableColumns<T["Select"]>;
+   #$$all: SqlSelectAll<T["Select"]> | undefined;
 
    private constructor(public readonly $$: SqlTableOptions<T>) {
       super();
-      const columns = {} as Record<keyof T["Select"], SqlColumn & SqlColumnCallable>;
+      const columns: Record<string, SqlColumnAny> = {};
 
       const table = {
          schema: $$.schema,
@@ -55,25 +75,26 @@ export class SqlTable<
          alias: $$.alias,
       };
 
-      for (const [key, value] of Object.entries($$.columns)) {
+      for (const key of Object.keys($$.columns)) {
+         const value = $$.columns[key as keyof T["Select"]];
          if (typeof value === "string") {
-            columns[key as keyof T["Select"]] = SqlColumn.newColumn({ alias: key, name: value, tableInfo: table });
-         } else if (value instanceof SqlColumn) {
-            columns[key as keyof T["Select"]] = SqlColumn.newColumn({
-               ...value,
-               tableInfo: table,
-               alias: key,
-            });
+            columns[key] = SqlColumn.newColumn({ key: key, name: value, tableInfo: table });
          } else {
             throw new Error(`Column ${$$.schema}.${$$.name} ${key} must be a string or SqlColumn instance`);
          }
       }
 
-      this.$columnsByAlias = columns;
+      this.$columnsByKey = columns as SqlTableColumns<T["Select"]>;
    }
 
-   get $$all(): SqlColumn[] {
-      return Object.values(this.$columnsByAlias);
+   get $$all(): SqlSelectAll<T["Select"]> {
+      return (
+         this.#$$all ??
+         (() => {
+            this.#$$all = new SqlSelectAll<T["Select"]>(Object.values(this.$columnsByKey));
+            return this.#$$all;
+         })()
+      );
    }
 
    get [Symbol.toStringTag]() {
@@ -91,16 +112,15 @@ export class SqlTable<
 
    static newTable<
       T extends {
-         Select: RowOut;
+         Select: SqlQueryRowOut;
          Insert?: RowIn;
          Update?: RowIn;
-         Columns: Record<keyof T["Select"], SqlColumn | string>;
       },
-   >(options: SqlTableOptions<T>): SqlTable<T> & SqlTableColumns<T["Columns"]> & SqlTableCallable<T> {
+   >(options: SqlTableOptions<T>): SqlTable<T> & SqlTableColumns<T["Select"]> & SqlTableCallable<T> {
       const fn = () => {};
       const table = new SqlTable(options);
       return new Proxy(fn, SqlTable.ProxyHandler(table)) as unknown as SqlTable<T> &
-         SqlTableColumns<T["Columns"]> &
+         SqlTableColumns<T["Select"]> &
          SqlTableCallable<T>;
    }
 
@@ -115,8 +135,8 @@ export class SqlTable<
             });
          },
          get: (_target, prop) => {
-            if (typeof prop === "string" && prop in table.$columnsByAlias) {
-               return table.$columnsByAlias[prop];
+            if (typeof prop === "string" && prop in table.$columnsByKey) {
+               return table.$columnsByKey[prop];
             }
 
             // Forward all property access to the underlying SqlTable instance.
@@ -125,11 +145,11 @@ export class SqlTable<
       };
    }
 
-   $$column(key: string): SqlColumn {
-      const result = this.$columnsByAlias[key as keyof T["Select"]];
+   $$column(key: string): SqlColumnAny {
+      const result = this.$columnsByKey[key as keyof T["Select"]];
       if (!result) throw new Error(`Column not found: ${this.$$.name}.${String(key)}`);
 
-      return result;
+      return result as unknown as SqlColumnAny;
    }
 
    /**
@@ -139,7 +159,7 @@ export class SqlTable<
    $$set<U extends T["Update"]>(update: U): T["Update"] extends undefined ? never : Sql {
       ok(update, `Update is required`);
       ok(Object.keys(update), `Update doesn't have any values`);
-      return new TableUpdateSet(this.$columnsByAlias, update) as unknown as T["Update"] extends undefined ? never : Sql;
+      return new TableUpdateSet(this.$columnsByKey, update) as unknown as T["Update"] extends undefined ? never : Sql;
    }
 
    /**
@@ -148,9 +168,7 @@ export class SqlTable<
     */
    $$values(...inserts: T["Insert"][]): T["Insert"] extends undefined ? never : Sql {
       ok(insertsAreValid(inserts), `Invalid inserts`);
-      return new TableInsertValues(this.$columnsByAlias, inserts) as never as T["Insert"] extends undefined
-         ? never
-         : Sql;
+      return new TableInsertValues(this.$columnsByKey, inserts) as never as T["Insert"] extends undefined ? never : Sql;
    }
 
    /**
@@ -159,7 +177,7 @@ export class SqlTable<
     */
    $$cols(...inserts: T["Insert"][]): T["Insert"] extends undefined ? never : Sql {
       ok(insertsAreValid(inserts), `Invalid inserts`);
-      return new TableInsertCols(this.$columnsByAlias, inserts) as never as T["Insert"] extends undefined ? never : Sql;
+      return new TableInsertCols(this.$columnsByKey, inserts) as never as T["Insert"] extends undefined ? never : Sql;
    }
 
    /**
@@ -168,7 +186,7 @@ export class SqlTable<
     */
    $$rows(...inserts: T["Insert"][]): T["Insert"] extends undefined ? never : Sql {
       ok(insertsAreValid(inserts), `Invalid inserts`);
-      return new TableInsertRows(this.$columnsByAlias, inserts) as never as T["Insert"] extends undefined ? never : Sql;
+      return new TableInsertRows(this.$columnsByKey, inserts) as never as T["Insert"] extends undefined ? never : Sql;
    }
 
    $build(context: SqlQueryContext) {

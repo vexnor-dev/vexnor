@@ -1,60 +1,113 @@
 import { SqlQueryContext } from "../query/index.js";
 import { Sql } from "../sql-base.js";
-import { SqlBuildOptions } from "../sql-types.js";
+import { SqlBuildOptions, SqlColumnType } from "../sql-types.js";
 import { SqlColumnFormat } from "../default-formatter.js";
 
-export interface SqlColumnOptions {
+type Whitespace = " " | "\n" | "\t" | "\r";
+type TrimKey<Key extends string> = Key extends `${Whitespace}${infer Rest}`
+   ? TrimKey<Rest>
+   : Key extends `${infer Rest}${Whitespace}`
+     ? TrimKey<Rest>
+     : Key;
+
+export interface SqlColumnOptions<
+   T extends {
+      Key: string;
+      Type: unknown;
+   },
+> {
    readonly name: string;
+   readonly key: T["Key"];
    readonly tableInfo: { schema?: string; name: string; alias?: string };
-   readonly alias?: string;
    readonly format?: SqlColumnFormat;
 }
 
-export interface SqlColumnCallable {
-   (strings: TemplateStringsArray): SqlColumn;
+// eslint-disable-next-line unused-imports/no-unused-vars
+type KeyStringsArray<Key extends string> = TemplateStringsArray;
+
+export interface SqlColumnCallable<
+   T extends {
+      Key: string;
+      Type: unknown;
+   },
+> {
+   <Key extends string>(key: ReadonlyArray<Key> | Key): SqlColumn<{ Type: T["Type"]; Key: Key }>;
 }
 
-export class SqlColumn extends Sql {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type SqlColumnAny = SqlColumn<any>;
+
+export class SqlColumn<
+   T extends {
+      Key: string;
+      Type: unknown;
+   },
+> extends Sql {
    readonly name: string;
+   readonly key: T["Key"];
    readonly tableInfo: { schema?: string; name: string; alias?: string };
-   readonly alias?: string = undefined;
+
    readonly format?: SqlColumnFormat = undefined;
 
-   constructor(options: SqlColumnOptions) {
+   constructor(options: SqlColumnOptions<T>) {
       super();
       this.name = options.name;
+      this.key = options.key;
       this.tableInfo = options.tableInfo;
-      this.alias = options.alias;
       this.format = options.format;
    }
 
    get [Symbol.toStringTag]() {
       const tokens = ["SqlColumn", "(", this.tableInfo, ".", this.name];
-      if (this.alias) {
-         tokens.push(" as ", `${this.alias}`);
+      if (this.key) {
+         tokens.push(" as ", `${this.key}`);
       }
       tokens.push(")");
       return tokens.join("");
    }
 
-   static newColumn(options: SqlColumnOptions): SqlColumn & SqlColumnCallable {
-      const fn = () => {};
+   static newColumn<
+      T extends {
+         Key: string;
+         Type: SqlColumnType;
+      },
+   >(options: SqlColumnOptions<T>): SqlColumn<T> & SqlColumnCallable<T> {
       const column = new SqlColumn(options);
-      return new Proxy(fn, SqlColumn.ProxyHandler(column)) as unknown as SqlColumn & SqlColumnCallable;
+      const callable = (<Key extends string>(
+         strings: TemplateStringsArray & { readonly 0: Key; readonly length: 1 },
+      ) => {
+         switch (true) {
+            case Array.isArray(strings) && strings.length !== 1:
+               throw new Error("Template alias is expected to be a single literal with no interpolations");
+            case typeof strings === "string" && !strings:
+               throw new Error("Template alias is not allowed to be empty");
+         }
+
+         const [rawAlias] = strings;
+         const alias = rawAlias.trim();
+
+         if (!alias) {
+            throw new Error("Column alias cannot be empty");
+         }
+
+         return SqlColumn.newColumn<{ Key: TrimKey<Key>; Type: T["Type"] }>({
+            name: column.name,
+            tableInfo: column.tableInfo,
+            format: column.format,
+            key: alias as TrimKey<Key>,
+         });
+      }) as SqlColumnCallable<T>;
+
+      return new Proxy(callable, SqlColumn.ProxyHandler(column)) as unknown as SqlColumn<T> & SqlColumnCallable<T>;
    }
 
-   static ProxyHandler(column: SqlColumn): ProxyHandler<() => void> {
+   static ProxyHandler<
+      T extends {
+         Key: string;
+         Type: SqlColumnType;
+      },
+   >(column: SqlColumn<T>): ProxyHandler<SqlColumnCallable<T>> {
       return {
-         apply: (_target, _thisArg, args: [TemplateStringsArray]) => {
-            const alias = args[0]![0]!.trim();
-            // 1. Create the new aliased instance using the existing $$as method.
-            return SqlColumn.newColumn({
-               name: column.name,
-               tableInfo: column.tableInfo,
-               format: column.format,
-               alias,
-            });
-         },
          get: (_target, prop) => {
             // Forward all property access to the underlying SqlTable instance.
             return Reflect.get(column, prop);
@@ -62,13 +115,23 @@ export class SqlColumn extends Sql {
       };
    }
 
+   as<Key extends string>(key: Key): SqlColumn<{ Key: Key; Type: T["Type"] }> {
+      return new SqlColumn({
+         name: this.name,
+         key,
+         tableInfo: this.tableInfo,
+         format: this.format,
+      });
+   }
+
    /**
     * Format the SQL Column using the given format
     * @param format
     */
-   $$fmt(format: SqlColumnFormat): SqlColumn {
+   $$fmt(format: SqlColumnFormat): SqlColumn<T> {
       return new SqlColumn({
          name: this.name,
+         key: this.key,
          tableInfo: this.tableInfo,
          format,
       });
@@ -82,7 +145,7 @@ export class SqlColumn extends Sql {
        * Used for controlling quoting for column names
        * @param text
        */
-      function q<T extends string | string[]>(text: T) {
+      function q<U extends string | string[]>(text: U) {
          function __q__(text: string) {
             return text === "*" ? text : `"${text}"`;
          }
@@ -106,11 +169,11 @@ export class SqlColumn extends Sql {
       const format = this.format ?? context.formatter.getColumnFormat(context);
       switch (format) {
          case "tableName.columnName as columnAlias": {
-            if (this.alias === this.name || !this.alias) {
+            if (this.key === this.name || !this.key) {
                push(`${q(this.tableInfo.name)}.${q(this.name)}`);
                break;
             }
-            push(`${q(this.tableInfo.name)}.${q(this.name)} as ${q(this.alias)}`);
+            push(`${q(this.tableInfo.name)}.${q(this.name)} as ${q(this.key)}`);
             break;
          }
          case "tableName.columnName":
@@ -118,18 +181,18 @@ export class SqlColumn extends Sql {
          case "columnName":
             return push(`${q(this.name)}`);
          case "tableName.columnAlias":
-            return push(`${q(this.tableInfo.name)}.${q(this.alias ?? this.name)}`);
+            return push(`${q(this.tableInfo.name)}.${q(this.key ?? this.name)}`);
          case "columnAlias":
-            return push(`${q(this.alias ?? this.name)}`);
+            return push(`${q(this.key ?? this.name)}`);
          case "tableAlias.columnName":
             return push(`${q(context.alias(this.tableInfo))}.${q(this.name)}`);
          case "tableAlias.columnName as columnAlias": {
-            if (this.alias === this.name || !this.alias) {
+            if (this.key === this.name || !this.key) {
                push(`${q(context.alias(this.tableInfo))}.${q(this.name)}`);
                break;
             }
 
-            push(`${q(context.alias(this.tableInfo))}.${q(this.name)} as ${q(this.alias)}`);
+            push(`${q(context.alias(this.tableInfo))}.${q(this.name)} as ${q(this.key)}`);
             break;
          }
       }

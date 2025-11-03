@@ -5,3 +5,7 @@ export * from "./sql-query.js";
 export * from "./sql-query-row.js";
 export * from "./async-query-handler.js";
 export * from "./sql-raw.js";
+export * from "./sql-result-row.js";
+export * from "./sql-result.js";
+export * from "./sql-row-type.js";
+export * from "./sql-as.js";

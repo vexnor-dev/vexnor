@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
-import { Account } from "./models/one_sql.account-table.js";
+import { Account, IAccountSelect } from "./models/one_sql.account-table.js";
+import { InferSqlAllFromSelect } from "../schema/index.js";
 
 describe("SqlTable tests", () => {
    test("SqlTable alias should return new SqlTable instance", () => {
@@ -21,20 +22,25 @@ describe("SqlTable tests", () => {
          alias: "parent",
       });
       expect(actual.name).toEqual("account_id");
-      expect(actual.alias).toEqual("accountId");
+      expect(actual.key).toEqual("accountId");
    });
 
    test("SqlTable alias should return new SqlTable instance with respective $$all columns", () => {
       const actual = Account`inserted`.$$all;
-      for (const col of actual) {
+      for (const col of actual.columns) {
          expect(col.tableInfo).toEqual<typeof col.tableInfo>({
             schema: "valnor_test",
             name: "account",
             alias: "inserted",
          });
-         const original = Account.$$column(col.alias ?? col.name);
-         expect(col.alias).toBe(original.alias);
+         const original = Account.$$column(col.key);
+         expect(col.key).toBe(original.key);
          expect(col.name).toBe(original.name);
       }
+   });
+
+   test("Infer $$all(*) from SqlTable", () => {
+      type X = InferSqlAllFromSelect<IAccountSelect>;
+      const x: X = [Account.accountId, Account.status, Account.email, Account.firstName, Account.lastName];
    });
 });

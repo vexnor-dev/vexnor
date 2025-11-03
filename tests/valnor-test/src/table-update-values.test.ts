@@ -1,12 +1,13 @@
 import { describe, expect, test } from "vitest";
-import { param, sql } from "valnor";
+import { param, rowType, sql } from "valnor";
 import { Account, IAccountSelect } from "./codegen/valnor_test.account-table.js";
 import "@valnor/test-utils";
 
 describe("sql plugin: table.$$set tests", () => {
    test("sql() update with $set()", () => {
       const modifiedAt = new Date();
-      const query = sql<IAccountSelect, { accountId: string }>`
+      const query = sql`
+        ${rowType<IAccountSelect>()}
          update ${Account}
          set ${Account.$$set({
             firstName: "Bob",
@@ -14,7 +15,7 @@ describe("sql plugin: table.$$set tests", () => {
             email: "bob@example.com",
             modifiedAt,
          })}
-         where ${Account.accountId} = ${param("accountId")}
+         where ${Account.accountId} = ${param.string("accountId")}
          returning ${Account.$$all}`;
       expect(query.getValues({ params: { accountId: "123e4567-e89b-12d3-a456-426614174000" } })).toEqual([
          "Bob",

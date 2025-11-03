@@ -1,7 +1,6 @@
 export * from "./schema/index.js";
 export * from "./query/index.js";
 export * from "./charms/index.js";
-export * from "./sql-array.js";
 export * from "./sql-types.js";
 export * from "./sql.js";
 export * from "./types.js";

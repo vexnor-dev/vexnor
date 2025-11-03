@@ -37,7 +37,7 @@ describe("sql plugin jsonAgg() tests", () => {
       const context = new SqlQueryContext({ queryName: "test", tokenizer: new MssqlTokenizer("test") });
       context.next("from");
       jsonAgg(AccountOrders).$build(context, {});
-      expect(context.strings.join("")).toEqualQuery(
+      expect(context.text).toEqualQuery(
          `
             outer apply (
                select coalesce((

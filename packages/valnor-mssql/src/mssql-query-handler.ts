@@ -1,16 +1,16 @@
-import { AsyncQueryHandler, Params, RowOut, SqlQuery, SqlRunArgs } from "valnor";
+import { AsyncQueryHandler, SqlQueryParams, SqlQueryRowOut, SqlQuery, SqlRunArgs } from "valnor";
 import { IResult, Request } from "mssql";
 import { MssqlTokenizer } from "./mssql-tokenizer.js";
 import { MssqlParamFormatter } from "./mssql-param-formatter.js";
 
-export class MssqlQueryHandler<T extends { Row: RowOut; Params?: Params }> extends AsyncQueryHandler<{
+export class MssqlQueryHandler<T extends { Row: SqlQueryRowOut; Params?: SqlQueryParams }> extends AsyncQueryHandler<{
    Row: T["Row"];
    Params?: T["Params"];
    QueryResult: IResult<T["Row"]>;
    QueryClient: Request;
 }> {
-   constructor(readonly sqlQuery: SqlQuery<{ Row: T["Row"]; Params: T["Params"] }>) {
-      super(sqlQuery);
+   constructor(readonly query: SqlQuery<{ Row: T["Row"]; Params: T["Params"] }>) {
+      super(query);
    }
 
    getOptions(args: SqlRunArgs<Request, T["Params"]>) {
@@ -21,13 +21,13 @@ export class MssqlQueryHandler<T extends { Row: RowOut; Params?: Params }> exten
             ...args,
             options: {
                ...args.options,
-               tokenizer: new MssqlTokenizer(this.sqlQuery.name),
+               tokenizer: new MssqlTokenizer(this.query.name),
             },
          };
 
          queryInput = {
-            sql: this.sqlQuery.getText(newArgs, MssqlParamFormatter),
-            params: this.sqlQuery.getValues(newArgs),
+            sql: this.query.getText(newArgs, MssqlParamFormatter),
+            params: this.query.getValues(newArgs),
          };
          return queryInput;
       } catch (err) {

@@ -18,7 +18,7 @@ describe("jsonGroupArray (SQLite)", () => {
       context.next("select");
       jsonGroupArray(AccountOrders).$build(context, {});
       // Updated expected string to exactly match the actual output from the error message
-      expect(context.strings.join("")).toEqualQuery(
+      expect(context.text).toEqualQuery(
          `(select coalesce(json_group_array(json_object("AccountOrders".*)), '[]')
               from ( /* --label: AccountOrders */ select "o_1"."order_id" as "orderId", "o_1"."status"
                                                   from "main"."order" as "o_1"

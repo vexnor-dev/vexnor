@@ -9,7 +9,7 @@ import {
 } from "valnor/plugin";
 import Database from "better-sqlite3";
 import { findPrimaryKeys, findTableColumns, findTables, getColumnType } from "./schema/index.js";
-import { Params, RowOut, SqlQuery } from "valnor";
+import { SqlQueryParams, SqlQueryRowOut, SqlQuery } from "valnor";
 import { BetterSqlite3QueryHandler } from "./better-sqlite3-query-handler.js";
 import { resolve } from "node:path";
 
@@ -67,7 +67,7 @@ export class ValnorSqlite3 extends ValnorPlugin {
 
 // Extend the class type (in scope)
 declare module "valnor" {
-   interface SqlQuery<T extends { Row: RowOut; Params?: Params }> {
+   interface SqlQuery<T extends { Row: SqlQueryRowOut; Params?: SqlQueryParams }> {
       readonly sqlite3: BetterSqlite3QueryHandler<T>;
    }
 }
