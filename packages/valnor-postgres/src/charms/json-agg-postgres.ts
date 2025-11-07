@@ -18,7 +18,7 @@ export type JsonAggPostgresAny = JsonAggPostgres<any>;
  * @example
  * SELECT ${Account.$$all}, ${jsonAgg(UserOrders)} "orders"
  * FROM ${Account} ${jsonAgg(UserOrders)}
- * WHERE ${Account.accountId} = ${param("accountId")}
+ * WHERE ${Account.$accountId} = ${param("accountId")}
  */
 export class JsonAggPostgres<T extends { Row: Record<string, unknown>; Params?: unknown }>
    extends Sql
@@ -28,7 +28,7 @@ export class JsonAggPostgres<T extends { Row: Record<string, unknown>; Params?: 
       super();
    }
 
-   $$build(context: SqlQueryContext, options: SqlBuildOptions) {
+   build(context: SqlQueryContext, options: SqlBuildOptions) {
       if (!this.query.ROW) {
          throw new SqlBuildError(`query row is required for json aggregation`);
       }
@@ -44,7 +44,7 @@ export class JsonAggPostgres<T extends { Row: Record<string, unknown>; Params?: 
                select coalesce(jsonb_agg(${this.query.ROW.$$all}), '[]') as "${result}"
                from ${this.query}) as "${raw(this.query.name)}"
                on true
-            `.$$build(context.child({ queryName: this.query.name }), options);
+            `.build(context.scope({ queryName: this.query.name }), options);
             break;
          }
          default:
@@ -60,7 +60,7 @@ export class JsonAggPostgres<T extends { Row: Record<string, unknown>; Params?: 
  * @example
  * SELECT ${Account.$$all}, ${jsonAgg(UserOrders)} "orders"
  * FROM ${Account} ${jsonAgg(UserOrders)}
- * WHERE ${Account.accountId} = ${param("accountId")}
+ * WHERE ${Account.$accountId} = ${param("accountId")}
  * */
 export function jsonAgg<T extends { Row: Record<string, unknown>; Params?: unknown }>(
    select: SqlQuery<T>,

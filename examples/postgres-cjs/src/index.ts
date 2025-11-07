@@ -20,20 +20,20 @@ async function main() {
 
    const newAccount = await sql<IAccountSelect>`
       insert into ${Account}
-         ${Account.$values({
+         ${Account.$$values({
             firstName: `John_${id}`,
             lastName: `Doe_${id}`,
             email: `test_${id}@example.com`,
             status: AccountStatusUdt.CREATED,
          })}
-         returning ${Account.$all}
+         returning ${Account.$$all}
    `.pg.getOneRequired({ db: pool });
    console.log("new account:", newAccount);
    ok(newAccount?.accountId, "accountId is required");
 
    const newOrders = await sql<IAccountSelect>`
       insert into ${Order}
-         ${Order.$values(
+         ${Order.$$values(
             {
                accountId: newAccount.accountId,
                status: OrderStatusUdt.CREATED,
@@ -47,17 +47,17 @@ async function main() {
                modifiedAt: new Date(),
             },
          )}
-         returning ${Order.$all}
+         returning ${Order.$$all}
    `.pg.getAll({ db: pool });
    ok(newOrders?.length);
 
    const accountUpdated = await sql<IAccountSelect>`
       update ${Account}
-      set ${Account.$set({
+      set ${Account.$$set({
          status: AccountStatusUdt.CONFIRMED,
       })}
-      where ${Account.accountId} = ${newAccount.accountId}
-      returning ${Account.$all}
+      where ${Account.$accountId} = ${newAccount.accountId}
+      returning ${Account.$$all}
    `.pg.getOneRequired({ db: pool });
    console.log("account updated:", accountUpdated);
 
@@ -66,21 +66,21 @@ async function main() {
    }
 
    const accountWithLimitedOrders = await sql<AccountWithOrders[]>`
-      SELECT ${Account.$all},
+      SELECT ${Account.$$all},
              COALESCE(
                    jsonb_agg(orders.*) FILTER (WHERE orders IS NOT NULL),
                    '[]'
              ) as orders
       FROM ${Account}
               LEFT JOIN LATERAL (
-         SELECT ${Order.orderId}, ${Order.createdAt}, ${Order.status}
+         SELECT ${Order.$orderId}, ${Order.$createdAt}, ${Order.$status}
          FROM ${Order}
-         WHERE ${Order.accountId} = ${Account.accountId}
-         ORDER BY ${Order.createdAt} DESC
+         WHERE ${Order.$accountId} = ${Account.$accountId}
+         ORDER BY ${Order.$createdAt} DESC
          LIMIT 5 -- Get only the 5 most recent orders
          ) orders ON true
-      WHERE ${Account.accountId} = ${newAccount.accountId}
-      GROUP BY ${Account.accountId}`.pg.getAll({ db: pool });
+      WHERE ${Account.$accountId} = ${newAccount.accountId}
+      GROUP BY ${Account.$accountId}`.pg.getAll({ db: pool });
 
    console.log("account with orders:\n", accountWithLimitedOrders);
 }

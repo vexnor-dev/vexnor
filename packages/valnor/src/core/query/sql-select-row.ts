@@ -22,14 +22,14 @@ export type SqlSelectRowExtended<T extends { Row: Record<string, unknown> }> = S
    InferSelectColumnsByRecord<T["Row"]>;
 
 export class SqlSelectRow<T extends { Row: Record<string, unknown> }> extends Sql {
-   readonly $all: SqlSelectAll<T>;
-   readonly $$row: InferSelectColumnsByRecord<T["Row"]>;
+   readonly $$all: SqlSelectAll<T>;
+   readonly row: InferSelectColumnsByRecord<T["Row"]>;
    readonly #columns: SqlSelectColumnTypes[];
 
    constructor(columns: SqlSelectColumnTypes[]) {
       super();
       this.#columns = columns;
-      this.$$row = (() => {
+      this.row = (() => {
          const row: Record<string, SqlSelectColumnAny> = {};
          for (const item of columns) {
             switch (true) {
@@ -64,14 +64,14 @@ export class SqlSelectRow<T extends { Row: Record<string, unknown> }> extends Sq
 
          return row as InferSelectColumnsByRecord<T["Row"]>;
       })();
-      this.$all = new SqlSelectAll(this.$$row);
+      this.$$all = new SqlSelectAll(this.row);
    }
 
-   $$build(context: SqlQueryContext, options?: SqlBuildOptions): void {
+   build(context: SqlQueryContext, options?: SqlBuildOptions): void {
       let index = 0;
       for (const item of this.#columns) {
          if (index++ > 0) context.addStrings(", ");
-         item.$$build(context, options);
+         item.build(context, options);
       }
    }
 }
@@ -82,16 +82,48 @@ export function row<
 >(...columns: Columns): SqlSelectRowExtendedTypedOrGeneric<InferRowSelectFromColumns<typeof columns>> {
    return new Proxy(new SqlSelectRow(columns), {
       ownKeys(target: SqlSelectRow<{ Row: Record<string, unknown> }>): ArrayLike<string | symbol> {
-         return [...Object.keys(target), ...Object.keys(target.$$row)];
+         return [...Object.keys(target), ...Object.keys(target.row).map((z) => `$${z}`)];
+      },
+      getOwnPropertyDescriptor(target, p: string | symbol): PropertyDescriptor | undefined {
+         const prop = String(p);
+         switch (true) {
+            case !prop.startsWith("$"):
+            case prop.startsWith("$$"):
+               return Reflect.getOwnPropertyDescriptor(target, p);
+            case prop.startsWith("$"):
+               return Reflect.getOwnPropertyDescriptor(target.row, p);
+            default:
+               throw new Error(`Unknown property: ${prop}`);
+         }
       },
       has(target, p: string | symbol): boolean {
-         return Object.hasOwn(target, p) || Object.hasOwn(target.$$row, p);
+         const prop = String(p);
+         switch (true) {
+            case !prop.startsWith("$"):
+            case prop.startsWith("$$"):
+               return Object.hasOwn(target, p);
+            case prop.startsWith("$"):
+               return Object.hasOwn(target.row, p);
+            default:
+               throw new Error(`Unknown property: ${prop}`);
+         }
       },
       get(target, p: string | symbol, receiver: unknown): unknown {
-         const result = Reflect.get(target, p, receiver);
-         if (typeof result === "function") return result.bind(target);
-         if (result) return result;
-         return Reflect.get(target.$$row, p, receiver);
+         const prop = String(p);
+         switch (true) {
+            case !prop.startsWith("$"):
+            case prop.startsWith("$$"): {
+               const result = Reflect.get(target, p, receiver);
+               if (typeof result === "function") {
+                  return result.bind(target);
+               }
+               return result;
+            }
+            case prop.startsWith("$"):
+               return Reflect.get(target.row, prop.substring(1), receiver);
+            default:
+               throw new Error(`Unknown property: ${prop}`);
+         }
       },
    }) as SqlSelectRowExtendedTypedOrGeneric<InferRowSelectFromColumns<typeof columns>>;
 }
@@ -114,7 +146,7 @@ type InferSelectAllOptions<T> = T extends SqlTableAll<infer O> | SqlSelectAll<in
 
 export type InferRowSelectFromColumns<T> = T extends [infer Start, ...infer Rest]
    ? InferColumnOptions<Start> extends { Key: infer K extends string; Type: infer V }
-      ? Record<K, V> & InferRowSelectFromColumns<Rest>
+      ? Record<`$${string & K}`, V> & InferRowSelectFromColumns<Rest>
       : InferSelectAllOptions<Start> extends { Row: infer R extends Record<string, unknown> }
         ? R & InferRowSelectFromColumns<Rest>
         : InferRowSelectFromColumns<Rest>

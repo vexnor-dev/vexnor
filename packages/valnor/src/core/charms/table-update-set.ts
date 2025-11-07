@@ -11,7 +11,7 @@ export class TableUpdateSet<T extends { Update: Record<string, unknown> }> exten
       super();
    }
 
-   $$build(context: SqlQueryContext) {
+   build(context: SqlQueryContext) {
       let i = 0;
       for (const key in this.update) {
          const col = this.columns[key];
@@ -25,7 +25,7 @@ export class TableUpdateSet<T extends { Update: Record<string, unknown> }> exten
          }
 
          if (i++ > 0) context.addStrings(", ");
-         col.$$build(context);
+         col.build(context);
          context.addStrings(" = ?");
          const value = this.update[key];
          switch (typeof value) {

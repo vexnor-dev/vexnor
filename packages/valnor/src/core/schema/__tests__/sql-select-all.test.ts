@@ -7,7 +7,7 @@ describe("SqlSelectAll (*) tests", () => {
    test("select * $build should render list of columns", () => {
       const context = new SqlQueryContext({ queryName: "test" });
       context.next("select");
-      Account.$all.$$build(context);
+      Account.$$all.build(context);
 
       expect(context.text).toEqual(trim`
          "a_1"."account_id"  as "accountId",
@@ -24,7 +24,7 @@ describe("SqlSelectAll (*) tests", () => {
    test("select * $build should render list of columns with aliased table", () => {
       const context = new SqlQueryContext({ queryName: "test" });
       context.next("select");
-      Account`inserted`.$all.$$build(context);
+      Account`inserted`.$$all.build(context);
 
       expect(context.text).toEqual(trim`
          "inserted"."account_id"  as "accountId",
@@ -41,7 +41,7 @@ describe("SqlSelectAll (*) tests", () => {
    test("returning * $build should render list of columns", () => {
       const context = new SqlQueryContext({ queryName: "test" });
       context.next("returning");
-      Account.$all.$$build(context);
+      Account.$$all.build(context);
 
       expect(context.text).toEqual(trim`
          "account"."account_id"  as "accountId",
@@ -58,7 +58,7 @@ describe("SqlSelectAll (*) tests", () => {
    test("output * $build should render list of columns with aliased table", () => {
       const context = new SqlQueryContext({ queryName: "test" });
       context.next("output");
-      Account`inserted`.$all.$$build(context);
+      Account`inserted`.$$all.build(context);
 
       expect(context.text).toEqual(trim`
          "inserted"."account_id"  as "accountId",
@@ -75,7 +75,7 @@ describe("SqlSelectAll (*) tests", () => {
    test("count(*) $build should render *", () => {
       const context = new SqlQueryContext({ queryName: "test" });
       context.next("count(");
-      Account.$all.$$build(context);
+      Account.$$all.build(context);
 
       expect(context.text).toEqual(trim`*`);
    });
@@ -85,7 +85,7 @@ describe("SqlSelectAll (*) tests", () => {
       // Simulate the context of being inside an EXISTS clause
       context.next("exists");
       context.next("select");
-      Account.$all.$$build(context);
+      Account.$$all.build(context);
 
       expect(context.text).toEqual(trim`*`);
    });

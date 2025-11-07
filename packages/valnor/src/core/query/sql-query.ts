@@ -121,7 +121,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
       // if (this.__buildCache__) return this.__buildCache__;
       const { tokenizer, formatter } = options ?? {};
       const context = new SqlQueryContext({ queryName: this.info?.label, tokenizer, formatter });
-      this.$$build(context, options ?? {});
+      this.build(context, options ?? {});
       return {
          strings: [...context.strings],
          values: [...context.values],
@@ -145,7 +145,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
     * @param context
     * @param options
     */
-   $$build(context: SqlQueryContext, options?: SqlBuildOptions) {
+   build(context: SqlQueryContext, options?: SqlBuildOptions) {
       const wrapStart = () => {
          if (this.$$wrap) context.addStrings("(");
       };
@@ -201,10 +201,10 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
             const addString = (text: string) => `${text}${delimiter}`;
             switch (true) {
                case item instanceof SqlQuery:
-                  item.$$build(context.scope({ queryName: item.info?.label }), options);
+                  item.build(context.scope({ queryName: item.info?.label }), options);
                   break;
                case item instanceof Sql:
-                  item.$$build(context, options);
+                  item.build(context, options);
                   break;
                case !item:
                   context.addValues(item);

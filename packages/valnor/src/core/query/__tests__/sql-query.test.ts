@@ -9,14 +9,14 @@ import { SqlQueryContext } from "../sql-query-context.js";
 describe("SqlQuery tests", () => {
    test("join sub-query with default queryName", () => {
       const subQuery = sql`
-            select ${row(Account.accountId, Account.status, Account.email)}
+            select ${row(Account.$accountId, Account.$status, Account.$email)}
             from ${Account}
-            where ${Account.status} = ${AccountStatusUdt.CREATED}
+            where ${Account.$status} = ${AccountStatusUdt.CREATED}
          `;
 
       const rootQuery = sql`join ${subQuery}`;
       const context = new SqlQueryContext();
-      rootQuery.$$build(context);
+      rootQuery.build(context);
       expect(context.text).toEqualQuery(`
          join (select "a_1"."account_id"  as "accountId",
             "a_1"."status",
@@ -29,14 +29,14 @@ describe("SqlQuery tests", () => {
    test("join sub-query with defined queryName", () => {
       const subQuery = sql`
          ${info({ label: "AccountsCreated" })}
-            select ${row(Account.accountId, Account.status, Account.email)}
+            select ${row(Account.$accountId, Account.$status, Account.$email)}
             from ${Account}
-            where ${Account.status} = ${AccountStatusUdt.CREATED}
+            where ${Account.$status} = ${AccountStatusUdt.CREATED}
          `;
       const rootQuery = sql`join ${subQuery}`;
 
       const context = new SqlQueryContext();
-      rootQuery.$$build(context);
+      rootQuery.build(context);
       expect(context.text).toEqualQuery(`
          join (/* --label: AccountsCreated */
          select "a_1"."account_id"  as "accountId",

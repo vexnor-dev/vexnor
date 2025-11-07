@@ -9,7 +9,7 @@ export class SqlRaw extends Sql {
       super();
    }
 
-   override $$build(context: SqlQueryContext) {
+   override build(context: SqlQueryContext) {
       if (this.quote) {
          context.addQuotes(this.value);
       } else {

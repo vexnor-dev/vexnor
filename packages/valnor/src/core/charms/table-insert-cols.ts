@@ -16,7 +16,7 @@ export class TableInsertCols<
       super();
    }
 
-   $$build(context: SqlQueryContext) {
+   build(context: SqlQueryContext) {
       if (this.inserts.length === 0) {
          return;
       }
@@ -27,7 +27,7 @@ export class TableInsertCols<
          const column = this.columns[key];
          ok(column, `Column not found by key: ${key}`);
          if (index > 0) context.addStrings(", ");
-         column.$$build(context);
+         column.build(context);
       });
       context.addStrings(")");
    }

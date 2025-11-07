@@ -9,11 +9,11 @@ describe("sql() tests", () => {
       const names = ["One", "Two", "Three"];
       const query = sql`
         ${rowType<IAccountSelect>()}
-         select ${Account.firstName}, min(${Account.email}), ${Account.email`user_email`}, ${Account.createdAt}
+         select ${Account.firstName}, min(${Account.$email}), ${Account.$email`user_email`}, ${Account.createdAt}
          from ${Account}
-         where ${Account.email} = ${param("email").is<string>()}
+         where ${Account.$email} = ${param("email").is<string>()}
            and ${Account.firstName} in (${param("names").is<string[]>()})
-         group by ${Account.email}`;
+         group by ${Account.$email}`;
       expect(query.getValues({ params: { names, email: "test@example.com" } })).toEqual([
          "test@example.com",
          "One",
@@ -36,7 +36,7 @@ describe("sql() tests", () => {
          ${rowType<IAccountSelect>()}
          select ${Account.firstName}
          from ${Account}
-         where ${Account.email} = 'bob@example.com'`;
+         where ${Account.$email} = 'bob@example.com'`;
       expect(query.getValues({})).toEqual([]);
       expect(query.getSql({})).toEqualQuery(`
             select "a_1"."first_name" as "firstName"
@@ -51,7 +51,7 @@ describe("sql() tests", () => {
         ${rowType<IAccountSelect>()}
          select ${Account.firstName}
          from ${Account}
-         where ${Account.email} = ${email}`;
+         where ${Account.$email} = ${email}`;
       expect(query.getValues({})).toEqual(["bob@example.com"]);
       expect(query.getSql({})).toEqualQuery(`
             select "a_1"."first_name" as "firstName"
@@ -66,13 +66,13 @@ describe("sql() tests", () => {
          select ${OrderItem.productId},
                 ${OrderItem.orderId},
                 ${OrderItem.productPrice},
-                ${Order.createdAt},
-                ${Order.status},
+                ${Order.$createdAt},
+                ${Order.$status},
                 ${Account.firstName},
                 ${Account.lastName}
          from ${OrderItem}
-                 join ${Order} on ${OrderItem.orderId} = ${Order.orderId}
-                 join ${Account} on ${Account.accountId} = ${Order.accountId}`;
+                 join ${Order} on ${OrderItem.orderId} = ${Order.$orderId}
+                 join ${Account} on ${Account.$accountId} = ${Order.$accountId}`;
 
       expect(query.getSql({})).toEqualQuery(`
          select "oi_1"."product_id"    as "productId",
@@ -90,10 +90,10 @@ describe("sql() tests", () => {
    test("sql query with self-join and explicit alias", () => {
       const query = sql`
         ${rowType<IAccountSelect & { parentEmail: string }>()}
-         select ${Account.email},
+         select ${Account.$email},
                 ${Account`parent`.email`parentEmail`}
          from ${Account}
-                 join ${Account`parent`} on ${Account.parentId} = ${Account`parent`.accountId}`;
+                 join ${Account`parent`} on ${Account.parentId} = ${Account`parent`.$accountId}`;
 
       expect(query.getSql({})).toEqualQuery(`
          select "a_1"."email",
@@ -104,7 +104,7 @@ describe("sql() tests", () => {
 
    test("sql() insert statement should not have an alias on the target table", () => {
       const query = sql`
-         insert into ${Account} (${Account.email}, ${Account.firstName})
+         insert into ${Account} (${Account.$email}, ${Account.firstName})
          values ('test@example.com', 'Test')`;
 
       // Note: T-SQL and PostgreSQL do not support aliases on the target table of an INSERT statement.
@@ -118,7 +118,7 @@ describe("sql() tests", () => {
       const query = sql`
          update ${Account}
          set ${Account.firstName} = 'Bob'
-         where ${Account.accountId} = '123'`;
+         where ${Account.$accountId} = '123'`;
 
       // For a simple UPDATE, T-SQL and PG do not alias the target table.
       // Therefore, columns in SET and WHERE clauses for that table must also be un-aliased.
@@ -134,8 +134,8 @@ describe("sql() tests", () => {
          update ${Account}
          set ${Account.firstName} = 'Staged Name'
          from ${Account}
-                 join ${Order} on ${Account.accountId} = ${Order.accountId}
-         where ${Order.status} = 'completed'`;
+                 join ${Order} on ${Account.$accountId} = ${Order.$accountId}
+         where ${Order.$status} = 'completed'`;
 
       // In a complex UPDATE, the target table is aliased, and all column references must be qualified.
       expect(query.getSql({})).toEqualQuery(`
@@ -151,7 +151,7 @@ describe("sql() tests", () => {
       const query = sql`
          delete
          from ${Account}
-         where ${Account.accountId} <> ${noid}`;
+         where ${Account.$accountId} <> ${noid}`;
       expect(query.getSql({})).toEqualQuery(`
          delete from "valnor_test"."account"
          where "account"."account_id" <> ?

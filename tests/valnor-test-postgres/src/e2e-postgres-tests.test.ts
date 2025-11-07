@@ -14,9 +14,9 @@ describe.sequential("valnor postgres e2e tests", () => {
    const CHILD_FACTOR = 3;
 
    const findAccountById = sql`
-         select ${row(Account.$all)}
+         select ${row(Account.$$all)}
       from ${Account}
-      where ${Account.accountId} = ${param.string("accountId")}
+      where ${Account.$accountId} = ${param.string("accountId")}
    `;
 
    afterAll(async () => {
@@ -27,7 +27,7 @@ describe.sequential("valnor postgres e2e tests", () => {
       await sql`
          delete
          from ${Account}
-         where ${Account.accountId} <> ${randomUUID()}
+         where ${Account.$accountId} <> ${randomUUID()}
       `.postgres.run({ db: pool });
    });
 
@@ -47,8 +47,8 @@ describe.sequential("valnor postgres e2e tests", () => {
          }
          const accounts = await sql`
             insert into ${Account}
-               ${Account.$values(...newAccountsArgs)}
-               returning ${row(Account.$all)}
+               ${Account.$$values(...newAccountsArgs)}
+               returning ${row(Account.$$all)}
          `.postgres.getAll({ db: pool });
 
          ok(accounts?.length, "root accounts not inserted");
@@ -67,14 +67,14 @@ describe.sequential("valnor postgres e2e tests", () => {
             const account = await sql`
             ${rowType<IAccountSelect>()}
             insert into ${Account}
-               ${Account.$values({
+               ${Account.$$values({
                   status: AccountStatusUdt.CREATED,
                   firstName: `John-${rootIndex}-${childIndex}-${id} (child ${childIndex})`,
                   lastName: `Doe-${rootIndex}-${childIndex}-${id} (child ${childIndex})`,
                   email: `john.doe.child-${rootIndex}-${childIndex}-${id}@example.com`,
                   parentId: parent.accountId,
                })}
-               returning ${Account.$all}
+               returning ${Account.$$all}
          `.postgres.getOneRequired({ db: pool });
             expect(account).toEqual(
                expect.objectContaining({
@@ -98,10 +98,10 @@ describe.sequential("valnor postgres e2e tests", () => {
    test(`Fetch all ${ROOT_COUNT} root accounts`, async () => {
       const actual = await sql`
          ${rowType<IAccountSelect>()}
-         select ${Account.$all}
+         select ${Account.$$all}
          from ${Account}
-         where ${Account.accountId} in (${rootAccounts.map((z) => z.accountId)})
-         order by ${Account.email}
+         where ${Account.$accountId} in (${rootAccounts.map((z) => z.accountId)})
+         order by ${Account.$email}
       `.postgres.getAll({ db: pool });
       expect(actual).toEqual(rootAccounts);
    });
@@ -109,10 +109,10 @@ describe.sequential("valnor postgres e2e tests", () => {
    test(`Fetch all ${ROOT_COUNT * CHILD_FACTOR} children accounts`, async () => {
       const actual = await sql`
         ${rowType<IAccountSelect>()}
-         select ${Account.$all}
+         select ${Account.$$all}
          from ${Account}
-         where ${Account.accountId} in (${childAccounts.map((z) => z.accountId)})
-         order by ${Account.email}
+         where ${Account.$accountId} in (${childAccounts.map((z) => z.accountId)})
+         order by ${Account.$email}
       `.postgres.getAll({ db: pool });
       expect(actual).toEqual(childAccounts);
    });
@@ -138,14 +138,14 @@ describe.sequential("valnor postgres e2e tests", () => {
    test("Self join account: fetch accounts with parent info (firstName, lastName, email)", async () => {
       const actual = await sql`
         ${rowType<IAccountSelect>()}
-         select ${Account.$all},
+         select ${Account.$$all},
                 ${Account`parent`.firstName`parentFirstName`},
                 ${Account`parent`.lastName`parentLastName`},
                 ${Account`parent`.email`parentEmail`}
          from ${Account}
-                 join ${Account`parent`} on ${Account`parent`.accountId} = ${Account.parentId}
-         where ${Account.accountId} in (${childAccounts.map((z) => z.accountId)})
-         order by ${Account.email}
+                 join ${Account`parent`} on ${Account`parent`.$accountId} = ${Account.parentId}
+         where ${Account.$accountId} in (${childAccounts.map((z) => z.accountId)})
+         order by ${Account.$email}
       `.postgres.getAll({
          db: pool,
       });
@@ -166,18 +166,18 @@ describe.sequential("valnor postgres e2e tests", () => {
    test("Fetch root accounts and their children as json array", async () => {
       const accountChildren = sql`
         ${rowType<IAccountSelect>()}
-         select ${Account`children`.$all}
+         select ${Account`children`.$$all}
          from ${Account`children`}
-         where ${Account`children`.parentId} = ${Account.accountId}
+         where ${Account`children`.parentId} = ${Account.$accountId}
          order by ${Account`children`.email}
       `;
 
       const actual = await sql`
          ${rowType<IAccountSelect & { children: IAccountJson[] }>()}
-         select ${Account.$all}, ${jsonAgg(accountChildren)} as children
+         select ${Account.$$all}, ${jsonAgg(accountChildren)} as children
          from ${Account} ${jsonAgg(accountChildren)}
-         where ${Account.accountId} in (${rootAccounts.map((z) => z.accountId)})
-         order by ${Account.email}
+         where ${Account.$accountId} in (${rootAccounts.map((z) => z.accountId)})
+         order by ${Account.$email}
       `.postgres
          .getAll({ db: pool })
          .then((accounts) =>
@@ -219,8 +219,8 @@ describe.sequential("valnor postgres e2e tests", () => {
             ${rowType<IAccountSelect>()}
          update ${Account}
          set ${Account.firstName} = ${expected.firstName + "+test"}
-         where ${Account.accountId} = ${expected.accountId}
-         returning ${Account.$all}
+         where ${Account.$accountId} = ${expected.accountId}
+         returning ${Account.$$all}
       `.postgres.getOneRequired({ db: pool });
       expect(actual).toEqual({ ...expected, firstName: expected.firstName + "+test" });
    });
@@ -229,7 +229,7 @@ describe.sequential("valnor postgres e2e tests", () => {
       const { rowCount } = await sql`
          delete
          from ${Account}
-         where ${Account.accountId} in (${rootAccounts.map((z) => z.accountId)})
+         where ${Account.$accountId} in (${rootAccounts.map((z) => z.accountId)})
       `.postgres.run({ db: pool });
       expect(rowCount).toEqual(rootAccounts.length);
    });

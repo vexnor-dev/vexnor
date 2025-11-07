@@ -14,7 +14,7 @@ export class SqlQueryInfo extends Sql {
       return this.options.label;
    }
 
-   $$build(context: SqlQueryContext) {
+   build(context: SqlQueryContext) {
       context.addStrings("\n/*");
       for (const [key, value] of Object.entries(this.options)) {
          context.addStrings(` --${key}: ${value} `);

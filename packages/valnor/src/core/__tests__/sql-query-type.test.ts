@@ -14,22 +14,22 @@ import { AccountStatusUdt } from "./models/valnor_test-enums.js";
 describe("sql query type tests", () => {
    test("Infer row result type from sql-row", () => {
       // eslint-disable-next-line unused-imports/no-unused-vars
-      const x = row(Account.firstName, Account.lastName, Account.createdAt);
+      const x = row(Account.$firstName, Account.$lastName, Account.$createdAt);
       type Row = InferRowFromQueryTokens<[typeof x]>;
       // eslint-disable-next-line prefer-const
       let actual: Row = {
-         firstName: "a",
-         lastName: "b",
-         createdAt: new Date(),
+         $firstName: "a",
+         $lastName: "b",
+         $createdAt: new Date(),
       };
-      console.log(actual.firstName);
+      console.log(actual.$firstName);
    });
 
    test("Infer params from sql-query", () => {
       type FullParams = InferParamsFromQueryTokens<
          [
             typeof Account,
-            typeof Account.$all,
+            typeof Account.$$all,
             SqlParam<{ Name: "accountId"; Type: string }>,
             SqlParam<{ Name: "modifiedAt"; Type: Date }>,
             SqlQuery<{ Params: { limit: 5 } }>,
@@ -54,7 +54,7 @@ describe("sql query type tests", () => {
          },
       };
 
-      type EmptyParams = InferParamsFromQueryTokens<[typeof Account, typeof Account.$all, typeof Account.accountId]>;
+      type EmptyParams = InferParamsFromQueryTokens<[typeof Account, typeof Account.$$all, typeof Account.$accountId]>;
       // eslint-disable-next-line unused-imports/no-unused-vars
       const emptyParams: EmptyParams = {};
       type EmptyInputArgs = SqlInputArgs<EmptyParams>;
@@ -65,16 +65,16 @@ describe("sql query type tests", () => {
    test("infer row result type from sql-query", () => {
       // eslint-disable-next-line unused-imports/no-unused-vars
       const query = sql`
-         select ${row(Account.firstName, Account.lastName("name"), Account.createdAt)}
+         select ${row(Account.$firstName, Account.$lastName("name"), Account.$createdAt)}
          from ${Account}
-         where ${Account.accountId} = ${param("accountId").is<string>()}
+         where ${Account.$accountId} = ${param("accountId").is<string>()}
       `;
 
       // eslint-disable-next-line unused-imports/no-unused-vars
       const r: InferRowFromQuery<typeof query> = {
-         firstName: "a",
-         name: "b",
-         createdAt: new Date(),
+         $firstName: "a",
+         $name: "b",
+         $createdAt: new Date(),
       };
 
       // eslint-disable-next-line unused-imports/no-unused-vars
@@ -86,8 +86,8 @@ describe("sql query type tests", () => {
    test("query without row type", () => {
       const query = sql`
          update ${Account}
-         set ${Account.$set({ status: AccountStatusUdt.CONFIRMED })} 
-         where ${Account.accountId} = ${param("accountId").is<string>()}`;
+         set ${Account.$$set({ status: AccountStatusUdt.CONFIRMED })} 
+         where ${Account.$accountId} = ${param("accountId").is<string>()}`;
 
       type Row = InferRowFromQuery<typeof query>;
       const row: Row = void 0;

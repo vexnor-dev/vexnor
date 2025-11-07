@@ -19,8 +19,8 @@ describe("SqlTable.$$values() tests", () => {
       ];
       const query = sql`
          insert into ${Account}
-            ${Account.$values(...rows)}
-            returning ${row(Account.$all)}`;
+            ${Account.$$values(...rows)}
+            returning ${row(Account.$$all)}`;
 
       expect(query.getValues({})).toEqual([
          "John1",

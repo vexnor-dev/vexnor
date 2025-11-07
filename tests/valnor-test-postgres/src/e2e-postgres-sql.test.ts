@@ -15,20 +15,20 @@ describe("valnor postgres sql tests", () => {
       await sql`
          delete
          from ${Account}
-         where ${Account.accountId} <> ${randomUUID()}
+         where ${Account.$accountId} <> ${randomUUID()}
       `.run({ db: pool });
    });
 
    test("insert account", async () => {
       const account = await sql`
          insert into ${Account}
-            ${Account.$values({
+            ${Account.$$values({
                status: AccountStatusUdt.CREATED,
                firstName: "John",
                lastName: "Doe",
                email: "john.doe@example.com",
             })}
-            returning ${row(Account.$all)}
+            returning ${row(Account.$$all)}
       `.getOneRequired({ db: pool });
 
       expect(account).toEqual(

@@ -9,7 +9,7 @@ export class SqlRowType<T> extends Sql {
       super();
    }
 
-   $$build(): void {
+   build(): void {
       // write the row type declaration as sql comments
    }
 }

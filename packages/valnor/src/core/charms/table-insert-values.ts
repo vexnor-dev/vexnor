@@ -35,7 +35,7 @@ export class TableInsertValues<
       }
    }
 
-   $$build(context: SqlQueryContext) {
+   build(context: SqlQueryContext) {
       context.addStrings("(");
       let i = 0;
       const keys = Object.keys(this.inserts[0]!);
@@ -45,7 +45,7 @@ export class TableInsertValues<
          }
 
          const column = this.columns[key as keyof T["Select"]]!;
-         column.$$build(context);
+         column.build(context);
       }
 
       context.addStrings(")", " values ");

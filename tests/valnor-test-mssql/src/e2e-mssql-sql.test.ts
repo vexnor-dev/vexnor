@@ -10,7 +10,7 @@ describe("valnor postgres sql tests", () => {
       await sql<object>`
          delete
          from ${Account}
-         where ${Account.accountId} <> ${randomUUID()}
+         where ${Account.$accountId} <> ${randomUUID()}
       `.run({ db: pool.request() });
    });
 
@@ -21,14 +21,14 @@ describe("valnor postgres sql tests", () => {
    test("insert account", async () => {
       const account = await sql<IAccountSelect>`
          insert into ${Account}
-            ${Account.$cols({
+            ${Account.$$cols({
                status: "CREATED",
                firstName: "John",
                lastName: "Doe",
                email: "john.doe@example.com",
             })}
-            output ${Account`inserted`.$all}
-            ${Account.$rows({
+            output ${Account`inserted`.$$all}
+            ${Account.$$rows({
                status: "CREATED",
                firstName: "John",
                lastName: "Doe",

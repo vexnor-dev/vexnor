@@ -51,7 +51,7 @@ export class SqlTableColumn<
    }
 
    // eslint-disable-next-line unused-imports/no-unused-vars
-   $$build(context: SqlQueryContext, _options?: SqlBuildOptions) {
+   build(context: SqlQueryContext, _options?: SqlBuildOptions) {
       const format = this.format ?? context.formatter.getColumnFormat(context);
       switch (format) {
          case "tableName.columnName as columnAlias": {

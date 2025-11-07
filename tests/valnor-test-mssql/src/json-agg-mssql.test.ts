@@ -7,16 +7,16 @@ import "@valnor/test-utils";
 describe("sql plugin jsonAgg() tests", () => {
    const AccountOrders = sql`
       ${info({ label: "AccountOrders" })}
-      select ${row(Order.orderId, Order.status, Order.createdAt, Order.modifiedAt)}
+      select ${row(Order.$orderId, Order.$status, Order.$createdAt, Order.$modifiedAt)}
       from ${Order}
-      where ${Order.accountId} = ${Account.accountId}
-      order by ${Order.createdAt} desc
+      where ${Order.$accountId} = ${Account.$accountId}
+      order by ${Order.$createdAt} desc
       offset 0 rows fetch next ${param("limit").is<number>()} rows only`;
 
    test("jsonAgg(): select build", () => {
       const context = new SqlQueryContext({ queryName: "test", tokenizer: new MssqlTokenizer("test") });
       context.next("select");
-      jsonAgg(AccountOrders).$$build(context, {});
+      jsonAgg(AccountOrders).build(context, {});
       expect(context.strings[0]).toBe(`"AccountOrders_result"."AccountOrders"`);
    });
 
@@ -36,7 +36,7 @@ describe("sql plugin jsonAgg() tests", () => {
    test("jsonAgg(): from", () => {
       const context = new SqlQueryContext({ queryName: "test", tokenizer: new MssqlTokenizer("test") });
       context.next("from");
-      jsonAgg(AccountOrders).$$build(context, {});
+      jsonAgg(AccountOrders).build(context, {});
       expect(context.text).toEqualQuery(
          `
             outer apply (
@@ -58,10 +58,10 @@ describe("sql plugin jsonAgg() tests", () => {
 
    test("jsonAgg() with params", () => {
       const query = sql`
-         select ${row(Account.$all)}, ${jsonAgg(AccountOrders)} as "orders"
+         select ${row(Account.$$all)}, ${jsonAgg(AccountOrders)} as "orders"
          from ${Account} ${jsonAgg(AccountOrders)}
-         where ${Account.email} = ${param("email")}
-         order by ${Account.accountId}
+         where ${Account.$email} = ${param("email")}
+         order by ${Account.$accountId}
       `;
 
       expect(query.getText({ params: { email: "test@example.com", limit: 5 } }, MssqlParamFormatter)).toEqualQuery(

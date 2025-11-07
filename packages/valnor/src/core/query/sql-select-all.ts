@@ -15,7 +15,7 @@ export class SqlSelectAll<T extends { Row: Record<string, unknown> }> extends Sq
    }
 
    // eslint-disable-next-line unused-imports/no-unused-vars
-   $$build(context: SqlQueryContext, _options?: SqlBuildOptions) {
+   build(context: SqlQueryContext, _options?: SqlBuildOptions) {
       const [keyword, exists] = context.keywords();
 
       switch (true) {
@@ -33,7 +33,7 @@ export class SqlSelectAll<T extends { Row: Record<string, unknown> }> extends Sq
             // let index = 0;
             // for (const column of Object.values(this.row)) {
             //    if (index++ > 0) context.addStrings(", ");
-            //    column.$$build(context, options);
+            //    column.build(context, options);
             // }
          }
       }

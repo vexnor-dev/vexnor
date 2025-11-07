@@ -19,7 +19,7 @@ export abstract class Sql {
     * @param context
     * @param options
     */
-   abstract $$build(context: SqlQueryContext, options?: SqlBuildOptions): void;
+   abstract build(context: SqlQueryContext, options?: SqlBuildOptions): void;
 }
 
 // export type InferSqlRowFromRecord<T> =

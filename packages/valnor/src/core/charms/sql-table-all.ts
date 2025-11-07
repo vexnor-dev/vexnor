@@ -14,7 +14,7 @@ export class SqlTableAll<T extends { Row: Record<string, unknown> }> extends Sql
       this.row = row;
    }
 
-   $$build(context: SqlQueryContext, options?: SqlBuildOptions) {
+   build(context: SqlQueryContext, options?: SqlBuildOptions) {
       const [keyword, exists] = context.keywords();
 
       switch (true) {
@@ -28,7 +28,7 @@ export class SqlTableAll<T extends { Row: Record<string, unknown> }> extends Sql
             let index = 0;
             for (const column of Object.values(this.row)) {
                if (index++ > 0) context.addStrings(", ");
-               column.$$build(context, options);
+               column.build(context, options);
             }
          }
       }
@@ -38,7 +38,7 @@ export class SqlTableAll<T extends { Row: Record<string, unknown> }> extends Sql
 export type InferSqlTableAllColumnsByRow<Row> =
    Row extends Record<string, unknown>
       ? {
-           [K in keyof Row]: K extends string
+           [K in keyof Row as `$${string & K}`]: K extends string
               ? SqlTableColumn<{
                    Key: K;
                    Type: Row[K];

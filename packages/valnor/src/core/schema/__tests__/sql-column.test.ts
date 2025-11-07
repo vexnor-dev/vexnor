@@ -5,25 +5,25 @@ import { SqlTableColumn } from "../sql-table-column.js";
 
 describe("SqlColumn tests", () => {
    test("SqlColumn should be defined", () => {
-      expect(Account.accountId).toBeDefined();
+      expect(Account.$accountId).toBeDefined();
    });
 
    test("SqlColumn inherits Sql", () => {
-      expect(Account.accountId).instanceof(Sql);
-      expect(Account.accountId instanceof Sql).toBe(true);
+      expect(Account.$accountId).instanceof(Sql);
+      expect(Account.$accountId instanceof Sql).toBe(true);
    });
 
    test("SqlColumn inherits SqlColumn", () => {
-      expect(Account.accountId).instanceof(SqlTableColumn);
-      expect(Account.accountId instanceof SqlTableColumn).toBe(true);
+      expect(Account.$accountId).instanceof(SqlTableColumn);
+      expect(Account.$accountId instanceof SqlTableColumn).toBe(true);
    });
 
    test("SqlColumn to be defined", () => {
-      expect(Account.accountId).toBeDefined();
+      expect(Account.$accountId).toBeDefined();
    });
 
    test("SqlColumn to match definition", () => {
-      expect({ ...Account.accountId }).toMatchObject({
+      expect({ ...Account.$accountId }).toMatchObject({
          columnName: "account_id",
          key: "accountId",
          tableInfo: {
@@ -34,8 +34,8 @@ describe("SqlColumn tests", () => {
    });
 
    test("SqlColumn alias should return new SqlColumn instance", () => {
-      expect(Account.firstName.key).toEqual("firstName");
-      expect({ ...Account.firstName("parentFirstName") }).toMatchObject({
+      expect(Account.$firstName.key).toEqual("firstName");
+      expect({ ...Account.$firstName("parentFirstName") }).toMatchObject({
          columnName: "first_name",
          key: "parentFirstName",
          tableInfo: {
@@ -46,7 +46,7 @@ describe("SqlColumn tests", () => {
    });
 
    test("SqlColumn alias from SqlTable alias should return new SqlColumn instance", () => {
-      expect({ ...Account`parent`.firstName("parentFirstName") }).toMatchObject({
+      expect({ ...Account`parent`.$firstName("parentFirstName") }).toMatchObject({
          columnName: "first_name",
          key: "parentFirstName",
          tableInfo: {

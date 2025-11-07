@@ -14,8 +14,8 @@ export class SqlValue<T extends { Key: string; Type: unknown }> extends Sql {
       super();
    }
 
-   $$build(context: SqlQueryContext) {
-      this.query.$$build(context);
+   build(context: SqlQueryContext) {
+      this.query.build(context);
    }
 
    is<Type>(): SqlValue<{ Key: T["Key"]; Type: Type }> {

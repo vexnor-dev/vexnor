@@ -39,11 +39,14 @@ ok(newAccount?.accountId, "accountId is required");
 const findAccountById = sql<IAccountSelect, { accountId: string }>`
    select ${Account.$$all}
    from ${Account}
-   where ${Account.accountId} = ${param("accountId")}
+   where ${Account.$accountId} = ${param("accountId")}
 `;
-const account = await findAccountById.pg.getOneRequired({ db: pool, params: {
-   accountId: newAccount.accountId,
-} });
+const account = await findAccountById.pg.getOneRequired({
+   db: pool,
+   params: {
+      accountId: newAccount.accountId,
+   },
+});
 console.log(`account (id=${newAccount.accountId}`, account);
 
 const newOrders = await sql<IOrderSelect>`
@@ -71,7 +74,7 @@ const accountUpdated = await sql<IAccountSelect>`
    set ${Account.$$set({
       status: AccountStatusUdt.CONFIRMED,
    })}
-   where ${Account.accountId} = ${newAccount.accountId}
+   where ${Account.$accountId} = ${newAccount.accountId}
    returning ${Account.$$all}
 `.pg.getOneRequired({ db: pool });
 console.log("account updated:", accountUpdated);
@@ -81,21 +84,24 @@ type IAccountWithOrders = IAccountSelect & {
 };
 
 const UserOrders = sql<IOrderSelect, { limit: number }>`
-   SELECT ${Order.orderId}, ${Order.createdAt}, ${Order.status}
+   SELECT ${Order.$orderId}, ${Order.$createdAt}, ${Order.$status}
    FROM ${Order}
-   WHERE ${Order.accountId} = ${Account.accountId}
-   ORDER BY ${Order.createdAt} DESC
+   WHERE ${Order.$accountId} = ${Account.$accountId}
+   ORDER BY ${Order.$createdAt} DESC
    LIMIT ${param("limit")}`;
 
 const findAccountsWithOrders = sql<IAccountWithOrders, { limit: number }>`
    SELECT ${Account.$$all},
           ${jsonAgg(UserOrders)} "orders"
    FROM ${Account} ${jsonAgg(UserOrders)}
-   WHERE ${Account.accountId} = ${newAccount.accountId}`;
+   WHERE ${Account.$accountId} = ${newAccount.accountId}`;
 
-const accountWithLimitedOrders = await findAccountsWithOrders.pg.getOneRequired({ db: pool, params: {
-   limit: 1,
-} });
+const accountWithLimitedOrders = await findAccountsWithOrders.pg.getOneRequired({
+   db: pool,
+   params: {
+      limit: 1,
+   },
+});
 
 console.log("account with orders:\n", accountWithLimitedOrders);
 console.log("end");

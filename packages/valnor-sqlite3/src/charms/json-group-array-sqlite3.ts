@@ -8,20 +8,20 @@ import { Sql, sql, SqlBuildOptions, SqlQueryAny, SqlQueryContext } from "valnor"
  * Orders by accountId:
  * SELECT ${Orders.$$all}
  * FROM ${Orders}
- * WHERE ${Orders.accountId} = ${Account.accountId}
+ * WHERE ${Orders.accountId} = ${Account.$accountId}
  * LIMIT ${param("limit")}
  *
  * Accounts and their orders:
  * SELECT ${Account.$$all}, ${jsonAgg(AccountOrders)} "orders"
  * FROM ${Account} ${jsonAgg(AccountOrders)}
- * WHERE ${Account.accountId} = ${param("accountId")}
+ * WHERE ${Account.$accountId} = ${param("accountId")}
  */
 export class JsonGroupArraySqlite3 extends Sql {
    constructor(public readonly select: SqlQueryAny) {
       super();
    }
 
-   $$build(context: SqlQueryContext, options: SqlBuildOptions) {
+   build(context: SqlQueryContext, options: SqlBuildOptions) {
       switch (context.keyword) {
          case "select": {
             // Build the full correlated subquery.
@@ -31,7 +31,7 @@ export class JsonGroupArraySqlite3 extends Sql {
             const subquery = sql<object>`
                select coalesce(json_group_array(json_object(${this.select.ROW.$$all})), '[]')
                from ${this.select}`;
-            subquery.$$build(context.child({ queryName: this.select.name }), options);
+            subquery.build(context.scope({ queryName: this.select.name }), options);
             context.addStrings(")");
             break;
          }
@@ -55,13 +55,13 @@ export class JsonGroupArraySqlite3 extends Sql {
  * Orders by accountId:
  * SELECT ${Orders.$$all}
  * FROM ${Orders}
- * WHERE ${Orders.accountId} = ${Account.accountId}
+ * WHERE ${Orders.accountId} = ${Account.$accountId}
  * LIMIT ${param("limit")}
  *
  * Accounts and their orders:
  * SELECT ${Account.$$all}, ${jsonAgg(AccountOrders)} "orders"
  * FROM ${Account} ${jsonAgg(AccountOrders)}
- * WHERE ${Account.accountId} = ${param("accountId")}
+ * WHERE ${Account.$accountId} = ${param("accountId")}
  */
 export function jsonGroupArray(select: SqlQueryAny) {
    return new JsonGroupArraySqlite3(select);

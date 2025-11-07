@@ -15,7 +15,7 @@ export class TableInsertRows<
       super();
    }
 
-   $$build(context: SqlQueryContext) {
+   build(context: SqlQueryContext) {
       if (this.inserts.length === 0) {
          return;
       }

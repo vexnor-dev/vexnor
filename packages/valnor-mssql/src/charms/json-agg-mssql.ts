@@ -5,21 +5,21 @@ import { Sql, SqlBuildOptions, SqlQueryAny, SqlQueryContext } from "valnor";
  * @example
  * SELECT ${Account.$$all}, ${jsonAgg(UserOrders)} "orders"
  * FROM ${Account} ${jsonAgg(UserOrders)}
- * WHERE ${Account.accountId} = ${param("accountId")}
+ * WHERE ${Account.$accountId} = ${param("accountId")}
  */
 export class JsonAggMssql extends Sql {
    constructor(public readonly query: SqlQueryAny) {
       super();
    }
 
-   $$build(context: SqlQueryContext, options: SqlBuildOptions) {
+   build(context: SqlQueryContext, options: SqlBuildOptions) {
       switch (context.keyword) {
          case "select":
             context.addStrings(`"${this.query.name}_result"."${this.query.name}"`);
             break;
          case "from": {
             context.addStrings("outer apply (\nselect coalesce((\n");
-            this.query.$$build(context.child({ queryName: this.query.name }), options);
+            this.query.build(context.scope({ queryName: this.query.info?.label }), options);
             context.addStrings(
                `\nfor json path, include_null_values), '[]'\n) as "${this.query.name}")\nas "${this.query.name}_result"`,
             );
@@ -38,7 +38,7 @@ export class JsonAggMssql extends Sql {
  * @example
  * SELECT ${Account.$$all}, ${jsonAgg(UserOrders)} "orders"
  * FROM ${Account} ${jsonAgg(UserOrders)}
- * WHERE ${Account.accountId} = ${param("accountId")}
+ * WHERE ${Account.$accountId} = ${param("accountId")}
  * */
 export function jsonAgg(query: SqlQueryAny) {
    if (!cache.has(query)) {

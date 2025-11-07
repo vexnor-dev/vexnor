@@ -9,20 +9,27 @@ import { AccountStatusUdt } from "@test-models/valnor_test-enums.js";
 
 describe("SqlSelectRow tests", () => {
    test("InferRowSelectFromColumns<T> inference", () => {
-      type Row = InferRowSelectFromColumns<[typeof Account.accountId, typeof Account.status, typeof Account.createdAt]>;
+      type Row = InferRowSelectFromColumns<
+         [typeof Account.$accountId, typeof Account.$status, typeof Account.$createdAt]
+      >;
       const row: Row = {
-         accountId: "",
-         createdAt: new Date(),
-         status: AccountStatusUdt.CREATED,
+         $accountId: "",
+         $createdAt: new Date(),
+         $status: AccountStatusUdt.CREATED,
       };
       expect(row).toBeDefined();
    });
 
+   test("row() column should be defined", () => {
+      const target = row(Account.$accountId, Account.$firstName, Account.$lastName);
+      expect(target.$accountId).toBeDefined();
+   });
+
    test("$build with distinct columns", () => {
-      const target = row(Account.accountId, Account.firstName, Account.lastName);
+      const target = row(Account.$accountId, Account.$firstName, Account.$lastName);
       const context = new SqlQueryContext({ queryName: "test" });
       context.next("select");
-      target.$$build(context);
+      target.build(context);
 
       expect(context.text).toEqual(
          `"a_1"."account_id" as "accountId", "a_1"."first_name" as "firstName", "a_1"."last_name" as "lastName"`,
@@ -30,10 +37,10 @@ describe("SqlSelectRow tests", () => {
    });
 
    test("$build with aliased column", () => {
-      const target = row(Account.accountId, Account.firstName, Account.lastName("name"));
+      const target = row(Account.$accountId, Account.$firstName, Account.$lastName("name"));
       const context = new SqlQueryContext({ queryName: "test" });
       context.next("select");
-      target.$$build(context);
+      target.build(context);
 
       expect(context.text).toEqual(
          `"a_1"."account_id" as "accountId", "a_1"."first_name" as "firstName", "a_1"."last_name" as "name"`,
@@ -41,10 +48,14 @@ describe("SqlSelectRow tests", () => {
    });
 
    test("$build with aliased table and column", () => {
-      const target = row(Account`inserted`.accountId, Account`inserted`.firstName, Account`inserted`.lastName("name"));
+      const target = row(
+         Account`inserted`.$accountId,
+         Account`inserted`.$firstName,
+         Account`inserted`.$lastName("name"),
+      );
       const context = new SqlQueryContext({ queryName: "test" });
       context.next("select");
-      target.$$build(context);
+      target.build(context);
 
       expect(context.text).toEqual(
          `"inserted"."account_id" as "accountId", "inserted"."first_name" as "firstName", "inserted"."last_name" as "name"`,
@@ -52,10 +63,10 @@ describe("SqlSelectRow tests", () => {
    });
 
    test("$build with table.$$all", () => {
-      const target = row(Account.$all);
+      const target = row(Account.$$all);
       const context = new SqlQueryContext({ queryName: "test" });
       context.next("select");
-      target.$$build(context);
+      target.build(context);
 
       expect(context.text).toEqual(trim`
          "a_1"."account_id"  as "accountId",
@@ -70,10 +81,10 @@ describe("SqlSelectRow tests", () => {
    });
 
    test("SqlRow $build with aliased table.$$all", () => {
-      const target = row(Account`inserted`.$all);
+      const target = row(Account`inserted`.$$all);
       const context = new SqlQueryContext({ queryName: "test" });
       context.next("select");
-      target.$$build(context);
+      target.build(context);
 
       expect(context.text).toEqual(trim`
          "inserted"."account_id"  as "accountId",
@@ -89,27 +100,27 @@ describe("SqlSelectRow tests", () => {
 
    test("query.row is defined", () => {
       const query = sql`
-         select ${row(Account.accountId, Account.status, Account.firstName)}
+         select ${row(Account.$accountId, Account.$status, Account.$firstName)}
          from ${Account}
-         where ${Account.accountId} = ${param("accountId").is<string>()}`;
+         where ${Account.$accountId} = ${param("accountId").is<string>()}`;
       expect(query.ROW).toBeDefined();
    });
 
    test("query.row is not defined", () => {
       const query = sql`
-         select ${(Account.accountId, Account.status, Account.firstName)}
+         select ${(Account.$accountId, Account.$status, Account.$firstName)}
          from ${Account}
-         where ${Account.accountId} = ${param("accountId").is<string>()}`;
+         where ${Account.$accountId} = ${param("accountId").is<string>()}`;
       expect(query.ROW).toBeFalsy();
    });
 
    test("query.row.[column] renders column", () => {
       const query = sql`
-         select ${row(Account.accountId, Account.status, Account.firstName)}
+         select ${row(Account.$accountId, Account.$status, Account.$firstName)}
          from ${Account}`;
       const context = new SqlQueryContext();
       context.next("where");
-      query.ROW.accountId.$$build(context);
+      query.ROW.$accountId.build(context);
       expect(context.text).toEqual(`"query_0"."accountId"`);
    });
 });

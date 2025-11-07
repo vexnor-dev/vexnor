@@ -12,7 +12,7 @@ describe("valnor postgres sql tests", () => {
       await sql<object>`
          delete
          from ${Account}
-         where ${Account.accountId} <> ${randomUUID()}
+         where ${Account.$accountId} <> ${randomUUID()}
       `.run({ db: db });
    });
 
@@ -24,7 +24,7 @@ describe("valnor postgres sql tests", () => {
       const accountId = randomUUID();
       await sql`
          insert into ${Account}
-            ${Account.$values({
+            ${Account.$$values({
                accountId,
                status: "created",
                firstName: "John",
@@ -34,9 +34,9 @@ describe("valnor postgres sql tests", () => {
       `.run({ db });
 
       const account = await sql<IAccountSelect>`
-        select ${Account.$all}
+        select ${Account.$$all}
         from ${Account}
-        where ${Account.accountId} = ${accountId}`.getOneRequired({ db });
+        where ${Account.$accountId} = ${accountId}`.getOneRequired({ db });
 
       expect(account).toEqual(
          expect.objectContaining({

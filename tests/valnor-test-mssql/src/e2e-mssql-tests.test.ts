@@ -13,9 +13,9 @@ describe.sequential("valnor mssql e2e tests", () => {
    const CHILD_FACTOR = 3;
 
    const findAccountById = sql<IAccountSelect, { accountId: string }>`
-      select ${Account.$all}
+      select ${Account.$$all}
       from ${Account}
-      where ${Account.accountId} = ${param("accountId")}
+      where ${Account.$accountId} = ${param("accountId")}
    `;
 
    afterAll(async () => {
@@ -27,7 +27,7 @@ describe.sequential("valnor mssql e2e tests", () => {
       await sql<object>`
          delete
          from ${Account}
-         where ${Account.accountId} <> ${randomUUID()}
+         where ${Account.$accountId} <> ${randomUUID()}
       `.mssql.run({ db: pool.request() });
    });
 
@@ -46,9 +46,9 @@ describe.sequential("valnor mssql e2e tests", () => {
          }
          const accounts = await sql<IAccountSelect>`
             insert into ${Account}
-               ${Account.$cols(...newAccountsArgs)}
-               output ${Account`inserted`.$all}
-               ${Account.$rows(...newAccountsArgs)}
+               ${Account.$$cols(...newAccountsArgs)}
+               output ${Account`inserted`.$$all}
+               ${Account.$$rows(...newAccountsArgs)}
          `.mssql
             .getAll({
                db: pool.request(),
@@ -83,9 +83,9 @@ describe.sequential("valnor mssql e2e tests", () => {
             };
             const account = await sql<IAccountSelect>`
                insert into ${Account}
-                  ${Account.$cols(accountInsert)}
-                  output ${Account`inserted`.$all}
-                  ${Account.$rows(accountInsert)}
+                  ${Account.$$cols(accountInsert)}
+                  output ${Account`inserted`.$$all}
+                  ${Account.$$rows(accountInsert)}
             `.mssql.getOneRequired({ db: pool.request() });
             expect(account).toEqual(
                expect.objectContaining({
@@ -108,10 +108,10 @@ describe.sequential("valnor mssql e2e tests", () => {
 
    test(`Fetch all ${ROOT_COUNT} root accounts`, async () => {
       const actual = await sql<IAccountSelect>`
-         select ${Account.$all}
+         select ${Account.$$all}
          from ${Account}
-         where ${Account.accountId} in (${rootAccounts.map((z) => z.accountId)})
-         order by ${Account.email}
+         where ${Account.$accountId} in (${rootAccounts.map((z) => z.accountId)})
+         order by ${Account.$email}
       `.mssql.getAll({ db: pool.request() });
 
       expect(actual).toEqual(rootAccounts);
@@ -119,10 +119,10 @@ describe.sequential("valnor mssql e2e tests", () => {
 
    test(`Fetch all ${ROOT_COUNT * CHILD_FACTOR} children accounts`, async () => {
       const actual = await sql<IAccountSelect>`
-    select ${Account.$all}
+    select ${Account.$$all}
     from ${Account}
-    where ${Account.accountId} in (${childAccounts.map((z) => z.accountId)})
-    order by ${Account.email} asc
+    where ${Account.$accountId} in (${childAccounts.map((z) => z.accountId)})
+    order by ${Account.$email} asc
 `.mssql.getAll({ db: pool.request() });
       expect(actual).toEqual(childAccounts);
    });
@@ -147,14 +147,14 @@ describe.sequential("valnor mssql e2e tests", () => {
 
    test("Self join account: fetch accounts with parent info (firstName, lastName, email)", async () => {
       const actual = await sql<IAccountSelect>`
-         select ${Account.$all},
+         select ${Account.$$all},
                 ${Account`parent`.firstName`parentFirstName`},
                 ${Account`parent`.lastName`parentLastName`},
                 ${Account`parent`.email`parentEmail`}
          from ${Account}
-                 join ${Account`parent`} on ${Account`parent`.accountId} = ${Account.parentId}
-         where ${Account.accountId} in (${childAccounts.map((z) => z.accountId)})
-         order by ${Account.email}
+                 join ${Account`parent`} on ${Account`parent`.$accountId} = ${Account.parentId}
+         where ${Account.$accountId} in (${childAccounts.map((z) => z.accountId)})
+         order by ${Account.$email}
       `.mssql.getAll({
          db: pool.request(),
       });
@@ -174,17 +174,17 @@ describe.sequential("valnor mssql e2e tests", () => {
 
    test("Fetch root accounts and their children as json array", async () => {
       const accountChildren = sql<IAccountSelect>`
-         select ${Account`children`.$all}
+         select ${Account`children`.$$all}
          from ${Account`children`}
-         where ${Account`children`.parentId} = ${Account.accountId}
+         where ${Account`children`.parentId} = ${Account.$accountId}
          order by ${Account`children`.email}
       `;
 
       const actual = await sql<IAccountSelect & { children: string }>`
-         select ${Account.$all}, ${jsonAgg(accountChildren)} as children
+         select ${Account.$$all}, ${jsonAgg(accountChildren)} as children
          from ${Account} ${jsonAgg(accountChildren)}
-         where ${Account.accountId} in (${rootAccounts.map((z) => z.accountId)})
-         order by ${Account.email}
+         where ${Account.$accountId} in (${rootAccounts.map((z) => z.accountId)})
+         order by ${Account.$email}
       `.mssql
          .getAll({ db: pool.request() })
          .then((accounts) =>
@@ -225,8 +225,8 @@ describe.sequential("valnor mssql e2e tests", () => {
       const actual = await sql<IAccountSelect>`
          update ${Account}
          set ${Account.firstName} = ${expected.firstName + "+test"}
-         output ${Account`inserted`.$all}
-         where ${Account.accountId} = ${expected.accountId}
+         output ${Account`inserted`.$$all}
+         where ${Account.$accountId} = ${expected.accountId}
       `.mssql.getOneRequired({ db: pool.request() });
       expect(actual).toEqual({ ...expected, firstName: expected.firstName + "+test" });
    });
@@ -235,11 +235,11 @@ describe.sequential("valnor mssql e2e tests", () => {
       const { rowsAffected } = await sql<object>`
          delete
          from ${Account}
-         where ${Account.accountId} in (${childAccounts.map((z) => z.accountId)});
+         where ${Account.$accountId} in (${childAccounts.map((z) => z.accountId)});
 
          delete
          from ${Account}
-         where ${Account.accountId} in (${rootAccounts.map((z) => z.accountId)})
+         where ${Account.$accountId} in (${rootAccounts.map((z) => z.accountId)})
       `.mssql.run({ db: pool.request() });
 
       expect(rowsAffected[0]! + rowsAffected[1]!).toEqual(ROOT_COUNT + ROOT_COUNT * CHILD_FACTOR);

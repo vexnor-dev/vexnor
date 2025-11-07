@@ -13,20 +13,20 @@ describe("SqlTable tests", () => {
    });
 
    test("SqlTable should include expected columns", () => {
-      expect(Account.accountId).toBeDefined();
-      expect(Account.status).toBeDefined();
-      expect(Account.email).toBeDefined();
+      expect(Account.$accountId).toBeDefined();
+      expect(Account.$status).toBeDefined();
+      expect(Account.$email).toBeDefined();
 
-      expect(typeof Account.accountId).toEqual("function");
-      expect(typeof Account.status).toEqual("function");
-      expect(typeof Account.email).toEqual("function");
+      expect(typeof Account.$accountId).toEqual("function");
+      expect(typeof Account.$status).toEqual("function");
+      expect(typeof Account.$email).toEqual("function");
    });
 
    test("SqlTable alias should return new SqlTable instance", () => {
       const actual = Account`parent`;
       console.log(actual);
       expect(actual).toBeDefined();
-      expect(actual.$$tableInfo).toEqual(
+      expect(actual.tableInfo).toEqual(
          expect.objectContaining({
             schema: "valnor_test",
             name: "account",
@@ -36,7 +36,7 @@ describe("SqlTable tests", () => {
    });
 
    test("SqlTable alias should return new SqlColumn instance", () => {
-      const actual = Account`parent`.accountId;
+      const actual = Account`parent`.$accountId;
       console.log(actual);
       expect(actual).toBeDefined();
       expect(actual.tableInfo).toEqual<typeof actual.tableInfo>({
@@ -49,7 +49,7 @@ describe("SqlTable tests", () => {
    });
 
    test("SqlTable alias should return new SqlTable instance with respective $$all columns", () => {
-      const actual = Account`inserted`.$all;
+      const actual = Account`inserted`.$$all;
       for (const col of Object.values(actual.row)) {
          ok(col instanceof SqlTableColumn);
          expect(col.tableInfo).toEqual<typeof col.tableInfo>({
@@ -57,7 +57,7 @@ describe("SqlTable tests", () => {
             name: "account",
             alias: "inserted",
          });
-         const original = Account.$$column(col.key);
+         const original = Account.column(col.key);
          expect(col.key).toBe(original.key);
          expect(col.columnName).toBe(original.columnName);
       }

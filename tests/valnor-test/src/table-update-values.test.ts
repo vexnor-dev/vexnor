@@ -9,14 +9,14 @@ describe("sql plugin: table.$$set tests", () => {
       const query = sql`
         ${rowType<IAccountSelect>()}
          update ${Account}
-         set ${Account.$set({
+         set ${Account.$$set({
             firstName: "Bob",
             lastName: "Smith",
             email: "bob@example.com",
             modifiedAt,
          })}
-         where ${Account.accountId} = ${param("accountId").is<string>()}
-         returning ${Account.$all}`;
+         where ${Account.$accountId} = ${param("accountId").is<string>()}
+         returning ${Account.$$all}`;
       expect(query.getValues({ params: { accountId: "123e4567-e89b-12d3-a456-426614174000" } })).toEqual([
          "Bob",
          "Smith",

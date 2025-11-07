@@ -41,20 +41,20 @@ export class SqlTable<
       Update?: Partial<T["Insert"]>;
    },
 > extends Sql {
-   readonly $all: SqlTableAll<{ Row: T["Select"] }>;
-   readonly $$tableInfo: { schema?: string; name: string; alias?: string };
-   readonly $$format: SqlTableFormat | null;
-   readonly $$row: InferTableColumnsByRecord<T["Select"]>;
-   readonly $$pk: Array<keyof T["Select"]>;
+   readonly $$all: SqlTableAll<{ Row: T["Select"] }>;
+   readonly tableInfo: { schema?: string; name: string; alias?: string };
+   readonly format: SqlTableFormat | null;
+   readonly row: InferTableColumnsByRecord<T["Select"]>;
+   readonly pk: Array<keyof T["Select"]>;
 
    constructor({ format, pk, tableInfo, ...options }: SqlTableOptions<T>) {
       super();
-      this.$$tableInfo = tableInfo;
-      this.$$format = format ?? null;
-      this.$$pk = pk;
+      this.tableInfo = tableInfo;
+      this.format = format ?? null;
+      this.pk = pk;
       const { schema, name } = tableInfo;
 
-      this.$$row = (() => {
+      this.row = (() => {
          const row: Record<string, unknown> = {};
          for (const key of Object.keys(options.columns)) {
             const value = options.columns[key];
@@ -68,12 +68,12 @@ export class SqlTable<
          return row as InferTableColumnsByRecord<T["Select"]>;
       })();
 
-      this.$all = new SqlTableAll<{ Row: T["Select"] }>(this.$$row);
+      this.$$all = new SqlTableAll<{ Row: T["Select"] }>(this.row);
    }
 
-   $$column(key: string): SqlColumnAny {
-      const result = this.$$row[key as keyof T["Select"]];
-      if (!result) throw new Error(`Column not found: ${this.$$tableInfo.name}.${String(key)}`);
+   column(key: string): SqlColumnAny {
+      const result = this.row[key as keyof T["Select"]];
+      if (!result) throw new Error(`Column not found: ${this.tableInfo.name}.${String(key)}`);
 
       return result as unknown as SqlColumnAny;
    }
@@ -82,72 +82,72 @@ export class SqlTable<
     * Generates the SQL code for UPDATE set values
     * @param update record with update values
     */
-   $set<U extends T["Update"]>(update: U): T["Update"] extends undefined ? never : Sql {
+   $$set<U extends T["Update"]>(update: U): T["Update"] extends undefined ? never : Sql {
       ok(update, `Update is required`);
       ok(Object.keys(update), `Update doesn't have any values`);
-      return new TableUpdateSet(this.$$row, update) as unknown as T["Update"] extends undefined ? never : Sql;
+      return new TableUpdateSet(this.row, update) as unknown as T["Update"] extends undefined ? never : Sql;
    }
 
    /**
     * Generates the columns and VALUES clause for an INSERT statement, e.g., ("col1", "col2") VALUES (?, ?), (?, ?).
     * @param inserts array of records to insert
     */
-   $values(...inserts: T["Insert"][]): T["Insert"] extends undefined ? never : Sql {
+   $$values(...inserts: T["Insert"][]): T["Insert"] extends undefined ? never : Sql {
       ok(insertsAreValid(inserts), `Invalid inserts`);
-      return new TableInsertValues(this.$$row, inserts) as never as T["Insert"] extends undefined ? never : Sql;
+      return new TableInsertValues(this.row, inserts) as never as T["Insert"] extends undefined ? never : Sql;
    }
 
    /**
     * Generates the column list for an INSERT statement, e.g., ("col1", "col2").
     * @param inserts - One or more objects containing the data to be inserted.
     */
-   $cols(...inserts: T["Insert"][]): T["Insert"] extends undefined ? never : Sql {
+   $$cols(...inserts: T["Insert"][]): T["Insert"] extends undefined ? never : Sql {
       ok(insertsAreValid(inserts), `Invalid inserts`);
-      return new TableInsertCols(this.$$row, inserts) as never as T["Insert"] extends undefined ? never : Sql;
+      return new TableInsertCols(this.row, inserts) as never as T["Insert"] extends undefined ? never : Sql;
    }
 
    /**
     * Generates the VALUES clause for an INSERT statement, e.g., VALUES (?, ?), (?, ?).
     * @param inserts - One or more objects containing the data to be inserted.
     */
-   $rows(...inserts: T["Insert"][]): T["Insert"] extends undefined ? never : Sql {
+   $$rows(...inserts: T["Insert"][]): T["Insert"] extends undefined ? never : Sql {
       ok(insertsAreValid(inserts), `Invalid inserts`);
-      return new TableInsertRows(this.$$row, inserts) as never as T["Insert"] extends undefined ? never : Sql;
+      return new TableInsertRows(this.row, inserts) as never as T["Insert"] extends undefined ? never : Sql;
    }
 
    // eslint-disable-next-line unused-imports/no-unused-vars
-   $$build(context: SqlQueryContext, _options?: SqlBuildOptions) {
-      const schema = this.$$tableInfo.schema ? `${this.$$tableInfo.schema}.` : "";
+   build(context: SqlQueryContext, _options?: SqlBuildOptions) {
+      const schema = this.tableInfo.schema ? `${this.tableInfo.schema}.` : "";
 
-      const format = this.$$format ?? context.formatter.getTableFormat(context);
+      const format = this.format ?? context.formatter.getTableFormat(context);
       switch (format) {
          case "tableName":
-            context.addQuotes(`${this.$$tableInfo.name}`);
+            context.addQuotes(`${this.tableInfo.name}`);
             break;
          case "schema.tableName":
-            context.addQuotes(`${schema}${this.$$tableInfo.name}`);
+            context.addQuotes(`${schema}${this.tableInfo.name}`);
             switch (context.keyword) {
                case "update":
                case "delete from":
                case "insert into":
                   context.setAlias({
-                     ...this.$$tableInfo,
-                     alias: this.$$tableInfo.name,
+                     ...this.tableInfo,
+                     alias: this.tableInfo.name,
                   });
             }
             break;
          case "schema.tableName as tableAlias": {
-            const alias = this.$$tableInfo.alias ?? context.alias(this.$$tableInfo);
-            if (this.$$tableInfo.name === alias) {
-               context.addQuotes(`${schema}${this.$$tableInfo.name}`);
+            const alias = this.tableInfo.alias ?? context.alias(this.tableInfo);
+            if (this.tableInfo.name === alias) {
+               context.addQuotes(`${schema}${this.tableInfo.name}`);
                break;
             }
 
-            context.addQuotes(`${schema}${this.$$tableInfo.name} as ${alias}`);
+            context.addQuotes(`${schema}${this.tableInfo.name} as ${alias}`);
             break;
          }
          case "tableAlias":
-            context.addQuotes(`${context.alias(this.$$tableInfo)}`);
+            context.addQuotes(`${context.alias(this.tableInfo)}`);
             break;
          default:
             throw new Error(`Unknown table format: ${format}`);
@@ -166,28 +166,51 @@ export function newSqlTable<
    const sqlTable = () => {};
    return new Proxy(sqlTable, {
       ownKeys(): ArrayLike<string | symbol> {
-         return [...Object.keys(table), ...Object.keys(table.$$row)];
+         return [...Object.keys(table), ...Object.keys(table.row).map((z) => `$${z}`)];
       },
       getPrototypeOf(): object | null {
          return Object.getPrototypeOf(table);
       },
       getOwnPropertyDescriptor(_target, p: string | symbol): PropertyDescriptor | undefined {
-         return Reflect.getOwnPropertyDescriptor(table, p) ?? Reflect.getOwnPropertyDescriptor(table.$$row, p);
+         const prop = String(p);
+         switch (true) {
+            case !prop.startsWith("$"):
+            case prop.startsWith("$$"):
+               return Reflect.getOwnPropertyDescriptor(table, p);
+            case prop.startsWith("$"):
+               return Reflect.getOwnPropertyDescriptor(table.row, p);
+            default:
+               throw new Error(`Unknown property: ${prop}`);
+         }
       },
       has(_target, p: string | symbol): boolean {
-         return Object.hasOwn(table, p) || Object.hasOwn(table.$$row, p);
+         const prop = String(p);
+         switch (true) {
+            case !prop.startsWith("$"):
+            case prop.startsWith("$$"):
+               return Object.hasOwn(table, p);
+            case prop.startsWith("$"):
+               return Object.hasOwn(table.row, p);
+            default:
+               throw new Error(`Unknown property: ${prop}`);
+         }
       },
       get(_target, p: string | symbol, receiver: unknown): unknown {
-         const result = Reflect.get(table, p, receiver);
-         if (typeof result === "function") {
-            return result.bind(table);
+         const prop = String(p);
+         switch (true) {
+            case !prop.startsWith("$"):
+            case prop.startsWith("$$"): {
+               const result = Reflect.get(table, p, receiver);
+               if (typeof result === "function") {
+                  return result.bind(table);
+               }
+               return result;
+            }
+            case prop.startsWith("$"):
+               return Reflect.get(table.row, prop.substring(1), receiver);
+            default:
+               throw new Error(`Unknown property: ${prop}`);
          }
-
-         if (result) {
-            return result;
-         }
-
-         return Reflect.get(table.$$row, p, receiver);
       },
       apply(_target, _thisArg: unknown, argArray: string[]): SqlTable<T> {
          const key = Array.isArray(argArray[0]) ? argArray[0][0] : argArray[0];
@@ -198,7 +221,7 @@ export function newSqlTable<
          return newSqlTable({
             ...options,
             tableInfo: {
-               ...table.$$tableInfo,
+               ...table.tableInfo,
                alias: key,
             },
          });
@@ -214,7 +237,7 @@ function insertsAreValid(values: unknown[]): values is RowIn[] {
 type InferTableColumnsByRecord<Select> =
    Select extends Record<string, unknown>
       ? {
-           [K in keyof Select]: K extends string
+           [K in keyof Select as `$${string & K}`]: K extends string
               ? SqlTableColumnExtended<{
                    Key: K;
                    Type: Select[K];

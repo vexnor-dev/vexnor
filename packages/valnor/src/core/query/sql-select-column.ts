@@ -45,7 +45,7 @@ export class SqlSelectColumn<
    }
 
    // eslint-disable-next-line unused-imports/no-unused-vars
-   $$build(context: SqlQueryContext, _options?: SqlBuildOptions) {
+   build(context: SqlQueryContext, _options?: SqlBuildOptions) {
       const tableInfo = {
          alias: context.queryName,
          name: context.queryName,
