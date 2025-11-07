@@ -11,8 +11,8 @@ describe("sql() tests", () => {
         ${rowType<IAccountSelect>()}
          select ${Account.firstName}, min(${Account.email}), ${Account.email`user_email`}, ${Account.createdAt}
          from ${Account}
-         where ${Account.email} = ${param.string("email")}
-           and ${Account.firstName} in (${param.array("names")})
+         where ${Account.email} = ${param("email").is<string>()}
+           and ${Account.firstName} in (${param("names").is<string[]>()})
          group by ${Account.email}`;
       expect(query.getValues({ params: { names, email: "test@example.com" } })).toEqual([
          "test@example.com",
@@ -74,7 +74,7 @@ describe("sql() tests", () => {
                  join ${Order} on ${OrderItem.orderId} = ${Order.orderId}
                  join ${Account} on ${Account.accountId} = ${Order.accountId}`;
 
-      expect(query.getSql({ params: {} })).toEqualQuery(`
+      expect(query.getSql({})).toEqualQuery(`
          select "oi_1"."product_id"    as "productId",
                 "oi_1"."order_id"      as "orderId",
                 "oi_1"."product_price" as "productPrice",

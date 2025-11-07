@@ -1,41 +1,33 @@
-import { hasParams, SqlQueryParams, SqlQueryRowOut, SqlBuild, SqlBuildOptions, SqlInputArgs } from "../sql-types.js";
-import { newSqlQueryRow, SqlQueryRow } from "./sql-query-row.js";
-import { SqlColumnAny, SqlTable } from "../schema/index.js";
-import { x } from "../../x.js";
+import { hasParams, SqlBuild, SqlBuildOptions, SqlInputArgs } from "../sql-types.js";
 import { ok } from "assert";
 import { SqlParam } from "./sql-param.js";
 import { SqlQueryContext } from "./sql-query-context.js";
 import { logger } from "../logger.js";
-import { isSql, Sql } from "../sql-base.js";
-import { SqlInfo } from "../charms/index.js";
+import { Sql } from "../sql-base.js";
 import { DefaultFormatter } from "../default-formatter.js";
-import { randomBytes } from "node:crypto";
+import { SqlSelectRow, SqlSelectRowExtended } from "./sql-select-row.js";
+import { SqlQueryInfo } from "../charms/index.js";
 
 export const WILDCARD = "?";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlQueryAny = SqlQuery<any>;
 
-export class SqlQuery<T extends { Row: SqlQueryRowOut; Params?: SqlQueryParams }> extends Sql {
-   readonly name: string;
-   readonly ROW: SqlQueryRow & Record<keyof T["Row"], SqlColumnAny>;
+export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql {
+   readonly ROW: T["Row"] extends Record<string, unknown> ? SqlSelectRowExtended<{ Row: T["Row"] }> : null;
    private __buildCache__?: SqlBuild = undefined;
+   readonly info: SqlQueryInfo | null;
 
    constructor(
       public readonly rawStrings: readonly string[],
       public readonly rawValues: readonly unknown[],
    ) {
       super();
-      this.name = x(() => {
-         const info = rawValues.find((v) => v instanceof SqlInfo);
-         if (info) return info.options.label;
-
-         const table = rawValues.find((v) => v instanceof SqlTable);
-         if (table) return `${table.$$.schema}.${table.$$.name}_query`;
-
-         return `query_${randomBytes(3).toString("hex")}`;
-      });
-      this.ROW = newSqlQueryRow({ name: this.name });
+      this.info = rawValues.find((v) => v instanceof SqlQueryInfo) ?? null;
+      this.ROW = (() => {
+         const row = rawValues.find((v) => v instanceof SqlSelectRow);
+         return row as T["Row"] extends Record<string, unknown> ? SqlSelectRowExtended<{ Row: T["Row"] }> : null;
+      })();
    }
 
    /**
@@ -126,21 +118,22 @@ export class SqlQuery<T extends { Row: SqlQueryRowOut; Params?: SqlQueryParams }
    }
 
    buildCache(options?: SqlBuildOptions) {
-      if (this.__buildCache__) return this.__buildCache__;
-
+      // if (this.__buildCache__) return this.__buildCache__;
       const { tokenizer, formatter } = options ?? {};
-      const context = new SqlQueryContext({ queryName: this.name, tokenizer, formatter });
-      try {
-         this.$build(context, options ?? {});
-         this.__buildCache__ = {
-            strings: context.strings,
-            values: context.values,
-         };
-         return this.__buildCache__;
-      } catch (err) {
-         logger.error({ err, context, rawStrings: this.rawStrings }, "Error building core");
-         throw err;
-      }
+      const context = new SqlQueryContext({ queryName: this.info?.label, tokenizer, formatter });
+      this.$$build(context, options ?? {});
+      return {
+         strings: [...context.strings],
+         values: [...context.values],
+      };
+      //
+      // try {
+      //    this.__buildCache__ = ;
+      //    return this.__buildCache__;
+      // } catch (err) {
+      //    logger.error({ err, context, rawStrings: this.rawStrings }, "Error building core");
+      //    throw err;
+      // }
    }
 
    toString() {
@@ -152,13 +145,13 @@ export class SqlQuery<T extends { Row: SqlQueryRowOut; Params?: SqlQueryParams }
     * @param context
     * @param options
     */
-   $build(context: SqlQueryContext, options?: SqlBuildOptions) {
+   $$build(context: SqlQueryContext, options?: SqlBuildOptions) {
       const wrapStart = () => {
-         if (this.wrap) context.strings.push("(");
+         if (this.$$wrap) context.addStrings("(");
       };
 
       const wrapEnd = () => {
-         if (this.wrap) context.strings.push(")");
+         if (this.$$wrap) context.addStrings(")");
       };
 
       switch (context.keyword) {
@@ -166,22 +159,22 @@ export class SqlQuery<T extends { Row: SqlQueryRowOut; Params?: SqlQueryParams }
             wrapStart();
             this.buildInternal(context, options);
             wrapEnd();
-            context.strings.push(` as "${this.name}"`);
+            context.addStrings(` as "${context.queryName}"`);
             break;
          case "join":
             wrapStart();
             this.buildInternal(context, options);
             wrapEnd();
-            context.strings.push(` as "${this.name}"`);
+            context.addStrings(` as "${context.queryName}"`);
             break;
          case "from":
             wrapStart();
             this.buildInternal(context, options);
             wrapEnd();
-            context.strings.push(` as "${this.name}"`);
+            context.addStrings(` as "${context.queryName}"`);
             break;
          case "fn":
-            context.strings.push(`"${this.name}"`);
+            context.addStrings(`"${context.queryName}"`);
             break;
          default:
             this.buildInternal(context, options);
@@ -191,13 +184,12 @@ export class SqlQuery<T extends { Row: SqlQueryRowOut; Params?: SqlQueryParams }
 
    private buildInternal(context: SqlQueryContext, options?: SqlBuildOptions) {
       const children = [...this.rawValues];
-      const { strings, values } = context;
       let i = -1;
       while (children.length || i < this.rawStrings.length) {
          i++;
          const rawString = i < this.rawStrings.length ? this.rawStrings[i] : undefined;
          if (rawString) {
-            strings.push(rawString);
+            context.addStrings(rawString);
             context.next(rawString);
          }
 
@@ -208,16 +200,19 @@ export class SqlQuery<T extends { Row: SqlQueryRowOut; Params?: SqlQueryParams }
          function buildToken(item: unknown, delimiter = "") {
             const addString = (text: string) => `${text}${delimiter}`;
             switch (true) {
-               case isSql(item):
-                  item.$build(context, options);
+               case item instanceof SqlQuery:
+                  item.$$build(context.scope({ queryName: item.info?.label }), options);
+                  break;
+               case item instanceof Sql:
+                  item.$$build(context, options);
                   break;
                case !item:
-                  values.push(item);
-                  strings.push(addString(WILDCARD));
+                  context.addValues(item);
+                  context.addStrings(addString(WILDCARD));
                   break;
                default:
-                  values.push(item);
-                  strings.push(addString(WILDCARD));
+                  context.addValues(item);
+                  context.addStrings(addString(WILDCARD));
                   break;
             }
          }
@@ -226,7 +221,7 @@ export class SqlQuery<T extends { Row: SqlQueryRowOut; Params?: SqlQueryParams }
             if (Array.isArray(child)) {
                for (let k = 0; k < child.length; k++) {
                   if (k > 0) {
-                     strings.push(", ");
+                     context.addStrings(", ");
                   }
 
                   buildToken(child[k]);

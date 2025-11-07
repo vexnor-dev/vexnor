@@ -1,17 +1,16 @@
 import { SqlQueryContext } from "../query/index.js";
 import { Sql } from "../sql-base.js";
-import { RowIn, SqlQueryRowOut } from "../sql-types.js";
 import { SqlBuildError } from "../sql-build-error.js";
-import { SqlColumnAny } from "../schema/index.js";
+import { InferTableColumnsByRecord } from "../types/index.js";
 
 export class TableInsertValues<
    T extends {
-      Insert: RowIn;
-      Select: SqlQueryRowOut;
+      Select: Record<string, unknown>;
+      Insert: Partial<T["Select"]>;
    },
 > extends Sql {
    constructor(
-      public readonly columns: Record<keyof T["Select"], SqlColumnAny>,
+      public readonly columns: InferTableColumnsByRecord<T["Select"]>,
       public readonly inserts: T["Insert"][],
    ) {
       super();
@@ -36,47 +35,46 @@ export class TableInsertValues<
       }
    }
 
-   $build(context: SqlQueryContext) {
-      const { strings, values } = context;
-      strings.push("(");
+   $$build(context: SqlQueryContext) {
+      context.addStrings("(");
       let i = 0;
       const keys = Object.keys(this.inserts[0]!);
       for (const key of keys) {
          if (i++ > 0) {
-            strings.push(", ");
+            context.addStrings(", ");
          }
 
-         const col = this.columns[key as keyof T["Select"]]!;
-         col.$build(context);
+         const column = this.columns[key as keyof T["Select"]]!;
+         column.$$build(context);
       }
 
-      strings.push(")", " values ");
+      context.addStrings(")", " values ");
       for (let i = 0; i < this.inserts.length; i++) {
          const insert = this.inserts[i]!;
          if (i > 0) {
-            strings.push(", ");
+            context.addStrings(", ");
          }
 
-         strings.push("(");
+         context.addStrings("(");
          let j = 0;
          for (const key of keys) {
             if (j++ > 0) {
-               strings.push(", ");
+               context.addStrings(", ");
             }
 
             const value = insert[key as keyof T["Insert"]];
             switch (value) {
                case undefined:
-                  strings.push("default");
+                  context.addStrings("?");
                   break;
                default:
-                  values.push(value);
-                  strings.push(`?`);
+                  context.addStrings("?");
+                  context.addValues(value);
                   break;
             }
          }
 
-         strings.push(")");
+         context.addStrings(")");
       }
    }
 }

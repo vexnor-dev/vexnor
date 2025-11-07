@@ -2,10 +2,7 @@ import { DefaultFormatter } from "./default-formatter.js";
 import { ITokenizer } from "./sql-tokenizer.js";
 
 export type RowIn = Record<string, unknown>;
-
-export type SqlQueryRowOut = Record<string, unknown>;
-
-export type SqlQueryParams = unknown; // Record<string, unknown>;
+export type RowOut = Record<string, unknown>;
 
 export type SqlBuild = {
    strings: string[];
@@ -21,13 +18,13 @@ export type SqlBuildOptions = {
    debug?: (args: Readonly<Record<string, unknown>>) => void;
 };
 
-export type SqlRunArgs<TDbClient, TParams> = TParams extends undefined
-   ? { db: TDbClient; options?: SqlBuildOptions }
-   : { db: TDbClient; params: TParams; options?: SqlBuildOptions };
+export type SqlRunArgs<TDbClient, TParams> = TParams extends object
+   ? { db: TDbClient; params: TParams; options?: SqlBuildOptions }
+   : { db: TDbClient; options?: SqlBuildOptions };
 
-export type SqlInputArgs<TParams> = TParams extends undefined
-   ? { options?: SqlBuildOptions }
-   : { params: TParams; options?: SqlBuildOptions };
+export type SqlInputArgs<TParams> = TParams extends object
+   ? { params: TParams; options?: SqlBuildOptions }
+   : { options?: SqlBuildOptions };
 
 export function hasParams(value: unknown): value is { params: Record<string, unknown> } {
    if (!value) return false;

@@ -1,46 +1,49 @@
-import { SqlParam, SqlQuery, SqlResultRow, SqlRowAny, SqlRowType } from "./query/index.js";
-import { SqlColumn, SqlColumnAny, SqlSelectAll, SqlTableAny, SqlTableCallableAny } from "./schema/index.js";
+import { SqlCharm, SqlParam, SqlQuery, SqlRowType, SqlSelectRow, SqlSelectRowAny } from "./query/index.js";
+import { SqlColumnAny, SqlTableAny } from "./schema/index.js";
 import { Sql } from "./sql-base.js";
-import { SqlQueryParams, SqlQueryRowOut } from "./sql-types.js";
 
 export function sql<Token extends SqlQueryToken = SqlQueryToken, Tokens extends Token[] = Token[]>(
    strings: TemplateStringsArray,
    ...values: Tokens
 ): SqlQuery<{
-   Row: InferRowFromQueryTokens<typeof values>;
-   Params: InferParamsFromQueryTokens<typeof values>;
+   Row: ObjectOrUndefined<InferRowFromQueryTokens<typeof values>>;
+   Params: ObjectOrUndefined<InferParamsFromQueryTokens<typeof values>>;
 }> {
    return new SqlQuery(strings, values);
 }
 
 type _SqlValue_ = Sql | string | number | boolean | null | undefined | Date | bigint | Buffer;
-export type SqlValue = _SqlValue_ | _SqlValue_[];
+type SqlValue = _SqlValue_ | _SqlValue_[];
 
-export type SqlQueryToken = SqlValue | (SqlTableAny & SqlTableCallableAny) | SqlColumnAny | SqlRowAny;
-
-export type InferRowFromColumnArray<T> = T extends [infer Start, ...infer Rest]
-   ? Start extends SqlColumn<infer Options>
-      ? Record<Options["Key"], Options["Type"]> & InferRowFromColumnArray<Rest>
-      : Start extends SqlSelectAll<infer Select>
-        ? { [K in keyof Select]: Select[K] } & InferRowFromColumnArray<Rest>
-        : InferRowFromColumnArray<Rest>
-   : SqlQueryRowOut;
+export type SqlQueryToken = SqlValue | SqlTableAny | SqlColumnAny | SqlSelectRowAny;
+//
+// export type InferRowFromColumns<T> = T extends [infer Start, ...infer Rest]
+//    ? Start extends SqlOutKey<infer Options>
+//       ? Record<Options["Key"], Options["Type"]> & InferRowFromColumns<Rest>
+//       : Start extends SqlOutRow<infer Select>
+//         ? { [K in keyof Select]: Select[K] } & InferRowFromColumns<Rest>
+//         : InferRowFromColumns<Rest>
+//    : unknown;
 
 export type InferRowFromQueryTokens<T> = T extends [infer Start, ...infer Rest]
-   ? Start extends SqlResultRow<infer Columns>
-      ? InferRowFromColumnArray<Columns>
-      : Start extends SqlRowType<infer RowType extends Record<string, unknown>>
-        ? RowType
+   ? Start extends SqlSelectRow<infer Options extends { Row: Record<string, unknown> }>
+      ? Options["Row"]
+      : Start extends SqlRowType<infer Row>
+        ? Row
         : InferRowFromQueryTokens<Rest>
-   : SqlQueryRowOut;
+   : unknown;
 
 export type InferParamsFromQueryTokens<T> = T extends [infer Start, ...infer Rest]
-   ? Start extends SqlParam<infer Name extends string, infer Type>
-      ? Record<Name, Type> & InferParamsFromQueryTokens<Rest>
-      : Start extends SqlQuery<infer Query extends { Params: SqlQueryParams; Row: SqlQueryRowOut }>
+   ? Start extends SqlParam<infer Param extends { Name: string; Type: unknown }>
+      ? Record<Param["Name"], Param["Type"]> & InferParamsFromQueryTokens<Rest>
+      : Start extends SqlQuery<infer Query extends { Params?: unknown; Row?: unknown }>
         ? Query["Params"] & InferParamsFromQueryTokens<Rest>
-        : InferParamsFromQueryTokens<Rest>
-   : SqlQueryParams;
+        : Start extends SqlCharm<infer Query extends { Params?: unknown; Row?: unknown }>
+          ? Query["Params"] & InferParamsFromQueryTokens<Rest>
+          : InferParamsFromQueryTokens<Rest>
+   : unknown;
 
 export type InferRowFromQuery<T> = T extends SqlQuery<infer U> ? U["Row"] : never;
 export type InferParamsFromQuery<T> = T extends SqlQuery<infer U> ? U["Params"] : never;
+
+export type ObjectOrUndefined<T> = keyof T extends never ? void : T;

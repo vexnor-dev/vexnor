@@ -9,19 +9,15 @@ export class SqlRaw extends Sql {
       super();
    }
 
-   override $build({ strings }: SqlQueryContext) {
+   override $$build(context: SqlQueryContext) {
       if (this.quote) {
-         strings.push(`"${this.value}"`);
+         context.addQuotes(this.value);
       } else {
-         strings.push(this.value);
+         context.addStrings(this.value);
       }
    }
 }
 
 export function raw(value: string): Sql {
    return new SqlRaw(value);
-}
-
-export function quote(value: string): Sql {
-   return new SqlRaw(value, true);
 }

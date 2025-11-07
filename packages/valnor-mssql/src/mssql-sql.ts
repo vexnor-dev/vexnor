@@ -1,10 +1,10 @@
-import { SqlQueryRowOut, Sql, SqlColumn, SqlQueryParams, SqlQuery, SqlTableAny, SqlValue } from "valnor";
+import { SqlQueryRowOut, Sql, SqlTableColumn, SqlQueryParams, SqlQuery, SqlTableAny, SqlValue } from "valnor";
 import { MssqlQueryHandler } from "./mssql-query-handler.js";
 
 export function sql<
    TRow extends SqlQueryRowOut = Record<string, unknown>,
    TParams extends Record<string, SqlValue> | undefined = undefined,
-   TSql extends Sql = Sql | SqlTableAny | SqlColumn,
+   TSql extends Sql = Sql | SqlTableAny | SqlTableColumn,
    TValue =
       | SqlValue
       | TSql

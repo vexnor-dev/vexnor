@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
-import { sql } from "valnor";
-import { Account, IAccountInsert, IAccountSelect } from "./codegen/valnor_test.account-table.js";
+import { row, sql } from "valnor";
+import { Account, IAccountInsert } from "./codegen/valnor_test.account-table.js";
 import "@valnor/test-utils";
 
 describe("SqlTable.$$cols() and $$rows() tests", () => {
@@ -17,11 +17,11 @@ describe("SqlTable.$$cols() and $$rows() tests", () => {
             email: "john2.doe2@example.com",
          },
       ];
-      const query = sql<IAccountSelect>`
+      const query = sql`
          insert into ${Account}
-            ${Account.$$cols(...rows)}
-            output ${Account`inserted`.$$all}
-            ${Account.$$rows(...rows)}`;
+            ${Account.$cols(...rows)}
+            output ${row(Account`inserted`.$all)}
+            ${Account.$rows(...rows)}`;
 
       expect(query.getValues({})).toEqual([
          "John1",

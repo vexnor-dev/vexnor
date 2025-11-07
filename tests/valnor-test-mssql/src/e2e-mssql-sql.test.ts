@@ -21,14 +21,14 @@ describe("valnor postgres sql tests", () => {
    test("insert account", async () => {
       const account = await sql<IAccountSelect>`
          insert into ${Account}
-            ${Account.$$cols({
+            ${Account.$cols({
                status: "CREATED",
                firstName: "John",
                lastName: "Doe",
                email: "john.doe@example.com",
             })}
-            output ${Account`inserted`.$$all}
-            ${Account.$$rows({
+            output ${Account`inserted`.$all}
+            ${Account.$rows({
                status: "CREATED",
                firstName: "John",
                lastName: "Doe",

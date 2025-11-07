@@ -11,7 +11,7 @@ describe("DefaultFormatter", () => {
       formatter = new DefaultFormatter();
       context = new SqlQueryContext({
          queryName: "test",
-         tokenizer: new DefaultTokenizer("test"),
+         tokenizer: new DefaultTokenizer(),
          formatter: new DefaultFormatter(),
       });
    });

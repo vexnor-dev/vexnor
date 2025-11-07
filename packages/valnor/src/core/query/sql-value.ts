@@ -1,0 +1,34 @@
+import { Sql } from "../sql-base.js";
+import { SqlQueryContext } from "./sql-query-context.js";
+import { SqlQuery, SqlQueryAny } from "./sql-query.js";
+import { SqlQueryToken } from "../sql.js";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type SqlValueAny = SqlValue<any>;
+
+export class SqlValue<T extends { Key: string; Type: unknown }> extends Sql {
+   constructor(
+      public readonly query: SqlQueryAny,
+      public readonly key: T["Key"],
+   ) {
+      super();
+   }
+
+   $$build(context: SqlQueryContext) {
+      this.query.$$build(context);
+   }
+
+   is<Type>(): SqlValue<{ Key: T["Key"]; Type: Type }> {
+      return this as SqlValue<{ Key: T["Key"]; Type: Type }>;
+   }
+}
+
+export function val<T = unknown>(strings: TemplateStringsArray, ...values: SqlQueryToken[]) {
+   const query = new SqlQuery(strings, values);
+   return {
+      as: <Key extends string>(key: Key) => new SqlValue<{ Key: Key; Type: T }>(query, key),
+   };
+}
+
+export type InferRowFromValue<T> =
+   T extends SqlValue<infer Value extends { Key: string; Type: unknown }> ? Record<Value["Key"], Value["Type"]> : never;

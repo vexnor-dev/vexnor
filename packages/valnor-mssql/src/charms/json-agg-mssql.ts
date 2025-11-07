@@ -12,15 +12,15 @@ export class JsonAggMssql extends Sql {
       super();
    }
 
-   $build(context: SqlQueryContext, options: SqlBuildOptions) {
+   $$build(context: SqlQueryContext, options: SqlBuildOptions) {
       switch (context.keyword) {
          case "select":
-            context.strings.push(`"${this.query.name}_result"."${this.query.name}"`);
+            context.addStrings(`"${this.query.name}_result"."${this.query.name}"`);
             break;
          case "from": {
-            context.strings.push("outer apply (\nselect coalesce((\n");
-            this.query.$build(context.child({ queryName: this.query.name }), options);
-            context.strings.push(
+            context.addStrings("outer apply (\nselect coalesce((\n");
+            this.query.$$build(context.child({ queryName: this.query.name }), options);
+            context.addStrings(
                `\nfor json path, include_null_values), '[]'\n) as "${this.query.name}")\nas "${this.query.name}_result"`,
             );
             break;

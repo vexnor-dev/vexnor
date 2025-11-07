@@ -1,4 +1,4 @@
-import { SqlQueryParams, SqlQueryRowOut, SqlRunArgs } from "../sql-types.js";
+import { SqlRunArgs } from "../sql-types.js";
 import { SqlQuery } from "./sql-query.js";
 import { SqlQueryHandler } from "./sql-query-handler.js";
 import { ok } from "assert";
@@ -7,9 +7,9 @@ import { ok } from "assert";
  * Default SqlQueryHandler
  */
 export abstract class AsyncQueryHandler<
-   T extends { Row: SqlQueryRowOut; Params?: SqlQueryParams; QueryResult: object; QueryClient: unknown },
+   T extends { Row?: unknown; Params?: unknown; QueryResult: object; QueryClient: unknown },
 > extends SqlQueryHandler<T> {
-   protected constructor(readonly query: SqlQuery<{ Row: T["Row"]; Params?: T["Params"] }>) {
+   protected constructor(readonly query: SqlQuery<{ Row?: T["Row"]; Params?: T["Params"] }>) {
       super(query);
    }
 

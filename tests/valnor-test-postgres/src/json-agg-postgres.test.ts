@@ -1,22 +1,22 @@
 import { describe, expect, test } from "vitest";
-import { info, param, sql, SqlQueryContext } from "valnor";
-import { Account, IAccountSelect, IOrderSelect, Order } from "./codegen/valnor_test.schema.js";
+import { info, param, row, sql, SqlQueryContext } from "valnor";
+import { Account, Order } from "./codegen/valnor_test.schema.js";
 import { jsonAgg, PostgresTokenizer } from "valnor-postgres";
 import "@valnor/test-utils";
 
 describe("sql plugin jsonAgg() tests", () => {
-   const AccountOrders = sql<IOrderSelect, { limit: 5 }>`
+   const AccountOrders = sql`
       ${info({ label: "AccountOrders" })}
-      select ${Order.orderId}, ${Order.status}, ${Order.createdAt}, ${Order.modifiedAt}
+      select ${row(Order.orderId, Order.status, Order.createdAt, Order.modifiedAt)}
       from ${Order}
       where ${Order.accountId} = ${Account.accountId}
       order by ${Order.createdAt} desc
-      limit ${param("limit")}`;
+      limit ${param("limit").number}`;
 
    test("jsonAgg(): select", () => {
       const context = new SqlQueryContext({ queryName: "test", tokenizer: new PostgresTokenizer("test") });
       context.next("select");
-      jsonAgg(AccountOrders).$build(context, {});
+      jsonAgg(AccountOrders).$$build(context, {});
       expect(context.strings[0]).toBe(`"AccountOrders_result"`);
    });
 
@@ -24,13 +24,13 @@ describe("sql plugin jsonAgg() tests", () => {
    test.each(INVALID_KEYWORDS_FOR_JSON_AGG)("jsonAgg(): %s throws error", (keyword) => {
       const context = new SqlQueryContext({ queryName: "test", tokenizer: new PostgresTokenizer("test") });
       context.next(keyword);
-      expect(() => jsonAgg(AccountOrders).$build(context, {})).toThrow("Cannot use jsonAgg() with SQL keyword:");
+      expect(() => jsonAgg(AccountOrders).$$build(context, {})).toThrow("Cannot use jsonAgg() with SQL keyword:");
    });
 
    test("jsonAgg(): from", () => {
       const context = new SqlQueryContext({ queryName: "test", tokenizer: new PostgresTokenizer("test") });
       context.next("from");
-      jsonAgg(AccountOrders).$build(context, {});
+      jsonAgg(AccountOrders).$$build(context, {});
       expect(context.text).toEqualQuery(
          `
             left join lateral (
@@ -49,21 +49,21 @@ describe("sql plugin jsonAgg() tests", () => {
    });
 
    test("jsonAgg() with params", () => {
-      const AccountOrders = sql<IOrderSelect, { limit: 5 }>`
+      const AccountOrders = sql`
          ${info({ label: "AccountOrders" })}
-         select ${Order.orderId}, ${Order.status}, ${Order.createdAt}, ${Order.modifiedAt}
+         select ${row(Order.orderId, Order.status, Order.createdAt, Order.modifiedAt)}
          from ${Order}
          where ${Order.accountId} = ${Account.accountId}
          order by ${Order.createdAt} desc
-         limit ${param("limit")}`;
+         limit ${param.number("limit")}`;
 
-      const query = sql<IAccountSelect, { email: string; limit: number }>`
-         select ${Account.$$all}, ${jsonAgg(AccountOrders)} as "orders"
+      const query = sql`
+         select ${row(Account.$all)}, ${jsonAgg(AccountOrders)} as "orders"
          from ${Account} ${jsonAgg(AccountOrders)}
-         order by ${Account.accountId} asc
+         order by ${Account.accountId}
       `;
 
-      expect(query.getSql({ params: { email: "test@example.com", limit: 5 } })).toEqualQuery(
+      expect(query.getSql({ params: { limit: 5 } })).toEqualQuery(
          `select 
                      "a_1"."account_id"  as "accountId",
                      "a_1"."status",
@@ -93,21 +93,21 @@ describe("sql plugin jsonAgg() tests", () => {
    });
 
    test("jsonAgg() with custom alias", () => {
-      const AccountOrders = sql<IOrderSelect, { limit: 5 }>`
+      const AccountOrders = sql`
          ${info({ label: "AccountOrders" })}
-         select ${Order.orderId}, ${Order.status}, ${Order.createdAt}, ${Order.modifiedAt}
+         select ${row(Order.orderId, Order.status, Order.createdAt, Order.modifiedAt)}
          from ${Order}
          where ${Order.accountId} = ${Account.accountId}
          order by ${Order.createdAt} desc
-         limit ${param("limit")}`;
+         limit ${param.number("limit")}`;
 
-      const query = sql<IAccountSelect, { email: string; limit: number }>`
-         select ${Account.$$all}, ${jsonAgg(AccountOrders)} as "orders"
+      const query = sql`
+         select ${row(Account.$all)}, ${jsonAgg(AccountOrders)} as "orders"
          from ${Account} ${jsonAgg(AccountOrders)}
-         order by ${Account.accountId} asc
+         order by ${Account.accountId}
       `;
 
-      expect(query.getSql({ params: { email: "test@example.com", limit: 5 } })).toEqualQuery(
+      expect(query.getSql({ params: { limit: 5 } })).toEqualQuery(
          `select "a_1"."account_id"     as "accountId",
                      "a_1"."status",
                      "a_1"."email",

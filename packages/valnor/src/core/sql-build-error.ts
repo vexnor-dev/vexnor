@@ -10,13 +10,15 @@ export type SqlBuildErrorOptions = Record<string, unknown> & {
 export class SqlBuildError extends Error {
    readonly strings: string[] = [];
    readonly token?: Sql;
+   readonly data: Record<string, unknown> | null;
 
-   constructor(message: string, options?: SqlBuildErrorOptions) {
-      super(message + (options?.strings ? "\n" + options.strings.join("") + "..." : ""));
-      if (options?.strings) {
-         this.strings.push(...options.strings);
+   constructor(message: string, info?: SqlBuildErrorOptions) {
+      super(message + (info?.strings ? "\n" + info.strings.join("") + "..." : ""));
+      if (info?.strings) {
+         this.strings.push(...info.strings);
       }
 
-      this.token = options?.token;
+      this.token = info?.token;
+      this.data = info?.data || null;
    }
 }

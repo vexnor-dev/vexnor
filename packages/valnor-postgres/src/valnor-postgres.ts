@@ -11,7 +11,7 @@ import {
 import { Pool } from "pg";
 import { findEnums, findTables, getColumnType } from "./schema/index.js";
 import { PostgresQueryHandler } from "./postgres-query-handler.js";
-import { SqlQueryParams, SqlQueryRowOut, SqlQuery } from "valnor";
+import { SqlQuery } from "valnor";
 
 /**
  * Valnor plugin for postgres.
@@ -84,7 +84,7 @@ export class ValnorPostgres extends ValnorPlugin {
 
 // Extend the class type (in scope)
 declare module "valnor" {
-   interface SqlQuery<T extends { Row: SqlQueryRowOut; Params?: SqlQueryParams }> {
+   interface SqlQuery<T extends { Row?: unknown; Params?: unknown }> {
       readonly postgres: PostgresQueryHandler<T>;
    }
 }

@@ -1,4 +1,4 @@
-import { AsyncQueryHandler, SqlQueryParams, SqlQueryRowOut, SqlQuery, SqlRunArgs } from "valnor";
+import { AsyncQueryHandler, SqlQuery, SqlRunArgs } from "valnor";
 import type { QueryResult } from "pg";
 import { PostgresTokenizer } from "./postgres-tokenizer.js";
 
@@ -6,12 +6,12 @@ export type PostgresClient = {
    query: (queryConfig: { text: string; values: unknown[] }) => Promise<QueryResult>;
 };
 
-export class PostgresQueryHandler<
-   T extends { Row: SqlQueryRowOut; Params?: SqlQueryParams },
-> extends AsyncQueryHandler<{
+type RowOrDefault<T> = T extends object ? T : never;
+
+export class PostgresQueryHandler<T extends { Row?: unknown; Params?: unknown }> extends AsyncQueryHandler<{
    Row: T["Row"];
    Params: T["Params"];
-   QueryResult: QueryResult<T["Row"]>;
+   QueryResult: QueryResult<RowOrDefault<T["Row"]>>;
    QueryClient: PostgresClient;
 }> {
    constructor(readonly query: SqlQuery<T>) {
@@ -40,7 +40,7 @@ export class PostgresQueryHandler<
       }
    }
 
-   resolveRows(result: QueryResult<T["Row"]>): T["Row"][] {
+   resolveRows(result: QueryResult<RowOrDefault<T["Row"]>>): T["Row"][] {
       return result.rows;
    }
 
@@ -48,7 +48,7 @@ export class PostgresQueryHandler<
     * Executes the core and returns the result
     * @param args
     */
-   async run(args: SqlRunArgs<PostgresClient, T["Params"]>): Promise<QueryResult<T["Row"]>> {
+   async run(args: SqlRunArgs<PostgresClient, T["Params"]>): Promise<QueryResult<RowOrDefault<T["Row"]>>> {
       const { db, options: { debug } = {} } = args;
       let queryInput = undefined;
       try {

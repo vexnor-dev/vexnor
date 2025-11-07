@@ -1,20 +1,18 @@
 import { Sql } from "../sql-base.js";
-import { RowIn } from "../sql-types.js";
-import { SqlColumnAny } from "../schema/index.js";
 import { SqlQueryContext } from "../query/index.js";
 import { SqlBuildError } from "../sql-build-error.js";
+import { InferTableColumnsByRecord } from "../types/index.js";
 
-export class TableUpdateSet<T extends { Update: RowIn }> extends Sql {
+export class TableUpdateSet<T extends { Update: Record<string, unknown> }> extends Sql {
    constructor(
-      public readonly columns: Record<keyof T["Update"], SqlColumnAny>,
+      public readonly columns: InferTableColumnsByRecord<T["Update"]>,
       public readonly update: T["Update"],
    ) {
       super();
    }
 
-   $build(context: SqlQueryContext) {
+   $$build(context: SqlQueryContext) {
       let i = 0;
-      const { strings, values } = context;
       for (const key in this.update) {
          const col = this.columns[key];
          if (!col) {
@@ -26,14 +24,14 @@ export class TableUpdateSet<T extends { Update: RowIn }> extends Sql {
             });
          }
 
-         if (i++ > 0) strings.push(", ");
-         col.$build(context);
-         strings.push(" = ?");
+         if (i++ > 0) context.addStrings(", ");
+         col.$$build(context);
+         context.addStrings(" = ?");
          const value = this.update[key];
          switch (typeof value) {
             case "object":
                if (value === null || value instanceof Date) {
-                  values.push(value);
+                  context.addValues(value);
                   break;
                }
 
@@ -41,7 +39,7 @@ export class TableUpdateSet<T extends { Update: RowIn }> extends Sql {
             case "function":
                throw TypeError(`Update value for ${key} is a function: ${value}`);
             default:
-               values.push(value);
+               context.addValues(value);
                break;
          }
       }

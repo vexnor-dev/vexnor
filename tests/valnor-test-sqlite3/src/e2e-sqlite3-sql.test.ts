@@ -24,7 +24,7 @@ describe("valnor postgres sql tests", () => {
       const accountId = randomUUID();
       await sql`
          insert into ${Account}
-            ${Account.$$values({
+            ${Account.$values({
                accountId,
                status: "created",
                firstName: "John",
@@ -34,7 +34,7 @@ describe("valnor postgres sql tests", () => {
       `.run({ db });
 
       const account = await sql<IAccountSelect>`
-        select ${Account.$$all}
+        select ${Account.$all}
         from ${Account}
         where ${Account.accountId} = ${accountId}`.getOneRequired({ db });
 

@@ -16,7 +16,7 @@ describe("jsonGroupArray (SQLite)", () => {
    test("jsonGroupArray(): select", () => {
       const context = new SqlQueryContext({ queryName: "test", tokenizer: new Sqlite3Tokenizer("test") });
       context.next("select");
-      jsonGroupArray(AccountOrders).$build(context, {});
+      jsonGroupArray(AccountOrders).$$build(context, {});
       // Updated expected string to exactly match the actual output from the error message
       expect(context.text).toEqualQuery(
          `(select coalesce(json_group_array(json_object("AccountOrders".*)), '[]')
@@ -31,14 +31,14 @@ describe("jsonGroupArray (SQLite)", () => {
    test.each(INVALID_KEYWORDS_FOR_JSON_AGG)("jsonGroupArray(): %s throws error", (keyword) => {
       const context = new SqlQueryContext({ queryName: "test", tokenizer: new Sqlite3Tokenizer("test") });
       context.next(keyword);
-      expect(() => jsonGroupArray(AccountOrders).$build(context, {})).toThrow(
+      expect(() => jsonGroupArray(AccountOrders).$$build(context, {})).toThrow(
          "Cannot use jsonGroupArray() with SQL keyword:",
       );
    });
 
    test("jsonGroupArray() with params", () => {
       const query = sql<IAccountSelect & { orders: IOrderSelect[] }, { limit: number }>`
-         select ${Account.$$all}, ${jsonGroupArray(AccountOrders)} as "orders"
+         select ${Account.$all}, ${jsonGroupArray(AccountOrders)} as "orders"
          from ${Account}
       `;
 

@@ -1,22 +1,21 @@
 import { Sql } from "../sql-base.js";
 import { SqlQueryContext } from "../query/index.js";
-import { RowIn, SqlQueryRowOut } from "../sql-types.js";
-import { SqlColumnAny } from "../schema/index.js";
+import { InferTableColumnsByRecord } from "../types/index.js";
 
 export class TableInsertRows<
    T extends {
-      Insert: RowIn;
-      Select: SqlQueryRowOut;
+      Insert: Partial<T["Select"]>;
+      Select: Record<string, unknown>;
    },
 > extends Sql {
    constructor(
-      public readonly columns: Record<keyof T["Select"], SqlColumnAny>,
+      public readonly columns: InferTableColumnsByRecord<T["Select"]>,
       public readonly inserts: T["Insert"][],
    ) {
       super();
    }
 
-   $build(context: SqlQueryContext) {
+   $$build(context: SqlQueryContext) {
       if (this.inserts.length === 0) {
          return;
       }
@@ -29,10 +28,10 @@ export class TableInsertRows<
       for (const arg of this.inserts) {
          const values = insertKeys.map((key) => arg[key as keyof T["Insert"]]);
          valueRows.push(`(${values.map(() => "?").join(", ")})`);
-         context.values.push(...values);
+         context.addValues(...values);
       }
 
       const sql = `values ${valueRows.join(", ")}`;
-      context.strings.push(sql);
+      context.addStrings(sql);
    }
 }

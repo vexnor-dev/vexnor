@@ -6,17 +6,16 @@ import "@valnor/test-utils";
 describe("sql subqueries tests", () => {
    test("sub-query from", () => {
       const AccountsWithEmail = sql`
-         ${rowType<IAccountSelect>()}
          ${info({ label: "AccountsWithEmail" })}
-         select ${Account.$$all}
+         select ${row(Account.$all)}
          from ${Account}
-         where ${Account.email} = ${param.string("email")}`;
+         where ${Account.email} = ${param("email").is<string>()}`;
 
       const query = sql`
         ${rowType<IAccountSelect>()}
-         select ${AccountsWithEmail.ROW.$$all}
+         select ${row(AccountsWithEmail.ROW.$$all)}
          from ${AccountsWithEmail}
-         where ${AccountsWithEmail.ROW.firstName} = ${param.string("firstName")}`;
+         where ${AccountsWithEmail.ROW.firstName} = ${param("firstName").is<string>()}`;
 
       query.buildCache({});
       expect(query.getValues({ params: { firstName: "John", email: "test@example.com" } })).toEqual([
@@ -42,16 +41,16 @@ describe("sql subqueries tests", () => {
    test("sub-query join", () => {
       const AccountsWithEmail = sql`
          ${info({ label: "AccountsWithEmail" })}
-         select ${row(Account.$$all)}
+         select ${row(Account.$all)}
          from ${Account}
-         where ${Account.email} = ${param.string("email")}
+         where ${Account.email} = ${param("email").is<string>()}
       `;
 
       const query = sql`
          select ${row(Account.accountId, Account.status, Account.email, Account.firstName, Account.lastName)}
          from ${Account}
                  join ${AccountsWithEmail} on ${Account.accountId} = ${AccountsWithEmail.ROW.accountId}
-         where ${Account.firstName} = ${param.string("firstName")}`;
+         where ${Account.firstName} = ${param("firstName").is<string>()}`;
 
       expect(query.getValues({ params: { firstName: "John", email: "test@example.com" } })).toEqual([
          "test@example.com",
@@ -84,12 +83,12 @@ describe("sql subqueries tests", () => {
    test("self join", () => {
       const query = sql`
          ${rowType<IAccountSelect & { parentFirstName: string; parentLastName: string }>()}
-         select ${Account.$$all},
+         select ${Account.$all},
                 ${Account`parent`.firstName`parentFirstName`},
                 ${Account`parent`.lastName`parentLastName`}
          from ${Account}
                  join ${Account`parent`} on ${Account`parent`.accountId} = ${Account.parentId}
-         where ${Account.firstName} = ${param.string("firstName")}`;
+         where ${Account.firstName} = ${param("firstName").is<string>()}`;
 
       expect(query.getSql({ params: { firstName: "John" } })).toEqualQuery(
          `select 

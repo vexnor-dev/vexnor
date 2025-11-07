@@ -1,9 +1,10 @@
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { sql } from "valnor-postgres";
-import { Account, IAccountSelect } from "./codegen/valnor_test.account-table.js";
+import { Account } from "./codegen/valnor_test.account-table.js";
 import { randomUUID } from "node:crypto";
 import { pool } from "./postgres-pool.js";
 import { AccountStatusUdt } from "./codegen/valnor_test-enums.js";
+import { row } from "valnor";
 
 describe("valnor postgres sql tests", () => {
    afterAll(async () => {
@@ -11,7 +12,7 @@ describe("valnor postgres sql tests", () => {
    });
 
    beforeAll(async () => {
-      await sql<object>`
+      await sql`
          delete
          from ${Account}
          where ${Account.accountId} <> ${randomUUID()}
@@ -19,15 +20,15 @@ describe("valnor postgres sql tests", () => {
    });
 
    test("insert account", async () => {
-      const account = await sql<IAccountSelect>`
+      const account = await sql`
          insert into ${Account}
-            ${Account.$$values({
+            ${Account.$values({
                status: AccountStatusUdt.CREATED,
                firstName: "John",
                lastName: "Doe",
                email: "john.doe@example.com",
             })}
-            returning ${Account.$$all}
+            returning ${row(Account.$all)}
       `.getOneRequired({ db: pool });
 
       expect(account).toEqual(

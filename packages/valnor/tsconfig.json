@@ -1,17 +1,17 @@
 {
-  "extends": "../../tsconfig.json",
-  "compilerOptions": {
-    "rootDir": "src",
-    "outDir": "./dist",
-    "declaration": true,
-    "declarationMap": true,
-    "target": "ESNext",
-    "lib": [
-      "ESNext"
-    ],
-    "composite": true
-  },
-  "include": [
-    "src/**/*"
-  ]
+   "extends": "../../tsconfig.json",
+   "compilerOptions": {
+      "rootDir": "src",
+      "outDir": "./dist",
+      "declaration": true,
+      "declarationMap": true,
+      "target": "ESNext",
+      "lib": ["ESNext"],
+      "composite": true,
+      "baseUrl": ".",
+      "paths": {
+         "@test-models/*": ["./src/core/__tests__/models/*"]
+      }
+   },
+   "include": ["src/**/*"]
 }

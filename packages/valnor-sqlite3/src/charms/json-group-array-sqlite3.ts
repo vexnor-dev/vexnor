@@ -21,18 +21,18 @@ export class JsonGroupArraySqlite3 extends Sql {
       super();
    }
 
-   $build(context: SqlQueryContext, options: SqlBuildOptions) {
+   $$build(context: SqlQueryContext, options: SqlBuildOptions) {
       switch (context.keyword) {
          case "select": {
             // Build the full correlated subquery.
             // This structure ensures that if the sub-select has an ORDER BY,
             // the rows are sorted *before* being passed to json_group_array.
-            context.strings.push("(");
+            context.addStrings("(");
             const subquery = sql<object>`
                select coalesce(json_group_array(json_object(${this.select.ROW.$$all})), '[]')
                from ${this.select}`;
-            subquery.$build(context.child({ queryName: this.select.name }), options);
-            context.strings.push(")");
+            subquery.$$build(context.child({ queryName: this.select.name }), options);
+            context.addStrings(")");
             break;
          }
          case "from":

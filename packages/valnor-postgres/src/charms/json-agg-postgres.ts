@@ -1,4 +1,17 @@
-import { raw, Sql, sql, SqlBuildOptions, SqlQueryAny, SqlQueryContext } from "valnor";
+import {
+   raw,
+   Sql,
+   sql,
+   SqlBuildError,
+   SqlBuildOptions,
+   SqlCharm,
+   SqlQuery,
+   SqlQueryAny,
+   SqlQueryContext,
+} from "valnor";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type JsonAggPostgresAny = JsonAggPostgres<any>;
 
 /**
  * Sql class that aggregates of a subquery into a JSON array
@@ -7,25 +20,31 @@ import { raw, Sql, sql, SqlBuildOptions, SqlQueryAny, SqlQueryContext } from "va
  * FROM ${Account} ${jsonAgg(UserOrders)}
  * WHERE ${Account.accountId} = ${param("accountId")}
  */
-export class JsonAggPostgres extends Sql {
-   constructor(public readonly select: SqlQueryAny) {
+export class JsonAggPostgres<T extends { Row: Record<string, unknown>; Params?: unknown }>
+   extends Sql
+   implements SqlCharm<T>
+{
+   constructor(public readonly query: SqlQuery<T>) {
       super();
    }
 
-   $build(context: SqlQueryContext, options: SqlBuildOptions) {
+   $$build(context: SqlQueryContext, options: SqlBuildOptions) {
+      if (!this.query.ROW) {
+         throw new SqlBuildError(`query row is required for json aggregation`);
+      }
+
       switch (context.keyword) {
          case "select":
-            context.strings.push(`"${this.select.name}_result"`);
+            context.addStrings(`"${this.query.name}_result"`);
             break;
          case "from": {
-            const result = raw(this.select.name + "_result");
-            context.strings.push("left join lateral (");
-            const join = sql`
-               select coalesce(jsonb_agg(${this.select.ROW.$$all}), '[]') as "${result}"
-               from ${this.select}) as "${raw(this.select.name)}"
-               on true`;
-
-            join.$build(context.child({ queryName: this.select.name }), options);
+            const result = raw(this.query.name + "_result");
+            context.addStrings("left join lateral (");
+            sql`
+               select coalesce(jsonb_agg(${this.query.ROW.$$all}), '[]') as "${result}"
+               from ${this.query}) as "${raw(this.query.name)}"
+               on true
+            `.$$build(context.child({ queryName: this.query.name }), options);
             break;
          }
          default:
@@ -43,7 +62,9 @@ export class JsonAggPostgres extends Sql {
  * FROM ${Account} ${jsonAgg(UserOrders)}
  * WHERE ${Account.accountId} = ${param("accountId")}
  * */
-export function jsonAgg(select: SqlQueryAny) {
+export function jsonAgg<T extends { Row: Record<string, unknown>; Params?: unknown }>(
+   select: SqlQuery<T>,
+): JsonAggPostgres<T> {
    if (!cache.has(select)) {
       const result = new JsonAggPostgres(select);
       cache.set(select, result);
@@ -52,4 +73,4 @@ export function jsonAgg(select: SqlQueryAny) {
    return cache.get(select)!;
 }
 
-const cache = new WeakMap<SqlQueryAny, JsonAggPostgres>();
+const cache = new WeakMap<SqlQueryAny, JsonAggPostgresAny>();
