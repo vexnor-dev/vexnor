@@ -1,4 +1,4 @@
-import { Sql, sql, SqlBuildOptions, SqlQueryAny, SqlQueryContext } from "valnor";
+import { Sql, sql, SqlBuildOptions, SqlQueryAny, SqlBuildContext } from "valnor";
 
 /**
  * Sql class that aggregates a subquery into a JSON array for SQLite
@@ -21,7 +21,7 @@ export class JsonGroupArraySqlite3 extends Sql {
       super();
    }
 
-   build(context: SqlQueryContext, options: SqlBuildOptions) {
+   build(context: SqlBuildContext, options: SqlBuildOptions) {
       switch (context.keyword) {
          case "select": {
             // Build the full correlated subquery.

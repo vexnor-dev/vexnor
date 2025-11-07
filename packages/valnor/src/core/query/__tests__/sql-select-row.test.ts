@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { InferRowSelectFromColumns, row } from "../sql-select-row.js";
 import { Account } from "@test-models/valnor_test.account-table.js";
-import { SqlQueryContext } from "../sql-query-context.js";
+import { SqlBuildContext } from "../sql-build-context.js";
 import { sql } from "../../sql.js";
 import { param } from "../sql-param.js";
 import { trim } from "../../utils/index.js";
@@ -27,7 +27,7 @@ describe("SqlSelectRow tests", () => {
 
    test("$build with distinct columns", () => {
       const target = row(Account.$accountId, Account.$firstName, Account.$lastName);
-      const context = new SqlQueryContext({ queryName: "test" });
+      const context = new SqlBuildContext({ queryName: "test" });
       context.next("select");
       target.build(context);
 
@@ -38,7 +38,7 @@ describe("SqlSelectRow tests", () => {
 
    test("$build with aliased column", () => {
       const target = row(Account.$accountId, Account.$firstName, Account.$lastName("name"));
-      const context = new SqlQueryContext({ queryName: "test" });
+      const context = new SqlBuildContext({ queryName: "test" });
       context.next("select");
       target.build(context);
 
@@ -53,7 +53,7 @@ describe("SqlSelectRow tests", () => {
          Account`inserted`.$firstName,
          Account`inserted`.$lastName("name"),
       );
-      const context = new SqlQueryContext({ queryName: "test" });
+      const context = new SqlBuildContext({ queryName: "test" });
       context.next("select");
       target.build(context);
 
@@ -64,7 +64,7 @@ describe("SqlSelectRow tests", () => {
 
    test("$build with table.$$all", () => {
       const target = row(Account.$$all);
-      const context = new SqlQueryContext({ queryName: "test" });
+      const context = new SqlBuildContext({ queryName: "test" });
       context.next("select");
       target.build(context);
 
@@ -82,7 +82,7 @@ describe("SqlSelectRow tests", () => {
 
    test("SqlRow $build with aliased table.$$all", () => {
       const target = row(Account`inserted`.$$all);
-      const context = new SqlQueryContext({ queryName: "test" });
+      const context = new SqlBuildContext({ queryName: "test" });
       context.next("select");
       target.build(context);
 
@@ -118,7 +118,7 @@ describe("SqlSelectRow tests", () => {
       const query = sql`
          select ${row(Account.$accountId, Account.$status, Account.$firstName)}
          from ${Account}`;
-      const context = new SqlQueryContext();
+      const context = new SqlBuildContext();
       context.next("where");
       query.ROW.$accountId.build(context);
       expect(context.text).toEqual(`"query_0"."accountId"`);

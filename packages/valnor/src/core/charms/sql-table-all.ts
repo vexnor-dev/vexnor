@@ -1,5 +1,5 @@
 import { Sql } from "../sql-base.js";
-import { SqlQueryContext } from "../query/index.js";
+import { SqlBuildContext } from "../query/index.js";
 import { SqlBuildOptions } from "../sql-types.js";
 import { SqlTableColumn } from "../schema/index.js";
 
@@ -14,7 +14,7 @@ export class SqlTableAll<T extends { Row: Record<string, unknown> }> extends Sql
       this.row = row;
    }
 
-   build(context: SqlQueryContext, options?: SqlBuildOptions) {
+   build(context: SqlBuildContext, options?: SqlBuildOptions) {
       const [keyword, exists] = context.keywords();
 
       switch (true) {

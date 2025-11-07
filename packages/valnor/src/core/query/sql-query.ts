@@ -1,7 +1,7 @@
 import { hasParams, SqlBuild, SqlBuildOptions, SqlInputArgs } from "../sql-types.js";
 import { ok } from "assert";
 import { SqlParam } from "./sql-param.js";
-import { SqlQueryContext } from "./sql-query-context.js";
+import { SqlBuildContext } from "./sql-build-context.js";
 import { logger } from "../logger.js";
 import { Sql } from "../sql-base.js";
 import { DefaultFormatter } from "../default-formatter.js";
@@ -120,7 +120,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
    buildCache(options?: SqlBuildOptions) {
       // if (this.__buildCache__) return this.__buildCache__;
       const { tokenizer, formatter } = options ?? {};
-      const context = new SqlQueryContext({ queryName: this.info?.label, tokenizer, formatter });
+      const context = new SqlBuildContext({ queryName: this.info?.label, tokenizer, formatter });
       this.build(context, options ?? {});
       return {
          strings: [...context.strings],
@@ -145,7 +145,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
     * @param context
     * @param options
     */
-   build(context: SqlQueryContext, options?: SqlBuildOptions) {
+   build(context: SqlBuildContext, options?: SqlBuildOptions) {
       const wrapStart = () => {
          if (this.$$wrap) context.addStrings("(");
       };
@@ -182,7 +182,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
       }
    }
 
-   private buildInternal(context: SqlQueryContext, options?: SqlBuildOptions) {
+   private buildInternal(context: SqlBuildContext, options?: SqlBuildOptions) {
       const children = [...this.rawValues];
       let i = -1;
       while (children.length || i < this.rawStrings.length) {

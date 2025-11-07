@@ -1,5 +1,5 @@
 import { Sql } from "../sql-base.js";
-import { SqlQueryAny, SqlQueryContext } from "../query/index.js";
+import { SqlQueryAny, SqlBuildContext } from "../query/index.js";
 import { SqlBuildOptions } from "../sql-types.js";
 import { SqlSelectColumn } from "./sql-select-column.js";
 
@@ -15,7 +15,7 @@ export class SqlSelectAll<T extends { Row: Record<string, unknown> }> extends Sq
    }
 
    // eslint-disable-next-line unused-imports/no-unused-vars
-   build(context: SqlQueryContext, _options?: SqlBuildOptions) {
+   build(context: SqlBuildContext, _options?: SqlBuildOptions) {
       const [keyword, exists] = context.keywords();
 
       switch (true) {

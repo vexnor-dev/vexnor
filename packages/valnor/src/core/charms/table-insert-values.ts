@@ -1,4 +1,4 @@
-import { SqlQueryContext } from "../query/index.js";
+import { SqlBuildContext } from "../query/index.js";
 import { Sql } from "../sql-base.js";
 import { SqlBuildError } from "../sql-build-error.js";
 import { InferTableColumnsByRecord } from "../types/index.js";
@@ -35,7 +35,7 @@ export class TableInsertValues<
       }
    }
 
-   build(context: SqlQueryContext) {
+   build(context: SqlBuildContext) {
       context.addStrings("(");
       let i = 0;
       const keys = Object.keys(this.inserts[0]!);

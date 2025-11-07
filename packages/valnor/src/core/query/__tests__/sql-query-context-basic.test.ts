@@ -1,21 +1,21 @@
 import { beforeEach, describe, expect, test } from "vitest";
-import { SqlQueryContext } from "../sql-query-context.js";
+import { SqlBuildContext } from "../sql-build-context.js";
 import { DefaultTokenizer } from "../../default-tokenizer.js";
 import { DefaultFormatter } from "../../default-formatter.js";
 import { SqlBuildError } from "../../sql-build-error.js";
 
-describe("New QueryContext Engine", () => {
-   let context!: SqlQueryContext;
+describe("SqlBuildContext Engine - basic tests", () => {
+   let context!: SqlBuildContext;
 
    beforeEach(() => {
-      context = new SqlQueryContext({
+      context = new SqlBuildContext({
          queryName: "test",
          tokenizer: new DefaultTokenizer(),
          formatter: new DefaultFormatter(),
       });
    });
 
-   describe("QueryContext alias()", () => {
+   describe("SqlBuildContext alias()", () => {
       test("alias should init with _1 suffix", () => {
          const actual = context.alias({ name: "Account", schema: "valnor_test" });
          expect(actual).toBe("A_1");

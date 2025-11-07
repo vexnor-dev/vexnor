@@ -1,5 +1,5 @@
 import { newSqlTableColumn, SqlColumnAny, SqlTableColumnExtended } from "./sql-table-column.js";
-import { SqlQueryContext } from "../query/index.js";
+import { SqlBuildContext } from "../query/index.js";
 import { Sql } from "../sql-base.js";
 import { ok } from "assert";
 import { TableInsertCols, TableInsertRows, TableInsertValues, TableUpdateSet, SqlTableAll } from "../charms/index.js";
@@ -116,7 +116,7 @@ export class SqlTable<
    }
 
    // eslint-disable-next-line unused-imports/no-unused-vars
-   build(context: SqlQueryContext, _options?: SqlBuildOptions) {
+   build(context: SqlBuildContext, _options?: SqlBuildOptions) {
       const schema = this.tableInfo.schema ? `${this.tableInfo.schema}.` : "";
 
       const format = this.format ?? context.formatter.getTableFormat(context);

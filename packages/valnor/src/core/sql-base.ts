@@ -1,4 +1,4 @@
-import { SqlQueryContext } from "./query/index.js";
+import { SqlBuildContext } from "./query/index.js";
 import { SqlBuildOptions } from "./sql-types.js";
 
 export type SqlOptions = { wrap?: boolean };
@@ -19,7 +19,7 @@ export abstract class Sql {
     * @param context
     * @param options
     */
-   abstract build(context: SqlQueryContext, options?: SqlBuildOptions): void;
+   abstract build(context: SqlBuildContext, options?: SqlBuildOptions): void;
 }
 
 // export type InferSqlRowFromRecord<T> =

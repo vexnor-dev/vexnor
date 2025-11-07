@@ -1,5 +1,5 @@
 import { Sql } from "../sql-base.js";
-import { SqlQueryContext } from "./sql-query-context.js";
+import { SqlBuildContext } from "./sql-build-context.js";
 
 export class SqlRaw extends Sql {
    constructor(
@@ -9,7 +9,7 @@ export class SqlRaw extends Sql {
       super();
    }
 
-   override build(context: SqlQueryContext) {
+   override build(context: SqlBuildContext) {
       if (this.quote) {
          context.addQuotes(this.value);
       } else {

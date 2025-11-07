@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import crypto, { randomUUID } from "node:crypto";
 import assert, { ok } from "node:assert";
-import { param, sql } from "valnor";
+import { param, row, sql } from "valnor";
 import { Account, IAccountInsert, IAccountJson, IAccountSelect } from "./codegen/valnor_test.account-table.js";
 import { pool } from "./mssql-pool.js";
 import { jsonAgg } from "valnor-mssql";
@@ -12,10 +12,10 @@ describe.sequential("valnor mssql e2e tests", () => {
    const ROOT_COUNT = 100;
    const CHILD_FACTOR = 3;
 
-   const findAccountById = sql<IAccountSelect, { accountId: string }>`
-      select ${Account.$$all}
+   const findAccountById = sql`
+      select ${row(Account.$$all)}
       from ${Account}
-      where ${Account.$accountId} = ${param("accountId")}
+      where ${Account.$accountId} = ${param("accountId").is<string>()}
    `;
 
    afterAll(async () => {
@@ -24,7 +24,7 @@ describe.sequential("valnor mssql e2e tests", () => {
 
    beforeAll(async () => {
       await pool.connect();
-      await sql<object>`
+      await sql`
          delete
          from ${Account}
          where ${Account.$accountId} <> ${randomUUID()}
@@ -44,10 +44,10 @@ describe.sequential("valnor mssql e2e tests", () => {
                email: `john.doe.root-${index}-${id}@example.com`,
             });
          }
-         const accounts = await sql<IAccountSelect>`
+         const accounts = await sql`
             insert into ${Account}
                ${Account.$$cols(...newAccountsArgs)}
-               output ${Account`inserted`.$$all}
+               output ${row(Account`inserted`.$$all)}
                ${Account.$$rows(...newAccountsArgs)}
          `.mssql
             .getAll({

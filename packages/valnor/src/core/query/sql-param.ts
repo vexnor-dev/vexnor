@@ -1,4 +1,4 @@
-import { SqlQueryContext } from "./sql-query-context.js";
+import { SqlBuildContext } from "./sql-build-context.js";
 import { Sql } from "../sql-base.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -18,7 +18,7 @@ export class SqlParam<T extends { Name: string; Type: unknown }> extends Sql {
       return `${SqlParam.PREFIX}${this.name}`;
    }
 
-   build(context: SqlQueryContext): void {
+   build(context: SqlBuildContext): void {
       context.addValues(this);
       context.addStrings(this.wildcard);
    }

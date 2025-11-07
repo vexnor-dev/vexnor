@@ -1,4 +1,4 @@
-import { Sql, SqlBuildOptions, SqlQueryAny, SqlQueryContext } from "valnor";
+import { Sql, SqlBuildOptions, SqlQueryAny, SqlBuildContext } from "valnor";
 
 /**
  * Sql class that aggregates of a subquery into a JSON array
@@ -12,7 +12,7 @@ export class JsonAggMssql extends Sql {
       super();
    }
 
-   build(context: SqlQueryContext, options: SqlBuildOptions) {
+   build(context: SqlBuildContext, options: SqlBuildOptions) {
       switch (context.keyword) {
          case "select":
             context.addStrings(`"${this.query.name}_result"."${this.query.name}"`);

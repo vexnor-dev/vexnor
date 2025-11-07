@@ -1,6 +1,6 @@
 import { SqlColumnFormat } from "../default-formatter.js";
 import { Sql } from "../sql-base.js";
-import { SqlQueryContext } from "../query/index.js";
+import { SqlBuildContext } from "../query/index.js";
 import { SqlBuildOptions } from "../sql-types.js";
 import { ISqlColumn } from "../types/index.js";
 
@@ -51,7 +51,7 @@ export class SqlTableColumn<
    }
 
    // eslint-disable-next-line unused-imports/no-unused-vars
-   build(context: SqlQueryContext, _options?: SqlBuildOptions) {
+   build(context: SqlBuildContext, _options?: SqlBuildOptions) {
       const format = this.format ?? context.formatter.getColumnFormat(context);
       switch (format) {
          case "tableName.columnName as columnAlias": {

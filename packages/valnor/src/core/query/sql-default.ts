@@ -1,12 +1,12 @@
 import { Sql } from "../sql-base.js";
-import { SqlQueryContext } from "./sql-query-context.js";
+import { SqlBuildContext } from "./sql-build-context.js";
 
 export class SqlDefault extends Sql {
    constructor() {
       super();
    }
 
-   build(context: SqlQueryContext) {
+   build(context: SqlBuildContext) {
       context.addStrings("DEFAULT");
    }
 }

@@ -1,4 +1,4 @@
-import { SqlQueryContext } from "../query/index.js";
+import { SqlBuildContext } from "../query/index.js";
 import { SqlColumnFormat } from "../default-formatter.js";
 import { Sql } from "../sql-base.js";
 import { SqlBuildOptions } from "../sql-types.js";
@@ -45,7 +45,7 @@ export class SqlSelectColumn<
    }
 
    // eslint-disable-next-line unused-imports/no-unused-vars
-   build(context: SqlQueryContext, _options?: SqlBuildOptions) {
+   build(context: SqlBuildContext, _options?: SqlBuildOptions) {
       const tableInfo = {
          alias: context.queryName,
          name: context.queryName,

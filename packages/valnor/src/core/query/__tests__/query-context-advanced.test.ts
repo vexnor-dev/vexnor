@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, test } from "vitest";
-import { SqlQueryContext } from "../sql-query-context.js";
+import { SqlBuildContext } from "../sql-build-context.js";
 import { DefaultTokenizer } from "../../default-tokenizer.js";
 import { DefaultFormatter } from "../../default-formatter.js";
 
-describe("Advanced QueryContext Engine Stress Tests", () => {
-   let context!: SqlQueryContext;
+describe("Advanced SqlBuildContext Engine Stress Tests", () => {
+   let context!: SqlBuildContext;
 
    beforeEach(() => {
-      context = new SqlQueryContext({
+      context = new SqlBuildContext({
          queryName: "test",
          tokenizer: new DefaultTokenizer(),
          formatter: new DefaultFormatter(),

@@ -1,7 +1,7 @@
-import { SqlColumnFormat, DefaultFormatter, SqlQueryContext, SqlTableFormat } from "valnor";
+import { SqlColumnFormat, DefaultFormatter, SqlBuildContext, SqlTableFormat } from "valnor";
 
 export class Sqlite3Formatter extends DefaultFormatter {
-   override getColumnFormat(context: SqlQueryContext): SqlColumnFormat {
+   override getColumnFormat(context: SqlBuildContext): SqlColumnFormat {
       switch (context.keyword) {
          case "insert into":
             return "columnName";
@@ -14,7 +14,7 @@ export class Sqlite3Formatter extends DefaultFormatter {
       }
    }
 
-   override getTableFormat(context: SqlQueryContext): SqlTableFormat {
+   override getTableFormat(context: SqlBuildContext): SqlTableFormat {
       switch (context.keyword) {
          case "insert into":
          case "update":

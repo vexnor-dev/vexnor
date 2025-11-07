@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { info, param, row, sql, SqlQueryContext } from "valnor";
+import { info, param, row, sql, SqlBuildContext } from "valnor";
 import { Account, Order } from "./codegen/valnor_test.schema.js";
 import { jsonAgg, MssqlParamFormatter, MssqlTokenizer } from "valnor-mssql";
 import "@valnor/test-utils";
@@ -14,7 +14,7 @@ describe("sql plugin jsonAgg() tests", () => {
       offset 0 rows fetch next ${param("limit").is<number>()} rows only`;
 
    test("jsonAgg(): select build", () => {
-      const context = new SqlQueryContext({ queryName: "test", tokenizer: new MssqlTokenizer("test") });
+      const context = new SqlBuildContext({ queryName: "test", tokenizer: new MssqlTokenizer("test") });
       context.next("select");
       jsonAgg(AccountOrders).build(context, {});
       expect(context.strings[0]).toBe(`"AccountOrders_result"."AccountOrders"`);
@@ -34,7 +34,7 @@ describe("sql plugin jsonAgg() tests", () => {
    // });
 
    test("jsonAgg(): from", () => {
-      const context = new SqlQueryContext({ queryName: "test", tokenizer: new MssqlTokenizer("test") });
+      const context = new SqlBuildContext({ queryName: "test", tokenizer: new MssqlTokenizer("test") });
       context.next("from");
       jsonAgg(AccountOrders).build(context, {});
       expect(context.text).toEqualQuery(

@@ -1,6 +1,6 @@
 import { Sql } from "../sql-base.js";
 import { SqlBuildOptions } from "../sql-types.js";
-import { SqlQueryContext } from "./sql-query-context.js";
+import { SqlBuildContext } from "./sql-build-context.js";
 import { SqlBuildError } from "../sql-build-error.js";
 import { SqlColumnAny, SqlTableColumn, SqlTableColumnExtended } from "../schema/index.js";
 import { SqlValue, SqlValueAny } from "./sql-value.js";
@@ -67,7 +67,7 @@ export class SqlSelectRow<T extends { Row: Record<string, unknown> }> extends Sq
       this.$$all = new SqlSelectAll(this.row);
    }
 
-   build(context: SqlQueryContext, options?: SqlBuildOptions): void {
+   build(context: SqlBuildContext, options?: SqlBuildOptions): void {
       let index = 0;
       for (const item of this.#columns) {
          if (index++ > 0) context.addStrings(", ");

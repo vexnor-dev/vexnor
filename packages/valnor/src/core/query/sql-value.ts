@@ -1,5 +1,5 @@
 import { Sql } from "../sql-base.js";
-import { SqlQueryContext } from "./sql-query-context.js";
+import { SqlBuildContext } from "./sql-build-context.js";
 import { SqlQuery, SqlQueryAny } from "./sql-query.js";
 import { SqlQueryToken } from "../sql.js";
 
@@ -14,7 +14,7 @@ export class SqlValue<T extends { Key: string; Type: unknown }> extends Sql {
       super();
    }
 
-   build(context: SqlQueryContext) {
+   build(context: SqlBuildContext) {
       this.query.build(context);
    }
 

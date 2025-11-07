@@ -1,5 +1,5 @@
 import { Sql } from "../sql-base.js";
-import { SqlQueryContext } from "../query/index.js";
+import { SqlBuildContext } from "../query/index.js";
 import { SqlBuildError } from "../sql-build-error.js";
 import { InferTableColumnsByRecord } from "../types/index.js";
 
@@ -11,7 +11,7 @@ export class TableUpdateSet<T extends { Update: Record<string, unknown> }> exten
       super();
    }
 
-   build(context: SqlQueryContext) {
+   build(context: SqlBuildContext) {
       let i = 0;
       for (const key in this.update) {
          const col = this.columns[key];

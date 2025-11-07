@@ -1,11 +1,11 @@
 import { describe, expect, test } from "vitest";
-import { SqlQueryContext } from "../../query/index.js";
+import { SqlBuildContext } from "../../query/index.js";
 import { Account } from "@test-models/valnor_test.account-table.js";
 import { trim } from "../../utils/index.js";
 
 describe("SqlSelectAll (*) tests", () => {
    test("select * $build should render list of columns", () => {
-      const context = new SqlQueryContext({ queryName: "test" });
+      const context = new SqlBuildContext({ queryName: "test" });
       context.next("select");
       Account.$$all.build(context);
 
@@ -22,7 +22,7 @@ describe("SqlSelectAll (*) tests", () => {
    });
 
    test("select * $build should render list of columns with aliased table", () => {
-      const context = new SqlQueryContext({ queryName: "test" });
+      const context = new SqlBuildContext({ queryName: "test" });
       context.next("select");
       Account`inserted`.$$all.build(context);
 
@@ -39,7 +39,7 @@ describe("SqlSelectAll (*) tests", () => {
    });
 
    test("returning * $build should render list of columns", () => {
-      const context = new SqlQueryContext({ queryName: "test" });
+      const context = new SqlBuildContext({ queryName: "test" });
       context.next("returning");
       Account.$$all.build(context);
 
@@ -56,7 +56,7 @@ describe("SqlSelectAll (*) tests", () => {
    });
 
    test("output * $build should render list of columns with aliased table", () => {
-      const context = new SqlQueryContext({ queryName: "test" });
+      const context = new SqlBuildContext({ queryName: "test" });
       context.next("output");
       Account`inserted`.$$all.build(context);
 
@@ -73,7 +73,7 @@ describe("SqlSelectAll (*) tests", () => {
    });
 
    test("count(*) $build should render *", () => {
-      const context = new SqlQueryContext({ queryName: "test" });
+      const context = new SqlBuildContext({ queryName: "test" });
       context.next("count(");
       Account.$$all.build(context);
 
@@ -81,7 +81,7 @@ describe("SqlSelectAll (*) tests", () => {
    });
 
    test("exists (select *) $build should render *", () => {
-      const context = new SqlQueryContext({ queryName: "test" });
+      const context = new SqlBuildContext({ queryName: "test" });
       // Simulate the context of being inside an EXISTS clause
       context.next("exists");
       context.next("select");

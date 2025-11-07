@@ -4,7 +4,7 @@ import { info } from "../../charms/index.js";
 import { row } from "../sql-select-row.js";
 import { Account } from "@test-models/valnor_test.account-table.js";
 import { AccountStatusUdt } from "@test-models/valnor_test-enums.js";
-import { SqlQueryContext } from "../sql-query-context.js";
+import { SqlBuildContext } from "../sql-build-context.js";
 
 describe("SqlQuery tests", () => {
    test("join sub-query with default queryName", () => {
@@ -15,7 +15,7 @@ describe("SqlQuery tests", () => {
          `;
 
       const rootQuery = sql`join ${subQuery}`;
-      const context = new SqlQueryContext();
+      const context = new SqlBuildContext();
       rootQuery.build(context);
       expect(context.text).toEqualQuery(`
          join (select "a_1"."account_id"  as "accountId",
@@ -35,7 +35,7 @@ describe("SqlQuery tests", () => {
          `;
       const rootQuery = sql`join ${subQuery}`;
 
-      const context = new SqlQueryContext();
+      const context = new SqlBuildContext();
       rootQuery.build(context);
       expect(context.text).toEqualQuery(`
          join (/* --label: AccountsCreated */

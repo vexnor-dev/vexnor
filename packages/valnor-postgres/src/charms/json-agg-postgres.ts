@@ -7,7 +7,7 @@ import {
    SqlCharm,
    SqlQuery,
    SqlQueryAny,
-   SqlQueryContext,
+   SqlBuildContext,
 } from "valnor";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -28,7 +28,7 @@ export class JsonAggPostgres<T extends { Row: Record<string, unknown>; Params?: 
       super();
    }
 
-   build(context: SqlQueryContext, options: SqlBuildOptions) {
+   build(context: SqlBuildContext, options: SqlBuildOptions) {
       if (!this.query.ROW) {
          throw new SqlBuildError(`query row is required for json aggregation`);
       }

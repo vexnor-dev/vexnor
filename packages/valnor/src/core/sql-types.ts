@@ -32,7 +32,7 @@ export function hasParams(value: unknown): value is { params: Record<string, unk
    return "params" in value;
 }
 
-export interface ISqlQueryContext {
+export interface IBuildQueryContext {
    keyword?: string;
 }
 

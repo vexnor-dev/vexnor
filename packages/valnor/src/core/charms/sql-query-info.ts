@@ -1,5 +1,5 @@
 import { Sql } from "../sql-base.js";
-import { SqlQueryContext } from "../query/index.js";
+import { SqlBuildContext } from "../query/index.js";
 
 type SqlInfoOptions = {
    label: string;
@@ -14,7 +14,7 @@ export class SqlQueryInfo extends Sql {
       return this.options.label;
    }
 
-   build(context: SqlQueryContext) {
+   build(context: SqlBuildContext) {
       context.addStrings("\n/*");
       for (const [key, value] of Object.entries(this.options)) {
          context.addStrings(` --${key}: ${value} `);

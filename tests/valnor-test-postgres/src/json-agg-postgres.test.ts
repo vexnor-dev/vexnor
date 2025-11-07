@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { info, param, row, sql, SqlQueryContext } from "valnor";
+import { info, param, row, sql, SqlBuildContext } from "valnor";
 import { Account, Order } from "./codegen/valnor_test.schema.js";
 import { jsonAgg, PostgresTokenizer } from "valnor-postgres";
 import "@valnor/test-utils";
@@ -14,7 +14,7 @@ describe("sql plugin jsonAgg() tests", () => {
       limit ${param("limit").number}`;
 
    test("jsonAgg(): select", () => {
-      const context = new SqlQueryContext({ queryName: "test", tokenizer: new PostgresTokenizer("test") });
+      const context = new SqlBuildContext({ queryName: "test", tokenizer: new PostgresTokenizer("test") });
       context.next("select");
       jsonAgg(AccountOrders).build(context, {});
       expect(context.strings[0]).toBe(`"AccountOrders_result"`);
@@ -22,13 +22,13 @@ describe("sql plugin jsonAgg() tests", () => {
 
    const INVALID_KEYWORDS_FOR_JSON_AGG = ["where", "group by", "order by", "update", "delete from"];
    test.each(INVALID_KEYWORDS_FOR_JSON_AGG)("jsonAgg(): %s throws error", (keyword) => {
-      const context = new SqlQueryContext({ queryName: "test", tokenizer: new PostgresTokenizer("test") });
+      const context = new SqlBuildContext({ queryName: "test", tokenizer: new PostgresTokenizer("test") });
       context.next(keyword);
       expect(() => jsonAgg(AccountOrders).build(context, {})).toThrow("Cannot use jsonAgg() with SQL keyword:");
    });
 
    test("jsonAgg(): from", () => {
-      const context = new SqlQueryContext({ queryName: "test", tokenizer: new PostgresTokenizer("test") });
+      const context = new SqlBuildContext({ queryName: "test", tokenizer: new PostgresTokenizer("test") });
       context.next("from");
       jsonAgg(AccountOrders).build(context, {});
       expect(context.text).toEqualQuery(

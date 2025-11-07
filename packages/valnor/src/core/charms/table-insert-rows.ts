@@ -1,5 +1,5 @@
 import { Sql } from "../sql-base.js";
-import { SqlQueryContext } from "../query/index.js";
+import { SqlBuildContext } from "../query/index.js";
 import { InferTableColumnsByRecord } from "../types/index.js";
 
 export class TableInsertRows<
@@ -15,7 +15,7 @@ export class TableInsertRows<
       super();
    }
 
-   build(context: SqlQueryContext) {
+   build(context: SqlBuildContext) {
       if (this.inserts.length === 0) {
          return;
       }

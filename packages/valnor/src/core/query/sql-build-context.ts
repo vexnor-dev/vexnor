@@ -1,12 +1,13 @@
 import { ITokenizer } from "../sql-tokenizer.js";
 import { MAJOR_KEYWORDS, SUBQUERY_STARTERS } from "../sql-constants.js";
 import { DefaultFormatter } from "../default-formatter.js";
-import { ISqlQueryContext } from "../sql-types.js";
+import { IBuildQueryContext } from "../sql-types.js";
 import { DefaultTokenizer } from "../default-tokenizer.js";
 import { quote, trim } from "../utils/index.js";
 import { ok } from "assert";
+import { Sql } from "../sql-base.js";
 
-export type SqlQueryContextOptions = {
+export type SqlBuildContextArgs = {
    tokenizer?: ITokenizer;
    formatter?: DefaultFormatter;
    tableAliasById?: Map<string, string>;
@@ -19,9 +20,10 @@ export type SqlQueryContextOptions = {
       contextParentDepths: number[];
       parentDepth: number;
    };
+   tokensByQuery?: Map<string, Sql>;
 };
 
-export class SqlQueryContext implements ISqlQueryContext {
+export class SqlBuildContext implements IBuildQueryContext {
    readonly tokenizer: ITokenizer;
    readonly formatter: DefaultFormatter;
    readonly queryIndex: number;
@@ -34,7 +36,9 @@ export class SqlQueryContext implements ISqlQueryContext {
    private _parentDepth;
    private readonly _tableAliasById: Map<string, string>;
 
-   constructor(options?: SqlQueryContextOptions) {
+   readonly tokensByQuery: Map<string, Sql>;
+
+   constructor(options?: SqlBuildContextArgs) {
       this.queryIndex = options?.queryIndex ?? 0;
       this.queryName = options?.queryName ?? `query_${this.queryIndex}`;
 
@@ -48,6 +52,7 @@ export class SqlQueryContext implements ISqlQueryContext {
 
       this._strings = options?.strings ? options.strings : [];
       this._values = options?.values ? options.values : [];
+      this.tokensByQuery = options?.tokensByQuery ?? new Map<string, Sql>();
    }
 
    get strings(): ReadonlyArray<string> {
@@ -158,9 +163,9 @@ export class SqlQueryContext implements ISqlQueryContext {
       }
    }
 
-   scope(options?: { queryName?: string }): SqlQueryContext {
+   scope(options?: { queryName?: string }): SqlBuildContext {
       const queryIndex = this.queryIndex + 1;
-      return new SqlQueryContext({
+      return new SqlBuildContext({
          queryIndex: queryIndex,
          queryName: options?.queryName ?? `query_${queryIndex}`,
          values: this._values,
@@ -168,6 +173,7 @@ export class SqlQueryContext implements ISqlQueryContext {
          tableAliasById: this._tableAliasById,
          tokenizer: this.tokenizer,
          formatter: this.formatter,
+         tokensByQuery: this.tokensByQuery,
          stack: {
             contextParentDepths: this._contextParentDepths,
             keywordStacks: this._keywordStacks,
@@ -205,5 +211,15 @@ export class SqlQueryContext implements ISqlQueryContext {
    addValues(...values: unknown[]) {
       ok(values[0], `value is required`);
       this._values.push(...values);
+   }
+
+   /**
+    * Adds SQL Tokens
+    * @param items
+    */
+   addTokens(...items: Sql[]) {
+      for (const item of items) {
+         this.tokensByQuery.set(this.queryName, item);
+      }
    }
 }
