@@ -6,10 +6,10 @@ type SqlInfoOptions = {
 } & Record<string, unknown>;
 
 export class SqlQueryInfo extends Sql {
-   readonly ID: string;
    constructor(public readonly options: SqlInfoOptions) {
-      super();
-      this.ID = `SqlQueryInfo(label: ${options.label})`;
+      super({
+         ID: options.label,
+      });
    }
 
    get label() {

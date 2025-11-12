@@ -46,20 +46,19 @@ export class SqlTable<
    readonly format: SqlTableFormat | null;
    readonly row: InferTableColumnsByRecord<T["Select"]>;
    readonly pk: Array<keyof T["Select"]>;
-   readonly ID: string;
 
    constructor({ format, pk, tableInfo, ...options }: SqlTableOptions<T>) {
-      super();
+      super({
+         ID: (() => {
+            const schema = tableInfo.schema ? `${tableInfo.schema}.` : "";
+            const alias = tableInfo.alias ? ` as ${tableInfo.alias}` : "";
+            return `SqlTable(${schema}${tableInfo.name}${alias})`;
+         })(),
+      });
       this.tableInfo = tableInfo;
       this.format = format ?? null;
       this.pk = pk;
       const { schema, name } = tableInfo;
-
-      this.ID = (() => {
-         const schema = this.tableInfo.schema ? `${this.tableInfo.schema}.` : "";
-         const alias = this.tableInfo.alias ? ` as ${this.tableInfo.alias}` : "";
-         return `SqlTable(${schema}${this.tableInfo.name}${alias})`;
-      })();
 
       this.row = (() => {
          const row: Record<string, unknown> = {};

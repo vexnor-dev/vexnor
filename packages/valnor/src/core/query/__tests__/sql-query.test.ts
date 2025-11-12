@@ -7,11 +7,13 @@ import { AccountStatusUdt } from "@test-models/valnor_test-enums.js";
 import { SqlBuildContext } from "../sql-build-context.js";
 
 describe("SqlQuery tests", () => {
-   test("SqlQuery row tyoe inference", () => {
+   test("SqlQuery row type inference", () => {
       const query = sql`select ${row(Account.$accountId, Account.$status, Account.$email)} from ${Account}`;
-      expect(query.ROW).toBeDefined();
-      expect(query.ROW!.row).toBeDefined();
-      expect(query.ROW!.$accountId).toBeDefined();
+      expect(query.row).toBeDefined();
+      expect(query.$accountId).toBeDefined();
+      expect(query.$status).toBeDefined();
+      expect(query.$email).toBeDefined();
+      expect(query.$$all).toBeDefined();
    });
 
    test("join sub-query with default queryName", () => {
@@ -21,9 +23,9 @@ describe("SqlQuery tests", () => {
             where ${Account.$status} = ${AccountStatusUdt.CREATED}
          `;
 
-      const rootQuery = sql`join ${subQuery}`;
-      const context = new SqlBuildContext();
-      rootQuery.build(context);
+      const query = sql`join ${subQuery}`;
+      const context = new SqlBuildContext({ query });
+      query.build(context);
       expect(context.text).toEqualQuery(`
          join (select "a_1"."account_id"  as "accountId",
             "a_1"."status",

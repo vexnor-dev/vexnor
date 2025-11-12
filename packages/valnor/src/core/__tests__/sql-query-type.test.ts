@@ -4,8 +4,8 @@ import { Account } from "./models/valnor_test.account-table.js";
 import {
    InferParamsFromQuery,
    InferParamsFromQueryTokens,
-   InferRowFromQuery,
-   InferRowFromQueryTokens,
+   InferResultRowFromQuery,
+   InferResultRowFromQueryTokens,
    sql,
 } from "../sql.js";
 import { SqlInputArgs } from "../sql-types.js";
@@ -15,12 +15,12 @@ describe("sql query type tests", () => {
    test("Infer row result type from sql-row", () => {
       // eslint-disable-next-line unused-imports/no-unused-vars
       const x = row(Account.$firstName, Account.$lastName, Account.$createdAt);
-      type Row = InferRowFromQueryTokens<[typeof x]>;
+      type Row = InferResultRowFromQueryTokens<[typeof x]>;
       // eslint-disable-next-line prefer-const
       let actual: Row = {
-         $firstName: "a",
-         $lastName: "b",
-         $createdAt: new Date(),
+         firstName: "a",
+         lastName: "b",
+         createdAt: new Date(),
       };
       console.log(actual.$firstName);
    });
@@ -71,7 +71,7 @@ describe("sql query type tests", () => {
       `;
 
       // eslint-disable-next-line unused-imports/no-unused-vars
-      const r: InferRowFromQuery<typeof query> = {
+      const r: InferResultRowFromQuery<typeof query> = {
          $firstName: "a",
          $name: "b",
          $createdAt: new Date(),
@@ -89,7 +89,7 @@ describe("sql query type tests", () => {
          set ${Account.$$set({ status: AccountStatusUdt.CONFIRMED })} 
          where ${Account.$accountId} = ${param("accountId").is<string>()}`;
 
-      type Row = InferRowFromQuery<typeof query>;
+      type Row = InferResultRowFromQuery<typeof query>;
       const row: Row = void 0;
    });
 });

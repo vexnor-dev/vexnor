@@ -44,12 +44,12 @@ export const TablePrimaryKeys = sql<
 export const findTables = sql<SqlTableInfo, { schemas: string[] }>`
    SELECT ${Tables.table_name},
           ${Tables.table_schema},
-          ${TablePrimaryKeys.ROW.primary_key},
+          ${TablePrimaryKeys.row.primary_key},
           ${jsonAgg(TableColumns)} as "table_columns"
    FROM ${Tables}
           ${jsonAgg(TableColumns)}
-           JOIN ${TablePrimaryKeys} ON ${Tables.table_schema} = ${TablePrimaryKeys.ROW.table_schema} AND
-                                      ${Tables.table_name} = ${TablePrimaryKeys.ROW.table_name}
+           JOIN ${TablePrimaryKeys} ON ${Tables.table_schema} = ${TablePrimaryKeys.row.table_schema} AND
+                                      ${Tables.table_name} = ${TablePrimaryKeys.row.table_name}
    WHERE ${Tables.table_schema} IN (${param("schemas")})
      AND ${Tables.table_type} = 'BASE TABLE'
    ORDER BY ${Tables.table_schema}, ${Tables.table_name}`;

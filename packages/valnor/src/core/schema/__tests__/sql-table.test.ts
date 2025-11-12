@@ -2,14 +2,11 @@ import { describe, expect, test } from "vitest";
 import { SqlTable, SqlTableColumn } from "../../schema/index.js";
 import { Account } from "@test-models/valnor_test.account-table.js";
 import { Sql } from "../../sql-base.js";
-import { ok } from "assert";
 
 describe("SqlTable tests", () => {
    test("SqlTable inherits SqlBase", () => {
       expect(Account).instanceof(SqlTable);
       expect(Account).instanceof(Sql);
-
-      expect(Account instanceof SqlTable).toBe(true);
    });
 
    test("SqlTable should include expected columns", () => {
@@ -51,7 +48,9 @@ describe("SqlTable tests", () => {
    test("SqlTable alias should return new SqlTable instance with respective $$all columns", () => {
       const actual = Account`inserted`.$$all;
       for (const col of Object.values(actual.row)) {
-         ok(col instanceof SqlTableColumn);
+         expect(col).toBeDefined();
+         expect(col).toBeInstanceOf(Sql);
+         expect(col).toBeInstanceOf(SqlTableColumn);
          expect(col.tableInfo).toEqual<typeof col.tableInfo>({
             schema: "valnor_test",
             name: "account",

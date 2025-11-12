@@ -4,13 +4,13 @@ import { SqlBuildError } from "../sql-build-error.js";
 import { InferTableColumnsByRecord } from "../types/index.js";
 
 export class TableUpdateSet<T extends { Update: Record<string, unknown> }> extends Sql {
-   readonly ID: string;
    constructor(
       public readonly columns: InferTableColumnsByRecord<T["Update"]>,
       public readonly update: T["Update"],
    ) {
-      super();
-      this.ID = `TableUpdateSet(${Object.keys(this.update).join(", ")})`;
+      super({
+         ID: `${Object.keys(update).join(", ")}`,
+      });
    }
 
    build(context: SqlBuildContext) {

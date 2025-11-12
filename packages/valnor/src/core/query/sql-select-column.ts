@@ -33,27 +33,27 @@ export class SqlSelectColumn<
       Type: unknown;
    },
 > extends Sql {
-   readonly ID: string;
    readonly columnName: string;
    readonly key: T["Key"];
    readonly format?: SqlColumnFormat;
 
-   constructor({ key, format }: SqlSelectColumnOptions<T>) {
-      super();
+   constructor({ key, format, columnName }: SqlSelectColumnOptions<T>) {
+      super({
+         ID: (() => {
+            const alias = key !== columnName ? ` as ${key}` : "";
+            return `${columnName}${alias}`;
+         })(),
+      });
       this.key = key;
       this.format = format;
       this.columnName = this.key;
-      this.ID = (() => {
-         const alias = this.key !== this.columnName ? ` as ${this.key}` : "";
-         return `SqlSelectColumn(${this.columnName}${alias})`;
-      })();
    }
 
    // eslint-disable-next-line unused-imports/no-unused-vars
    build(context: SqlBuildContext, _options?: SqlBuildOptions) {
       const tableInfo = {
-         alias: context.queryName(this),
-         name: context.queryName(this),
+         alias: context.getQueryName(this),
+         name: context.getQueryName(this),
       };
 
       const format = this.format ?? context.formatter.getColumnFormat(context);

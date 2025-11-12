@@ -4,68 +4,56 @@ import { SqlParam } from "./sql-param.js";
 import { SqlBuildContext } from "./sql-build-context.js";
 import { logger } from "../logger.js";
 import { Sql } from "../sql-base.js";
-import { DefaultFormatter } from "../default-formatter.js";
-import { SqlSelectRow, SqlSelectRowExtended } from "./sql-select-row.js";
+import { SqlSelectRow } from "./sql-select-row.js";
 import { SqlQueryInfo } from "../charms/index.js";
+import { NullWhenUnknown } from "../types/index.js";
+import { NullOrSqlSelectAll, SqlSelectAll } from "./sql-select-all.js";
+import { InferSelectRowByResult } from "./sql-query-types.js";
 
 export const WILDCARD = "?";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlQueryAny = SqlQuery<any>;
 
+export interface SqlQueryArgs {
+   readonly rawStrings: TemplateStringsArray;
+   readonly rawValues: unknown[];
+}
+
 export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql {
-   readonly ROW: T["Row"] extends Record<string, unknown> ? SqlSelectRowExtended<{ Row: T["Row"] }> : null =
-      null as T["Row"] extends Record<string, unknown> ? SqlSelectRowExtended<{ Row: T["Row"] }> : null;
+   readonly row: NullWhenUnknown<InferSelectRowByResult<T["Row"]>> = null as NullWhenUnknown<
+      InferSelectRowByResult<T["Row"]>
+   >;
    readonly info: SqlQueryInfo | null = null;
 
-   readonly queriesBySqlId = new Map<string, SqlQueryAny>();
-   readonly ID: string;
+   readonly rawStrings: TemplateStringsArray;
+   readonly rawValues: unknown[];
 
-   constructor(
-      public readonly rawStrings: readonly string[],
-      public readonly rawValues: readonly unknown[],
-   ) {
-      super();
-      this.ID = (() => {
-         const strings = this.rawStrings
-            .map((str, i) => {
-               if (this.rawValues.length <= i) return str;
+   constructor({ rawStrings, rawValues }: SqlQueryArgs) {
+      super({
+         ID: (() => {
+            const info = rawValues.find((z) => z instanceof SqlQueryInfo);
+            return info?.label ?? "#";
+         })(),
+      });
+      this.rawStrings = rawStrings;
+      this.rawValues = rawValues;
 
-               return str + this.rawValues[i]!.toString();
-            })
-            .join("");
-
-         return `SqlQuery(${strings})`;
-      })();
-      this.queriesBySqlId.set(this.ID, this);
       for (const rawValue of rawValues) {
          switch (true) {
             case rawValue instanceof SqlQueryInfo:
                this.info = rawValue;
                break;
             case rawValue instanceof SqlSelectRow:
-               this.queriesBySqlId.set(rawValue.ID, this);
-               this.ROW = rawValue as T["Row"] extends Record<string, unknown>
-                  ? SqlSelectRowExtended<{ Row: T["Row"] }>
-                  : null;
-               this.queriesBySqlId.set(rawValue.$$all.ID, this);
-               for (const column of Object.values(rawValue.row)) {
-                  this.queriesBySqlId.set(column.ID, this);
-               }
-               break;
-            case rawValue instanceof SqlQuery:
-               rawValue.queriesBySqlId.forEach((query, sql) => this.queriesBySqlId.set(sql, query));
+               this.row = rawValue.row as NullWhenUnknown<InferSelectRowByResult<T["Row"]>>;
                break;
          }
       }
    }
 
-   toString() {
-      return this.ID;
-   }
-
-   [Symbol.toStringTag]() {
-      return this.toString();
+   get $$all(): NullOrSqlSelectAll<T["Row"]> {
+      if (!this.row) return null as NullOrSqlSelectAll<T["Row"]>;
+      return new SqlSelectAll(this.row) as NullOrSqlSelectAll<T["Row"]>;
    }
 
    /**
@@ -167,22 +155,22 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
             wrapStart();
             this.buildInternal(context, options);
             wrapEnd();
-            context.addStrings(` as "${context.queryName}"`);
+            context.addStrings(` as "${context.getQueryName(this)}"`);
             break;
          case "join":
             wrapStart();
             this.buildInternal(context, options);
             wrapEnd();
-            context.addStrings(` as "${context.queryName}"`);
+            context.addStrings(` as "${context.getQueryName(this)}"`);
             break;
          case "from":
             wrapStart();
             this.buildInternal(context, options);
             wrapEnd();
-            context.addStrings(` as "${context.queryName}"`);
+            context.addStrings(` as "${context.getQueryName(this)}"`);
             break;
          case "fn":
-            context.addStrings(`"${context.queryName}"`);
+            context.addStrings(`"${context.getQueryName(this)}"`);
             break;
          default:
             this.buildInternal(context, options);
@@ -209,7 +197,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
             const addString = (text: string) => `${text}${delimiter}`;
             switch (true) {
                case item instanceof SqlQuery: {
-                  item.build(context.scope({ query: item }), options);
+                  item.build(context.scope(item), options);
                   break;
                }
                case item instanceof Sql:
@@ -247,14 +235,4 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
          }
       }
    }
-}
-
-export interface GetCacheKeyArgs {
-   item: "sql" | "text";
-   driver: string;
-   values: Record<string, unknown>;
-}
-
-export interface SqlQueryBuildOptions {
-   formatProvider?: DefaultFormatter;
 }

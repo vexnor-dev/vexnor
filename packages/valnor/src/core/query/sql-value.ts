@@ -7,13 +7,13 @@ import { SqlQueryToken } from "../sql.js";
 export type SqlValueAny = SqlValue<any>;
 
 export class SqlValue<T extends { Key: string; Type: unknown }> extends Sql {
-   readonly ID: string;
    constructor(
       public readonly query: SqlQueryAny,
       public readonly key: T["Key"],
    ) {
-      super();
-      this.ID = `SqlValue(${query.toString()} AS ${key})`;
+      super({
+         ID: `${query.toString()} AS ${key}`,
+      });
    }
 
    build(context: SqlBuildContext) {
@@ -25,8 +25,8 @@ export class SqlValue<T extends { Key: string; Type: unknown }> extends Sql {
    }
 }
 
-export function val<T = unknown>(strings: TemplateStringsArray, ...values: SqlQueryToken[]) {
-   const query = new SqlQuery(strings, values);
+export function val<T = unknown>(rawStrings: TemplateStringsArray, ...rawValues: SqlQueryToken[]) {
+   const query = new SqlQuery({ rawStrings, rawValues });
    return {
       as: <Key extends string>(key: Key) => new SqlValue<{ Key: Key; Type: T }>(query, key),
    };

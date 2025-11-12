@@ -6,14 +6,14 @@ export type SqlParamAny = SqlParam<any>;
 
 export class SqlParam<T extends { Name: string; Type: unknown }> extends Sql {
    static PREFIX = "$";
-   readonly ID: string;
    name: T["Name"];
 
    constructor({ name }: { name: T["Name"] }) {
-      super();
+      super({
+         ID: name,
+      });
       if (name.startsWith(SqlParam.PREFIX)) throw new TypeError(`Param name must not start with ${SqlParam.PREFIX}`);
       this.name = name;
-      this.ID = `@${name}`;
    }
 
    get wildcard(): string {

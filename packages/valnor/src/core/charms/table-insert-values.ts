@@ -9,12 +9,15 @@ export class TableInsertValues<
       Insert: Partial<T["Select"]>;
    },
 > extends Sql {
-   readonly ID: string;
    constructor(
       public readonly columns: InferTableColumnsByRecord<T["Select"]>,
       public readonly inserts: T["Insert"][],
    ) {
-      super();
+      super({
+         ID: `${Object.values(columns)
+            .map((z) => z.ID)
+            .join(", ")} | rows: ${inserts.length}`,
+      });
       if (!inserts.length) {
          throw new SqlBuildError(`No rows for insert`);
       }
@@ -34,9 +37,6 @@ export class TableInsertValues<
             }
          }
       }
-      this.ID = `TableInsertValues(${Object.values(columns)
-         .map((z) => z.ID)
-         .join(", ")} | rows: ${inserts.length})`;
    }
 
    build(context: SqlBuildContext) {

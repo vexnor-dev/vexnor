@@ -1,13 +1,15 @@
 import { SqlBuildContext } from "./query/index.js";
 import { SqlBuildOptions } from "./sql-types.js";
 
-export type SqlOptions = { wrap?: boolean };
+export type SqlOptions = { wrap?: boolean; ID: string };
 
 export abstract class Sql {
    readonly $$wrap: boolean | undefined;
-   abstract readonly ID: string;
+   readonly ID: string;
 
-   protected constructor(options?: SqlOptions) {
+   protected constructor(options: SqlOptions) {
+      this.ID = this.constructor.name + "(" + options.ID + ")" + Math.random().toString(36).substring(2, 6);
+
       this.$$wrap = (() => {
          if (options?.wrap === undefined) return true;
 

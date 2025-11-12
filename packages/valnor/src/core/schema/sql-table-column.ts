@@ -41,20 +41,19 @@ export class SqlTableColumn<
    readonly columnName: string;
    readonly tableInfo: { schema?: string; name: string; alias?: string };
    readonly format?: SqlColumnFormat;
-   readonly ID: string;
 
    constructor({ columnName, key, tableInfo, format }: SqlTableColumnOptions<T>) {
-      super();
+      super({
+         ID: (() => {
+            const table = tableInfo.alias || tableInfo.name;
+            const alias = key !== columnName ? ` as ${key}` : "";
+            return `${table}.${columnName}${alias}`;
+         })(),
+      });
       this.columnName = columnName;
       this.key = key;
       this.tableInfo = tableInfo;
       this.format = format;
-
-      this.ID = (() => {
-         const table = this.tableInfo.alias || this.tableInfo.name;
-         const alias = this.key !== this.columnName ? ` as ${this.key}` : "";
-         return `SqlColumn(${table}.${this.columnName}${alias})`;
-      })();
    }
 
    // eslint-disable-next-line unused-imports/no-unused-vars

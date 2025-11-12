@@ -29,7 +29,7 @@ export class JsonAggPostgres<T extends { Row: Record<string, unknown>; Params?: 
    }
 
    build(context: SqlBuildContext, options: SqlBuildOptions) {
-      if (!this.query.ROW) {
+      if (!this.query.row) {
          throw new SqlBuildError(`query row is required for json aggregation`);
       }
 
@@ -41,7 +41,7 @@ export class JsonAggPostgres<T extends { Row: Record<string, unknown>; Params?: 
             const result = raw(this.query.name + "_result");
             context.addStrings("left join lateral (");
             sql`
-               select coalesce(jsonb_agg(${this.query.ROW.$$all}), '[]') as "${result}"
+               select coalesce(jsonb_agg(${this.query.row.$$all}), '[]') as "${result}"
                from ${this.query}) as "${raw(this.query.name)}"
                on true
             `.build(context.scope({ queryName: this.query.name }), options);

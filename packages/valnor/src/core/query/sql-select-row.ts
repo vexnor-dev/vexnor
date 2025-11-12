@@ -2,7 +2,7 @@ import { Sql } from "../sql-base.js";
 import { SqlBuildOptions } from "../sql-types.js";
 import { SqlBuildContext } from "./sql-build-context.js";
 import { SqlBuildError } from "../sql-build-error.js";
-import { SqlTableColumnAny, SqlTableColumn, SqlTableColumnExtended } from "../schema/index.js";
+import { SqlTableColumn, SqlTableColumnAny, SqlTableColumnExtended } from "../schema/index.js";
 import { SqlValue, SqlValueAny } from "./sql-value.js";
 import {
    newSqlSelectColumn,
@@ -12,6 +12,7 @@ import {
 } from "./sql-select-column.js";
 import { SqlTableAll, SqlTableAllAny } from "../charms/index.js";
 import { SqlSelectAll, SqlSelectAllAny } from "./sql-select-all.js";
+import { InferSelectRowByResult } from "./sql-query-types.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlSelectRowAny = SqlSelectRow<any>;
@@ -24,23 +25,30 @@ export type SqlSelectColumnTypes =
    | SqlSelectColumnAny;
 
 export type SqlSelectRowExtended<T extends { Row: Record<string, unknown> }> = SqlSelectRow<T> &
-   InferSelectColumnsByRecord<T["Row"]>;
+   InferSelectRowByResult<T["Row"]>;
 
 export class SqlSelectRow<T extends { Row: Record<string, unknown> }> extends Sql {
    readonly $$all: SqlSelectAll<T>;
-   readonly row: InferSelectColumnsByRecord<T["Row"]>;
-   readonly #columns: SqlSelectColumnTypes[];
-   readonly ID: string;
+   readonly row: InferSelectRowByResult<T["Row"]>;
+   private readonly columns: SqlSelectColumnTypes[];
 
    constructor(columns: SqlSelectColumnTypes[]) {
-      super();
-      this.#columns = columns;
+      super({
+         ID: `${columns
+            .map((col) => {
+               return col.toString();
+            })
+            .join(", ")}`,
+      });
+      this.columns = columns;
       this.row = (() => {
          const row: Record<string, SqlSelectColumnAny> = {};
          for (const item of columns) {
             switch (true) {
                case item instanceof SqlSelectAll:
                case item instanceof SqlTableAll:
+                  if (!item.row) break;
+
                   for (const [key, value] of Object.entries(item.row)) {
                      row[key] = newSqlSelectColumn({
                         columnName: value.columnName,
@@ -48,19 +56,14 @@ export class SqlSelectRow<T extends { Row: Record<string, unknown> }> extends Sq
                      });
                   }
                   break;
+               case item instanceof SqlTableColumn:
+               case item instanceof SqlSelectColumn:
                case item instanceof SqlValue:
                   row[item.key] = newSqlSelectColumn({
                      columnName: item.key,
                      key: item.key,
                   });
                   break;
-               case item instanceof SqlTableColumn:
-                  row[item.key] = newSqlSelectColumn({
-                     columnName: item.key,
-                     key: item.key,
-                  });
-                  break;
-
                default:
                   throw new SqlBuildError(`Invalid column type: ${item}`, {
                      data: { column: item },
@@ -68,17 +71,14 @@ export class SqlSelectRow<T extends { Row: Record<string, unknown> }> extends Sq
             }
          }
 
-         return row as InferSelectColumnsByRecord<T["Row"]>;
+         return row as InferSelectRowByResult<T["Row"]>;
       })();
       this.$$all = new SqlSelectAll(this.row);
-      this.ID = (() => {
-         return `SqlSelectRow(${this.#columns.map((col) => col.toString()).join(", ")})`;
-      })();
    }
 
    build(context: SqlBuildContext, options?: SqlBuildOptions): void {
       let index = 0;
-      for (const item of this.#columns) {
+      for (const item of this.columns) {
          if (index++ > 0) context.addStrings(", ");
          item.build(context, options);
       }
@@ -88,7 +88,7 @@ export class SqlSelectRow<T extends { Row: Record<string, unknown> }> extends Sq
 export function row<
    Column extends SqlSelectAllAny | SqlValueAny | SqlSelectColumnAny | SqlTableAllAny | SqlTableColumnAny,
    Columns extends Column[],
->(...columns: Columns): SqlSelectRowExtendedTypedOrGeneric<InferRowSelectFromColumns<typeof columns>> {
+>(...columns: Columns) {
    return new Proxy(new SqlSelectRow(columns), {
       ownKeys(target: SqlSelectRow<{ Row: Record<string, unknown> }>): ArrayLike<string | symbol> {
          return [...Object.keys(target), ...Object.keys(target.row).map((z) => `$${z}`)];
@@ -134,41 +134,39 @@ export function row<
                throw new Error(`Unknown property: ${prop}`);
          }
       },
-   }) as SqlSelectRowExtendedTypedOrGeneric<InferRowSelectFromColumns<typeof columns>>;
+   }) as SqlSelectRowExtended<{ Row: InferResultRowFromColumns<typeof columns> }>;
 }
+//
+// type RecordOrRow<T> =
+//    T extends Record<string, unknown>
+//       ? SqlSelectRowExtended<{ Row: T }>
+//       : SqlSelectRowExtended<{ Row: Record<string, unknown> }>;
 
-type SqlSelectRowExtendedTypedOrGeneric<T> =
-   T extends Record<string, unknown>
-      ? SqlSelectRowExtended<{ Row: T }>
-      : SqlSelectRowExtended<{ Row: Record<string, unknown> }>;
-
-type InferColumnOptions<T> = T extends
-   | SqlTableColumnExtended<infer O>
-   | SqlTableColumn<infer O>
-   | SqlValue<infer O>
-   | SqlSelectColumnExtended<infer O>
-   | SqlSelectColumn<infer O>
-   ? O
-   : never;
-
-type InferSelectAllOptions<T> = T extends SqlTableAll<infer O> | SqlSelectAll<infer O> ? O : never;
-
-export type InferRowSelectFromColumns<T> = T extends [infer Start, ...infer Rest]
-   ? InferColumnOptions<Start> extends { Key: infer K extends string; Type: infer V }
-      ? Record<`$${string & K}`, V> & InferRowSelectFromColumns<Rest>
-      : InferSelectAllOptions<Start> extends { Row: infer R extends Record<string, unknown> }
-        ? R & InferRowSelectFromColumns<Rest>
-        : InferRowSelectFromColumns<Rest>
+export type InferResultRowFromColumn<T> = T extends
+   | SqlTableColumnExtended<infer U>
+   | SqlTableColumn<infer U>
+   | SqlValue<infer U>
+   | SqlSelectColumnExtended<infer U>
+   | SqlSelectColumn<infer U>
+   ? U extends { Key: infer K extends string; Type: infer V }
+      ? Record<K, V>
+      : never
    : unknown;
 
-export type InferSelectColumnsByRecord<Select> =
-   Select extends Record<string, unknown>
+export type InferResultRowFromAll<T> = T extends SqlTableAll<infer U> | SqlSelectAll<infer U>
+   ? U["Row"] extends Record<string, unknown>
       ? {
-           [K in keyof Select]: K extends string
-              ? SqlSelectColumnExtended<{
-                   Key: K;
-                   Type: Select[K];
-                }>
-              : never;
+           [K in keyof U["Row"]]: K extends string ? U["Row"][K] : never;
         }
-      : never;
+      : never
+   : unknown;
+
+export type InferResultRowFromSelect<T> =
+   T extends SqlSelectRow<infer U extends { Row: Record<string, unknown> }> ? U["Row"] : unknown;
+
+export type InferResultRowFromColumns<T> = T extends [infer Start, ...infer Rest]
+   ? InferResultRowFromSelect<Start> &
+        InferResultRowFromColumn<Start> &
+        InferResultRowFromAll<Start> &
+        InferResultRowFromColumns<Rest>
+   : Record<string, unknown>;

@@ -13,9 +13,9 @@ describe("sql subqueries tests", () => {
 
       const query = sql`
         ${rowType<IAccountSelect>()}
-         select ${row(AccountsWithEmail.ROW.$$all)}
+         select ${row(AccountsWithEmail.row.$$all)}
          from ${AccountsWithEmail}
-         where ${AccountsWithEmail.ROW.firstName} = ${param("firstName").is<string>()}`;
+         where ${AccountsWithEmail.row.firstName} = ${param("firstName").is<string>()}`;
 
       query.buildCache({});
       expect(query.getValues({ params: { firstName: "John", email: "test@example.com" } })).toEqual([
@@ -49,7 +49,7 @@ describe("sql subqueries tests", () => {
       const query = sql`
          select ${row(Account.$accountId, Account.$status, Account.$email, Account.firstName, Account.lastName)}
          from ${Account}
-                 join ${AccountsWithEmail} on ${Account.$accountId} = ${AccountsWithEmail.ROW.accountId}
+                 join ${AccountsWithEmail} on ${Account.$accountId} = ${AccountsWithEmail.row.accountId}
          where ${Account.firstName} = ${param("firstName").is<string>()}`;
 
       expect(query.getValues({ params: { firstName: "John", email: "test@example.com" } })).toEqual([

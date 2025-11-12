@@ -16,7 +16,7 @@ describe("sql subqueries tests", () => {
 
       const AccountsOld = sql`
          ${info({ label: "AccountsOld" })}
-         select ${row(AccountsCreated.ROW.$$all)}
+         select ${row(AccountsCreated.$$all)}
          select ${row(Account.$$all)}
          where ${Account.$createdAt} = ${Date.parse("2020-01-01")}
       `;
@@ -27,8 +27,8 @@ describe("sql subqueries tests", () => {
                     (${AccountsOld})
          select ${row(Account.$$all)}
          from ${Account}
-                 join ${AccountsCreated} on ${Account.$accountId} = ${AccountsCreated.ROW.$accountId}
-            join ${AccountsOld} on ${Account.$accountId} = ${AccountsOld.ROW.$accountId}         
+                 join ${AccountsCreated} on ${Account.$accountId} = ${AccountsCreated.$accountId}
+            join ${AccountsOld} on ${Account.$accountId} = ${AccountsOld.$accountId}         
       `;
 
       console.log(query.getSql({}));
@@ -41,11 +41,11 @@ describe("sql subqueries tests", () => {
          from ${Account}
          where ${Account.$email} = ${param("email").is<string>()}`;
 
-      ok(AccountsWithEmail.ROW);
+      ok(AccountsWithEmail.row);
       const query = sql`
-         select ${row(AccountsWithEmail.ROW.$$all)}
+         select ${row(AccountsWithEmail.$$all)}
          from ${AccountsWithEmail}
-         where ${AccountsWithEmail.ROW.$firstName} = ${param("firstName").is<string>()}`;
+         where ${AccountsWithEmail.$firstName} = ${param("firstName").is<string>()}`;
 
       query.buildCache({});
       expect(query.getValues({ params: { firstName: "John", email: "test@example.com" } })).toEqual([
@@ -79,7 +79,7 @@ describe("sql subqueries tests", () => {
       const query = sql`
          select ${row(Account.$accountId, Account.$status, Account.$email, Account.$firstName, Account.$lastName)}
          from ${Account}
-                 join ${AccountsWithEmail} on ${Account.$accountId} = ${AccountsWithEmail.ROW.$accountId}
+                 join ${AccountsWithEmail} on ${Account.$accountId} = ${AccountsWithEmail.$accountId}
          where ${Account.$firstName} = ${param("firstName").is<string>()}`;
 
       expect(query.getValues({ params: { firstName: "John", email: "test@example.com" } })).toEqual([

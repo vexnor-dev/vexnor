@@ -6,9 +6,11 @@ import { DefaultTokenizer } from "../default-tokenizer.js";
 import { quote, trim } from "../utils/index.js";
 import { ok } from "assert";
 import { Sql } from "../sql-base.js";
-import { SqlQueryAny } from "./sql-query.js";
-import { SqlBuildError } from "../sql-build-error.js";
+import { SqlQuery, SqlQueryAny } from "./sql-query.js";
+import { SqlSelectAll } from "./sql-select-all.js";
+import { SqlSelectColumn } from "./sql-select-column.js";
 import { SqlSelectRow } from "./sql-select-row.js";
+import { SqlBuildError } from "../sql-build-error.js";
 
 export type SqlBuildContextArgs = {
    tokenizer?: ITokenizer;
@@ -19,9 +21,6 @@ export type SqlBuildContextArgs = {
 export class SqlBuildContext implements IBuildQueryContext {
    readonly tokenizer: ITokenizer;
    readonly formatter: DefaultFormatter;
-   readonly queryIndex: number = 0;
-   readonly queriesBySqlId: Map<string, SqlQueryAny>;
-   readonly queryNamesByQuery = new Map<SqlQueryAny, string>();
 
    private readonly _strings: string[] = [];
    private readonly _values: unknown[] = [];
@@ -29,11 +28,23 @@ export class SqlBuildContext implements IBuildQueryContext {
    private readonly _contextParentDepths: number[] = [0];
    private _parentDepth: number = 0;
    private readonly _tableAliasById = new Map<string, string>();
+   readonly query: SqlQueryAny | null;
+   readonly queries: SqlQueryAny[];
 
    constructor(args?: SqlBuildContextArgs) {
-      this.queriesBySqlId = args?.query?.queriesBySqlId ?? new Map<string, SqlQueryAny>();
+      this.query = args?.query ?? null;
       if (args?.query) {
-         this.addQuery(args.query);
+         this.query = args.query;
+         this.queries = [this.query];
+         let i = 0;
+         while (i < this.queries.length) {
+            const query = this.queries[i]!;
+            this.queries.push(...query.rawValues.filter((z) => z instanceof SqlQuery));
+            i++;
+         }
+      } else {
+         this.query = null;
+         this.queries = [];
       }
 
       this.tokenizer = args?.tokenizer ?? new DefaultTokenizer();
@@ -64,15 +75,6 @@ export class SqlBuildContext implements IBuildQueryContext {
 
    get text() {
       return this._strings.join("");
-   }
-
-   queryName(sql: Sql) {
-      const query = this.queriesBySqlId.get(sql.ID);
-      if (!query) throw new SqlBuildError(`Query not found for sql: ${sql}`);
-      const result = this.queryNamesByQuery.get(query);
-
-      if (!result) throw new SqlBuildError(`Query name not found for query: ${query}`);
-      return result;
    }
 
    private get currentStack(): string[] {
@@ -161,22 +163,76 @@ export class SqlBuildContext implements IBuildQueryContext {
       }
    }
 
-   addQuery(query: SqlQueryAny) {
-      this.queriesBySqlId.set(query.ID, query);
-      if (query.ROW) this.queriesBySqlId.set(query.ROW.ID, query);
-      for (const select of query.rawValues) {
-         if (!(select instanceof SqlSelectRow)) continue;
+   scope(query: SqlQueryAny): SqlBuildContext {
+      if (this.queries.includes(query)) return this;
 
-         this.queriesBySqlId.set(select.ID, query);
-      }
-
-      this.queryNamesByQuery.set(query, query?.info?.label ?? `query_${this.queryIndex}`);
+      this.queries.push(query);
+      return this;
    }
 
-   scope({ query }: { query: SqlQueryAny }): SqlBuildContext {
-      const queryIndex = this.queryIndex + 1;
-      this.queryNamesByQuery.set(query, query?.info?.label ?? `query_${queryIndex}`);
-      return this;
+   isRowToken(sql: Sql) {
+      switch (true) {
+         case sql instanceof SqlSelectRow:
+         case sql instanceof SqlSelectColumn:
+         case sql instanceof SqlSelectAll:
+         case sql instanceof SqlQuery:
+            return true;
+      }
+
+      return false;
+   }
+
+   *rowTokens(): IterableIterator<{
+      query: SqlQueryAny;
+      ID: string;
+   }> {
+      for (const query of this.queries) {
+         yield { query, ID: query.ID };
+
+         for (const rawValue of query.rawValues) {
+            switch (true) {
+               case rawValue instanceof SqlSelectRow:
+                  yield { query, ID: rawValue.$$all.ID };
+                  if (!rawValue.row) break;
+
+                  for (const value of Object.values(rawValue.row)) {
+                     yield { query, ID: value.ID };
+                  }
+                  break;
+               case rawValue instanceof SqlSelectColumn:
+               case rawValue instanceof SqlSelectAll:
+                  yield { query, ID: rawValue.ID };
+                  break;
+            }
+         }
+      }
+   }
+
+   /**
+    * Gets the query for the respective sql
+    * @param sql
+    */
+   getQuery(sql: Sql): SqlQueryAny {
+      if (!this.isRowToken(sql)) {
+         throw new SqlBuildError(`Query not tracked for: ${sql}`);
+      }
+
+      for (const { ID, query } of this.rowTokens()) {
+         if (ID === sql.ID) {
+            return query;
+         }
+      }
+
+      throw new SqlBuildError(`Query not found for ${sql}`);
+   }
+
+   /**
+    * Gets the query name for the respective sql
+    * @param sql
+    */
+   getQueryName(sql: Sql) {
+      const query = this.getQuery(sql);
+      return query?.info?.label ?? `query_${this.queries.indexOf(query)}`;
    }
 
    /**
@@ -185,7 +241,11 @@ export class SqlBuildContext implements IBuildQueryContext {
     */
    addStrings(...strings: string[]) {
       ok(strings[0], `strings is required`);
-      this._strings.push(...strings);
+      try {
+         this._strings.push(...strings);
+      } catch (err) {
+         throw new SqlBuildError(`Failed to add strings: ${strings}`, { cause: err });
+      }
    }
 
    /**

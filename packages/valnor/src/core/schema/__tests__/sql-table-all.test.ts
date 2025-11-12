@@ -2,8 +2,26 @@ import { describe, expect, test } from "vitest";
 import { SqlBuildContext } from "../../query/index.js";
 import { Account } from "@test-models/valnor_test.account-table.js";
 import { trim } from "../../utils/index.js";
+import { SqlTableAll } from "../../charms/index.js";
+import { SqlTableColumn } from "../sql-table-column.js";
 
-describe("SqlSelectAll (*) tests", () => {
+describe("SqlTableAll (*) tests", () => {
+   test("new value should be defined", () => {
+      const all = new SqlTableAll<{ Row: { accountId: string; name: string } }>({
+         $accountId: new SqlTableColumn<{ Key: "accountId"; Type: string }>({
+            key: "accountId",
+            columnName: "account_id",
+            tableInfo: { name: "a_1" },
+         }),
+         $name: new SqlTableColumn<{ Key: "name"; Type: string }>({
+            key: "name",
+            columnName: "name",
+            tableInfo: { name: "a_1" },
+         }),
+      });
+      expect(all).toBeDefined();
+   });
+
    test("select * $build should render list of columns", () => {
       const context = new SqlBuildContext();
       context.next("select");

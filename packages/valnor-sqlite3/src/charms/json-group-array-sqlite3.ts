@@ -29,7 +29,7 @@ export class JsonGroupArraySqlite3 extends Sql {
             // the rows are sorted *before* being passed to json_group_array.
             context.addStrings("(");
             const subquery = sql<object>`
-               select coalesce(json_group_array(json_object(${this.select.ROW.$$all})), '[]')
+               select coalesce(json_group_array(json_object(${this.select.row.$$all})), '[]')
                from ${this.select}`;
             subquery.build(context.scope({ queryName: this.select.name }), options);
             context.addStrings(")");
