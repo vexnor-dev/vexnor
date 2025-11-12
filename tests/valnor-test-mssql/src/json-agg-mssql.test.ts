@@ -14,7 +14,7 @@ describe("sql plugin jsonAgg() tests", () => {
       offset 0 rows fetch next ${param("limit").is<number>()} rows only`;
 
    test("jsonAgg(): select build", () => {
-      const context = new SqlBuildContext({ queryName: "test", tokenizer: new MssqlTokenizer("test") });
+      const context = new SqlBuildContext({ tokenizer: new MssqlTokenizer("test") });
       context.next("select");
       jsonAgg(AccountOrders).build(context, {});
       expect(context.strings[0]).toBe(`"AccountOrders_result"."AccountOrders"`);
@@ -29,12 +29,12 @@ describe("sql plugin jsonAgg() tests", () => {
    });
 
    // test.each(SQL_KEYWORDS.filter((z) => !["select", "from"].includes(z)))("jsonAgg(): %s throws error", (keyword) => {
-   //    const context = new SqlQueryContext({ queryName: "test", keywords: [keyword] });
+   //    const context = new SqlQueryContext({  keywords: [keyword] });
    //    expect(() => jsonAgg(AccountOrders).select.build(context, {})).toThrow("Cannot use jsonAgg() with SQL keyword:");
    // });
 
    test("jsonAgg(): from", () => {
-      const context = new SqlBuildContext({ queryName: "test", tokenizer: new MssqlTokenizer("test") });
+      const context = new SqlBuildContext({ tokenizer: new MssqlTokenizer("test") });
       context.next("from");
       jsonAgg(AccountOrders).build(context, {});
       expect(context.text).toEqualQuery(

@@ -7,6 +7,13 @@ import { AccountStatusUdt } from "@test-models/valnor_test-enums.js";
 import { SqlBuildContext } from "../sql-build-context.js";
 
 describe("SqlQuery tests", () => {
+   test("SqlQuery row tyoe inference", () => {
+      const query = sql`select ${row(Account.$accountId, Account.$status, Account.$email)} from ${Account}`;
+      expect(query.ROW).toBeDefined();
+      expect(query.ROW!.row).toBeDefined();
+      expect(query.ROW!.$accountId).toBeDefined();
+   });
+
    test("join sub-query with default queryName", () => {
       const subQuery = sql`
             select ${row(Account.$accountId, Account.$status, Account.$email)}

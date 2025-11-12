@@ -33,6 +33,7 @@ export class SqlSelectColumn<
       Type: unknown;
    },
 > extends Sql {
+   readonly ID: string;
    readonly columnName: string;
    readonly key: T["Key"];
    readonly format?: SqlColumnFormat;
@@ -42,13 +43,17 @@ export class SqlSelectColumn<
       this.key = key;
       this.format = format;
       this.columnName = this.key;
+      this.ID = (() => {
+         const alias = this.key !== this.columnName ? ` as ${this.key}` : "";
+         return `SqlSelectColumn(${this.columnName}${alias})`;
+      })();
    }
 
    // eslint-disable-next-line unused-imports/no-unused-vars
    build(context: SqlBuildContext, _options?: SqlBuildOptions) {
       const tableInfo = {
-         alias: context.queryName,
-         name: context.queryName,
+         alias: context.queryName(this),
+         name: context.queryName(this),
       };
 
       const format = this.format ?? context.formatter.getColumnFormat(context);
@@ -96,8 +101,9 @@ export function newSqlSelectColumn<
    },
 >(options: SqlSelectColumnOptions<T>): SqlSelectColumnExtended<T> {
    const column = new SqlSelectColumn(options);
-   const sqlSelectColumn = () => {};
-   return new Proxy(sqlSelectColumn, {
+   const name = column.toString();
+   const sqlSelectColumn = { [name]: () => {} }[name];
+   return new Proxy(sqlSelectColumn as () => void, {
       getPrototypeOf(): object | null {
          return SqlSelectColumn.prototype;
       },

@@ -1,4 +1,4 @@
-import { newSqlTableColumn, SqlColumnAny, SqlTableColumnExtended } from "./sql-table-column.js";
+import { newSqlTableColumn, SqlTableColumnAny, SqlTableColumnExtended } from "./sql-table-column.js";
 import { SqlBuildContext } from "../query/index.js";
 import { Sql } from "../sql-base.js";
 import { ok } from "assert";
@@ -46,6 +46,7 @@ export class SqlTable<
    readonly format: SqlTableFormat | null;
    readonly row: InferTableColumnsByRecord<T["Select"]>;
    readonly pk: Array<keyof T["Select"]>;
+   readonly ID: string;
 
    constructor({ format, pk, tableInfo, ...options }: SqlTableOptions<T>) {
       super();
@@ -53,6 +54,12 @@ export class SqlTable<
       this.format = format ?? null;
       this.pk = pk;
       const { schema, name } = tableInfo;
+
+      this.ID = (() => {
+         const schema = this.tableInfo.schema ? `${this.tableInfo.schema}.` : "";
+         const alias = this.tableInfo.alias ? ` as ${this.tableInfo.alias}` : "";
+         return `SqlTable(${schema}${this.tableInfo.name}${alias})`;
+      })();
 
       this.row = (() => {
          const row: Record<string, unknown> = {};
@@ -71,11 +78,11 @@ export class SqlTable<
       this.$$all = new SqlTableAll<{ Row: T["Select"] }>(this.row);
    }
 
-   column(key: string): SqlColumnAny {
+   column(key: string): SqlTableColumnAny {
       const result = this.row[key as keyof T["Select"]];
       if (!result) throw new Error(`Column not found: ${this.tableInfo.name}.${String(key)}`);
 
-      return result as unknown as SqlColumnAny;
+      return result as unknown as SqlTableColumnAny;
    }
 
    /**
@@ -163,8 +170,9 @@ export function newSqlTable<
    },
 >(options: SqlTableOptions<T>): SqlTableExtended<T> {
    const table = new SqlTable(options);
-   const sqlTable = () => {};
-   return new Proxy(sqlTable, {
+   const name = table.toString();
+   const sqlTable = { [name]: () => {} }[name];
+   return new Proxy(sqlTable as () => void, {
       ownKeys(): ArrayLike<string | symbol> {
          return [...Object.keys(table), ...Object.keys(table.row).map((z) => `$${z}`)];
       },

@@ -5,8 +5,11 @@ export type SqlRowTypeAny = SqlRowType<any>;
 
 // eslint-disable-next-line unused-imports/no-unused-vars
 export class SqlRowType<T> extends Sql {
+   readonly ID: string;
    constructor() {
       super();
+
+      this.ID = "/* SqlRowType<?> */";
    }
 
    build(): void {

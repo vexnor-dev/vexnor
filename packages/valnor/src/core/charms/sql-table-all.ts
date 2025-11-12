@@ -7,11 +7,13 @@ import { SqlTableColumn } from "../schema/index.js";
 export type SqlTableAllAny = SqlTableAll<any>;
 
 export class SqlTableAll<T extends { Row: Record<string, unknown> }> extends Sql {
+   readonly ID: string;
    readonly row: InferSqlTableAllColumnsByRow<T["Row"]>;
 
    constructor(row: InferSqlTableAllColumnsByRow<T["Row"]>) {
       super();
       this.row = row;
+      this.ID = `SqlTableAll(${Object.keys(row).join(", ")})`;
    }
 
    build(context: SqlBuildContext, options?: SqlBuildOptions) {

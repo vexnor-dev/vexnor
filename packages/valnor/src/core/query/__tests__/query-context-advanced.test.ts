@@ -8,7 +8,6 @@ describe("Advanced SqlBuildContext Engine Stress Tests", () => {
 
    beforeEach(() => {
       context = new SqlBuildContext({
-         queryName: "test",
          tokenizer: new DefaultTokenizer(),
          formatter: new DefaultFormatter(),
       });

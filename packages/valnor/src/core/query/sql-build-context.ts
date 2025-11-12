@@ -6,53 +6,38 @@ import { DefaultTokenizer } from "../default-tokenizer.js";
 import { quote, trim } from "../utils/index.js";
 import { ok } from "assert";
 import { Sql } from "../sql-base.js";
+import { SqlQueryAny } from "./sql-query.js";
+import { SqlBuildError } from "../sql-build-error.js";
+import { SqlSelectRow } from "./sql-select-row.js";
 
 export type SqlBuildContextArgs = {
    tokenizer?: ITokenizer;
    formatter?: DefaultFormatter;
-   tableAliasById?: Map<string, string>;
-   strings?: string[];
-   values?: unknown[];
-   queryName?: string;
-   queryIndex?: number;
-   stack?: {
-      keywordStacks: string[][];
-      contextParentDepths: number[];
-      parentDepth: number;
-   };
-   tokensByQuery?: Map<string, Sql>;
+   query?: SqlQueryAny;
 };
 
 export class SqlBuildContext implements IBuildQueryContext {
    readonly tokenizer: ITokenizer;
    readonly formatter: DefaultFormatter;
-   readonly queryIndex: number;
-   readonly queryName: string;
+   readonly queryIndex: number = 0;
+   readonly queriesBySqlId: Map<string, SqlQueryAny>;
+   readonly queryNamesByQuery = new Map<SqlQueryAny, string>();
 
-   private readonly _strings: string[];
-   private readonly _values: unknown[];
-   private readonly _keywordStacks: string[][];
-   private readonly _contextParentDepths: number[];
-   private _parentDepth;
-   private readonly _tableAliasById: Map<string, string>;
+   private readonly _strings: string[] = [];
+   private readonly _values: unknown[] = [];
+   private readonly _keywordStacks: string[][] = [[]];
+   private readonly _contextParentDepths: number[] = [0];
+   private _parentDepth: number = 0;
+   private readonly _tableAliasById = new Map<string, string>();
 
-   readonly tokensByQuery: Map<string, Sql>;
+   constructor(args?: SqlBuildContextArgs) {
+      this.queriesBySqlId = args?.query?.queriesBySqlId ?? new Map<string, SqlQueryAny>();
+      if (args?.query) {
+         this.addQuery(args.query);
+      }
 
-   constructor(options?: SqlBuildContextArgs) {
-      this.queryIndex = options?.queryIndex ?? 0;
-      this.queryName = options?.queryName ?? `query_${this.queryIndex}`;
-
-      this.tokenizer = options?.tokenizer ?? new DefaultTokenizer();
-      this.formatter = options?.formatter ?? new DefaultFormatter();
-      this._tableAliasById = options?.tableAliasById ?? new Map<string, string>();
-
-      this._keywordStacks = options?.stack?.keywordStacks ?? [[]];
-      this._contextParentDepths = options?.stack?.contextParentDepths ?? [0];
-      this._parentDepth = options?.stack?.parentDepth ?? 0;
-
-      this._strings = options?.strings ? options.strings : [];
-      this._values = options?.values ? options.values : [];
-      this.tokensByQuery = options?.tokensByQuery ?? new Map<string, Sql>();
+      this.tokenizer = args?.tokenizer ?? new DefaultTokenizer();
+      this.formatter = args?.formatter ?? new DefaultFormatter();
    }
 
    get strings(): ReadonlyArray<string> {
@@ -77,6 +62,23 @@ export class SqlBuildContext implements IBuildQueryContext {
       return undefined;
    }
 
+   get text() {
+      return this._strings.join("");
+   }
+
+   queryName(sql: Sql) {
+      const query = this.queriesBySqlId.get(sql.ID);
+      if (!query) throw new SqlBuildError(`Query not found for sql: ${sql}`);
+      const result = this.queryNamesByQuery.get(query);
+
+      if (!result) throw new SqlBuildError(`Query name not found for query: ${query}`);
+      return result;
+   }
+
+   private get currentStack(): string[] {
+      return this._keywordStacks[this._keywordStacks.length - 1]!;
+   }
+
    /**
     * The current keyword
     */
@@ -88,10 +90,6 @@ export class SqlBuildContext implements IBuildQueryContext {
             yield keyword;
          }
       }
-   }
-
-   private get currentStack(): string[] {
-      return this._keywordStacks[this._keywordStacks.length - 1]!;
    }
 
    setAlias(tableInfo: { schema?: string; name: string; alias?: string }) {
@@ -163,27 +161,22 @@ export class SqlBuildContext implements IBuildQueryContext {
       }
    }
 
-   scope(options?: { queryName?: string }): SqlBuildContext {
-      const queryIndex = this.queryIndex + 1;
-      return new SqlBuildContext({
-         queryIndex: queryIndex,
-         queryName: options?.queryName ?? `query_${queryIndex}`,
-         values: this._values,
-         strings: this._strings,
-         tableAliasById: this._tableAliasById,
-         tokenizer: this.tokenizer,
-         formatter: this.formatter,
-         tokensByQuery: this.tokensByQuery,
-         stack: {
-            contextParentDepths: this._contextParentDepths,
-            keywordStacks: this._keywordStacks,
-            parentDepth: this._parentDepth,
-         },
-      });
+   addQuery(query: SqlQueryAny) {
+      this.queriesBySqlId.set(query.ID, query);
+      if (query.ROW) this.queriesBySqlId.set(query.ROW.ID, query);
+      for (const select of query.rawValues) {
+         if (!(select instanceof SqlSelectRow)) continue;
+
+         this.queriesBySqlId.set(select.ID, query);
+      }
+
+      this.queryNamesByQuery.set(query, query?.info?.label ?? `query_${this.queryIndex}`);
    }
 
-   get text() {
-      return this._strings.join("");
+   scope({ query }: { query: SqlQueryAny }): SqlBuildContext {
+      const queryIndex = this.queryIndex + 1;
+      this.queryNamesByQuery.set(query, query?.info?.label ?? `query_${queryIndex}`);
+      return this;
    }
 
    /**
@@ -211,15 +204,5 @@ export class SqlBuildContext implements IBuildQueryContext {
    addValues(...values: unknown[]) {
       ok(values[0], `value is required`);
       this._values.push(...values);
-   }
-
-   /**
-    * Adds SQL Tokens
-    * @param items
-    */
-   addTokens(...items: Sql[]) {
-      for (const item of items) {
-         this.tokensByQuery.set(this.queryName, item);
-      }
    }
 }

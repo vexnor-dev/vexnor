@@ -5,7 +5,7 @@ import { trim } from "../../utils/index.js";
 
 describe("SqlSelectAll (*) tests", () => {
    test("select * $build should render list of columns", () => {
-      const context = new SqlBuildContext({ queryName: "test" });
+      const context = new SqlBuildContext();
       context.next("select");
       Account.$$all.build(context);
 
@@ -22,7 +22,7 @@ describe("SqlSelectAll (*) tests", () => {
    });
 
    test("select * $build should render list of columns with aliased table", () => {
-      const context = new SqlBuildContext({ queryName: "test" });
+      const context = new SqlBuildContext();
       context.next("select");
       Account`inserted`.$$all.build(context);
 
@@ -39,7 +39,7 @@ describe("SqlSelectAll (*) tests", () => {
    });
 
    test("returning * $build should render list of columns", () => {
-      const context = new SqlBuildContext({ queryName: "test" });
+      const context = new SqlBuildContext();
       context.next("returning");
       Account.$$all.build(context);
 
@@ -56,7 +56,7 @@ describe("SqlSelectAll (*) tests", () => {
    });
 
    test("output * $build should render list of columns with aliased table", () => {
-      const context = new SqlBuildContext({ queryName: "test" });
+      const context = new SqlBuildContext();
       context.next("output");
       Account`inserted`.$$all.build(context);
 
@@ -73,7 +73,7 @@ describe("SqlSelectAll (*) tests", () => {
    });
 
    test("count(*) $build should render *", () => {
-      const context = new SqlBuildContext({ queryName: "test" });
+      const context = new SqlBuildContext();
       context.next("count(");
       Account.$$all.build(context);
 
@@ -81,7 +81,7 @@ describe("SqlSelectAll (*) tests", () => {
    });
 
    test("exists (select *) $build should render *", () => {
-      const context = new SqlBuildContext({ queryName: "test" });
+      const context = new SqlBuildContext();
       // Simulate the context of being inside an EXISTS clause
       context.next("exists");
       context.next("select");

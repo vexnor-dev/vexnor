@@ -8,11 +8,13 @@ export class TableInsertRows<
       Select: Record<string, unknown>;
    },
 > extends Sql {
+   readonly ID: string;
    constructor(
       public readonly columns: InferTableColumnsByRecord<T["Select"]>,
       public readonly inserts: T["Insert"][],
    ) {
       super();
+      this.ID = `TableInsertRows(rows: ${inserts.length})`;
    }
 
    build(context: SqlBuildContext) {

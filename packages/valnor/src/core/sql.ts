@@ -1,5 +1,5 @@
 import { SqlCharm, SqlParam, SqlQuery, SqlRowType, SqlSelectRow, SqlSelectRowAny } from "./query/index.js";
-import { SqlColumnAny, SqlTableAny } from "./schema/index.js";
+import { SqlTableColumnAny, SqlTableAny } from "./schema/index.js";
 import { Sql } from "./sql-base.js";
 
 export function sql<Token extends SqlQueryToken = SqlQueryToken, Tokens extends Token[] = Token[]>(
@@ -15,7 +15,7 @@ export function sql<Token extends SqlQueryToken = SqlQueryToken, Tokens extends 
 type _SqlValue_ = Sql | string | number | boolean | null | undefined | Date | bigint | Buffer;
 type SqlValue = _SqlValue_ | _SqlValue_[];
 
-export type SqlQueryToken = SqlValue | SqlTableAny | SqlColumnAny | SqlSelectRowAny;
+export type SqlQueryToken = SqlValue | SqlTableAny | SqlTableColumnAny | SqlSelectRowAny;
 //
 // export type InferRowFromColumns<T> = T extends [infer Start, ...infer Rest]
 //    ? Start extends SqlOutKey<infer Options>

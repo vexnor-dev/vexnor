@@ -2,7 +2,7 @@ import { Sql } from "../sql-base.js";
 import { SqlBuildOptions } from "../sql-types.js";
 import { SqlBuildContext } from "./sql-build-context.js";
 import { SqlBuildError } from "../sql-build-error.js";
-import { SqlColumnAny, SqlTableColumn, SqlTableColumnExtended } from "../schema/index.js";
+import { SqlTableColumnAny, SqlTableColumn, SqlTableColumnExtended } from "../schema/index.js";
 import { SqlValue, SqlValueAny } from "./sql-value.js";
 import {
    newSqlSelectColumn,
@@ -16,7 +16,12 @@ import { SqlSelectAll, SqlSelectAllAny } from "./sql-select-all.js";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlSelectRowAny = SqlSelectRow<any>;
 
-export type SqlSelectColumnTypes = SqlTableAllAny | SqlSelectAllAny | SqlColumnAny | SqlValueAny | SqlSelectColumnAny;
+export type SqlSelectColumnTypes =
+   | SqlTableAllAny
+   | SqlSelectAllAny
+   | SqlTableColumnAny
+   | SqlValueAny
+   | SqlSelectColumnAny;
 
 export type SqlSelectRowExtended<T extends { Row: Record<string, unknown> }> = SqlSelectRow<T> &
    InferSelectColumnsByRecord<T["Row"]>;
@@ -25,6 +30,7 @@ export class SqlSelectRow<T extends { Row: Record<string, unknown> }> extends Sq
    readonly $$all: SqlSelectAll<T>;
    readonly row: InferSelectColumnsByRecord<T["Row"]>;
    readonly #columns: SqlSelectColumnTypes[];
+   readonly ID: string;
 
    constructor(columns: SqlSelectColumnTypes[]) {
       super();
@@ -65,6 +71,9 @@ export class SqlSelectRow<T extends { Row: Record<string, unknown> }> extends Sq
          return row as InferSelectColumnsByRecord<T["Row"]>;
       })();
       this.$$all = new SqlSelectAll(this.row);
+      this.ID = (() => {
+         return `SqlSelectRow(${this.#columns.map((col) => col.toString()).join(", ")})`;
+      })();
    }
 
    build(context: SqlBuildContext, options?: SqlBuildOptions): void {
@@ -77,7 +86,7 @@ export class SqlSelectRow<T extends { Row: Record<string, unknown> }> extends Sq
 }
 
 export function row<
-   Column extends SqlSelectAllAny | SqlColumnAny | SqlValueAny | SqlSelectColumnAny,
+   Column extends SqlSelectAllAny | SqlValueAny | SqlSelectColumnAny | SqlTableAllAny | SqlTableColumnAny,
    Columns extends Column[],
 >(...columns: Columns): SqlSelectRowExtendedTypedOrGeneric<InferRowSelectFromColumns<typeof columns>> {
    return new Proxy(new SqlSelectRow(columns), {

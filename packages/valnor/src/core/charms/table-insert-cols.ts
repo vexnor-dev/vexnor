@@ -9,11 +9,15 @@ export class TableInsertCols<
       Select: Record<string, unknown>;
    },
 > extends Sql {
+   readonly ID: string;
    constructor(
       public readonly columns: InferTableColumnsByRecord<T["Select"]>,
       private readonly inserts: T["Insert"][],
    ) {
       super();
+      this.ID = `TableInsertCols(${Object.values(columns)
+         .map((c) => c.ID)
+         .join(", ")} | rows: ${inserts.length})`;
    }
 
    build(context: SqlBuildContext) {

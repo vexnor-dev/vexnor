@@ -5,6 +5,7 @@ export type SqlOptions = { wrap?: boolean };
 
 export abstract class Sql {
    readonly $$wrap: boolean | undefined;
+   abstract readonly ID: string;
 
    protected constructor(options?: SqlOptions) {
       this.$$wrap = (() => {
@@ -20,6 +21,14 @@ export abstract class Sql {
     * @param options
     */
    abstract build(context: SqlBuildContext, options?: SqlBuildOptions): void;
+
+   toString() {
+      return this.ID;
+   }
+
+   [Symbol.toStringTag]() {
+      return this.toString();
+   }
 }
 
 // export type InferSqlRowFromRecord<T> =

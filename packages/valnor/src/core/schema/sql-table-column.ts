@@ -17,7 +17,7 @@ export interface SqlTableColumnOptions<
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type SqlColumnAny = SqlTableColumn<any>;
+export type SqlTableColumnAny = SqlTableColumn<any>;
 
 export type SqlTableColumnExtended<
    T extends {
@@ -41,6 +41,7 @@ export class SqlTableColumn<
    readonly columnName: string;
    readonly tableInfo: { schema?: string; name: string; alias?: string };
    readonly format?: SqlColumnFormat;
+   readonly ID: string;
 
    constructor({ columnName, key, tableInfo, format }: SqlTableColumnOptions<T>) {
       super();
@@ -48,6 +49,12 @@ export class SqlTableColumn<
       this.key = key;
       this.tableInfo = tableInfo;
       this.format = format;
+
+      this.ID = (() => {
+         const table = this.tableInfo.alias || this.tableInfo.name;
+         const alias = this.key !== this.columnName ? ` as ${this.key}` : "";
+         return `SqlColumn(${table}.${this.columnName}${alias})`;
+      })();
    }
 
    // eslint-disable-next-line unused-imports/no-unused-vars
@@ -97,9 +104,9 @@ export function newSqlTableColumn<
    },
 >(options: SqlTableColumnOptions<T>): SqlTableColumnExtended<T> {
    const column = new SqlTableColumn(options);
-   const sqlTableColumn = () => {};
-
-   return new Proxy(sqlTableColumn, {
+   const name = column.toString();
+   const sqlTableColumn = { [name]: () => {} }[name];
+   return new Proxy(sqlTableColumn as () => void, {
       ownKeys(): ArrayLike<string | symbol> {
          return Object.keys(column);
       },

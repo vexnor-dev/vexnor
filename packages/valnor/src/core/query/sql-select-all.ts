@@ -7,11 +7,18 @@ import { SqlSelectColumn } from "./sql-select-column.js";
 export type SqlSelectAllAny = SqlSelectAll<any>;
 
 export class SqlSelectAll<T extends { Row: Record<string, unknown> }> extends Sql {
+   readonly ID;
+
    constructor(
       public readonly row: InferSelectAllColumnsByRow<T["Row"]>,
       public readonly query?: SqlQueryAny,
    ) {
       super();
+      this.ID = (() => {
+         return Object.values(this.row)
+            .map((z) => z.toString())
+            .join(", ");
+      })();
    }
 
    // eslint-disable-next-line unused-imports/no-unused-vars
@@ -26,8 +33,6 @@ export class SqlSelectAll<T extends { Row: Record<string, unknown> }> extends Sq
             context.addStrings("*");
             break;
          default: {
-            // TODO: context.queryName points to the root query instead of sub-query, since this is a SqlSelectAll not a SqlQuery
-            // TODO: how to fix? .. no idea
             context.addQuotes(`${context.queryName}.*`);
 
             // let index = 0;

@@ -3,17 +3,13 @@ import { SqlBuildContext } from "../sql-build-context.js";
 
 describe("SqlBuildContext alias tests", () => {
    test("'account' should alias 'a_1'", () => {
-      const ctx = new SqlBuildContext({
-         queryName: "test",
-      });
+      const ctx = new SqlBuildContext({});
       const actual = ctx.alias({ name: "account", schema: "valnor_test" });
       expect(actual).toBe("a_1");
    });
 
    test("'account' should alias 'a_1', 'order' should alias 'o_2'", () => {
-      const ctx = new SqlBuildContext({
-         queryName: "test",
-      });
+      const ctx = new SqlBuildContext({});
       const account = ctx.alias({ name: "account", schema: "valnor_test" });
       const order = ctx.alias({ name: "order", schema: "valnor_test" });
       expect(account).toBe("a_1");
@@ -21,17 +17,13 @@ describe("SqlBuildContext alias tests", () => {
    });
 
    test("'order_item' should alias 'oi_1'", () => {
-      const ctx = new SqlBuildContext({
-         queryName: "test",
-      });
+      const ctx = new SqlBuildContext({});
       const actual = ctx.alias({ name: "order_item", schema: "valnor_test" });
       expect(actual).toBe("oi_1");
    });
 
    test("'account' should alias 'a_1', 'order' should alias 'o_2', 'account' should alias 'a_1'", () => {
-      const ctx = new SqlBuildContext({
-         queryName: "test",
-      });
+      const ctx = new SqlBuildContext({});
       const account1 = ctx.alias({ name: "account", schema: "valnor_test" });
       const order = ctx.alias({ name: "order", schema: "valnor_test" });
       const account2 = ctx.alias({ name: "account", schema: "valnor_test" });
@@ -41,9 +33,7 @@ describe("SqlBuildContext alias tests", () => {
    });
 
    test("'account' with known alias 'parent' should alias 'parent'", () => {
-      const ctx = new SqlBuildContext({
-         queryName: "test",
-      });
+      const ctx = new SqlBuildContext({});
       const actual = ctx.alias({ name: "account", schema: "valnor_test", alias: "parent" });
       expect(actual).toBe("parent");
    });

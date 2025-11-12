@@ -1,4 +1,4 @@
-import { hasParams, SqlBuild, SqlBuildOptions, SqlInputArgs } from "../sql-types.js";
+import { hasParams, SqlBuildOptions, SqlInputArgs } from "../sql-types.js";
 import { ok } from "assert";
 import { SqlParam } from "./sql-param.js";
 import { SqlBuildContext } from "./sql-build-context.js";
@@ -14,38 +14,58 @@ export const WILDCARD = "?";
 export type SqlQueryAny = SqlQuery<any>;
 
 export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql {
-   readonly ROW: T["Row"] extends Record<string, unknown> ? SqlSelectRowExtended<{ Row: T["Row"] }> : null;
-   private __buildCache__?: SqlBuild = undefined;
-   readonly info: SqlQueryInfo | null;
+   readonly ROW: T["Row"] extends Record<string, unknown> ? SqlSelectRowExtended<{ Row: T["Row"] }> : null =
+      null as T["Row"] extends Record<string, unknown> ? SqlSelectRowExtended<{ Row: T["Row"] }> : null;
+   readonly info: SqlQueryInfo | null = null;
+
+   readonly queriesBySqlId = new Map<string, SqlQueryAny>();
+   readonly ID: string;
 
    constructor(
       public readonly rawStrings: readonly string[],
       public readonly rawValues: readonly unknown[],
    ) {
       super();
-      this.info = rawValues.find((v) => v instanceof SqlQueryInfo) ?? null;
-      this.ROW = (() => {
-         const row = rawValues.find((v) => v instanceof SqlSelectRow);
-         return row as T["Row"] extends Record<string, unknown> ? SqlSelectRowExtended<{ Row: T["Row"] }> : null;
+      this.ID = (() => {
+         const strings = this.rawStrings
+            .map((str, i) => {
+               if (this.rawValues.length <= i) return str;
+
+               return str + this.rawValues[i]!.toString();
+            })
+            .join("");
+
+         return `SqlQuery(${strings})`;
       })();
+      this.queriesBySqlId.set(this.ID, this);
+      for (const rawValue of rawValues) {
+         switch (true) {
+            case rawValue instanceof SqlQueryInfo:
+               this.info = rawValue;
+               break;
+            case rawValue instanceof SqlSelectRow:
+               this.queriesBySqlId.set(rawValue.ID, this);
+               this.ROW = rawValue as T["Row"] extends Record<string, unknown>
+                  ? SqlSelectRowExtended<{ Row: T["Row"] }>
+                  : null;
+               this.queriesBySqlId.set(rawValue.$$all.ID, this);
+               for (const column of Object.values(rawValue.row)) {
+                  this.queriesBySqlId.set(column.ID, this);
+               }
+               break;
+            case rawValue instanceof SqlQuery:
+               rawValue.queriesBySqlId.forEach((query, sql) => this.queriesBySqlId.set(sql, query));
+               break;
+         }
+      }
    }
 
-   /**
-    * Gets the core cache key for the given driver and values
-    * Query builds qre cache for performance optimizations
-    * @param item sql | text
-    * @param driver the db driver
-    * @param values the core param values
-    */
-   getCacheKey({ item, driver, values }: GetCacheKeyArgs): string {
-      const key = Object.keys(values)
-         .map((v) => {
-            if (Array.isArray(v)) return v.length;
+   toString() {
+      return this.ID;
+   }
 
-            return 1;
-         })
-         .join(",");
-      return JSON.stringify(`item=${item}driver=${driver}&key=${key}`);
+   [Symbol.toStringTag]() {
+      return this.toString();
    }
 
    /**
@@ -120,24 +140,12 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
    buildCache(options?: SqlBuildOptions) {
       // if (this.__buildCache__) return this.__buildCache__;
       const { tokenizer, formatter } = options ?? {};
-      const context = new SqlBuildContext({ queryName: this.info?.label, tokenizer, formatter });
+      const context = new SqlBuildContext({ query: this, tokenizer, formatter });
       this.build(context, options ?? {});
       return {
          strings: [...context.strings],
          values: [...context.values],
       };
-      //
-      // try {
-      //    this.__buildCache__ = ;
-      //    return this.__buildCache__;
-      // } catch (err) {
-      //    logger.error({ err, context, rawStrings: this.rawStrings }, "Error building core");
-      //    throw err;
-      // }
-   }
-
-   toString() {
-      return this.rawStrings.join("?");
    }
 
    /**
@@ -197,12 +205,13 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
 
          const child = children.shift();
 
-         function buildToken(item: unknown, delimiter = "") {
+         const buildToken = (item: unknown, delimiter = "") => {
             const addString = (text: string) => `${text}${delimiter}`;
             switch (true) {
-               case item instanceof SqlQuery:
-                  item.build(context.scope({ queryName: item.info?.label }), options);
+               case item instanceof SqlQuery: {
+                  item.build(context.scope({ query: item }), options);
                   break;
+               }
                case item instanceof Sql:
                   item.build(context, options);
                   break;
@@ -215,7 +224,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
                   context.addStrings(addString(WILDCARD));
                   break;
             }
-         }
+         };
 
          try {
             if (Array.isArray(child)) {

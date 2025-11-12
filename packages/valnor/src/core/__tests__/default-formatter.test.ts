@@ -10,7 +10,6 @@ describe("DefaultFormatter", () => {
    beforeEach(() => {
       formatter = new DefaultFormatter();
       context = new SqlBuildContext({
-         queryName: "test",
          tokenizer: new DefaultTokenizer(),
          formatter: new DefaultFormatter(),
       });
