@@ -27,23 +27,11 @@ export class SqlBuildContext {
    private readonly _contextParentDepths: number[] = [0];
    private _parentDepth: number = 0;
    private readonly _tableAliasById = new Map<string, string>();
-   readonly query: SqlQueryAny | null;
-   readonly queries: SqlQueryAny[];
+   readonly queries: SqlQueryAny[] = [];
 
    constructor(args?: SqlBuildContextArgs) {
-      this.query = args?.query ?? null;
       if (args?.query) {
-         this.query = args.query;
-         this.queries = [this.query];
-         let i = 0;
-         while (i < this.queries.length) {
-            const query = this.queries[i]!;
-            this.queries.push(...query.rawValues.filter((z) => z instanceof SqlQuery));
-            i++;
-         }
-      } else {
-         this.query = null;
-         this.queries = [];
+         this.scope(args.query);
       }
 
       this.tokenizer = args?.tokenizer ?? new DefaultTokenizer();
@@ -165,7 +153,17 @@ export class SqlBuildContext {
    scope(query: SqlQueryAny): SqlBuildContext {
       if (this.queries.includes(query)) return this;
 
-      this.queries.push(query);
+      const queue = [query];
+      while (queue.length) {
+         const query = queue.shift()!;
+
+         if (this.queries.includes(query)) continue;
+
+         this.queries.push(query);
+         queue.push(query);
+         queue.push(...query.rawValues.filter((z) => z instanceof SqlQuery));
+      }
+
       return this;
    }
 
@@ -197,10 +195,6 @@ export class SqlBuildContext {
                   for (const value of Object.values(rawValue.row)) {
                      yield { query, ID: value.ID };
                   }
-                  break;
-               case rawValue instanceof SqlSelectColumn:
-               case rawValue instanceof SqlSelectAll:
-                  yield { query, ID: rawValue.ID };
                   break;
             }
          }

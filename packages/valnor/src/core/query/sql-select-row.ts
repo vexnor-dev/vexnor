@@ -55,8 +55,8 @@ export class SqlSelectRow<T extends { Row: Record<string, unknown> }> extends Sq
                      });
                   }
                   break;
-               case item instanceof SqlTableColumn:
                case item instanceof SqlSelectColumn:
+               case item instanceof SqlTableColumn:
                case item instanceof SqlValue:
                   row[item.key] = newSqlSelectColumn({
                      columnName: item.key,
