@@ -1,7 +1,7 @@
 import { Sql } from "../sql-base.js";
 import { SqlBuildContext } from "./sql-build-context.js";
-import { SqlQuery, SqlQueryAny } from "./sql-query.js";
-import { SqlQueryToken } from "../sql.js";
+import { SqlQueryAny } from "./sql-query.js";
+import { sql, SqlQueryToken } from "../sql.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlValueAny = SqlValue<any>;
@@ -26,8 +26,12 @@ export class SqlValue<T extends { Key: string; Type: unknown }> extends Sql {
 }
 
 export function val<T = unknown>(rawStrings: TemplateStringsArray, ...rawValues: SqlQueryToken[]) {
-   const query = new SqlQuery({ rawStrings, rawValues });
+   const query = sql(rawStrings, ...rawValues);
    return {
+      /**
+       * Assigns a key to the value in the result row
+       * @param key
+       */
       as: <Key extends string>(key: Key) => new SqlValue<{ Key: Key; Type: T }>(query, key),
    };
 }
