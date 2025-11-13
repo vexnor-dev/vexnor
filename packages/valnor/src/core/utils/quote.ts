@@ -5,6 +5,8 @@
  */
 export function quote<U extends string>(text: U) {
    function q(value: string) {
+      if (value === "*") return value;
+
       const result = [];
       if (!value.startsWith(`"`)) result.push(`"`);
       result.push(value);
@@ -14,16 +16,7 @@ export function quote<U extends string>(text: U) {
    }
 
    return text
-      .split(".")
-      .map((z) => {
-         if (z === "*") return z;
-         return q(z);
-      })
-      .join(".")
       .split(" as ")
-      .map((z) => {
-         if (z === "*") return z;
-         return q(z);
-      })
+      .map((part) => part.split(".").map((z) => q(z)).join("."))
       .join(" as ");
 }

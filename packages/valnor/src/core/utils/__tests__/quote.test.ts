@@ -16,4 +16,9 @@ describe("quote() tests", () => {
       const actual = quote("a_1.account_id as accountId");
       expect(actual).toEqual(`"a_1"."account_id" as "accountId"`);
    });
+
+   test(`quoting: a_1.* should render as "a_1".*`, () => {
+      const actual = quote("a_1.*");
+      expect(actual).toEqual(`"a_1".*`);
+   });
 });
