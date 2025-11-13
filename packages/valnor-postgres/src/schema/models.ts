@@ -1,67 +1,75 @@
 import { newSqlTable } from "valnor";
 
-export const PgType = newSqlTable(
-   {
+export const PgType = newSqlTable<{
+   Select: { oid: number; typname: string; typcategory: string; typnamespace: number; typelem: number };
+}>({
+   tableInfo: {
       schema: "pg_catalog",
       name: "pg_type",
-      types: <
-         { Select: { oid: number; typname: string; typcategory: string; typnamespace: number; typelem: number } }
-      >{},
    },
-   {
+   pk: [],
+   columns: {
       oid: "oid",
       typname: "typname",
       typcategory: "typcategory",
       typnamespace: "typnamespace",
       typelem: "typelem",
    },
-);
+});
 
-export const PgEnum = newSqlTable(
-   {
+export const PgEnum = newSqlTable<{
+   Select: { oid: number; enumtypid: number; enumlabel: string; enumsortorder: number };
+}>({
+   tableInfo: {
       name: "pg_enum",
       schema: "pg_catalog",
-      types: <{ Select: { oid: number; enumtypid: number; enumlabel: string; enumsortorder: number } }>{},
    },
-   {
+   pk: [],
+   columns: {
       oid: "oid",
       enumtypid: "enumtypid",
       enumlabel: "enumlabel",
       enumsortorder: "enumsortorder",
    },
-);
+});
 
-export const EnumValues = newSqlTable(
-   {
+export const EnumValues = newSqlTable<{
+   Select: { enumtypid: number; enumlabel: string; enumsortorder: number };
+}>({
+   tableInfo: {
       name: "enum_values",
-      types: <{ Select: { enumtypid: number; enumlabel: string; enumsortorder: number } }>{},
    },
-   {
+   pk: [],
+   columns: {
       enumtypid: "enumtypid",
       enumlabel: "enumlabel",
       enumsortorder: "enumsortorder",
    },
-);
+});
 
-export const PgNamespace = newSqlTable(
-   {
+export const PgNamespace = newSqlTable<{
+   Select: { oid: number; nspname: string };
+}>({
+   tableInfo: {
       name: "pg_namespace",
       schema: "pg_catalog",
-      types: <{ Select: { oid: number; nspname: string } }>{},
    },
-   {
+   pk: [],
+   columns: {
       oid: "oid",
       nspname: "nspname",
    },
-);
+});
 
-export const Columns = newSqlTable(
-   {
+export const Columns = newSqlTable<{
+   Select: IColumnsSelect;
+}>({
+   tableInfo: {
       name: "columns",
       schema: "information_schema",
-      types: <{ Select: IColumnsSelect }>{},
    },
-   {
+   pk: [],
+   columns: {
       table_name: "table_name",
       table_schema: "table_schema",
       column_name: "column_name",
@@ -81,12 +89,10 @@ export const Columns = newSqlTable(
       is_generated: "is_generated",
       generation_expression: "generation_expression",
       is_updatable: "is_updatable",
-      // is_unique: "is_unique",
-      // is_primary_key: "is_primary_key",
       ordinal_position: "ordinal_position",
       udt_name: "udt_name",
    },
-);
+});
 
 export type IColumnsSelect = {
    readonly table_name: string;
@@ -108,23 +114,22 @@ export type IColumnsSelect = {
    readonly is_generated: string;
    readonly generation_expression: string | null;
    readonly is_updatable: string;
-   // readonly is_unique: string;
-   // readonly is_primary_key: string;
    readonly ordinal_position: number;
+   readonly udt_name: string;
 };
 
-export const TableConstraints = newSqlTable(
-   {
+export const TableConstraints = newSqlTable<{
+   Select: { constraint_name: string; table_name: string; table_schema: string; constraint_type: string };
+}>({
+   tableInfo: {
       name: "table_constraints",
       schema: "information_schema",
-      types: <
-         { Select: { constraint_name: string; table_name: string; table_schema: string; constraint_type: string } }
-      >{},
    },
-   {
+   pk: [],
+   columns: {
       constraint_name: "constraint_name",
       table_name: "table_name",
       table_schema: "table_schema",
       constraint_type: "constraint_type",
    },
-);
+});

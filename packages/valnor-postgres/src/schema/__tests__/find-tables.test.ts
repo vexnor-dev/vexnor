@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { findTables } from "../find-tables.js";
-import "@valnor/test-utils";
+import "valnor/testing";
 
 describe("Find Tables tests", () => {
    test("Find Tables query should match expected SQL", () => {

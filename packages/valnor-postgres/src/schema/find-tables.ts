@@ -11,13 +11,13 @@ export const findTables = sql`
    ${rowType<SqlTableInfo>()}
    with cols as (select ${Columns.$$}
                  from ${Columns}
-                 where ${Columns.table_schema} in (${param.string("schemas").array()}))
-   select ${Columns`cols`.table_name},
-          ${Columns`cols`.table_schema},
-          json_agg(${Columns`cols`} order by ${Columns`cols`.ordinal_position}) as table_columns,
-          ${TableConstraints.constraint_name}                                   as primary_key
+                 where ${Columns.$table_schema} in (${param("schemas").is<string[]>()}))
+   select ${Columns`cols`.$table_name},
+          ${Columns`cols`.$table_schema},
+          json_agg(${Columns`cols`} order by ${Columns`cols`.$ordinal_position}) as table_columns,
+          ${TableConstraints.$constraint_name}                                   as primary_key
    from cols
            left join ${TableConstraints}
-                     on ${Columns`cols`.table_name} = ${TableConstraints.table_name} and ${TableConstraints.constraint_type} = 'PRIMARY KEY'
-   group by ${Columns`cols`.table_name}, ${Columns`cols`.table_schema},
-            ${TableConstraints.constraint_name}`;
+                     on ${Columns`cols`.$table_name} = ${TableConstraints.$table_name} and ${TableConstraints.$constraint_type} = 'PRIMARY KEY'
+   group by ${Columns`cols`.$table_name}, ${Columns`cols`.$table_schema},
+            ${TableConstraints.$constraint_name}`;

@@ -25,7 +25,7 @@ export class JsonAggPostgres<T extends { Row: Record<string, unknown>; Params?: 
    implements SqlCharm<T>
 {
    constructor(public readonly query: SqlQuery<T>) {
-      super();
+      super({ ID: "JsonAggPostgres" });
    }
 
    build(context: SqlBuildContext, options: SqlBuildOptions) {
@@ -35,16 +35,16 @@ export class JsonAggPostgres<T extends { Row: Record<string, unknown>; Params?: 
 
       switch (context.keyword) {
          case "select":
-            context.addStrings(`"${this.query.name}_result"`);
+            context.addStrings(`"${this.query.ID}_result"`);
             break;
          case "from": {
-            const result = raw(this.query.name + "_result");
+            const result = raw(this.query.ID + "_result");
             context.addStrings("left join lateral (");
             sql`
                select coalesce(jsonb_agg(${this.query.row.$$}), '[]') as "${result}"
-               from ${this.query}) as "${raw(this.query.name)}"
+               from ${this.query}) as "${raw(this.query.ID)}"
                on true
-            `.build(context.scope({ queryName: this.query.name }), options);
+            `.build(context.scope(this.query), options);
             break;
          }
          default:
