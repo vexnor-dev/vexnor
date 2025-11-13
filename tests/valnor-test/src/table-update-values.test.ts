@@ -9,7 +9,7 @@ describe("sql plugin: table.$$set tests", () => {
       const query = sql`
         ${rowType<IAccountSelect>()}
          update ${Account}
-         set ${Account.$$set({
+         set ${Account.updateSet({
             firstName: "Bob",
             lastName: "Smith",
             email: "bob@example.com",

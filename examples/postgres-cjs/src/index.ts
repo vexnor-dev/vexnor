@@ -20,7 +20,7 @@ async function main() {
 
    const newAccount = await sql<IAccountSelect>`
       insert into ${Account}
-         ${Account.$$values({
+         ${Account.insertColsVals({
             firstName: `John_${id}`,
             lastName: `Doe_${id}`,
             email: `test_${id}@example.com`,
@@ -33,7 +33,7 @@ async function main() {
 
    const newOrders = await sql<IAccountSelect>`
       insert into ${Order}
-         ${Order.$$values(
+         ${Order.insertColsVals(
             {
                accountId: newAccount.accountId,
                status: OrderStatusUdt.CREATED,
@@ -53,7 +53,7 @@ async function main() {
 
    const accountUpdated = await sql<IAccountSelect>`
       update ${Account}
-      set ${Account.$$set({
+      set ${Account.updateSet({
          status: AccountStatusUdt.CONFIRMED,
       })}
       where ${Account.$accountId} = ${newAccount.accountId}

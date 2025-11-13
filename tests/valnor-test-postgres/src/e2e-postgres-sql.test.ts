@@ -22,7 +22,7 @@ describe("valnor postgres sql tests", () => {
    test("insert account", async () => {
       const account = await sql`
          insert into ${Account}
-            ${Account.$$values({
+            ${Account.insertColsVals({
                status: AccountStatusUdt.CREATED,
                firstName: "John",
                lastName: "Doe",

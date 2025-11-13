@@ -3,13 +3,13 @@ import { Account, IAccountSelect } from "@test-models/valnor_test.account-table.
 import { sql } from "../../sql.js";
 import { param, rowType } from "../../query/index.js";
 
-describe("sql plugin: table.$$set tests", () => {
+describe("SqlTable.updateSet() tests", () => {
    test("sql() update with $set()", () => {
       const modifiedAt = new Date();
       const query = sql`
         ${rowType<IAccountSelect>()}
          update ${Account}
-         set ${Account.$$set({
+         set ${Account.updateSet({
             firstName: "Bob",
             lastName: "Smith",
             email: "bob@example.com",

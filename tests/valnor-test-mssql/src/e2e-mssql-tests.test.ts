@@ -46,9 +46,9 @@ describe.sequential("valnor mssql e2e tests", () => {
          }
          const accounts = await sql`
             insert into ${Account}
-               ${Account.$$cols(...newAccountsArgs)}
+               ${Account.insertCols(...newAccountsArgs)}
                output ${row(Account`inserted`.$$all)}
-               ${Account.$$rows(...newAccountsArgs)}
+               ${Account.insertVals(...newAccountsArgs)}
          `.mssql
             .getAll({
                db: pool.request(),
@@ -83,9 +83,9 @@ describe.sequential("valnor mssql e2e tests", () => {
             };
             const account = await sql<IAccountSelect>`
                insert into ${Account}
-                  ${Account.$$cols(accountInsert)}
+                  ${Account.insertCols(accountInsert)}
                   output ${Account`inserted`.$$all}
-                  ${Account.$$rows(accountInsert)}
+                  ${Account.insertVals(accountInsert)}
             `.mssql.getOneRequired({ db: pool.request() });
             expect(account).toEqual(
                expect.objectContaining({

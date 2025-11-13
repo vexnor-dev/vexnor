@@ -24,7 +24,7 @@ describe("valnor postgres sql tests", () => {
       const accountId = randomUUID();
       await sql`
          insert into ${Account}
-            ${Account.$$values({
+            ${Account.insertColsVals({
                accountId,
                status: "created",
                firstName: "John",

@@ -91,7 +91,7 @@ describe("sql query type tests", () => {
    test("query without row type", () => {
       const query = sql`
          update ${Account}
-         set ${Account.$$set({ status: AccountStatusUdt.CONFIRMED })} 
+         set ${Account.updateSet({ status: AccountStatusUdt.CONFIRMED })} 
          where ${Account.$accountId} = ${param("accountId").is<string>()}`;
 
       expect(query).toBeInstanceOf(SqlQuery);
@@ -105,7 +105,7 @@ describe("sql query type tests", () => {
    test("query without params", () => {
       const query = sql`
          update ${Account}
-         set ${Account.$$set({ status: AccountStatusUdt.CONFIRMED })} 
+         set ${Account.updateSet({ status: AccountStatusUdt.CONFIRMED })} 
          where ${Account.$accountId} = ${1}
          returning ${row(Account.$$all)}`;
 

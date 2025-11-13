@@ -3,7 +3,7 @@ import { Account, IAccountInsert } from "@test-models/valnor_test.account-table.
 import { sql } from "../../sql.js";
 import { row } from "../../query/index.js";
 
-describe("SqlTable.$$cols() and $$rows() tests", () => {
+describe("SqlTable.insertCols() and insertCols() tests", () => {
    test("sql() insert with $$cols() and $$rows()", () => {
       const rows: IAccountInsert[] = [
          {
@@ -19,9 +19,9 @@ describe("SqlTable.$$cols() and $$rows() tests", () => {
       ];
       const query = sql`
          insert into ${Account}
-            ${Account.$$cols(...rows)}
+            ${Account.insertCols(...rows)}
             output ${row(Account`inserted`.$$all)}
-            ${Account.$$rows(...rows)}`;
+            ${Account.insertVals(...rows)}`;
 
       expect(query.getValues({})).toEqual([
          "John1",

@@ -25,7 +25,7 @@ const pool = new Pool({
 const id = crypto.randomUUID().slice(0, 4);
 const newAccount = await sql<IAccountSelect>`
    insert into ${Account}
-      ${Account.$$values({
+      ${Account.insertColsVals({
          status: AccountStatusUdt.CREATED,
          firstName: `John_${id}`,
          lastName: `Doe_${id}`,
@@ -51,7 +51,7 @@ console.log(`account (id=${newAccount.accountId}`, account);
 
 const newOrders = await sql<IOrderSelect>`
    INSERT INTO ${Order}
-      ${Order.$$values(
+      ${Order.insertColsVals(
          {
             accountId: newAccount.accountId,
             status: OrderStatusUdt.CREATED,
@@ -71,7 +71,7 @@ ok(newOrders?.length);
 
 const accountUpdated = await sql<IAccountSelect>`
    update ${Account}
-   set ${Account.$$set({
+   set ${Account.updateSet({
       status: AccountStatusUdt.CONFIRMED,
    })}
    where ${Account.$accountId} = ${newAccount.accountId}

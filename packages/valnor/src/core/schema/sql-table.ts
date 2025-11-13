@@ -87,7 +87,7 @@ export class SqlTable<
     * Generates the SQL code for UPDATE set values
     * @param update record with update values
     */
-   $$set<U extends T["Update"]>(update: U): T["Update"] extends undefined ? never : Sql {
+   updateSet<U extends T["Update"]>(update: U): T["Update"] extends undefined ? never : Sql {
       ok(update, `Update is required`);
       ok(Object.keys(update), `Update doesn't have any values`);
       return new TableUpdateSet(this.row, update) as unknown as T["Update"] extends undefined ? never : Sql;
@@ -97,7 +97,7 @@ export class SqlTable<
     * Generates the columns and VALUES clause for an INSERT statement, e.g., ("col1", "col2") VALUES (?, ?), (?, ?).
     * @param inserts array of records to insert
     */
-   $$values(...inserts: T["Insert"][]): T["Insert"] extends undefined ? never : Sql {
+   insertColsVals(...inserts: T["Insert"][]): T["Insert"] extends undefined ? never : Sql {
       ok(insertsAreValid(inserts), `Invalid inserts`);
       return new TableInsertValues(this.row, inserts) as never as T["Insert"] extends undefined ? never : Sql;
    }
@@ -106,7 +106,7 @@ export class SqlTable<
     * Generates the column list for an INSERT statement, e.g., ("col1", "col2").
     * @param inserts - One or more objects containing the data to be inserted.
     */
-   $$cols(...inserts: T["Insert"][]): T["Insert"] extends undefined ? never : Sql {
+   insertCols(...inserts: T["Insert"][]): T["Insert"] extends undefined ? never : Sql {
       ok(insertsAreValid(inserts), `Invalid inserts`);
       return new TableInsertCols(this.row, inserts) as never as T["Insert"] extends undefined ? never : Sql;
    }
@@ -115,7 +115,7 @@ export class SqlTable<
     * Generates the VALUES clause for an INSERT statement, e.g., VALUES (?, ?), (?, ?).
     * @param inserts - One or more objects containing the data to be inserted.
     */
-   $$rows(...inserts: T["Insert"][]): T["Insert"] extends undefined ? never : Sql {
+   insertVals(...inserts: T["Insert"][]): T["Insert"] extends undefined ? never : Sql {
       ok(insertsAreValid(inserts), `Invalid inserts`);
       return new TableInsertRows(this.row, inserts) as never as T["Insert"] extends undefined ? never : Sql;
    }

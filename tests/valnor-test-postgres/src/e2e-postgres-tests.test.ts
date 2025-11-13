@@ -47,7 +47,7 @@ describe.sequential("valnor postgres e2e tests", () => {
          }
          const accounts = await sql`
             insert into ${Account}
-               ${Account.$$values(...newAccountsArgs)}
+               ${Account.insertColsVals(...newAccountsArgs)}
                returning ${row(Account.$$all)}
          `.postgres.getAll({ db: pool });
 
@@ -67,7 +67,7 @@ describe.sequential("valnor postgres e2e tests", () => {
             const account = await sql`
             ${rowType<IAccountSelect>()}
             insert into ${Account}
-               ${Account.$$values({
+               ${Account.insertColsVals({
                   status: AccountStatusUdt.CREATED,
                   firstName: `John-${rootIndex}-${childIndex}-${id} (child ${childIndex})`,
                   lastName: `Doe-${rootIndex}-${childIndex}-${id} (child ${childIndex})`,

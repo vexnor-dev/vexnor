@@ -19,7 +19,7 @@ describe("SqlTable.$$values() tests", () => {
       ];
       const query = sql`
          insert into ${Account}
-            ${Account.$$values(...rows)}
+            ${Account.insertColsVals(...rows)}
             returning ${row(Account.$$all)}`;
 
       expect(query.getValues({})).toEqual([

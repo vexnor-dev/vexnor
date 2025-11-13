@@ -3,7 +3,7 @@ import { Account, IAccountInsert } from "@test-models/valnor_test.account-table.
 import { sql } from "../../sql.js";
 import { row } from "../../query/index.js";
 
-describe("SqlTable.$$values() tests", () => {
+describe("SqlTable.insertColsVals() tests", () => {
    test("sql() insert with $values()", () => {
       const rows: IAccountInsert[] = [
          {
@@ -19,7 +19,7 @@ describe("SqlTable.$$values() tests", () => {
       ];
       const query = sql`
          insert into ${Account}
-            ${Account.$$values(...rows)}
+            ${Account.insertColsVals(...rows)}
             returning ${row(Account.$$all)}`;
 
       expect(query.getValues({})).toEqual([

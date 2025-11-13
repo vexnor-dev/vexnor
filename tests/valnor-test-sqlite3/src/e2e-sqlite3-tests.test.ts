@@ -49,7 +49,7 @@ describe.sequential("valnor sqlite3 e2e tests", () => {
          }
          await sql<IAccountSelect>`
             insert into ${Account}
-               ${Account.$$values(...newAccountsArgs)}
+               ${Account.insertColsVals(...newAccountsArgs)}
          `.sqlite3.run({ db });
 
          const accounts = await sql<IAccountSelect>`
@@ -82,7 +82,7 @@ describe.sequential("valnor sqlite3 e2e tests", () => {
 
             await sql<IAccountSelect>`
                insert into ${Account}
-                  ${Account.$$values(newAccount)}
+                  ${Account.insertColsVals(newAccount)}
             `.sqlite3.run({ db });
 
             const account = await sql<IAccountSelect>`
