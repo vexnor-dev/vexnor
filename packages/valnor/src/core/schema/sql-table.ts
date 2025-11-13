@@ -1,9 +1,8 @@
 import { newSqlTableColumn, SqlTableColumnAny, SqlTableColumnExtended } from "./sql-table-column.js";
-import { SqlBuildContext } from "../query/index.js";
+import { SqlBuildContext, SqlBuildOptions } from "../query/index.js";
 import { Sql } from "../sql-base.js";
 import { ok } from "assert";
 import { TableInsertCols, TableInsertRows, TableInsertValues, TableUpdateSet, SqlTableAll } from "../charms/index.js";
-import { RowIn, SqlBuildOptions } from "../sql-types.js";
 import { SqlTableFormat } from "../default-formatter.js";
 
 export type SqlTableOptions<
@@ -236,7 +235,7 @@ export function newSqlTable<
    }) as unknown as SqlTableExtended<T>;
 }
 
-function insertsAreValid(values: unknown[]): values is RowIn[] {
+function insertsAreValid(values: unknown[]): values is Record<string, unknown>[] {
    if (!values.length) return false;
    return !values.some((value) => !value);
 }

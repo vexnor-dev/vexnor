@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { Account, AccountStatusUdt } from "./models/valnor_test.schema.js";
-import { sql } from "../sql.js";
+import { ExtractParamsFromQuery, sql } from "../sql.js";
 import { info } from "../charms/index.js";
 import { param, row } from "../query/index.js";
 import { ok } from "assert";
@@ -31,7 +31,10 @@ describe("sql subqueries tests", () => {
             join ${AccountsOld} on ${Account.$accountId} = ${AccountsOld.$accountId}         
       `;
 
+      type Params = ExtractParamsFromQuery<typeof query>;
+      const params: Params = undefined;
       console.log(query.getSql({}));
+      expect(params).toBeUndefined();
    });
 
    test("sub-query from", () => {

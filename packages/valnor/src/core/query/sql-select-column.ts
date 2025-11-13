@@ -1,7 +1,6 @@
-import { SqlBuildContext } from "../query/index.js";
+import { SqlBuildContext, SqlBuildOptions } from "../query/index.js";
 import { SqlColumnFormat } from "../default-formatter.js";
 import { Sql } from "../sql-base.js";
-import { SqlBuildOptions } from "../sql-types.js";
 
 export interface SqlSelectColumnOptions<
    T extends {

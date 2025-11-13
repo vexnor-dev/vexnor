@@ -1,6 +1,5 @@
 import { Sql } from "../sql-base.js";
-import { SqlBuildContext } from "../query/index.js";
-import { SqlBuildOptions } from "../sql-types.js";
+import { SqlBuildContext, SqlBuildOptions } from "../query/index.js";
 import { SqlTableColumn } from "../schema/index.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

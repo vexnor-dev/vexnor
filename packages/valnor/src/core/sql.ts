@@ -1,62 +1,41 @@
-import {
-   InferSelectRowByResult,
-   SqlCharm,
-   SqlParam,
-   SqlQuery,
-   SqlRowType,
-   SqlSelectRow,
-   SqlSelectRowAny,
-} from "./query/index.js";
-import { SqlTableAny, SqlTableColumnAny } from "./schema/index.js";
-import { Sql } from "./sql-base.js";
+import { SqlCharm, SqlParam, SqlQuery, SqlQueryExtended, SqlRowType, SqlSelectRow } from "./query/index.js";
 import { SqlBuildError } from "./sql-build-error.js";
+import { ok } from "assert";
+import { Sql } from "./sql-base.js";
 
-type _SqlValue_ = Sql | string | number | boolean | null | undefined | Date | bigint | Buffer;
-type SqlValue = _SqlValue_ | _SqlValue_[];
+type _SqlInlineValue_ = Sql | string | number | boolean | null | undefined | Date | bigint | Buffer;
+export type SqlQueryToken = _SqlInlineValue_ | _SqlInlineValue_[];
 
-export type SqlQueryToken = SqlValue | SqlTableAny | SqlTableColumnAny | SqlSelectRowAny;
-
-export type SqlQueryExtended<T extends { Row: unknown; Params: unknown }> = SqlQuery<{
-   Row: T["Row"];
-   Params: T["Params"];
-}> &
-   (T["Row"] extends Record<string, unknown> ? InferSelectRowByResult<T["Row"]> : unknown);
+// export type SqlQueryToken = SqlInlineValue | SqlTableAny | SqlTableColumnAny | SqlSelectRowAny | SqlParamAny;
 
 export function sql<Token extends SqlQueryToken = SqlQueryToken, Tokens extends Token[] = Token[]>(
    rawStrings: TemplateStringsArray,
    ...rawValues: Tokens
-): SqlQueryExtended<{
-   Row: ObjectOrUndefined<InferResultRowFromQueryTokens<typeof rawValues>>;
-   Params: ObjectOrUndefined<InferParamsFromQueryTokens<typeof rawValues>>;
-}> {
+) {
    const query = new SqlQuery({ rawStrings, rawValues });
 
    return new Proxy(query, {
-      ownKeys(target: SqlQuery<{ Row?: unknown; Params?: unknown }>): ArrayLike<string | symbol> {
-         const rowKeys = target.row ? Object.keys(target.row) : [];
+      ownKeys(target): ArrayLike<string | symbol> {
+         const rowKeys = target.row ? Object.keys(target.row).filter((k) => k.startsWith("$")) : [];
          return [...Reflect.ownKeys(target), ...rowKeys];
       },
       getOwnPropertyDescriptor(target, p: string | symbol): PropertyDescriptor | undefined {
          const prop = String(p);
          switch (true) {
-            case !prop.startsWith("$"):
-            case prop.startsWith("$$"):
-               return Reflect.getOwnPropertyDescriptor(target, p);
             case prop.startsWith("$"):
-               if (!target.row) throw new SqlBuildError(`No SqlQuery.row: ${prop}`);
+               ok(target.row, `No SqlQuery.row: ${prop}`);
+
                return Reflect.getOwnPropertyDescriptor(target.row, p);
             default:
-               throw new Error(`Unknown property: ${prop}`);
+               return Reflect.getOwnPropertyDescriptor(target, p);
          }
       },
       has(target, p: string | symbol): boolean {
          const prop = String(p);
          switch (true) {
-            case !prop.startsWith("$"):
-            case prop.startsWith("$$"):
-               return Object.hasOwn(target, p);
             case prop.startsWith("$"):
-               if (!target.row) throw new SqlBuildError(`No SqlQuery.row: ${prop}`);
+               ok(target.row, `No SqlQuery.row: ${prop}`);
+
                return Object.hasOwn(target.row, p);
             default:
                throw new Error(`Unknown property: ${prop}`);
@@ -65,35 +44,24 @@ export function sql<Token extends SqlQueryToken = SqlQueryToken, Tokens extends 
       get(target, p: string | symbol, receiver: unknown): unknown {
          const prop = String(p);
          switch (true) {
-            case !prop.startsWith("$"):
-            case prop.startsWith("$$"): {
+            case prop.startsWith("$"):
+               if (!target.row) throw new SqlBuildError(`No SqlQuery.row: ${prop}`);
+               return Reflect.get(target.row, prop, receiver);
+            default: {
                const result = Reflect.get(target, p, receiver);
                if (typeof result === "function") {
                   return result.bind(target);
                }
+
                return result;
             }
-            case prop.startsWith("$"):
-               if (!target.row) throw new SqlBuildError(`No SqlQuery.row: ${prop}`);
-               return Reflect.get(target.row, prop.substring(1), receiver);
-            default:
-               throw new Error(`Unknown property: ${prop}`);
          }
       },
    }) as unknown as SqlQueryExtended<{
-      Row: ObjectOrUndefined<InferResultRowFromQueryTokens<typeof rawValues>>;
-      Params: ObjectOrUndefined<InferParamsFromQueryTokens<typeof rawValues>>;
+      Row: QueryRow<typeof rawValues>;
+      Params: QueryParams<typeof rawValues>;
    }>;
 }
-
-//
-// export type InferRowFromColumns<T> = T extends [infer Start, ...infer Rest]
-//    ? Start extends SqlOutKey<infer Options>
-//       ? Record<Options["Key"], Options["Type"]> & InferRowFromColumns<Rest>
-//       : Start extends SqlOutRow<infer Select>
-//         ? { [K in keyof Select]: Select[K] } & InferRowFromColumns<Rest>
-//         : InferRowFromColumns<Rest>
-//    : unknown;
 
 export type InferResultRowFromQueryTokens<T> = T extends [infer Start, ...infer Rest]
    ? Start extends SqlSelectRow<infer Options extends { Row: Record<string, unknown> }>
@@ -106,14 +74,24 @@ export type InferResultRowFromQueryTokens<T> = T extends [infer Start, ...infer 
 export type InferParamsFromQueryTokens<T> = T extends [infer Start, ...infer Rest]
    ? Start extends SqlParam<infer Param extends { Name: string; Type: unknown }>
       ? Record<Param["Name"], Param["Type"]> & InferParamsFromQueryTokens<Rest>
-      : Start extends SqlQuery<infer Options extends { Params: Record<string, unknown> }>
-        ? Options["Params"] & InferParamsFromQueryTokens<Rest>
-        : Start extends SqlCharm<infer Options extends { Params: Record<string, unknown> }>
-          ? Options["Params"] & InferParamsFromQueryTokens<Rest>
+      : Start extends SqlQueryExtended<infer Options extends { Params?: unknown }>
+        ? Options["Params"] extends Record<string, unknown>
+           ? Options["Params"] & InferParamsFromQueryTokens<Rest>
+           : InferParamsFromQueryTokens<Rest>
+        : Start extends SqlCharm<infer Options extends { Params?: unknown }>
+          ? Options["Params"] extends Record<string, unknown>
+             ? Options["Params"] & InferParamsFromQueryTokens<Rest>
+             : InferParamsFromQueryTokens<Rest>
           : InferParamsFromQueryTokens<Rest>
    : unknown;
 
-export type InferResultRowFromQuery<T> = T extends SqlQuery<infer U> ? U["Row"] : never;
-export type InferParamsFromQuery<T> = T extends SqlQuery<infer U> ? U["Params"] : never;
+export type ExtractResultRowFromQuery<T> =
+   T extends SqlQueryExtended<infer U extends { Row?: unknown }> ? U["Row"] : never;
+
+export type ExtractParamsFromQuery<T> =
+   T extends SqlQueryExtended<infer U extends { Params?: unknown }> ? U["Params"] : never;
 
 export type ObjectOrUndefined<T> = keyof T extends never ? void : T;
+
+export type QueryParams<T> = ObjectOrUndefined<InferParamsFromQueryTokens<T>>;
+export type QueryRow<T> = ObjectOrUndefined<InferResultRowFromQueryTokens<T>>;

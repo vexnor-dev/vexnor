@@ -1,5 +1,4 @@
-import { SqlBuildContext } from "./query/index.js";
-import { SqlBuildOptions } from "./sql-types.js";
+import { SqlBuildContext, SqlBuildOptions } from "./query/index.js";
 
 export type SqlOptions = { wrap?: boolean; ID: string };
 
@@ -32,8 +31,3 @@ export abstract class Sql {
       return this.toString();
    }
 }
-
-// export type InferSqlRowFromRecord<T> =
-//    T extends Record<string, unknown>
-//       ? { [K in keyof T]: K extends string ? Sql<{ Key: K; Type: T[K] }> : never }
-//       : never;

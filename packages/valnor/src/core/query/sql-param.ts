@@ -33,5 +33,3 @@ export class SqlParam<T extends { Name: string; Type: unknown }> extends Sql {
 export function param<Name extends string>(name: Name): SqlParam<{ Name: Name; Type: unknown }> {
    return new SqlParam({ name });
 }
-
-export const it = Object.create(null);

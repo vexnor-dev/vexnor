@@ -1,5 +1,4 @@
 import { Sql } from "../sql-base.js";
-import { SqlBuildOptions } from "../sql-types.js";
 import { SqlBuildContext } from "./sql-build-context.js";
 import { SqlBuildError } from "../sql-build-error.js";
 import { SqlTableColumn, SqlTableColumnAny, SqlTableColumnExtended } from "../schema/index.js";
@@ -12,7 +11,7 @@ import {
 } from "./sql-select-column.js";
 import { SqlTableAll, SqlTableAllAny } from "../charms/index.js";
 import { SqlSelectAll, SqlSelectAllAny } from "./sql-select-all.js";
-import { InferSelectRowByResult } from "./sql-query-types.js";
+import { InferSelectRowByResult, SqlBuildOptions } from "./sql-query-types.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlSelectRowAny = SqlSelectRow<any>;

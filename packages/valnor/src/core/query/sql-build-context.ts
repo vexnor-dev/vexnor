@@ -1,7 +1,6 @@
 import { ITokenizer } from "../sql-tokenizer.js";
 import { MAJOR_KEYWORDS, SUBQUERY_STARTERS } from "../sql-constants.js";
 import { DefaultFormatter } from "../default-formatter.js";
-import { IBuildQueryContext } from "../sql-types.js";
 import { DefaultTokenizer } from "../default-tokenizer.js";
 import { quote, trim } from "../utils/index.js";
 import { ok } from "assert";
@@ -18,7 +17,7 @@ export type SqlBuildContextArgs = {
    query?: SqlQueryAny;
 };
 
-export class SqlBuildContext implements IBuildQueryContext {
+export class SqlBuildContext {
    readonly tokenizer: ITokenizer;
    readonly formatter: DefaultFormatter;
 
@@ -262,7 +261,16 @@ export class SqlBuildContext implements IBuildQueryContext {
     * @param values
     */
    addValues(...values: unknown[]) {
-      ok(values[0], `value is required`);
-      this._values.push(...values);
+      this._values.push(
+         ...values.map((value) => {
+            switch (value) {
+               case null:
+               case undefined:
+                  return null;
+               default:
+                  return value;
+            }
+         }),
+      );
    }
 }

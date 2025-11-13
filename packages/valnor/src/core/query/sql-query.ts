@@ -1,19 +1,25 @@
-import { hasParams, SqlBuildOptions, SqlInputArgs } from "../sql-types.js";
 import { ok } from "assert";
 import { SqlParam } from "./sql-param.js";
 import { SqlBuildContext } from "./sql-build-context.js";
 import { logger } from "../logger.js";
 import { Sql } from "../sql-base.js";
-import { SqlSelectRow } from "./sql-select-row.js";
+import { SqlSelectRow, SqlSelectRowAny } from "./sql-select-row.js";
 import { SqlQueryInfo } from "../charms/index.js";
-import { NullWhenUnknown } from "../types/index.js";
-import { NullOrSqlSelectAll, SqlSelectAll } from "./sql-select-all.js";
-import { InferSelectRowByResult } from "./sql-query-types.js";
+import { hasParams, InferSelectRowByResult, SqlBuildOptions, SqlInputArgs } from "./sql-query-types.js";
+import { SqlSelectAll } from "./sql-select-all.js";
 
 export const WILDCARD = "?";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlQueryAny = SqlQuery<any>;
+
+export type SqlQueryExtended<T extends { Row?: unknown; Params?: unknown }> = SqlQuery<{
+   Row: T["Row"];
+   Params: T["Params"];
+}> &
+   (T extends { Row: Record<string, unknown> } ? InferSelectRowByResult<T["Row"]> : unknown) & {
+      $$all: T extends { Row: Record<string, unknown> } ? SqlSelectAll<T> : unknown;
+   };
 
 export interface SqlQueryArgs {
    readonly rawStrings: TemplateStringsArray;
@@ -21,9 +27,7 @@ export interface SqlQueryArgs {
 }
 
 export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql {
-   readonly row: NullWhenUnknown<InferSelectRowByResult<T["Row"]>> = null as NullWhenUnknown<
-      InferSelectRowByResult<T["Row"]>
-   >;
+   readonly row: SqlSelectRowAny | null = null;
    readonly info: SqlQueryInfo | null = null;
 
    readonly rawStrings: TemplateStringsArray;
@@ -45,15 +49,10 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
                this.info = rawValue;
                break;
             case rawValue instanceof SqlSelectRow:
-               this.row = rawValue.row as NullWhenUnknown<InferSelectRowByResult<T["Row"]>>;
+               this.row = rawValue;
                break;
          }
       }
-   }
-
-   get $$all(): NullOrSqlSelectAll<T["Row"]> {
-      if (!this.row) return null as NullOrSqlSelectAll<T["Row"]>;
-      return new SqlSelectAll(this.row) as NullOrSqlSelectAll<T["Row"]>;
    }
 
    /**

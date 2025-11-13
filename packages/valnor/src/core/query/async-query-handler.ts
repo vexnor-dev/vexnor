@@ -1,7 +1,7 @@
-import { SqlRunArgs } from "../sql-types.js";
 import { SqlQuery } from "./sql-query.js";
 import { SqlQueryHandler } from "./sql-query-handler.js";
 import { ok } from "assert";
+import { SqlRunArgs } from "./sql-query-types.js";
 
 /**
  * Default SqlQueryHandler

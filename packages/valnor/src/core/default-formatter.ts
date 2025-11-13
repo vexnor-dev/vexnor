@@ -1,4 +1,4 @@
-import { IBuildQueryContext } from "./sql-types.js";
+import { SqlBuildContext } from "./query/index.js";
 
 export type SqlTableFormat = "tableName" | "schema.tableName" | "schema.tableName as tableAlias" | "tableAlias";
 
@@ -48,7 +48,7 @@ export class DefaultFormatter {
     * Gets the column format for the given column and query context
     * @param context
     */
-   getColumnFormat(context: IBuildQueryContext): SqlColumnFormat {
+   getColumnFormat(context: SqlBuildContext): SqlColumnFormat {
       if (!context.keyword) {
          return DEFAULT_COLUMN_FORMAT;
       }
@@ -60,7 +60,7 @@ export class DefaultFormatter {
     * Gets the table format for the given table and query context
     * @param context
     */
-   getTableFormat(context: IBuildQueryContext): SqlTableFormat {
+   getTableFormat(context: SqlBuildContext): SqlTableFormat {
       if (!context.keyword) {
          return DEFAULT_TABLE_FORMAT;
       }
