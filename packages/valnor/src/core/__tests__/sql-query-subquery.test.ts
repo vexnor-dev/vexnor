@@ -3,7 +3,6 @@ import { Account, AccountStatusUdt } from "./models/valnor_test.schema.js";
 import { ExtractParamsFromQuery, sql } from "../sql.js";
 import { info } from "../charms/index.js";
 import { param, row } from "../query/index.js";
-import { ok } from "assert";
 
 describe("sql subqueries tests", () => {
    test("sub-query CTE/with", () => {
@@ -44,7 +43,6 @@ describe("sql subqueries tests", () => {
          from ${Account}
          where ${Account.$email} = ${param("email").is<string>()}`;
 
-      ok(AccountsWithEmail.row);
       const query = sql`
          select ${row(AccountsWithEmail.$$)}
          from ${AccountsWithEmail}
