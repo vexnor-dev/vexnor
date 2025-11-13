@@ -28,7 +28,7 @@ describe("valnor postgres sql tests", () => {
                lastName: "Doe",
                email: "john.doe@example.com",
             })}
-            returning ${row(Account.$$all)}
+            returning ${row(Account.$$)}
       `.getOneRequired({ db: pool });
 
       expect(account).toEqual(

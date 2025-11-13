@@ -25,7 +25,7 @@ describe("SqlTableAll (*) tests", () => {
    test("select * $build should render list of columns", () => {
       const context = new SqlBuildContext();
       context.next("select");
-      Account.$$all.build(context);
+      Account.$$.build(context);
 
       expect(context.text).toEqual(trim`
          "a_1"."account_id"  as "accountId",
@@ -42,7 +42,7 @@ describe("SqlTableAll (*) tests", () => {
    test("select * $build should render list of columns with aliased table", () => {
       const context = new SqlBuildContext();
       context.next("select");
-      Account`inserted`.$$all.build(context);
+      Account`inserted`.$$.build(context);
 
       expect(context.text).toEqual(trim`
          "inserted"."account_id"  as "accountId",
@@ -59,7 +59,7 @@ describe("SqlTableAll (*) tests", () => {
    test("returning * $build should render list of columns", () => {
       const context = new SqlBuildContext();
       context.next("returning");
-      Account.$$all.build(context);
+      Account.$$.build(context);
 
       expect(context.text).toEqual(trim`
          "account"."account_id"  as "accountId",
@@ -76,7 +76,7 @@ describe("SqlTableAll (*) tests", () => {
    test("output * $build should render list of columns with aliased table", () => {
       const context = new SqlBuildContext();
       context.next("output");
-      Account`inserted`.$$all.build(context);
+      Account`inserted`.$$.build(context);
 
       expect(context.text).toEqual(trim`
          "inserted"."account_id"  as "accountId",
@@ -93,7 +93,7 @@ describe("SqlTableAll (*) tests", () => {
    test("count(*) $build should render *", () => {
       const context = new SqlBuildContext();
       context.next("count(");
-      Account.$$all.build(context);
+      Account.$$.build(context);
 
       expect(context.text).toEqual(trim`*`);
    });
@@ -103,7 +103,7 @@ describe("SqlTableAll (*) tests", () => {
       // Simulate the context of being inside an EXISTS clause
       context.next("exists");
       context.next("select");
-      Account.$$all.build(context);
+      Account.$$.build(context);
 
       expect(context.text).toEqual(trim`*`);
    });

@@ -9,15 +9,15 @@ describe("sql subqueries tests", () => {
    test("sub-query CTE/with", () => {
       const AccountsCreated = sql`
          ${info({ label: "AccountsCreated" })}
-            select ${row(Account.$$all)}
+            select ${row(Account.$$)}
             from ${Account}
             where ${Account.$status} = ${AccountStatusUdt.CREATED}
          `;
 
       const AccountsOld = sql`
          ${info({ label: "AccountsOld" })}
-         select ${row(AccountsCreated.$$all)}
-         select ${row(Account.$$all)}
+         select ${row(AccountsCreated.$$)}
+         select ${row(Account.$$)}
          where ${Account.$createdAt} = ${Date.parse("2020-01-01")}
       `;
 
@@ -25,7 +25,7 @@ describe("sql subqueries tests", () => {
          with AccountsCreated as (${AccountsCreated}),
               AccountsOlds as
                     (${AccountsOld})
-         select ${row(Account.$$all)}
+         select ${row(Account.$$)}
          from ${Account}
                  join ${AccountsCreated} on ${Account.$accountId} = ${AccountsCreated.$accountId}
             join ${AccountsOld} on ${Account.$accountId} = ${AccountsOld.$accountId}         
@@ -40,13 +40,13 @@ describe("sql subqueries tests", () => {
    test("sub-query from", () => {
       const AccountsWithEmail = sql`
          ${info({ label: "AccountsWithEmail" })}
-         select ${row(Account.$$all)}
+         select ${row(Account.$$)}
          from ${Account}
          where ${Account.$email} = ${param("email").is<string>()}`;
 
       ok(AccountsWithEmail.row);
       const query = sql`
-         select ${row(AccountsWithEmail.$$all)}
+         select ${row(AccountsWithEmail.$$)}
          from ${AccountsWithEmail}
          where ${AccountsWithEmail.$firstName} = ${param("firstName").is<string>()}`;
 
@@ -74,7 +74,7 @@ describe("sql subqueries tests", () => {
    test("sub-query join", () => {
       const AccountsWithEmail = sql`
          ${info({ label: "AccountsWithEmail" })}
-         select ${row(Account.$$all)}
+         select ${row(Account.$$)}
          from ${Account}
          where ${Account.$email} = ${param("email").is<string>()}
       `;
@@ -115,7 +115,7 @@ describe("sql subqueries tests", () => {
 
    test("self join", () => {
       const query = sql`
-         select ${row(Account.$$all, Account`parent`.$firstName("parentFirstName"), Account`parent`.$lastName("parentLastName"))}
+         select ${row(Account.$$, Account`parent`.$firstName("parentFirstName"), Account`parent`.$lastName("parentLastName"))}
          from ${Account}
                  join ${Account`parent`} on ${Account`parent`.$accountId} = ${Account.$parentId}
          where ${Account.$firstName} = ${param("firstName").is<string>()}`;

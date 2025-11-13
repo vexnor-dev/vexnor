@@ -19,20 +19,20 @@ describe("SqlBuildContext getQueryName", () => {
 
    const orderQuery = sql`
         ${info({ label: "Orders" })}
-      select ${row(Order.$$all)}
+      select ${row(Order.$$)}
       from ${Order};
    `;
 
    const accountsOldQuery = sql`
       ${info({ label: "AccountsOld" })}
-      select ${row(Account.$$all)}
+      select ${row(Account.$$)}
       from ${Account}
       where ${Account.$createdAt} = ${Date.parse("2020-01-01")}
    `;
 
    const query = sql`
         ${info({ label: "Root" })}
-         select ${row(Account.$$all, orderQuery.$orderId, orderItemQuery.$productId, orderItemQuery.$productPrice)}
+         select ${row(Account.$$, orderQuery.$orderId, orderItemQuery.$productId, orderItemQuery.$productPrice)}
          from ${accountsOldQuery}
             join ${orderQuery} on ${Account.$accountId} = ${orderQuery.$accountId}
          join ${orderItemQuery} on ${orderQuery.$orderId} = ${orderItemQuery.$orderId}
@@ -57,7 +57,7 @@ describe("SqlBuildContext getQueryName", () => {
 
    test("getQueryName should return value for SqlSelectRow.$all", () => {
       expect(() => context.getQueryName(Account)).toThrowError(SqlBuildError);
-      expect(context.getQueryName(query.$$all)).toEqual("Root");
+      expect(context.getQueryName(query.$$)).toEqual("Root");
    });
 
    test("getQueryName should return value for own $accountId", () => {

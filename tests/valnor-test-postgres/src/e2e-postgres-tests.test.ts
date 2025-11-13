@@ -14,7 +14,7 @@ describe.sequential("valnor postgres e2e tests", () => {
    const CHILD_FACTOR = 3;
 
    const findAccountById = sql`
-         select ${row(Account.$$all)}
+         select ${row(Account.$$)}
       from ${Account}
       where ${Account.$accountId} = ${param.string("accountId")}
    `;
@@ -48,7 +48,7 @@ describe.sequential("valnor postgres e2e tests", () => {
          const accounts = await sql`
             insert into ${Account}
                ${Account.insertColsVals(...newAccountsArgs)}
-               returning ${row(Account.$$all)}
+               returning ${row(Account.$$)}
          `.postgres.getAll({ db: pool });
 
          ok(accounts?.length, "root accounts not inserted");
@@ -74,7 +74,7 @@ describe.sequential("valnor postgres e2e tests", () => {
                   email: `john.doe.child-${rootIndex}-${childIndex}-${id}@example.com`,
                   parentId: parent.accountId,
                })}
-               returning ${Account.$$all}
+               returning ${Account.$$}
          `.postgres.getOneRequired({ db: pool });
             expect(account).toEqual(
                expect.objectContaining({
@@ -98,7 +98,7 @@ describe.sequential("valnor postgres e2e tests", () => {
    test(`Fetch all ${ROOT_COUNT} root accounts`, async () => {
       const actual = await sql`
          ${rowType<IAccountSelect>()}
-         select ${Account.$$all}
+         select ${Account.$$}
          from ${Account}
          where ${Account.$accountId} in (${rootAccounts.map((z) => z.accountId)})
          order by ${Account.$email}
@@ -109,7 +109,7 @@ describe.sequential("valnor postgres e2e tests", () => {
    test(`Fetch all ${ROOT_COUNT * CHILD_FACTOR} children accounts`, async () => {
       const actual = await sql`
         ${rowType<IAccountSelect>()}
-         select ${Account.$$all}
+         select ${Account.$$}
          from ${Account}
          where ${Account.$accountId} in (${childAccounts.map((z) => z.accountId)})
          order by ${Account.$email}
@@ -138,7 +138,7 @@ describe.sequential("valnor postgres e2e tests", () => {
    test("Self join account: fetch accounts with parent info (firstName, lastName, email)", async () => {
       const actual = await sql`
         ${rowType<IAccountSelect>()}
-         select ${Account.$$all},
+         select ${Account.$$},
                 ${Account`parent`.firstName`parentFirstName`},
                 ${Account`parent`.lastName`parentLastName`},
                 ${Account`parent`.email`parentEmail`}
@@ -166,7 +166,7 @@ describe.sequential("valnor postgres e2e tests", () => {
    test("Fetch root accounts and their children as json array", async () => {
       const accountChildren = sql`
         ${rowType<IAccountSelect>()}
-         select ${Account`children`.$$all}
+         select ${Account`children`.$$}
          from ${Account`children`}
          where ${Account`children`.parentId} = ${Account.$accountId}
          order by ${Account`children`.email}
@@ -174,7 +174,7 @@ describe.sequential("valnor postgres e2e tests", () => {
 
       const actual = await sql`
          ${rowType<IAccountSelect & { children: IAccountJson[] }>()}
-         select ${Account.$$all}, ${jsonAgg(accountChildren)} as children
+         select ${Account.$$}, ${jsonAgg(accountChildren)} as children
          from ${Account} ${jsonAgg(accountChildren)}
          where ${Account.$accountId} in (${rootAccounts.map((z) => z.accountId)})
          order by ${Account.$email}
@@ -220,7 +220,7 @@ describe.sequential("valnor postgres e2e tests", () => {
          update ${Account}
          set ${Account.firstName} = ${expected.firstName + "+test"}
          where ${Account.$accountId} = ${expected.accountId}
-         returning ${Account.$$all}
+         returning ${Account.$$}
       `.postgres.getOneRequired({ db: pool });
       expect(actual).toEqual({ ...expected, firstName: expected.firstName + "+test" });
    });

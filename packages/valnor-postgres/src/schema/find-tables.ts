@@ -9,7 +9,7 @@ import { Columns, TableConstraints } from "./models.js";
  */
 export const findTables = sql`
    ${rowType<SqlTableInfo>()}
-   with cols as (select ${Columns.$$all}
+   with cols as (select ${Columns.$$}
                  from ${Columns}
                  where ${Columns.table_schema} in (${param.string("schemas").array()}))
    select ${Columns`cols`.table_name},

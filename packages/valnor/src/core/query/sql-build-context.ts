@@ -189,7 +189,7 @@ export class SqlBuildContext {
          for (const rawValue of query.rawValues) {
             switch (true) {
                case rawValue instanceof SqlSelectRow:
-                  yield { query, ID: rawValue.$$all.ID };
+                  yield { query, ID: rawValue.$$.ID };
                   if (!rawValue.row) break;
 
                   for (const value of Object.values(rawValue.row)) {

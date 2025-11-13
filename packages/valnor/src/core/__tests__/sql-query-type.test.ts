@@ -30,7 +30,7 @@ describe("sql query type tests", () => {
       type FullParams = InferParamsFromQueryTokens<
          [
             typeof Account,
-            typeof Account.$$all,
+            typeof Account.$$,
             SqlParam<{ Name: "accountId"; Type: string }>,
             SqlParam<{ Name: "modifiedAt"; Type: Date }>,
             SqlQueryExtended<{ Params: { limit: 5 } }>,
@@ -58,7 +58,7 @@ describe("sql query type tests", () => {
       };
       expect(fullInputArgs).toBeDefined();
 
-      type EmptyParams = QueryParams<[typeof Account, typeof Account.$$all, typeof Account.$accountId]>;
+      type EmptyParams = QueryParams<[typeof Account, typeof Account.$$, typeof Account.$accountId]>;
       const emptyParams: EmptyParams = void 0;
       expect(emptyParams).toBeUndefined();
       type EmptyInputArgs = SqlInputArgs<EmptyParams>;
@@ -107,7 +107,7 @@ describe("sql query type tests", () => {
          update ${Account}
          set ${Account.updateSet({ status: AccountStatusUdt.CONFIRMED })} 
          where ${Account.$accountId} = ${1}
-         returning ${row(Account.$$all)}`;
+         returning ${row(Account.$$)}`;
 
       expect(query).toBeInstanceOf(SqlQuery);
       expect(query.ID).toBeDefined();

@@ -15,7 +15,7 @@ describe.sequential("valnor sqlite3 e2e tests", () => {
    const db = new Database(SQLITE_PATH);
 
    const findAccountById = sql<IAccountSelect, { accountId: string }>`
-      select ${Account.$$all}
+      select ${Account.$$}
       from ${Account}
       where ${Account.$accountId} = ${param("accountId")}
    `;
@@ -53,7 +53,7 @@ describe.sequential("valnor sqlite3 e2e tests", () => {
          `.sqlite3.run({ db });
 
          const accounts = await sql<IAccountSelect>`
-            select ${Account.$$all}
+            select ${Account.$$}
             from ${Account}
             where ${Account.$accountId} in (${newAccountsArgs.map((z) => z.accountId)})
          `.sqlite3.getAll({ db });
@@ -86,7 +86,7 @@ describe.sequential("valnor sqlite3 e2e tests", () => {
             `.sqlite3.run({ db });
 
             const account = await sql<IAccountSelect>`
-               select ${Account.$$all}
+               select ${Account.$$}
                from ${Account}
                where ${Account.$accountId} = ${newAccount.accountId};
             `.sqlite3.getOneRequired({ db });
@@ -112,7 +112,7 @@ describe.sequential("valnor sqlite3 e2e tests", () => {
 
    test(`Fetch all ${ROOT_COUNT} root accounts`, async () => {
       const actual = await sql<IAccountSelect>`
-         select ${Account.$$all}
+         select ${Account.$$}
          from ${Account}
          where ${Account.$accountId} in (${rootAccounts.map((z) => z.accountId)})
       `.sqlite3.getAll({ db });
@@ -121,7 +121,7 @@ describe.sequential("valnor sqlite3 e2e tests", () => {
 
    test(`Fetch all ${ROOT_COUNT * CHILD_FACTOR} children accounts`, async () => {
       const actual = await sql<IAccountSelect>`
-         select ${Account.$$all}
+         select ${Account.$$}
          from ${Account}
          where ${Account.$accountId} in (${childAccounts.map((z) => z.accountId)})
          order by ${Account.$email}
@@ -149,7 +149,7 @@ describe.sequential("valnor sqlite3 e2e tests", () => {
 
    test("Self join account: fetch accounts with parent info (firstName, lastName, email)", async () => {
       const actual = await sql<IAccountSelect>`
-         select ${Account.$$all},
+         select ${Account.$$},
                 ${Account`parent`.firstName`parentFirstName`},
                 ${Account`parent`.lastName`parentLastName`},
                 ${Account`parent`.email`parentEmail`}
@@ -174,14 +174,14 @@ describe.sequential("valnor sqlite3 e2e tests", () => {
 
    test("Fetch root accounts and their children as json array", async () => {
       const accountChildren = sql<IAccountSelect>`
-         select ${Account`children`.$$all}
+         select ${Account`children`.$$}
          from ${Account`children`}
          where ${Account`children`.parentId} = ${Account.$accountId}
          order by ${Account`children`.accountId}
       `;
 
       const actual = await sql<IAccountSelect & { children: IAccountJson[] }>`
-         select ${Account.$$all}, ${jsonGroupArray(accountChildren)} as children
+         select ${Account.$$}, ${jsonGroupArray(accountChildren)} as children
          from ${Account} ${jsonGroupArray(accountChildren)}
          where ${Account.$accountId} in (${rootAccounts.map((z) => z.accountId)})
       `.sqlite3

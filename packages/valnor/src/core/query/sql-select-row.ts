@@ -27,7 +27,7 @@ export type SqlSelectRowExtended<T extends { Row: Record<string, unknown> }> = S
    InferSelectRowByResult<T["Row"]>;
 
 export class SqlSelectRow<T extends { Row: Record<string, unknown> }> extends Sql {
-   readonly $$all: SqlSelectAll<T>;
+   readonly $$: SqlSelectAll<T>;
    readonly row: InferSelectRowByResult<T["Row"]>;
    private readonly columns: SqlSelectColumnTypes[];
 
@@ -72,7 +72,7 @@ export class SqlSelectRow<T extends { Row: Record<string, unknown> }> extends Sq
 
          return row as InferSelectRowByResult<T["Row"]>;
       })();
-      this.$$all = new SqlSelectAll(this.row);
+      this.$$ = new SqlSelectAll(this.row);
    }
 
    build(context: SqlBuildContext, options?: SqlBuildOptions): void {
@@ -135,11 +135,6 @@ export function row<
       },
    }) as SqlSelectRowExtended<{ Row: InferResultRowFromColumns<typeof columns> }>;
 }
-//
-// type RecordOrRow<T> =
-//    T extends Record<string, unknown>
-//       ? SqlSelectRowExtended<{ Row: T }>
-//       : SqlSelectRowExtended<{ Row: Record<string, unknown> }>;
 
 export type InferResultRowFromColumn<T> = T extends
    | SqlTableColumnExtended<infer U>

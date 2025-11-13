@@ -10,17 +10,17 @@ import { Sql } from "../../sql-base.js";
 
 describe("SqlQuery.$... tests", () => {
    const query = sql`
-         select ${row(Account.$$all, Order.$orderId, OrderItem.$productId, OrderItem.$productPrice)}
+         select ${row(Account.$$, Order.$orderId, OrderItem.$productId, OrderItem.$productPrice)}
          from ${Account}
             join ${Order} on ${Order.$accountId} = ${Account.$accountId}
          join ${OrderItem} on ${OrderItem.$orderId} = ${Order.$orderId}
          where ${Account.$accountId} = ${param("accountId").is<string>()}
       `;
 
-   test("SqlQuery.$$all should be defined", () => {
-      expect(query.$$all).toBeDefined();
-      expect(query.$$all).toBeInstanceOf(SqlSelectAll);
-      expect(query.$$all).toBeInstanceOf(Sql);
+   test("SqlQuery.$$ should be defined", () => {
+      expect(query.$$).toBeDefined();
+      expect(query.$$).toBeInstanceOf(SqlSelectAll);
+      expect(query.$$).toBeInstanceOf(Sql);
    });
 
    test("SqlQuery.$[column] should be defined", () => {

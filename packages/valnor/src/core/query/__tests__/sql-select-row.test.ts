@@ -20,8 +20,8 @@ describe("SqlSelectRow tests", () => {
       expect(row).toBeDefined();
    });
 
-   test("infer SqlTable.$$all row", () => {
-      type Type = InferSelectRowByResult<InferResultRowFromAll<typeof Account.$$all>>;
+   test("infer SqlTable.$$ row", () => {
+      type Type = InferSelectRowByResult<InferResultRowFromAll<typeof Account.$$>>;
       const target: Type = {
          $accountId: newSqlSelectColumn<{ Key: "accountId"; Type: string }>({
             key: "accountId",
@@ -85,8 +85,8 @@ describe("SqlSelectRow tests", () => {
       expect(row).toBeDefined();
    });
 
-   test("SqlSelectRow type inference from $$all + column", () => {
-      type Row = InferSelectRowByResult<InferResultRowFromColumns<[typeof Account.$$all, typeof Order.$orderId]>>;
+   test("SqlSelectRow type inference from $$ + column", () => {
+      type Row = InferSelectRowByResult<InferResultRowFromColumns<[typeof Account.$$, typeof Order.$orderId]>>;
       const row: Row = {
          $accountId: newSqlSelectColumn<{ Key: "accountId"; Type: string }>({
             key: "accountId",
@@ -140,8 +140,8 @@ describe("SqlSelectRow tests", () => {
       expect(target.$lastName).toBeDefined();
    });
 
-   test("row($$all) column should be defined", () => {
-      const target = row(Account.$$all);
+   test("row($$) column should be defined", () => {
+      const target = row(Account.$$);
       expect(target.$accountId).toBeDefined();
       expect(target.$firstName).toBeDefined();
       expect(target.$lastName).toBeDefined();
@@ -184,8 +184,8 @@ describe("SqlSelectRow tests", () => {
       );
    });
 
-   test("$build with table.$$all", () => {
-      const target = row(Account.$$all);
+   test("$build with table.$$", () => {
+      const target = row(Account.$$);
       const context = new SqlBuildContext();
       context.next("select");
       target.build(context);
@@ -202,8 +202,8 @@ describe("SqlSelectRow tests", () => {
          "a_1"."parent_id"   as "parentId"`);
    });
 
-   test("SqlRow $build with aliased table.$$all", () => {
-      const target = row(Account`inserted`.$$all);
+   test("SqlRow $build with aliased table.$$", () => {
+      const target = row(Account`inserted`.$$);
       const context = new SqlBuildContext();
       context.next("select");
       target.build(context);

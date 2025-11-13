@@ -58,7 +58,7 @@ describe("sql plugin jsonAgg() tests", () => {
          limit ${param.number("limit")}`;
 
       const query = sql`
-         select ${row(Account.$$all)}, ${jsonAgg(AccountOrders)} as "orders"
+         select ${row(Account.$$)}, ${jsonAgg(AccountOrders)} as "orders"
          from ${Account} ${jsonAgg(AccountOrders)}
          order by ${Account.$accountId}
       `;
@@ -102,7 +102,7 @@ describe("sql plugin jsonAgg() tests", () => {
          limit ${param.number("limit")}`;
 
       const query = sql`
-         select ${row(Account.$$all)}, ${jsonAgg(AccountOrders)} as "orders"
+         select ${row(Account.$$)}, ${jsonAgg(AccountOrders)} as "orders"
          from ${Account} ${jsonAgg(AccountOrders)}
          order by ${Account.$accountId}
       `;

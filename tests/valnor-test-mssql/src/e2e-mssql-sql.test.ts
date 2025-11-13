@@ -27,7 +27,7 @@ describe("valnor postgres sql tests", () => {
                lastName: "Doe",
                email: "john.doe@example.com",
             })}
-            output ${Account`inserted`.$$all}
+            output ${Account`inserted`.$$}
             ${Account.insertVals({
                status: "CREATED",
                firstName: "John",

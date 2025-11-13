@@ -58,7 +58,7 @@ describe("sql plugin jsonAgg() tests", () => {
 
    test("jsonAgg() with params", () => {
       const query = sql`
-         select ${row(Account.$$all)}, ${jsonAgg(AccountOrders)} as "orders"
+         select ${row(Account.$$)}, ${jsonAgg(AccountOrders)} as "orders"
          from ${Account} ${jsonAgg(AccountOrders)}
          where ${Account.$email} = ${param("email")}
          order by ${Account.$accountId}

@@ -6,12 +6,7 @@ import { Account } from "@test-models/valnor_test.account-table.js";
 describe("sql() type inference", () => {
    test("InferParamsFromQueryTokens from sql-query with tokens and params", () => {
       type Params = InferParamsFromQueryTokens<
-         [
-            typeof Account,
-            typeof Account.$$all,
-            typeof Account.$accountId,
-            SqlParam<{ Name: "accountId"; Type: string }>,
-         ]
+         [typeof Account, typeof Account.$$, typeof Account.$accountId, SqlParam<{ Name: "accountId"; Type: string }>]
       >;
       const params: Params = {
          accountId: "",
@@ -30,13 +25,13 @@ describe("sql() type inference", () => {
    });
 
    test("InferParamsFromQueryTokens from sql-query without any params", () => {
-      type Params = InferParamsFromQueryTokens<[typeof Account, typeof Account.$$all, typeof Account.$accountId]>;
+      type Params = InferParamsFromQueryTokens<[typeof Account, typeof Account.$$, typeof Account.$accountId]>;
       const params: Params = undefined; /* unknown */
       expect(params).toBeUndefined();
    });
 
    test("QueryParams from sql-query without any params", () => {
-      type Params = QueryParams<[typeof Account, typeof Account.$$all, typeof Account.$accountId]>;
+      type Params = QueryParams<[typeof Account, typeof Account.$$, typeof Account.$accountId]>;
       const params: Params = void 0; /* unknown */
       expect(params).toBeUndefined();
    });

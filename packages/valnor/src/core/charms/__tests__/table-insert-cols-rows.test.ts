@@ -20,7 +20,7 @@ describe("SqlTable.insertCols() and insertCols() tests", () => {
       const query = sql`
          insert into ${Account}
             ${Account.insertCols(...rows)}
-            output ${row(Account`inserted`.$$all)}
+            output ${row(Account`inserted`.$$)}
             ${Account.insertVals(...rows)}`;
 
       expect(query.getValues({})).toEqual([

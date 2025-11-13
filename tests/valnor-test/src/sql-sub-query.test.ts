@@ -7,7 +7,7 @@ describe("sql subqueries tests", () => {
    test("sub-query from", () => {
       const AccountsWithEmail = sql`
          ${info({ label: "AccountsWithEmail" })}
-         select ${row(Account.$$all)}
+         select ${row(Account.$$)}
          from ${Account}
          where ${Account.$email} = ${param("email").is<string>()}`;
 
@@ -41,7 +41,7 @@ describe("sql subqueries tests", () => {
    test("sub-query join", () => {
       const AccountsWithEmail = sql`
          ${info({ label: "AccountsWithEmail" })}
-         select ${row(Account.$$all)}
+         select ${row(Account.$$)}
          from ${Account}
          where ${Account.$email} = ${param("email").is<string>()}
       `;
@@ -83,7 +83,7 @@ describe("sql subqueries tests", () => {
    test("self join", () => {
       const query = sql`
          ${rowType<IAccountSelect & { parentFirstName: string; parentLastName: string }>()}
-         select ${Account.$$all},
+         select ${Account.$$},
                 ${Account`parent`.firstName`parentFirstName`},
                 ${Account`parent`.lastName`parentLastName`}
          from ${Account}

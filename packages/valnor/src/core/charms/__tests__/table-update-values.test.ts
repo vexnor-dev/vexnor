@@ -16,7 +16,7 @@ describe("SqlTable.updateSet() tests", () => {
             modifiedAt,
          })}
          where ${Account.$accountId} = ${param("accountId").is<string>()}
-         returning ${Account.$$all}`;
+         returning ${Account.$$}`;
       expect(query.getValues({ params: { accountId: "123e4567-e89b-12d3-a456-426614174000" } })).toEqual([
          "Bob",
          "Smith",

@@ -38,7 +38,7 @@ describe("jsonGroupArray (SQLite)", () => {
 
    test("jsonGroupArray() with params", () => {
       const query = sql<IAccountSelect & { orders: IOrderSelect[] }, { limit: number }>`
-         select ${Account.$$all}, ${jsonGroupArray(AccountOrders)} as "orders"
+         select ${Account.$$}, ${jsonGroupArray(AccountOrders)} as "orders"
          from ${Account}
       `;
 

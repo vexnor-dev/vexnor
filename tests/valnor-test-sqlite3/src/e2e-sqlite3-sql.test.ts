@@ -34,7 +34,7 @@ describe("valnor postgres sql tests", () => {
       `.run({ db });
 
       const account = await sql<IAccountSelect>`
-        select ${Account.$$all}
+        select ${Account.$$}
         from ${Account}
         where ${Account.$accountId} = ${accountId}`.getOneRequired({ db });
 

@@ -45,8 +45,8 @@ describe("SqlTable tests", () => {
       expect(actual.key).toEqual("accountId");
    });
 
-   test("SqlTable alias should return new SqlTable instance with respective $$all columns", () => {
-      const actual = Account`inserted`.$$all;
+   test("SqlTable alias should return new SqlTable instance with respective $$ columns", () => {
+      const actual = Account`inserted`.$$;
       for (const col of Object.values(actual.row)) {
          expect(col).toBeDefined();
          expect(col).toBeInstanceOf(Sql);

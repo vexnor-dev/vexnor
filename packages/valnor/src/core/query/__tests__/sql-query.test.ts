@@ -13,7 +13,7 @@ describe("SqlQuery tests", () => {
       expect(query.$accountId).toBeDefined();
       expect(query.$status).toBeDefined();
       expect(query.$email).toBeDefined();
-      expect(query.$$all).toBeDefined();
+      expect(query.$$).toBeDefined();
    });
 
    test("join sub-query with default queryName", () => {

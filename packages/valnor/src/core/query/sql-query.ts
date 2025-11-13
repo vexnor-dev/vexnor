@@ -18,7 +18,7 @@ export type SqlQueryExtended<T extends { Row?: unknown; Params?: unknown }> = Sq
    Params: T["Params"];
 }> &
    (T extends { Row: Record<string, unknown> } ? InferSelectRowByResult<T["Row"]> : unknown) & {
-      $$all: T extends { Row: Record<string, unknown> } ? SqlSelectAll<T> : unknown;
+      $$: T extends { Row: Record<string, unknown> } ? SqlSelectAll<T> : unknown;
    };
 
 export interface SqlQueryArgs {
