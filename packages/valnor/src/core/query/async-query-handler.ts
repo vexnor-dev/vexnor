@@ -1,17 +1,17 @@
 import { SqlQuery } from "./sql-query.js";
-import { SqlQueryHandler } from "./sql-query-handler.js";
 import { ok } from "assert";
 import { SqlRunArgs } from "./sql-query-types.js";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type AsyncQueryHandlerAny = AsyncQueryHandler<any>;
+
 /**
- * Default SqlQueryHandler
+ * Base query handler for async database operations
  */
 export abstract class AsyncQueryHandler<
    T extends { Row?: unknown; Params?: unknown; QueryResult: object; QueryClient: unknown },
-> extends SqlQueryHandler<T> {
-   protected constructor(readonly query: SqlQuery<{ Row?: T["Row"]; Params?: T["Params"] }>) {
-      super(query);
-   }
+> {
+   protected constructor(readonly query: SqlQuery<{ Row?: T["Row"]; Params?: T["Params"] }>) {}
 
    abstract resolveRows(res: T["QueryResult"]): T["Row"][];
 

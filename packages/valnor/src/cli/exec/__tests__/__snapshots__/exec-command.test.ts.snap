@@ -1,0 +1,30 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`execCommand > applies limit to results 1`] = `
+"[
+  {
+    "id": 1,
+    "result": "test"
+  }
+]"
+`;
+
+exports[`execCommand > outputs CSV format when specified 1`] = `
+"id,result
+1,test"
+`;
+
+exports[`execCommand > outputs JSON format by default 1`] = `
+"[
+  {
+    "id": 1,
+    "result": "test"
+  }
+]"
+`;
+
+exports[`execCommand > outputs table format when specified 1`] = `
+"id | result
+---+-------
+1  | test  "
+`;

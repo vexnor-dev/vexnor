@@ -27,13 +27,7 @@ export class SqlValue<T extends { Key: string; Type: unknown }> extends Sql {
 
 export function val<T = unknown>(rawStrings: TemplateStringsArray, ...rawValues: SqlQueryToken[]) {
    const query = sql(rawStrings, ...rawValues);
-   return {
-      /**
-       * Assigns a key to the value in the result row
-       * @param key
-       */
-      as: <Key extends string>(key: Key) => new SqlValue<{ Key: Key; Type: T }>(query, key),
-   };
+   return <Key extends string>(key: Key) => new SqlValue<{ Key: Key; Type: T }>(query, key);
 }
 
 export type InferRowFromValue<T> =

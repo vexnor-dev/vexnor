@@ -4,7 +4,7 @@ import tsconfigPaths from "vite-tsconfig-paths";
 export default defineConfig({
    plugins: [tsconfigPaths()],
    test: {
-      setupFiles: ["./test/vitest-query-equal.ts"],
+      setupFiles: ["./src/testing/vitest-query-equal.ts"],
       coverage: {
          provider: "v8",
          reportsDirectory: "./coverage",

@@ -1,4 +1,6 @@
-import { LibraryOutputFile, SqlColumnInfo, SqlColumnType, SqlEnumInfo, SqlTableInfo } from "./types.js";
+import { LibraryOutputFile, SqlColumnInfo, SqlColumnType, SqlEnumInfo, SqlTableInfo } from "./valnor-schema-types.js";
+import { ValnorConnection } from "./valnor-connection.js";
+import { ConnectionConfig } from "./connection-config.js";
 
 /**
  * Valnor plugin for handling core execution to different DB engines
@@ -30,12 +32,16 @@ export abstract class ValnorPlugin {
     * Such library consists of custom code that gets injected in the target package via code generation.
     */
    abstract getLibrary(): LibraryOutputFile[];
+
+   /**
+    * Creates a database connection from connection config
+    * @param config
+    */
+   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   abstract createConnection<Config extends ConnectionConfig>(config: Config): Promise<ValnorConnection<any>>;
 }
 
-export type GetSchemaArgs = { schemas: string[] } & (
-   | { uri: string }
-   | { host: string; port: number; database: string; user: string; password: string }
-);
+export type GetSchemaArgs = { schemas: string[] } & ConnectionConfig;
 
 export type SqlSchema = {
    tables: SqlTableInfo[];

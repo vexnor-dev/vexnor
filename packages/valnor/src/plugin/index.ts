@@ -1,6 +1,7 @@
-export * from "./types.js";
+export * from "./valnor-schema-types.js";
 export * from "./sql-literal.js";
-export * from "./valnor-plugin.js";
-export * from "../logger.js";
-export * from "../x.js";
+export { ValnorPlugin } from "./valnor-plugin.js";
+export type { GetSchemaArgs, SqlSchema } from "./valnor-plugin.js";
+export * from "./valnor-connection.js";
 export * from "../cli/codegen-context.js";
+export * from "./connection-config.js";

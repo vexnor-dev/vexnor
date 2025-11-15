@@ -9,3 +9,4 @@ export * from "./sql-tokenizer.js";
 export * from "./default-tokenizer.js";
 export * from "./sql-constants.js";
 export * from "./utils/index.js";
+export * from "../config/index.js";

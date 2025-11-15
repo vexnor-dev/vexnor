@@ -1,4 +1,4 @@
-import { SqlCharm, SqlParam, SqlQuery, SqlQueryExtended, SqlRowType, SqlSelectRow } from "./query/index.js";
+import { SqlCharm, SqlParam, SqlQuery, SqlQueryExtended, SqlRowType, SqlSelectRow, AsyncQueryHandler } from "./query/index.js";
 import { SqlBuildError } from "./sql-build-error.js";
 import { ok } from "assert";
 import { Sql } from "./sql-base.js";
@@ -38,7 +38,7 @@ export function sql<Token extends SqlQueryToken = SqlQueryToken, Tokens extends 
 
                return Object.hasOwn(target.row, p);
             default:
-               throw new Error(`Unknown property: ${prop}`);
+               return Reflect.has(target, p);
          }
       },
       get(target, p: string | symbol, receiver: unknown): unknown {
@@ -89,7 +89,11 @@ export type ExtractResultRowFromQuery<T> =
    T extends SqlQueryExtended<infer U extends { Row?: unknown }> ? U["Row"] : never;
 
 export type ExtractParamsFromQuery<T> =
-   T extends SqlQueryExtended<infer U extends { Params?: unknown }> ? U["Params"] : never;
+   T extends SqlQueryExtended<infer U extends { Params?: unknown }>
+      ? U["Params"]
+      : T extends AsyncQueryHandler<infer U extends { Params?: unknown; Row?: unknown; QueryResult: any; QueryClient: any }>
+        ? U["Params"]
+        : never;
 
 export type ObjectOrUndefined<T> = keyof T extends never ? void : T;
 

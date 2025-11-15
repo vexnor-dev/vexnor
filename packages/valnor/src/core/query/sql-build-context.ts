@@ -216,7 +216,12 @@ export class SqlBuildContext {
          }
       }
 
-      throw new SqlBuildError(`Query not found for ${sql}`);
+      throw new SqlBuildError(`Query not found for ${sql}`, {
+         strings: this.strings,
+         data: {
+            values: this.values,
+         },
+      });
    }
 
    /**

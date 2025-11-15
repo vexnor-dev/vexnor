@@ -29,6 +29,7 @@ export interface SqlQueryArgs {
 export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql {
    readonly row: SqlSelectRowAny | null = null;
    readonly info: SqlQueryInfo | null = null;
+   readonly params: Record<string, { name: string }> = {};
 
    readonly rawStrings: TemplateStringsArray;
    readonly rawValues: unknown[];
@@ -43,6 +44,16 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
       this.rawStrings = rawStrings;
       this.rawValues = rawValues;
 
+      const extractParams = (value: unknown) => {
+         if (value instanceof SqlParam) {
+            this.params[value.name] = { name: value.name };
+         } else if (value instanceof SqlQuery) {
+            Object.assign(this.params, value.params);
+         } else if (Array.isArray(value)) {
+            value.forEach(extractParams);
+         }
+      };
+
       for (const rawValue of rawValues) {
          switch (true) {
             case rawValue instanceof SqlQueryInfo:
@@ -50,6 +61,15 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
                break;
             case rawValue instanceof SqlSelectRow:
                this.row = rawValue;
+               break;
+            case rawValue instanceof SqlParam:
+               this.params[rawValue.name] = { name: rawValue.name };
+               break;
+            case rawValue instanceof SqlQuery:
+               Object.assign(this.params, rawValue.params);
+               break;
+            case Array.isArray(rawValue):
+               rawValue.forEach(extractParams);
                break;
          }
       }

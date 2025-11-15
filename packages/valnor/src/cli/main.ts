@@ -10,7 +10,7 @@ import { printTables } from "./tables/index.js";
 import { ok } from "assert";
 import { writeLibrary } from "./library/index.js";
 import { loadPlugin } from "../load-plugin.js";
-import { x } from "../x.js";
+import { execCommand, ExecOptions, initCommand, InitOptions } from "./exec/index.js";
 
 const main = new Command();
 
@@ -66,7 +66,7 @@ main
       }
 
       const plugin = await loadPlugin(pluginName);
-      const { enums, tables } = await x(() => {
+      const { enums, tables } = await (() => {
          if (uri) {
             return plugin.getSchema({ uri, schemas });
          }
@@ -80,7 +80,7 @@ main
             database,
             password,
          });
-      });
+      })();
 
       const context = new CodegenContextModel({
          outDir,
@@ -114,6 +114,31 @@ main
             schemaFiles,
          });
       });
+   });
+
+const exec = main.command("exec").description("Execute and manage queries");
+
+exec
+   .command("init")
+   .description("Initialize valnor config files")
+   .option("-f, --force", "Overwrite existing files")
+   .action(async (options: InitOptions) => {
+      await initCommand(options);
+   });
+
+exec
+   .command("run")
+   .description("Execute a configured query")
+   .argument("<query>", "Query name to execute")
+   .option("-c, --config <path>", "Path to valnor.config.ts", "valnor.config.ts")
+   .option("-q, --query-config <path>", "Path to query config file")
+   .option("-e, --env <environment>", "Environment to use for params")
+   .option("-f, --format <format>", "Output format (table|json|csv)")
+   .option("-l, --limit <number>", "Limit number of results", parseInt)
+   .option("--dry-run", "Show SQL without executing")
+   .option("--no-confirm", "Skip confirmation for mutations")
+   .action(async (queryName: string, options: ExecOptions) => {
+      await execCommand(queryName, options);
    });
 
 main.parse();

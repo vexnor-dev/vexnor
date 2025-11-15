@@ -17,6 +17,11 @@
          "types": "./dist/plugin/index.d.ts",
          "require": "./dist/plugin/index.js"
       },
+      "./config": {
+         "import": "./dist/config/index.js",
+         "types": "./dist/config/index.d.ts",
+         "require": "./dist/config/index.js"
+      },
       "./testing": {
          "import": "./dist/testing/index.js",
          "types": "./dist/testing/index.d.ts",
@@ -70,6 +75,7 @@
    "dependencies": {
       "code-block-writer": "^11.0.3",
       "commander": "^9.1.0",
+      "glob": "^11.0.3",
       "pino": "^7.10.0",
       "to-case": "^2.0.0"
    },
