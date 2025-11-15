@@ -31,7 +31,7 @@ export class SqlBuildContext {
 
    constructor(args?: SqlBuildContextArgs) {
       if (args?.query) {
-         this.scope(args.query);
+         this.trackQuery(args.query);
       }
 
       this.tokenizer = args?.tokenizer ?? new DefaultTokenizer();
@@ -150,23 +150,6 @@ export class SqlBuildContext {
       }
    }
 
-   scope(query: SqlQueryAny): SqlBuildContext {
-      if (this.queries.includes(query)) return this;
-
-      const queue = [query];
-      while (queue.length) {
-         const query = queue.shift()!;
-
-         if (this.queries.includes(query)) continue;
-
-         this.queries.push(query);
-         queue.push(query);
-         queue.push(...query.rawValues.filter((z) => z instanceof SqlQuery));
-      }
-
-      return this;
-   }
-
    isRowToken(sql: Sql) {
       switch (true) {
          case sql instanceof SqlSelectRow:
@@ -216,12 +199,15 @@ export class SqlBuildContext {
          }
       }
 
-      throw new SqlBuildError(`Query not found for ${sql}`, {
-         strings: this.strings,
-         data: {
-            values: this.values,
+      throw new SqlBuildError(
+         `Query not found for ${sql}. If this is a subquery, it needs to be tracked into the build context`,
+         {
+            strings: this.strings,
+            data: {
+               values: this.values,
+            },
          },
-      });
+      );
    }
 
    /**
@@ -271,5 +257,26 @@ export class SqlBuildContext {
             }
          }),
       );
+   }
+
+   /**
+    * Tracks the query into the current build context
+    * @param query
+    */
+   trackQuery(query: SqlQueryAny): SqlBuildContext {
+      if (this.queries.includes(query)) return this;
+
+      const queue = [query];
+      while (queue.length) {
+         const query = queue.shift()!;
+
+         if (this.queries.includes(query)) continue;
+
+         this.queries.push(query);
+         queue.push(query);
+         queue.push(...query.rawValues.filter((z) => z instanceof SqlQuery));
+      }
+
+      return this;
    }
 }

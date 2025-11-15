@@ -1,14 +1,14 @@
 import { Sql } from "../sql-base.js";
 import { SqlBuildContext } from "../query/index.js";
 
-type SqlInfoOptions = {
-   label: string;
+export type SqlQueryInfoOptions = {
+   label?: string;
 } & Record<string, unknown>;
 
 export class SqlQueryInfo extends Sql {
-   constructor(public readonly options: SqlInfoOptions) {
+   constructor(public readonly options: SqlQueryInfoOptions) {
       super({
-         ID: options.label,
+         ID: JSON.stringify(options).replace(`"`, "").replace(" ", ""),
       });
    }
 
@@ -25,6 +25,6 @@ export class SqlQueryInfo extends Sql {
    }
 }
 
-export function info(options: SqlInfoOptions) {
+export function info(options: SqlQueryInfoOptions) {
    return new SqlQueryInfo(options);
 }

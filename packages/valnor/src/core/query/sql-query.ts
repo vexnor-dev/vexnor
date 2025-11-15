@@ -22,6 +22,7 @@ export type SqlQueryExtended<T extends { Row?: unknown; Params?: unknown }> = Sq
    };
 
 export interface SqlQueryArgs {
+   readonly info?: SqlQueryInfo;
    readonly rawStrings: TemplateStringsArray;
    readonly rawValues: unknown[];
 }
@@ -34,11 +35,13 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
    readonly rawStrings: TemplateStringsArray;
    readonly rawValues: unknown[];
 
-   constructor({ rawStrings, rawValues }: SqlQueryArgs) {
+   constructor({ rawStrings, rawValues, ...args }: SqlQueryArgs) {
       super({
          ID: (() => {
-            const info = rawValues.find((z) => z instanceof SqlQueryInfo);
-            return info?.label ?? "#";
+            const info = args.info ?? rawValues.find((z) => z instanceof SqlQueryInfo);
+            if (!info) return "#";
+
+            return JSON.stringify(info.options).replace(`"`, "").replace(" ", "");
          })(),
       });
       this.rawStrings = rawStrings;
@@ -216,7 +219,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
             const addString = (text: string) => `${text}${delimiter}`;
             switch (true) {
                case item instanceof SqlQuery: {
-                  item.build(context.scope(item), options);
+                  item.build(context.trackQuery(item), options);
                   break;
                }
                case item instanceof Sql:
