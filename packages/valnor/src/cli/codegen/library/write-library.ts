@@ -1,6 +1,7 @@
 import path from "node:path";
-import { getCodegenContext, LibraryOutputFile } from "../../plugin/index.js";
 import fs from "node:fs/promises";
+import { getCodegenContext } from "../codegen-context.js";
+import { LibraryOutputFile } from "../../../plugin/index.js";
 
 export async function writeLibrary(): Promise<LibraryOutputFile[]> {
    const { outDir, plugin } = getCodegenContext();

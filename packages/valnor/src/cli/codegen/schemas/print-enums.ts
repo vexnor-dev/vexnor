@@ -2,8 +2,9 @@ import { writeFile } from "fs/promises";
 import path from "path";
 import to from "to-case";
 import { groupBy } from "../types/index.js";
-import { getCodegenContext, SqlEnumInfo, SqlOutputFile } from "../../plugin/index.js";
 import { ok } from "assert";
+import { SqlEnumInfo, SqlOutputFile } from "../../../plugin/index.js";
+import { getCodegenContext } from "../codegen-context.js";
 
 export interface WriteEnumsAgs {
    enums: SqlEnumInfo[];

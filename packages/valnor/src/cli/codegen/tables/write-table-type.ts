@@ -1,5 +1,6 @@
-import { getCodegenContext, PrintTableArgs } from "../../plugin/index.js";
 import CodeBlockWriter from "code-block-writer";
+import { PrintTableArgs } from "../../../plugin/index.js";
+import { getCodegenContext } from "../codegen-context.js";
 
 export function writeTableType(writer: CodeBlockWriter.default, { table }: PrintTableArgs) {
    const { getTableName, getColumnName } = getCodegenContext();

@@ -1,7 +1,7 @@
 import { AsyncLocalStorage } from "async_hooks";
 import to from "to-case";
 import CodeBlockWriter from "code-block-writer";
-import { ValnorPlugin } from "../plugin/index.js";
+import { ValnorPlugin } from "../../plugin/index.js";
 
 export class CodegenContextModel {
    readonly outDir: string;

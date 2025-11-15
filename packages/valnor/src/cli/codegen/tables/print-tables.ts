@@ -1,9 +1,10 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import to from "to-case";
-import { getCodegenContext, SqlOutputFile, SqlTableInfo } from "../../plugin/index.js";
 import { logger } from "../logger.js";
 import { writeTable } from "./write-table.js";
+import { SqlOutputFile, SqlTableInfo } from "../../../plugin/index.js";
+import { getCodegenContext } from "../codegen-context.js";
 
 export interface WriteTablesArgs {
    tables: SqlTableInfo[];

@@ -1,4 +1,3 @@
-import { logger } from "../cli/logger.js";
 import { SqlLiteralType } from "./sql-literal.js";
 
 export interface SqlColumnInfo {
@@ -36,23 +35,6 @@ export interface SqlColumnType {
    type: SqlLiteralType;
    udt?: string;
    isArray?: boolean;
-}
-
-export type SqlTableInfoArgs = Omit<SqlTableInfo, "table_columns"> & { table_columns: string };
-
-export function newSqlTableInfo({ table_columns, ...args }: SqlTableInfoArgs): SqlTableInfo {
-   let data: undefined | SqlColumnInfo[];
-   try {
-      data = JSON.parse(table_columns) as SqlColumnInfo[];
-   } catch (error) {
-      logger.error({ json: table_columns }, `Error parsing table_columns from JSON text`);
-      throw error;
-   }
-
-   return {
-      ...args,
-      table_columns: data,
-   };
 }
 
 export interface SqlEnumValue {

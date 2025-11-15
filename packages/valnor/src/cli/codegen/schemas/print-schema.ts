@@ -3,8 +3,9 @@ import path from "path";
 import { ok } from "assert";
 import to from "to-case";
 import { groupBy } from "../types/index.js";
-import { getCodegenContext, SqlOutputFile } from "../../plugin/index.js";
 import { writeSchemaImports } from "./write-schema-imports.js";
+import { SqlOutputFile } from "../../../plugin/index.js";
+import { getCodegenContext } from "../codegen-context.js";
 
 export interface WriteSchemaArgs {
    outDir: string;

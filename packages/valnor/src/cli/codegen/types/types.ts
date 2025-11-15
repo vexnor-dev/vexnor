@@ -1,4 +1,4 @@
-export interface CommandOptions {
+export interface CodegenCommandOptions {
    outDir: string;
    uri?: string;
    schema: string[];
