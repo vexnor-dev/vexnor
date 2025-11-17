@@ -6,12 +6,10 @@ describe("resolveProfile", () => {
    const config: ValnorConfig = {
       profiles: {
          postgres: {
-            plugin: "valnor-postgres",
             connection: { uri: "postgres://localhost" },
             generate: { schema: ["public"], outDir: "./out" },
          },
          mysql: {
-            plugin: "valnor-mysql",
             connection: { uri: "mysql://localhost" },
             generate: { schema: ["public"], outDir: "./out" },
          },

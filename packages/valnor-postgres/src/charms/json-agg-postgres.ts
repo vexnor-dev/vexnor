@@ -44,7 +44,7 @@ export class JsonAggPostgres<T extends { Row: Record<string, unknown>; Params?: 
                select coalesce(jsonb_agg(${this.query.row.$$}), '[]') as "${result}"
                from ${this.query}) as "${raw(this.query.ID)}"
                on true
-            `.build(context.scope(this.query), options);
+            `.build(context.trackQuery(this.query), options);
             break;
          }
          default:

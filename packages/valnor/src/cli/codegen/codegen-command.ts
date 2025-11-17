@@ -30,7 +30,7 @@ export async function codegenCommand(options: CodegenCommandOptions) {
       return;
    }
 
-   const plugin = await loadPlugin(pluginName);
+   const { plugin } = await loadPlugin(pluginName);
    const { enums, tables } = await (() => {
       if (uri) {
          return plugin.getSchema({ uri, schemas });

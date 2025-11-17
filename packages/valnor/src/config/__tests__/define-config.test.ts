@@ -1,6 +1,5 @@
 import { describe, expect, test } from "vitest";
 import { defineConfig } from "../define-config.js";
-import { ValnorConfig } from "../types.js";
 
 describe("defineConfig", () => {
    test("validates config has profiles", () => {
@@ -11,7 +10,6 @@ describe("defineConfig", () => {
       expect(() =>
          defineConfig({
             profiles: {
-               // @ts-expect-error - Testing runtime validation of missing plugin
                postgres: {
                   connection: { uri: "postgres://localhost" },
                   generate: { schema: ["public"], outDir: "./out" },
@@ -27,7 +25,6 @@ describe("defineConfig", () => {
             profiles: {
                // @ts-expect-error - Testing runtime validation of missing connection
                postgres: {
-                  plugin: "valnor-postgres",
                   generate: { schema: ["public"], outDir: "./out" },
                },
             },
@@ -39,7 +36,6 @@ describe("defineConfig", () => {
       expect(() =>
          defineConfig({
             profiles: {
-               // @ts-expect-error - Testing runtime validation of missing generate config
                postgres: {
                   plugin: "valnor-postgres",
                   connection: { uri: "postgres://localhost" },
@@ -58,7 +54,6 @@ describe("defineConfig", () => {
                   connection: { uri: "postgres://localhost" },
                   generate: { schema: ["public"], outDir: "./out" },
                },
-               // @ts-expect-error - Testing runtime validation of missing plugin in second profile
                mysql: {
                   connection: { uri: "mysql://localhost" },
                   generate: { schema: ["public"], outDir: "./out" },
@@ -106,10 +101,9 @@ describe("defineConfig", () => {
    });
 
    test("preserves optional fields", () => {
-      const config: ValnorConfig = {
+      const result = defineConfig({
          profiles: {
             postgres: {
-               plugin: "valnor-postgres",
                connection: { uri: "postgres://localhost" },
                generate: { schema: ["public"], outDir: "./out", pascalCaseTables: true, camelCaseColumns: true },
             },
@@ -121,9 +115,7 @@ describe("defineConfig", () => {
             confirmMutations: true,
             dryRun: false,
          },
-      };
-
-      const result = defineConfig(config);
+      });
 
       expect(result.defaultProfile).toBe("postgres");
       expect(result.exec?.format).toBe("json");

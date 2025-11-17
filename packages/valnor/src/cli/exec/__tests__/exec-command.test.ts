@@ -19,7 +19,7 @@ describe("execCommand", () => {
 
    beforeEach(() => {
       vi.clearAllMocks();
-      mockLoadPlugin.mockResolvedValue(testPlugin);
+      mockLoadPlugin.mockResolvedValue({ plugin: testPlugin, path: 'test-plugin' });
       mockConfirmPrompt.mockResolvedValue(true);
       consoleOutput = [];
       vi.spyOn(console, "log").mockImplementation((msg) => {

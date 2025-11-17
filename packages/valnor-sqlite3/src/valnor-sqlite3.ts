@@ -6,12 +6,15 @@ import {
    SqlColumnType,
    SqlSchema,
    ValnorPlugin,
+   ValnorConnection,
 } from "valnor/plugin";
 import Database from "better-sqlite3";
 import { findPrimaryKeys, findTableColumns, findTables, getColumnType } from "./schema/index.js";
 import { SqlQueryParams, SqlQueryRowOut, SqlQuery } from "valnor";
 import { BetterSqlite3QueryHandler } from "./better-sqlite3-query-handler.js";
 import { resolve } from "node:path";
+
+export type Sqlite3ConnectionConfig = { uri: string };
 
 export class ValnorSqlite3 extends ValnorPlugin {
    driver = "better-sqlite3";
@@ -62,6 +65,13 @@ export class ValnorSqlite3 extends ValnorPlugin {
          tables,
          enums: [],
       };
+   }
+
+   async createConnection<C extends Sqlite3ConnectionConfig = Sqlite3ConnectionConfig>(
+      config: C,
+   ): Promise<ValnorConnection> {
+      const db = new Database(config.uri);
+      return new ValnorConnection(db, (d) => Promise.resolve(d.close()));
    }
 }
 

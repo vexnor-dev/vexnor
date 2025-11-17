@@ -165,11 +165,11 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
     */
    build(context: SqlBuildContext, options?: SqlBuildOptions) {
       const wrapStart = () => {
-         if (this.$$wrap) context.addStrings("(");
+         if (this.wrap) context.addStrings("(");
       };
 
       const wrapEnd = () => {
-         if (this.$$wrap) context.addStrings(")");
+         if (this.wrap) context.addStrings(")");
       };
 
       switch (context.keyword) {

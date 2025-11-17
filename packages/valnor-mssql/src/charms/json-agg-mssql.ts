@@ -19,7 +19,7 @@ export class JsonAggMssql extends Sql {
             break;
          case "from": {
             context.addStrings("outer apply (\nselect coalesce((\n");
-            this.query.build(context.scope({ queryName: this.query.info?.label }), options);
+            this.query.build(context.trackQuery({ queryName: this.query.info?.label }), options);
             context.addStrings(
                `\nfor json path, include_null_values), '[]'\n) as "${this.query.name}")\nas "${this.query.name}_result"`,
             );

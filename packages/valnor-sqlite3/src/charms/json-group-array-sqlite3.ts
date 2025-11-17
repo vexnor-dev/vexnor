@@ -31,7 +31,7 @@ export class JsonGroupArraySqlite3 extends Sql {
             const subquery = sql<object>`
                select coalesce(json_group_array(json_object(${this.select.row.$$all})), '[]')
                from ${this.select}`;
-            subquery.build(context.scope({ queryName: this.select.name }), options);
+            subquery.build(context.trackQuery({ queryName: this.select.name }), options);
             context.addStrings(")");
             break;
          }

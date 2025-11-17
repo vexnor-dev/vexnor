@@ -6,14 +6,8 @@ export function defineConfig<T extends ValnorConfig>(config: T): T {
    }
 
    for (const [name, profile] of Object.entries(config.profiles)) {
-      if (!profile.plugin) {
-         throw new Error(`Profile '${name}' missing plugin`);
-      }
       if (!profile.connection) {
          throw new Error(`Profile '${name}' missing connection`);
-      }
-      if (!profile.generate) {
-         throw new Error(`Profile '${name}' missing generate config`);
       }
    }
 

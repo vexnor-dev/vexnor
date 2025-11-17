@@ -10,12 +10,12 @@ export interface ValnorConfig {
 }
 
 export interface ProfileConfig {
-   plugin: string;
    connection: ConnectionConfig;
-   generate: GenerateConfig;
+   generate?: GenerateConfig;
 }
 
 export interface GenerateConfig {
+   plugin?: string;
    schema: string[];
    outDir: string;
    pascalCaseTables?: boolean;
@@ -39,6 +39,7 @@ export interface QueryConfig<T extends Record<string, QueryOrHandler>> {
 
 export type QuerySettings<Query extends QueryOrHandler> = {
    query: Query;
+   plugin?: unknown;
    profile: ProfileConfig | string;
    params: ExtractParamsFromQuery<Query>;
    environments?: Record<string, Query extends { Params?: infer P } ? P : never>;

@@ -8,7 +8,6 @@ describe("loadConfig", () => {
       const config = await loadConfig(configPath);
 
       expect(config.profiles.postgres).toBeDefined();
-      expect(config.profiles.postgres?.plugin).toBe("test-plugin");
    });
 
    test("throws when no config exported", async () => {

@@ -2,16 +2,18 @@ import { ValnorPlugin } from "./plugin/index.js";
 import { fileURLToPath } from "url";
 import { dirname, resolve } from "path";
 
-export async function loadPlugin(packageName: string): Promise<ValnorPlugin> {
+export async function loadPlugin(packageName: string): Promise<{ plugin: ValnorPlugin; path: string }> {
    let plugin;
+   let pluginPath: string;
    try {
+      pluginPath = packageName;
       plugin = await import(packageName);
    } catch (error) {
       // Fallback for local workspace packages
       if (error && typeof error === "object" && "code" in error && error.code === "ERR_MODULE_NOT_FOUND") {
          const currentDir = dirname(fileURLToPath(import.meta.url));
-         const localPath = resolve(currentDir, `../../${packageName}/dist/index.js`);
-         plugin = await import(localPath);
+         pluginPath = resolve(currentDir, `../../${packageName}/dist/index.js`);
+         plugin = await import(pluginPath);
       } else {
          throw error;
       }
@@ -25,5 +27,5 @@ export async function loadPlugin(packageName: string): Promise<ValnorPlugin> {
       throw new Error(`Plugin ${packageName} does not extend ValnorPlugin.`);
    }
 
-   return plugin.default;
+   return { plugin: plugin.default, path: pluginPath };
 }

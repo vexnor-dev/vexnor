@@ -60,12 +60,16 @@ export async function execCommand(queryName: string, options: ExecOptions): Prom
       throw new Error(`Profile '${profileName}' not found in config`);
    }
 
+   // Plugin is now in query settings, not profile
+   // The plugin import in query config file executes module augmentation
+   const query = querySettings.query;
+
    const params =
       options.env && querySettings.environments?.[options.env]
          ? querySettings.environments[options.env]
          : querySettings.params;
 
-   const query = querySettings.query;
+
 
    const format = options.format || querySettings.format || rootConfig.exec?.format || "json";
    const limit = options.limit ?? querySettings.limit ?? rootConfig.exec?.limit;
@@ -99,7 +103,12 @@ export async function execCommand(queryName: string, options: ExecOptions): Prom
       }
    }
 
-   const plugin = await loadPlugin(profile.plugin);
+   // Get plugin instance from query settings
+   const pluginModule = querySettings.plugin;
+   if (!pluginModule || typeof pluginModule !== 'object' || !('default' in pluginModule)) {
+      throw new Error(`Query '${queryName}' missing valid plugin reference`);
+   }
+   const plugin = (pluginModule as any).default;
    let connection;
    try {
       connection = await plugin.createConnection(profile.connection);

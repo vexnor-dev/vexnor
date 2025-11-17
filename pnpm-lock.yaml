@@ -78,6 +78,9 @@ importers:
       typescript-eslint:
         specifier: ^8.18.2
         version: 8.46.2(eslint@9.38.0)(typescript@5.9.3)
+      valnor:
+        specifier: workspace:^
+        version: link:packages/valnor
       vite:
         specifier: ^7.1.5
         version: 7.1.12(@types/node@20.19.0)(yaml@2.8.1)
@@ -128,6 +131,9 @@ importers:
       commander:
         specifier: ^9.1.0
         version: 9.5.0
+      glob:
+        specifier: ^11.0.3
+        version: 11.0.3
       mariadb:
         specifier: ^3.4.5
         version: 3.4.5
@@ -194,9 +200,6 @@ importers:
       '@types/pg':
         specifier: ^8.15.5
         version: 8.15.5
-      '@valnor/test-utils':
-        specifier: workspace:^
-        version: link:../../tests/test-utils
       '@vitest/coverage-v8':
         specifier: ^3.2.4
         version: 3.2.4(vitest@3.2.4(@types/node@24.9.1)(yaml@2.8.1))
@@ -309,6 +312,9 @@ importers:
       env-cmd:
         specifier: ^10.1.0
         version: 10.1.0
+      vite-node:
+        specifier: ^2.1.8
+        version: 2.1.9(@types/node@24.9.1)
       vitest:
         specifier: ^3.2.4
         version: 3.2.4(@types/node@24.9.1)(yaml@2.8.1)
@@ -6410,6 +6416,24 @@ snapshots:
       - supports-color
       - terser
 
+  vite-node@2.1.9(@types/node@24.9.1):
+    dependencies:
+      cac: 6.7.14
+      debug: 4.4.3
+      es-module-lexer: 1.7.0
+      pathe: 1.1.2
+      vite: 5.4.21(@types/node@24.9.1)
+    transitivePeerDependencies:
+      - '@types/node'
+      - less
+      - lightningcss
+      - sass
+      - sass-embedded
+      - stylus
+      - sugarss
+      - supports-color
+      - terser
+
   vite-node@3.2.4(@types/node@20.19.0)(yaml@2.8.1):
     dependencies:
       cac: 6.7.14
@@ -6470,6 +6494,15 @@ snapshots:
       rollup: 4.52.5
     optionalDependencies:
       '@types/node': 20.19.0
+      fsevents: 2.3.3
+
+  vite@5.4.21(@types/node@24.9.1):
+    dependencies:
+      esbuild: 0.25.11
+      postcss: 8.5.6
+      rollup: 4.52.5
+    optionalDependencies:
+      '@types/node': 24.9.1
       fsevents: 2.3.3
 
   vite@7.1.12(@types/node@20.19.0)(yaml@2.8.1):

@@ -1,3 +1,5 @@
+export { logger } from "../logger.js";
+
 export * from "./valnor-schema-types.js";
 export * from "./sql-literal.js";
 export { ValnorPlugin } from "./valnor-plugin.js";

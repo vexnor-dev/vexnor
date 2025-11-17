@@ -1,12 +1,13 @@
 import {
    GetSchemaArgs,
-   logger,
    SqlSchema,
    SqlColumnInfo,
    SqlColumnType,
    ValnorPlugin,
-   x,
+   ValnorConnection,
    LibraryOutputFile,
+   ConnectionConfig,
+   logger,
 } from "valnor/plugin";
 import { Pool } from "pg";
 import { findEnums, findTables, getColumnType } from "./schema/index.js";
@@ -18,7 +19,7 @@ import { SqlQuery } from "valnor";
  * It can handle
  */
 export class ValnorPostgres extends ValnorPlugin {
-   driver = "pg";
+   driver = "postgres";
 
    getLibrary(): LibraryOutputFile[] {
       return [];
@@ -30,55 +31,49 @@ export class ValnorPostgres extends ValnorPlugin {
 
    async getSchema(args: GetSchemaArgs): Promise<SqlSchema> {
       const { schemas } = args;
-      const pool = x(() => {
-         if ("uri" in args) {
-            return new Pool({
-               connectionString: args.uri,
-            });
-         }
+      const connection = await this.createConnection(args);
 
-         const { host, port, database, user, password } = args;
-         if (!host) throw new Error("Invalid database connection parameters: host is required");
-         if (!port) throw new Error("Invalid database connection parameters: port is required");
-         if (!user) throw new Error("Invalid database connection parameters: user is required");
-         if (!database) throw new Error("Invalid database connection parameters: database is required");
-
-         return new Pool({
-            host,
-            port,
-            user,
-            password,
-            database,
-         });
-      });
-      const tables = await findTables.postgres.getAll({
-         db: pool,
-         params: { schemas },
-         options: {
-            debug: (args) => {
-               console.log(args.text);
+      try {
+         const tables = await findTables.postgres.getAll({
+            db: connection.db,
+            params: { schemas },
+            options: {
+               debug: (args) => {
+                  console.log(args.text);
+               },
             },
-         },
-      });
-      const enums = await findEnums.postgres.getAll({ db: pool, params: { schemas } });
-      logger.info(
-         {
-            postgres: x(() => {
-               const { host, port, user, database, password } = pool.options;
-               return { host, port, database, user, password: password ? "*****" : null };
-            }),
-            schemas,
-            tables: tables.map(({ table_name, table_schema }) => ({ table_schema, table_name })),
-            enums: enums.map(({ enum_name, enum_schema }) => ({ enum_schema, enum_name })),
-         },
-         `Generating mapping code for ${schemas.join(", ")}`,
-      );
-      await pool.end();
+         });
+         const enums = await findEnums.postgres.getAll({
+            db: connection.db,
+            params: { schemas },
+         });
+         logger.info(
+            {
+               postgres: (() => {
+                  const pool = connection.db as Pool;
+                  const { host, port, user, database, password } = pool.options;
+                  return { host, port, database, user, password: password ? "*****" : null };
+               })(),
+               schemas,
+               tables: tables.map(({ table_name, table_schema }) => ({ table_schema, table_name })),
+               enums: enums.map(({ enum_name, enum_schema }) => ({ enum_schema, enum_name })),
+            },
+            `Generating mapping code for ${schemas.join(", ")}`,
+         );
 
-      return {
-         tables,
-         enums,
-      };
+         return {
+            tables,
+            enums,
+         };
+      } finally {
+         await connection.close();
+      }
+   }
+
+   async createConnection<Config extends ConnectionConfig>(config: Config): Promise<ValnorConnection<Pool>> {
+      const pool = "uri" in config ? new Pool({ connectionString: config.uri }) : new Pool(config);
+
+      return new ValnorConnection(pool, (p) => p.end());
    }
 }
 
@@ -94,3 +89,5 @@ Object.defineProperty(SqlQuery.prototype, "postgres", {
       return new PostgresQueryHandler(this);
    },
 });
+
+export const valnorPostgres = new ValnorPostgres();

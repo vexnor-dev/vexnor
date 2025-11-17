@@ -6,6 +6,7 @@
    "author": "Adrian Topala",
    "license": "Apache-2.0",
    "scripts": {
+      "precodegen": "pnpm run -r --filter='valnor' --filter='valnor-postgres' build",
       "codegen": "env-cmd --no-override -x -r ../../env-dev.json -e postgres node ../../packages/valnor/cli.mjs generate --plugin valnor-postgres --schema valnor_test --pascalCaseTables --camelCaseColumns --host \\$POSTGRES_HOST --port \\$POSTGRES_PORT --database \\$POSTGRES_DATABASE --user \\$POSTGRES_USER --password \\$POSTGRES_PASSWORD --outDir './src/codegen' | pino-pretty",
       "test": "vitest --coverage run",
       "test:watch": "vitest --watch",
@@ -19,6 +20,7 @@
       "valnor-postgres": "workspace:*"
    },
    "devDependencies": {
+      "vite-node": "^2.1.8",
       "@types/pg": "^8.15.5",
       "@valnor/test-utils": "workspace:*",
       "@vitest/coverage-v8": "^3.2.4",
