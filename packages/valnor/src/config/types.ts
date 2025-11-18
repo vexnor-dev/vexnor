@@ -1,7 +1,7 @@
 import { ExtractParamsFromQuery, SqlQueryAny, AsyncQueryHandlerAny } from "../core/index.js";
 
 type QueryOrHandler = SqlQueryAny | AsyncQueryHandlerAny;
-import { ConnectionConfig } from "../plugin/index.js";
+import { ConnectionConfig, ValnorPlugin } from "../plugin/index.js";
 
 export interface ValnorConfig {
    profiles: Record<string, ProfileConfig>;
@@ -39,7 +39,7 @@ export interface QueryConfig<T extends Record<string, QueryOrHandler>> {
 
 export type QuerySettings<Query extends QueryOrHandler> = {
    query: Query;
-   plugin?: unknown;
+   plugin?: ValnorPlugin;
    profile: ProfileConfig | string;
    params: ExtractParamsFromQuery<Query>;
    environments?: Record<string, Query extends { Params?: infer P } ? P : never>;

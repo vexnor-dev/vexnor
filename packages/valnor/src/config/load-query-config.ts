@@ -2,6 +2,11 @@ import { pathToFileURL } from "url";
 import { QueryConfig } from "./types.js";
 import { SqlQueryAny } from "../core/index.js";
 import { access } from "fs/promises";
+import { resolve } from "path";
+import { register } from "tsx/esm/api";
+
+// Register tsx loader once
+register();
 
 export async function loadQueryConfig(configPath: string): Promise<QueryConfig<Record<string, SqlQueryAny>>> {
    try {
@@ -11,18 +16,9 @@ export async function loadQueryConfig(configPath: string): Promise<QueryConfig<R
    }
 
    try {
-      let module: any;
-      if (configPath.endsWith('.ts')) {
-         const { createServer } = await import('vite');
-         const vite = await createServer({ clearScreen: false, logLevel: 'error' });
-         module = await vite.ssrLoadModule(configPath);
-         await vite.close();
-      } else {
-         const fileUrl = pathToFileURL(configPath).href;
-         module = await import(fileUrl);
-      }
-      
-      const config = module.default;
+      const resolvedPath = resolve(configPath);
+      const module = await import(pathToFileURL(resolvedPath).href);
+      const config = module.default || module;
 
       if (!config) {
          throw new Error(`No config exported from ${configPath}`);
@@ -33,6 +29,8 @@ export async function loadQueryConfig(configPath: string): Promise<QueryConfig<R
       if (err instanceof Error && err.message.includes("No config exported")) {
          throw err;
       }
-      throw new Error(`Failed to load query config from ${configPath}: ${err instanceof Error ? err.message : String(err)}`);
+      throw new Error(
+         `Failed to load query config from ${configPath}: ${err instanceof Error ? err.message : String(err)}`,
+      );
    }
 }

@@ -1,6 +1,5 @@
 import { loadConfig, loadQueryConfig, resolveProfile } from "../../config/index.js";
-import { loadPlugin } from "../../load-plugin.js";
-import { formatJson, formatCsv, formatTable } from "./formatters.js";
+import { formatCsv, formatJson, formatTable } from "./formatters.js";
 import { AsyncQueryHandler } from "../../core/index.js";
 import { detectQueryType } from "./detect-query-type.js";
 import { confirmPrompt } from "./confirm-prompt.js";
@@ -24,23 +23,23 @@ export async function execCommand(queryName: string, options: ExecOptions): Prom
       throw new Error("--query-config is required");
    }
 
-   const { glob } = await import('glob');
-   const searchPattern = path.isAbsolute(options.queryConfig) 
-      ? options.queryConfig 
-      : path.join('**', options.queryConfig);
-   const files = await glob(searchPattern, { 
-      cwd: process.cwd(), 
+   const { glob } = await import("glob");
+   const searchPattern = path.isAbsolute(options.queryConfig)
+      ? options.queryConfig
+      : path.join("**", options.queryConfig);
+   const files = await glob(searchPattern, {
+      cwd: process.cwd(),
       absolute: true,
-      ignore: ['**/node_modules/**', '**/dist/**', '**/build/**']
+      ignore: ["**/node_modules/**", "**/dist/**", "**/build/**"],
    });
-   
+
    if (files.length === 0) {
       throw new Error(`No files found matching: ${options.queryConfig}`);
    }
    if (files.length > 1) {
-      throw new Error(`Multiple files found matching '${options.queryConfig}': ${files.join(', ')}. Be more specific.`);
+      throw new Error(`Multiple files found matching '${options.queryConfig}': ${files.join(", ")}. Be more specific.`);
    }
-   
+
    const queryConfigPath = files[0]!;
 
    const queryConfig = await loadQueryConfig(queryConfigPath!);
@@ -68,8 +67,6 @@ export async function execCommand(queryName: string, options: ExecOptions): Prom
       options.env && querySettings.environments?.[options.env]
          ? querySettings.environments[options.env]
          : querySettings.params;
-
-
 
    const format = options.format || querySettings.format || rootConfig.exec?.format || "json";
    const limit = options.limit ?? querySettings.limit ?? rootConfig.exec?.limit;
@@ -104,11 +101,11 @@ export async function execCommand(queryName: string, options: ExecOptions): Prom
    }
 
    // Get plugin instance from query settings
-   const pluginModule = querySettings.plugin;
-   if (!pluginModule || typeof pluginModule !== 'object' || !('default' in pluginModule)) {
+   const plugin = querySettings.plugin;
+   if (!plugin || typeof plugin.createConnection !== "function" || typeof plugin.driver !== "string") {
       throw new Error(`Query '${queryName}' missing valid plugin reference`);
    }
-   const plugin = (pluginModule as any).default;
+
    let connection;
    try {
       connection = await plugin.createConnection(profile.connection);
@@ -122,14 +119,17 @@ export async function execCommand(queryName: string, options: ExecOptions): Prom
       const driver = plugin.driver;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let queryHandler: any;
-      
-      if (query instanceof AsyncQueryHandler || query.constructor.name.includes('QueryHandler')) {
+
+      if (query instanceof AsyncQueryHandler || query.constructor.name.includes("QueryHandler")) {
          queryHandler = query;
       } else {
          queryHandler = (query as Record<string, any>)[driver];
       }
 
-      if (!queryHandler || !(queryHandler instanceof AsyncQueryHandler || queryHandler.constructor.name.includes('QueryHandler'))) {
+      if (
+         !queryHandler ||
+         !(queryHandler instanceof AsyncQueryHandler || queryHandler.constructor.name.includes("QueryHandler"))
+      ) {
          throw new Error(`Query does not support driver '${driver}'`);
       }
 

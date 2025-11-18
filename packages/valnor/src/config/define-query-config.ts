@@ -29,19 +29,16 @@ export function defineQueryConfig<TQueries extends Record<string, QueryOrHandler
 
       for (const key of Object.keys(config.queries)) {
          const query = queries[key]!;
-         if (!query) {
-            throw new Error(`Query '${key}' not found in provided queries`);
-         }
-
          const settings = config.queries[key]!;
          if (!settings.profile) {
             throw new Error(`Query '${key}' missing profile`);
          }
-         if (settings.params === null || settings.params === undefined) {
+
+         if (!settings.params) {
             throw new Error(`Query '${key}' missing params`);
          }
 
-         const params = 'params' in query ? query.params : query.query?.params ?? {};
+         const params = "params" in query ? query.params : (query.query?.params ?? {});
          const queryParamKeys = Object.keys(params).sort();
          const configParamKeys = settings.params ? Object.keys(settings.params).sort() : [];
 

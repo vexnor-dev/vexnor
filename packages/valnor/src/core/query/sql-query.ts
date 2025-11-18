@@ -86,7 +86,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
     * @param args
     */
    getValues({ options, ...args }: SqlInputArgs<T["Params"]>): unknown[] {
-      const { values } = this.buildCache(options);
+      const { values } = this.buildQuery(options);
       if (!values) return [];
       if (!hasParams(args)) return values ?? [];
       const results: unknown[] = [];
@@ -111,7 +111,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
     * @example select * from table where id = ? and name = ?
     */
    getSql({ options, ...args }: SqlInputArgs<T["Params"]>): string {
-      const { values, strings } = this.buildCache(options);
+      const { values, strings } = this.buildQuery(options);
       if (!values?.length) return strings.join("");
       if (!hasParams(args)) return strings.join("");
 
@@ -147,7 +147,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
       return tokens.join("");
    }
 
-   buildCache(options?: SqlBuildOptions) {
+   buildQuery(options?: SqlBuildOptions) {
       // if (this.__buildCache__) return this.__buildCache__;
       const { tokenizer, formatter } = options ?? {};
       const context = new SqlBuildContext({ query: this, tokenizer, formatter });

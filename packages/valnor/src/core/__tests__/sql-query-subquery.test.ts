@@ -48,7 +48,7 @@ describe("sql subqueries tests", () => {
          from ${AccountsWithEmail}
          where ${AccountsWithEmail.$firstName} = ${param("firstName").is<string>()}`;
 
-      query.buildCache({});
+      query.buildQuery({});
       expect(query.getValues({ params: { firstName: "John", email: "test@example.com" } })).toEqual([
          "test@example.com",
          "John",
