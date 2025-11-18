@@ -1,9 +1,10 @@
 import { Sql } from "../sql-base.js";
 import { SqlBuildContext } from "./sql-build-context.js";
 import { SqlQuery, SqlQueryAny } from "./sql-query.js";
-import { SqlQueryToken } from "../sql.js";
+import { sql, SqlQueryToken } from "../sql.js";
 import { SqlType } from "./sql-type.js";
 import { SqlQueryInfo } from "../charms/index.js";
+import { raw } from "./sql-raw.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlValueAny = SqlValue<any>;
@@ -19,8 +20,7 @@ export class SqlValue<T extends { Key: string; Type: unknown }> extends Sql {
    }
 
    build(context: SqlBuildContext) {
-      context.trackQuery(this.query);
-      this.query.build(context);
+      context.addQuery(sql`${this.query} AS ${raw(this.key)}`);
    }
 }
 

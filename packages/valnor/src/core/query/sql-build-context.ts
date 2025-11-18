@@ -279,4 +279,9 @@ export class SqlBuildContext {
 
       return this;
    }
+
+   addQuery(query: SqlQueryAny) {
+      this.trackQuery(query);
+      query.build(this);
+   }
 }

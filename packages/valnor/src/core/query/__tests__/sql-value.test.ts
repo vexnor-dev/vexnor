@@ -32,7 +32,7 @@ describe("SqlValue tests", () => {
       const context = new SqlBuildContext();
       value.build(context);
       // build() only outputs the query, not the alias
-      expect(context.text).toBe("COUNT(*)");
+      expect(context.text).toBe(`COUNT(*) AS "total"`);
       expect(value.key).toBe("total");
    });
 
@@ -91,12 +91,12 @@ describe("SqlValue tests", () => {
    });
 
    test("SqlType marker doesn't affect SQL output", () => {
-      const value = val`COUNT(*) ${t<number>()}`.as("total");
+      const value = val`COUNT(*)${t<number>()}`.as("total");
       const context = new SqlBuildContext();
       value.build(context);
 
       // The t<number>() marker should not appear in SQL (only query part)
-      expect(context.text).toBe("COUNT(*) ");
+      expect(context.text).toBe(`COUNT(*) AS "total"`);
       expect(value.key).toBe("total");
    });
 });

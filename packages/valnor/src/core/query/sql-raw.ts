@@ -18,6 +18,12 @@ export class SqlRaw extends Sql {
    }
 }
 
-export function raw(value: string): Sql {
-   return new SqlRaw(value);
+/**
+ * Creates a raw SQL string.
+ * @param value The raw SQL string.
+ * @param quote If true, the raw SQL string will be quoted.
+ * @returns The raw SQL string.
+ */
+export function raw(value: string, quote = true): Sql {
+   return new SqlRaw(value, quote);
 }
