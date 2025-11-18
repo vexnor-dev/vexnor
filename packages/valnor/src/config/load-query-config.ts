@@ -18,7 +18,7 @@ export async function loadQueryConfig(configPath: string): Promise<QueryConfig<R
    try {
       const resolvedPath = resolve(configPath);
       const module = await import(pathToFileURL(resolvedPath).href);
-      const config = module.default || module;
+      const config = module.default;
 
       if (!config) {
          throw new Error(`No config exported from ${configPath}`);

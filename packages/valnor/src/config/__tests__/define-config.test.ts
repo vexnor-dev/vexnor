@@ -7,7 +7,7 @@ describe("defineConfig", () => {
    });
 
    test("validates profile has plugin", () => {
-      expect(() =>
+      expect(
          defineConfig({
             profiles: {
                postgres: {
@@ -16,7 +16,14 @@ describe("defineConfig", () => {
                },
             },
          }),
-      ).toThrow("Profile 'postgres' missing plugin");
+      ).toMatchObject({
+         profiles: {
+            postgres: {
+               connection: { uri: "postgres://localhost" },
+               generate: { schema: ["public"], outDir: "./out" },
+            },
+         },
+      });
    });
 
    test("validates profile has connection", () => {
@@ -46,7 +53,7 @@ describe("defineConfig", () => {
    });
 
    test("validates all profiles", () => {
-      expect(() =>
+      expect(
          defineConfig({
             profiles: {
                postgres: {
@@ -60,7 +67,19 @@ describe("defineConfig", () => {
                },
             },
          }),
-      ).toThrow("Profile 'mysql' missing plugin");
+      ).toMatchObject({
+         profiles: {
+            postgres: {
+               plugin: "valnor-postgres",
+               connection: { uri: "postgres://localhost" },
+               generate: { schema: ["public"], outDir: "./out" },
+            },
+            mysql: {
+               connection: { uri: "mysql://localhost" },
+               generate: { schema: ["public"], outDir: "./out" },
+            },
+         },
+      });
    });
 
    test("returns valid config with single profile", () => {

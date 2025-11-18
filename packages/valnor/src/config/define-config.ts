@@ -9,6 +9,9 @@ export function defineConfig<T extends ValnorConfig>(config: T): T {
       if (!profile.connection) {
          throw new Error(`Profile '${name}' missing connection`);
       }
+      if (!profile.generate) {
+         throw new Error(`Profile '${name}' missing generate config`);
+      }
    }
 
    return config;
