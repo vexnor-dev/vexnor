@@ -1,4 +1,13 @@
-import { SqlCharm, SqlParam, SqlQuery, SqlQueryExtended, SqlRowType, SqlSelectRow, AsyncQueryHandler } from "./query/index.js";
+import {
+   AsyncQueryHandler,
+   SqlCharm,
+   SqlParam,
+   SqlQuery,
+   SqlQueryExtended,
+   SqlRowType,
+   SqlSelectRow,
+   SqlValue,
+} from "./query/index.js";
 import { SqlBuildError } from "./sql-build-error.js";
 import { ok } from "assert";
 import { Sql } from "./sql-base.js";
@@ -65,10 +74,12 @@ export function sql<Token extends SqlQueryToken = SqlQueryToken, Tokens extends 
 
 export type InferResultRowFromQueryTokens<T> = T extends [infer Start, ...infer Rest]
    ? Start extends SqlSelectRow<infer Options extends { Row: Record<string, unknown> }>
-      ? Options["Row"]
-      : Start extends SqlRowType<infer Row>
-        ? Row
-        : InferResultRowFromQueryTokens<Rest>
+      ? Options["Row"] & InferResultRowFromQueryTokens<Rest>
+      : Start extends SqlValue<infer Options extends { Key: string; Type: unknown }>
+        ? Record<Options["Key"], Options["Type"]> & InferResultRowFromQueryTokens<Rest>
+        : Start extends SqlRowType<infer Row>
+          ? Row
+          : InferResultRowFromQueryTokens<Rest>
    : unknown;
 
 export type InferParamsFromQueryTokens<T> = T extends [infer Start, ...infer Rest]
@@ -91,7 +102,9 @@ export type ExtractResultRowFromQuery<T> =
 export type ExtractParamsFromQuery<T> =
    T extends SqlQueryExtended<infer U extends { Params?: unknown }>
       ? U["Params"]
-      : T extends AsyncQueryHandler<infer U extends { Params?: unknown; Row?: unknown; QueryResult: any; QueryClient: any }>
+      : T extends AsyncQueryHandler<
+             infer U extends { Params?: unknown; Row?: unknown; QueryResult: any; QueryClient: any }
+          >
         ? U["Params"]
         : never;
 

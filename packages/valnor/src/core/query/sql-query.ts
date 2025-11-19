@@ -25,12 +25,14 @@ export interface SqlQueryArgs {
    readonly info?: SqlQueryInfo;
    readonly rawStrings: TemplateStringsArray;
    readonly rawValues: unknown[];
+   readonly isFragment?: boolean;
 }
 
 export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql {
    readonly row: SqlSelectRowAny | null = null;
    readonly info: SqlQueryInfo | null = null;
    readonly params: Record<string, { name: string }> = {};
+   readonly isFragment: boolean;
 
    readonly rawStrings: TemplateStringsArray;
    readonly rawValues: unknown[];
@@ -46,6 +48,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
       });
       this.rawStrings = rawStrings;
       this.rawValues = rawValues;
+      this.isFragment = args.isFragment ?? false;
 
       const extractParams = (value: unknown) => {
          if (value instanceof SqlParam) {
@@ -172,7 +175,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
          if (this.wrap) context.addStrings(")");
       };
 
-      switch (context.keyword) {
+      switch (this.isFragment ? null : context.keyword) {
          case "select":
             wrapStart();
             this.buildInternal(context, options);

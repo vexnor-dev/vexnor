@@ -32,7 +32,7 @@ describe("SqlValue tests", () => {
       const context = new SqlBuildContext();
       value.build(context);
       // build() only outputs the query, not the alias
-      expect(context.text).toBe(`COUNT(*) AS "total"`);
+      expect(context.text).toBe(`COUNT(*) as "total"`);
       expect(value.key).toBe("total");
    });
 
@@ -96,8 +96,22 @@ describe("SqlValue tests", () => {
       value.build(context);
 
       // The t<number>() marker should not appear in SQL (only query part)
-      expect(context.text).toBe(`COUNT(*) AS "total"`);
+      expect(context.text).toBe(`COUNT(*) as "total"`);
       expect(value.key).toBe("total");
+   });
+
+   test("val() rendering in sql() query", () => {
+      const query = sql`
+         SELECT ${Account.$accountId}, ${val<number>`COUNT(*)`.as("total")}
+         FROM ${Account}
+         GROUP BY ${Account.$accountId}
+      `;
+
+      expect(query.getSql({})).toEqualQuery(`
+         SELECT "a_1"."account_id" as "accountId", COUNT(*) as "total"
+         FROM "valnor_test"."account" as "a_1"
+         GROUP BY "a_1"."account_id"
+      `);
    });
 });
 

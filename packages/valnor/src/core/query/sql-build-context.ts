@@ -10,6 +10,7 @@ import { SqlSelectAll } from "./sql-select-all.js";
 import { SqlSelectColumn } from "./sql-select-column.js";
 import { SqlSelectRow } from "./sql-select-row.js";
 import { SqlBuildError } from "../sql-build-error.js";
+import { SqlBuildOptions } from "./sql-query-types.js";
 
 export type SqlBuildContextArgs = {
    tokenizer?: ITokenizer;
@@ -280,8 +281,8 @@ export class SqlBuildContext {
       return this;
    }
 
-   addQuery(query: SqlQueryAny) {
-      this.trackQuery(query);
-      query.build(this);
+   addQuery(sql: SqlQueryAny, options?: SqlBuildOptions) {
+      this.trackQuery(sql);
+      sql.build(this, options);
    }
 }
