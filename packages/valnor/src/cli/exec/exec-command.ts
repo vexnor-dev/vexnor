@@ -150,6 +150,9 @@ export async function execCommand(queryName: string, options: ExecOptions): Prom
          result = result.slice(0, limit);
       }
 
+      console.log("SQL:", sql);
+      console.log();
+
       let output: string;
       switch (format) {
          case "table":
@@ -164,6 +167,7 @@ export async function execCommand(queryName: string, options: ExecOptions): Prom
             break;
       }
 
+      console.log("Results:");
       console.log(output);
    } finally {
       await connection.close();
