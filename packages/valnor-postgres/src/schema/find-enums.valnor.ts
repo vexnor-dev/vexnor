@@ -11,6 +11,7 @@ export default defineQueryConfig({ findEnums })({
             schemas: ["valnor_test"],
          },
          limit: 1000,
+         format: "json",
       },
    },
 });
