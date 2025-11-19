@@ -24,7 +24,7 @@ expect.extend({
    },
 });
 
-interface CustomMatchers {
+export interface CustomMatchers {
    toEqualQuery(expected: string, message?: string): void;
 }
 
