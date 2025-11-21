@@ -5,12 +5,12 @@ import { SqlEnumValue } from "valnor/plugin";
 export const findEnums = sql`
    with "enum_values" as (select ${PgEnum.$oid},
                                           ${PgEnum.$enumtypid},
-                                          ${PgEnum.$enumlabel("enum_label")},
+                                          ${PgEnum.$enumlabel.as("enum_label")},
                                           ${PgEnum.$enumsortorder}
                                    from ${PgEnum})
    SELECT ${row(
-      PgType.$typname("enum_name"),
-      PgNamespace.$nspname("enum_schema"),
+      PgType.$typname.as("enum_name"),
+      PgNamespace.$nspname.as("enum_schema"),
    )}, ${val<SqlEnumValue[]>`json_agg("enum_values")`.as("enum_values")}
    FROM ${PgType}
            join "enum_values" on ${PgType.$oid} = ${PgEnum`enum_values`.$enumtypid}

@@ -27,16 +27,22 @@ export function sql<Token extends SqlQueryToken = SqlQueryToken, Tokens extends 
          return [...Reflect.ownKeys(target), ...rowKeys];
       },
       getOwnPropertyDescriptor(target, p: string | symbol): PropertyDescriptor | undefined {
-         return (
-            Reflect.getOwnPropertyDescriptor(target, p) ??
-            (target.row ? Reflect.getOwnPropertyDescriptor(target.row, p) : undefined)
-         );
+         if (Reflect.has(target, p)) return Reflect.getOwnPropertyDescriptor(target, p);
+         if (target.row && Reflect.has(target.row, p)) return Reflect.getOwnPropertyDescriptor(target.row, p);
+
+         return undefined;
       },
       has(target, p: string | symbol): boolean {
-         return Reflect.has(target, p) ?? (target.row ? Reflect.has(target.row, p) : false);
+         if (Reflect.has(target, p)) return true;
+         if (target.row && Reflect.has(target.row, p)) return true;
+
+         return false;
       },
       get(target, p: string | symbol, receiver: unknown): unknown {
-         return Reflect.get(target, p, receiver) ?? (target.row ? Reflect.get(target.row, p, receiver) : undefined);
+         if (Reflect.has(target, p)) return Reflect.get(target, p, receiver);
+         if (target.row && Reflect.has(target.row, p)) return Reflect.get(target.row, p, receiver);
+
+         return undefined;
       },
    }) as unknown as SqlQueryExtended<{
       Row: QueryRow<typeof rawValues>;
@@ -54,19 +60,43 @@ export type InferResultRowFromQueryTokens<T> = T extends [infer Start, ...infer 
           : InferResultRowFromQueryTokens<Rest>
    : unknown;
 
-export type InferParamsFromQueryTokens<T> = T extends [infer Start, ...infer Rest]
-   ? Start extends SqlParam<infer Param extends { Name: string; Type: unknown }>
-      ? Record<Param["Name"], Param["Type"]> & InferParamsFromQueryTokens<Rest>
-      : Start extends SqlQueryExtended<infer Options extends { Params?: unknown }>
+export type InferParamFromSql<T> =
+   T extends SqlParam<infer Param extends { Name: string; Type: unknown }>
+      ? Record<Param["Name"], Param["Type"]>
+      : T extends SqlQueryExtended<infer Options extends { Params?: unknown }>
         ? Options["Params"] extends Record<string, unknown>
-           ? Options["Params"] & InferParamsFromQueryTokens<Rest>
-           : InferParamsFromQueryTokens<Rest>
-        : Start extends SqlCharm<infer Options extends { Params?: unknown }>
-          ? Options["Params"] extends Record<string, unknown>
-             ? Options["Params"] & InferParamsFromQueryTokens<Rest>
-             : InferParamsFromQueryTokens<Rest>
-          : InferParamsFromQueryTokens<Rest>
+           ? Options["Params"]
+           : unknown
+        : T extends AsyncQueryHandler<
+               infer Options extends { Params?: unknown; Row?: unknown; QueryResult: any; QueryClient: any }
+            >
+          ? Options["Params"]
+          : T extends SqlCharm<infer Options extends { Params: Record<string, unknown> }>
+            ? Options["Params"]
+            : unknown;
+
+// TODO: infer params from array of params
+export type InferParamsFromQueryTokens<T> = T extends [infer Start, ...infer Rest]
+   ? Start extends [infer A, ...infer B]
+      ? InferParamFromSql<A> & InferParamsFromQueryTokens<B> & InferParamsFromQueryTokens<Rest>
+      : InferParamFromSql<Start> & InferParamsFromQueryTokens<Rest>
    : unknown;
+
+// export type InferParamsFromQueryTokens<T> = T extends [infer Start, ...infer Rest]
+//    ? Start extends SqlParam<infer Param extends { Name: string; Type: unknown }>
+//       ? Record<Param["Name"], Param["Type"]> & InferParamsFromQueryTokens<Rest>
+//       : Start extends [infer A, ...infer B]
+//         ? A & InferParamsFromQueryTokens<Rest>
+//         : Start extends SqlQueryExtended<infer Options extends { Params?: unknown }>
+//           ? Options["Params"] extends Record<string, unknown>
+//              ? Options["Params"] & InferParamsFromQueryTokens<Rest>
+//              : InferParamsFromQueryTokens<Rest>
+//           : Start extends SqlCharm<infer Options extends { Params?: unknown }>
+//             ? Options["Params"] extends Record<string, unknown>
+//                ? Options["Params"] & InferParamsFromQueryTokens<Rest>
+//                : InferParamsFromQueryTokens<Rest>
+//             : InferParamsFromQueryTokens<Rest>
+//    : unknown;
 
 export type ExtractResultRowFromQuery<T> =
    T extends SqlQueryExtended<infer U extends { Row?: unknown }> ? U["Row"] : never;

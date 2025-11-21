@@ -1,5 +1,5 @@
 import { ok } from "assert";
-import { SqlParam } from "./sql-param.js";
+import { SqlParam, SqlParamAny } from "./sql-param.js";
 import { SqlBuildContext } from "./sql-build-context.js";
 import { logger } from "../logger.js";
 import { Sql } from "../sql-base.js";
@@ -9,6 +9,7 @@ import { hasParams, InferSelectRowByResult, SqlBuildOptions, SqlInputArgs } from
 import { SqlSelectAll } from "./sql-select-all.js";
 import { SqlSelectValue } from "./sql-select-value.js";
 import { SqlBuildError } from "../sql-build-error.js";
+import { Queue } from "../../lib/index.js";
 
 export const WILDCARD = "?";
 
@@ -32,15 +33,18 @@ export interface SqlQueryArgs {
 
 type SqlQueryRow<T> = T extends { Row: Record<string, unknown> } ? InferSelectRowByResult<T["Row"]> : null;
 type SqlQueryAll<T> = T extends { Row: Record<string, unknown> } ? SqlSelectAll<T> : null;
+type SqlQueryParams<T> = T extends { Params: Record<infer Key extends string, infer Type> }
+   ? Record<Key, SqlParam<{ Name: Key; Type: Type }>>
+   : null;
 
 export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql {
    readonly rawStrings: TemplateStringsArray;
    readonly rawValues: unknown[];
    readonly info: SqlQueryInfo | null = null;
-   readonly params: Record<string, { name: string }> = {};
    readonly isFragment: boolean;
-   readonly row: SqlQueryRow<T> = null as SqlQueryRow<T>;
-   readonly $$: SqlQueryAll<T> = null as SqlQueryAll<T>;
+   readonly params: SqlQueryParams<T>;
+   readonly row: SqlQueryRow<T>;
+   readonly $$: SqlQueryAll<T>;
 
    constructor({ rawStrings, rawValues, ...args }: SqlQueryArgs) {
       super({
@@ -55,20 +59,19 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
       this.rawValues = rawValues;
       this.isFragment = args.isFragment ?? false;
 
-      const extractParams = (value: unknown) => {
-         if (value instanceof SqlParam) {
-            this.params[value.name] = { name: value.name };
-         } else if (value instanceof SqlQuery) {
-            Object.assign(this.params, value.params);
-         } else if (Array.isArray(value)) {
-            value.forEach(extractParams);
-         }
-      };
-
+      let params: Record<string, SqlParamAny> | null = null;
       let row: Record<string, unknown> | null = null;
       let hasRow = false;
-      for (const rawValue of rawValues) {
+
+      const queue = new Queue(...rawValues);
+      for (const rawValue of queue.shift()) {
          switch (true) {
+            case rawValue instanceof SqlParam:
+               params = {
+                  ...(params ?? {}),
+                  [rawValue.name]: rawValue,
+               };
+               break;
             case rawValue instanceof SqlQueryInfo:
                this.info = rawValue;
                break;
@@ -84,11 +87,13 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
                };
                hasRow = true;
                break;
-            case rawValue instanceof SqlParam:
-               this.params[rawValue.name] = { name: rawValue.name };
-               break;
             case rawValue instanceof SqlQuery:
-               Object.assign(this.params, rawValue.params);
+               if (rawValue.params) {
+                  params = {
+                     ...(params ?? {}),
+                     ...rawValue.params,
+                  };
+               }
                break;
             case rawValue instanceof SqlSelectValue:
                row = {
@@ -97,14 +102,17 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
                };
                break;
             case Array.isArray(rawValue):
-               rawValue.forEach(extractParams);
+               queue.add(...rawValue);
                break;
          }
       }
 
+      this.params = params as SqlQueryParams<T>;
       this.row = row as SqlQueryRow<T>;
       if (this.row) {
          this.$$ = new SqlSelectAll(this.row) as SqlQueryAll<T>;
+      } else {
+         this.$$ = null as SqlQueryAll<T>;
       }
    }
 
