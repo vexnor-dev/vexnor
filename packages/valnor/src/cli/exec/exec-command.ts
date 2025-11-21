@@ -1,9 +1,10 @@
 import { loadConfig, loadQueryConfig, resolveProfile } from "../../config/index.js";
 import { formatCsv, formatJson, formatTable } from "./formatters.js";
-import { AsyncQueryHandler } from "../../core/index.js";
+import { AsyncQueryHandler, AsyncQueryHandlerAny, SqlQuery } from "../../core/index.js";
 import { detectQueryType } from "./detect-query-type.js";
 import { confirmPrompt } from "./confirm-prompt.js";
 import * as path from "node:path";
+import { SqlExecError } from "./sql-exec-error.js";
 
 export interface ExecOptions {
    config: string;
@@ -61,7 +62,16 @@ export async function execCommand(queryName: string, options: ExecOptions): Prom
 
    // Plugin is now in query settings, not profile
    // The plugin import in query config file executes module augmentation
-   const query = querySettings.query;
+   const query = (() => {
+      switch (true) {
+         case querySettings.query instanceof SqlQuery:
+            return querySettings.query;
+         case querySettings.query instanceof AsyncQueryHandler:
+            return querySettings.query.query;
+         default:
+            throw new SqlExecError(`Unknown query type in config: ${querySettings.query}`);
+      }
+   })();
 
    const params =
       options.env && querySettings.environments?.[options.env]
@@ -116,21 +126,16 @@ export async function execCommand(queryName: string, options: ExecOptions): Prom
    }
 
    try {
-      const driver = plugin.driver;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let queryHandler: any;
-
-      if (query instanceof AsyncQueryHandler || query.constructor.name.includes("QueryHandler")) {
-         queryHandler = query;
-      } else {
-         queryHandler = (query as Record<string, any>)[driver];
-      }
-
-      if (
-         !queryHandler ||
-         !(queryHandler instanceof AsyncQueryHandler || queryHandler.constructor.name.includes("QueryHandler"))
-      ) {
-         throw new Error(`Query does not support driver '${driver}'`);
+      let queryHandler: AsyncQueryHandlerAny | undefined;
+      switch (true) {
+         case query instanceof SqlQuery:
+            queryHandler = plugin.newQueryHandler(query);
+            break;
+         case query instanceof AsyncQueryHandler:
+            queryHandler = query;
+            break;
+         default:
+            throw new Error(`Unknown query type: ${query}`);
       }
 
       let result: unknown[];

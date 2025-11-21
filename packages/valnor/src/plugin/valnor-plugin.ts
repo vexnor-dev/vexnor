@@ -1,11 +1,12 @@
 import { LibraryOutputFile, SqlColumnInfo, SqlColumnType, SqlEnumInfo, SqlTableInfo } from "./valnor-schema-types.js";
 import { ValnorConnection } from "./valnor-connection.js";
 import { ConnectionConfig } from "./connection-config.js";
+import { AsyncQueryHandler, SqlDatabase, SqlQuery } from "../core/index.js";
 
 /**
  * Valnor plugin for handling core execution to different DB engines
  */
-export abstract class ValnorPlugin {
+export abstract class ValnorPlugin implements SqlDatabase {
    abstract readonly driver: string;
 
    /**
@@ -39,6 +40,10 @@ export abstract class ValnorPlugin {
     */
    // eslint-disable-next-line @typescript-eslint/no-explicit-any
    abstract createConnection<Config extends ConnectionConfig>(config: Config): Promise<ValnorConnection<any>>;
+
+   abstract newQueryHandler<T extends { Row?: unknown; Params?: unknown; QueryResult: object; QueryClient: unknown }>(
+      query: SqlQuery<T>,
+   ): AsyncQueryHandler<T>;
 }
 
 export type GetSchemaArgs = { schemas: string[] } & ConnectionConfig;

@@ -1,30 +1,74 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`execCommand > applies limit to results 1`] = `
-"[
+"SQL:
+   select "a_1"."account_id" as "accountId", "a_1"."status", "a_1"."email", "a_1"."first_name" as "firstName", "a_1"."last_name" as "lastName", "a_1"."notes", "a_1"."created_at" as "createdAt", "a_1"."modified_at" as "modifiedAt", "a_1"."parent_id" as "parentId"
+   from "valnor_test"."account" as "a_1"
+   where "a_1"."account_id" = ?
+     and "a_1"."email" = ?
+
+
+Results:
+[
   {
     "id": 1,
-    "result": "test"
+    "name": "Alice"
+  },
+  {
+    "id": 2,
+    "name": "Bob"
   }
 ]"
 `;
 
 exports[`execCommand > outputs CSV format when specified 1`] = `
-"id,result
-1,test"
+"SQL:
+   select "a_1"."account_id" as "accountId", "a_1"."status", "a_1"."email", "a_1"."first_name" as "firstName", "a_1"."last_name" as "lastName", "a_1"."notes", "a_1"."created_at" as "createdAt", "a_1"."modified_at" as "modifiedAt", "a_1"."parent_id" as "parentId"
+   from "valnor_test"."account" as "a_1"
+   where "a_1"."account_id" = ?
+     and "a_1"."email" = ?
+
+
+Results:
+id,name,email
+1,Alice,alice@example.com
+2,Bob,bob@example.com"
 `;
 
 exports[`execCommand > outputs JSON format by default 1`] = `
-"[
+"SQL:
+   select "a_1"."account_id" as "accountId", "a_1"."status", "a_1"."email", "a_1"."first_name" as "firstName", "a_1"."last_name" as "lastName", "a_1"."notes", "a_1"."created_at" as "createdAt", "a_1"."modified_at" as "modifiedAt", "a_1"."parent_id" as "parentId"
+   from "valnor_test"."account" as "a_1"
+   where "a_1"."account_id" = ?
+     and "a_1"."email" = ?
+
+
+Results:
+[
   {
     "id": 1,
-    "result": "test"
+    "name": "Alice",
+    "email": "alice@example.com"
+  },
+  {
+    "id": 2,
+    "name": "Bob",
+    "email": "bob@example.com"
   }
 ]"
 `;
 
 exports[`execCommand > outputs table format when specified 1`] = `
-"id | result
----+-------
-1  | test  "
+"SQL:
+   select "a_1"."account_id" as "accountId", "a_1"."status", "a_1"."email", "a_1"."first_name" as "firstName", "a_1"."last_name" as "lastName", "a_1"."notes", "a_1"."created_at" as "createdAt", "a_1"."modified_at" as "modifiedAt", "a_1"."parent_id" as "parentId"
+   from "valnor_test"."account" as "a_1"
+   where "a_1"."account_id" = ?
+     and "a_1"."email" = ?
+
+
+Results:
+id | name  | email            
+---+-------+------------------
+1  | Alice | alice@example.com
+2  | Bob   | bob@example.com  "
 `;

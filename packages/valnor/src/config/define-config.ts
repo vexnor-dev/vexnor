@@ -1,4 +1,4 @@
-import { ValnorConfig } from "./types.js";
+import { ValnorConfig } from "./config-types.js";
 
 export function defineConfig<T extends ValnorConfig>(config: T): T {
    if (!config.profiles || Object.keys(config.profiles).length === 0) {

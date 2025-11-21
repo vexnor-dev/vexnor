@@ -1,5 +1,5 @@
 import { pathToFileURL } from "url";
-import { ValnorConfig } from "./types.js";
+import { ValnorConfig } from "./config-types.js";
 import { access } from "fs/promises";
 
 export async function loadConfig(configPath: string): Promise<ValnorConfig> {
@@ -11,16 +11,16 @@ export async function loadConfig(configPath: string): Promise<ValnorConfig> {
 
    try {
       let module: any;
-      if (configPath.endsWith('.ts')) {
-         const { createServer } = await import('vite');
-         const vite = await createServer({ clearScreen: false, logLevel: 'error' });
+      if (configPath.endsWith(".ts")) {
+         const { createServer } = await import("vite");
+         const vite = await createServer({ clearScreen: false, logLevel: "error" });
          module = await vite.ssrLoadModule(configPath);
          await vite.close();
       } else {
          const fileUrl = pathToFileURL(configPath).href;
          module = await import(fileUrl);
       }
-      
+
       const config = module.default || module.config;
 
       if (!config) {

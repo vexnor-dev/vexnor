@@ -12,7 +12,7 @@ import {
 import { Pool } from "pg";
 import { findEnums, findTables, getColumnType } from "./schema/index.js";
 import { PostgresQueryHandler } from "./postgres-query-handler.js";
-import { SqlQuery } from "valnor";
+import { AsyncQueryHandler, SqlQuery } from "valnor";
 
 /**
  * Valnor plugin for postgres.
@@ -75,7 +75,15 @@ export class ValnorPostgres extends ValnorPlugin {
 
       return new ValnorConnection(pool, (p) => p.end());
    }
+
+   newQueryHandler<T extends { Row?: unknown; Params?: unknown; QueryResult: object; QueryClient: unknown }>(
+      query: SqlQuery<T>,
+   ): AsyncQueryHandler<T> {
+      return new PostgresQueryHandler(query);
+   }
 }
+
+export const valnorPostgres = new ValnorPostgres();
 
 // Extend the class type (in scope)
 declare module "valnor" {
@@ -86,8 +94,6 @@ declare module "valnor" {
 
 Object.defineProperty(SqlQuery.prototype, "postgres", {
    get: function () {
-      return new PostgresQueryHandler(this);
+      return valnorPostgres.newQueryHandler(this);
    },
 });
-
-export const valnorPostgres = new ValnorPostgres();

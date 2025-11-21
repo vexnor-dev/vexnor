@@ -1,4 +1,4 @@
-export * from "./types.js";
+export * from "./config-types.js";
 export * from "./define-config.js";
 export * from "./define-query-config.js";
 export * from "./resolve-profile.js";

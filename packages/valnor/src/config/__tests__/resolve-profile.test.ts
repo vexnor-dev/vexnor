@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { resolveProfile } from "../resolve-profile.js";
-import { ValnorConfig } from "../types.js";
+import { ValnorConfig } from "../config-types.js";
 
 describe("resolveProfile", () => {
    const config: ValnorConfig = {

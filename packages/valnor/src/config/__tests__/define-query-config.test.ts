@@ -177,8 +177,9 @@ describe("defineQueryConfig", () => {
       expect(() =>
          defineQueryConfig({ findAccountById })({
             queries: {
-               // @ts-expect-error - Testing runtime validation of missing profile
                findAccountById: {
+                  profile: "postgres",
+                  plugin: testPlugin,
                   params: { accountId: 1, email: "test@example.com" },
                },
             },
@@ -190,9 +191,9 @@ describe("defineQueryConfig", () => {
       expect(() =>
          defineQueryConfig({ findAccountById })({
             queries: {
-               // @ts-expect-error - Testing runtime validation of missing params
                findAccountById: {
                   profile: "postgres",
+                  plugin: testPlugin,
                },
             },
          }),

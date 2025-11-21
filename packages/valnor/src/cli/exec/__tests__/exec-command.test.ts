@@ -19,11 +19,11 @@ describe("execCommand", () => {
 
    beforeEach(() => {
       vi.clearAllMocks();
-      mockLoadPlugin.mockResolvedValue({ plugin: testPlugin, path: 'test-plugin' });
+      mockLoadPlugin.mockResolvedValue({ plugin: testPlugin, path: "test-plugin" });
       mockConfirmPrompt.mockResolvedValue(true);
       consoleOutput = [];
-      vi.spyOn(console, "log").mockImplementation((msg) => {
-         consoleOutput.push(msg);
+      vi.spyOn(console, "log").mockImplementation((...args) => {
+         consoleOutput.push([...args].join(""));
       });
    });
 
@@ -112,7 +112,7 @@ describe("execCommand", () => {
          queryConfig: queryConfigPath,
       });
 
-      expect(consoleOutput[0]).toMatchSnapshot();
+      expect(consoleOutput.join("\n")).toMatchSnapshot();
    });
 
    test("outputs CSV format when specified", async () => {
@@ -129,7 +129,7 @@ describe("execCommand", () => {
          format: "csv",
       });
 
-      expect(consoleOutput[0]).toMatchSnapshot();
+      expect(consoleOutput.join("\n")).toMatchSnapshot();
    });
 
    test("outputs table format when specified", async () => {
@@ -146,7 +146,7 @@ describe("execCommand", () => {
          format: "table",
       });
 
-      expect(consoleOutput[0]).toMatchSnapshot();
+      expect(consoleOutput.join("\n")).toMatchSnapshot();
    });
 
    test("applies limit to results", async () => {
@@ -164,7 +164,7 @@ describe("execCommand", () => {
          limit: 2,
       });
 
-      expect(consoleOutput[0]).toMatchSnapshot();
+      expect(consoleOutput.join("\n")).toMatchSnapshot();
    });
 
    test("skips confirmation with --confirm flag", async () => {
@@ -203,6 +203,6 @@ describe("execCommand", () => {
       });
 
       expect(mockCreateConnection).not.toHaveBeenCalled();
-      expect(consoleOutput).toContain("Operation cancelled");
+      expect(consoleOutput.join("\n")).toContain("Operation cancelled");
    });
 });

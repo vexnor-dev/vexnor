@@ -3,7 +3,7 @@ import { InferParamsFromQueryTokens, InferResultRowFromQueryTokens } from "../..
 
 let mockData: unknown[] = [{ id: 1, result: "test" }];
 
-class TestDriverQueryHandler<T extends { Row?: unknown; Params?: unknown }> extends AsyncQueryHandler<{
+export class TestDriverQueryHandler<T extends { Row?: unknown; Params?: unknown }> extends AsyncQueryHandler<{
    Row: T["Row"];
    Params: T["Params"];
    QueryResult: { rows: T["Row"][] };

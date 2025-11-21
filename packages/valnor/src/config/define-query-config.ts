@@ -1,4 +1,4 @@
-import { QuerySettings, QueryDefaults } from "./types.js";
+import { QuerySettings, QueryDefaults } from "./config-types.js";
 import { SqlQueryAny, AsyncQueryHandlerAny } from "../core/index.js";
 
 type QueryOrHandler = SqlQueryAny | AsyncQueryHandlerAny;

@@ -24,12 +24,12 @@ export type SqlBuildOptions = {
    debug?: (args: Readonly<Record<string, unknown>>) => void;
 };
 
-export type SqlRunArgs<TDbClient, TParams> = TParams extends object
-   ? { db: TDbClient; params: TParams; options?: SqlBuildOptions }
-   : { db: TDbClient; options?: SqlBuildOptions };
+export type SqlRunArgs<Connection, Params> = Params extends object
+   ? { db?: Connection; params: Params; options?: SqlBuildOptions }
+   : { db?: Connection; options?: SqlBuildOptions };
 
-export type SqlInputArgs<TParams> = TParams extends object
-   ? { params: TParams; options?: SqlBuildOptions }
+export type SqlInputArgs<Params> = Params extends object
+   ? { params: Params; options?: SqlBuildOptions }
    : { options?: SqlBuildOptions };
 
 export function hasParams(value: unknown): value is { params: Record<string, unknown> } {

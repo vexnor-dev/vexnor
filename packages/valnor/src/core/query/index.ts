@@ -12,3 +12,4 @@ export * from "./sql-select-all.js";
 export * from "./sql-query-context.js";
 export * from "./sql-query-types.js";
 export * from "./sql-type.js";
+export * from "./sql-database.js";

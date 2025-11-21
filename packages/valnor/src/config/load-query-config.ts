@@ -1,6 +1,5 @@
 import { pathToFileURL } from "url";
-import { QueryConfig } from "./types.js";
-import { SqlQueryAny } from "../core/index.js";
+import { QueryConfig, QueryOrHandler } from "./config-types.js";
 import { access } from "fs/promises";
 import { resolve } from "path";
 import { register } from "tsx/esm/api";
@@ -8,7 +7,7 @@ import { register } from "tsx/esm/api";
 // Register tsx loader once
 register();
 
-export async function loadQueryConfig(configPath: string): Promise<QueryConfig<Record<string, SqlQueryAny>>> {
+export async function loadQueryConfig(configPath: string): Promise<QueryConfig<Record<string, QueryOrHandler>>> {
    try {
       await access(configPath);
    } catch {
