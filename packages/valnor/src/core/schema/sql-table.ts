@@ -1,4 +1,4 @@
-import { newSqlTableColumn, SqlTableColumnAny, SqlTableColumnExtended } from "./sql-table-column.js";
+import { newSqlTableColumn, SqlTableColumn, SqlTableColumnAny } from "./sql-table-column.js";
 import { SqlBuildContext, SqlBuildOptions } from "../query/index.js";
 import { Sql } from "../sql-base.js";
 import { ok } from "assert";
@@ -244,7 +244,7 @@ type InferTableColumnsByRecord<Select> =
    Select extends Record<string, unknown>
       ? {
            [K in keyof Select as `$${string & K}`]: K extends string
-              ? SqlTableColumnExtended<{
+              ? SqlTableColumn<{
                    Key: K;
                    Type: Select[K];
                 }>

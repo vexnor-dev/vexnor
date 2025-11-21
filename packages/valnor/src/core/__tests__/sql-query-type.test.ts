@@ -68,7 +68,7 @@ describe("sql query type tests", () => {
 
    test("infer row result type from sql-query", () => {
       const query = sql`
-         select ${row(Account.$firstName, Account.$lastName("name"), Account.$createdAt)}
+         select ${row(Account.$firstName, Account.$lastName.as("name"), Account.$createdAt)}
          from ${Account}
          where ${Account.$accountId} = ${param("accountId").is<string>()}
       `;

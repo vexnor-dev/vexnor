@@ -7,9 +7,9 @@ import { SqlQueryInfo } from "../charms/index.js";
 import { quote } from "../utils/index.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type SqlValueAny = SqlValue<any>;
+export type SqlSelectValueAny = SqlSelectValue<any>;
 
-export class SqlValue<T extends { Key: string; Type: unknown; Params?: unknown }> extends Sql {
+export class SqlSelectValue<T extends { Key: string; Type: unknown; Params?: unknown }> extends Sql {
    readonly query: SqlQuery<T>;
 
    constructor(
@@ -37,6 +37,10 @@ export class SqlValue<T extends { Key: string; Type: unknown; Params?: unknown }
 export function val<Type = unknown>(rawStrings: TemplateStringsArray, ...rawValues: SqlQueryToken[]) {
    return {
       as: <Key extends string>(key: Key) =>
-         new SqlValue<{ Key: Key; Type: Type; Params: QueryParams<typeof rawValues> }>(rawStrings, rawValues, key),
+         new SqlSelectValue<{ Key: Key; Type: Type; Params: QueryParams<typeof rawValues> }>(
+            rawStrings,
+            rawValues,
+            key,
+         ),
    };
 }

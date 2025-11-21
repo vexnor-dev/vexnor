@@ -13,6 +13,20 @@ describe("SqlQuery tests", () => {
       expect(query.$accountId).toBeDefined();
       expect(query.$status).toBeDefined();
       expect(query.$email).toBeDefined();
+      expect(Reflect.ownKeys(query)).toMatchObject([
+         "wrap",
+         "ID",
+         "rawStrings",
+         "rawValues",
+         "info",
+         "params",
+         "isFragment",
+         "row",
+         "$$",
+         "$accountId",
+         "$status",
+         "$email",
+      ]);
       expect(query.$$).toBeDefined();
    });
 

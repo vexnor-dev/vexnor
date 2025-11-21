@@ -11,8 +11,8 @@ describe("sql() tests", () => {
    test("sql() select", () => {
       const names = ["One", "Two", "Three"];
       const query = sql`
-        ${rowType<IAccountSelect>()}
-         select ${Account.$firstName}, min(${Account.$email}), ${Account.$email("user_email")}, ${Account.$createdAt}
+         ${rowType<IAccountSelect>()}
+         select ${Account.$firstName}, min(${Account.$email}), ${Account.$email.as("user_email")}, ${Account.$createdAt}
          from ${Account}
          where ${Account.$email} = ${param("email").is<string>()}
            and ${Account.$firstName} in (${param("names").is<string[]>()})
@@ -94,7 +94,7 @@ describe("sql() tests", () => {
       const query = sql`
         ${rowType<IAccountSelect & { parentEmail: string }>()}
          select ${Account.$email},
-                ${Account`parent`.$email("parentEmail")}
+                ${Account`parent`.$email.as("parentEmail")}
          from ${Account}
                  join ${Account`parent`} on ${Account.$parentId} = ${Account`parent`.$accountId}`;
 

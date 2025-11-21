@@ -165,21 +165,18 @@ export class SqlBuildContext {
 
    *rowTokens(): IterableIterator<{
       query: SqlQueryAny;
-      ID: string;
+      sql: Sql;
    }> {
       for (const query of this.queries) {
-         yield { query, ID: query.ID };
+         yield { query, sql: query };
 
-         for (const rawValue of query.rawValues) {
-            switch (true) {
-               case rawValue instanceof SqlSelectRow:
-                  yield { query, ID: rawValue.$$.ID };
-                  if (!rawValue.row) break;
+         if (query.$$) {
+            yield { query, sql: query.$$ };
+         }
 
-                  for (const value of Object.values(rawValue.row)) {
-                     yield { query, ID: value.ID };
-                  }
-                  break;
+         if (query.row) {
+            for (const sql of Object.values(query.row)) {
+               yield { query, sql };
             }
          }
       }
@@ -194,9 +191,9 @@ export class SqlBuildContext {
          throw new SqlBuildError(`Query not tracked for: ${sql}`);
       }
 
-      for (const { ID, query } of this.rowTokens()) {
-         if (ID === sql.ID) {
-            return query;
+      for (const token of this.rowTokens()) {
+         if (token.sql === sql) {
+            return token.query;
          }
       }
 

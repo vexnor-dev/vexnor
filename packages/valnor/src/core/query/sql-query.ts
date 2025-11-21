@@ -3,10 +3,12 @@ import { SqlParam } from "./sql-param.js";
 import { SqlBuildContext } from "./sql-build-context.js";
 import { logger } from "../logger.js";
 import { Sql } from "../sql-base.js";
-import { SqlSelectRow, SqlSelectRowAny } from "./sql-select-row.js";
+import { SqlSelectRow } from "./sql-select-row.js";
 import { SqlQueryInfo } from "../charms/index.js";
 import { hasParams, InferSelectRowByResult, SqlBuildOptions, SqlInputArgs } from "./sql-query-types.js";
 import { SqlSelectAll } from "./sql-select-all.js";
+import { SqlSelectValue } from "./sql-select-value.js";
+import { SqlBuildError } from "../sql-build-error.js";
 
 export const WILDCARD = "?";
 
@@ -28,14 +30,17 @@ export interface SqlQueryArgs {
    readonly isFragment?: boolean;
 }
 
+type SqlQueryRow<T> = T extends { Row: Record<string, unknown> } ? InferSelectRowByResult<T["Row"]> : null;
+type SqlQueryAll<T> = T extends { Row: Record<string, unknown> } ? SqlSelectAll<T> : null;
+
 export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql {
-   readonly row: SqlSelectRowAny | null = null;
+   readonly rawStrings: TemplateStringsArray;
+   readonly rawValues: unknown[];
    readonly info: SqlQueryInfo | null = null;
    readonly params: Record<string, { name: string }> = {};
    readonly isFragment: boolean;
-
-   readonly rawStrings: TemplateStringsArray;
-   readonly rawValues: unknown[];
+   readonly row: SqlQueryRow<T> = null as SqlQueryRow<T>;
+   readonly $$: SqlQueryAll<T> = null as SqlQueryAll<T>;
 
    constructor({ rawStrings, rawValues, ...args }: SqlQueryArgs) {
       super({
@@ -60,13 +65,24 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
          }
       };
 
+      let row: Record<string, unknown> | null = null;
+      let hasRow = false;
       for (const rawValue of rawValues) {
          switch (true) {
             case rawValue instanceof SqlQueryInfo:
                this.info = rawValue;
                break;
             case rawValue instanceof SqlSelectRow:
-               this.row = rawValue;
+               if (hasRow) {
+                  throw new SqlBuildError(
+                     `SqlQuery can only have one row() defined. This row() cannot be processed: ${rawValue}`,
+                  );
+               }
+
+               row = {
+                  ...rawValue.row,
+               };
+               hasRow = true;
                break;
             case rawValue instanceof SqlParam:
                this.params[rawValue.name] = { name: rawValue.name };
@@ -74,10 +90,21 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
             case rawValue instanceof SqlQuery:
                Object.assign(this.params, rawValue.params);
                break;
+            case rawValue instanceof SqlSelectValue:
+               row = {
+                  ...(row ?? {}),
+                  [rawValue.key]: rawValue,
+               };
+               break;
             case Array.isArray(rawValue):
                rawValue.forEach(extractParams);
                break;
          }
+      }
+
+      this.row = row as SqlQueryRow<T>;
+      if (this.row) {
+         this.$$ = new SqlSelectAll(this.row) as SqlQueryAll<T>;
       }
    }
 

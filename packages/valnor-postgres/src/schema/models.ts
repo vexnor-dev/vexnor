@@ -133,3 +133,26 @@ export const TableConstraints = newSqlTable<{
       constraint_type: "constraint_type",
    },
 });
+
+export const KeyColumnUsage = newSqlTable<{
+   Select: {
+      constraint_name: string;
+      table_name: string;
+      table_schema: string;
+      column_name: string;
+      ordinal_position: number;
+   };
+}>({
+   tableInfo: {
+      name: "key_column_usage",
+      schema: "information_schema",
+   },
+   pk: [],
+   columns: {
+      constraint_name: "constraint_name",
+      table_name: "table_name",
+      table_schema: "table_schema",
+      column_name: "column_name",
+      ordinal_position: "ordinal_position",
+   },
+});

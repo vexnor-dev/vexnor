@@ -6,7 +6,7 @@ import { sql } from "../../sql.js";
 import { param } from "../sql-param.js";
 import { trim } from "../../utils/index.js";
 import { AccountStatusUdt } from "@test-models/valnor_test-enums.js";
-import { newSqlSelectColumn } from "../sql-select-column.js";
+import { newSqlSelectColumn, SqlSelectColumnAny } from "../sql-select-column.js";
 import { Order } from "@test-models/valnor_test.order-table.js";
 import { InferSelectRowByResult } from "../sql-query-types.js";
 
@@ -135,16 +135,16 @@ describe("SqlSelectRow tests", () => {
 
    test("row(...columns) column should be defined", () => {
       const target = row(Account.$accountId, Account.$firstName, Account.$lastName);
-      expect(target.$accountId).toBeDefined();
-      expect(target.$firstName).toBeDefined();
-      expect(target.$lastName).toBeDefined();
+      expect(target.row.$accountId).toBeDefined();
+      expect(target.row.$firstName).toBeDefined();
+      expect(target.row.$lastName).toBeDefined();
    });
 
    test("row($$) column should be defined", () => {
       const target = row(Account.$$);
-      expect(target.$accountId).toBeDefined();
-      expect(target.$firstName).toBeDefined();
-      expect(target.$lastName).toBeDefined();
+      expect(target.row.$accountId).toBeDefined();
+      expect(target.row.$firstName).toBeDefined();
+      expect(target.row.$lastName).toBeDefined();
    });
 
    test("$build with distinct columns", () => {
@@ -159,7 +159,7 @@ describe("SqlSelectRow tests", () => {
    });
 
    test("$build with aliased column", () => {
-      const target = row(Account.$accountId, Account.$firstName, Account.$lastName("name"));
+      const target = row(Account.$accountId, Account.$firstName, Account.$lastName.as("name"));
       const context = new SqlBuildContext();
       context.next("select");
       target.build(context);
@@ -173,7 +173,7 @@ describe("SqlSelectRow tests", () => {
       const target = row(
          Account`inserted`.$accountId,
          Account`inserted`.$firstName,
-         Account`inserted`.$lastName("name"),
+         Account`inserted`.$lastName.as("name"),
       );
       const context = new SqlBuildContext();
       context.next("select");
@@ -241,9 +241,18 @@ describe("SqlSelectRow tests", () => {
          select ${row(Account.$accountId, Account.$status, Account.$firstName)}
          from ${Account}`;
       console.log(query.toString());
+      expect(query.row).toBeDefined();
+      expect(query.row.$accountId).toBeDefined();
+      expect(query.$accountId).toBeDefined();
+      expect(query.row.$accountId).toMatchObject<Partial<SqlSelectColumnAny>>({
+         columnName: "accountId",
+         key: "accountId",
+         tableInfo: null,
+         format: null,
+      });
       const context = new SqlBuildContext({ query });
       context.next("where");
-      query.$accountId.build(context);
+      query.row.$accountId.build(context);
       expect(context.text).toEqual(`"query_0"."accountId"`);
    });
 });

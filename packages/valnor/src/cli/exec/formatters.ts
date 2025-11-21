@@ -12,7 +12,7 @@ export function formatCsv(data: unknown[]): string {
 
    const formatValue = (value: unknown): string => {
       if (value === null || value === undefined) return "";
-      if (typeof value === "object") return JSON.stringify(value);
+      if (typeof value === "object") return JSON.stringify(value, null, undefined);
       return String(value);
    };
 
@@ -42,7 +42,7 @@ export function formatTable(data: unknown[]): string {
    const keys = Object.keys(first);
    const formatValue = (value: unknown): string => {
       if (value === null || value === undefined) return "";
-      if (typeof value === "object") return JSON.stringify(value);
+      if (typeof value === "object") return JSON.stringify(value, null, undefined);
       return String(value);
    };
 

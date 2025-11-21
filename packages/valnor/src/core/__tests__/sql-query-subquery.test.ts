@@ -15,7 +15,6 @@ describe("sql subqueries tests", () => {
 
       const AccountsOld = sql`
          ${info({ label: "AccountsOld" })}
-         select ${row(AccountsCreated.$$)}
          select ${row(Account.$$)}
          where ${Account.$createdAt} = ${Date.parse("2020-01-01")}
       `;
@@ -113,7 +112,7 @@ describe("sql subqueries tests", () => {
 
    test("self join", () => {
       const query = sql`
-         select ${row(Account.$$, Account`parent`.$firstName("parentFirstName"), Account`parent`.$lastName("parentLastName"))}
+         select ${row(Account.$$, Account`parent`.$firstName.as("parentFirstName"), Account`parent`.$lastName.as("parentLastName"))}
          from ${Account}
                  join ${Account`parent`} on ${Account`parent`.$accountId} = ${Account.$parentId}
          where ${Account.$firstName} = ${param("firstName").is<string>()}`;

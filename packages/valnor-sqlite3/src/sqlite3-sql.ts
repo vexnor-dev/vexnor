@@ -1,12 +1,12 @@
-import { SqlQueryRowOut, Sql, SqlTableColumn, SqlQueryParams, SqlQuery, SqlTableAny, SqlValue } from "valnor";
+import { SqlQueryRowOut, Sql, SqlTableColumn, SqlQueryParams, SqlQuery, SqlTableAny, SqlSelectValue } from "valnor";
 import { BetterSqlite3QueryHandler } from "./better-sqlite3-query-handler.js";
 
 export function sql<
    TRow extends SqlQueryRowOut = Record<string, unknown>,
-   TParams extends Record<string, SqlValue> | undefined = undefined,
+   TParams extends Record<string, SqlSelectValue> | undefined = undefined,
    TSql extends Sql = Sql | SqlTableAny | SqlTableColumn,
    TValue =
-      | SqlValue
+      | SqlSelectValue
       | TSql
       | TSql[]
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

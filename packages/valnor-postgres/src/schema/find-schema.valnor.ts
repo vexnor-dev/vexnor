@@ -20,7 +20,7 @@ export default defineQueryConfig({ findEnums, findTables })({
          params: {
             schemas: ["valnor_test"],
          },
-         limit: 1000,
+         limit: 10,
          format: "json",
       },
    },

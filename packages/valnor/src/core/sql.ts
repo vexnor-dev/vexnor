@@ -6,10 +6,8 @@ import {
    SqlQueryExtended,
    SqlRowType,
    SqlSelectRow,
-   SqlValue,
+   SqlSelectValue,
 } from "./query/index.js";
-import { SqlBuildError } from "./sql-build-error.js";
-import { ok } from "assert";
 import { Sql } from "./sql-base.js";
 
 type _SqlInlineValue_ = Sql | string | number | boolean | null | undefined | Date | bigint | Buffer;
@@ -25,46 +23,20 @@ export function sql<Token extends SqlQueryToken = SqlQueryToken, Tokens extends 
 
    return new Proxy(query, {
       ownKeys(target): ArrayLike<string | symbol> {
-         const rowKeys = target.row ? Object.keys(target.row).filter((k) => k.startsWith("$")) : [];
+         const rowKeys = target.row ? Object.keys(target.row) : [];
          return [...Reflect.ownKeys(target), ...rowKeys];
       },
       getOwnPropertyDescriptor(target, p: string | symbol): PropertyDescriptor | undefined {
-         const prop = String(p);
-         switch (true) {
-            case prop.startsWith("$"):
-               ok(target.row, `No SqlQuery.row: ${prop}`);
-
-               return Reflect.getOwnPropertyDescriptor(target.row, p);
-            default:
-               return Reflect.getOwnPropertyDescriptor(target, p);
-         }
+         return (
+            Reflect.getOwnPropertyDescriptor(target, p) ??
+            (target.row ? Reflect.getOwnPropertyDescriptor(target.row, p) : undefined)
+         );
       },
       has(target, p: string | symbol): boolean {
-         const prop = String(p);
-         switch (true) {
-            case prop.startsWith("$"):
-               ok(target.row, `No SqlQuery.row: ${prop}`);
-
-               return Object.hasOwn(target.row, p);
-            default:
-               return Reflect.has(target, p);
-         }
+         return Reflect.has(target, p) ?? (target.row ? Reflect.has(target.row, p) : false);
       },
       get(target, p: string | symbol, receiver: unknown): unknown {
-         const prop = String(p);
-         switch (true) {
-            case prop.startsWith("$"):
-               if (!target.row) throw new SqlBuildError(`No SqlQuery.row: ${prop}`);
-               return Reflect.get(target.row, prop, receiver);
-            default: {
-               const result = Reflect.get(target, p, receiver);
-               if (typeof result === "function") {
-                  return result.bind(target);
-               }
-
-               return result;
-            }
-         }
+         return Reflect.get(target, p, receiver) ?? (target.row ? Reflect.get(target.row, p, receiver) : undefined);
       },
    }) as unknown as SqlQueryExtended<{
       Row: QueryRow<typeof rawValues>;
@@ -75,7 +47,7 @@ export function sql<Token extends SqlQueryToken = SqlQueryToken, Tokens extends 
 export type InferResultRowFromQueryTokens<T> = T extends [infer Start, ...infer Rest]
    ? Start extends SqlSelectRow<infer Options extends { Row: Record<string, unknown> }>
       ? Options["Row"] & InferResultRowFromQueryTokens<Rest>
-      : Start extends SqlValue<infer Options extends { Key: string; Type: unknown }>
+      : Start extends SqlSelectValue<infer Options extends { Key: string; Type: unknown }>
         ? Record<Options["Key"], Options["Type"]> & InferResultRowFromQueryTokens<Rest>
         : Start extends SqlRowType<infer Row>
           ? Row

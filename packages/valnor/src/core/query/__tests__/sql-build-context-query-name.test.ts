@@ -117,8 +117,8 @@ describe("SqlBuildContext getQueryName", () => {
       console.log("\nLooking for orderQuery.$orderId:", originalColumn.ID);
 
       console.log("\nIs it in orderQuery.row.row?");
-      if (orderQuery.row?.row) {
-         Object.entries(orderQuery.row.row).forEach(([key, col]) => {
+      if (orderQuery.row) {
+         Object.entries(orderQuery.row).forEach(([key, col]) => {
             if (col === originalColumn) {
                console.log(`  YES! Found at key: ${key}`);
             }
@@ -138,10 +138,8 @@ describe("SqlBuildContext getQueryName", () => {
    });
 
    test("Check what's in query.row.row vs rawValue.row", () => {
-      console.log("\nquery.row (the SqlSelectRow):", query.row?.ID);
-      console.log("\nColumns in query.row.row:");
-      if (query.row?.row) {
-         Object.entries(query.row.row).forEach(([key, col]) => {
+      if (query.row) {
+         Object.entries(query.row).forEach(([key, col]) => {
             console.log(`  ${key}: ${col.ID}`);
          });
       }
@@ -177,7 +175,7 @@ describe("SqlBuildContext getQueryName", () => {
    test("SqlBuildContext.rawTokens() should match snapshot", () => {
       const actual = Array.from(context.rowTokens()).map((token) => {
          return {
-            ID: token.ID,
+            sql: token,
             query: token.query.info?.label ?? `query_${context.queries.indexOf(token.query)}`,
          };
       });

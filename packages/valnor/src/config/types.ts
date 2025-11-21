@@ -1,7 +1,7 @@
-import { ExtractParamsFromQuery, SqlQueryAny, AsyncQueryHandlerAny } from "../core/index.js";
+import { AsyncQueryHandlerAny, ExtractParamsFromQuery, SqlQueryAny } from "../core/index.js";
+import { ConnectionConfig, ValnorPlugin } from "../plugin/index.js";
 
 type QueryOrHandler = SqlQueryAny | AsyncQueryHandlerAny;
-import { ConnectionConfig, ValnorPlugin } from "../plugin/index.js";
 
 export interface ValnorConfig {
    profiles: Record<string, ProfileConfig>;
@@ -37,15 +37,24 @@ export interface QueryConfig<T extends Record<string, QueryOrHandler>> {
    defaults?: QueryDefaults;
 }
 
-export type QuerySettings<Query extends QueryOrHandler> = {
-   query: Query;
-   plugin?: ValnorPlugin;
-   profile: ProfileConfig | string;
-   params: ExtractParamsFromQuery<Query>;
-   environments?: Record<string, Query extends { Params?: infer P } ? P : never>;
-   format?: "table" | "json" | "csv";
-   limit?: number;
-};
+export type QuerySettings<Query> = Query extends SqlQueryAny
+   ? {
+        query: Query;
+        plugin: ValnorPlugin;
+        params?: ExtractParamsFromQuery<Query>;
+        environments?: Record<string, ExtractParamsFromQuery<Query>>;
+        format?: "table" | "json" | "csv";
+        limit?: number;
+     }
+   : Query extends AsyncQueryHandlerAny
+     ? {
+          query: AsyncQueryHandlerAny;
+          params?: ExtractParamsFromQuery<Query>;
+          environments?: Record<string, ExtractParamsFromQuery<Query>>;
+          format?: "table" | "json" | "csv";
+          limit?: number;
+       }
+     : never;
 
 export interface QueryDefaults {
    profile?: ProfileConfig | string;

@@ -1,15 +1,18 @@
-import { SqlSelectColumnExtended } from "./sql-select-column.js";
+import { SqlSelectColumn } from "./sql-select-column.js";
 import { DefaultFormatter } from "../default-formatter.js";
 import { DefaultTokenizer } from "../default-tokenizer.js";
+import { SqlSelectValue } from "./sql-select-value.js";
 
 export type InferSelectRowByResult<Select> =
    Select extends Record<string, unknown>
       ? {
            [K in keyof Select as `$${string & K}`]: K extends string
-              ? SqlSelectColumnExtended<{
-                   Key: K;
-                   Type: Select[K];
-                }>
+              ?
+                   | SqlSelectColumn<{
+                        Key: K;
+                        Type: Select[K];
+                     }>
+                   | SqlSelectValue<{ Key: K; Type: Select[K] }>
               : never;
         }
       : never;

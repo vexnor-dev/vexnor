@@ -10,12 +10,10 @@ describe("SqlColumn tests", () => {
 
    test("SqlColumn inherits Sql", () => {
       expect(Account.$accountId).instanceof(Sql);
-      expect(Account.$accountId instanceof Sql).toBe(true);
    });
 
    test("SqlColumn inherits SqlColumn", () => {
       expect(Account.$accountId).instanceof(SqlTableColumn);
-      expect(Account.$accountId instanceof SqlTableColumn).toBe(true);
    });
 
    test("SqlColumn to be defined", () => {
@@ -35,7 +33,7 @@ describe("SqlColumn tests", () => {
 
    test("SqlColumn alias should return new SqlColumn instance", () => {
       expect(Account.$firstName.key).toEqual("firstName");
-      expect({ ...Account.$firstName("parentFirstName") }).toMatchObject({
+      expect({ ...Account.$firstName.as("parentFirstName") }).toMatchObject({
          columnName: "first_name",
          key: "parentFirstName",
          tableInfo: {
@@ -46,7 +44,7 @@ describe("SqlColumn tests", () => {
    });
 
    test("SqlColumn alias from SqlTable alias should return new SqlColumn instance", () => {
-      expect({ ...Account`parent`.$firstName("parentFirstName") }).toMatchObject({
+      expect({ ...Account`parent`.$firstName.as("parentFirstName") }).toMatchObject({
          columnName: "first_name",
          key: "parentFirstName",
          tableInfo: {

@@ -13,18 +13,6 @@ class TestDriverQueryHandler<T extends { Row?: unknown; Params?: unknown }> exte
       super(query);
    }
 
-   get params() {
-      return this.query.params;
-   }
-
-   getSql(args: any) {
-      return this.query.getSql(args);
-   }
-
-   getValues(args: any) {
-      return this.query.getValues(args);
-   }
-
    resolveRows(result: { rows: T["Row"][] }): T["Row"][] {
       return result.rows;
    }

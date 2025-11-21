@@ -14,9 +14,9 @@ describe("SqlTable tests", () => {
       expect(Account.$status).toBeDefined();
       expect(Account.$email).toBeDefined();
 
-      expect(typeof Account.$accountId).toEqual("function");
-      expect(typeof Account.$status).toEqual("function");
-      expect(typeof Account.$email).toEqual("function");
+      expect(Account.$accountId).instanceof(SqlTableColumn);
+      expect(Account.$status).instanceof(SqlTableColumn);
+      expect(Account.$email).instanceof(SqlTableColumn);
    });
 
    test("SqlTable alias should return new SqlTable instance", () => {

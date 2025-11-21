@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { val } from "../sql-value.js";
+import { val } from "../sql-select-value.js";
 import { t } from "../sql-type.js";
 import { row } from "../sql-select-row.js";
 import { sql } from "../../sql.js";
@@ -39,8 +39,8 @@ describe("SqlValue tests", () => {
    test("val in row context", () => {
       const selectRow = row(Account.$accountId, val<number>`COUNT(*)`.as("total"));
 
-      expect(selectRow.$accountId).toBeDefined();
-      expect(selectRow.$total).toBeDefined();
+      expect(selectRow.row.$accountId).toBeDefined();
+      expect(selectRow.row.$total).toBeDefined();
    });
 
    test("val in sql query", () => {
@@ -85,7 +85,6 @@ describe("SqlValue tests", () => {
       const value = val<number>`COUNT(*)`.as("total");
       const query = sql`SELECT ${row(value)}`;
 
-      // @ts-expect-error - Property $total does not exist on SqlSelectRowAny
       const wrongAccess = query.row.$total;
       expect(wrongAccess).toBeDefined();
    });

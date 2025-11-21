@@ -3,6 +3,7 @@ import { describe, expect, test } from "vitest";
 import { defineQueryConfig } from "../define-query-config.js";
 import { defineConfig } from "../define-config.js";
 import { findAccountById, findAccountByEmail } from "./test-queries.js";
+import testPlugin from "../../cli/exec/__tests__/test-plugin.js";
 
 describe("defineQueryConfig", () => {
    test("validates config has queries", () => {
@@ -17,6 +18,7 @@ describe("defineQueryConfig", () => {
          queries: {
             findAccountById: {
                profile: "postgres",
+               plugin: testPlugin,
                params: { accountId: 1, email: "test@example.com" },
             },
          },
@@ -31,10 +33,12 @@ describe("defineQueryConfig", () => {
          queries: {
             findAccountById: {
                profile: "postgres",
+               plugin: testPlugin,
                params: { accountId: 1, email: "test@example.com" },
             },
             findAccountByEmail: {
                profile: "postgres",
+               plugin: testPlugin,
                params: { email: "test@example.com" },
             },
          },
@@ -50,6 +54,7 @@ describe("defineQueryConfig", () => {
          queries: {
             findAccountById: {
                profile: "postgres",
+               plugin: testPlugin,
                params: { accountId: 1, email: "test@example.com" },
             },
          },
@@ -63,6 +68,7 @@ describe("defineQueryConfig", () => {
          queries: {
             findAccountById: {
                profile: "postgres",
+               plugin: testPlugin,
                params: { accountId: 1, email: "test@example.com" },
             },
          },
@@ -83,6 +89,7 @@ describe("defineQueryConfig", () => {
          queries: {
             findAccountById: {
                profile: "postgres",
+               plugin: testPlugin,
                params: { accountId: 1, email: "test@example.com" },
                format: "csv",
                limit: 10,
@@ -109,6 +116,7 @@ describe("defineQueryConfig", () => {
          queries: {
             findAccountById: {
                profile: rootConfig.profiles.postgres,
+               plugin: testPlugin,
                params: { accountId: 1, email: "test@example.com" },
             },
          },
@@ -122,6 +130,7 @@ describe("defineQueryConfig", () => {
          queries: {
             findAccountById: {
                profile: "postgres",
+               plugin: testPlugin,
                params: { accountId: 1, email: "test@example.com" },
             },
          },
@@ -138,6 +147,7 @@ describe("defineQueryConfig", () => {
             queries: {
                findAccountById: {
                   profile: "postgres",
+                  plugin: testPlugin,
                   params: { accountId: 1, email: "test@example.com" },
                },
             },
@@ -151,6 +161,7 @@ describe("defineQueryConfig", () => {
             queries: {
                findAccountById: {
                   profile: "postgres",
+                  plugin: testPlugin,
                   params: { accountId: 1, email: "test@example.com" },
                },
                unknownQuery: {
@@ -194,7 +205,8 @@ describe("defineQueryConfig", () => {
             queries: {
                findAccountById: {
                   profile: "postgres",
-                  params: { accountId: 1 } as any,
+                  plugin: testPlugin,
+                  params: { accountId: 1 },
                },
             },
          }),
@@ -207,6 +219,7 @@ describe("defineQueryConfig", () => {
             queries: {
                findAccountById: {
                   profile: "postgres",
+                  plugin: testPlugin,
                   params: { accountId: 1, email: "test@example.com", extra: "value" },
                },
             },
