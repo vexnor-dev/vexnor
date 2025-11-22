@@ -10,7 +10,7 @@ import { SqlSelectAll } from "./sql-select-all.js";
 import { SqlSelectColumn } from "./sql-select-column.js";
 import { SqlSelectRow } from "./sql-select-row.js";
 import { SqlBuildError } from "../sql-build-error.js";
-import { SqlBuildOptions } from "./sql-query-types.js";
+import { Queue } from "../../lib/index.js";
 
 export type SqlBuildContextArgs = {
    tokenizer?: ITokenizer;
@@ -29,10 +29,12 @@ export class SqlBuildContext {
    private _parentDepth: number = 0;
    private readonly _tableAliasById = new Map<string, string>();
    readonly queries: SqlQueryAny[] = [];
+   private readonly _cteQueries = new Set<SqlQueryAny>();
+   private _queryStack: SqlQueryAny[] = [];
 
    constructor(args?: SqlBuildContextArgs) {
       if (args?.query) {
-         this.trackQuery(args.query);
+         this.stackQuery(args.query);
       }
 
       this.tokenizer = args?.tokenizer ?? new DefaultTokenizer();
@@ -82,10 +84,18 @@ export class SqlBuildContext {
       }
    }
 
+   private getAliasId(tableInfo: { schema?: string; name: string; alias?: string }) {
+      return (
+         (this._queryStack.at(-1)?.ID ?? "") +
+         "/" +
+         (tableInfo.schema ? `${tableInfo.schema}.${tableInfo.name}` : tableInfo.name)
+      );
+   }
+
    setAlias(tableInfo: { schema?: string; name: string; alias?: string }) {
       if (!tableInfo.alias) return;
 
-      const id = tableInfo.schema ? `${tableInfo.schema}.${tableInfo.name}` : tableInfo.name;
+      const id = this.getAliasId(tableInfo);
       this._tableAliasById.set(id, tableInfo.alias);
    }
 
@@ -96,7 +106,7 @@ export class SqlBuildContext {
    alias(tableInfo: { schema?: string; name: string; alias?: string }) {
       if (tableInfo.alias) return tableInfo.alias;
 
-      const id = tableInfo.schema ? `${tableInfo.schema}.${tableInfo.name}` : tableInfo.name;
+      const id = this.getAliasId(tableInfo);
       if (!this._tableAliasById.has(id)) {
          const token = tableInfo.name
             .split("_")
@@ -213,8 +223,17 @@ export class SqlBuildContext {
     * @param sql
     */
    getQueryName(sql: Sql) {
-      const query = this.getQuery(sql);
-      return query?.info?.label ?? `query_${this.queries.indexOf(query)}`;
+      const query = sql instanceof SqlQuery ? sql : this.getQuery(sql);
+      if (query.info?.label) {
+         return query.info.label;
+      }
+
+      const index = this.queries.indexOf(query);
+      if (index === -1) {
+         throw new SqlBuildError(`Query not tracked for: ${sql}`);
+      }
+
+      return `query_${index}`;
    }
 
    /**
@@ -258,28 +277,48 @@ export class SqlBuildContext {
    }
 
    /**
-    * Tracks the query into the current build context
+    * Stacks the current context with the query.
     * @param query
+    * @param options
     */
-   trackQuery(query: SqlQueryAny): SqlBuildContext {
-      if (this.queries.includes(query)) return this;
+   stackQuery(query: SqlQueryAny, options?: { cte: boolean }): SqlBuildContext {
+      this._keywordStacks.push([]);
+      this._queryStack.push(query);
 
-      const queue = [query];
-      while (queue.length) {
-         const query = queue.shift()!;
+      if (options?.cte) {
+         this._cteQueries.add(query);
+      }
 
+      if (this.queries.includes(query)) {
+         return this;
+      }
+
+      const queue = new Queue(query);
+      for (const query of queue.shift()) {
          if (this.queries.includes(query)) continue;
 
          this.queries.push(query);
-         queue.push(query);
-         queue.push(...query.rawValues.filter((z) => z instanceof SqlQuery));
+         queue.add(query);
+         queue.add(...query.rawValues.filter((z) => z instanceof SqlQuery));
       }
 
       return this;
    }
 
-   addQuery(sql: SqlQueryAny, options?: SqlBuildOptions) {
-      this.trackQuery(sql);
-      sql.build(this, options);
+   popQuery() {
+      if (this._keywordStacks.length === 1) {
+         throw new SqlBuildError(`Cannot pop the root stack`);
+      }
+
+      this._keywordStacks.pop();
+      this._queryStack.pop();
+   }
+
+   /**
+    * Checks if a query is a declared CTE
+    * @param query
+    */
+   isCTE(query: SqlQueryAny): boolean {
+      return this._cteQueries.has(query);
    }
 }

@@ -10,6 +10,8 @@ import { Queue } from "../../lib/index.js";
 import { SqlSelectRow } from "./sql-select-row.js";
 import { SqlBuildError } from "../sql-build-error.js";
 import { SqlSelectValue } from "./sql-select-value.js";
+import { newSqlSelectColumn } from "./sql-select-column.js";
+import { quote } from "../utils/index.js";
 
 export const WILDCARD = "?";
 
@@ -96,7 +98,10 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
             case rawValue instanceof SqlSelectValue:
                row = {
                   ...(row ?? {}),
-                  [rawValue.key]: rawValue,
+                  [`$${rawValue.key}`]: newSqlSelectColumn({
+                     key: rawValue.key,
+                     columnName: rawValue.key,
+                  }),
                };
                break;
             case Array.isArray(rawValue):
@@ -179,7 +184,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
       return tokens.join("");
    }
 
-   buildQuery(options?: SqlBuildOptions) {
+   private buildQuery(options?: SqlBuildOptions) {
       // if (this.__buildCache__) return this.__buildCache__;
       const { tokenizer, formatter } = options ?? {};
       const context = new SqlBuildContext({ query: this, tokenizer, formatter });
@@ -190,49 +195,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
       };
    }
 
-   /**
-    * Build the core using the context
-    * @param context
-    * @param options
-    */
    build(context: SqlBuildContext, options?: SqlBuildOptions) {
-      const wrapStart = () => {
-         if (this.wrap) context.addStrings("(");
-      };
-
-      const wrapEnd = () => {
-         if (this.wrap) context.addStrings(")");
-      };
-
-      switch (this.isFragment ? null : context.keyword) {
-         case "select":
-            wrapStart();
-            this.buildInternal(context, options);
-            wrapEnd();
-            context.addStrings(` as "${context.getQueryName(this)}"`);
-            break;
-         case "join":
-            wrapStart();
-            this.buildInternal(context, options);
-            wrapEnd();
-            context.addStrings(` as "${context.getQueryName(this)}"`);
-            break;
-         case "from":
-            wrapStart();
-            this.buildInternal(context, options);
-            wrapEnd();
-            context.addStrings(` as "${context.getQueryName(this)}"`);
-            break;
-         case "fn":
-            context.addStrings(`"${context.getQueryName(this)}"`);
-            break;
-         default:
-            this.buildInternal(context, options);
-            break;
-      }
-   }
-
-   private buildInternal(context: SqlBuildContext, options?: SqlBuildOptions) {
       const children = [...this.rawValues];
       let i = -1;
       while (children.length || i < this.rawStrings.length) {
@@ -250,10 +213,44 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
          const buildToken = (item: unknown, delimiter = "") => {
             const addString = (text: string) => `${text}${delimiter}`;
             switch (true) {
-               case item instanceof SqlQuery: {
-                  item.build(context.trackQuery(item), options);
+               case item instanceof SqlQuery:
+                  switch (context.keyword) {
+                     case "with":
+                        context.stackQuery(item, { cte: true });
+                        context.addStrings(`${quote(context.getQueryName(item))} as (`);
+                        item.build(context, options);
+                        context.addStrings(")");
+                        context.popQuery();
+                        break;
+                     case "select":
+                        context.stackQuery(item);
+                        context.addStrings("(");
+                        item.build(context, options);
+                        context.addStrings(")");
+                        context.addStrings(` as ${quote(context.getQueryName(item))}`);
+                        context.popQuery();
+                        break;
+                     case "join":
+                     case "from":
+                        context.stackQuery(item);
+                        if (context.isCTE(item)) {
+                           context.addStrings(`${quote(context.getQueryName(item))}`);
+                        } else {
+                           context.addStrings("(");
+                           item.build(context, options);
+                           context.addStrings(")");
+                           context.addStrings(` as ${quote(context.getQueryName(item))}`);
+                        }
+                        context.popQuery();
+                        break;
+                     case "fn":
+                        context.addStrings(`${quote(context.getQueryName(item))}`);
+                        break;
+                     default:
+                        item.build(context, options);
+                        break;
+                  }
                   break;
-               }
                case item instanceof Sql:
                   item.build(context, options);
                   break;
