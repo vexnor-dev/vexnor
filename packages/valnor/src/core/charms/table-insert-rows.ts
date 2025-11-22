@@ -1,6 +1,7 @@
 import { Sql } from "../sql-base.js";
 import { SqlBuildContext } from "../query/index.js";
 import { InferTable$RowBySelect } from "../types/index.js";
+import { getCanonicalInsertKeys } from "../utils/index.js";
 
 export class TableInsertRows<
    T extends {
@@ -8,6 +9,8 @@ export class TableInsertRows<
       Select: Record<string, unknown>;
    },
 > extends Sql {
+   private readonly keys: string[];
+
    constructor(
       public readonly row: InferTable$RowBySelect<T["Select"]>,
       public readonly inserts: T["Insert"][],
@@ -15,20 +18,13 @@ export class TableInsertRows<
       super({
          ID: `rows: ${inserts.length}`,
       });
+      this.keys = getCanonicalInsertKeys(row, inserts);
    }
 
    build(context: SqlBuildContext) {
-      if (this.inserts.length === 0) {
-         return;
-      }
-
-      // Establish a consistent column order based on the keys of the first insert object.
-      // This ensures the values are ordered correctly to match the output of TableInsertCols.
-      const insertKeys = Object.keys(this.inserts[0]!);
-
       const valueRows: string[] = [];
       for (const insert of this.inserts) {
-         const values = insertKeys.map((key) => insert[key]);
+         const values = this.keys.map((key) => insert[key]);
          valueRows.push(`(${values.map(() => "?").join(", ")})`);
          context.addValues(...values);
       }
