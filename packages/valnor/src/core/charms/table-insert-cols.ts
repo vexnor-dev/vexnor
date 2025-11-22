@@ -1,7 +1,7 @@
 import { Sql } from "../sql-base.js";
 import { SqlBuildContext } from "../query/index.js";
 import { ok } from "assert";
-import { InferTableColumnsByRecord } from "../types/index.js";
+import { InferTable$RowBySelect } from "../types/index.js";
 
 export class TableInsertCols<
    T extends {
@@ -10,11 +10,11 @@ export class TableInsertCols<
    },
 > extends Sql {
    constructor(
-      public readonly columns: InferTableColumnsByRecord<T["Select"]>,
+      public readonly row: InferTable$RowBySelect<T["Select"]>,
       private readonly inserts: T["Insert"][],
    ) {
       super({
-         ID: `${Object.values(columns)
+         ID: `${Object.values(row)
             .map((c) => c.ID)
             .join(", ")} | rows: ${inserts.length}`,
       });
@@ -28,7 +28,7 @@ export class TableInsertCols<
       context.addStrings("(");
       // Map the keys to their actual database column names using the provided schema.
       Object.keys(this.inserts[0]!).forEach((key, index) => {
-         const column = this.columns[key];
+         const column = this.row[`$${key}`];
          ok(column, `Column not found by key: ${key}`);
          if (index > 0) context.addStrings(", ");
          column.build(context);

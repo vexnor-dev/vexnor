@@ -1,11 +1,11 @@
 import { Sql } from "../sql-base.js";
 import { SqlBuildContext } from "../query/index.js";
 import { SqlBuildError } from "../sql-build-error.js";
-import { InferTableColumnsByRecord } from "../types/index.js";
+import { InferTable$RowBySelect } from "../types/index.js";
 
 export class TableUpdateSet<T extends { Update: Record<string, unknown> }> extends Sql {
    constructor(
-      public readonly columns: InferTableColumnsByRecord<T["Update"]>,
+      public readonly row: InferTable$RowBySelect<T["Update"]>,
       public readonly update: T["Update"],
    ) {
       super({
@@ -16,12 +16,12 @@ export class TableUpdateSet<T extends { Update: Record<string, unknown> }> exten
    build(context: SqlBuildContext) {
       let i = 0;
       for (const key in this.update) {
-         const col = this.columns[key];
+         const col = this.row[`$${key}`];
          if (!col) {
             throw new SqlBuildError(`Column not found: ${key}`, {
                data: {
                   key,
-                  columns: this.columns,
+                  columns: this.row,
                },
             });
          }

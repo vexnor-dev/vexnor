@@ -171,9 +171,9 @@ describe("SqlSelectRow tests", () => {
 
    test("$build with aliased table and column", () => {
       const target = row(
-         Account`inserted`.$accountId,
-         Account`inserted`.$firstName,
-         Account`inserted`.$lastName.as("name"),
+         Account.as`inserted`.$accountId,
+         Account.as`inserted`.$firstName,
+         Account.as`inserted`.$lastName.as("name"),
       );
       const context = new SqlBuildContext();
       context.next("select");
@@ -203,7 +203,7 @@ describe("SqlSelectRow tests", () => {
    });
 
    test("SqlRow $build with aliased table.$$", () => {
-      const target = row(Account`inserted`.$$);
+      const target = row(Account.as`inserted`.$$);
       const context = new SqlBuildContext();
       context.next("select");
       target.build(context);

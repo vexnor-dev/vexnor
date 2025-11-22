@@ -8,32 +8,32 @@ describe("SqlTable.insertCols() and insertCols() tests", () => {
       const rows: IAccountInsert[] = [
          {
             firstName: "John1",
-            lastName: "Doe1",
             email: "john1.doe1@example.com",
+            lastName: "Doe1",
          },
          {
-            firstName: "John2",
             lastName: "Doe2",
+            firstName: "John2",
             email: "john2.doe2@example.com",
          },
       ];
       const query = sql`
          insert into ${Account}
             ${Account.insertCols(...rows)}
-            output ${row(Account`inserted`.$$)}
+            output ${row(Account.as`inserted`.$$)}
             ${Account.insertVals(...rows)}`;
 
       expect(query.getValues({})).toEqual([
+         "john1.doe1@example.com",
          "John1",
          "Doe1",
-         "john1.doe1@example.com",
+         "john2.doe2@example.com",
          "John2",
          "Doe2",
-         "john2.doe2@example.com",
       ]);
       expect(query.getSql({})).toEqualQuery(
          `insert into "valnor_test"."account"
-             ("first_name", "last_name", "email")
+             ("email", "first_name", "last_name")
              output "inserted"."account_id" as "accountId",
              "inserted"."status",
              "inserted"."email",

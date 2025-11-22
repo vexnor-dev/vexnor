@@ -20,7 +20,7 @@ describe("SqlTable tests", () => {
    });
 
    test("SqlTable alias should return new SqlTable instance", () => {
-      const actual = Account`parent`;
+      const actual = Account.as`parent`;
       console.log(actual);
       expect(actual).toBeDefined();
       expect(actual.tableInfo).toEqual(
@@ -33,7 +33,7 @@ describe("SqlTable tests", () => {
    });
 
    test("SqlTable alias should return new SqlColumn instance", () => {
-      const actual = Account`parent`.$accountId;
+      const actual = Account.as`parent`.$accountId;
       console.log(actual);
       expect(actual).toBeDefined();
       expect(actual.tableInfo).toEqual<typeof actual.tableInfo>({
@@ -46,19 +46,81 @@ describe("SqlTable tests", () => {
    });
 
    test("SqlTable alias should return new SqlTable instance with respective $$ columns", () => {
-      const actual = Account`inserted`.$$;
-      for (const col of Object.values(actual.row)) {
-         expect(col).toBeDefined();
-         expect(col).toBeInstanceOf(Sql);
-         expect(col).toBeInstanceOf(SqlTableColumn);
-         expect(col.tableInfo).toEqual<typeof col.tableInfo>({
-            schema: "valnor_test",
-            name: "account",
-            alias: "inserted",
-         });
-         const original = Account.column(col.key);
-         expect(col.key).toBe(original.key);
-         expect(col.columnName).toBe(original.columnName);
-      }
+      const actual = Account.as`inserted`.$$;
+      expect(actual).toBeDefined();
+      expect(actual.row).toMatchObject({
+         $accountId: {
+            key: "accountId",
+            columnName: "account_id",
+            tableInfo: {
+               schema: "valnor_test",
+               name: "account",
+               alias: "inserted",
+            },
+         },
+         $status: {
+            key: "status",
+            columnName: "status",
+            tableInfo: {
+               schema: "valnor_test",
+               name: "account",
+               alias: "inserted",
+            },
+         },
+         $firstName: {
+            key: "firstName",
+            columnName: "first_name",
+            tableInfo: {
+               schema: "valnor_test",
+               name: "account",
+               alias: "inserted",
+            },
+         },
+         $lastName: {
+            key: "lastName",
+            columnName: "last_name",
+            tableInfo: {
+               schema: "valnor_test",
+               name: "account",
+               alias: "inserted",
+            },
+         },
+         $email: {
+            key: "email",
+            columnName: "email",
+            tableInfo: {
+               schema: "valnor_test",
+               name: "account",
+               alias: "inserted",
+            },
+         },
+         $createdAt: {
+            key: "createdAt",
+            columnName: "created_at",
+            tableInfo: {
+               schema: "valnor_test",
+               name: "account",
+               alias: "inserted",
+            },
+         },
+         $modifiedAt: {
+            key: "modifiedAt",
+            columnName: "modified_at",
+            tableInfo: {
+               schema: "valnor_test",
+               name: "account",
+               alias: "inserted",
+            },
+         },
+         $parentId: {
+            key: "parentId",
+            columnName: "parent_id",
+            tableInfo: {
+               schema: "valnor_test",
+               name: "account",
+               alias: "inserted",
+            },
+         },
+      });
    });
 });

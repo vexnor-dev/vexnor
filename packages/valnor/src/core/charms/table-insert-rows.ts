@@ -1,6 +1,6 @@
 import { Sql } from "../sql-base.js";
 import { SqlBuildContext } from "../query/index.js";
-import { InferTableColumnsByRecord } from "../types/index.js";
+import { InferTable$RowBySelect } from "../types/index.js";
 
 export class TableInsertRows<
    T extends {
@@ -9,7 +9,7 @@ export class TableInsertRows<
    },
 > extends Sql {
    constructor(
-      public readonly columns: InferTableColumnsByRecord<T["Select"]>,
+      public readonly row: InferTable$RowBySelect<T["Select"]>,
       public readonly inserts: T["Insert"][],
    ) {
       super({
@@ -27,8 +27,8 @@ export class TableInsertRows<
       const insertKeys = Object.keys(this.inserts[0]!);
 
       const valueRows: string[] = [];
-      for (const arg of this.inserts) {
-         const values = insertKeys.map((key) => arg[key as keyof T["Insert"]]);
+      for (const insert of this.inserts) {
+         const values = insertKeys.map((key) => insert[key]);
          valueRows.push(`(${values.map(() => "?").join(", ")})`);
          context.addValues(...values);
       }

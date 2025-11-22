@@ -1,9 +1,10 @@
-import { newSqlTableColumn, SqlTableColumn, SqlTableColumnAny } from "./sql-table-column.js";
+import { newSqlTableColumn, SqlTableColumnAny } from "./sql-table-column.js";
 import { SqlBuildContext, SqlBuildOptions } from "../query/index.js";
 import { Sql } from "../sql-base.js";
 import { ok } from "assert";
 import { TableInsertCols, TableInsertRows, TableInsertValues, TableUpdateSet, SqlTableAll } from "../charms/index.js";
 import { SqlTableFormat } from "../default-formatter.js";
+import { InferTable$RowBySelect } from "../types/index.js";
 
 export type SqlTableOptions<
    T extends {
@@ -11,7 +12,7 @@ export type SqlTableOptions<
    },
 > = {
    readonly tableInfo: { readonly schema?: string; readonly name: string; readonly alias?: string };
-   readonly format?: SqlTableFormat;
+   readonly format?: SqlTableFormat | null;
    readonly pk: (keyof T["Select"])[];
    readonly columns: Record<keyof T["Select"], string>;
 };
@@ -26,7 +27,7 @@ export type SqlTableExtended<
       Update?: Partial<T["Insert"]>;
    },
 > = SqlTable<T> &
-   InferTableColumnsByRecord<T["Select"]> & {
+   InferTable$RowBySelect<T["Select"]> & {
       (strings: TemplateStringsArray): SqlTableExtended<T>;
    };
 
@@ -43,8 +44,10 @@ export class SqlTable<
    readonly $$: SqlTableAll<{ Row: T["Select"] }>;
    readonly tableInfo: { schema?: string; name: string; alias?: string };
    readonly format: SqlTableFormat | null;
-   readonly row: InferTableColumnsByRecord<T["Select"]>;
+   readonly row: InferTable$RowBySelect<T["Select"]>;
    readonly pk: Array<keyof T["Select"]>;
+
+   readonly tableCache = new Map<string, SqlTableExtended<T>>();
 
    constructor({ format, pk, tableInfo, ...options }: SqlTableOptions<T>) {
       super({
@@ -64,16 +67,49 @@ export class SqlTable<
          for (const key of Object.keys(options.columns)) {
             const value = options.columns[key];
             if (typeof value === "string") {
-               row[key] = newSqlTableColumn({ key: key, columnName: value, tableInfo });
+               row[`$${key}`] = newSqlTableColumn({ key: key, columnName: value, tableInfo });
             } else {
                throw new Error(`Column ${schema}.${name} ${key} must be a string or SqlColumn instance`);
             }
          }
 
-         return row as InferTableColumnsByRecord<T["Select"]>;
+         return row as InferTable$RowBySelect<T["Select"]>;
       })();
 
       this.$$ = new SqlTableAll<{ Row: T["Select"] }>(this.row);
+   }
+
+   as(tableName: string | TemplateStringsArray): SqlTableExtended<T> {
+      const alias = (() => {
+         switch (true) {
+            case typeof tableName === "string":
+               return tableName;
+            case Array.isArray(tableName) && tableName.length === 1:
+               return tableName[0];
+            default:
+               throw new Error(`Invalid table name: ${tableName}`);
+         }
+      })();
+      if (!this.tableCache.has(alias)) {
+         this.tableCache.set(
+            alias,
+            newSqlTable({
+               format: this.format,
+               pk: this.pk,
+               columns: (() => {
+                  const columns: Record<string, string> = {};
+                  for (const { key, columnName } of Object.values(this.row)) {
+                     columns[key] = columnName;
+                  }
+
+                  return columns as Record<keyof T["Select"], string>;
+               })(),
+               tableInfo: { ...this.tableInfo, alias },
+            }),
+         );
+      }
+
+      return this.tableCache.get(alias)!;
    }
 
    column(key: string): SqlTableColumnAny {
@@ -167,87 +203,35 @@ export function newSqlTable<
       Update?: Partial<T["Insert"]>;
    },
 >(options: SqlTableOptions<T>): SqlTableExtended<T> {
-   const table = new SqlTable(options);
-   const name = table.toString();
-   const sqlTable = { [name]: () => {} }[name];
-   return new Proxy(sqlTable as () => void, {
-      ownKeys(): ArrayLike<string | symbol> {
-         return [...Object.keys(table), ...Object.keys(table.row).map((z) => `$${z}`)];
+   return new Proxy(new SqlTable(options), {
+      ownKeys(target): ArrayLike<string | symbol> {
+         return [...Object.keys(target), ...Object.keys(target.row)];
       },
-      getPrototypeOf(): object | null {
-         return Object.getPrototypeOf(table);
-      },
-      getOwnPropertyDescriptor(_target, p: string | symbol): PropertyDescriptor | undefined {
-         const prop = String(p);
-         switch (true) {
-            case !prop.startsWith("$"):
-            case prop.startsWith("$$"):
-               return Reflect.getOwnPropertyDescriptor(table, p);
-            case prop.startsWith("$"):
-               return Reflect.getOwnPropertyDescriptor(table.row, p);
-            default:
-               throw new Error(`Unknown property: ${prop}`);
-         }
-      },
-      has(_target, p: string | symbol): boolean {
-         const prop = String(p);
-         switch (true) {
-            case !prop.startsWith("$"):
-            case prop.startsWith("$$"):
-               return Object.hasOwn(table, p);
-            case prop.startsWith("$"):
-               return Object.hasOwn(table.row, p);
-            default:
-               throw new Error(`Unknown property: ${prop}`);
-         }
-      },
-      get(_target, p: string | symbol, receiver: unknown): unknown {
-         const prop = String(p);
-         switch (true) {
-            case !prop.startsWith("$"):
-            case prop.startsWith("$$"): {
-               const result = Reflect.get(table, p, receiver);
-               if (typeof result === "function") {
-                  return result.bind(table);
-               }
-               return result;
-            }
-            case prop.startsWith("$"):
-               return Reflect.get(table.row, prop.substring(1), receiver);
-            default:
-               throw new Error(`Unknown property: ${prop}`);
-         }
-      },
-      apply(_target, _thisArg: unknown, argArray: string[]): SqlTable<T> {
-         const key = Array.isArray(argArray[0]) ? argArray[0][0] : argArray[0];
-         if (!key) {
-            throw new Error("Column alias cannot be empty");
+      getOwnPropertyDescriptor(target, p: string | symbol): PropertyDescriptor | undefined {
+         if (Reflect.has(target, p)) {
+            return Reflect.getOwnPropertyDescriptor(target, p);
          }
 
-         return newSqlTable({
-            ...options,
-            tableInfo: {
-               ...table.tableInfo,
-               alias: key,
-            },
-         });
+         if (Reflect.has(target.row, p)) {
+            return Reflect.getOwnPropertyDescriptor(target.row, p);
+         }
+
+         return undefined;
       },
-   }) as unknown as SqlTableExtended<T>;
+      has(target, p: string | symbol): boolean {
+         return Reflect.has(target, p) || Reflect.has(target.row, p);
+      },
+      get(target, p: string | symbol, receiver: unknown): unknown {
+         if (Reflect.has(target, p)) {
+            return Reflect.get(target, p, receiver);
+         }
+
+         return Reflect.get(target.row, p, receiver);
+      },
+   }) as SqlTableExtended<T>;
 }
 
 function insertsAreValid(values: unknown[]): values is Record<string, unknown>[] {
    if (!values.length) return false;
    return !values.some((value) => !value);
 }
-
-type InferTableColumnsByRecord<Select> =
-   Select extends Record<string, unknown>
-      ? {
-           [K in keyof Select as `$${string & K}`]: K extends string
-              ? SqlTableColumn<{
-                   Key: K;
-                   Type: Select[K];
-                }>
-              : never;
-        }
-      : never;

@@ -42,7 +42,7 @@ describe("SqlTableAll (*) tests", () => {
    test("select * $build should render list of columns with aliased table", () => {
       const context = new SqlBuildContext();
       context.next("select");
-      Account`inserted`.$$.build(context);
+      Account.as`inserted`.$$.build(context);
 
       expect(context.text).toEqual(trim`
          "inserted"."account_id"  as "accountId",
@@ -76,7 +76,7 @@ describe("SqlTableAll (*) tests", () => {
    test("output * $build should render list of columns with aliased table", () => {
       const context = new SqlBuildContext();
       context.next("output");
-      Account`inserted`.$$.build(context);
+      Account.as`inserted`.$$.build(context);
 
       expect(context.text).toEqual(trim`
          "inserted"."account_id"  as "accountId",

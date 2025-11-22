@@ -1,7 +1,7 @@
 import { SqlBuildContext } from "../query/index.js";
 import { Sql } from "../sql-base.js";
 import { SqlBuildError } from "../sql-build-error.js";
-import { InferTableColumnsByRecord } from "../types/index.js";
+import { InferTable$RowBySelect } from "../types/index.js";
 
 export class TableInsertValues<
    T extends {
@@ -10,11 +10,11 @@ export class TableInsertValues<
    },
 > extends Sql {
    constructor(
-      public readonly columns: InferTableColumnsByRecord<T["Select"]>,
+      public readonly row: InferTable$RowBySelect<T["Select"]>,
       public readonly inserts: T["Insert"][],
    ) {
       super({
-         ID: `${Object.values(columns)
+         ID: `${Object.values(row)
             .map((z) => z.ID)
             .join(", ")} | rows: ${inserts.length}`,
       });
@@ -32,7 +32,7 @@ export class TableInsertValues<
          if (i !== 0) continue;
 
          for (const key of insertKeys) {
-            if (!columns[key as keyof T["Select"]]) {
+            if (!row[`$${key}`]) {
                throw new SqlBuildError(`Column ${String(key)} does not exist`);
             }
          }
@@ -48,7 +48,7 @@ export class TableInsertValues<
             context.addStrings(", ");
          }
 
-         const column = this.columns[key as keyof T["Select"]]!;
+         const column = this.row[`$${key}`]!;
          column.build(context);
       }
 

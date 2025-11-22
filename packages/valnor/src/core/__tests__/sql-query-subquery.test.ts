@@ -112,9 +112,9 @@ describe("sql subqueries tests", () => {
 
    test("self join", () => {
       const query = sql`
-         select ${row(Account.$$, Account`parent`.$firstName.as("parentFirstName"), Account`parent`.$lastName.as("parentLastName"))}
+         select ${row(Account.$$, Account.as`parent`.$firstName.as("parentFirstName"), Account.as`parent`.$lastName.as("parentLastName"))}
          from ${Account}
-                 join ${Account`parent`} on ${Account`parent`.$accountId} = ${Account.$parentId}
+                 join ${Account.as`parent`} on ${Account.as`parent`.$accountId} = ${Account.$parentId}
          where ${Account.$firstName} = ${param("firstName").is<string>()}`;
 
       expect(query.getSql({ params: { firstName: "John" } })).toEqualQuery(

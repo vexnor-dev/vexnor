@@ -1,5 +1,5 @@
 import { Sql } from "../sql-base.js";
-import { InferTableColumnsByRecord } from "./infer-types.js";
+import { InferTable$RowBySelect } from "./infer-types.js";
 
 export type SqlOutAny = ISqlColumnAny | SqlOutRowAny;
 
@@ -14,5 +14,5 @@ export type ISqlColumn<T extends { Key: string; Type?: unknown }> = Sql & {
 export type SqlOutRowAny = SqlOutRow<any>;
 
 export type SqlOutRow<T extends { Row: Record<string, unknown> }> = Sql & {
-   readonly $$row: InferTableColumnsByRecord<T["Row"]>;
+   readonly $$row: InferTable$RowBySelect<T["Row"]>;
 };

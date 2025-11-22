@@ -94,9 +94,9 @@ describe("sql() tests", () => {
       const query = sql`
         ${rowType<IAccountSelect & { parentEmail: string }>()}
          select ${Account.$email},
-                ${Account`parent`.$email.as("parentEmail")}
+                ${Account.as`parent`.$email.as("parentEmail")}
          from ${Account}
-                 join ${Account`parent`} on ${Account.$parentId} = ${Account`parent`.$accountId}`;
+                 join ${Account.as`parent`} on ${Account.$parentId} = ${Account.as`parent`.$accountId}`;
 
       expect(query.getSql({})).toEqualQuery(`
          select "a_1"."email",

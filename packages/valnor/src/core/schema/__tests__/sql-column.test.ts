@@ -44,7 +44,7 @@ describe("SqlColumn tests", () => {
    });
 
    test("SqlColumn alias from SqlTable alias should return new SqlColumn instance", () => {
-      expect({ ...Account`parent`.$firstName.as("parentFirstName") }).toMatchObject({
+      expect({ ...Account.as`parent`.$firstName.as("parentFirstName") }).toMatchObject({
          columnName: "first_name",
          key: "parentFirstName",
          tableInfo: {

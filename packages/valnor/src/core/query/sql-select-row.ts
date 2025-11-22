@@ -49,18 +49,18 @@ export class SqlSelectRow<T extends { Row: Record<string, unknown> }> extends Sq
                case item instanceof SqlSelectAll:
                   if (!item.row) break;
 
-                  for (const [key, col] of Object.entries(item.row)) {
+                  for (const col of Object.values(item.row)) {
                      switch (true) {
                         case col instanceof SqlTableColumn:
-                           row[`$${key}`] = newSqlSelectColumn({
-                              columnName: key,
-                              key,
+                           row[`$${col.key}`] = newSqlSelectColumn({
+                              columnName: col.key,
+                              key: col.key,
                            });
                            break;
                         case col instanceof SqlSelectColumn:
-                           row[`$${key}`] = newSqlSelectColumn({
-                              columnName: key,
-                              key,
+                           row[`$${col.key}`] = newSqlSelectColumn({
+                              columnName: col.key,
+                              key: col.key,
                            });
                            break;
                         default:
@@ -73,10 +73,10 @@ export class SqlSelectRow<T extends { Row: Record<string, unknown> }> extends Sq
                case item instanceof SqlTableAll:
                   if (!item.row) break;
 
-                  for (const [key] of Object.entries(item.row)) {
-                     row[`$${key}`] = newSqlSelectColumn({
-                        columnName: key,
-                        key,
+                  for (const col of Object.values(item.row)) {
+                     row[`$${col.key}`] = newSqlSelectColumn({
+                        columnName: col.key,
+                        key: col.key,
                      });
                   }
                   break;
@@ -125,69 +125,7 @@ export function row<
    Columns extends Column[],
 >(...columns: Columns): SqlSelectRow<{ Row: InferResultRowFromColumns<typeof columns> }> {
    return new SqlSelectRow(columns);
-   // return new Proxy(target, {
-   //    get(target, p, receiver) {
-   //       if (p === "$$") return target.$$;
-   //       if (p === "row") return target.row;
-   //       return Reflect.get(target, p, receiver);
-   //    },
-   // });
 }
-
-//    const row = {} as InferSelectRowByResult<T["Row"]>;
-//    for (const item of columns) {
-//       switch (true) {
-//          case item instanceof SqlSelectAll:
-//             if (!item.row) break;
-//
-//             for (const [key, col] of Object.entries(item.row)) {
-//                row[`${key}`] = newSqlSelectColumn({
-//                   columnName: col.columnName,
-//                   key,
-//                });
-//             }
-//             break;
-//          case item instanceof SqlTableAll:
-//             if (!item.row) break;
-//
-//             for (const [key, col] of Object.entries(item.row)) {
-//                row[`${key}`] = newSqlSelectColumn({
-//                   columnName: col.columnName,
-//                   key,
-//                   tableInfo: col.tableInfo,
-//                });
-//             }
-//             break;
-//          case item instanceof SqlTableColumn:
-//             row[`${item.key}`] = newSqlSelectColumn({
-//                columnName: item.columnName,
-//                key: item.key,
-//                tableInfo: item.tableInfo,
-//             });
-//             break;
-//          case item instanceof SqlSelectColumn:
-//          case item instanceof SqlSelectValue:
-//             row[`${item.key}`] = newSqlSelectColumn({
-//                columnName: item.key,
-//                key: item.key,
-//             });
-//             break;
-//          default:
-//             throw new SqlBuildError(`Invalid column type: ${item}`, {
-//                data: { column: item },
-//             });
-//       }
-//    return Object.assign(
-//       target,
-//       (() => {
-//          const result: Record<string, SqlSelectColumnAny | SqlSelectValueAny> = {};
-//          for (const [key, value] of Object.entries(row)) {
-//             result[`$${key}`] = value;
-//          }
-//          return result as InferSelectRowByResult<InferResultRowFromColumns<typeof columns>>;
-//       })(),
-//    ) as SqlSelectRowExtended<{ Row: InferResultRowFromColumns<typeof columns> }>;
-// }
 
 export type InferResultRowFromColumn<T> = T extends
    | SqlTableColumn<infer U>

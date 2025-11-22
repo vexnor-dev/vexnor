@@ -1,14 +1,14 @@
 import { Sql } from "../sql-base.js";
 import { SqlBuildContext, SqlBuildOptions } from "../query/index.js";
-import { SqlTableColumn } from "../schema/index.js";
+import { InferTable$RowBySelect } from "../types/index.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlTableAllAny = SqlTableAll<any>;
 
 export class SqlTableAll<T extends { Row: Record<string, unknown> }> extends Sql {
-   readonly row: InferSqlTableAllColumnsByRow<T["Row"]>;
+   readonly row: InferTable$RowBySelect<T["Row"]>;
 
-   constructor(row: InferSqlTableAllColumnsByRow<T["Row"]>) {
+   constructor(row: InferTable$RowBySelect<T["Row"]>) {
       super({ ID: `${Object.keys(row).join(", ")}` });
       this.row = row;
    }
@@ -33,15 +33,3 @@ export class SqlTableAll<T extends { Row: Record<string, unknown> }> extends Sql
       }
    }
 }
-
-export type InferSqlTableAllColumnsByRow<Row> =
-   Row extends Record<string, unknown>
-      ? {
-           [K in keyof Row as `$${string & K}`]: K extends string
-              ? SqlTableColumn<{
-                   Key: K;
-                   Type: Row[K];
-                }>
-              : never;
-        }
-      : never;
