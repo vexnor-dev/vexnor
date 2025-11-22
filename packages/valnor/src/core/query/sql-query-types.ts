@@ -25,8 +25,8 @@ export type SqlBuildOptions = {
 };
 
 export type SqlRunArgs<Connection, Params> = Params extends object
-   ? { db?: Connection; params: Params; options?: SqlBuildOptions }
-   : { db?: Connection; options?: SqlBuildOptions };
+   ? { db: Connection; params: Params; options?: SqlBuildOptions }
+   : { db: Connection; options?: SqlBuildOptions };
 
 export type SqlInputArgs<Params> = Params extends object
    ? { params: Params; options?: SqlBuildOptions }

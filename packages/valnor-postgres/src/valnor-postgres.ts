@@ -8,6 +8,7 @@ import {
    LibraryOutputFile,
    ConnectionConfig,
    logger,
+   SqlTableInfo,
 } from "valnor/plugin";
 import { Pool } from "pg";
 import { findEnums, findTables, getColumnType } from "./schema/index.js";
