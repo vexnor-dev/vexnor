@@ -1,11 +1,88 @@
 import { describe, expect, test } from "vitest";
-import { InferParamsFromQueryTokens, sql } from "../sql.js";
-import { param, SqlParam } from "../query/index.js";
-import { Account } from "./models/valnor_test.schema.js";
-import { row } from "../query/index.js";
+import { InferParamFromSql, InferParamsFromQueryTokens, QueryParams, sql } from "../sql.js";
+import { param, row, SqlInputArgs, SqlParam, SqlQueryExtended } from "../query/index.js";
+import { Account, AccountStatusUdt } from "./models/valnor_test.schema.js";
 import { info } from "../charms/index.js";
 
 describe("SqlQuery.params", () => {
+   test("InferParamFromSql<SqlParam>", () => {
+      // eslint-disable-next-line unused-imports/no-unused-vars
+      const id1 = param("id1").is<string>();
+      type Params = InferParamFromSql<typeof id1>;
+      const params: Params = {
+         id1: "",
+         // @ts-expect-error - Testing runtime validation of extra property
+         test: "a",
+      };
+      expect(params.id1).toBeDefined();
+   });
+
+   test("InferParamFromSql<SqlQuery>", () => {
+      // eslint-disable-next-line unused-imports/no-unused-vars
+      const id1 = sql`${param("id1")}`;
+      type Params = InferParamFromSql<typeof id1>;
+      const params: Params = {
+         id1: "",
+         // @ts-expect-error - Testing runtime validation of extra property
+         test: "a",
+      };
+      expect(params.id1).toBeDefined();
+      // @ts-expect-error - Testing runtime validation of extra property
+      expect(params.test1).toBeUndefined();
+   });
+
+   test("Infer params from sql-query", () => {
+      type FullParams = InferParamsFromQueryTokens<
+         [
+            typeof Account,
+            typeof Account.$$,
+            SqlParam<{ Name: "accountId"; Type: string }>,
+            SqlParam<{ Name: "modifiedAt"; Type: Date }>,
+            [
+               SqlParam<{ Name: "id1"; Type: number }>,
+               SqlParam<{ Name: "id2"; Type: number }>,
+               SqlParam<{ Name: "id3"; Type: number }>,
+            ],
+            SqlQueryExtended<{ Params: { limit: 5 } }>,
+         ]
+      >;
+
+      const fullParams: FullParams = {
+         accountId: "",
+         modifiedAt: new Date(),
+         limit: 5,
+         id1: 1,
+         id2: 2,
+         id3: 3,
+         // @ts-expect-error - Testing runtime validation of extra property
+         id4: 4,
+      };
+      expect(fullParams).toBeDefined();
+
+      type FullInputArgs = SqlInputArgs<FullParams>;
+
+      const fullInputArgs: FullInputArgs = {
+         params: {
+            accountId: "",
+            modifiedAt: new Date(),
+            limit: 5,
+            id1: 1,
+            id2: 2,
+            id3: 3,
+            // @ts-expect-error - Testing runtime validation of extra property
+            id4: 4,
+         },
+      };
+      expect(fullInputArgs).toBeDefined();
+
+      type EmptyParams = QueryParams<[typeof Account, typeof Account.$$, typeof Account.$accountId]>;
+      const emptyParams: EmptyParams = void 0;
+      expect(emptyParams).toBeUndefined();
+      type EmptyInputArgs = SqlInputArgs<EmptyParams>;
+      const emptyInputArgs: EmptyInputArgs = {};
+      expect(emptyInputArgs).toBeDefined();
+   });
+
    test("InferParamsFromQueryTokens from sql-query with tokens and params", () => {
       type Params = InferParamsFromQueryTokens<
          [
@@ -135,17 +212,31 @@ describe("SqlQuery.params", () => {
 
    test("handles params in arrays", () => {
       const query = sql`
-         select ${row(Account.$$)}
+         select ${Account.$$}
          from ${Account}
-         where ${Account.$accountId} in (${[param("id1"), param("id2"), param("id3")]})
+         where ${Account.$accountId} in (${param("id1").is<string>()}, ${param("id2").is<string>()}, ${param("id3").is<string>()})
+           and ${Account.$status} = ${param("status").is<AccountStatusUdt>()}
       `;
 
       expect(query.params).toMatchObject({
          id1: { name: "id1" },
          id2: { name: "id2" },
          id3: { name: "id3" },
+         status: { name: "status" },
       });
-      expect(Object.keys(query.params)).toHaveLength(3);
+      expect(Object.keys(query.params)).toHaveLength(4);
+      expect(query.params.id1).toMatchObject({
+         name: "id1",
+      });
+      expect(query.params.id2).toMatchObject({
+         name: "id2",
+      });
+      expect(query.params.id3).toMatchObject({
+         name: "id3",
+      });
+      expect(query.params.status).toMatchObject({
+         name: "status",
+      });
    });
 
    test("includes params from subqueries with arrays", () => {
@@ -153,7 +244,8 @@ describe("SqlQuery.params", () => {
          ${info({ label: "Subquery" })}
          select ${row(Account.$$)}
          from ${Account}
-         where ${Account.$accountId} in (${[param("id1"), param("id2")]})
+         where ${Account.$accountId} in (${param("id1")}, ${param("id2")})
+         and ${Account.$status} = ${AccountStatusUdt.CONFIRMED}
       `;
 
       const query = sql`
@@ -168,5 +260,8 @@ describe("SqlQuery.params", () => {
          email: { name: "email" },
       });
       expect(Object.keys(query.params)).toHaveLength(3);
+      expect(query.params.id1).toMatchObject({ name: "id1" });
+      expect(query.params.id2).toMatchObject({ name: "id2" });
+      expect(query.params.email).toMatchObject({ name: "email" });
    });
 });

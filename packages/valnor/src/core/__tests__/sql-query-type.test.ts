@@ -1,14 +1,7 @@
 import { describe, expect, test } from "vitest";
-import { param, row, SqlCharm, SqlInputArgs, SqlParam, SqlQuery, SqlQueryExtended } from "../query/index.js";
+import { param, row, SqlQuery } from "../query/index.js";
 import { Account } from "./models/valnor_test.account-table.js";
-import {
-   ExtractParamsFromQuery,
-   InferParamsFromQueryTokens,
-   ExtractResultRowFromQuery,
-   InferResultRowFromQueryTokens,
-   QueryParams,
-   sql,
-} from "../sql.js";
+import { ExtractParamsFromQuery, ExtractResultRowFromQuery, InferResultRowFromQueryTokens, sql } from "../sql.js";
 import { AccountStatusUdt } from "./models/valnor_test-enums.js";
 
 describe("sql query type tests", () => {
@@ -24,46 +17,6 @@ describe("sql query type tests", () => {
       };
       expect(actual).toBeDefined();
       console.log(actual.$firstName);
-   });
-
-   test("Infer params from sql-query", () => {
-      type FullParams = InferParamsFromQueryTokens<
-         [
-            typeof Account,
-            typeof Account.$$,
-            SqlParam<{ Name: "accountId"; Type: string }>,
-            SqlParam<{ Name: "modifiedAt"; Type: Date }>,
-            SqlQueryExtended<{ Params: { limit: 5 } }>,
-            SqlCharm<{ Params: { createdAt: Date } }>,
-         ]
-      >;
-
-      const fullParams: FullParams = {
-         accountId: "",
-         modifiedAt: new Date(),
-         limit: 5,
-         createdAt: new Date(),
-      };
-      expect(fullParams).toBeDefined();
-
-      type FullInputArgs = SqlInputArgs<FullParams>;
-
-      const fullInputArgs: FullInputArgs = {
-         params: {
-            accountId: "",
-            modifiedAt: new Date(),
-            limit: 5,
-            createdAt: new Date(),
-         },
-      };
-      expect(fullInputArgs).toBeDefined();
-
-      type EmptyParams = QueryParams<[typeof Account, typeof Account.$$, typeof Account.$accountId]>;
-      const emptyParams: EmptyParams = void 0;
-      expect(emptyParams).toBeUndefined();
-      type EmptyInputArgs = SqlInputArgs<EmptyParams>;
-      const emptyInputArgs: EmptyInputArgs = {};
-      expect(emptyInputArgs).toBeDefined();
    });
 
    test("infer row result type from sql-query", () => {

@@ -3,26 +3,24 @@ import { SqlParam, SqlParamAny } from "./sql-param.js";
 import { SqlBuildContext } from "./sql-build-context.js";
 import { logger } from "../logger.js";
 import { Sql } from "../sql-base.js";
-import { SqlSelectRow } from "./sql-select-row.js";
 import { SqlQueryInfo } from "../charms/index.js";
 import { hasParams, InferSelectRowByResult, SqlBuildOptions, SqlInputArgs } from "./sql-query-types.js";
 import { SqlSelectAll } from "./sql-select-all.js";
-import { SqlSelectValue } from "./sql-select-value.js";
-import { SqlBuildError } from "../sql-build-error.js";
 import { Queue } from "../../lib/index.js";
+import { SqlSelectRow } from "./sql-select-row.js";
+import { SqlBuildError } from "../sql-build-error.js";
+import { SqlSelectValue } from "./sql-select-value.js";
 
 export const WILDCARD = "?";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlQueryAny = SqlQuery<any>;
 
-export type SqlQueryExtended<T extends { Row?: unknown; Params?: unknown }> = SqlQuery<{
-   Row: T["Row"];
-   Params: T["Params"];
-}> &
-   (T extends { Row: Record<string, unknown> } ? InferSelectRowByResult<T["Row"]> : unknown) & {
-      $$: T extends { Row: Record<string, unknown> } ? SqlSelectAll<T> : unknown;
-   };
+export type SqlQueryColumns<T extends { Row?: unknown; Params?: unknown }> = T extends { Row: Record<string, unknown> }
+   ? InferSelectRowByResult<T["Row"]>
+   : unknown;
+
+export type SqlQueryExtended<T extends { Row?: unknown; Params?: unknown }> = SqlQuery<T> & SqlQueryColumns<T>;
 
 export interface SqlQueryArgs {
    readonly info?: SqlQueryInfo;
@@ -62,7 +60,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
       let params: Record<string, SqlParamAny> | null = null;
       let row: Record<string, unknown> | null = null;
       let hasRow = false;
-
+      let info: SqlQueryInfo | null = null;
       const queue = new Queue(...rawValues);
       for (const rawValue of queue.shift()) {
          switch (true) {
@@ -73,7 +71,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
                };
                break;
             case rawValue instanceof SqlQueryInfo:
-               this.info = rawValue;
+               info = rawValue;
                break;
             case rawValue instanceof SqlSelectRow:
                if (hasRow) {
@@ -106,14 +104,10 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
                break;
          }
       }
-
-      this.params = params as SqlQueryParams<T>;
       this.row = row as SqlQueryRow<T>;
-      if (this.row) {
-         this.$$ = new SqlSelectAll(this.row) as SqlQueryAll<T>;
-      } else {
-         this.$$ = null as SqlQueryAll<T>;
-      }
+      this.info = info;
+      this.params = params as SqlQueryParams<T>;
+      this.$$ = (this.row ? new SqlSelectAll(this.row) : null) as SqlQueryAll<T>;
    }
 
    /**

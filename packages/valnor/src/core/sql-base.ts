@@ -1,6 +1,9 @@
 import { SqlBuildContext, SqlBuildOptions } from "./query/index.js";
 
-export type SqlOptions = { wrap?: boolean; ID: string };
+export type SqlOptions = {
+   wrap?: boolean;
+   ID: string;
+};
 
 /**
  * Base class for all Sql tokens

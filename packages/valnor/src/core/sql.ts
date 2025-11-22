@@ -18,7 +18,10 @@ export type SqlQueryToken = _SqlInlineValue_ | _SqlInlineValue_[];
 export function sql<Token extends SqlQueryToken = SqlQueryToken, Tokens extends Token[] = Token[]>(
    rawStrings: TemplateStringsArray,
    ...rawValues: Tokens
-) {
+): SqlQueryExtended<{
+   Row: QueryRow<typeof rawValues>;
+   Params: QueryParams<typeof rawValues>;
+}> {
    const query = new SqlQuery({ rawStrings, rawValues });
 
    return new Proxy(query, {
@@ -44,7 +47,7 @@ export function sql<Token extends SqlQueryToken = SqlQueryToken, Tokens extends 
 
          return undefined;
       },
-   }) as unknown as SqlQueryExtended<{
+   }) as SqlQueryExtended<{
       Row: QueryRow<typeof rawValues>;
       Params: QueryParams<typeof rawValues>;
    }>;
@@ -60,20 +63,22 @@ export type InferResultRowFromQueryTokens<T> = T extends [infer Start, ...infer 
           : InferResultRowFromQueryTokens<Rest>
    : unknown;
 
-export type InferParamFromSql<T> =
-   T extends SqlParam<infer Param extends { Name: string; Type: unknown }>
-      ? Record<Param["Name"], Param["Type"]>
-      : T extends SqlQueryExtended<infer Options extends { Params?: unknown }>
-        ? Options["Params"] extends Record<string, unknown>
-           ? Options["Params"]
-           : unknown
-        : T extends AsyncQueryHandler<
-               infer Options extends { Params?: unknown; Row?: unknown; QueryResult: any; QueryClient: any }
+export type InferParamFromSql<Start> =
+   Start extends SqlParam<infer Options extends { Name: string; Type: unknown }>
+      ? Record<Options["Name"], Options["Type"]>
+      : Start extends SqlQueryExtended<infer Options extends { Params: Record<string, unknown> }>
+        ? Options["Params"]
+        : Start extends AsyncQueryHandler<
+               infer Options extends { Params: Record<string, unknown>; QueryResult: any; QueryClient: any }
             >
           ? Options["Params"]
-          : T extends SqlCharm<infer Options extends { Params: Record<string, unknown> }>
+          : Start extends SqlSelectValue<
+                 infer Options extends { Key: string; Type: unknown; Params: Record<string, unknown> }
+              >
             ? Options["Params"]
-            : unknown;
+            : Start extends SqlCharm<infer Options extends { Params: Record<string, unknown> }>
+              ? Options["Params"]
+              : unknown;
 
 // TODO: infer params from array of params
 export type InferParamsFromQueryTokens<T> = T extends [infer Start, ...infer Rest]
