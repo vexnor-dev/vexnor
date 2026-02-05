@@ -23,29 +23,22 @@ describe("SqlTable.insertCols() and insertCols() tests", () => {
             output ${row(Account.as`inserted`.$$)}
             ${Account.insertVals(...rows)}`;
 
-      expect(query.getValues({})).toEqual([
-         "john1.doe1@example.com",
-         "John1",
-         "Doe1",
-         "john2.doe2@example.com",
-         "John2",
-         "Doe2",
-      ]);
-      expect(query.getSql({})).toEqualQuery(
-         `insert into "valnor_test"."account"
-             ("email", "first_name", "last_name")
-             output "inserted"."account_id" as "accountId",
-             "inserted"."status",
-             "inserted"."email",
-             "inserted"."first_name" as "firstName",
-             "inserted"."last_name" as "lastName",
-             "inserted"."notes",
-             "inserted"."created_at" as "createdAt",
-             "inserted"."modified_at" as "modifiedAt",
-             "inserted"."parent_id" as "parentId"
-         values (?, ?, ?),
-                (?, ?, ?)
-         `,
-      );
+      const { values, text } = query.getSql({});
+      expect(values).toEqual(["john1.doe1@example.com", "John1", "Doe1", "john2.doe2@example.com", "John2", "Doe2"]);
+      expect(text).toMatchInlineSnapshot(`
+        "INSERT INTO
+          "valnor_test"."account" ("email", "first_name", "last_name") output "inserted"."account_id" AS "accountId",
+          "inserted"."status",
+          "inserted"."email",
+          "inserted"."first_name" AS "firstName",
+          "inserted"."last_name" AS "lastName",
+          "inserted"."notes",
+          "inserted"."created_at" AS "createdAt",
+          "inserted"."modified_at" AS "modifiedAt",
+          "inserted"."parent_id" AS "parentId"
+        VALUES
+          (?, ?, ?),
+          (?, ?, ?)"
+      `);
    });
 });

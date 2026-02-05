@@ -5,6 +5,8 @@ export type SqlOptions = {
    ID: string;
 };
 
+const IDs = new Set<string>();
+
 /**
  * Base class for all Sql tokens
  */
@@ -20,7 +22,20 @@ export abstract class Sql {
    readonly ID: string;
 
    protected constructor(options: SqlOptions) {
-      this.ID = this.constructor.name + "(" + options.ID + ")" + Math.random().toString(36).substring(2, 6);
+      const newId = () => this.constructor.name + "(" + options.ID + ")" + Math.random().toString(36).substring(2, 6);
+      this.ID = (() => {
+         let counter = 0;
+         let id = "";
+         while (counter++ < 3) {
+            id = newId();
+            if (!IDs.has(id)) {
+               IDs.add(id);
+               return id;
+            }
+         }
+
+         throw new Error(`Could not generate unique ID for Sql token: ${this.constructor.name}/${options.ID}`);
+      })();
 
       this.wrap = (() => {
          if (options?.wrap === undefined) return true;

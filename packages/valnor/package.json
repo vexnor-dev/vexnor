@@ -75,8 +75,9 @@
    "dependencies": {
       "code-block-writer": "^11.0.3",
       "commander": "^9.1.0",
-      "glob": "^11.0.3",
+      "glob": "11.1.0",
       "pino": "^7.10.0",
+      "sql-formatter": "^15.7.0",
       "to-case": "^2.0.0",
       "tsx": "^4.20.6"
    },

@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
 import { randomUUID } from "node:crypto";
-import { param, rowType } from "../query/index.js";
+import { param, row, rowType } from "../query/index.js";
 import { sql } from "../sql.js";
 import { Account, IAccountSelect } from "./models/valnor_test.account-table.js";
 import { IOrderItemSelect, OrderItem } from "./models/valnor_test.order_item-table.js";
@@ -17,35 +17,48 @@ describe("sql() tests", () => {
          where ${Account.$email} = ${param("email").is<string>()}
            and ${Account.$firstName} in (${param("names").is<string[]>()})
          group by ${Account.$email}`;
-      expect(query.getValues({ params: { names, email: "test@example.com" } })).toEqual([
-         "test@example.com",
-         "One",
-         "Two",
-         "Three",
-      ]);
-      expect(query.getSql({ params: { names, email: "test@example.com" } })).toEqualQuery(`
-         select "a_1"."first_name" as "firstName",
-                min("a_1"."email"),
-                "a_1"."email"      as "user_email",
-                "a_1"."created_at" as "createdAt"
-         from "valnor_test"."account" as "a_1"
-         where "a_1"."email" = ?
-           and "a_1"."first_name" in (?, ?, ?)
-         group by "a_1"."email"`);
+      const { values, text } = query.getSql({ params: { names, email: "test@example.com" } });
+      expect(values).toMatchInlineSnapshot(`
+        [
+          "test@example.com",
+          "One",
+          "Two",
+          "Three",
+        ]
+      `);
+      expect(text).toMatchInlineSnapshot(`
+        "SELECT
+          "a_1"."first_name" AS "firstName",
+          min("a_1"."email"),
+          "a_1"."email" AS "user_email",
+          "a_1"."created_at" AS "createdAt"
+        FROM
+          "valnor_test"."account" AS "a_1"
+        WHERE
+          "a_1"."email" = ?
+          AND "a_1"."first_name" IN (?, ?, ?)
+        GROUP BY
+          "a_1"."email""
+      `);
    });
 
    test("sql() without any values", () => {
       const query = sql`
-         ${rowType<IAccountSelect>()}
-         select ${Account.$firstName}
+         select ${row(Account.$firstName, Account.$lastName)}
          from ${Account}
          where ${Account.$email} = 'bob@example.com'`;
-      expect(query.getValues({})).toEqual([]);
-      expect(query.getSql({})).toEqualQuery(`
-            select "a_1"."first_name" as "firstName"
-            from "valnor_test"."account" as "a_1"
-            where "a_1"."email" = 'bob@example.com'
-         `);
+
+      const { values, text } = query.getSql({});
+      expect(values).toEqual([]);
+      expect(text).toMatchInlineSnapshot(`
+        "SELECT
+          "a_1"."first_name" AS "firstName",
+          "a_1"."last_name" AS "lastName"
+        FROM
+          "valnor_test"."account" AS "a_1"
+        WHERE
+          "a_1"."email" = 'bob@example.com'"
+      `);
    });
 
    test("sql() with value as param", () => {
@@ -55,12 +68,16 @@ describe("sql() tests", () => {
          select ${Account.$firstName}
          from ${Account}
          where ${Account.$email} = ${email}`;
-      expect(query.getValues({})).toEqual(["bob@example.com"]);
-      expect(query.getSql({})).toEqualQuery(`
-            select "a_1"."first_name" as "firstName"
-            from "valnor_test"."account" as "a_1"
-            where "a_1"."email" = ?
-         `);
+      const { values, text } = query.getSql({});
+      expect(values).toEqual(["bob@example.com"]);
+      expect(text).toMatchInlineSnapshot(`
+        "SELECT
+          "a_1"."first_name" AS "firstName"
+        FROM
+          "valnor_test"."account" AS "a_1"
+        WHERE
+          "a_1"."email" = ?"
+      `);
    });
 
    test("sql query with joins", () => {
@@ -77,17 +94,21 @@ describe("sql() tests", () => {
                  join ${Order} on ${OrderItem.$orderId} = ${Order.$orderId}
                  join ${Account} on ${Account.$accountId} = ${Order.$accountId}`;
 
-      expect(query.getSql({})).toEqualQuery(`
-         select "oi_1"."product_id"    as "productId",
-                "oi_1"."order_id"      as "orderId",
-                "oi_1"."product_price" as "productPrice",
-                "o_2"."created_at"     as "createdAt",
-                "o_2"."status",
-                "a_3"."first_name"     as "firstName",
-                "a_3"."last_name"      as "lastName"
-         from "valnor_test"."order_item" as "oi_1"
-                 join "valnor_test"."order" as "o_2" on "oi_1"."order_id" = "o_2"."order_id"
-                 join "valnor_test"."account" as "a_3" on "a_3"."account_id" = "o_2"."account_id"`);
+      const { text } = query.getSql({});
+      expect(text).toMatchInlineSnapshot(`
+        "SELECT
+          "oi_1"."product_id" AS "productId",
+          "oi_1"."order_id" AS "orderId",
+          "oi_1"."product_price" AS "productPrice",
+          "o_2"."created_at" AS "createdAt",
+          "o_2"."status",
+          "a_3"."first_name" AS "firstName",
+          "a_3"."last_name" AS "lastName"
+        FROM
+          "valnor_test"."order_item" AS "oi_1"
+          JOIN "valnor_test"."order" AS "o_2" ON "oi_1"."order_id" = "o_2"."order_id"
+          JOIN "valnor_test"."account" AS "a_3" ON "a_3"."account_id" = "o_2"."account_id""
+      `);
    });
 
    test("sql query with self-join and explicit alias", () => {
@@ -98,11 +119,15 @@ describe("sql() tests", () => {
          from ${Account}
                  join ${Account.as`parent`} on ${Account.$parentId} = ${Account.as`parent`.$accountId}`;
 
-      expect(query.getSql({})).toEqualQuery(`
-         select "a_1"."email",
-                "parent"."email" as "parentEmail"
-         from "valnor_test"."account" as "a_1"
-                 join "valnor_test"."account" as "parent" on "a_1"."parent_id" = "parent"."account_id"`);
+      const { text } = query.getSql({});
+      expect(text).toMatchInlineSnapshot(`
+        "SELECT
+          "a_1"."email",
+          "parent"."email" AS "parentEmail"
+        FROM
+          "valnor_test"."account" AS "a_1"
+          JOIN "valnor_test"."account" AS "parent" ON "a_1"."parent_id" = "parent"."account_id""
+      `);
    });
 
    test("sql() insert statement should not have an alias on the target table", () => {
@@ -110,11 +135,15 @@ describe("sql() tests", () => {
          insert into ${Account} (${Account.$email}, ${Account.$firstName})
          values ('test@example.com', 'Test')`;
 
+      const { text } = query.getSql({});
       // Note: T-SQL and PostgreSQL do not support aliases on the target table of an INSERT statement.
       // The table format for "insert into" is "schema.tableName", which correctly omits the alias.
-      expect(query.getSql({})).toEqualQuery(`
-         insert into "valnor_test"."account" ("email", "first_name")
-         values ('test@example.com', 'Test')`);
+      expect(text).toMatchInlineSnapshot(`
+        "INSERT INTO
+          "valnor_test"."account" ("email", "first_name")
+        VALUES
+          ('test@example.com', 'Test')"
+      `);
    });
 
    test("sql() update statement should not have an alias on the target table or its columns", () => {
@@ -123,12 +152,16 @@ describe("sql() tests", () => {
          set ${Account.$firstName} = 'Bob'
          where ${Account.$accountId} = '123'`;
 
+      const { text } = query.getSql({});
       // For a simple UPDATE, T-SQL and PG do not alias the target table.
       // Therefore, columns in SET and WHERE clauses for that table must also be un-aliased.
-      expect(query.getSql({})).toEqualQuery(`
-         update "valnor_test"."account"
-         set "first_name" = 'Bob'
-         where "account"."account_id" = '123'`);
+      expect(text).toMatchInlineSnapshot(`
+        "UPDATE "valnor_test"."account"
+        SET
+          "first_name" = 'Bob'
+        WHERE
+          "account"."account_id" = '123'"
+      `);
    });
 
    test("sql() complex update statement with join should use aliases", () => {
@@ -140,13 +173,18 @@ describe("sql() tests", () => {
                  join ${Order} on ${Account.$accountId} = ${Order.$accountId}
          where ${Order.$status} = 'completed'`;
 
+      const { text } = query.getSql({});
       // In a complex UPDATE, the target table is aliased, and all column references must be qualified.
-      expect(query.getSql({})).toEqualQuery(`
-         update "valnor_test"."account"
-         set "first_name" = 'Staged Name'
-         from "valnor_test"."account"
-                 join "valnor_test"."order" as "o_2" on "account"."account_id" = "o_2"."account_id"
-         where "o_2"."status" = 'completed'`);
+      expect(text).toMatchInlineSnapshot(`
+        "UPDATE "valnor_test"."account"
+        SET
+          "first_name" = 'Staged Name'
+        FROM
+          "valnor_test"."account"
+          JOIN "valnor_test"."order" AS "o_2" ON "account"."account_id" = "o_2"."account_id"
+        WHERE
+          "o_2"."status" = 'completed'"
+      `);
    });
 
    test("sql delete from", () => {
@@ -155,10 +193,13 @@ describe("sql() tests", () => {
          delete
          from ${Account}
          where ${Account.$accountId} <> ${noid}`;
-      expect(query.getSql({})).toEqualQuery(`
-         delete from "valnor_test"."account"
-         where "account"."account_id" <> ?
+
+      const { text, values } = query.getSql({});
+      expect(text).toMatchInlineSnapshot(`
+        "DELETE FROM "valnor_test"."account"
+        WHERE
+          "account"."account_id" <> ?"
       `);
-      expect(query.getValues({})).toEqual([noid]);
+      expect(values).toEqual([noid]);
    });
 });

@@ -22,20 +22,23 @@ describe("SqlTable.insertColsVals() tests", () => {
             ${Account.insertColsVals(...rows)}
             returning ${row(Account.$$)}`;
 
-      expect(query.getValues({})).toEqual([
-         "john1.doe1@example.com",
-         "John1",
-         "Doe1",
-         "john2.doe2@example.com",
-         "John2",
-         "Doe2",
-      ]);
-      expect(query.getSql({})).toEqualQuery(
-         `insert into "valnor_test"."account"
-             ("email", "first_name", "last_name")
-          values (?, ?, ?), (?, ?, ?)
-          returning "account"."account_id" as "accountId", "account"."status", "account"."email", "account"."first_name" as "firstName", "account"."last_name" as "lastName", "account"."notes", "account"."created_at" as "createdAt", "account"."modified_at" as "modifiedAt", "account"."parent_id" as "parentId"`,
-      );
+      const { values, text } = query.getSql({});
+      expect(values).toEqual(["john1.doe1@example.com", "John1", "Doe1", "john2.doe2@example.com", "John2", "Doe2"]);
+      expect(text).toMatchInlineSnapshot(`
+        "INSERT INTO
+          "valnor_test"."account" ("email", "first_name", "last_name")
+        VALUES
+          (?, ?, ?),
+          (?, ?, ?) returning "account"."account_id" AS "accountId",
+          "account"."status",
+          "account"."email",
+          "account"."first_name" AS "firstName",
+          "account"."last_name" AS "lastName",
+          "account"."notes",
+          "account"."created_at" AS "createdAt",
+          "account"."modified_at" AS "modifiedAt",
+          "account"."parent_id" AS "parentId""
+      `);
    });
 
    test("sql() insert with different key orders produces canonical order", () => {
@@ -61,7 +64,8 @@ describe("SqlTable.insertColsVals() tests", () => {
             ${Account.insertColsVals(...rows)}
             returning ${row(Account.$$)}`;
 
-      expect(query.getValues({})).toEqual([
+      const { values, text } = query.getSql({});
+      expect(values).toEqual([
          "john1.doe1@example.com",
          "John1",
          "Doe1",
@@ -72,12 +76,22 @@ describe("SqlTable.insertColsVals() tests", () => {
          "John3",
          "Doe3",
       ]);
-      expect(query.getSql({})).toEqualQuery(
-         `insert into "valnor_test"."account"
-             ("email", "first_name", "last_name")
-          values (?, ?, ?), (?, ?, ?), (?, ?, ?)
-          returning "account"."account_id" as "accountId", "account"."status", "account"."email", "account"."first_name" as "firstName", "account"."last_name" as "lastName", "account"."notes", "account"."created_at" as "createdAt", "account"."modified_at" as "modifiedAt", "account"."parent_id" as "parentId"`,
-      );
+      expect(text).toMatchInlineSnapshot(`
+        "INSERT INTO
+          "valnor_test"."account" ("email", "first_name", "last_name")
+        VALUES
+          (?, ?, ?),
+          (?, ?, ?),
+          (?, ?, ?) returning "account"."account_id" AS "accountId",
+          "account"."status",
+          "account"."email",
+          "account"."first_name" AS "firstName",
+          "account"."last_name" AS "lastName",
+          "account"."notes",
+          "account"."created_at" AS "createdAt",
+          "account"."modified_at" AS "modifiedAt",
+          "account"."parent_id" AS "parentId""
+      `);
    });
 
    test("throws error when inserts have different columns", () => {

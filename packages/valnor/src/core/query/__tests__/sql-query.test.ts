@@ -40,12 +40,17 @@ describe("SqlQuery tests", () => {
       const query = sql`join ${subQuery}`;
       const context = new SqlBuildContext({ query });
       query.build(context);
-      expect(context.text).toEqualQuery(`
-         join (select "a_1"."account_id"  as "accountId",
+      expect(context.text).toMatchInlineSnapshot(`
+        "JOIN (
+          SELECT
+            "a_1"."account_id" AS "accountId",
             "a_1"."status",
             "a_1"."email"
-         from "valnor_test"."account" as "a_1"
-         where "a_1"."status" = ?) as "query_1"
+          FROM
+            "valnor_test"."account" AS "a_1"
+          WHERE
+            "a_1"."status" = ?
+        ) AS "query_1""
       `);
    });
 
@@ -60,13 +65,33 @@ describe("SqlQuery tests", () => {
 
       const context = new SqlBuildContext();
       rootQuery.build(context);
-      expect(context.text).toEqualQuery(`
-         join (/* --label: AccountsCreated */
-         select "a_1"."account_id"  as "accountId",
+      expect(context.text).toMatchInlineSnapshot(`
+        "JOIN (
+          /* --label: AccountsCreated */
+          SELECT
+            "a_1"."account_id" AS "accountId",
             "a_1"."status",
             "a_1"."email"
-         from "valnor_test"."account" as "a_1"
-         where "a_1"."status" = ?) as "AccountsCreated"
+          FROM
+            "valnor_test"."account" AS "a_1"
+          WHERE
+            "a_1"."status" = ?
+        ) AS "AccountsCreated""
+      `);
+   });
+
+   test("sql query formatting", () => {
+      const query = sql`
+            select ${row(Account.$accountId, Account.$status, Account.$email)}
+            from ${Account}
+         `;
+      expect(query.getSql({}).text).toMatchInlineSnapshot(`
+        "SELECT
+          "a_1"."account_id" AS "accountId",
+          "a_1"."status",
+          "a_1"."email"
+        FROM
+          "valnor_test"."account" AS "a_1""
       `);
    });
 });

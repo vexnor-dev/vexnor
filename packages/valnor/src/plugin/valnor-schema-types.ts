@@ -14,11 +14,26 @@ export interface SqlColumnInfo {
    table_name: string;
 }
 
+export interface SqlPrimaryKeyInfo {
+   constraint_name: string;
+   column_name: string;
+   ordinal_position?: number;
+   table_schema: string;
+   table_name: string;
+}
+
+export interface SqlPrimaryKeyInfo {
+   table_schema: string;
+   table_name: string;
+   column_name: string;
+   ordinal_position?: number;
+}
+
 export type SqlTableInfo = {
    table_name: string;
-   table_columns: SqlColumnInfo[];
+   columns: SqlColumnInfo[];
    table_schema: string;
-   primary_keys: string[];
+   primary_keys: SqlPrimaryKeyInfo[];
 };
 
 export interface SqlEnumValue {

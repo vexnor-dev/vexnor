@@ -5,7 +5,7 @@ import { PrintTableArgs, SqlLiteralType } from "../../../plugin/index.js";
 import { getCodegenContext } from "../codegen-context.js";
 
 export function writeTableSelect(writer: CodeBlockWriter.default, { table }: PrintTableArgs) {
-   const { table_name, table_columns } = table;
+   const { table_name, columns } = table;
    const { getTableName, getColumnName, plugin } = getCodegenContext();
    const tableTypeName = getTableName(table_name);
 
@@ -13,7 +13,7 @@ export function writeTableSelect(writer: CodeBlockWriter.default, { table }: Pri
       .blankLine()
       .write(`export type I${tableTypeName}Select = `)
       .inlineBlock(() => {
-         table_columns.forEach((col) => {
+         columns.forEach((col) => {
             const isNullable = col.is_nullable === "YES";
             const columnName = getColumnName(col.column_name);
             writer.write(`readonly ${columnName}: `);

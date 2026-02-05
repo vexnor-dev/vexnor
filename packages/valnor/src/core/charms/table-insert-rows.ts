@@ -22,14 +22,17 @@ export class TableInsertRows<
    }
 
    build(context: SqlBuildContext) {
-      const valueRows: string[] = [];
-      for (const insert of this.inserts) {
+      context.addStrings("values ");
+      for (let i = 0; i < this.inserts.length; i++) {
+         const insert = this.inserts[i]!;
+         if (i > 0) context.addStrings(", ");
          const values = this.keys.map((key) => insert[key]);
-         valueRows.push(`(${values.map(() => "?").join(", ")})`);
-         context.addValues(...values);
+         context.addStrings("(");
+         for (let k = 0; k < values.length; k++) {
+            if (k > 0) context.addStrings(", ");
+            context.addValues(values[k]);
+         }
+         context.addStrings(")");
       }
-
-      const sql = `values ${valueRows.join(", ")}`;
-      context.addStrings(sql);
    }
 }

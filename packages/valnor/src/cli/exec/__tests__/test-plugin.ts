@@ -23,7 +23,7 @@ export class TestPlugin extends ValnorPlugin {
    }
 
    newQueryHandler<T extends { Row?: unknown; Params?: unknown; QueryResult: object; QueryClient: unknown }>(
-      query: SqlQuery<T>,
+      query: SqlQuery<{ Params: T["Params"]; Row: T["Row"] }>,
    ): AsyncQueryHandler<T> {
       return new TestDriverQueryHandler(query);
    }

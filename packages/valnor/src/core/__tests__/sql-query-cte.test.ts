@@ -5,7 +5,7 @@ import { param, row, val } from "../query/index.js";
 import { info } from "../charms/index.js";
 
 describe("sql CTE (with clause) tests", () => {
-   test("simple CTE with automatic naming", () => {
+   test("simple CTE with label naming", () => {
       const ActiveAccounts = sql`
          ${info({ label: "ActiveAccounts" })}
          select ${row(Account.$$)}
@@ -20,28 +20,88 @@ describe("sql CTE (with clause) tests", () => {
          where ${ActiveAccounts.$firstName} = ${param("firstName").is<string>()}
       `;
 
-      expect(query.getSql({ params: { firstName: "John" } })).toEqualQuery(`
-         with "ActiveAccounts" as (
+      const { text, values } = query.getSql({ params: { firstName: "John" } });
+      expect(values).toMatchInlineSnapshot(`
+        [
+          "John",
+        ]
+      `);
+      expect(text).toMatchInlineSnapshot(`
+        "WITH
+          "ActiveAccounts" AS (
             /* --label: ActiveAccounts */
-            select "a_1"."account_id" as "accountId",
-                   "a_1"."status",
-                   "a_1"."email",
-                   "a_1"."first_name" as "firstName",
-                   "a_1"."last_name" as "lastName",
-                   "a_1"."notes",
-                   "a_1"."created_at" as "createdAt",
-                   "a_1"."modified_at" as "modifiedAt",
-                   "a_1"."parent_id" as "parentId"
-            from "valnor_test"."account" as "a_1"
-            where "a_1"."status" = 'active'
-         )
-         select "ActiveAccounts".*
-         from "ActiveAccounts"
-         where "ActiveAccounts"."firstName" = ?
+            SELECT
+              "a_1"."account_id" AS "accountId",
+              "a_1"."status",
+              "a_1"."email",
+              "a_1"."first_name" AS "firstName",
+              "a_1"."last_name" AS "lastName",
+              "a_1"."notes",
+              "a_1"."created_at" AS "createdAt",
+              "a_1"."modified_at" AS "modifiedAt",
+              "a_1"."parent_id" AS "parentId"
+            FROM
+              "valnor_test"."account" AS "a_1"
+            WHERE
+              "a_1"."status" = 'active'
+          )
+        SELECT
+          "ActiveAccounts".*
+        FROM
+          "ActiveAccounts"
+        WHERE
+          "ActiveAccounts"."firstName" = ?"
       `);
    });
 
-   test("multiple CTEs with automatic naming", () => {
+   test("simple CTE with indexed naming", () => {
+      const ActiveAccounts = sql`
+         select ${row(Account.$$)}
+         from ${Account}
+         where ${Account.$status} = 'active'
+      `;
+
+      const query = sql`
+         with ${ActiveAccounts}
+                 select ${row(ActiveAccounts.$$)}
+                 from ${ActiveAccounts}
+                 where ${ActiveAccounts.$firstName} = ${param("firstName").is<string>()}
+      `;
+
+      const { text, values } = query.getSql({ params: { firstName: "John" } });
+      expect(values).toMatchInlineSnapshot(`
+        [
+          "John",
+        ]
+      `);
+      expect(text).toMatchInlineSnapshot(`
+        "WITH
+          "query_2" AS (
+            SELECT
+              "a_1"."account_id" AS "accountId",
+              "a_1"."status",
+              "a_1"."email",
+              "a_1"."first_name" AS "firstName",
+              "a_1"."last_name" AS "lastName",
+              "a_1"."notes",
+              "a_1"."created_at" AS "createdAt",
+              "a_1"."modified_at" AS "modifiedAt",
+              "a_1"."parent_id" AS "parentId"
+            FROM
+              "valnor_test"."account" AS "a_1"
+            WHERE
+              "a_1"."status" = 'active'
+          )
+        SELECT
+          "query_2".*
+        FROM
+          "query_2"
+        WHERE
+          "query_2"."firstName" = ?"
+      `);
+   });
+
+   test("multiple CTEs with label naming", () => {
       const ActiveAccounts = sql`
          ${info({ label: "ActiveAccounts" })}
          select ${row(Account.$$)}
@@ -65,38 +125,125 @@ describe("sql CTE (with clause) tests", () => {
       `;
 
       const since = new Date("2024-01-01");
-      expect(query.getSql({ params: { since } })).toEqualQuery(`
-         with "ActiveAccounts" as (
+      const { text, values } = query.getSql({ params: { since } });
+      expect(values).toMatchInlineSnapshot(`
+        [
+          2024-01-01T00:00:00.000Z,
+        ]
+      `);
+      expect(text).toMatchInlineSnapshot(`
+        "WITH
+          "ActiveAccounts" AS (
             /* --label: ActiveAccounts */
-            select "a_1"."account_id" as "accountId",
-                   "a_1"."status",
-                   "a_1"."email",
-                   "a_1"."first_name" as "firstName",
-                   "a_1"."last_name" as "lastName",
-                   "a_1"."notes",
-                   "a_1"."created_at" as "createdAt",
-                   "a_1"."modified_at" as "modifiedAt",
-                   "a_1"."parent_id" as "parentId"
-            from "valnor_test"."account" as "a_1"
-            where "a_1"."status" = 'active'
-         ),
-         "RecentAccounts" as (
+            SELECT
+              "a_1"."account_id" AS "accountId",
+              "a_1"."status",
+              "a_1"."email",
+              "a_1"."first_name" AS "firstName",
+              "a_1"."last_name" AS "lastName",
+              "a_1"."notes",
+              "a_1"."created_at" AS "createdAt",
+              "a_1"."modified_at" AS "modifiedAt",
+              "a_1"."parent_id" AS "parentId"
+            FROM
+              "valnor_test"."account" AS "a_1"
+            WHERE
+              "a_1"."status" = 'active'
+          ),
+          "RecentAccounts" AS (
             /* --label: RecentAccounts */
-            select "a_2"."account_id" as "accountId",
-                   "a_2"."status",
-                   "a_2"."email",
-                   "a_2"."first_name" as "firstName",
-                   "a_2"."last_name" as "lastName",
-                   "a_2"."notes",
-                   "a_2"."created_at" as "createdAt",
-                   "a_2"."modified_at" as "modifiedAt",
-                   "a_2"."parent_id" as "parentId"
-            from "valnor_test"."account" as "a_2"
-            where "a_2"."created_at" > ?
-         )
-         select "ActiveAccounts"."accountId", "ActiveAccounts"."email"
-         from "ActiveAccounts"
-         join "RecentAccounts" on "ActiveAccounts"."accountId" = "RecentAccounts"."accountId"
+            SELECT
+              "a_2"."account_id" AS "accountId",
+              "a_2"."status",
+              "a_2"."email",
+              "a_2"."first_name" AS "firstName",
+              "a_2"."last_name" AS "lastName",
+              "a_2"."notes",
+              "a_2"."created_at" AS "createdAt",
+              "a_2"."modified_at" AS "modifiedAt",
+              "a_2"."parent_id" AS "parentId"
+            FROM
+              "valnor_test"."account" AS "a_2"
+            WHERE
+              "a_2"."created_at" > ?
+          )
+        SELECT
+          "ActiveAccounts"."accountId",
+          "ActiveAccounts"."email"
+        FROM
+          "ActiveAccounts"
+          JOIN "RecentAccounts" ON "ActiveAccounts"."accountId" = "RecentAccounts"."accountId""
+      `);
+   });
+
+   test("multiple CTEs with indexed naming", () => {
+      const ActiveAccounts = sql`
+         select ${row(Account.$$)}
+         from ${Account}
+         where ${Account.$status} = 'active'
+      `;
+
+      const RecentAccounts = sql`
+         select ${row(Account.$$)}
+         from ${Account}
+         where ${Account.$createdAt} > ${param("since").is<Date>()}
+      `;
+
+      const query = sql`
+         with ${ActiveAccounts},
+              ${RecentAccounts}
+         select ${row(ActiveAccounts.$accountId, RecentAccounts.$email)}
+         from ${ActiveAccounts}
+         join ${RecentAccounts} on ${ActiveAccounts.$accountId} = ${RecentAccounts.$accountId}
+      `;
+
+      const since = new Date("2024-01-01");
+      const { text, values } = query.getSql({ params: { since } });
+      expect(values).toMatchInlineSnapshot(`
+        [
+          2024-01-01T00:00:00.000Z,
+        ]
+      `);
+      expect(text).toMatchInlineSnapshot(`
+        "WITH
+          "query_1" AS (
+            SELECT
+              "a_1"."account_id" AS "accountId",
+              "a_1"."status",
+              "a_1"."email",
+              "a_1"."first_name" AS "firstName",
+              "a_1"."last_name" AS "lastName",
+              "a_1"."notes",
+              "a_1"."created_at" AS "createdAt",
+              "a_1"."modified_at" AS "modifiedAt",
+              "a_1"."parent_id" AS "parentId"
+            FROM
+              "valnor_test"."account" AS "a_1"
+            WHERE
+              "a_1"."status" = 'active'
+          ),
+          "query_2" AS (
+            SELECT
+              "a_2"."account_id" AS "accountId",
+              "a_2"."status",
+              "a_2"."email",
+              "a_2"."first_name" AS "firstName",
+              "a_2"."last_name" AS "lastName",
+              "a_2"."notes",
+              "a_2"."created_at" AS "createdAt",
+              "a_2"."modified_at" AS "modifiedAt",
+              "a_2"."parent_id" AS "parentId"
+            FROM
+              "valnor_test"."account" AS "a_2"
+            WHERE
+              "a_2"."created_at" > ?
+          )
+        SELECT
+          "query_1"."accountId",
+          "query_2"."email"
+        FROM
+          "query_1"
+          JOIN "query_2" ON "query_1"."accountId" = "query_2"."accountId""
       `);
    });
 
@@ -116,17 +263,26 @@ describe("sql CTE (with clause) tests", () => {
          where ${AccountCounts.$total} > 10
       `;
 
-      expect(query.getSql({})).toEqualQuery(`
-         with "AccountCounts" as (
+      const { text } = query.getSql({});
+      expect(text).toMatchInlineSnapshot(`
+        "WITH
+          "AccountCounts" AS (
             /* --label: AccountCounts */
-            select "a_1"."status",
-                   count(*) as "total"
-            from "valnor_test"."account" as "a_1"
-            group by "a_1"."status"
-         )
-         select "AccountCounts"."status", "AccountCounts"."total"
-         from "AccountCounts"
-         where "AccountCounts"."total" > 10
+            SELECT
+              "a_1"."status",
+              count(*) AS "total"
+            FROM
+              "valnor_test"."account" AS "a_1"
+            GROUP BY
+              "a_1"."status"
+          )
+        SELECT
+          "AccountCounts"."status",
+          "AccountCounts"."total"
+        FROM
+          "AccountCounts"
+        WHERE
+          "AccountCounts"."total" > 10"
       `);
    });
 
@@ -144,23 +300,31 @@ describe("sql CTE (with clause) tests", () => {
          where ${Account.$createdAt} = ${MaxCreatedAt.$maxDate}
       `;
 
-      expect(query.getSql({})).toEqualQuery(`
-         with "MaxCreatedAt" as (
+      const { text } = query.getSql({});
+      expect(text).toMatchInlineSnapshot(`
+        "WITH
+          "MaxCreatedAt" AS (
             /* --label: MaxCreatedAt */
-            select max("a_1"."created_at") as "maxDate"
-            from "valnor_test"."account" as "a_1"
-         )
-         select "a_2"."account_id" as "accountId",
-                "a_2"."status",
-                "a_2"."email",
-                "a_2"."first_name" as "firstName",
-                "a_2"."last_name" as "lastName",
-                "a_2"."notes",
-                "a_2"."created_at" as "createdAt",
-                "a_2"."modified_at" as "modifiedAt",
-                "a_2"."parent_id" as "parentId"
-         from "valnor_test"."account" as "a_2", "MaxCreatedAt"
-         where "a_2"."created_at" = "MaxCreatedAt"."maxDate"
+            SELECT
+              max("a_1"."created_at") AS "maxDate"
+            FROM
+              "valnor_test"."account" AS "a_1"
+          )
+        SELECT
+          "a_2"."account_id" AS "accountId",
+          "a_2"."status",
+          "a_2"."email",
+          "a_2"."first_name" AS "firstName",
+          "a_2"."last_name" AS "lastName",
+          "a_2"."notes",
+          "a_2"."created_at" AS "createdAt",
+          "a_2"."modified_at" AS "modifiedAt",
+          "a_2"."parent_id" AS "parentId"
+        FROM
+          "valnor_test"."account" AS "a_2",
+          "MaxCreatedAt"
+        WHERE
+          "a_2"."created_at" = "MaxCreatedAt"."maxDate""
       `);
    });
 });

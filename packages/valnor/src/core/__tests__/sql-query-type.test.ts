@@ -16,7 +16,7 @@ describe("sql query type tests", () => {
          createdAt: new Date(),
       };
       expect(actual).toBeDefined();
-      console.log(actual.$firstName);
+      console.log(actual.firstName);
    });
 
    test("infer row result type from sql-query", () => {

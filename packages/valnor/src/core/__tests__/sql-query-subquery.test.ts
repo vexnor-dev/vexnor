@@ -47,24 +47,32 @@ describe("sql subqueries tests", () => {
          from ${AccountsWithEmail}
          where ${AccountsWithEmail.$firstName} = ${param("firstName").is<string>()}`;
 
-      expect(query.getValues({ params: { firstName: "John", email: "test@example.com" } })).toEqual([
-         "test@example.com",
-         "John",
-      ]);
-      expect(query.getSql({ params: { firstName: "John", email: "test@example.com" } }))
-         .toEqualQuery(` select "AccountsWithEmail".*
-                         from (/* --label: AccountsWithEmail */ select "a_1"."account_id"  as "accountId",
-                                                                       "a_1"."status",
-                                                                       "a_1"."email",
-                                                                       "a_1"."first_name"  as "firstName",
-                                                                       "a_1"."last_name"   as "lastName",
-                                                                       "a_1"."notes",
-                                                                       "a_1"."created_at"  as "createdAt",
-                                                                       "a_1"."modified_at" as "modifiedAt",
-                                                                       "a_1"."parent_id"   as "parentId"
-                                                                from "valnor_test"."account" as "a_1"
-                                                                where "a_1"."email" = ?) as "AccountsWithEmail"
-                         where "AccountsWithEmail"."firstName" = ?`);
+      const { text, values } = query.getSql({ params: { firstName: "John", email: "test@example.com" } });
+      expect(values).toEqual(["test@example.com", "John"]);
+      expect(text).toMatchInlineSnapshot(`
+        "SELECT
+          "AccountsWithEmail".*
+        FROM
+          (
+            /* --label: AccountsWithEmail */
+            SELECT
+              "a_1"."account_id" AS "accountId",
+              "a_1"."status",
+              "a_1"."email",
+              "a_1"."first_name" AS "firstName",
+              "a_1"."last_name" AS "lastName",
+              "a_1"."notes",
+              "a_1"."created_at" AS "createdAt",
+              "a_1"."modified_at" AS "modifiedAt",
+              "a_1"."parent_id" AS "parentId"
+            FROM
+              "valnor_test"."account" AS "a_1"
+            WHERE
+              "a_1"."email" = ?
+          ) AS "AccountsWithEmail"
+        WHERE
+          "AccountsWithEmail"."firstName" = ?"
+      `);
    });
 
    test("sub-query join", () => {
@@ -81,32 +89,37 @@ describe("sql subqueries tests", () => {
                  join ${AccountsWithEmail} on ${Account.$accountId} = ${AccountsWithEmail.$accountId}
          where ${Account.$firstName} = ${param("firstName").is<string>()}`;
 
-      expect(query.getValues({ params: { firstName: "John", email: "test@example.com" } })).toEqual([
-         "test@example.com",
-         "John",
-      ]);
-      expect(query.getSql({ params: { firstName: "John", email: "test@example.com" } }))
-         .toEqualQuery(`select "a_1"."account_id" as "accountId",
-                               "a_1"."status",
-                               "a_1"."email",
-                               "a_1"."first_name" as "firstName",
-                               "a_1"."last_name"  as "lastName"
-                        from "valnor_test"."account" as "a_1"
-                                join (
-                           /* --label: AccountsWithEmail */
-                           select "a_2"."account_id"  as "accountId",
-                                  "a_2"."status",
-                                  "a_2"."email",
-                                  "a_2"."first_name"  as "firstName",
-                                  "a_2"."last_name"   as "lastName",
-                                  "a_2"."notes",
-                                  "a_2"."created_at"  as "createdAt",
-                                  "a_2"."modified_at" as "modifiedAt",
-                                  "a_2"."parent_id"   as "parentId"
-                           from "valnor_test"."account" as "a_2"
-                           where "a_2"."email" = ?) as "AccountsWithEmail"
-                                     on "a_1"."account_id" = "AccountsWithEmail"."accountId"
-                        where "a_1"."first_name" = ?`);
+      const { text, values } = query.getSql({ params: { firstName: "John", email: "test@example.com" } });
+      expect(values).toEqual(["test@example.com", "John"]);
+      expect(text).toMatchInlineSnapshot(`
+        "SELECT
+          "a_1"."account_id" AS "accountId",
+          "a_1"."status",
+          "a_1"."email",
+          "a_1"."first_name" AS "firstName",
+          "a_1"."last_name" AS "lastName"
+        FROM
+          "valnor_test"."account" AS "a_1"
+          JOIN (
+            /* --label: AccountsWithEmail */
+            SELECT
+              "a_2"."account_id" AS "accountId",
+              "a_2"."status",
+              "a_2"."email",
+              "a_2"."first_name" AS "firstName",
+              "a_2"."last_name" AS "lastName",
+              "a_2"."notes",
+              "a_2"."created_at" AS "createdAt",
+              "a_2"."modified_at" AS "modifiedAt",
+              "a_2"."parent_id" AS "parentId"
+            FROM
+              "valnor_test"."account" AS "a_2"
+            WHERE
+              "a_2"."email" = ?
+          ) AS "AccountsWithEmail" ON "a_1"."account_id" = "AccountsWithEmail"."accountId"
+        WHERE
+          "a_1"."first_name" = ?"
+      `);
    });
 
    test("self join", () => {
@@ -116,22 +129,25 @@ describe("sql subqueries tests", () => {
                  join ${Account.as`parent`} on ${Account.as`parent`.$accountId} = ${Account.$parentId}
          where ${Account.$firstName} = ${param("firstName").is<string>()}`;
 
-      expect(query.getSql({ params: { firstName: "John" } })).toEqualQuery(
-         `select 
-                     "a_1"."account_id"  as "accountId",
-                     "a_1"."status",
-                     "a_1"."email",
-                     "a_1"."first_name"  as "firstName",
-                     "a_1"."last_name"   as "lastName",
-                     "a_1"."notes",
-                     "a_1"."created_at"  as "createdAt",
-                     "a_1"."modified_at" as "modifiedAt",
-                     "a_1"."parent_id"   as "parentId",
-                     "parent"."first_name"  as "parentFirstName",
-                     "parent"."last_name"   as "parentLastName"
-              from "valnor_test"."account" as "a_1"
-                      join "valnor_test"."account" as "parent" on "parent"."account_id" = "a_1"."parent_id"
-              where "a_1"."first_name" = ?`,
-      );
+      const { text } = query.getSql({ params: { firstName: "John" } });
+      expect(text).toMatchInlineSnapshot(`
+        "SELECT
+          "a_1"."account_id" AS "accountId",
+          "a_1"."status",
+          "a_1"."email",
+          "a_1"."first_name" AS "firstName",
+          "a_1"."last_name" AS "lastName",
+          "a_1"."notes",
+          "a_1"."created_at" AS "createdAt",
+          "a_1"."modified_at" AS "modifiedAt",
+          "a_1"."parent_id" AS "parentId",
+          "parent"."first_name" AS "parentFirstName",
+          "parent"."last_name" AS "parentLastName"
+        FROM
+          "valnor_test"."account" AS "a_1"
+          JOIN "valnor_test"."account" AS "parent" ON "parent"."account_id" = "a_1"."parent_id"
+        WHERE
+          "a_1"."first_name" = ?"
+      `);
    });
 });

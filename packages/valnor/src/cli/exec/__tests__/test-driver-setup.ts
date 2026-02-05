@@ -9,7 +9,7 @@ export class TestDriverQueryHandler<T extends { Row?: unknown; Params?: unknown 
    QueryResult: { rows: T["Row"][] };
    QueryClient: unknown;
 }> {
-   constructor(query: SqlQuery<T>) {
+   constructor(query: SqlQuery<{ Params: T["Params"]; Row: T["Row"] }>) {
       super(query);
    }
 

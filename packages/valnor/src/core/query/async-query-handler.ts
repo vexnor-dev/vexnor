@@ -11,7 +11,7 @@ export type AsyncQueryHandlerAny = AsyncQueryHandler<any>;
 export abstract class AsyncQueryHandler<
    T extends { Row?: unknown; Params?: unknown; QueryResult: object; QueryClient: unknown },
 > {
-   protected constructor(readonly query: SqlQuery<{ Row?: T["Row"]; Params?: T["Params"] }>) {}
+   protected constructor(readonly query: SqlQuery<{ Row: T["Row"]; Params: T["Params"] }>) {}
 
    abstract resolveRows(res: T["QueryResult"]): T["Row"][];
 

@@ -28,8 +28,8 @@ export class TableUpdateSet<T extends { Update: Record<string, unknown> }> exten
 
          if (i++ > 0) context.addStrings(", ");
          col.build(context);
-         context.addStrings(" = ?");
          const value = this.update[key];
+         context.addStrings(" = ");
          switch (typeof value) {
             case "object":
                if (value === null || value instanceof Date) {

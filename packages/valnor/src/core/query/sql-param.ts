@@ -5,24 +5,17 @@ import { Sql } from "../sql-base.js";
 export type SqlParamAny = SqlParam<any>;
 
 export class SqlParam<T extends { Name: string; Type: unknown }> extends Sql {
-   static PREFIX = "$";
    name: T["Name"];
 
    constructor({ name }: { name: T["Name"] }) {
       super({
          ID: name,
       });
-      if (name.startsWith(SqlParam.PREFIX)) throw new TypeError(`Param name must not start with ${SqlParam.PREFIX}`);
       this.name = name;
    }
 
-   get wildcard(): string {
-      return `${SqlParam.PREFIX}${this.name}`;
-   }
-
    build(context: SqlBuildContext): void {
-      context.addValues(this);
-      context.addStrings(this.wildcard);
+      context.addParam(this);
    }
 
    is<Type>() {

@@ -36,7 +36,6 @@ export class TableInsertValues<
          context.addStrings("(");
          this.keys.forEach((key, j) => {
             if (j > 0) context.addStrings(", ");
-            context.addStrings("?");
             const value = insert[key as keyof T["Insert"]];
             if (value !== undefined) context.addValues(value);
          });

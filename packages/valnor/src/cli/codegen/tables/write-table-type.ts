@@ -4,7 +4,7 @@ import { getCodegenContext } from "../codegen-context.js";
 
 export function writeTableType(writer: CodeBlockWriter.default, { table }: PrintTableArgs) {
    const { getTableName, getColumnName } = getCodegenContext();
-   const { table_name, table_columns, table_schema, primary_keys } = table;
+   const { table_name, columns, table_schema, primary_keys } = table;
    const tableTypeName = getTableName(table_name);
    const tableTypeSelect = `I${tableTypeName}Select`;
    const tableTypeInsert = `I${tableTypeName}Insert`;
@@ -15,10 +15,16 @@ export function writeTableType(writer: CodeBlockWriter.default, { table }: Print
          `export const ${tableTypeName} = valnor.newSqlTable<{ Select: ${tableTypeSelect}, Insert: ${tableTypeInsert}, Update: ${tableTypeUpdate} }>(`,
       )
       .inlineBlock(() => {
-         writer.writeLine(`name: "${table_name}",`).writeLine(`schema: "${table_schema}",`);
-         writer.writeLine(`pk: ["${primary_keys.map((pk) => getColumnName(pk)).join('","')}"], `);
+         writer
+            .writeLine("tableInfo:")
+            .inlineBlock(() => {
+               writer.writeLine(`name: "${table_name}",`);
+               writer.writeLine(`schema: "${table_schema}",`);
+            })
+            .write(",");
+         writer.writeLine(`pk: ["${primary_keys.map((pk) => getColumnName(pk.column_name)).join('","')}"], `);
          writer.writeLine(`columns:`).inlineBlock(() => {
-            table_columns.forEach((col) => {
+            columns.forEach((col) => {
                const colAlias = getColumnName(col.column_name);
                writer.blankLine();
                writer

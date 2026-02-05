@@ -11,42 +11,45 @@ import { SqlSelectColumn } from "./sql-select-column.js";
 import { SqlSelectRow } from "./sql-select-row.js";
 import { SqlBuildError } from "../sql-build-error.js";
 import { Queue } from "../../lib/index.js";
+import { format } from "sql-formatter";
+import { SqlLanguage } from "sql-formatter";
+import { SqlBuildOptions } from "./sql-query-types.js";
+import { SqlBuildToken } from "./sql-models.js";
 
-export type SqlBuildContextArgs = {
-   tokenizer?: ITokenizer;
-   formatter?: DefaultFormatter;
+export interface SqlBuildContextArgs extends SqlBuildOptions {
    query?: SqlQueryAny;
-};
+}
 
 export class SqlBuildContext {
    readonly tokenizer: ITokenizer;
    readonly formatter: DefaultFormatter;
+   readonly dialect: SqlLanguage;
 
-   private readonly _strings: string[] = [];
-   private readonly _values: unknown[] = [];
+   private readonly _tokens: SqlBuildToken[] = [];
    private readonly _keywordStacks: string[][] = [[]];
    private readonly _contextParentDepths: number[] = [0];
    private _parentDepth: number = 0;
    private readonly _tableAliasById = new Map<string, string>();
-   readonly queries: SqlQueryAny[] = [];
-   private readonly _cteQueries = new Set<SqlQueryAny>();
+   readonly queries = new Map<string, { index: number; query: SqlQueryAny; cte: boolean }>();
    private _queryStack: SqlQueryAny[] = [];
+   private _text: string | null = null;
 
    constructor(args?: SqlBuildContextArgs) {
       if (args?.query) {
-         this.stackQuery(args.query);
+         this.scope({ query: args.query });
       }
 
       this.tokenizer = args?.tokenizer ?? new DefaultTokenizer();
       this.formatter = args?.formatter ?? new DefaultFormatter();
+      this.dialect = args?.dialect ?? "sql";
    }
 
-   get strings(): ReadonlyArray<string> {
-      return Object.freeze(this._strings);
+   get tokens(): ReadonlyArray<SqlBuildToken> {
+      return Object.freeze(this._tokens);
    }
 
    get values(): ReadonlyArray<unknown> {
-      return Object.freeze(this._values);
+      return this.tokens.filter((z) => z.type === "value").map((z) => z.value);
    }
 
    /**
@@ -64,7 +67,41 @@ export class SqlBuildContext {
    }
 
    get text() {
-      return this._strings.join("");
+      if (this._text) {
+         return this._text;
+      }
+
+      let text = "";
+      for (const token of this._tokens) {
+         switch (token.type) {
+            case "text":
+               text += token.value;
+               break;
+            case "param":
+               text += "?";
+               break;
+            case "value":
+               if (Array.isArray(token.value)) {
+                  text += Array(token.value.length).fill("?").join(", ");
+                  break;
+               }
+
+               text += "?";
+               break;
+            default:
+               throw new SqlBuildError(`Unknown token type ${typeof token}: ${token}`);
+         }
+      }
+
+      try {
+         return format(text, {
+            language: this.dialect,
+            keywordCase: "upper",
+         });
+      } catch (err) {
+         console.error("Failed to format:", text);
+         throw err;
+      }
    }
 
    private get currentStack(): string[] {
@@ -177,7 +214,7 @@ export class SqlBuildContext {
       query: SqlQueryAny;
       sql: Sql;
    }> {
-      for (const query of this.queries) {
+      for (const { query } of this.queries.values()) {
          yield { query, sql: query };
 
          if (query.$$) {
@@ -210,7 +247,7 @@ export class SqlBuildContext {
       throw new SqlBuildError(
          `Query not found for ${sql}. If this is a subquery, it needs to be tracked into the build context`,
          {
-            strings: this.strings,
+            buildTokens: this.tokens,
             data: {
                values: this.values,
             },
@@ -228,8 +265,8 @@ export class SqlBuildContext {
          return query.info.label;
       }
 
-      const index = this.queries.indexOf(query);
-      if (index === -1) {
+      const index = this.queries.get(query.ID)?.index ?? null;
+      if (index === null) {
          throw new SqlBuildError(`Query not tracked for: ${sql}`);
       }
 
@@ -242,11 +279,10 @@ export class SqlBuildContext {
     */
    addStrings(...strings: string[]) {
       ok(strings[0], `strings is required`);
-      try {
-         this._strings.push(...strings);
-      } catch (err) {
-         throw new SqlBuildError(`Failed to add strings: ${strings}`, { cause: err });
-      }
+      const tokens: SqlBuildToken[] = strings.map((value) => {
+         return { type: "text", value };
+      });
+      this._tokens.push(...tokens);
    }
 
    /**
@@ -255,7 +291,10 @@ export class SqlBuildContext {
     */
    addQuotes(...quotes: string[]) {
       ok(quotes[0], `quotes is required`);
-      this._strings.push(...quotes.map((s) => quote(s)));
+      const tokens: SqlBuildToken[] = quotes.map((value) => {
+         return { type: "text", value: quote(value) };
+      });
+      this._tokens.push(...tokens);
    }
 
    /**
@@ -263,55 +302,62 @@ export class SqlBuildContext {
     * @param values
     */
    addValues(...values: unknown[]) {
-      this._values.push(
-         ...values.map((value) => {
-            switch (value) {
-               case null:
-               case undefined:
-                  return null;
-               default:
-                  return value;
-            }
-         }),
-      );
+      for (const value of values) {
+         this._tokens.push({ type: "value", value: value ?? null });
+      }
+   }
+
+   /**
+    * Adds a named parameter
+    * @param param
+    */
+   addParam(param: { name: string }) {
+      this._tokens.push({
+         type: "param",
+         name: param.name,
+      });
    }
 
    /**
     * Stacks the current context with the query.
-    * @param query
-    * @param options
+    * @param args
+    * @param callback
     */
-   stackQuery(query: SqlQueryAny, options?: { cte: boolean }): SqlBuildContext {
+   scope<Result = undefined>(
+      args: { query: SqlQueryAny; cte?: boolean },
+      callback?: () => Result,
+   ): typeof callback extends undefined ? void : Result {
       this._keywordStacks.push([]);
-      this._queryStack.push(query);
+      this._queryStack.push(args.query);
 
-      if (options?.cte) {
-         this._cteQueries.add(query);
+      if (!this.queries.has(args.query.ID)) {
+         const queue = new Queue(args.query);
+         for (const query of queue.shift()) {
+            this.queries.set(query.ID, { index: this.queries.size, query, cte: false });
+            queue.add(...query.rawValues.filter((z) => z instanceof SqlQuery));
+         }
       }
 
-      if (this.queries.includes(query)) {
-         return this;
+      if (args.cte) {
+         // Update CTE flag if query is already registered
+         const existing = this.queries.get(args.query.ID)!;
+         this.queries.set(args.query.ID, { ...existing, cte: true });
       }
 
-      const queue = new Queue(query);
-      for (const query of queue.shift()) {
-         if (this.queries.includes(query)) continue;
-
-         this.queries.push(query);
-         queue.add(query);
-         queue.add(...query.rawValues.filter((z) => z instanceof SqlQuery));
+      if (callback) {
+         try {
+            const result = callback();
+            return result;
+         } catch (err) {
+            console.error(err);
+            throw err;
+         } finally {
+            this._queryStack.pop();
+            this._keywordStacks.pop();
+         }
       }
 
-      return this;
-   }
-
-   popQuery() {
-      if (this._keywordStacks.length === 1) {
-         throw new SqlBuildError(`Cannot pop the root stack`);
-      }
-
-      this._keywordStacks.pop();
-      this._queryStack.pop();
+      return undefined as Result;
    }
 
    /**
@@ -319,6 +365,6 @@ export class SqlBuildContext {
     * @param query
     */
    isCTE(query: SqlQueryAny): boolean {
-      return this._cteQueries.has(query);
+      return this.queries.get(query.ID)?.cte ?? false;
    }
 }

@@ -4,13 +4,13 @@ import { SqlBuildContext } from "./sql-build-context.js";
 export class SqlRaw extends Sql {
    constructor(
       public readonly value: string,
-      public readonly quote = false,
+      public readonly options?: { quote: boolean },
    ) {
       super({ ID: `SqlRaw(${value})` });
    }
 
    override build(context: SqlBuildContext) {
-      if (this.quote) {
+      if (this.options?.quote) {
          context.addQuotes(this.value);
       } else {
          context.addStrings(this.value);
@@ -21,9 +21,9 @@ export class SqlRaw extends Sql {
 /**
  * Creates a raw SQL string.
  * @param value The raw SQL string.
- * @param quote If true, the raw SQL string will be quoted.
+ * @param options
  * @returns The raw SQL string.
  */
-export function raw(value: string, quote = true): Sql {
-   return new SqlRaw(value, quote);
+export function raw(value: string, options: { quote: boolean } = { quote: true }): Sql {
+   return new SqlRaw(value, options);
 }

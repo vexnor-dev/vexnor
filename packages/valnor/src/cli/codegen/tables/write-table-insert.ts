@@ -6,7 +6,7 @@ import { getCodegenContext } from "../codegen-context.js";
 
 export function writeTableInsert(writer: CodeBlockWriter.default, { table }: PrintTableArgs) {
    const { getTableName, getColumnName, plugin } = getCodegenContext();
-   const { table_columns } = table;
+   const { columns } = table;
    const tableTypeName = getTableName(table.table_name);
    const tableTypeInsert = `I${tableTypeName}Insert`;
    const tableTypeUpdate = `I${tableTypeName}Update`;
@@ -15,7 +15,7 @@ export function writeTableInsert(writer: CodeBlockWriter.default, { table }: Pri
       .blankLine()
       .write(`export type ${tableTypeInsert} = `)
       .inlineBlock(() => {
-         table_columns.forEach((col) => {
+         columns.forEach((col) => {
             const isNullable = col.is_nullable.toUpperCase() === "YES";
             const isUpdatable = col.is_updatable.toUpperCase() === "YES";
             const columnName = getColumnName(col.column_name);

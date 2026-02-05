@@ -81,17 +81,15 @@ export async function execCommand(queryName: string, options: ExecOptions): Prom
    const format = options.format || querySettings.format || rootConfig.exec?.format || "json";
    const limit = options.limit ?? querySettings.limit ?? rootConfig.exec?.limit;
 
-   const sql = query.getSql({ params });
-
+   const { text, values } = query.getSql({ params });
    if (options.dryRun) {
-      const values = query.getValues({ params });
-      console.log("SQL:", sql);
+      console.log("SQL:", text);
       console.log("Values:", values);
       return;
    }
 
    if (!options.confirm) {
-      const queryType = detectQueryType(sql);
+      const queryType = detectQueryType(text);
       const confirmMutations = rootConfig.exec?.confirmMutations ?? false;
       const confirmDestructive = rootConfig.exec?.confirmDestructive ?? true;
 
@@ -145,7 +143,7 @@ export async function execCommand(queryName: string, options: ExecOptions): Prom
          const errorMsg = err instanceof Error ? err.message : String(err);
          throw new Error(
             `Query execution failed for '${queryName}':\n` +
-               `SQL: ${sql}\n` +
+               `SQL: ${text}\n` +
                `Params: ${JSON.stringify(params)}\n` +
                `Error: ${errorMsg}`,
          );
@@ -155,7 +153,7 @@ export async function execCommand(queryName: string, options: ExecOptions): Prom
          result = result.slice(0, limit);
       }
 
-      console.log("SQL:", sql);
+      console.log("SQL:", text);
       console.log();
 
       let output: string;

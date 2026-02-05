@@ -1,12 +1,21 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`execCommand > applies limit to results 1`] = `
-"SQL:
-   select "a_1"."account_id" as "accountId", "a_1"."status", "a_1"."email", "a_1"."first_name" as "firstName", "a_1"."last_name" as "lastName", "a_1"."notes", "a_1"."created_at" as "createdAt", "a_1"."modified_at" as "modifiedAt", "a_1"."parent_id" as "parentId"
-   from "valnor_test"."account" as "a_1"
-   where "a_1"."account_id" = ?
-     and "a_1"."email" = ?
-
+"SQL:SELECT
+  "a_1"."account_id" AS "accountId",
+  "a_1"."status",
+  "a_1"."email",
+  "a_1"."first_name" AS "firstName",
+  "a_1"."last_name" AS "lastName",
+  "a_1"."notes",
+  "a_1"."created_at" AS "createdAt",
+  "a_1"."modified_at" AS "modifiedAt",
+  "a_1"."parent_id" AS "parentId"
+FROM
+  "valnor_test"."account" AS "a_1"
+WHERE
+  "a_1"."account_id" = ?
+  AND "a_1"."email" = ?
 
 Results:
 [
@@ -22,12 +31,21 @@ Results:
 `;
 
 exports[`execCommand > outputs CSV format when specified 1`] = `
-"SQL:
-   select "a_1"."account_id" as "accountId", "a_1"."status", "a_1"."email", "a_1"."first_name" as "firstName", "a_1"."last_name" as "lastName", "a_1"."notes", "a_1"."created_at" as "createdAt", "a_1"."modified_at" as "modifiedAt", "a_1"."parent_id" as "parentId"
-   from "valnor_test"."account" as "a_1"
-   where "a_1"."account_id" = ?
-     and "a_1"."email" = ?
-
+"SQL:SELECT
+  "a_1"."account_id" AS "accountId",
+  "a_1"."status",
+  "a_1"."email",
+  "a_1"."first_name" AS "firstName",
+  "a_1"."last_name" AS "lastName",
+  "a_1"."notes",
+  "a_1"."created_at" AS "createdAt",
+  "a_1"."modified_at" AS "modifiedAt",
+  "a_1"."parent_id" AS "parentId"
+FROM
+  "valnor_test"."account" AS "a_1"
+WHERE
+  "a_1"."account_id" = ?
+  AND "a_1"."email" = ?
 
 Results:
 id,name,email
@@ -36,12 +54,21 @@ id,name,email
 `;
 
 exports[`execCommand > outputs JSON format by default 1`] = `
-"SQL:
-   select "a_1"."account_id" as "accountId", "a_1"."status", "a_1"."email", "a_1"."first_name" as "firstName", "a_1"."last_name" as "lastName", "a_1"."notes", "a_1"."created_at" as "createdAt", "a_1"."modified_at" as "modifiedAt", "a_1"."parent_id" as "parentId"
-   from "valnor_test"."account" as "a_1"
-   where "a_1"."account_id" = ?
-     and "a_1"."email" = ?
-
+"SQL:SELECT
+  "a_1"."account_id" AS "accountId",
+  "a_1"."status",
+  "a_1"."email",
+  "a_1"."first_name" AS "firstName",
+  "a_1"."last_name" AS "lastName",
+  "a_1"."notes",
+  "a_1"."created_at" AS "createdAt",
+  "a_1"."modified_at" AS "modifiedAt",
+  "a_1"."parent_id" AS "parentId"
+FROM
+  "valnor_test"."account" AS "a_1"
+WHERE
+  "a_1"."account_id" = ?
+  AND "a_1"."email" = ?
 
 Results:
 [
@@ -59,12 +86,21 @@ Results:
 `;
 
 exports[`execCommand > outputs table format when specified 1`] = `
-"SQL:
-   select "a_1"."account_id" as "accountId", "a_1"."status", "a_1"."email", "a_1"."first_name" as "firstName", "a_1"."last_name" as "lastName", "a_1"."notes", "a_1"."created_at" as "createdAt", "a_1"."modified_at" as "modifiedAt", "a_1"."parent_id" as "parentId"
-   from "valnor_test"."account" as "a_1"
-   where "a_1"."account_id" = ?
-     and "a_1"."email" = ?
-
+"SQL:SELECT
+  "a_1"."account_id" AS "accountId",
+  "a_1"."status",
+  "a_1"."email",
+  "a_1"."first_name" AS "firstName",
+  "a_1"."last_name" AS "lastName",
+  "a_1"."notes",
+  "a_1"."created_at" AS "createdAt",
+  "a_1"."modified_at" AS "modifiedAt",
+  "a_1"."parent_id" AS "parentId"
+FROM
+  "valnor_test"."account" AS "a_1"
+WHERE
+  "a_1"."account_id" = ?
+  AND "a_1"."email" = ?
 
 Results:
 id | name  | email            

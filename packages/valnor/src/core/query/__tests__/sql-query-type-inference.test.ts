@@ -42,25 +42,25 @@ describe("SqlQuery Type inference", () => {
    });
 
    test("SqlInputArgs<> from sql`...` call without Row, without Params", () => {
-      const query = sql`SELECT ${Account.$$}FROM ${Account}`;
+      const query = sql`SELECT ${Account.$$} FROM ${Account}`;
       const text = query.getSql({});
       expect(text).toBeDefined();
    });
 
    test("SqlInputArgs<> from sql`...` call without Row, without Params including inline value", () => {
-      const query = sql`SELECT ${Account.$$}FROM ${Account}WHERE ${Account.$accountId} = ${""}`;
+      const query = sql`SELECT ${Account.$$} FROM ${Account} WHERE ${Account.$accountId} = ${""}`;
       const text = query.getSql({});
       expect(text).toBeDefined();
    });
 
    test("SqlInputArgs<> from sql`...` call with Row, without Params including inline value", () => {
-      const query = sql`SELECT ${row(Account.$$)}FROM ${Account}WHERE ${Account.$accountId} = ${""}`;
+      const query = sql`SELECT ${row(Account.$$)} FROM ${Account} WHERE ${Account.$accountId} = ${""}`;
       const text = query.getSql({});
       expect(text).toBeDefined();
    });
 
    test("SqlInputArgs<> from sql`...` call with Row, with Params", () => {
-      const query = sql`SELECT ${row(Account.$$)}FROM ${Account}WHERE ${Account.$accountId} = ${param("accountId").is<string>()}`;
+      const query = sql`SELECT ${row(Account.$$)} FROM ${Account} WHERE ${Account.$accountId} = ${param("accountId").is<string>()}`;
       const text = query.getSql({
          params: {
             accountId: "",
@@ -70,8 +70,8 @@ describe("SqlQuery Type inference", () => {
    });
 
    test("SqlInputArgs<> from sql`` including subquery without Params", () => {
-      const subquery = sql`SELECT ${row(Account.$$)}from ${Account}where ${Account.$status} = ${AccountStatusUdt.CONFIRMED}`;
-      const query = sql`SELECT ${row(Account.$$)}FROM ${subquery}`;
+      const subquery = sql`SELECT ${row(Account.$$)} FROM ${Account} WHERE ${Account.$status} = ${AccountStatusUdt.CONFIRMED}`;
+      const query = sql`SELECT ${row(Account.$$)} FROM ${subquery}`;
       const text = query.getSql({});
       expect(text).toBeDefined();
    });

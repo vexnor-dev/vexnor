@@ -42,7 +42,7 @@ export abstract class ValnorPlugin implements SqlDatabase {
    abstract createConnection<Config extends ConnectionConfig>(config: Config): Promise<ValnorConnection<any>>;
 
    abstract newQueryHandler<T extends { Row?: unknown; Params?: unknown; QueryResult: object; QueryClient: unknown }>(
-      query: SqlQuery<T>,
+      query: SqlQuery<{ Params: T["Params"]; Row: T["Row"] }>,
    ): AsyncQueryHandler<T>;
 }
 

@@ -1,5 +1,5 @@
+import { JsonRow, newSqlTable } from "../../core/index.js";
 import { AccountStatusUdt } from "./valnor_test-enums.js";
-import { JsonRow, newSqlTable } from "../../schema/index.js";
 
 export const Account = newSqlTable<{ Select: IAccountSelect; Insert: IAccountInsert; Update: IAccountUpdate }>({
    tableInfo: {

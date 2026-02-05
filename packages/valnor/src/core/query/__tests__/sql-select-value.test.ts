@@ -32,7 +32,7 @@ describe("SqlValue tests", () => {
       const context = new SqlBuildContext();
       value.build(context);
       // build() only outputs the query, not the alias
-      expect(context.text).toBe(`COUNT(*) as "total"`);
+      expect(context.text).toBe(`COUNT(*) AS "total"`);
       expect(value.key).toBe("total");
    });
 
@@ -95,7 +95,7 @@ describe("SqlValue tests", () => {
       value.build(context);
 
       // The t<number>() marker should not appear in SQL (only query part)
-      expect(context.text).toBe(`COUNT(*) as "total"`);
+      expect(context.text).toBe(`COUNT(*) AS "total"`);
       expect(value.key).toBe("total");
    });
 
@@ -106,10 +106,41 @@ describe("SqlValue tests", () => {
          GROUP BY ${Account.$accountId}
       `;
 
-      expect(query.getSql({})).toEqualQuery(`
-         SELECT "a_1"."account_id" as "accountId", COUNT(*) as "total"
-         FROM "valnor_test"."account" as "a_1"
-         GROUP BY "a_1"."account_id"
+      expect(query.row).toBeDefined();
+      expect(query.row.$total).toBeDefined();
+      expect(query.$total).toBeDefined();
+
+      expect(query.getSql({}).text).toMatchInlineSnapshot(`
+        "SELECT
+          "a_1"."account_id" AS "accountId",
+          COUNT(*) AS "total"
+        FROM
+          "valnor_test"."account" AS "a_1"
+        GROUP BY
+          "a_1"."account_id""
+      `);
+   });
+
+   test("val() with complex Record<> result", () => {
+      const query = sql`
+         SELECT ${row(Account.$accountId)}, ${val<number>`COUNT(*)`.as("total")}
+         FROM ${Account}
+         GROUP BY ${Account.$accountId}
+      `;
+
+      expect(query.$total).toBeDefined();
+      expect(query.$accountId).toBeDefined();
+      expect(query.row.$total).toBeDefined();
+      expect(query.row.$accountId).toBeDefined();
+
+      expect(query.getSql({}).text).toMatchInlineSnapshot(`
+        "SELECT
+          "a_1"."account_id" AS "accountId",
+          COUNT(*) AS "total"
+        FROM
+          "valnor_test"."account" AS "a_1"
+        GROUP BY
+          "a_1"."account_id""
       `);
    });
 });

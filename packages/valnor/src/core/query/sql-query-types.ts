@@ -2,6 +2,8 @@ import { SqlSelectColumn } from "./sql-select-column.js";
 import { DefaultFormatter } from "../default-formatter.js";
 import { DefaultTokenizer } from "../default-tokenizer.js";
 import { SqlSelectValue } from "./sql-select-value.js";
+import { SqlLanguage } from "sql-formatter";
+import { SqlParamFormat } from "./sql-models.js";
 
 export type InferSelectRowByResult<Select> =
    Select extends Record<string, unknown>
@@ -17,20 +19,24 @@ export type InferSelectRowByResult<Select> =
         }
       : never;
 
-export type SqlBuildOptions = {
+export interface SqlBuildOptions {
    formatter?: DefaultFormatter;
    tokenizer?: DefaultTokenizer;
    onAddString?: (text: string) => string;
    debug?: (args: Readonly<Record<string, unknown>>) => void;
-};
+   dialect?: SqlLanguage;
+   paramFormat?: SqlParamFormat;
+}
 
-export type SqlRunArgs<Connection, Params> = Params extends object
-   ? { db: Connection; params: Params; options?: SqlBuildOptions }
-   : { db: Connection; options?: SqlBuildOptions };
+export type SqlRunArgs<Connection, Params> = [keyof Params] extends [never]
+   ? { db: Connection; options?: SqlBuildOptions }
+   : { db: Connection; params: Params; options?: SqlBuildOptions };
 
-export type SqlInputArgs<Params> = Params extends object
-   ? { params: Params; options?: SqlBuildOptions }
-   : { options?: SqlBuildOptions };
+export type SqlInputArgs<Params> = [keyof Params] extends [never]
+   ? { options?: SqlBuildOptions }
+   : unknown extends Params
+     ? { params?: Params; options?: SqlBuildOptions }
+     : { params: Params; options?: SqlBuildOptions };
 
 export function hasParams(value: unknown): value is { params: Record<string, unknown> } {
    if (!value) return false;

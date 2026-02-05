@@ -7,6 +7,7 @@ import { SqlTableAll, SqlTableAllAny } from "../charms/index.js";
 import { SqlSelectAll, SqlSelectAllAny } from "./sql-select-all.js";
 import { InferSelectRowByResult, SqlBuildOptions } from "./sql-query-types.js";
 import { SqlBuildError } from "../sql-build-error.js";
+import { MergeAll } from "../utils/index.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlSelectRowAny = SqlSelectRow<any>;
@@ -148,8 +149,12 @@ export type InferResultRowFromSelect<T> =
    T extends SqlSelectRow<infer U extends { Row: Record<string, unknown> }> ? U["Row"] : unknown;
 
 export type InferResultRowFromColumns<T> = T extends [infer Start, ...infer Rest]
-   ? InferResultRowFromSelect<Start> &
-        InferResultRowFromColumn<Start> &
-        InferResultRowFromAll<Start> &
-        InferResultRowFromColumns<Rest>
-   : Record<string, unknown>;
+   ? MergeAll<
+        [
+           InferResultRowFromSelect<Start>,
+           InferResultRowFromColumn<Start>,
+           InferResultRowFromColumns<Rest>,
+           InferResultRowFromAll<Start>,
+        ]
+     >
+   : {};

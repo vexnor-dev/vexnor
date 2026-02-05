@@ -1,14 +1,15 @@
-import { describe, expect, test } from "vitest";
-import { InferResultRowFromAll, InferResultRowFromColumns, row } from "../sql-select-row.js";
+import { assertType, describe, expect, expectTypeOf, test } from "vitest";
+import { InferResultRowFromAll, InferResultRowFromColumns, row, SqlSelectRow } from "../sql-select-row.js";
 import { Account } from "@test-models/valnor_test.account-table.js";
 import { SqlBuildContext } from "../sql-build-context.js";
 import { sql } from "../../sql.js";
 import { param } from "../sql-param.js";
-import { trim } from "../../utils/index.js";
 import { AccountStatusUdt } from "@test-models/valnor_test-enums.js";
 import { newSqlSelectColumn, SqlSelectColumnAny } from "../sql-select-column.js";
 import { Order } from "@test-models/valnor_test.order-table.js";
 import { InferSelectRowByResult } from "../sql-query-types.js";
+import { IAccountSelect } from "../../../testing/index.js";
+import { SqlQuery } from "../sql-query.js";
 
 describe("SqlSelectRow tests", () => {
    test("infer result row from select row", () => {
@@ -133,8 +134,22 @@ describe("SqlSelectRow tests", () => {
       expect(row).toBeDefined();
    });
 
+   test("expectTypeOf() should check type", () => {
+      const target = { name: "a", age: 1 };
+      expectTypeOf(target).toEqualTypeOf<{ name: string; age: number }>();
+   });
+
+   test("row(...columns) should match expected type", () => {
+      const target = row(Account.$accountId, Account.$firstName, Account.$lastName.as("name"));
+      assertType<SqlSelectRow<{ Row: { accountId: string; firstName: string; name: string } }>>(target);
+      expect(target.row.$accountId).toBeDefined();
+      expect(target.row.$firstName).toBeDefined();
+      expect(target.row.$name).toBeDefined();
+   });
+
    test("row(...columns) column should be defined", () => {
       const target = row(Account.$accountId, Account.$firstName, Account.$lastName);
+      assertType<SqlSelectRow<{ Row: { accountId: string; firstName: string; lastName: string } }>>(target);
       expect(target.row.$accountId).toBeDefined();
       expect(target.row.$firstName).toBeDefined();
       expect(target.row.$lastName).toBeDefined();
@@ -149,24 +164,30 @@ describe("SqlSelectRow tests", () => {
 
    test("$build with distinct columns", () => {
       const target = row(Account.$accountId, Account.$firstName, Account.$lastName);
+      assertType<SqlSelectRow<{ Row: { accountId: string; firstName: string; lastName: string } }>>(target);
       const context = new SqlBuildContext();
       context.next("select");
       target.build(context);
 
-      expect(context.text).toEqual(
-         `"a_1"."account_id" as "accountId", "a_1"."first_name" as "firstName", "a_1"."last_name" as "lastName"`,
-      );
+      expect(context.text).toMatchInlineSnapshot(`
+        ""a_1"."account_id" AS "accountId",
+        "a_1"."first_name" AS "firstName",
+        "a_1"."last_name" AS "lastName""
+      `);
    });
 
    test("$build with aliased column", () => {
       const target = row(Account.$accountId, Account.$firstName, Account.$lastName.as("name"));
+      assertType<SqlSelectRow<{ Row: { accountId: string; firstName: string; name: string } }>>(target);
       const context = new SqlBuildContext();
       context.next("select");
       target.build(context);
 
-      expect(context.text).toEqual(
-         `"a_1"."account_id" as "accountId", "a_1"."first_name" as "firstName", "a_1"."last_name" as "name"`,
-      );
+      expect(context.text).toMatchInlineSnapshot(`
+        ""a_1"."account_id" AS "accountId",
+        "a_1"."first_name" AS "firstName",
+        "a_1"."last_name" AS "name""
+      `);
    });
 
    test("$build with aliased table and column", () => {
@@ -175,13 +196,16 @@ describe("SqlSelectRow tests", () => {
          Account.as`inserted`.$firstName,
          Account.as`inserted`.$lastName.as("name"),
       );
+      assertType<SqlSelectRow<{ Row: { accountId: string; firstName: string; name: string } }>>(target);
       const context = new SqlBuildContext();
       context.next("select");
       target.build(context);
 
-      expect(context.text).toEqual(
-         `"inserted"."account_id" as "accountId", "inserted"."first_name" as "firstName", "inserted"."last_name" as "name"`,
-      );
+      expect(context.text).toMatchInlineSnapshot(`
+        ""inserted"."account_id" AS "accountId",
+        "inserted"."first_name" AS "firstName",
+        "inserted"."last_name" AS "name""
+      `);
    });
 
    test("$build with table.$$", () => {
@@ -190,34 +214,37 @@ describe("SqlSelectRow tests", () => {
       context.next("select");
       target.build(context);
 
-      expect(context.text).toEqual(trim`
-         "a_1"."account_id"  as "accountId",
-         "a_1"."status",
-         "a_1"."email",
-         "a_1"."first_name"  as "firstName",
-         "a_1"."last_name"   as "lastName",
-         "a_1"."notes",
-         "a_1"."created_at"  as "createdAt",
-         "a_1"."modified_at" as "modifiedAt",
-         "a_1"."parent_id"   as "parentId"`);
+      expect(context.text).toMatchInlineSnapshot(`
+        ""a_1"."account_id" AS "accountId",
+        "a_1"."status",
+        "a_1"."email",
+        "a_1"."first_name" AS "firstName",
+        "a_1"."last_name" AS "lastName",
+        "a_1"."notes",
+        "a_1"."created_at" AS "createdAt",
+        "a_1"."modified_at" AS "modifiedAt",
+        "a_1"."parent_id" AS "parentId""
+      `);
    });
 
    test("SqlRow $build with aliased table.$$", () => {
       const target = row(Account.as`inserted`.$$);
+      assertType<SqlSelectRow<{ Row: IAccountSelect }>>(target);
       const context = new SqlBuildContext();
       context.next("select");
       target.build(context);
 
-      expect(context.text).toEqual(trim`
-         "inserted"."account_id"  as "accountId",
-         "inserted"."status",
-         "inserted"."email",
-         "inserted"."first_name"  as "firstName",
-         "inserted"."last_name"   as "lastName",
-         "inserted"."notes",
-         "inserted"."created_at"  as "createdAt",
-         "inserted"."modified_at" as "modifiedAt",
-         "inserted"."parent_id"   as "parentId"`);
+      expect(context.text).toMatchInlineSnapshot(`
+        ""inserted"."account_id" AS "accountId",
+        "inserted"."status",
+        "inserted"."email",
+        "inserted"."first_name" AS "firstName",
+        "inserted"."last_name" AS "lastName",
+        "inserted"."notes",
+        "inserted"."created_at" AS "createdAt",
+        "inserted"."modified_at" AS "modifiedAt",
+        "inserted"."parent_id" AS "parentId""
+      `);
    });
 
    test("query.row is defined", () => {
@@ -234,6 +261,7 @@ describe("SqlSelectRow tests", () => {
          from ${Account}
          where ${Account.$accountId} = ${param("accountId").is<string>()}`;
       expect(query.row).toBeFalsy();
+      assertType<SqlQuery<{ Row: unknown; Params: { accountId: string } }>>(query);
    });
 
    test("query.row.[column] renders column", () => {
@@ -241,6 +269,7 @@ describe("SqlSelectRow tests", () => {
          select ${row(Account.$accountId, Account.$status, Account.$firstName)}
          from ${Account}`;
       console.log(query.toString());
+      assertType<SqlQuery<{ Row: { accountId: string; status: AccountStatusUdt; firstName: string } }>>(query);
       expect(query.row).toBeDefined();
       expect(query.row.$accountId).toBeDefined();
       expect(query.$accountId).toBeDefined();

@@ -9,21 +9,22 @@ import { Order } from "@test-models/valnor_test.order-table.js";
 import { info } from "../../charms/index.js";
 import { OrderItem } from "@test-models/valnor_test.order_item-table.js";
 import { SqlSelectColumn } from "../sql-select-column.js";
+import { before } from "node:test";
 
 describe("SqlBuildContext getQueryName", () => {
-   const orderItemQuery = sql`
+   const findOrderItems = sql`
       ${info({ label: "OrderItems" })}
     select ${row(OrderItem.$orderId, OrderItem.$createdAt, OrderItem.$productId, OrderItem.$productPrice)}
     from ${Order};
 `;
 
-   const orderQuery = sql`
+   const findOrders = sql`
         ${info({ label: "Orders" })}
       select ${row(Order.$$)}
       from ${Order};
    `;
 
-   const accountsOldQuery = sql`
+   const findOldAccounts = sql`
       ${info({ label: "AccountsOld" })}
       select ${row(Account.$$)}
       from ${Account}
@@ -32,15 +33,19 @@ describe("SqlBuildContext getQueryName", () => {
 
    const query = sql`
         ${info({ label: "Root" })}
-         select ${row(Account.$$, orderQuery.$orderId, orderItemQuery.$productId, orderItemQuery.$productPrice)}
-         from ${accountsOldQuery}
-            join ${orderQuery} on ${Account.$accountId} = ${orderQuery.$accountId}
-         join ${orderItemQuery} on ${orderQuery.$orderId} = ${orderItemQuery.$orderId}
+         select ${row(Account.$$, findOrders.$orderId, findOrderItems.$productId, findOrderItems.$productPrice)}
+         from ${findOldAccounts}
+            join ${findOrders} on ${Account.$accountId} = ${findOrders.$accountId}
+         join ${findOrderItems} on ${findOrders.$orderId} = ${findOrderItems.$orderId}
          where ${Account.$accountId} = ${param("accountId").is<string>()}
       `;
 
-   const context = new SqlBuildContext({
-      query,
+   let context!: SqlBuildContext;
+
+   before(() => {
+      context = new SqlBuildContext({
+         query,
+      });
    });
 
    test("getQueryName should throw for SqlTable", () => {
@@ -65,7 +70,8 @@ describe("SqlBuildContext getQueryName", () => {
    });
 
    test("getQueryName should return value for subquery $orderId", () => {
-      const column = orderQuery.$orderId;
+      context.scope({ query: findOrders });
+      const column = findOrders.$orderId;
       console.log("\nLooking up query for column:", column.ID);
 
       // Check what's in root query rawValues
@@ -87,38 +93,38 @@ describe("SqlBuildContext getQueryName", () => {
          }
       });
 
-      expect(context.getQueryName(orderQuery.$orderId)).toEqual("Orders");
+      expect(context.getQueryName(findOrders.$orderId)).toEqual("Orders");
    });
 
    test("SqlBuildContext should return custom query name: Order", () => {
-      expect(context.getQueryName(orderQuery)).toEqual("Orders");
+      expect(context.getQueryName(findOrders)).toEqual("Orders");
    });
 
    test("SqlBuildContext should return default query name: AccountsOld", () => {
-      expect(context.getQueryName(accountsOldQuery)).toEqual("AccountsOld");
+      expect(context.getQueryName(findOldAccounts)).toEqual("AccountsOld");
    });
 
    test("SqlBuildContext should return default query name: OrderItems", () => {
-      expect(context.getQueryName(orderItemQuery)).toEqual("OrderItems");
+      expect(context.getQueryName(findOrderItems)).toEqual("OrderItems");
    });
 
    test("Check context.queries array", () => {
       console.log("\ncontext.queries:");
       context.queries.forEach((q, idx) => {
-         console.log(`  [${idx}]: ${q.info?.label || "unlabeled"}, ID=${q.ID}`);
+         console.log(`  [${idx}]: ${q.query.info?.label || "unlabeled"}, ID=${q.query.ID}`);
       });
 
       console.log("\nExpected queries: Root, AccountsOld, Orders, OrderItems");
-      expect(context.queries.length).toBe(4);
+      expect(context.queries.size).toBe(4);
    });
 
    test("Find where orderQuery.$orderId column is", () => {
-      const originalColumn = orderQuery.$orderId;
+      const originalColumn = findOrders.$orderId;
       console.log("\nLooking for orderQuery.$orderId:", originalColumn.ID);
 
       console.log("\nIs it in orderQuery.row.row?");
-      if (orderQuery.row) {
-         Object.entries(orderQuery.row).forEach(([key, col]) => {
+      if (findOrders.row) {
+         Object.entries(findOrders.row).forEach(([key, col]) => {
             if (col === originalColumn) {
                console.log(`  YES! Found at key: ${key}`);
             }
@@ -126,7 +132,7 @@ describe("SqlBuildContext getQueryName", () => {
       }
 
       console.log("\nIs it in orderQuery.rawValues?");
-      orderQuery.rawValues.forEach((val, idx) => {
+      findOrders.rawValues.forEach((val, idx) => {
          if (val instanceof SqlSelectRow && val.row) {
             Object.entries(val.row).forEach(([key, col]) => {
                if (col === originalColumn) {
@@ -157,7 +163,7 @@ describe("SqlBuildContext getQueryName", () => {
 
    test("Verify orderQuery.$orderId is different from row() created column", () => {
       // The original column from orderQuery
-      const originalColumn = orderQuery.$orderId;
+      const originalColumn = findOrders.$orderId;
 
       // The column created by row() in the root query
       const rootQueryColumn = query.$orderId;
@@ -176,7 +182,7 @@ describe("SqlBuildContext getQueryName", () => {
       const actual = Array.from(context.rowTokens()).map((token) => {
          return {
             sql: token,
-            query: token.query.info?.label ?? `query_${context.queries.indexOf(token.query)}`,
+            query: token.query.info?.label ?? `query_${context.getQueryName(token.sql)}`,
          };
       });
 

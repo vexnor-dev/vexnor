@@ -27,16 +27,17 @@ describe("SqlTableAll (*) tests", () => {
       context.next("select");
       Account.$$.build(context);
 
-      expect(context.text).toEqual(trim`
-         "a_1"."account_id"  as "accountId",
-         "a_1"."status",
-         "a_1"."email",
-         "a_1"."first_name"  as "firstName",
-         "a_1"."last_name"   as "lastName",
-         "a_1"."notes",
-         "a_1"."created_at"  as "createdAt",
-         "a_1"."modified_at" as "modifiedAt",
-         "a_1"."parent_id"   as "parentId"`);
+      expect(context.text).toMatchInlineSnapshot(`
+        ""a_1"."account_id" AS "accountId",
+        "a_1"."status",
+        "a_1"."email",
+        "a_1"."first_name" AS "firstName",
+        "a_1"."last_name" AS "lastName",
+        "a_1"."notes",
+        "a_1"."created_at" AS "createdAt",
+        "a_1"."modified_at" AS "modifiedAt",
+        "a_1"."parent_id" AS "parentId""
+      `);
    });
 
    test("select * $build should render list of columns with aliased table", () => {
@@ -44,16 +45,17 @@ describe("SqlTableAll (*) tests", () => {
       context.next("select");
       Account.as`inserted`.$$.build(context);
 
-      expect(context.text).toEqual(trim`
-         "inserted"."account_id"  as "accountId",
-         "inserted"."status",
-         "inserted"."email",
-         "inserted"."first_name"  as "firstName",
-         "inserted"."last_name"   as "lastName",
-         "inserted"."notes",
-         "inserted"."created_at"  as "createdAt",
-         "inserted"."modified_at" as "modifiedAt",
-         "inserted"."parent_id"   as "parentId"`);
+      expect(context.text).toMatchInlineSnapshot(`
+        ""inserted"."account_id" AS "accountId",
+        "inserted"."status",
+        "inserted"."email",
+        "inserted"."first_name" AS "firstName",
+        "inserted"."last_name" AS "lastName",
+        "inserted"."notes",
+        "inserted"."created_at" AS "createdAt",
+        "inserted"."modified_at" AS "modifiedAt",
+        "inserted"."parent_id" AS "parentId""
+      `);
    });
 
    test("returning * $build should render list of columns", () => {
@@ -61,16 +63,17 @@ describe("SqlTableAll (*) tests", () => {
       context.next("returning");
       Account.$$.build(context);
 
-      expect(context.text).toEqual(trim`
-         "account"."account_id"  as "accountId",
-         "account"."status",
-         "account"."email",
-         "account"."first_name"  as "firstName",
-         "account"."last_name"   as "lastName",
-         "account"."notes",
-         "account"."created_at"  as "createdAt",
-         "account"."modified_at" as "modifiedAt",
-         "account"."parent_id"   as "parentId"`);
+      expect(context.text).toMatchInlineSnapshot(`
+        ""account"."account_id" AS "accountId",
+        "account"."status",
+        "account"."email",
+        "account"."first_name" AS "firstName",
+        "account"."last_name" AS "lastName",
+        "account"."notes",
+        "account"."created_at" AS "createdAt",
+        "account"."modified_at" AS "modifiedAt",
+        "account"."parent_id" AS "parentId""
+      `);
    });
 
    test("output * $build should render list of columns with aliased table", () => {
@@ -78,16 +81,17 @@ describe("SqlTableAll (*) tests", () => {
       context.next("output");
       Account.as`inserted`.$$.build(context);
 
-      expect(context.text).toEqual(trim`
-         "inserted"."account_id"  as "accountId",
-         "inserted"."status",
-         "inserted"."email",
-         "inserted"."first_name"  as "firstName",
-         "inserted"."last_name"   as "lastName",
-         "inserted"."notes",
-         "inserted"."created_at"  as "createdAt",
-         "inserted"."modified_at" as "modifiedAt",
-         "inserted"."parent_id"   as "parentId"`);
+      expect(context.text).toMatchInlineSnapshot(`
+        ""inserted"."account_id" AS "accountId",
+        "inserted"."status",
+        "inserted"."email",
+        "inserted"."first_name" AS "firstName",
+        "inserted"."last_name" AS "lastName",
+        "inserted"."notes",
+        "inserted"."created_at" AS "createdAt",
+        "inserted"."modified_at" AS "modifiedAt",
+        "inserted"."parent_id" AS "parentId""
+      `);
    });
 
    test("count(*) $build should render *", () => {
