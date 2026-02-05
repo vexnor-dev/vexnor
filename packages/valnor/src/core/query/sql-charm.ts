@@ -1,27 +1,14 @@
-import { SqlQuery } from "./sql-query.js";
-import { SqlBuildContext } from "./sql-build-context.js";
-import { Sql } from "../sql-base.js";
-import { Key } from "node:readline";
+import { Sql, SqlOptions } from "../sql-base.js";
+import { SqlQueryParams } from "./sql-query.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlCharmAny = SqlCharm<any>;
 
-export class SqlCharm<T extends { Key?: string; Row?: unknown; Params?: unknown }> extends Sql {
-   readonly key?: Key;
-   readonly query: SqlQuery<{ Row: T["Row"]; Params: T["Params"] }>;
+export abstract class SqlCharm<T extends { Params?: unknown }> extends Sql {
+   readonly params: SqlQueryParams<T>;
 
-   constructor({ key, query }: { key?: Key; query: SqlQuery<{ Row: T["Row"]; Params: T["Params"] }> }) {
-      super({
-         ID: `${query.ID} as ${key}`,
-      });
-      this.query = query;
-      this.key = key;
-   }
-
-   build(context: SqlBuildContext) {
-      const queryName = context.scope({ query: this.query }, () => {
-         return context.getQueryName(this.query);
-      });
-      context.addStrings(`"${queryName}" as "${this.key}"`);
+   protected constructor(options: SqlOptions & { params: SqlQueryParams<T> }) {
+      super(options);
+      this.params = options.params;
    }
 }

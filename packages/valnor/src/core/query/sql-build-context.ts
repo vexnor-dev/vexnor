@@ -99,7 +99,7 @@ export class SqlBuildContext {
             keywordCase: "upper",
          });
       } catch (err) {
-         console.error("Failed to format:", text);
+         console.error("Failed to format:\n", text);
          throw err;
       }
    }
@@ -331,10 +331,15 @@ export class SqlBuildContext {
       this._queryStack.push(args.query);
 
       if (!this.queries.has(args.query.ID)) {
+         const startIndex = this.queries.size;
          const queue = new Queue(args.query);
+         let offset = 0;
          for (const query of queue.shift()) {
-            this.queries.set(query.ID, { index: this.queries.size, query, cte: false });
-            queue.add(...query.rawValues.filter((z) => z instanceof SqlQuery));
+            if (!this.queries.has(query.ID)) {
+               this.queries.set(query.ID, { index: startIndex + offset, query, cte: false });
+               offset++;
+               queue.add(...query.rawValues.filter((z) => z instanceof SqlQuery));
+            }
          }
       }
 

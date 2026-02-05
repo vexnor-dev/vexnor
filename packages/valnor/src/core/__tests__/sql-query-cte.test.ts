@@ -76,7 +76,7 @@ describe("sql CTE (with clause) tests", () => {
       `);
       expect(text).toMatchInlineSnapshot(`
         "WITH
-          "query_2" AS (
+          "query_1" AS (
             SELECT
               "a_1"."account_id" AS "accountId",
               "a_1"."status",
@@ -93,11 +93,11 @@ describe("sql CTE (with clause) tests", () => {
               "a_1"."status" = 'active'
           )
         SELECT
-          "query_2".*
+          "query_1".*
         FROM
-          "query_2"
+          "query_1"
         WHERE
-          "query_2"."firstName" = ?"
+          "query_1"."firstName" = ?"
       `);
    });
 

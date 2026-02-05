@@ -30,7 +30,7 @@ export interface SqlQueryArgs {
 
 type SqlQueryRow<T> = T extends { Row: Record<string, unknown> } ? InferSelectRowByResult<T["Row"]> : null;
 type SqlQueryAll<T> = T extends { Row: Record<string, unknown> } ? SqlSelectAll<T> : null;
-type SqlQueryParams<T> = T extends { Params: Record<infer Key extends string, infer Type> }
+export type SqlQueryParams<T> = T extends { Params: Record<infer Key extends string, infer Type> }
    ? Record<Key, SqlParam<{ Name: Key; Type: Type }>>
    : null;
 
@@ -177,13 +177,19 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
          }
       }
 
-      return {
-         text: format(tokens.join(""), {
-            language: options?.dialect ?? "sql",
-            keywordCase: "upper",
-         }),
-         values,
-      };
+      const text = tokens.join("");
+      try {
+         return {
+            text: format(text, {
+               language: options?.dialect ?? "sql",
+               keywordCase: "upper",
+            }),
+            values,
+         };
+      } catch (err) {
+         console.error("Failed to format:\n", text);
+         throw err;
+      }
    }
 
    build(context: SqlBuildContext, options?: SqlBuildOptions) {
