@@ -1,5 +1,5 @@
 import { SqlQuery, AsyncQueryHandler, SqlRunArgs, SqlQueryToken } from "../../../core/index.js";
-import { InferParamsFromQueryTokens, InferResultRowFromQueryTokens } from "../../../core/sql.js";
+import { InferParamsFromSqlTokens, InferRowFromSqlTokens } from "../../../core/sql.js";
 
 let mockData: unknown[] = [{ id: 1, result: "test" }];
 
@@ -30,12 +30,12 @@ export function sql<Token extends SqlQueryToken = SqlQueryToken, Tokens extends 
    strings: TemplateStringsArray,
    ...values: Tokens
 ): TestDriverQueryHandler<{
-   Row: InferResultRowFromQueryTokens<typeof values>;
-   Params: InferParamsFromQueryTokens<typeof values>;
+   Row: InferRowFromSqlTokens<typeof values>;
+   Params: InferParamsFromSqlTokens<typeof values>;
 }> {
    const query = new SqlQuery<{
-      Row: InferResultRowFromQueryTokens<typeof values>;
-      Params: InferParamsFromQueryTokens<typeof values>;
+      Row: InferRowFromSqlTokens<typeof values>;
+      Params: InferParamsFromSqlTokens<typeof values>;
    }>({ rawStrings: strings, rawValues: values });
    return new TestDriverQueryHandler(query);
 }

@@ -1,7 +1,6 @@
 import { SqlColumnFormat } from "../default-formatter.js";
-import { Sql } from "../sql-base.js";
+import { TYPE, Sql } from "../sql-base.js";
 import { SqlBuildContext, SqlBuildOptions } from "../query/index.js";
-import { ISqlColumn } from "../types/index.js";
 
 export interface SqlTableColumnOptions<
    T extends {
@@ -19,14 +18,13 @@ export interface SqlTableColumnOptions<
 export type SqlTableColumnAny = SqlTableColumn<any>;
 
 export class SqlTableColumn<
-      T extends {
-         Key: string;
-         Type: unknown;
-      },
-   >
-   extends Sql
-   implements ISqlColumn<T>
-{
+   T extends {
+      Key: string;
+      Type: unknown;
+   },
+> extends Sql {
+   declare readonly [TYPE]: Record<T["Key"], T["Type"]>;
+
    readonly key: T["Key"];
    readonly columnName: string;
    readonly tableInfo: { schema?: string; name: string; alias?: string };

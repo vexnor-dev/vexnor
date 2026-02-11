@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { assertType, describe, expect, test } from "vitest";
 import { QueryParams, sql } from "../../sql.js";
 import { Account } from "@test-models/valnor_test.account-table.js";
 import { SqlInputArgs } from "../sql-query-types.js";
@@ -22,15 +22,16 @@ describe("SqlQuery Type inference", () => {
       >;
 
       type Input = SqlInputArgs<Params>;
-      const input: Input = {
+      assertType<Input>({
          params: {
             accountId: "XXX",
             modifiedAt: new Date(),
             limit: 5,
             createdAt: new Date(),
+            // @ts-expect-error - Testing runtime validation of missing property
+            status: "unknown",
          },
-      };
-      expect(input).toBeDefined();
+      });
    });
 
    test("SqlInputArgs<> from Sql array without params", () => {

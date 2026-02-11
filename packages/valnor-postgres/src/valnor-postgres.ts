@@ -8,7 +8,6 @@ import {
    LibraryOutputFile,
    ConnectionConfig,
    logger,
-   SqlTableInfo,
 } from "valnor/plugin";
 import { Pool } from "pg";
 import { findEnums, findTables, getColumnType } from "./schema/index.js";
@@ -78,7 +77,7 @@ export class ValnorPostgres extends ValnorPlugin {
    }
 
    newQueryHandler<T extends { Row?: unknown; Params?: unknown; QueryResult: object; QueryClient: unknown }>(
-      query: SqlQuery<T>,
+      query: SqlQuery<{ Row: T["Row"]; Params: T["Params"] }>,
    ): AsyncQueryHandler<T> {
       return new PostgresQueryHandler(query);
    }

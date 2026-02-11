@@ -1,10 +1,10 @@
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
-import { sql } from "valnor-postgres";
 import { Account } from "./codegen/valnor_test.account-table.js";
 import { randomUUID } from "node:crypto";
 import { pool } from "./postgres-pool.js";
 import { AccountStatusUdt } from "./codegen/valnor_test-enums.js";
 import { row } from "valnor";
+import { sql } from "valnor-postgres";
 
 describe("valnor postgres sql tests", () => {
    afterAll(async () => {
@@ -31,13 +31,11 @@ describe("valnor postgres sql tests", () => {
             returning ${row(Account.$$)}
       `.getOneRequired({ db: pool });
 
-      expect(account).toEqual(
-         expect.objectContaining({
-            status: AccountStatusUdt.CREATED,
-            firstName: "John",
-            lastName: "Doe",
-            email: "john.doe@example.com",
-         }),
-      );
+      expect(account).toMatchObject({
+         status: AccountStatusUdt.CREATED,
+         firstName: "John",
+         lastName: "Doe",
+         email: "john.doe@example.com",
+      });
    });
 });

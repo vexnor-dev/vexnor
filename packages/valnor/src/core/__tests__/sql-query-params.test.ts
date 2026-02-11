@@ -1,38 +1,35 @@
-import { describe, expect, test } from "vitest";
-import { InferParamFromSql, InferParamsFromQueryTokens, QueryParams, sql } from "../sql.js";
+import { assertType, describe, expect, test } from "vitest";
+import { ExtractParamsFromQuery, InferParamsFromSqlTokens, QueryParams, sql } from "../sql.js";
 import { param, row, SqlInputArgs, SqlParam, SqlQueryExtended } from "../query/index.js";
 import { Account, AccountStatusUdt } from "./models/valnor_test.schema.js";
 import { info } from "../charms/index.js";
+import { ParamsOf } from "../sql-base.js";
 
 describe("SqlQuery.params", () => {
    test("InferParamFromSql<SqlParam>", () => {
       // eslint-disable-next-line unused-imports/no-unused-vars
       const id1 = param("id1").is<string>();
-      type Params = InferParamFromSql<typeof id1>;
-      const params: Params = {
+      type Params = ParamsOf<typeof id1>;
+      assertType<Params>({
          id1: "",
          // @ts-expect-error - Testing runtime validation of extra property
          test: "a",
-      };
-      expect(params.id1).toBeDefined();
+      });
    });
 
    test("InferParamFromSql<SqlQuery>", () => {
       // eslint-disable-next-line unused-imports/no-unused-vars
       const id1 = sql`${param("id1")}`;
-      type Params = InferParamFromSql<typeof id1>;
-      const params: Params = {
+      type Params = ParamsOf<typeof id1>;
+      assertType<Params>({
          id1: "",
          // @ts-expect-error - Testing runtime validation of extra property
          test: "a",
-      };
-      expect(params.id1).toBeDefined();
-      // @ts-expect-error - Testing runtime validation of extra property
-      expect(params.test1).toBeUndefined();
+      });
    });
 
    test("Infer params from sql-query", () => {
-      type FullParams = InferParamsFromQueryTokens<
+      type FullParams = InferParamsFromSqlTokens<
          [
             typeof Account,
             typeof Account.$$,
@@ -47,7 +44,7 @@ describe("SqlQuery.params", () => {
          ]
       >;
 
-      const fullParams: FullParams = {
+      assertType<FullParams>({
          accountId: "",
          modifiedAt: new Date(),
          limit: 5,
@@ -56,12 +53,10 @@ describe("SqlQuery.params", () => {
          id3: 3,
          // @ts-expect-error - Testing runtime validation of extra property
          id4: 4,
-      };
-      expect(fullParams).toBeDefined();
+      });
 
       type FullInputArgs = SqlInputArgs<FullParams>;
-
-      const fullInputArgs: FullInputArgs = {
+      assertType<FullInputArgs>({
          params: {
             accountId: "",
             modifiedAt: new Date(),
@@ -72,19 +67,16 @@ describe("SqlQuery.params", () => {
             // @ts-expect-error - Testing runtime validation of extra property
             id4: 4,
          },
-      };
-      expect(fullInputArgs).toBeDefined();
+      });
 
       type EmptyParams = QueryParams<[typeof Account, typeof Account.$$, typeof Account.$accountId]>;
-      const emptyParams: EmptyParams = void 0;
-      expect(emptyParams).toBeUndefined();
+      assertType<EmptyParams>(void 0);
       type EmptyInputArgs = SqlInputArgs<EmptyParams>;
-      const emptyInputArgs: EmptyInputArgs = {};
-      expect(emptyInputArgs).toBeDefined();
+      assertType<EmptyInputArgs>({});
    });
 
    test("InferParamsFromQueryTokens from sql-query with tokens and params", () => {
-      type Params = InferParamsFromQueryTokens<
+      type Params = InferParamsFromSqlTokens<
          [
             typeof Account,
             typeof Account.$$,
@@ -93,18 +85,16 @@ describe("SqlQuery.params", () => {
             SqlParam<{ Name: "createdAt"; Type: Date }>,
          ]
       >;
-      const params: Params = {
+      assertType<Params>({
          accountId: "",
          createdAt: new Date(),
-      };
-      expect(params).toBeDefined();
-      expect(params.accountId).toBeDefined();
-      expect(params.createdAt).toBeDefined();
-      expect((params as any).status).toBeUndefined();
+         // @ts-expect-error - Testing runtime validation of extra property
+         test: 4,
+      });
    });
 
    test("InferParamsFromQueryTokens from sql-query with tokens and params incl. array", () => {
-      type Params = InferParamsFromQueryTokens<
+      type Params = InferParamsFromSqlTokens<
          [
             typeof Account,
             typeof Account.$$,
@@ -113,34 +103,27 @@ describe("SqlQuery.params", () => {
             [SqlParam<{ Name: "createdAt"; Type: Date }>, SqlParam<{ Name: "modifiedAt"; Type: Date }>],
          ]
       >;
-      const params: Params = {
+      assertType<Params>({
          accountId: "",
          createdAt: new Date(),
          modifiedAt: new Date(),
          // @ts-expect-error - Testing runtime validation of missing property
          status: "",
-      };
-      expect(params).toBeDefined();
-      expect(params.accountId).toBeDefined();
-      expect(params.createdAt).toBeDefined();
-      expect(params.modifiedAt).toBeDefined();
-      // @ts-expect-error - Testing runtime validation of missing property
-      expect(params.email).toBeUndefined();
+      });
    });
 
    test("InferParamsFromQueryTokens from sql-query without any params", () => {
-      type Params = InferParamsFromQueryTokens<[typeof Account, typeof Account.$$, typeof Account.$accountId]>;
+      type Params = InferParamsFromSqlTokens<[typeof Account, typeof Account.$$, typeof Account.$accountId]>;
       // Params should be unknown when there are no params
       type ExpectedType = unknown;
-      const typeCheck: Params extends ExpectedType ? true : false = true;
-      expect(typeCheck).toBe(true);
+      assertType<Params extends ExpectedType ? true : false>(true);
    });
 
    test("extracts params from query", () => {
       const query = sql`
          select ${row(Account.$$)}
          from ${Account}
-         where ${Account.$email} = ${param("email")}
+         where ${Account.$email} = ${param("email").is<string>()}
            and ${Account.$accountId} = ${param("accountId")}
       `;
 
@@ -149,10 +132,12 @@ describe("SqlQuery.params", () => {
          accountId: { name: "accountId" },
       });
       expect(Object.keys(query.params)).toHaveLength(2);
-      expect(query.params.email).toMatchObject({ name: "email" });
-      expect(query.params.accountId).toMatchObject({ name: "accountId" });
-      // @ts-expect-error - Testing runtime validation of missing property
-      expect(query.params.status).toBeUndefined();
+      assertType<ExtractParamsFromQuery<typeof query>>({
+         email: "",
+         accountId: "",
+         // @ts-expect-error - Testing runtime validation of missing property
+         test: "",
+      });
    });
 
    test("returns empty object when no params", () => {
@@ -161,6 +146,7 @@ describe("SqlQuery.params", () => {
          from ${Account}
       `;
 
+      assertType<ExtractParamsFromQuery<typeof query>>(void 0);
       expect(query.params).toBeNull();
       // @ts-expect-error - Testing runtime validation of missing property
       expect(query.params?.accountId).toBeUndefined();
@@ -174,6 +160,11 @@ describe("SqlQuery.params", () => {
             or ${Account.$email} = ${param("email")}
       `;
 
+      assertType<ExtractParamsFromQuery<typeof query>>({
+         email: "",
+         // @ts-expect-error - Testing runtime validation of missing property
+         test: "",
+      });
       expect(query.params).toMatchObject({
          email: { name: "email" },
       });
@@ -196,6 +187,13 @@ describe("SqlQuery.params", () => {
          from ${subquery}
          where ${subquery.$accountId} = ${param("accountId")}
       `;
+
+      assertType<ExtractParamsFromQuery<typeof query>>({
+         email: "",
+         accountId: "",
+         // @ts-expect-error - Testing runtime validation of missing property
+         test: "",
+      });
 
       expect(query.params).toMatchObject({
          email: { name: "email" },

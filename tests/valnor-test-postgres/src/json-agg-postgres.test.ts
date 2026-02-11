@@ -1,8 +1,8 @@
 import { describe, expect, test } from "vitest";
 import { info, param, row, sql, SqlBuildContext } from "valnor";
 import { Account, Order } from "./codegen/valnor_test.schema.js";
-import { jsonAgg, PostgresTokenizer } from "valnor-postgres";
-import "@valnor/test-utils";
+import { jsonMany, PostgresTokenizer } from "valnor-postgres";
+import "valnor/testing";
 
 describe("sql plugin jsonAgg() tests", () => {
    const AccountOrders = sql`
@@ -11,40 +11,55 @@ describe("sql plugin jsonAgg() tests", () => {
       from ${Order}
       where ${Order.$accountId} = ${Account.$accountId}
       order by ${Order.$createdAt} desc
-      limit ${param("limit").number}`;
+      limit ${param("limit").is<number>()}`;
 
    test("jsonAgg(): select", () => {
       const context = new SqlBuildContext({ tokenizer: new PostgresTokenizer("test") });
       context.next("select");
-      jsonAgg(AccountOrders).build(context, {});
-      expect(context.strings[0]).toBe(`"AccountOrders_result"`);
+      jsonMany(AccountOrders).build(context, {});
+      expect(context.tokens[0]).toMatchInlineSnapshot(`
+        {
+          "type": "text",
+          "value": ""AccountOrders_result"",
+        }
+      `);
    });
 
    const INVALID_KEYWORDS_FOR_JSON_AGG = ["where", "group by", "order by", "update", "delete from"];
    test.each(INVALID_KEYWORDS_FOR_JSON_AGG)("jsonAgg(): %s throws error", (keyword) => {
       const context = new SqlBuildContext({ tokenizer: new PostgresTokenizer("test") });
       context.next(keyword);
-      expect(() => jsonAgg(AccountOrders).build(context, {})).toThrow("Cannot use jsonAgg() with SQL keyword:");
+      expect(() => jsonMany(AccountOrders).build(context, {})).toThrow("Cannot use jsonAgg() with SQL keyword:");
    });
 
    test("jsonAgg(): from", () => {
       const context = new SqlBuildContext({ tokenizer: new PostgresTokenizer("test") });
       context.next("from");
-      jsonAgg(AccountOrders).build(context, {});
-      expect(context.text).toEqualQuery(
+      jsonMany(AccountOrders).build(context, {});
+      expect(context.text).toMatchInlineSnapshot(
          `
-            left join lateral (
-               select coalesce(jsonb_agg("AccountOrders".*), '[]') as "AccountOrders_result"
-               from ( /* --label: AccountOrders */
-                       select "o_1"."order_id"   as "orderId",
-                              "o_1"."status",
-                              "o_1"."created_at" as "createdAt",
-                              "o_1"."modified_at" as "modifiedAt"
-                       from "valnor_test"."order" as "o_1"
-                       where "o_1"."account_id" = "a_2"."account_id"
-                       order by "o_1"."created_at" desc
-                       limit $limit) as "AccountOrders") as "AccountOrders" on true
-         `,
+        "LEFT JOIN LATERAL (
+          SELECT
+            coalesce(jsonb_agg ("AccountOrders".*), '[]') AS "AccountOrders_result"
+          FROM
+            (
+              /* --label: AccountOrders */
+              SELECT
+                "o_1"."order_id" AS "orderId",
+                "o_1"."status",
+                "o_1"."created_at" AS "createdAt",
+                "o_1"."modified_at" AS "modifiedAt"
+              FROM
+                "valnor_test"."order" AS "o_1"
+              WHERE
+                "o_1"."account_id" = "a_2"."account_id"
+              ORDER BY
+                "o_1"."created_at" DESC
+              LIMIT
+                ?
+            ) AS "AccountOrders"
+        ) AS "AccountOrders" ON TRUE"
+      `,
       );
    });
 
@@ -55,40 +70,55 @@ describe("sql plugin jsonAgg() tests", () => {
          from ${Order}
          where ${Order.$accountId} = ${Account.$accountId}
          order by ${Order.$createdAt} desc
-         limit ${param.number("limit")}`;
+         limit ${param("limit").is<number>()}`;
 
       const query = sql`
-         select ${row(Account.$$)}, ${jsonAgg(AccountOrders)} as "orders"
-         from ${Account} ${jsonAgg(AccountOrders)}
+         select ${row(Account.$$)}, ${jsonMany(AccountOrders).as("children")}
+         from ${Account} ${jsonMany(AccountOrders)}
          order by ${Account.$accountId}
       `;
+      const target = query.getSql({ params: { limit: 5 } });
+      expect(target.values).toEqual([5]);
 
-      expect(query.getSql({ params: { limit: 5 } })).toEqualQuery(
-         `select 
-                     "a_1"."account_id"  as "accountId",
-                     "a_1"."status",
-                     "a_1"."email",
-                     "a_1"."first_name"  as "firstName",
-                     "a_1"."last_name"   as "lastName",
-                     "a_1"."notes",
-                     "a_1"."created_at"  as "createdAt",
-                     "a_1"."modified_at" as "modifiedAt",
-                     "a_1"."parent_id" as "parentId",        
-                     "AccountOrders_result"  as "orders"
-              from "valnor_test"."account" as "a_1"
-                      left join lateral (
-                 select coalesce(jsonb_agg("AccountOrders".*), '[]') as "AccountOrders_result"
-                 from (
-                         /* --label: AccountOrders */
-                         select "o_2"."order_id"    as "orderId",
-                                "o_2"."status",
-                                "o_2"."created_at"  as "createdAt",
-                                "o_2"."modified_at" as "modifiedAt"
-                         from "valnor_test"."order" as "o_2"
-                         where "o_2"."account_id" = "a_1"."account_id"
-                         order by "o_2"."created_at" desc
-                         limit ?) as "AccountOrders") as "AccountOrders" on true
-              order by "a_1"."account_id" asc`,
+      expect(target.text).toMatchInlineSnapshot(
+         `
+        "SELECT
+          "a_1"."account_id" AS "accountId",
+          "a_1"."status",
+          "a_1"."email",
+          "a_1"."first_name" AS "firstName",
+          "a_1"."last_name" AS "lastName",
+          "a_1"."notes",
+          "a_1"."created_at" AS "createdAt",
+          "a_1"."modified_at" AS "modifiedAt",
+          "a_1"."parent_id" AS "parentId",
+          "AccountOrders_result" AS "children"
+        FROM
+          "valnor_test"."account" AS "a_1"
+          LEFT JOIN LATERAL (
+            SELECT
+              coalesce(jsonb_agg ("AccountOrders".*), '[]') AS "AccountOrders_result"
+            FROM
+              (
+                /* --label: AccountOrders */
+                SELECT
+                  "o_2"."order_id" AS "orderId",
+                  "o_2"."status",
+                  "o_2"."created_at" AS "createdAt",
+                  "o_2"."modified_at" AS "modifiedAt"
+                FROM
+                  "valnor_test"."order" AS "o_2"
+                WHERE
+                  "o_2"."account_id" = "a_1"."account_id"
+                ORDER BY
+                  "o_2"."created_at" DESC
+                LIMIT
+                  ?
+              ) AS "AccountOrders"
+          ) AS "AccountOrders" ON TRUE
+        ORDER BY
+          "a_1"."account_id""
+      `,
       );
    });
 
@@ -99,39 +129,55 @@ describe("sql plugin jsonAgg() tests", () => {
          from ${Order}
          where ${Order.$accountId} = ${Account.$accountId}
          order by ${Order.$createdAt} desc
-         limit ${param.number("limit")}`;
+         limit ${param("limit").is<number>()}`;
 
       const query = sql`
-         select ${row(Account.$$)}, ${jsonAgg(AccountOrders)} as "orders"
-         from ${Account} ${jsonAgg(AccountOrders)}
+         select ${row(Account.$$)}, ${jsonMany(AccountOrders).as("orders")}
+         from ${Account} ${jsonMany(AccountOrders)}
          order by ${Account.$accountId}
       `;
 
-      expect(query.getSql({ params: { limit: 5 } })).toEqualQuery(
-         `select "a_1"."account_id"     as "accountId",
-                     "a_1"."status",
-                     "a_1"."email",
-                     "a_1"."first_name"     as "firstName",
-                     "a_1"."last_name"      as "lastName",
-                     "a_1"."notes",
-                     "a_1"."created_at"     as "createdAt",
-                     "a_1"."modified_at"    as "modifiedAt",
-                     "a_1"."parent_id"      as "parentId",
-                     "AccountOrders_result" as "orders"
-              from "valnor_test"."account" as "a_1"
-                      left join lateral (
-                 select coalesce(jsonb_agg("AccountOrders".*), '[]') as "AccountOrders_result"
-                 from (
-                         /* --label: AccountOrders */
-                         select "o_2"."order_id"    as "orderId",
-                                "o_2"."status",
-                                "o_2"."created_at"  as "createdAt",
-                                "o_2"."modified_at" as "modifiedAt"
-                         from "valnor_test"."order" as "o_2"
-                         where "o_2"."account_id" = "a_1"."account_id"
-                         order by "o_2"."created_at" desc
-                         limit ?) as "AccountOrders") as "AccountOrders" on true
-              order by "a_1"."account_id" asc`,
+      const target = query.getSql({ params: { limit: 5 } });
+      expect(target.values).toEqual([5]);
+      expect(target.text).toMatchInlineSnapshot(
+         `
+        "SELECT
+          "a_1"."account_id" AS "accountId",
+          "a_1"."status",
+          "a_1"."email",
+          "a_1"."first_name" AS "firstName",
+          "a_1"."last_name" AS "lastName",
+          "a_1"."notes",
+          "a_1"."created_at" AS "createdAt",
+          "a_1"."modified_at" AS "modifiedAt",
+          "a_1"."parent_id" AS "parentId",
+          "AccountOrders_result" AS "orders"
+        FROM
+          "valnor_test"."account" AS "a_1"
+          LEFT JOIN LATERAL (
+            SELECT
+              coalesce(jsonb_agg ("AccountOrders".*), '[]') AS "AccountOrders_result"
+            FROM
+              (
+                /* --label: AccountOrders */
+                SELECT
+                  "o_2"."order_id" AS "orderId",
+                  "o_2"."status",
+                  "o_2"."created_at" AS "createdAt",
+                  "o_2"."modified_at" AS "modifiedAt"
+                FROM
+                  "valnor_test"."order" AS "o_2"
+                WHERE
+                  "o_2"."account_id" = "a_1"."account_id"
+                ORDER BY
+                  "o_2"."created_at" DESC
+                LIMIT
+                  ?
+              ) AS "AccountOrders"
+          ) AS "AccountOrders" ON TRUE
+        ORDER BY
+          "a_1"."account_id""
+      `,
       );
    });
 });

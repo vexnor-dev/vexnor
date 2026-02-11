@@ -1,12 +1,15 @@
+import { ROW, TYPE } from "../sql-base.js";
+import { InferSelectRowByResult, SqlBuildContext, SqlBuildOptions } from "../query/index.js";
 import { Sql } from "../sql-base.js";
-import { SqlBuildContext, SqlBuildOptions } from "../query/index.js";
-import { InferSelectRowByResult } from "./sql-query-types.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlSelectAllAny = SqlSelectAll<any>;
 
-export class SqlSelectAll<T extends { Row: Record<string, unknown> }> extends Sql {
-   constructor(public readonly row: InferSelectRowByResult<T["Row"]>) {
+export class SqlSelectAll<Row extends Record<string, unknown>> extends Sql {
+   declare readonly [TYPE]: Row;
+   declare readonly [ROW]: Row;
+
+   constructor(public readonly row: InferSelectRowByResult<Row>) {
       super({
          ID: `${Object.values(row)
             .map((z) => z.toString())
@@ -27,15 +30,7 @@ export class SqlSelectAll<T extends { Row: Record<string, unknown> }> extends Sq
             break;
          default: {
             context.addQuotes(`${context.getQueryName(this)}.*`);
-
-            // let index = 0;
-            // for (const column of Object.values(this.row)) {
-            //    if (index++ > 0) context.addStrings(", ");
-            //    column.build(context, options);
-            // }
          }
       }
    }
 }
-
-export type NullOrSqlSelectAll<T> = T extends Record<string, unknown> ? SqlSelectAll<{ Row: T }> : null;

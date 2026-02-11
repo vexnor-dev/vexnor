@@ -2,10 +2,10 @@ import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import crypto, { randomUUID } from "node:crypto";
 import { ok } from "node:assert";
 import { param, row, rowType, sql } from "valnor";
-import { Account, IAccountJson, IAccountSelect } from "./codegen/valnor_test.account-table.js";
+import { Account, IAccountSelect } from "./codegen/valnor_test.account-table.js";
 import { AccountStatusUdt } from "./codegen/valnor_test-enums.js";
 import { pool } from "./postgres-pool.js";
-import { jsonAgg } from "valnor-postgres";
+import { jsonMany } from "valnor-postgres";
 
 describe.sequential("valnor postgres e2e tests", () => {
    const rootAccounts: IAccountSelect[] = [];
@@ -16,7 +16,7 @@ describe.sequential("valnor postgres e2e tests", () => {
    const findAccountById = sql`
          select ${row(Account.$$)}
       from ${Account}
-      where ${Account.$accountId} = ${param.string("accountId")}
+      where ${Account.$accountId} = ${param("accountId").is<string>()}
    `;
 
    afterAll(async () => {
@@ -65,7 +65,6 @@ describe.sequential("valnor postgres e2e tests", () => {
             ok(parent);
 
             const account = await sql`
-            ${rowType<IAccountSelect>()}
             insert into ${Account}
                ${Account.insertColsVals({
                   status: AccountStatusUdt.CREATED,
@@ -74,7 +73,7 @@ describe.sequential("valnor postgres e2e tests", () => {
                   email: `john.doe.child-${rootIndex}-${childIndex}-${id}@example.com`,
                   parentId: parent.accountId,
                })}
-               returning ${Account.$$}
+               returning ${row(Account.$$)}
          `.postgres.getOneRequired({ db: pool });
             expect(account).toEqual(
                expect.objectContaining({
@@ -97,8 +96,7 @@ describe.sequential("valnor postgres e2e tests", () => {
 
    test(`Fetch all ${ROOT_COUNT} root accounts`, async () => {
       const actual = await sql`
-         ${rowType<IAccountSelect>()}
-         select ${Account.$$}
+         select ${row(Account.$$)}
          from ${Account}
          where ${Account.$accountId} in (${rootAccounts.map((z) => z.accountId)})
          order by ${Account.$email}
@@ -108,8 +106,7 @@ describe.sequential("valnor postgres e2e tests", () => {
 
    test(`Fetch all ${ROOT_COUNT * CHILD_FACTOR} children accounts`, async () => {
       const actual = await sql`
-        ${rowType<IAccountSelect>()}
-         select ${Account.$$}
+         select ${row(Account.$$)}
          from ${Account}
          where ${Account.$accountId} in (${childAccounts.map((z) => z.accountId)})
          order by ${Account.$email}
@@ -138,12 +135,14 @@ describe.sequential("valnor postgres e2e tests", () => {
    test("Self join account: fetch accounts with parent info (firstName, lastName, email)", async () => {
       const actual = await sql`
         ${rowType<IAccountSelect>()}
-         select ${Account.$$},
-                ${Account`parent`.firstName`parentFirstName`},
-                ${Account`parent`.lastName`parentLastName`},
-                ${Account`parent`.email`parentEmail`}
+         select ${row(
+            Account.$$,
+            Account.as`parent`.$firstName.as(`parentFirstName`),
+            Account.as`parent`.$lastName.as(`parentLastName`),
+            Account.as`parent`.$email.as(`parentEmail`),
+         )}
          from ${Account}
-                 join ${Account`parent`} on ${Account`parent`.$accountId} = ${Account.parentId}
+                 join ${Account.as`parent`} on ${Account.as`parent`.$accountId} = ${Account.$parentId}
          where ${Account.$accountId} in (${childAccounts.map((z) => z.accountId)})
          order by ${Account.$email}
       `.postgres.getAll({
@@ -165,31 +164,172 @@ describe.sequential("valnor postgres e2e tests", () => {
 
    test("Fetch root accounts and their children as json array", async () => {
       const accountChildren = sql`
-        ${rowType<IAccountSelect>()}
-         select ${Account`children`.$$}
-         from ${Account`children`}
-         where ${Account`children`.parentId} = ${Account.$accountId}
-         order by ${Account`children`.email}
+         select ${row(Account.as`children`.$$)}
+         from ${Account.as`children`}
+         where ${Account.as`children`.$parentId} = ${Account.$accountId}
+         order by ${Account.as`children`.$email}
       `;
 
-      const actual = await sql`
-         ${rowType<IAccountSelect & { children: IAccountJson[] }>()}
-         select ${Account.$$}, ${jsonAgg(accountChildren)} as children
-         from ${Account} ${jsonAgg(accountChildren)}
+      const query = sql`
+         select ${row(Account.$$)}, ${jsonMany(accountChildren).as("children")}
+         from ${Account} ${jsonMany(accountChildren)}
          where ${Account.$accountId} in (${rootAccounts.map((z) => z.accountId)})
          order by ${Account.$email}
-      `.postgres
-         .getAll({ db: pool })
-         .then((accounts) =>
-            accounts.map((account) => ({
-               ...account,
-               children: account.children.map((child) => ({
-                  ...child,
-                  createdAt: new Date(child.createdAt),
-                  modifiedAt: new Date(child.modifiedAt),
-               })),
+      `;
+      expect(query.getSql({}).text).toMatchInlineSnapshot(`
+        "SELECT
+          "a_1"."account_id" AS "accountId",
+          "a_1"."status",
+          "a_1"."email",
+          "a_1"."first_name" AS "firstName",
+          "a_1"."last_name" AS "lastName",
+          "a_1"."notes",
+          "a_1"."created_at" AS "createdAt",
+          "a_1"."modified_at" AS "modifiedAt",
+          "a_1"."parent_id" AS "parentId",
+          "query_1_result" AS "children"
+        FROM
+          "valnor_test"."account" AS "a_1"
+          LEFT JOIN LATERAL (
+            SELECT
+              coalesce(jsonb_agg ("query_1".*), '[]') AS "query_1_result"
+            FROM
+              (
+                SELECT
+                  "children"."account_id" AS "accountId",
+                  "children"."status",
+                  "children"."email",
+                  "children"."first_name" AS "firstName",
+                  "children"."last_name" AS "lastName",
+                  "children"."notes",
+                  "children"."created_at" AS "createdAt",
+                  "children"."modified_at" AS "modifiedAt",
+                  "children"."parent_id" AS "parentId"
+                FROM
+                  "valnor_test"."account" AS "children"
+                WHERE
+                  "children"."parent_id" = "a_1"."account_id"
+                ORDER BY
+                  "children"."email"
+              ) AS "query_1"
+          ) AS "query_1" ON TRUE
+        WHERE
+          "a_1"."account_id" IN (
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?
+          )
+        ORDER BY
+          "a_1"."email""
+      `);
+
+      const actual = await query.postgres.getAll({ db: pool }).then((accounts) =>
+         accounts.map((account) => ({
+            ...account,
+            children: account.children.map((child) => ({
+               ...child,
+               createdAt: new Date(child.createdAt),
+               modifiedAt: new Date(child.modifiedAt),
             })),
-         );
+         })),
+      );
 
       const childrenByParentId = (() => {
          const result = new Map<string, IAccountSelect[]>();
@@ -218,7 +358,7 @@ describe.sequential("valnor postgres e2e tests", () => {
       const actual = await sql`
             ${rowType<IAccountSelect>()}
          update ${Account}
-         set ${Account.firstName} = ${expected.firstName + "+test"}
+         set ${Account.$firstName} = ${expected.firstName + "+test"}
          where ${Account.$accountId} = ${expected.accountId}
          returning ${Account.$$}
       `.postgres.getOneRequired({ db: pool });

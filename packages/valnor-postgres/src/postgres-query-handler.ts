@@ -14,7 +14,7 @@ export class PostgresQueryHandler<T extends { Row?: unknown; Params?: unknown }>
    QueryResult: QueryResult<RowOrDefault<T["Row"]>>;
    QueryClient: PostgresClient;
 }> {
-   constructor(readonly query: SqlQuery<T>) {
+   constructor(readonly query: SqlQuery<{ Row: T["Row"]; Params: T["Params"] }>) {
       super(query);
    }
 
@@ -26,13 +26,12 @@ export class PostgresQueryHandler<T extends { Row?: unknown; Params?: unknown }>
             options: {
                ...args.options,
                tokenizer: new PostgresTokenizer(this.query.ID),
+               dialect: "postgresql",
+               paramFormat: (args: { index: number }) => `$${args.index + 1}`,
             },
          };
 
-         queryInput = {
-            text: this.query.getText(newArgs, (index) => `$${index + 1}`),
-            values: this.query.getValues(newArgs),
-         };
+         queryInput = this.query.getSql(newArgs);
          return queryInput;
       } catch (err) {
          console.error(err, "\n", queryInput?.text ?? "error building core");

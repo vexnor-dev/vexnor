@@ -1,1 +1,1 @@
-export * from "./json-agg-postgres.js";
+export * from "./json-many-postgres.js";

@@ -1,9 +1,9 @@
 import { defineQueryConfig } from "valnor/config";
 import { findEnums } from "./find-enums.js";
 import { valnorPostgres } from "../valnor-postgres.js";
-import { findTables } from "./find-tables.js";
+import { findTables, findTableColumns, findPrimaryKeys } from "./find-tables.js";
 
-export default defineQueryConfig({ findEnums, findTables })({
+export default defineQueryConfig({ findEnums, findTables, findTableColumns, findPrimaryKeys })({
    queries: {
       findEnums: {
          plugin: valnorPostgres,
@@ -20,7 +20,25 @@ export default defineQueryConfig({ findEnums, findTables })({
          params: {
             schemas: ["valnor_test"],
          },
-         limit: 10,
+         limit: 1,
+         format: "json",
+      },
+      findTableColumns: {
+         plugin: valnorPostgres,
+         profile: "default",
+         params: {
+            schemas: ["valnor_test"],
+         },
+         limit: 100,
+         format: "json",
+      },
+      findPrimaryKeys: {
+         plugin: valnorPostgres,
+         profile: "default",
+         params: {
+            schemas: ["valnor_test"],
+         },
+         limit: 100,
          format: "json",
       },
    },

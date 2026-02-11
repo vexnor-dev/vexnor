@@ -4,7 +4,7 @@ import { newSqlSelectColumn } from "../sql-select-column.js";
 
 describe("SqlSelectAll tests", () => {
    test("new value should be defined", () => {
-      const all = new SqlSelectAll<{ Row: { accountId: string; name: string } }>({
+      const all = new SqlSelectAll<{ accountId: string; name: string }>({
          $accountId: newSqlSelectColumn<{ Key: "accountId"; Type: string }>({
             key: "accountId",
             columnName: "account_id",

@@ -1,26 +1,22 @@
-import { Sql } from "../sql-base.js";
+import { ROW, TYPE, TypeOf, Sql } from "../sql-base.js";
 import { SqlBuildContext } from "./sql-build-context.js";
-import { SqlTableColumn, SqlTableColumnAny } from "../schema/index.js";
-import { SqlSelectValue, SqlSelectValueAny } from "./sql-select-value.js";
-import { newSqlSelectColumn, SqlSelectColumn, SqlSelectColumnAny } from "./sql-select-column.js";
-import { SqlTableAll, SqlTableAllAny } from "../charms/index.js";
-import { SqlSelectAll, SqlSelectAllAny } from "./sql-select-all.js";
+import { SqlTableColumn } from "../schema/index.js";
+import { SqlSelectValue } from "./sql-select-value.js";
+import { newSqlSelectColumn, SqlSelectColumn } from "./sql-select-column.js";
+import { SqlTableAll } from "../charms/index.js";
+import { SqlSelectAll } from "./sql-select-all.js";
 import { InferSelectRowByResult, SqlBuildOptions } from "./sql-query-types.js";
 import { SqlBuildError } from "../sql-build-error.js";
-import { MergeAll } from "../utils/index.js";
+import { Merge } from "../utils/index.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlSelectRowAny = SqlSelectRow<any>;
 
-export type SqlSelectColumnInput =
-   | SqlSelectAllAny
-   | SqlSelectValueAny
-   | SqlSelectColumnAny
-   | SqlTableAllAny
-   | SqlTableColumnAny;
-
 export class SqlSelectRow<T extends { Row: Record<string, unknown> }> extends Sql {
-   constructor(public readonly columns: SqlSelectColumnInput[]) {
+   declare readonly [ROW]: T["Row"];
+   declare readonly [TYPE]: T["Row"];
+
+   constructor(public readonly columns: Array<Sql>) {
       super({
          ID: `${columns
             .map((col) => {
@@ -30,9 +26,9 @@ export class SqlSelectRow<T extends { Row: Record<string, unknown> }> extends Sq
       });
    }
 
-   private _$$: SqlSelectAll<T> | null = null;
+   private _$$: SqlSelectAll<T["Row"]> | null = null;
 
-   get $$(): SqlSelectAll<T> {
+   get $$(): SqlSelectAll<T["Row"]> {
       if (!this._$$) {
          this._$$ = new SqlSelectAll(this.row);
       }
@@ -121,40 +117,14 @@ export class SqlSelectRow<T extends { Row: Record<string, unknown> }> extends Sq
    }
 }
 
-export function row<
-   Column extends SqlSelectAllAny | SqlSelectValueAny | SqlSelectColumnAny | SqlTableAllAny | SqlTableColumnAny,
-   Columns extends Column[],
->(...columns: Columns): SqlSelectRow<{ Row: InferResultRowFromColumns<typeof columns> }> {
+export function row<Column extends Sql, Columns extends Column[]>(
+   ...columns: Columns
+): SqlSelectRow<{ Row: InferResultRowFromColumns<typeof columns> }> {
    return new SqlSelectRow(columns);
 }
 
-export type InferResultRowFromColumn<T> = T extends
-   | SqlTableColumn<infer U>
-   | SqlSelectValue<infer U>
-   | SqlSelectColumn<infer U>
-   ? U extends { Key: infer K extends string; Type: infer V }
-      ? Record<K, V>
-      : never
-   : unknown;
-
-export type InferResultRowFromAll<T> = T extends SqlTableAll<infer U> | SqlSelectAll<infer U>
-   ? U["Row"] extends Record<string, unknown>
-      ? {
-           [K in keyof U["Row"]]: K extends string ? U["Row"][K] : never;
-        }
-      : never
-   : unknown;
-
-export type InferResultRowFromSelect<T> =
-   T extends SqlSelectRow<infer U extends { Row: Record<string, unknown> }> ? U["Row"] : unknown;
-
 export type InferResultRowFromColumns<T> = T extends [infer Start, ...infer Rest]
-   ? MergeAll<
-        [
-           InferResultRowFromSelect<Start>,
-           InferResultRowFromColumn<Start>,
-           InferResultRowFromColumns<Rest>,
-           InferResultRowFromAll<Start>,
-        ]
-     >
+   ? Start extends Sql
+      ? Merge<TypeOf<Start>, InferResultRowFromColumns<Rest>>
+      : InferResultRowFromColumns<Rest>
    : {};

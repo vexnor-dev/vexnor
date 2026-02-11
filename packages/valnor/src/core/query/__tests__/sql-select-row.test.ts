@@ -1,5 +1,5 @@
-import { assertType, describe, expect, expectTypeOf, test } from "vitest";
-import { InferResultRowFromAll, InferResultRowFromColumns, row, SqlSelectRow } from "../sql-select-row.js";
+import { assertType, describe, expect, test } from "vitest";
+import { InferResultRowFromColumns, row, SqlSelectRow } from "../sql-select-row.js";
 import { Account } from "@test-models/valnor_test.account-table.js";
 import { SqlBuildContext } from "../sql-build-context.js";
 import { sql } from "../../sql.js";
@@ -14,55 +14,10 @@ import { SqlQuery } from "../sql-query.js";
 describe("SqlSelectRow tests", () => {
    test("infer result row from select row", () => {
       type ResultRow = InferResultRowFromColumns<[typeof Account.$accountId, typeof Order.$orderId]>;
-      const row: ResultRow = {
+      assertType<ResultRow>({
          accountId: "",
          orderId: "",
-      };
-      expect(row).toBeDefined();
-   });
-
-   test("infer SqlTable.$$ row", () => {
-      type Type = InferSelectRowByResult<InferResultRowFromAll<typeof Account.$$>>;
-      const target: Type = {
-         $accountId: newSqlSelectColumn<{ Key: "accountId"; Type: string }>({
-            key: "accountId",
-            columnName: "account_id",
-         }),
-         $createdAt: newSqlSelectColumn<{ Key: "createdAt"; Type: Date }>({
-            key: "createdAt",
-            columnName: "created_at",
-         }),
-         $email: newSqlSelectColumn<{ Key: "email"; Type: string }>({
-            key: "email",
-            columnName: "email",
-         }),
-         $firstName: newSqlSelectColumn<{ Key: "firstName"; Type: string }>({
-            key: "firstName",
-            columnName: "first_name",
-         }),
-         $lastName: newSqlSelectColumn<{ Key: "lastName"; Type: string }>({
-            key: "lastName",
-            columnName: "last_name",
-         }),
-         $notes: newSqlSelectColumn<{ Key: "notes"; Type: string }>({
-            key: "notes",
-            columnName: "notes",
-         }),
-         $status: newSqlSelectColumn<{ Key: "status"; Type: AccountStatusUdt }>({
-            key: "status",
-            columnName: "status",
-         }),
-         $parentId: newSqlSelectColumn<{ Key: "parentId"; Type: string }>({
-            key: "parentId",
-            columnName: "parent_id",
-         }),
-         $modifiedAt: newSqlSelectColumn<{ Key: "modifiedAt"; Type: Date }>({
-            key: "modifiedAt",
-            columnName: "modified_at",
-         }),
-      };
-
-      expect(target).toBeDefined();
+      });
    });
 
    test("SqlSelectRow type inference from columns", () => {
@@ -132,11 +87,6 @@ describe("SqlSelectRow tests", () => {
       };
 
       expect(row).toBeDefined();
-   });
-
-   test("expectTypeOf() should check type", () => {
-      const target = { name: "a", age: 1 };
-      expectTypeOf(target).toEqualTypeOf<{ name: string; age: number }>();
    });
 
    test("row(...columns) should match expected type", () => {
@@ -261,7 +211,7 @@ describe("SqlSelectRow tests", () => {
          from ${Account}
          where ${Account.$accountId} = ${param("accountId").is<string>()}`;
       expect(query.row).toBeFalsy();
-      assertType<SqlQuery<{ Row: unknown; Params: { accountId: string } }>>(query);
+      assertType<SqlQuery<{ Row: {}; Params: { accountId: string } }>>(query);
    });
 
    test("query.row.[column] renders column", () => {

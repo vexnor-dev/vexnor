@@ -1,25 +1,26 @@
-import { SqlParam, SqlParamAny } from "./sql-param.js";
+import { BuildSqlParams, SqlParam } from "./sql-param.js";
 import { SqlBuildContext } from "./sql-build-context.js";
 import { logger } from "../logger.js";
-import { Sql } from "../sql-base.js";
+import { PARAMS, Sql, TYPE } from "../sql-base.js";
 import { SqlQueryInfo } from "../charms/index.js";
 import { hasParams, InferSelectRowByResult, SqlBuildOptions, SqlInputArgs } from "./sql-query-types.js";
 import { SqlSelectAll } from "./sql-select-all.js";
 import { Queue } from "../../lib/index.js";
-import { SqlSelectRow } from "./sql-select-row.js";
 import { SqlBuildError } from "../sql-build-error.js";
-import { SqlSelectValue } from "./sql-select-value.js";
-import { newSqlSelectColumn } from "./sql-select-column.js";
 import { quote } from "../utils/index.js";
 import { format } from "sql-formatter";
+import { SqlQueryAll, SqlQueryRow } from "./sql-models.js";
+import { SqlSelectValue } from "./sql-select-value.js";
+import { SqlSelectRow } from "./sql-select-row.js";
+import { newSqlSelectColumn } from "./sql-select-column.js";
+import { SqlSelectCharm } from "./sql-charm.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlQueryAny = SqlQuery<any>;
 
-export type SqlQueryColumns<T extends { Params?: unknown; Row?: unknown }> =
-   T["Row"] extends Record<string, unknown> ? InferSelectRowByResult<T["Row"]> : unknown;
+export type SqlQueryColumns<Row> = Row extends Record<string, unknown> ? InferSelectRowByResult<Row> : unknown;
 
-export type SqlQueryExtended<T extends { Row?: unknown; Params?: unknown }> = SqlQuery<T> & SqlQueryColumns<T>;
+export type SqlQueryExtended<T extends { Row?: unknown; Params?: unknown }> = SqlQuery<T> & SqlQueryColumns<T["Row"]>;
 
 export interface SqlQueryArgs {
    readonly info?: SqlQueryInfo;
@@ -28,20 +29,17 @@ export interface SqlQueryArgs {
    readonly isFragment?: boolean;
 }
 
-type SqlQueryRow<T> = T extends { Row: Record<string, unknown> } ? InferSelectRowByResult<T["Row"]> : null;
-type SqlQueryAll<T> = T extends { Row: Record<string, unknown> } ? SqlSelectAll<T> : null;
-export type SqlQueryParams<T> = T extends { Params: Record<infer Key extends string, infer Type> }
-   ? Record<Key, SqlParam<{ Name: Key; Type: Type }>>
-   : null;
-
 export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql {
+   declare readonly [TYPE]: T["Row"];
+   declare readonly [PARAMS]: T["Params"];
+
    readonly rawStrings: TemplateStringsArray;
    readonly rawValues: unknown[];
    readonly info: SqlQueryInfo | null = null;
    readonly isFragment: boolean;
-   readonly params: SqlQueryParams<T>;
-   readonly row: SqlQueryRow<T>;
-   readonly $$: SqlQueryAll<T>;
+   readonly row: SqlQueryRow<T["Row"]>;
+   readonly $$: SqlQueryAll<T["Row"]>;
+   readonly params: BuildSqlParams<T["Params"]>;
 
    constructor({ rawStrings, rawValues, ...args }: SqlQueryArgs) {
       super({
@@ -52,68 +50,82 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
             return JSON.stringify(info.options).replace(`"`, "").replace(" ", "");
          })(),
       });
-      this.rawStrings = rawStrings;
-      this.rawValues = rawValues;
-      this.isFragment = args.isFragment ?? false;
 
-      let params: Record<string, SqlParamAny> | null = null;
-      let row: Record<string, unknown> | null = null;
-      let hasRow = false;
-      let info: SqlQueryInfo | null = null;
-      const queue = new Queue(...rawValues);
-      for (const rawValue of queue.shift()) {
-         switch (true) {
-            case rawValue instanceof SqlParam:
-               params = {
-                  ...(params ?? {}),
-                  [rawValue.name]: rawValue,
-               };
-               break;
-            case rawValue instanceof SqlQueryInfo:
-               info = rawValue;
-               break;
-            case rawValue instanceof SqlSelectRow:
-               if (hasRow) {
-                  throw new SqlBuildError(
-                     `SqlQuery can only have one row() defined. This row() cannot be processed: ${rawValue}`,
-                  );
-               }
-
-               row = {
-                  ...rawValue.row,
-               };
-               hasRow = true;
-               break;
-            case rawValue instanceof SqlQuery:
-               if (rawValue.params) {
+      this.params = (() => {
+         let params: Partial<BuildSqlParams<T["Params"]>> | null = null;
+         const queue = new Queue(...rawValues);
+         for (const rawValue of queue.shift()) {
+            switch (true) {
+               case Array.isArray(rawValue):
+                  queue.add(...rawValue);
+                  break;
+               case rawValue instanceof SqlParam:
+                  params = {
+                     ...(params ?? {}),
+                     [rawValue.name]: rawValue,
+                  };
+                  break;
+               case rawValue instanceof Sql && hasParams(rawValue):
                   params = {
                      ...(params ?? {}),
                      ...rawValue.params,
                   };
-               }
-               break;
-            case rawValue instanceof SqlSelectValue:
-               row = {
-                  ...(row ?? {}),
-                  [`$${rawValue.key}`]: newSqlSelectColumn({
-                     key: rawValue.key,
-                     columnName: rawValue.key,
-                  }),
-               };
-               params = {
-                  ...(params ?? {}),
-                  ...rawValue.query.params,
-               };
-               break;
-            case Array.isArray(rawValue):
-               queue.add(...rawValue);
-               break;
+                  break;
+            }
          }
-      }
-      this.row = row as SqlQueryRow<T>;
-      this.info = info;
-      this.params = params as SqlQueryParams<T>;
-      this.$$ = (this.row ? new SqlSelectAll(this.row) : null) as SqlQueryAll<T>;
+
+         return params as BuildSqlParams<T["Params"]>;
+      })();
+
+      this.row = (() => {
+         let row: Partial<SqlQueryRow<T["Row"]>> | null = null;
+         const queue = new Queue(...rawValues);
+         for (const rawValue of queue.shift()) {
+            switch (true) {
+               case Array.isArray(rawValue):
+                  queue.add(...rawValue);
+                  break;
+               case rawValue instanceof SqlSelectCharm:
+               case rawValue instanceof SqlSelectValue:
+                  row = {
+                     ...(row ?? {}),
+                     [`$${rawValue.key}`]: newSqlSelectColumn({
+                        key: rawValue.key,
+                        columnName: rawValue.key,
+                     }),
+                  };
+                  break;
+               case rawValue instanceof SqlSelectRow:
+                  row = {
+                     ...(row ?? {}),
+                     ...rawValue.row,
+                  };
+                  break;
+            }
+         }
+
+         return row as SqlQueryRow<T["Row"]>;
+      })();
+
+      this.info = (() => {
+         const queue = new Queue(...rawValues);
+         for (const rawValue of queue.shift()) {
+            switch (true) {
+               case rawValue instanceof SqlQueryInfo:
+                  return rawValue;
+               case Array.isArray(rawValue):
+                  queue.add(...rawValue);
+                  break;
+            }
+         }
+
+         return null;
+      })();
+
+      this.rawStrings = rawStrings;
+      this.rawValues = rawValues;
+      this.isFragment = args.isFragment ?? false;
+      this.$$ = (this.row ? new SqlSelectAll(this.row) : null) as SqlQueryAll<T["Row"]>;
    }
 
    /**

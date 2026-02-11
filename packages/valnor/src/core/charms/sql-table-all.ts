@@ -1,14 +1,16 @@
-import { Sql } from "../sql-base.js";
+import { TYPE, Sql } from "../sql-base.js";
 import { SqlBuildContext, SqlBuildOptions } from "../query/index.js";
 import { InferTable$RowBySelect } from "../types/index.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlTableAllAny = SqlTableAll<any>;
 
-export class SqlTableAll<T extends { Row: Record<string, unknown> }> extends Sql {
-   readonly row: InferTable$RowBySelect<T["Row"]>;
+export class SqlTableAll<Row extends Record<string, unknown>> extends Sql {
+   declare readonly [TYPE]: Row;
 
-   constructor(row: InferTable$RowBySelect<T["Row"]>) {
+   readonly row: InferTable$RowBySelect<Row>;
+
+   constructor(row: InferTable$RowBySelect<Row>) {
       super({ ID: `${Object.keys(row).join(", ")}` });
       this.row = row;
    }

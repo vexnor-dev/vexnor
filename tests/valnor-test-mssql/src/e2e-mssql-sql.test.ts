@@ -1,17 +1,19 @@
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { sql } from "valnor-mssql";
-import { Account, IAccountSelect } from "./codegen/valnor_test.account-table.js";
+import { Account } from "./codegen/valnor_test.account-table.js";
 import { randomUUID } from "node:crypto";
 import { pool } from "./mssql-pool.js";
+import { row } from "valnor";
 
 describe("valnor postgres sql tests", () => {
    beforeAll(async () => {
       await pool.connect();
-      await sql<object>`
+      const query = sql`
          delete
          from ${Account}
          where ${Account.$accountId} <> ${randomUUID()}
-      `.run({ db: pool.request() });
+      `;
+      await query.run({ db: pool.request() });
    });
 
    afterAll(async () => {
@@ -19,7 +21,7 @@ describe("valnor postgres sql tests", () => {
    });
 
    test("insert account", async () => {
-      const account = await sql<IAccountSelect>`
+      const query = sql`
          insert into ${Account}
             ${Account.insertCols({
                status: "CREATED",
@@ -27,15 +29,16 @@ describe("valnor postgres sql tests", () => {
                lastName: "Doe",
                email: "john.doe@example.com",
             })}
-            output ${Account`inserted`.$$}
+            output ${row(Account.as(`inserted`).$$)}
             ${Account.insertVals({
                status: "CREATED",
                firstName: "John",
                lastName: "Doe",
                email: "john.doe@example.com",
             })}
-      `.getOneRequired({ db: pool.request() });
+      `;
 
+      const account = await query.getOneRequired({ db: pool.request() });
       expect(account).toEqual(
          expect.objectContaining({
             status: "CREATED",

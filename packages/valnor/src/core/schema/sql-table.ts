@@ -41,7 +41,7 @@ export class SqlTable<
       Update?: Partial<T["Insert"]>;
    },
 > extends Sql {
-   readonly $$: SqlTableAll<{ Row: T["Select"] }>;
+   readonly $$: SqlTableAll<T["Select"]>;
    readonly tableInfo: { schema?: string; name: string; alias?: string };
    readonly format: SqlTableFormat | null;
    readonly row: InferTable$RowBySelect<T["Select"]>;
@@ -76,7 +76,7 @@ export class SqlTable<
          return row as InferTable$RowBySelect<T["Select"]>;
       })();
 
-      this.$$ = new SqlTableAll<{ Row: T["Select"] }>(this.row);
+      this.$$ = new SqlTableAll<T["Select"]>(this.row);
    }
 
    as(tableName: string | TemplateStringsArray): SqlTableExtended<T> {

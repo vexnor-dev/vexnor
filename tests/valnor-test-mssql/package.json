@@ -6,7 +6,7 @@
    "author": "Adrian Topala",
    "license": "Apache-2.0",
    "scripts": {
-      "codegen": "env-cmd --no-override -x -r ../../env-dev.json -e mssql node ../../packages/valnor/cli.mjs generate --plugin valnor-mssql --schema valnor_test --pascalCaseTables --camelCaseColumns --host \\$MSSQL_HOST --port \\$MSSQL_PORT --database \\$MSSQL_DATABASE --user \\$MSSQL_USER --password \\$MSSQL_PASSWORD --outDir './src/codegen' | pino-pretty",
+      "codegen": "env-cmd --no-override -x -r ../../env-dev.json -e mssql node ../../packages/valnor/cli.mjs codegen --plugin valnor-mssql --schema valnor_test --pascalCaseTables --camelCaseColumns --host \\$MSSQL_HOST --port \\$MSSQL_PORT --database \\$MSSQL_DATABASE --user \\$MSSQL_USER --password \\$MSSQL_PASSWORD --outDir './src/codegen' | pino-pretty",
       "pretest": "run-s 'codegen'",
       "test": "vitest --coverage run",
       "test:watch": "vitest --watch",

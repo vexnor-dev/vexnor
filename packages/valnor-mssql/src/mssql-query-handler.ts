@@ -1,11 +1,12 @@
-import { AsyncQueryHandler, SqlQueryParams, SqlQueryRowOut, SqlQuery, SqlRunArgs } from "valnor";
+import { AsyncQueryHandler, SqlInputArgs, SqlQuery, SqlRunArgs } from "valnor";
 import { IResult, Request } from "mssql";
 import { MssqlTokenizer } from "./mssql-tokenizer.js";
 import { MssqlParamFormatter } from "./mssql-param-formatter.js";
+import "valnor/testing";
 
-export class MssqlQueryHandler<T extends { Row: SqlQueryRowOut; Params?: SqlQueryParams }> extends AsyncQueryHandler<{
+export class MssqlQueryHandler<T extends { Params?: unknown; Row?: unknown }> extends AsyncQueryHandler<{
    Row: T["Row"];
-   Params?: T["Params"];
+   Params: T["Params"];
    QueryResult: IResult<T["Row"]>;
    QueryClient: Request;
 }> {
@@ -16,22 +17,20 @@ export class MssqlQueryHandler<T extends { Row: SqlQueryRowOut; Params?: SqlQuer
    getOptions(args: SqlRunArgs<Request, T["Params"]>) {
       let queryInput = undefined;
       try {
-         // Create a new options object to inject the tokenizer
-         const newArgs: SqlRunArgs<Request, T["Params"]> = {
+         const newArgs: SqlInputArgs<T["Params"]> = {
             ...args,
             options: {
                ...args.options,
-               tokenizer: new MssqlTokenizer(this.query.name),
+               tokenizer: new MssqlTokenizer(this.query.ID),
+               paramFormat: MssqlParamFormatter,
+               dialect: "tsql",
             },
          };
 
-         queryInput = {
-            sql: this.query.getText(newArgs, MssqlParamFormatter),
-            params: this.query.getValues(newArgs),
-         };
+         queryInput = this.query.getSql(newArgs);
          return queryInput;
       } catch (err) {
-         console.error(err, "\n", queryInput?.sql ?? "error building query");
+         console.error(err, "\n", queryInput?.text ?? "error building query");
          throw err;
       }
    }
@@ -50,15 +49,15 @@ export class MssqlQueryHandler<T extends { Row: SqlQueryRowOut; Params?: SqlQuer
       try {
          queryInput = this.getOptions(args);
          if (debug) debug(Object.freeze(queryInput));
-         const { sql, params } = queryInput;
+         const { text, values } = queryInput;
 
-         for (let i = 0; i < params.length; i++) {
-            db.input(`param_${i}`, params[i]);
+         for (let i = 0; i < values.length; i++) {
+            db.input(`param_${i}`, values[i]);
          }
 
-         return await db.query(sql);
+         return await db.query(text);
       } catch (err) {
-         console.error(err, "\n", queryInput?.sql ?? "error building query");
+         console.error(err, "\n", queryInput?.text ?? "error building query");
          throw err;
       }
    }

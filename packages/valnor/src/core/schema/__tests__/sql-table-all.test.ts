@@ -7,7 +7,7 @@ import { SqlTableColumn } from "../sql-table-column.js";
 
 describe("SqlTableAll (*) tests", () => {
    test("new value should be defined", () => {
-      const all = new SqlTableAll<{ Row: { accountId: string; name: string } }>({
+      const all = new SqlTableAll<{ accountId: string; name: string }>({
          $accountId: new SqlTableColumn<{ Key: "accountId"; Type: string }>({
             key: "accountId",
             columnName: "account_id",

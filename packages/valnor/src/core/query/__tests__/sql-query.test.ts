@@ -10,6 +10,16 @@ describe("SqlQuery tests", () => {
    test("SqlQuery row type inference", () => {
       const query = sql`select ${row(Account.$accountId, Account.$status, Account.$email)} from ${Account}`;
       expect(query.row).toBeDefined();
+      expect(query.row).toMatchObject({
+         $accountId: {
+            columnName: "accountId",
+            key: "accountId",
+            tableInfo: null,
+         },
+         $status: { columnName: "status", key: "status", tableInfo: null },
+         $email: { columnName: "email", key: "email", tableInfo: null },
+      });
+      expect(Object.keys(query.row)).toMatchObject(["$accountId", "$status", "$email"]);
       expect(query.$accountId).toBeDefined();
       expect(query.$status).toBeDefined();
       expect(query.$email).toBeDefined();
@@ -20,9 +30,9 @@ describe("SqlQuery tests", () => {
          "rawValues",
          "info",
          "isFragment",
-         "params",
          "row",
          "$$",
+         "params",
          "$accountId",
          "$status",
          "$email",

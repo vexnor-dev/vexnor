@@ -1,8 +1,8 @@
 import { DefaultTokenizer, MAJOR_KEYWORDS, SqlBuildError } from "valnor";
 
 export class MssqlTokenizer extends DefaultTokenizer {
-   constructor(queryName: string) {
-      super(queryName);
+   constructor(public readonly queryName: string) {
+      super();
    }
 
    // We override the entire tokenize method to allow the '@' parameter marker for MSSQL.

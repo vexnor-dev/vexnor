@@ -1,4 +1,4 @@
-import { param, row, sql, val } from "valnor";
+import { param, row, sql, type, val } from "valnor";
 import { PgEnum, PgNamespace, PgType } from "./models.js";
 import { SqlEnumValue } from "valnor/plugin";
 
@@ -11,7 +11,7 @@ export const findEnums = sql`
    SELECT ${row(
       PgType.$typname.as("enum_name"),
       PgNamespace.$nspname.as("enum_schema"),
-   )}, ${val<SqlEnumValue[]>`json_agg("enum_values")`.as("enum_values")}
+   )}, ${val`json_agg("enum_values")`.as({ enum_values: type<SqlEnumValue[]>() })}
    FROM ${PgType}
            join "enum_values" on ${PgType.$oid} = ${PgEnum.as`enum_values`.$enumtypid}
            join ${PgNamespace} on ${PgNamespace.$oid} = ${PgType.$typnamespace}

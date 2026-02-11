@@ -1,33 +1,33 @@
-import { param, row, sql, val } from "valnor";
-import { SqlColumnInfo } from "valnor/plugin";
+import { param, row, sql, type, val } from "valnor";
+import { SqlColumnInfo, SqlPrimaryKeyInfo } from "valnor/plugin";
 import { Columns, KeyColumnUsage, TableConstraints } from "./models.js";
 
-const TableColumns = sql`
-   select ${row(Columns.$$)}
+export const findTableColumns = sql`
+   select ${row(Columns.$table_name, Columns.$table_schema)},
+          ${val`json_agg(${Columns} order by ${Columns.$ordinal_position})`.as({ columns: type<SqlColumnInfo[]>() })}
    from ${Columns}
-   where ${Columns.$table_schema} in (${param("schemas").is<string[]>()})`;
+   where ${Columns.$table_schema} in (${param("schemas").is<string[]>()})
+   group by ${Columns.$table_name}, ${Columns.$table_schema}`;
 
-const PrimaryKeys = sql`
+export const findPrimaryKeys = sql`
    select ${row(KeyColumnUsage.$table_name, KeyColumnUsage.$table_schema)},
-          ${val<string[]>`json_agg(${KeyColumnUsage.$column_name} order by ${KeyColumnUsage.$ordinal_position})`.as(`primary_keys`)}
+          ${val`json_agg(${KeyColumnUsage} order by ${KeyColumnUsage.$ordinal_position})`.as({ primary_keys: type<SqlPrimaryKeyInfo[]>() })}
    from ${KeyColumnUsage}
-           join ${TableConstraints} on ${KeyColumnUsage.$constraint_name} = ${TableConstraints.$constraint_name}
+   join ${TableConstraints} on ${KeyColumnUsage.$constraint_name} = ${TableConstraints.$constraint_name}
       and ${KeyColumnUsage.$table_schema} = ${TableConstraints.$table_schema}
    where ${TableConstraints.$constraint_type} = 'PRIMARY KEY'
-   group by ${KeyColumnUsage.$table_name}, ${KeyColumnUsage.$table_schema}
-`;
+      and ${TableConstraints.$table_schema} in (${param("schemas").is<string[]>()})
+   group by ${KeyColumnUsage.$table_name}, ${KeyColumnUsage.$table_schema}`;
 
 /**
  * Query all tables in the given cli(s)
  * @param client
  */
 export const findTables = sql`
-   with ${TableColumns},
-        ${PrimaryKeys}
-   select ${row(TableColumns.$table_name, TableColumns.$table_schema)},
-          ${val<string[]>`coalesce(${PrimaryKeys.$primary_keys}, '[]'::json)`.as(`primary_keys`)},
-          ${val<SqlColumnInfo[]>`json_agg(${TableColumns} order by ${TableColumns.$ordinal_position})`.as(`table_columns`)}
-   from ${TableColumns}
-   left join ${PrimaryKeys} on ${TableColumns.$table_name} = ${PrimaryKeys.$table_name}
-                     and ${TableColumns.$table_schema} = ${PrimaryKeys.$table_schema}
-   group by ${Columns.as`cols`.$table_name}, ${Columns.as`cols`.$table_schema}, ${PrimaryKeys.$primary_keys}`;
+   with
+      ${findTableColumns},
+      ${findPrimaryKeys}
+   select ${row(findTableColumns.$$, findPrimaryKeys.$primary_keys)}
+   from ${findTableColumns} left join ${findPrimaryKeys}
+   on ${findTableColumns.$table_schema} = ${findPrimaryKeys.$table_schema}
+      and ${findTableColumns.$table_name} = ${findPrimaryKeys.$table_name}`;

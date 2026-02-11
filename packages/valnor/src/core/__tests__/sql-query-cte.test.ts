@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { Account } from "./models/valnor_test.schema.js";
 import { sql } from "../sql.js";
-import { param, row, val } from "../query/index.js";
+import { param, row, type, TYPES, val } from "../query/index.js";
 import { info } from "../charms/index.js";
 
 describe("sql CTE (with clause) tests", () => {
@@ -189,6 +189,8 @@ describe("sql CTE (with clause) tests", () => {
          where ${Account.$createdAt} > ${param("since").is<Date>()}
       `;
 
+      const r = row(ActiveAccounts.$accountId, RecentAccounts.$email);
+
       const query = sql`
          with ${ActiveAccounts},
               ${RecentAccounts}
@@ -251,7 +253,7 @@ describe("sql CTE (with clause) tests", () => {
       const AccountCounts = sql`
          ${info({ label: "AccountCounts" })}
          select ${row(Account.$status)},
-                ${val<number>`count(*)`.as("total")}
+                ${val`count(*)`.as({ total: type<number>() })}
          from ${Account}
          group by ${Account.$status}
       `;
@@ -289,7 +291,7 @@ describe("sql CTE (with clause) tests", () => {
    test("CTE column reference in val template", () => {
       const MaxCreatedAt = sql`
          ${info({ label: "MaxCreatedAt" })}
-         select ${val<Date>`max(${Account.$createdAt})`.as("maxDate")}
+         select ${val`max(${Account.$createdAt})`.as({ maxDate: TYPES.Date })}
          from ${Account}
       `;
 

@@ -1,14 +1,5 @@
-import {
-   AsyncQueryHandler,
-   SqlCharm,
-   SqlParam,
-   SqlQuery,
-   SqlQueryExtended,
-   SqlRowType,
-   SqlSelectRow,
-   SqlSelectValue,
-} from "./query/index.js";
-import { Sql } from "./sql-base.js";
+import { AsyncQueryHandler, SqlQuery, SqlQueryExtended } from "./query/index.js";
+import { Sql, ParamsOf, RowOf } from "./sql-base.js";
 
 type _SqlInlineValue_ = Sql | string | number | boolean | null | undefined | Date | bigint | Buffer;
 export type SqlQueryToken = _SqlInlineValue_ | _SqlInlineValue_[];
@@ -51,32 +42,11 @@ export function sql<Token extends SqlQueryToken = SqlQueryToken, Tokens extends 
    }>;
 }
 
-export type InferResultRowFromQueryTokens<T> = T extends [infer Start, ...infer Rest]
-   ? Start extends SqlSelectRow<infer Options extends { Row: Record<string, unknown> }>
-      ? Merge<Options["Row"], InferResultRowFromQueryTokens<Rest>>
-      : Start extends SqlSelectValue<infer Options extends { Key: string; Type: unknown }>
-        ? Merge<Record<Options["Key"], Options["Type"]>, InferResultRowFromQueryTokens<Rest>>
-        : Start extends SqlRowType<infer Row>
-          ? Merge<Row, InferResultRowFromQueryTokens<Rest>>
-          : InferResultRowFromQueryTokens<Rest>
+export type InferRowFromSqlTokens<T> = T extends [infer Start, ...infer Rest]
+   ? Start extends [infer A, ...infer B]
+      ? Merge<Merge<RowOf<A>, InferRowFromSqlTokens<B>>, InferRowFromSqlTokens<Rest>>
+      : Merge<RowOf<Start>, InferRowFromSqlTokens<Rest>>
    : unknown;
-
-export type InferParamFromSql<Start> =
-   Start extends SqlParam<infer Options extends { Name: string; Type: unknown }>
-      ? Record<Options["Name"], Options["Type"]>
-      : Start extends SqlQueryExtended<infer Options extends { Params: Record<string, unknown> }>
-        ? Options["Params"]
-        : Start extends AsyncQueryHandler<
-               infer Options extends { Params: Record<string, unknown>; QueryResult: any; QueryClient: any }
-            >
-          ? Options["Params"]
-          : Start extends SqlSelectValue<
-                 infer Options extends { Key: string; Type: unknown; Params: Record<string, unknown> }
-              >
-            ? Options["Params"]
-            : Start extends SqlCharm<infer Options extends { Params: Record<string, unknown> }>
-              ? Options["Params"]
-              : object;
 
 type Merge<A, B> = [A] extends [never]
    ? [B] extends [never]
@@ -86,20 +56,14 @@ type Merge<A, B> = [A] extends [never]
      ? A
      : { [K in keyof A | keyof B]: K extends keyof B ? B[K] : K extends keyof A ? A[K] : never };
 
-type MergeAll<T> = T extends [infer First, ...infer Rest] ? Merge<First, MergeAll<Rest>> : object;
-
-export type InferParamsFromQueryTokens<T> = T extends [infer Start, ...infer Rest]
+export type InferParamsFromSqlTokens<T> = T extends [infer Start, ...infer Rest]
    ? Start extends [infer A, ...infer B]
-      ? MergeAll<[InferParamFromSql<A>, InferParamsFromQueryTokens<B>, InferParamsFromQueryTokens<Rest>]>
-      : MergeAll<[InferParamFromSql<Start>, InferParamsFromQueryTokens<Rest>]>
-   : object;
+      ? Merge<Merge<ParamsOf<A>, InferParamsFromSqlTokens<B>>, InferParamsFromSqlTokens<Rest>>
+      : Merge<ParamsOf<Start>, InferParamsFromSqlTokens<Rest>>
+   : unknown;
 
-export type ObjectOrUndefined<T> = T extends Record<string, unknown> ? ([keyof T] extends [never] ? void : T) : void;
-
-export type QueryParams<T> = [keyof InferParamsFromQueryTokens<T>] extends [never]
-   ? void
-   : InferParamsFromQueryTokens<T>;
-export type QueryRow<T> = InferResultRowFromQueryTokens<T>;
+export type QueryParams<T> = [keyof InferParamsFromSqlTokens<T>] extends [never] ? void : InferParamsFromSqlTokens<T>;
+export type QueryRow<T> = InferRowFromSqlTokens<T>;
 
 export type ExtractResultRowFromQuery<T> =
    T extends SqlQueryExtended<infer U extends { Row?: unknown }> ? U["Row"] : never;

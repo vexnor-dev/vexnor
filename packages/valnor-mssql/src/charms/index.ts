@@ -1,1 +1,1 @@
-export * from "./json-agg-mssql.js";
+export * from "./json-many-mssql.js";

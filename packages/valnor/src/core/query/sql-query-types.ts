@@ -4,17 +4,19 @@ import { DefaultTokenizer } from "../default-tokenizer.js";
 import { SqlSelectValue } from "./sql-select-value.js";
 import { SqlLanguage } from "sql-formatter";
 import { SqlParamFormat } from "./sql-models.js";
+import { SqlParamAny } from "./sql-param.js";
+import { Sql } from "../sql-base.js";
 
-export type InferSelectRowByResult<Select> =
-   Select extends Record<string, unknown>
+export type InferSelectRowByResult<Row> =
+   Row extends Record<string, unknown>
       ? {
-           [K in keyof Select as `$${string & K}`]: K extends string
+           [K in keyof Row as `$${string & K}`]: K extends string
               ?
                    | SqlSelectColumn<{
                         Key: K;
-                        Type: Select[K];
+                        Type: Row[K];
                      }>
-                   | SqlSelectValue<{ Key: K; Type: Select[K] }>
+                   | SqlSelectValue<{ Key: K; Type: Row[K] }>
               : never;
         }
       : never;
@@ -38,8 +40,14 @@ export type SqlInputArgs<Params> = [keyof Params] extends [never]
      ? { params?: Params; options?: SqlBuildOptions }
      : { params: Params; options?: SqlBuildOptions };
 
-export function hasParams(value: unknown): value is { params: Record<string, unknown> } {
+export function hasParams(value: unknown): value is { params: Record<string, SqlParamAny> } {
    if (!value) return false;
    if (typeof value !== "object") return false;
    return "params" in value;
+}
+
+export function hasRow(value: unknown): value is { row: Record<string, Sql> } {
+   if (!value) return false;
+   if (!(value instanceof Sql)) return false;
+   return "row" in value;
 }

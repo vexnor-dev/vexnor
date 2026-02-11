@@ -1,6 +1,6 @@
 import { SqlBuildContext, SqlBuildOptions } from "../query/index.js";
 import { SqlColumnFormat } from "../default-formatter.js";
-import { Sql } from "../sql-base.js";
+import { TYPE, Sql } from "../sql-base.js";
 
 export interface SqlSelectColumnArgs<
    T extends {
@@ -23,6 +23,9 @@ export class SqlSelectColumn<
       Type: unknown;
    },
 > extends Sql {
+   declare readonly [TYPE]: Record<T["Key"], T["Type"]>;
+
+   readonly params = null;
    readonly columnName: string | null;
    readonly key: T["Key"];
    readonly format: SqlColumnFormat | null = null;

@@ -4,7 +4,7 @@ import assert, { ok } from "node:assert";
 import { param, row, sql } from "valnor";
 import { Account, IAccountInsert, IAccountJson, IAccountSelect } from "./codegen/valnor_test.account-table.js";
 import { pool } from "./mssql-pool.js";
-import { jsonAgg } from "valnor-mssql";
+import { jsonMany } from "valnor-mssql";
 
 describe.sequential("valnor mssql e2e tests", () => {
    const rootAccounts: IAccountSelect[] = [];
@@ -47,7 +47,7 @@ describe.sequential("valnor mssql e2e tests", () => {
          const accounts = await sql`
             insert into ${Account}
                ${Account.insertCols(...newAccountsArgs)}
-               output ${row(Account`inserted`.$$)}
+               output ${row(Account.as(`inserted`).$$)}
                ${Account.insertVals(...newAccountsArgs)}
          `.mssql
             .getAll({
@@ -81,10 +81,10 @@ describe.sequential("valnor mssql e2e tests", () => {
                email: `john.doe.child-${rootIndex}-${childIndex}-${id}@example.com`,
                parentId: parent.accountId,
             };
-            const account = await sql<IAccountSelect>`
+            const account = await sql`
                insert into ${Account}
                   ${Account.insertCols(accountInsert)}
-                  output ${Account`inserted`.$$}
+                  output ${row(Account.as(`inserted`).$$)}
                   ${Account.insertVals(accountInsert)}
             `.mssql.getOneRequired({ db: pool.request() });
             expect(account).toEqual(
@@ -107,8 +107,8 @@ describe.sequential("valnor mssql e2e tests", () => {
    });
 
    test(`Fetch all ${ROOT_COUNT} root accounts`, async () => {
-      const actual = await sql<IAccountSelect>`
-         select ${Account.$$}
+      const actual = await sql`
+         select ${row(Account.$$)}
          from ${Account}
          where ${Account.$accountId} in (${rootAccounts.map((z) => z.accountId)})
          order by ${Account.$email}
@@ -118,7 +118,7 @@ describe.sequential("valnor mssql e2e tests", () => {
    });
 
    test(`Fetch all ${ROOT_COUNT * CHILD_FACTOR} children accounts`, async () => {
-      const actual = await sql<IAccountSelect>`
+      const actual = await sql`
     select ${Account.$$}
     from ${Account}
     where ${Account.$accountId} in (${childAccounts.map((z) => z.accountId)})
@@ -146,13 +146,10 @@ describe.sequential("valnor mssql e2e tests", () => {
    });
 
    test("Self join account: fetch accounts with parent info (firstName, lastName, email)", async () => {
-      const actual = await sql<IAccountSelect>`
-         select ${Account.$$},
-                ${Account`parent`.firstName`parentFirstName`},
-                ${Account`parent`.lastName`parentLastName`},
-                ${Account`parent`.email`parentEmail`}
+      const actual = await sql`
+         select ${row(Account.$$, Account.as(`parent`).$firstName.as(`parentFirstName`), Account.as(`parent`).$lastName.as(`parentLastName`), Account.as(`parent`).$email.as(`parentEmail`))}
          from ${Account}
-                 join ${Account`parent`} on ${Account`parent`.$accountId} = ${Account.parentId}
+                 join ${Account.as(`parent`)} on ${Account.as(`parent`).$accountId} = ${Account.$parentId}
          where ${Account.$accountId} in (${childAccounts.map((z) => z.accountId)})
          order by ${Account.$email}
       `.mssql.getAll({
@@ -173,30 +170,32 @@ describe.sequential("valnor mssql e2e tests", () => {
    });
 
    test("Fetch root accounts and their children as json array", async () => {
-      const accountChildren = sql<IAccountSelect>`
-         select ${Account`children`.$$}
-         from ${Account`children`}
-         where ${Account`children`.parentId} = ${Account.$accountId}
-         order by ${Account`children`.email}
+      const accountChildren = sql`
+         select ${row(Account.as(`children`).$$)}
+         from ${Account.as(`children`)}
+         where ${Account.as(`children`).$parentId} = ${Account.$accountId}
+         order by ${Account.as(`children`).$email}
       `;
 
-      const actual = await sql<IAccountSelect & { children: string }>`
-         select ${Account.$$}, ${jsonAgg(accountChildren)} as children
-         from ${Account} ${jsonAgg(accountChildren)}
+      const query = sql`
+         select ${row(Account.$$)}, ${jsonMany(accountChildren).as("children")}
+         from ${Account} ${jsonMany(accountChildren)}
          where ${Account.$accountId} in (${rootAccounts.map((z) => z.accountId)})
          order by ${Account.$email}
-      `.mssql
-         .getAll({ db: pool.request() })
-         .then((accounts) =>
-            accounts.map((account) => ({
+      `;
+
+      const actual = await query.mssql.getAll({ db: pool.request() }).then((accounts) =>
+         accounts.map((account) => {
+            return {
                ...account,
                children: (JSON.parse(account.children) as IAccountJson[]).map((child) => ({
                   ...child,
                   createdAt: new Date(child.createdAt),
                   modifiedAt: new Date(child.modifiedAt),
                })),
-            })),
-         );
+            };
+         }),
+      );
 
       const childrenByParentId = (() => {
          const result = new Map<string, IAccountSelect[]>();
@@ -222,17 +221,17 @@ describe.sequential("valnor mssql e2e tests", () => {
    test("Update account by id", async () => {
       const expected = rootAccounts[0];
       ok(expected);
-      const actual = await sql<IAccountSelect>`
+      const actual = await sql`
          update ${Account}
-         set ${Account.firstName} = ${expected.firstName + "+test"}
-         output ${Account`inserted`.$$}
+         set ${Account.$firstName} = ${expected.firstName + "+test"}
+         output ${row(Account.as(`inserted`).$$)}
          where ${Account.$accountId} = ${expected.accountId}
       `.mssql.getOneRequired({ db: pool.request() });
       expect(actual).toEqual({ ...expected, firstName: expected.firstName + "+test" });
    });
 
    test("Delete test accounts", async () => {
-      const { rowsAffected } = await sql<object>`
+      const { rowsAffected } = await sql`
          delete
          from ${Account}
          where ${Account.$accountId} in (${childAccounts.map((z) => z.accountId)});

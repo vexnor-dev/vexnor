@@ -1,19 +1,19 @@
-import { SqlQueryRowOut, Sql, SqlTableColumn, SqlQueryParams, SqlQuery, SqlTableAny, SqlSelectValue } from "valnor";
+import { QueryParams, QueryRow, SqlQuery, SqlQueryToken } from "valnor";
 import { MssqlQueryHandler } from "./mssql-query-handler.js";
 
-export function sql<
-   TRow extends SqlQueryRowOut = Record<string, unknown>,
-   TParams extends Record<string, SqlSelectValue> | undefined = undefined,
-   TSql extends Sql = Sql | SqlTableAny | SqlTableColumn,
-   TValue =
-      | SqlSelectValue
-      | TSql
-      | TSql[]
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      | SqlQuery<{ Row: any; Params: Partial<TParams>; QueryResult: object }>
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      | SqlQuery<{ Row: any; Params: Partial<TParams>; QueryResult: object }>[]
-      | SqlQueryParams<TParams>,
->(strings: TemplateStringsArray, ...values: TValue[]): MssqlQueryHandler<{ Row: TRow; Params: TParams }> {
-   return new MssqlQueryHandler(new SqlQuery(strings, values));
+export function sql<Token extends SqlQueryToken = SqlQueryToken, Tokens extends Token[] = Token[]>(
+   rawStrings: TemplateStringsArray,
+   ...rawValues: Tokens
+): MssqlQueryHandler<{
+   Row: QueryRow<typeof rawValues>;
+   Params: QueryParams<typeof rawValues>;
+}> {
+   const query = new SqlQuery<{
+      Row: QueryRow<typeof rawValues>;
+      Params: QueryParams<typeof rawValues>;
+   }>({ rawStrings, rawValues });
+   return new MssqlQueryHandler<{
+      Row: QueryRow<typeof rawValues>;
+      Params: QueryParams<typeof rawValues>;
+   }>(query);
 }

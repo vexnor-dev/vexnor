@@ -4,41 +4,63 @@ import "valnor/testing";
 
 describe("Find Tables tests", () => {
    test("Find Tables query should match expected SQL", () => {
-      const query = findTables.getSql({ params: { schemas: ["public"] } });
+      const { text, values } = findTables.getSql({
+         params: { schemas: ["public"] },
+         options: { dialect: "postgresql" },
+      });
+      expect(values).toMatchInlineSnapshot(`
+        [
+          "public",
+          "public",
+        ]
+      `);
 
-      expect(query).toEqualQuery(`
-         with cols as (select "c_1"."table_name",
-                              "c_1"."table_schema",
-                              "c_1"."column_name",
-                              "c_1"."data_type",
-                              "c_1"."is_nullable",
-                              "c_1"."column_default",
-                              "c_1"."character_maximum_length",
-                              "c_1"."numeric_precision",
-                              "c_1"."numeric_scale",
-                              "c_1"."is_identity",
-                              "c_1"."identity_generation",
-                              "c_1"."identity_start",
-                              "c_1"."identity_increment",
-                              "c_1"."identity_maximum",
-                              "c_1"."identity_minimum",
-                              "c_1"."identity_cycle",
-                              "c_1"."is_generated",
-                              "c_1"."generation_expression",
-                              "c_1"."is_updatable",
-                              "c_1"."ordinal_position",
-                              "c_1"."udt_name"
-                       from "information_schema"."columns" as "c_1"
-                       where "c_1"."table_schema" in (?))
-         select "cols"."table_name",
-                "cols"."table_schema",
-                json_agg("cols" order by "cols"."ordinal_position") as table_columns,
-                "tc_2"."constraint_name"                             as primary_key
-         from cols
-                 left join "information_schema"."table_constraints" as "tc_2"
-                           on "cols"."table_name" = "tc_2"."table_name" and "tc_2"."constraint_type" = 'PRIMARY KEY'
-         group by "cols"."table_name", "cols"."table_schema",
-                  "tc_2"."constraint_name"
+      expect(text).toMatchInlineSnapshot(`
+        "WITH
+          "query_1" AS (
+            SELECT
+              "c_1"."table_name",
+              "c_1"."table_schema",
+              json_agg(
+                "c_1"
+                ORDER BY
+                  "c_1"."ordinal_position"
+              ) AS "columns"
+            FROM
+              "information_schema"."columns" AS "c_1"
+            WHERE
+              "c_1"."table_schema" IN (?)
+            GROUP BY
+              "c_1"."table_name",
+              "c_1"."table_schema"
+          ),
+          "query_2" AS (
+            SELECT
+              "kcu_2"."table_name",
+              "kcu_2"."table_schema",
+              json_agg(
+                "kcu_2"
+                ORDER BY
+                  "kcu_2"."ordinal_position"
+              ) AS "primary_keys"
+            FROM
+              "information_schema"."key_column_usage" AS "kcu_2"
+              JOIN "information_schema"."table_constraints" AS "tc_3" ON "kcu_2"."constraint_name" = "tc_3"."constraint_name"
+              AND "kcu_2"."table_schema" = "tc_3"."table_schema"
+            WHERE
+              "tc_3"."constraint_type" = 'PRIMARY KEY'
+              AND "tc_3"."table_schema" IN (?)
+            GROUP BY
+              "kcu_2"."table_name",
+              "kcu_2"."table_schema"
+          )
+        SELECT
+          "query_1".*,
+          "query_2"."primary_keys"
+        FROM
+          "query_1"
+          LEFT JOIN "query_2" ON "query_1"."table_schema" = "query_2"."table_schema"
+          AND "query_1"."table_name" = "query_2"."table_name""
       `);
    });
 });

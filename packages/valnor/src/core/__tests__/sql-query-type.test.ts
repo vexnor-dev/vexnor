@@ -1,7 +1,7 @@
-import { describe, expect, test } from "vitest";
+import { assertType, describe, expect, test } from "vitest";
 import { param, row, SqlQuery } from "../query/index.js";
 import { Account } from "./models/valnor_test.account-table.js";
-import { ExtractParamsFromQuery, ExtractResultRowFromQuery, InferResultRowFromQueryTokens, sql } from "../sql.js";
+import { ExtractParamsFromQuery, ExtractResultRowFromQuery, InferRowFromSqlTokens, sql } from "../sql.js";
 import { AccountStatusUdt } from "./models/valnor_test-enums.js";
 
 describe("sql query type tests", () => {
@@ -9,7 +9,7 @@ describe("sql query type tests", () => {
       const result = row(Account.$firstName, Account.$lastName, Account.$createdAt);
       expect(result).toBeDefined();
 
-      type Row = InferResultRowFromQueryTokens<[typeof result]>;
+      type Row = InferRowFromSqlTokens<[typeof result]>;
       const actual: Row = {
          firstName: "a",
          lastName: "b",
@@ -51,8 +51,7 @@ describe("sql query type tests", () => {
       expect(query.ID).toBeDefined();
 
       type Result = ExtractResultRowFromQuery<typeof query>;
-      const result: Result = undefined;
-      expect(result).toBeUndefined();
+      assertType<Result>({});
    });
 
    test("query without params", () => {
