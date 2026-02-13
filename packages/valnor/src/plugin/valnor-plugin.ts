@@ -1,12 +1,16 @@
 import { LibraryOutputFile, SqlColumnInfo, SqlColumnType, SqlEnumInfo, SqlTableInfo } from "./valnor-schema-types.js";
 import { ValnorConnection } from "./valnor-connection.js";
-import { ConnectionConfig } from "./connection-config.js";
 import { AsyncQueryHandler, SqlDatabase, SqlQuery } from "../core/index.js";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type ValnorPluginAny = ValnorPlugin<any>;
 
 /**
  * Valnor plugin for handling core execution to different DB engines
  */
-export abstract class ValnorPlugin implements SqlDatabase {
+export abstract class ValnorPlugin<T extends { Connection: unknown; Config: unknown }>
+   implements SqlDatabase<T["Connection"]>
+{
    abstract readonly driver: string;
 
    /**
@@ -26,7 +30,7 @@ export abstract class ValnorPlugin implements SqlDatabase {
     * Gets the schema for the given database
     * @param args
     */
-   abstract getSchema(args: GetSchemaArgs): Promise<SqlSchema>;
+   abstract getSchema(args: GetSchemaArgs<T["Config"]>): Promise<SqlSchema>;
 
    /**
     * Gets the library for the given database.
@@ -38,15 +42,14 @@ export abstract class ValnorPlugin implements SqlDatabase {
     * Creates a database connection from connection config
     * @param config
     */
-   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-   abstract createConnection<Config extends ConnectionConfig>(config: Config): Promise<ValnorConnection<any>>;
+   abstract createConnection(config: T["Config"]): Promise<ValnorConnection<T["Connection"]>>;
 
    abstract newQueryHandler<T extends { Row?: unknown; Params?: unknown; QueryResult: object; QueryClient: unknown }>(
       query: SqlQuery<{ Params: T["Params"]; Row: T["Row"] }>,
    ): AsyncQueryHandler<T>;
 }
 
-export type GetSchemaArgs = { schemas: string[] } & ConnectionConfig;
+export type GetSchemaArgs<T> = { schemas: string[] } & T;
 
 export type SqlSchema = {
    tables: SqlTableInfo[];

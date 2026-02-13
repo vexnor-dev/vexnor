@@ -2,7 +2,7 @@ import { ValnorPlugin, ValnorConnection } from "../../../plugin/index.js";
 import { AsyncQueryHandler, SqlQuery } from "../../../core/index.js";
 import { TestDriverQueryHandler } from "./test-driver-setup.js";
 
-export class TestPlugin extends ValnorPlugin {
+export class TestPlugin extends ValnorPlugin<{ Config: unknown; Connection: unknown }> {
    driver = "test";
 
    getColumnType(): never {

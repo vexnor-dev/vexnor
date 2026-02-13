@@ -11,7 +11,7 @@ describe("sql plugin jsonAgg() tests", () => {
       from ${Order}
       where ${Order.$accountId} = ${Account.$accountId}
       order by ${Order.$createdAt} desc
-      offset 0 rows fetch next ${param("limit").is<number>()} rows only`;
+      offset 0 rows fetch next ${param<{ limit: number }>("limit")} rows only`;
 
    test("jsonAgg(): select build", () => {
       const context = new SqlBuildContext({ tokenizer: new MssqlTokenizer("test") });
@@ -57,7 +57,7 @@ describe("sql plugin jsonAgg() tests", () => {
       const query = sql`
          select ${row(Account.$$)}, ${jsonMany(AccountOrders).as("orders")}
          from ${Account} ${jsonMany(AccountOrders)}
-         where ${Account.$email} = ${param("email")}
+         where ${Account.$email} = ${param<{ email: string }>("email")}
          order by ${Account.$accountId}
       `;
 

@@ -1,12 +1,11 @@
 import { QueryParams, SqlQueryToken } from "../sql.js";
-import { PARAMS, TYPE, Sql, ROW } from "../sql-base.js";
+import { PARAMS, ROW, Sql, TYPE } from "../sql-base.js";
 import { SqlBuildContext } from "./sql-build-context.js";
 import { SqlBuildOptions } from "./sql-query-types.js";
 import { SqlQuery, SqlQueryAny } from "./sql-query.js";
-import { SqlQueryInfo } from "../charms/index.js";
 import { quote } from "../utils/index.js";
 import { SqlBuildError } from "../sql-build-error.js";
-import { RowType, SqlQueryRow, ValueTypeOf } from "./sql-models.js";
+import { SqlQueryRow } from "./sql-models.js";
 import { BuildSqlParams } from "./sql-param.js";
 import { newSqlSelectColumn } from "./sql-select-column.js";
 
@@ -62,15 +61,13 @@ export function val<Token extends SqlQueryToken = SqlQueryToken, Tokens extends 
    ...rawValues: Tokens
 ) {
    return {
-      as: <Row extends Record<string, unknown>>(
-         rowType: RowType<Row>,
+      as: <T extends Record<string, unknown>>(
+         key: Extract<keyof T, string>,
       ): SqlSelectValue<{
-         Key: Extract<keyof Row, string>;
-         Type: ValueTypeOf<(typeof rowType)[keyof Row]>;
+         Key: Extract<keyof T, string>;
+         Type: T[typeof key];
          Params: QueryParams<typeof rawValues>;
       }> => {
-         const key = Object.keys(rowType)[0] as Extract<keyof Row, string> | undefined;
-         if (!key) throw new SqlBuildError(`No key found in row type: ${rowType}`);
          switch (true) {
             case rawStrings instanceof SqlQuery:
                return new SqlSelectValue({ query: rawStrings, key });
@@ -79,7 +76,6 @@ export function val<Token extends SqlQueryToken = SqlQueryToken, Tokens extends 
                   rawStrings: rawStrings,
                   rawValues,
                   isFragment: true,
-                  info: new SqlQueryInfo({ label: String(rowType) }),
                });
                return new SqlSelectValue({
                   query,

@@ -1,4 +1,4 @@
-import { AsyncQueryHandler, SqlQuery, SqlQueryExtended } from "./query/index.js";
+import { AsyncQueryHandler, SqlQuery, SqlQueryExtended, newSqlQuery } from "./query/index.js";
 import { Sql, ParamsOf, RowOf } from "./sql-base.js";
 
 type _SqlInlineValue_ = Sql | string | number | boolean | null | undefined | Date | bigint | Buffer;
@@ -11,35 +11,14 @@ export function sql<Token extends SqlQueryToken = SqlQueryToken, Tokens extends 
    Params: QueryParams<typeof rawValues>;
    Row: QueryRow<typeof rawValues>;
 }> {
-   const query = new SqlQuery({ rawStrings, rawValues });
-
-   return new Proxy(query, {
-      ownKeys(target): ArrayLike<string | symbol> {
-         const rowKeys = target.row ? Object.keys(target.row) : [];
-         return [...Reflect.ownKeys(target), ...rowKeys];
-      },
-      getOwnPropertyDescriptor(target, p: string | symbol): PropertyDescriptor | undefined {
-         if (Reflect.has(target, p)) return Reflect.getOwnPropertyDescriptor(target, p);
-         if (target.row && Reflect.has(target.row, p)) return Reflect.getOwnPropertyDescriptor(target.row, p);
-
-         return undefined;
-      },
-      has(target, p: string | symbol): boolean {
-         if (Reflect.has(target, p)) return true;
-         if (target.row && Reflect.has(target.row, p)) return true;
-
-         return false;
-      },
-      get(target, p: string | symbol, receiver: unknown): unknown {
-         if (Reflect.has(target, p)) return Reflect.get(target, p, receiver);
-         if (target.row && Reflect.has(target.row, p)) return Reflect.get(target.row, p, receiver);
-
-         return undefined;
-      },
-   }) as SqlQueryExtended<{
-      Row: QueryRow<typeof rawValues>;
+   const query = new SqlQuery<{
       Params: QueryParams<typeof rawValues>;
-   }>;
+      Row: QueryRow<typeof rawValues>;
+   }>({ rawStrings, rawValues });
+   return newSqlQuery<{
+      Params: QueryParams<typeof rawValues>;
+      Row: QueryRow<typeof rawValues>;
+   }>(query);
 }
 
 export type InferRowFromSqlTokens<T> = T extends [infer Start, ...infer Rest]

@@ -11,7 +11,7 @@ describe("sql plugin jsonAgg() tests", () => {
       from ${Order}
       where ${Order.$accountId} = ${Account.$accountId}
       order by ${Order.$createdAt} desc
-      limit ${param("limit").is<number>()}`;
+      limit ${param<{ limit: number }>("limit")}`;
 
    test("jsonAgg(): select", () => {
       const context = new SqlBuildContext({ tokenizer: new PostgresTokenizer("test") });
@@ -70,7 +70,7 @@ describe("sql plugin jsonAgg() tests", () => {
          from ${Order}
          where ${Order.$accountId} = ${Account.$accountId}
          order by ${Order.$createdAt} desc
-         limit ${param("limit").is<number>()}`;
+         limit ${param<{ limit: number }>("limit")}`;
 
       const query = sql`
          select ${row(Account.$$)}, ${jsonMany(AccountOrders).as("children")}
@@ -129,7 +129,7 @@ describe("sql plugin jsonAgg() tests", () => {
          from ${Order}
          where ${Order.$accountId} = ${Account.$accountId}
          order by ${Order.$createdAt} desc
-         limit ${param("limit").is<number>()}`;
+         limit ${param<{ limit: number }>("limit")}`;
 
       const query = sql`
          select ${row(Account.$$)}, ${jsonMany(AccountOrders).as("orders")}

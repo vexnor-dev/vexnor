@@ -61,7 +61,7 @@ describe("SqlQuery Type inference", () => {
    });
 
    test("SqlInputArgs<> from sql`...` call with Row, with Params", () => {
-      const query = sql`SELECT ${row(Account.$$)} FROM ${Account} WHERE ${Account.$accountId} = ${param("accountId").is<string>()}`;
+      const query = sql`SELECT ${row(Account.$$)} FROM ${Account} WHERE ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}`;
       const text = query.getSql({
          params: {
             accountId: "",

@@ -33,6 +33,7 @@ describe("SqlQuery tests", () => {
          "row",
          "$$",
          "params",
+         "format",
          "$accountId",
          "$status",
          "$email",

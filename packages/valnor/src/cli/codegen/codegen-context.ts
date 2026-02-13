@@ -1,11 +1,11 @@
 import { AsyncLocalStorage } from "async_hooks";
 import to from "to-case";
 import CodeBlockWriter from "code-block-writer";
-import { ValnorPlugin } from "../../plugin/index.js";
+import { ValnorPluginAny } from "../../plugin/index.js";
 
 export class CodegenContextModel {
    readonly outDir: string;
-   readonly plugin: ValnorPlugin;
+   readonly plugin: ValnorPluginAny;
    readonly pascalCaseTables?: boolean;
    readonly camelCaseColumns?: boolean;
    readonly includeEnums?: boolean;
@@ -43,7 +43,7 @@ export function getCodegenContext(): CodegenContextModel {
 
 export type CodegenContextArgs = {
    outDir: string;
-   plugin: ValnorPlugin;
+   plugin: ValnorPluginAny;
    pascalCaseTables?: boolean;
    camelCaseColumns?: boolean;
    includeEnums?: boolean;

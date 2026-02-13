@@ -37,7 +37,7 @@ describe("SqlBuildContext getQueryName", () => {
          from ${findOldAccounts}
             join ${findOrders} on ${Account.$accountId} = ${findOrders.$accountId}
          join ${findOrderItems} on ${findOrders.$orderId} = ${findOrderItems.$orderId}
-         where ${Account.$accountId} = ${param("accountId").is<string>()}
+         where ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}
       `;
 
    let context!: SqlBuildContext;

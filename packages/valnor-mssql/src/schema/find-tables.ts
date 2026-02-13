@@ -20,7 +20,7 @@ export const findPrimaryKeys = sql`
            JOIN ${KeyColumnUsage} ON ${TableConstraints.$constraint_name} = ${KeyColumnUsage.$constraint_name}
       AND ${TableConstraints.$table_schema} = ${KeyColumnUsage.$table_schema}
       AND ${TableConstraints.$table_name} = ${KeyColumnUsage.$table_name}
-   WHERE ${TableConstraints.$table_schema} IN (${param("schemas")})
+   WHERE ${TableConstraints.$table_schema} IN (${param<{ schemas: string[] }>("schemas")})
      AND ${TableConstraints.$constraint_type} = 'PRIMARY KEY'`;
 
 /**
@@ -32,6 +32,6 @@ export const findTables = sql`
    FROM ${Tables} ${jsonMany(TableColumns)}
            JOIN ${findPrimaryKeys} ON ${Tables.$table_schema} = ${findPrimaryKeys.row.$table_schema} AND
                                       ${Tables.$table_name} = ${findPrimaryKeys.row.$table_name}
-   WHERE ${Tables.$table_schema} IN (${param("schemas")})
+   WHERE ${Tables.$table_schema} IN (${param<{ schemas: string[] }>("schemas")})
      AND ${Tables.$table_type} = 'BASE TABLE'
    ORDER BY ${Tables.$table_schema}, ${Tables.$table_name}`;

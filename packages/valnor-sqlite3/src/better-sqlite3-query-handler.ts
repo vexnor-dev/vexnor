@@ -1,13 +1,11 @@
-import { SqlQueryParams, SqlQueryRowOut, SqlRunArgs, AsyncQueryHandler, SqlQuery } from "valnor";
+import { SqlRunArgs, AsyncQueryHandler, SqlQuery } from "valnor";
 import type { Database, RunResult } from "better-sqlite3";
 import { Sqlite3Formatter } from "./sqlite3-formatter.js";
 import { Sqlite3Tokenizer } from "./sqlite3-tokenizer.js";
 
-export class BetterSqlite3QueryHandler<
-   T extends { Row: SqlQueryRowOut; Params?: SqlQueryParams },
-> extends AsyncQueryHandler<{
+export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unknown }> extends AsyncQueryHandler<{
    Row: T["Row"];
-   Params?: T["Params"];
+   Params: T["Params"];
    QueryResult: RunResult;
    QueryClient: Database;
 }> {
@@ -17,7 +15,7 @@ export class BetterSqlite3QueryHandler<
       super(query);
    }
 
-   resolveRows(): T["Row"][] {
+   resolveRows(res: RunResult): T["Row"][] {
       throw new Error("Method not supported: better-sqlite3 result doesn't include any rows");
    }
 
@@ -25,20 +23,20 @@ export class BetterSqlite3QueryHandler<
       let queryInput = undefined;
       try {
          // Create a new options object to inject the tokenizer
-         const optionsWithTokenizer = {
-            ...args.options,
-            formatProvider: BetterSqlite3QueryHandler.Formatter,
-            tokenizer: new Sqlite3Tokenizer(this.query.name),
-         };
-
-         const newArgs = {
+         const newArgs: SqlRunArgs<Database, T["Params"]> = {
             ...args,
-            options: optionsWithTokenizer,
+            options: {
+               ...args.options,
+               formatProvider: BetterSqlite3QueryHandler.Formatter,
+               tokenizer: new Sqlite3Tokenizer(),
+               dialect: "sqlite",
+            },
          };
 
+         const { values, text } = this.query.getSql(newArgs);
          queryInput = {
-            sql: this.query.getSql(newArgs),
-            values: this.query.getValues(newArgs),
+            sql: text,
+            values,
          };
          return queryInput;
       } catch (err) {

@@ -16,7 +16,7 @@ import {
 export type JsonAggPostgresAny = JsonManyPostgres<any>;
 
 /**
- * Sql class that aggregates of a subquery into a JSON array
+ * SQL class that aggregates of a subquery into a JSON array
  * @example
  * SELECT ${Account.$$all}, ${jsonAgg(UserOrders)} "orders"
  * FROM ${Account} ${jsonAgg(UserOrders)}
@@ -41,10 +41,10 @@ export class JsonManyPostgres<T extends { Row?: unknown; Params?: unknown }> ext
             context.addStrings(`"${queryName}_result"`);
             break;
          case "from": {
-            context.addStrings("left join lateral (");
             const query = sql`
+               left join lateral (
                select coalesce(jsonb_agg(${raw(queryName)}.${this.query.$$}), '[]') as ${raw(`${queryName}_result`)}
-               from ${this.query}) as ${raw(queryName)}
+               from (${this.query.render("sql")}) as ${raw(queryName)}) as ${raw(queryName)}
                on true
             `;
             context.scope({ query });
@@ -65,10 +65,9 @@ export class JsonManyPostgres<T extends { Row?: unknown; Params?: unknown }> ext
       return new SqlSelectCharm<{ Key: Key; Type: JsonRow<T["Row"]>[] }>({
          key,
          build(context: SqlBuildContext) {
-            context.scope({ query }, () => {
-               const queryName = context.getQueryName(query);
-               context.addStrings(`"${queryName}_result" as ${quote(this.key)}`);
-            });
+            context.scope({ query });
+            const queryName = context.getQueryName(query);
+            context.addStrings(`"${queryName}_result" as ${quote(this.key)}`);
          },
       });
    }

@@ -18,7 +18,7 @@ import { AsyncQueryHandler, SqlQuery } from "valnor";
  * Valnor plugin for postgres.
  * It can handle
  */
-export class ValnorPostgres extends ValnorPlugin {
+export class ValnorPostgres extends ValnorPlugin<{ Config: ConnectionConfig; Connection: Pool }> {
    driver = "postgres";
 
    getLibrary(): LibraryOutputFile[] {
@@ -29,7 +29,7 @@ export class ValnorPostgres extends ValnorPlugin {
       return getColumnType(col);
    }
 
-   async getSchema(args: GetSchemaArgs): Promise<SqlSchema> {
+   async getSchema(args: GetSchemaArgs<ConnectionConfig>): Promise<SqlSchema> {
       const { schemas } = args;
       const connection = await this.createConnection(args);
 
@@ -70,7 +70,7 @@ export class ValnorPostgres extends ValnorPlugin {
       }
    }
 
-   async createConnection<Config extends ConnectionConfig>(config: Config): Promise<ValnorConnection<Pool>> {
+   async createConnection(config: ConnectionConfig): Promise<ValnorConnection<Pool>> {
       const pool = "uri" in config ? new Pool({ connectionString: config.uri }) : new Pool(config);
 
       return new ValnorConnection(pool, (p) => p.end());

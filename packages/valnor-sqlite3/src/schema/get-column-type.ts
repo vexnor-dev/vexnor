@@ -19,7 +19,7 @@ export function getColumnType(col: SqlColumnInfo): SqlColumnType {
       return { type: SqlLiteralType.Boolean };
    }
    if (lowerType.includes("date") || lowerType.includes("time")) {
-      return { type: SqlLiteralType.Date };
+      return { type: SqlLiteralType.String };
    }
 
    return { type: SqlLiteralType.String };

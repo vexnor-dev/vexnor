@@ -15,7 +15,7 @@ describe("SqlTable.updateSet() tests", () => {
             email: "bob@example.com",
             modifiedAt,
          })}
-         where ${Account.$accountId} = ${param("accountId").is<string>()}
+         where ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}
          returning ${Account.$$}`;
       const { values, text } = query.getSql({ params: { accountId: "123e4567-e89b-12d3-a456-426614174000" } });
       expect(values).toEqual(["Bob", "Smith", "bob@example.com", modifiedAt, "123e4567-e89b-12d3-a456-426614174000"]);

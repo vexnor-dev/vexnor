@@ -201,7 +201,7 @@ describe("SqlSelectRow tests", () => {
       const query = sql`
          select ${row(Account.$accountId, Account.$status, Account.$firstName)}
          from ${Account}
-         where ${Account.$accountId} = ${param("accountId").is<string>()}`;
+         where ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}`;
       expect(query.row).toBeDefined();
    });
 
@@ -209,7 +209,7 @@ describe("SqlSelectRow tests", () => {
       const query = sql`
          select ${(Account.$accountId, Account.$status, Account.$firstName)}
          from ${Account}
-         where ${Account.$accountId} = ${param("accountId").is<string>()}`;
+         where ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}`;
       expect(query.row).toBeFalsy();
       assertType<SqlQuery<{ Row: {}; Params: { accountId: string } }>>(query);
    });

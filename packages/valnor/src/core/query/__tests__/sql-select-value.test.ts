@@ -6,13 +6,12 @@ import { sql } from "../../sql.js";
 import { SqlBuildContext } from "../sql-build-context.js";
 import { Account } from "@test-models/valnor_test.account-table.js";
 import { param } from "../sql-param.js";
-import { type, TYPES } from "../sql-models.js";
 import { ParamsOf } from "../../sql-base.js";
 import { SqlQueryExtended } from "../sql-query.js";
 
 describe("SqlValue tests", () => {
    test("val with generic type parameter", () => {
-      const value = val`array_agg(name)`.as({ names: type<string[]>() });
+      const value = val`array_agg(name)`.as<{ names: string[] }>("names");
       expect(value.key).toBe("names");
 
       // Type check
@@ -22,17 +21,17 @@ describe("SqlValue tests", () => {
    });
 
    test("val with inline type marker", () => {
-      const value = val`array_agg(name)`.as({ counts: type<number[]>() });
+      const value = val`array_agg(name)`.as<{ counts: number[] }>("counts");
       expect(value.key).toBe("counts");
    });
 
    test("val without type defaults to unknown", () => {
-      const value = val`some_column`.as({ col: type<string>() });
+      const value = val`some_column`.as<{ col: string }>("col");
       expect(value.key).toBe("col");
    });
 
    test("val builds SQL correctly", () => {
-      const value = val`COUNT(*)`.as({ total: type<number>() });
+      const value = val`COUNT(*)`.as<{ total: number }>("total");
       const context = new SqlBuildContext();
       value.build(context);
       // build() only outputs the query, not the alias
@@ -41,7 +40,7 @@ describe("SqlValue tests", () => {
    });
 
    test("val in row context", () => {
-      const selectRow = row(Account.$accountId, val`COUNT(*)`.as({ total: type<number>() }));
+      const selectRow = row(Account.$accountId, val`COUNT(*)`.as<{ total: number }>("total"));
 
       expect(selectRow.row.$accountId).toBeDefined();
       expect(selectRow.row.$total).toBeDefined();
@@ -49,7 +48,7 @@ describe("SqlValue tests", () => {
 
    test("val in sql query", () => {
       const query = sql`
-         SELECT ${row(Account.$accountId, val<number>`COUNT(*)`.as({ orderCount: type<number>() }))}
+         SELECT ${row(Account.$accountId, val<number>`COUNT(*)`.as<{ orderCount: number }>("orderCount"))}
          FROM ${Account}
       `;
 
@@ -59,7 +58,7 @@ describe("SqlValue tests", () => {
 
    test("inline type marker takes precedence over generic", () => {
       // If both are provided, inline marker should win
-      const value = val`COUNT(*)`.as({ count: type<number>() });
+      const value = val`COUNT(*)`.as<{ count: number }>("count");
       expect(value.key).toBe("count");
 
       // The type should be number (from t<number>()), not string
@@ -75,19 +74,19 @@ describe("SqlValue tests", () => {
          name: string;
       }
 
-      const value = val`json_agg(row_to_json(t))`.as({ items: type<CustomType[]>() });
+      const value = val`json_agg(row_to_json(t))`.as<{ items: CustomType[] }>("items");
       expect(value.key).toBe("items");
    });
 
    test("val with multiple inline markers uses first", () => {
-      const value = val`expr`.as({ result: TYPES.Number });
+      const value = val`expr`.as<{ result: number }>("result");
       assertType<SqlSelectValue<{ Key: "result"; Type: number; Params: void }>>(value);
       expect(value.key).toBe("result");
       // Type should be string (first marker)
    });
 
    test("type safety: cannot assign wrong type", () => {
-      const value = val`COUNT(*)`.as({ total: TYPES.Number });
+      const value = val`COUNT(*)`.as<{ total: number }>("total");
       const query = sql`SELECT ${row(value)}`;
 
       assertType<SqlQueryExtended<{ Row: { total: number } }>>(query);
@@ -97,7 +96,7 @@ describe("SqlValue tests", () => {
    });
 
    test("SqlType marker doesn't affect SQL output", () => {
-      const value = val`COUNT(*)`.as({ total: TYPES.Number });
+      const value = val`COUNT(*)`.as<{ total: number }>("total");
       const context = new SqlBuildContext();
       value.build(context);
 
@@ -108,7 +107,7 @@ describe("SqlValue tests", () => {
 
    test("val() rendering in sql() query", () => {
       const query = sql`
-         SELECT ${Account.$accountId}, ${val`COUNT(*)`.as({ total: TYPES.Number })}
+         SELECT ${Account.$accountId}, ${val`COUNT(*)`.as<{ total: number }>("total")}
          FROM ${Account}
          GROUP BY ${Account.$accountId}
       `;
@@ -130,7 +129,7 @@ describe("SqlValue tests", () => {
 
    test("val() with complex Record<> result", () => {
       const query = sql`
-         SELECT ${row(Account.$accountId)}, ${val`COUNT(*)`.as({ total: TYPES.Number })}
+         SELECT ${row(Account.$accountId)}, ${val`COUNT(*)`.as<{ total: number }>("total")}
          FROM ${Account}
          GROUP BY ${Account.$accountId}
       `;
@@ -153,7 +152,9 @@ describe("SqlValue tests", () => {
 
    test("should extract params query including select value", () => {
       // eslint-disable-next-line unused-imports/no-unused-vars
-      const lastModifiedAt = val`${param("timestamp").is<Date>()}`.as({ lastModifiedAt: type<Date>() });
+      const lastModifiedAt = val`${param<{ timestamp: Date }>("timestamp")}`.as<{ lastModifiedAt: Date }>(
+         "lastModifiedAt",
+      );
       type ValueParams = ParamsOf<typeof lastModifiedAt>;
       assertType<ValueParams>({
          timestamp: new Date(),

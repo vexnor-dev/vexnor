@@ -27,7 +27,16 @@ export interface SqlQueryArgs {
    readonly rawStrings: TemplateStringsArray;
    readonly rawValues: unknown[];
    readonly isFragment?: boolean;
+   readonly format?: SqlQueryFormat;
 }
+
+export type SqlQueryFormat =
+   | "with:queryName as (sql)"
+   | "select:(sql) as queryName"
+   | "from:(sql) as queryName"
+   | "join:(sql) as queryName"
+   | "fn:queryName"
+   | "sql";
 
 export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql {
    declare readonly [TYPE]: T["Row"];
@@ -40,6 +49,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
    readonly row: SqlQueryRow<T["Row"]>;
    readonly $$: SqlQueryAll<T["Row"]>;
    readonly params: BuildSqlParams<T["Params"]>;
+   readonly format: SqlQueryFormat | null = null;
 
    constructor({ rawStrings, rawValues, ...args }: SqlQueryArgs) {
       super({
@@ -51,6 +61,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
          })(),
       });
 
+      this.format = args.format ?? null;
       this.params = (() => {
          let params: Partial<BuildSqlParams<T["Params"]>> | null = null;
          const queue = new Queue(...rawValues);
@@ -221,44 +232,47 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
 
          const buildToken = (item: unknown) => {
             switch (true) {
-               case item instanceof SqlQuery:
-                  switch (context.keyword) {
-                     case "with":
+               case item instanceof SqlQuery: {
+                  const queryName = context.getQueryName(item);
+                  switch (item.format ?? SqlQueryFormatByKeyword[context.keyword ?? "sql"]) {
+                     case "with:queryName as (sql)":
                         context.scope({ query: item, cte: true }, () => {
-                           context.addStrings(`${quote(context.getQueryName(item))} as (`);
+                           context.addStrings(`${quote(queryName)} as (`);
                            item.build(context, options);
                            context.addStrings(")");
                         });
                         break;
-                     case "select":
+                     case "select:(sql) as queryName":
                         context.scope({ query: item }, () => {
                            context.addStrings("(");
                            item.build(context, options);
                            context.addStrings(")");
-                           context.addStrings(` as ${quote(context.getQueryName(item))}`);
+                           context.addStrings(` as ${quote(queryName)}`);
                         });
                         break;
-                     case "join":
-                     case "from":
+                     case "join:(sql) as queryName":
+                     case "from:(sql) as queryName":
                         context.scope({ query: item }, () => {
                            if (context.isCTE(item)) {
-                              context.addStrings(`${quote(context.getQueryName(item))}`);
+                              context.addStrings(`${quote(queryName)}`);
                            } else {
                               context.addStrings("(");
                               item.build(context, options);
                               context.addStrings(")");
-                              context.addStrings(` as ${quote(context.getQueryName(item))}`);
+                              context.addStrings(` as ${quote(queryName)}`);
                            }
                         });
                         break;
-                     case "fn":
-                        context.addStrings(`${quote(context.getQueryName(item))}`);
+                     case "fn:queryName":
+                        context.addStrings(`${quote(queryName)}`);
                         break;
+                     case "sql":
                      default:
                         item.build(context, options);
                         break;
                   }
                   break;
+               }
                case item instanceof Sql:
                   item.build(context, options);
                   break;
@@ -292,4 +306,50 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
          }
       }
    }
+
+   render(f: SqlQueryFormat): SqlQueryExtended<T> {
+      const query = new SqlQuery<T>({
+         rawStrings: this.rawStrings,
+         rawValues: this.rawValues,
+         format: f,
+         isFragment: this.isFragment,
+      });
+      return newSqlQuery(query);
+   }
 }
+
+export function newSqlQuery<T extends { Params?: unknown; Row?: unknown }>(query: SqlQuery<T>): SqlQueryExtended<T> {
+   return new Proxy(query, {
+      ownKeys(target): ArrayLike<string | symbol> {
+         const rowKeys = target.row ? Object.keys(target.row) : [];
+         return [...Reflect.ownKeys(target), ...rowKeys];
+      },
+      getOwnPropertyDescriptor(target, p: string | symbol): PropertyDescriptor | undefined {
+         if (Reflect.has(target, p)) return Reflect.getOwnPropertyDescriptor(target, p);
+         if (target.row && Reflect.has(target.row, p)) return Reflect.getOwnPropertyDescriptor(target.row, p);
+
+         return undefined;
+      },
+      has(target, p: string | symbol): boolean {
+         if (Reflect.has(target, p)) return true;
+         if (target.row && Reflect.has(target.row, p)) return true;
+
+         return false;
+      },
+      get(target, p: string | symbol, receiver: unknown): unknown {
+         if (Reflect.has(target, p)) return Reflect.get(target, p, receiver);
+         if (target.row && Reflect.has(target.row, p)) return Reflect.get(target.row, p, receiver);
+
+         return undefined;
+      },
+   }) as SqlQueryExtended<T>;
+}
+
+export const SqlQueryFormatByKeyword: Record<string, SqlQueryFormat> = {
+   with: "with:queryName as (sql)",
+   from: "from:(sql) as queryName",
+   select: "select:(sql) as queryName",
+   join: "join:(sql) as queryName",
+   fn: "fn:queryName",
+   sql: "sql",
+};

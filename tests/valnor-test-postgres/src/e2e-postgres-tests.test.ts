@@ -16,7 +16,7 @@ describe.sequential("valnor postgres e2e tests", () => {
    const findAccountById = sql`
          select ${row(Account.$$)}
       from ${Account}
-      where ${Account.$accountId} = ${param("accountId").is<string>()}
+      where ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}
    `;
 
    afterAll(async () => {

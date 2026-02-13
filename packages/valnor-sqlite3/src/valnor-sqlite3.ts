@@ -1,23 +1,32 @@
 import {
-   GetSchemaArgs,
    LibraryOutputFile,
    logger,
    SqlColumnInfo,
    SqlColumnType,
    SqlSchema,
-   ValnorPlugin,
+   SqlTableInfo,
    ValnorConnection,
+   ValnorPlugin,
 } from "valnor/plugin";
-import Database from "better-sqlite3";
+import BetterSqlite3 from "better-sqlite3";
 import { findPrimaryKeys, findTableColumns, findTables, getColumnType } from "./schema/index.js";
-import { SqlQueryParams, SqlQueryRowOut, SqlQuery } from "valnor";
+import { AsyncQueryHandler, SqlQuery, SqlRunArgs } from "valnor";
 import { BetterSqlite3QueryHandler } from "./better-sqlite3-query-handler.js";
 import { resolve } from "node:path";
 
 export type Sqlite3ConnectionConfig = { uri: string };
 
-export class ValnorSqlite3 extends ValnorPlugin {
+export class ValnorSqlite3 extends ValnorPlugin<{
+   Config: Sqlite3ConnectionConfig;
+   Connection: BetterSqlite3.Database;
+}> {
    driver = "better-sqlite3";
+
+   newQueryHandler<T extends { Row?: unknown; Params?: unknown; QueryResult: object; QueryClient: unknown }>(
+      query: SqlQuery<{ Params: T["Params"]; Row: T["Row"] }>,
+   ): AsyncQueryHandler<T> {
+      return new BetterSqlite3QueryHandler(query);
+   }
 
    getLibrary(): LibraryOutputFile[] {
       return [];
@@ -27,26 +36,42 @@ export class ValnorSqlite3 extends ValnorPlugin {
       return getColumnType(col);
    }
 
-   async getSchema(args: GetSchemaArgs): Promise<SqlSchema> {
+   async getSchema(args: Sqlite3ConnectionConfig & { schemas: string[] }): Promise<SqlSchema> {
       const { schemas } = args;
 
-      let db: Database.Database;
+      let db: BetterSqlite3.Database;
       if ("uri" in args) {
          logger.info({ URI: resolve(args.uri) }, "Opening Sqlite3 database connection");
-         db = new Database(args.uri);
+         db = new BetterSqlite3(args.uri);
       } else {
          throw new Error("SQLite requires database file path in uri parameter");
       }
 
-      const tables = await findTables.sqlite3.getAll({ db });
+      const runArgs: SqlRunArgs<BetterSqlite3.Database, unknown> = {
+         db,
+         options: { dialect: "sqlite" },
+      };
+
+      const tables = await findTables.sqlite3.getAll({ ...runArgs });
 
       // Populate columns and primary keys for each table
+      const newTables: SqlTableInfo[] = [];
       for (const table of tables) {
-         const columns = await findTableColumns.sqlite3.getAll({ db, params: { tableName: table.table_name } });
-         const primaryKeys = await findPrimaryKeys.sqlite3.getAll({ db, params: { tableName: table.table_name } });
+         const columns = await findTableColumns.sqlite3.getAll({ ...runArgs, params: { tableName: table.table_name } });
+         const primaryKeys = await findPrimaryKeys.sqlite3.getAll({
+            ...runArgs,
+            params: { tableName: table.table_name },
+         });
 
-         table.table_columns = columns;
-         table.primary_keys = primaryKeys.map((z) => z.name);
+         newTables.push({
+            primary_keys: primaryKeys.map((z) => ({
+               ...z,
+               table_schema: table.table_schema,
+               table_name: table.table_name,
+            })),
+            ...table,
+            columns: columns.map((z) => ({ ...z, table_name: table.table_name, table_schema: table.table_schema })),
+         });
       }
 
       logger.info(
@@ -62,22 +87,24 @@ export class ValnorSqlite3 extends ValnorPlugin {
       db.close();
 
       return {
-         tables,
+         tables: newTables,
          enums: [],
       };
    }
 
-   async createConnection<C extends Sqlite3ConnectionConfig = Sqlite3ConnectionConfig>(
-      config: C,
-   ): Promise<ValnorConnection> {
-      const db = new Database(config.uri);
-      return new ValnorConnection(db, (d) => Promise.resolve(d.close()));
+   async createConnection(config: Sqlite3ConnectionConfig): Promise<ValnorConnection<BetterSqlite3.Database>> {
+      const db = new BetterSqlite3(config.uri);
+      return new ValnorConnection(db, (db) => {
+         Promise.resolve(() => {
+            db.close();
+         });
+      });
    }
 }
 
 // Extend the class type (in scope)
 declare module "valnor" {
-   interface SqlQuery<T extends { Row: SqlQueryRowOut; Params?: SqlQueryParams }> {
+   interface SqlQuery<T extends { Row?: unknown; Params?: unknown }> {
       readonly sqlite3: BetterSqlite3QueryHandler<T>;
    }
 }

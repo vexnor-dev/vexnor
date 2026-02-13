@@ -19,7 +19,7 @@ import mssql from "mssql";
 /**
  * Valnor plugin for MS SQL Server.
  */
-export class ValnorMssql extends ValnorPlugin {
+export class ValnorMssql extends ValnorPlugin<{ Config: ConnectionConfig; Connection: mssql.ConnectionPool }> {
    driver = "mssql";
 
    getLibrary(): LibraryOutputFile[] {
@@ -30,7 +30,7 @@ export class ValnorMssql extends ValnorPlugin {
       return getColumnType(col);
    }
 
-   async getSchema(args: GetSchemaArgs): Promise<SqlSchema> {
+   async getSchema(args: GetSchemaArgs<ConnectionConfig>): Promise<SqlSchema> {
       const { schemas } = args;
       const connection = await this.createConnection(args);
       try {

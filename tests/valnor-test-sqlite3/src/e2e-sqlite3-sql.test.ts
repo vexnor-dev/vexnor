@@ -1,15 +1,16 @@
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { sql } from "valnor-sqlite3";
-import { Account, IAccountSelect } from "./codegen/main.account-table.js";
+import { Account } from "./codegen/main.account-table.js";
 import { randomUUID } from "node:crypto";
 import Database from "better-sqlite3";
 import { SQLITE_PATH } from "./config.js";
+import { row } from "valnor";
 
 describe("valnor postgres sql tests", () => {
    const db = new Database(SQLITE_PATH);
 
    beforeAll(async () => {
-      await sql<object>`
+      await sql`
          delete
          from ${Account}
          where ${Account.$accountId} <> ${randomUUID()}
@@ -33,19 +34,17 @@ describe("valnor postgres sql tests", () => {
             })}
       `.run({ db });
 
-      const account = await sql<IAccountSelect>`
-        select ${Account.$$}
+      const account = await sql`
+        select ${row(Account.$$)}
         from ${Account}
         where ${Account.$accountId} = ${accountId}`.getOneRequired({ db });
 
-      expect(account).toEqual(
-         expect.objectContaining({
-            accountId,
-            status: "created",
-            firstName: "John",
-            lastName: "Doe",
-            email: "john.doe@example.com",
-         }),
-      );
+      expect(account).toMatchObject({
+         accountId,
+         status: "created",
+         firstName: "John",
+         lastName: "Doe",
+         email: "john.doe@example.com",
+      });
    });
 });

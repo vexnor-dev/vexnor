@@ -194,6 +194,22 @@ export class SqlTable<
             throw new Error(`Unknown table format: ${format}`);
       }
    }
+
+   render(format: SqlTableFormat): SqlTableExtended<T> {
+      return newSqlTable({
+         format,
+         tableInfo: this.tableInfo,
+         pk: this.pk,
+         columns: (() => {
+            const columns: Record<string, string> = {};
+            for (const { key, columnName } of Object.values(this.row)) {
+               columns[key] = columnName;
+            }
+
+            return columns as Record<keyof T["Select"], string>;
+         })(),
+      });
+   }
 }
 
 export function newSqlTable<

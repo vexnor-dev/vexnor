@@ -1,7 +1,7 @@
 export class ValnorConnection<T> {
    constructor(
       private readonly underlying: T,
-      private readonly closeFn: (connection: T) => Promise<void>,
+      private readonly closeFn: (connection: T) => PromiseLike<void> | void,
    ) {}
 
    get db(): T {

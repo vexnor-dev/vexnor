@@ -12,7 +12,7 @@ import {
    OrderStatusUdt,
 } from "./codegen/one_sql.schema.js";
 import { param, sql } from "valnor";
-import valnorPostgres, { jsonAgg } from "valnor-postgres";
+import valnorPostgres, { jsonMany } from "valnor-postgres";
 
 valnorPostgres.register();
 
@@ -92,8 +92,8 @@ const UserOrders = sql<IOrderSelect, { limit: number }>`
 
 const findAccountsWithOrders = sql<IAccountWithOrders, { limit: number }>`
    SELECT ${Account.$$},
-          ${jsonAgg(UserOrders)} "orders"
-   FROM ${Account} ${jsonAgg(UserOrders)}
+          ${jsonMany(UserOrders)} "orders"
+   FROM ${Account} ${jsonMany(UserOrders)}
    WHERE ${Account.$accountId} = ${newAccount.accountId}`;
 
 const accountWithLimitedOrders = await findAccountsWithOrders.pg.getOneRequired({

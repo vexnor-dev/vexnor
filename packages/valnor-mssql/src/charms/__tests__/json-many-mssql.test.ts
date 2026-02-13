@@ -1,5 +1,5 @@
 import { assertType, describe, expect, test } from "vitest";
-import { param, row, sql, SqlBuildContext, SqlQuery, TYPES } from "valnor";
+import { param, row, sql, SqlBuildContext, SqlQuery } from "valnor";
 import { jsonMany } from "../json-many-mssql.js";
 import { Account, IAccountSelect } from "valnor/testing";
 
@@ -51,7 +51,7 @@ describe("json-agg-mssql tests", () => {
                   "children"."modified_at" AS "modifiedAt",
                   "children"."parent_id" AS "parentId"
                 FROM
-                  "valnor_test"."account" AS "children"
+                  "main"."account" AS "children"
                 WHERE
                   "children"."parent_id" = "a_1"."account_id" FOR json path,
                   include_null_values
@@ -68,7 +68,7 @@ describe("json-agg-mssql tests", () => {
          from ${Account.as(`children`)}
          where ${Account.as(`children`).$parentId} = ${Account.$accountId}
          order by ${Account.as(`children`).$createdAt} desc
-         offset 0 rows fetch next ${param({ limit: TYPES.Number })} rows only
+         offset 0 rows fetch next ${param<{ limit: number }>("limit")} rows only
       `;
 
       const query = sql`
@@ -85,7 +85,7 @@ describe("json-agg-mssql tests", () => {
 
       expect(query.params.limit).toMatchObject({ name: "limit" });
 
-      const { text } = query.getSql({ params: { limit: 10 } });
+      const { text } = query.getSql({ params: { limit: 10 }, options: {} });
       console.log(text);
       expect(text).toMatchInlineSnapshot(`
         "SELECT
@@ -100,7 +100,7 @@ describe("json-agg-mssql tests", () => {
           "a_1"."parent_id" AS "parentId",
           "query_1_result"."query_1" AS "children"
         FROM
-          "valnor_test"."account" AS "a_1" OUTER apply (
+          "main"."account" AS "a_1" OUTER apply (
             SELECT
               coalesce(
                 (
@@ -115,7 +115,7 @@ describe("json-agg-mssql tests", () => {
                     "children"."modified_at" AS "modifiedAt",
                     "children"."parent_id" AS "parentId"
                   FROM
-                    "valnor_test"."account" AS "children"
+                    "main"."account" AS "children"
                   WHERE
                     "children"."parent_id" = "a_1"."account_id"
                   ORDER BY
@@ -138,7 +138,7 @@ describe("json-agg-mssql tests", () => {
             from ${Account.as(`children`)}
             where ${Account.as(`children`).$parentId} = ${Account.$accountId}
             order by ${Account.$createdAt} desc
-            offset 0 rows fetch next ${param("limit").is<number>()} rows only
+            offset 0 rows fetch next ${param<{ limit: number }>("limit")} rows only
          `;
 
       const target = jsonMany(query);

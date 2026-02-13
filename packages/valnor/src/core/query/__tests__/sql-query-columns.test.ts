@@ -14,7 +14,7 @@ describe("SqlQuery.$... tests", () => {
          from ${Account}
             join ${Order} on ${Order.$accountId} = ${Account.$accountId}
          join ${OrderItem} on ${OrderItem.$orderId} = ${Order.$orderId}
-         where ${Account.$accountId} = ${param("accountId").is<string>()}
+         where ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}
       `;
 
    test("SqlQuery.$$ should be defined", () => {

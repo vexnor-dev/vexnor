@@ -3,7 +3,7 @@ import { JsonRow, newSqlTable } from "../../core/index.js";
 export const Product = newSqlTable<{ Select: IProductSelect; Insert: IProductInsert; Update: IProductUpdate }>({
    tableInfo: {
       name: "product",
-      schema: "valnor_test",
+      schema: "main",
    },
    pk: ["productId"],
    columns: {

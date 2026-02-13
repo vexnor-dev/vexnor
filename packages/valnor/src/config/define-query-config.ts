@@ -4,15 +4,19 @@ import { SqlExecError } from "../cli/exec/sql-exec-error.js";
 
 type QueryOrHandler = SqlQueryAny | AsyncQueryHandlerAny;
 
-export function defineQueryConfig<TQueries extends Record<string, QueryOrHandler>>(queries: TQueries) {
-   return <
-      TConfig extends {
-         queries: { [K in keyof TQueries]: Omit<QuerySettings<TQueries[K]>, "query"> };
-         defaults?: QueryDefaults;
-      },
-   >(
-      config: TConfig,
-   ): { queries: { [K in keyof TQueries]: QuerySettings<TQueries[K]> }; defaults?: QueryDefaults } => {
+export type QueryConfigResult<TQueries extends Record<string, QueryOrHandler>> = <
+   TConfig extends {
+      queries: { [K in keyof TQueries]: Omit<QuerySettings<TQueries[K]>, "query"> };
+      defaults?: QueryDefaults;
+   },
+>(
+   config: TConfig,
+) => { queries: { [K in keyof TQueries]: QuerySettings<TQueries[K]> }; defaults?: QueryDefaults };
+
+export function defineQueryConfig<TQueries extends Record<string, QueryOrHandler>>(
+   queries: TQueries,
+): QueryConfigResult<TQueries> {
+   return (config) => {
       if (!config.queries || Object.keys(config.queries).length === 0) {
          throw new Error("Query config must have at least one query");
       }

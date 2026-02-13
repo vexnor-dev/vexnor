@@ -8,10 +8,12 @@ import {
    PARAMS,
    SqlCharm,
    SqlSelectCharm,
+   sql,
+   raw,
 } from "valnor";
 
 /**
- * Sql class that aggregates of a subquery into a JSON array
+ * SQL class that aggregates of a subquery into a JSON array
  * @example
  * SELECT ${Account.$$all}, ${jsonAgg(UserOrders)} "orders"
  * FROM ${Account} ${jsonAgg(UserOrders)}
@@ -40,11 +42,9 @@ export class JsonManyMssql<T extends { Row?: unknown; Params?: unknown }> extend
             context.addStrings(`"${queryName}_result"."${queryName}"`);
             break;
          case "from": {
-            context.addStrings("outer apply (\nselect coalesce((\n");
-            this.query.build(context, options);
-            context.addStrings(
-               `\nfor json path, include_null_values), '[]'\n) as "${queryName}")\nas "${queryName}_result"`,
-            );
+            const query = sql`outer apply (select coalesce((${this.query.render("sql")} for json path, include_null_values), '[]') as ${raw(queryName)}) as ${raw(`${queryName}_result`)}`;
+            context.scope({ query });
+            query.build(context, options);
             break;
          }
          default:
@@ -58,7 +58,7 @@ export class JsonManyMssql<T extends { Row?: unknown; Params?: unknown }> extend
     */
    as<Key extends string>(key: Key): SqlSelectCharm<{ Key: Key; Type: string }> {
       const query = this.query;
-      return new SqlSelectCharm<{ Key: Key; Type: string; Params: T["Params"] }>({
+      return new SqlSelectCharm<{ Key: Key; Type: string }>({
          key,
          build(context: SqlBuildContext) {
             context.scope({ query }, () => {

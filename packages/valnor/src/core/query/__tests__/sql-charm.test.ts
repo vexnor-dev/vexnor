@@ -7,15 +7,15 @@ import { Account } from "@test-models/valnor_test.account-table.js";
 import { SqlBuildContext } from "../sql-build-context.js";
 import { SqlBuildOptions } from "../sql-query-types.js";
 import { SqlQuery } from "../sql-query.js";
-import { TYPES } from "../sql-models.js";
+import { AccountStatusUdt } from "@test-models/valnor_test-enums.js";
 
 describe("SqlCharm tests", () => {
    test("charm should infer Params from inner query", () => {
       const query = sql`
          select ${row(Account.$$)}
          from ${Account}
-         where ${Account.$status} = ${param("status").is<string>()}
-         limit ${param("limit").is<number>()}
+         where ${Account.$status} = ${param<{ status: AccountStatusUdt }>("status")}
+         limit ${param<{ limit: number }>("limit")}
       `;
 
       const charm = testCharm(query);
@@ -35,8 +35,8 @@ describe("SqlCharm tests", () => {
       const query = sql`
          select ${row(Account.$$)}
          from ${Account}
-         where ${Account.$status} = ${param("status").is<string>()}
-         limit ${param({ limit: TYPES.Number })}
+         where ${Account.$status} = ${param<{ status: string }>("status")}
+         limit ${param<{ limit: number }>("limit")}
       `;
       const charm = testCharm(query);
 
@@ -117,17 +117,17 @@ class TestCharm<T extends { Params?: unknown; Row?: unknown }> extends SqlCharm<
       });
    }
 
+   // eslint-disable-next-line unused-imports/no-unused-vars
    build(_context: SqlBuildContext, _options: SqlBuildOptions | undefined): void {
       throw new Error("Method not implemented.");
    }
 
    as<Key extends string>(key: Key) {
-      const query = this.query;
       return new SqlSelectCharm({
          key,
-         build(context, options) {
+         build: (context, options) => {
             context.addStrings(`(`);
-            query.build(context, options);
+            this.query.build(context, options);
             context.addStrings(` FOR JSON AUTO `, `)`);
 
             context.addStrings(`as "${key}"`);

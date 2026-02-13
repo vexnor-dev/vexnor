@@ -123,9 +123,9 @@ export class SqlBuildContext {
 
    private getAliasId(tableInfo: { schema?: string; name: string; alias?: string }) {
       return (
-         (this._queryStack.at(-1)?.ID ?? "") +
-         "/" +
-         (tableInfo.schema ? `${tableInfo.schema}.${tableInfo.name}` : tableInfo.name)
+         `${this._queryStack.length}/` +
+         `${this._queryStack.at(-1)?.ID ?? ""}/` +
+         `${tableInfo.schema ? `${tableInfo.schema}.${tableInfo.name}` : tableInfo.name}`
       );
    }
 
@@ -164,10 +164,10 @@ export class SqlBuildContext {
             const prevToken =
                this.currentStack.length > 0 ? this.currentStack[this.currentStack.length - 1] : undefined;
 
-            if (prevToken === "over") {
+            if (prevToken === "over" || prevToken === "apply") {
                this.currentStack.pop(); // consume 'over'
                this._contextParentDepths.push(this._parentDepth);
-               this._keywordStacks.push(["over"]);
+               this._keywordStacks.push([prevToken]);
             } else if (prevToken && SUBQUERY_STARTERS.includes(prevToken)) {
                this._contextParentDepths.push(this._parentDepth);
                this._keywordStacks.push([prevToken]);
@@ -349,20 +349,16 @@ export class SqlBuildContext {
          this.queries.set(args.query.ID, { ...existing, cte: true });
       }
 
-      if (callback) {
-         try {
-            const result = callback();
-            return result;
-         } catch (err) {
-            console.error(err);
-            throw err;
-         } finally {
-            this._queryStack.pop();
-            this._keywordStacks.pop();
-         }
+      try {
+         if (!callback) return undefined as Result;
+         return callback();
+      } catch (err) {
+         console.error(err);
+         throw err;
+      } finally {
+         this._queryStack.pop();
+         this._keywordStacks.pop();
       }
-
-      return undefined as Result;
    }
 
    /**

@@ -1,28 +1,33 @@
 import { newSqlTable } from "valnor";
 
-export const SqliteMaster = newSqlTable(
-   {
+export const SqliteMaster = newSqlTable<{
+   Select: { type: string; name: string; tbl_name: string; rootpage: number; sql: string };
+}>({
+   pk: [],
+   tableInfo: {
       name: "sqlite_master",
    },
-   {
+   columns: {
       type: "type",
       name: "name",
       tbl_name: "tbl_name",
       rootpage: "rootpage",
       sql: "sql",
    },
-);
+});
 
-export const PragmaTableInfo = newSqlTable(
-   {
+export const PragmaTableInfo = newSqlTable<{
+   Select: { cid: number; name: string; type: string; notnull: boolean; dflt_value: string };
+}>({
+   pk: [],
+   tableInfo: {
       name: "pragma_table_info",
    },
-   {
+   columns: {
       cid: "cid",
       name: "name",
       type: "type",
       notnull: "notnull",
       dflt_value: "dflt_value",
-      pk: "pk",
    },
-);
+});

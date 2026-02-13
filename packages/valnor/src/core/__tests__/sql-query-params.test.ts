@@ -8,7 +8,7 @@ import { ParamsOf } from "../sql-base.js";
 describe("SqlQuery.params", () => {
    test("InferParamFromSql<SqlParam>", () => {
       // eslint-disable-next-line unused-imports/no-unused-vars
-      const id1 = param("id1").is<string>();
+      const id1 = param<{ id1: string }>("id1");
       type Params = ParamsOf<typeof id1>;
       assertType<Params>({
          id1: "",
@@ -19,7 +19,7 @@ describe("SqlQuery.params", () => {
 
    test("InferParamFromSql<SqlQuery>", () => {
       // eslint-disable-next-line unused-imports/no-unused-vars
-      const id1 = sql`${param("id1")}`;
+      const id1 = sql`${param<{ id1: string }>("id1")}`;
       type Params = ParamsOf<typeof id1>;
       assertType<Params>({
          id1: "",
@@ -123,8 +123,8 @@ describe("SqlQuery.params", () => {
       const query = sql`
          select ${row(Account.$$)}
          from ${Account}
-         where ${Account.$email} = ${param("email").is<string>()}
-           and ${Account.$accountId} = ${param("accountId")}
+         where ${Account.$email} = ${param<{ email: string }>("email")}
+           and ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}
       `;
 
       expect(query.params).toMatchObject({
@@ -156,8 +156,8 @@ describe("SqlQuery.params", () => {
       const query = sql`
          select ${row(Account.$$)}
          from ${Account}
-         where ${Account.$email} = ${param("email")}
-            or ${Account.$email} = ${param("email")}
+         where ${Account.$email} = ${param<{ email: string }>("email")}
+            or ${Account.$email} = ${param<{ email: string }>("email")}
       `;
 
       assertType<ExtractParamsFromQuery<typeof query>>({
@@ -179,13 +179,13 @@ describe("SqlQuery.params", () => {
          ${info({ label: "Subquery" })}
          select ${row(Account.$$)}
          from ${Account}
-         where ${Account.$email} = ${param("email")}
+         where ${Account.$email} = ${param<{ email: string }>("email")}
       `;
 
       const query = sql`
          select ${row(subquery.$$)}
          from ${subquery}
-         where ${subquery.$accountId} = ${param("accountId")}
+         where ${subquery.$accountId} = ${param<{ accountId: string }>("accountId")}
       `;
 
       assertType<ExtractParamsFromQuery<typeof query>>({
@@ -213,8 +213,13 @@ describe("SqlQuery.params", () => {
       const query = sql`
          select ${row(Account.$$)}
          from ${Account}
-         where ${Account.$accountId} in (${param("id1").is<string>()}, ${param("id2").is<string>()}, ${param("id3").is<string>()})
-           and ${Account.$status} = ${param("status").is<AccountStatusUdt>()}
+         where ${Account.$accountId} in
+               (
+                ${param<{ id1: string }>("id1")},
+                ${param<{ id2: string }>("id2")},
+                ${param<{ id3: string }>("id3")}
+                  )
+           and ${Account.$status} = ${param<{ status: AccountStatusUdt }>("status")}
       `;
 
       expect(query.params).toMatchObject({
@@ -243,14 +248,14 @@ describe("SqlQuery.params", () => {
          ${info({ label: "Subquery" })}
          select ${row(Account.$$)}
          from ${Account}
-         where ${Account.$accountId} in (${param("id1")}, ${param("id2")})
+         where ${Account.$accountId} in (${param<{ id1: string }>("id1")}, ${param<{ id2: string }>("id2")})
          and ${Account.$status} = ${AccountStatusUdt.CONFIRMED}
       `;
 
       const query = sql`
          select ${row(subquery.$$)}
          from ${subquery}
-         where ${subquery.$email} = ${param("email")}
+         where ${subquery.$email} = ${param<{ email: string }>("email")}
       `;
 
       expect(query.params).toMatchObject({

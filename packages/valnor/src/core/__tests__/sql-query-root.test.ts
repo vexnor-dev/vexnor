@@ -14,8 +14,8 @@ describe("sql() tests", () => {
          ${rowType<IAccountSelect>()}
          select ${Account.$firstName}, min(${Account.$email}), ${Account.$email.as("user_email")}, ${Account.$createdAt}
          from ${Account}
-         where ${Account.$email} = ${param("email").is<string>()}
-           and ${Account.$firstName} in (${param("names").is<string[]>()})
+         where ${Account.$email} = ${param<{ email: string }>("email")}
+           and ${Account.$firstName} in (${param<{ names: string[] }>("names")})
          group by ${Account.$email}`;
       const { values, text } = query.getSql({ params: { names, email: "test@example.com" } });
       expect(values).toMatchInlineSnapshot(`

@@ -3,7 +3,7 @@ import { JsonRow, newSqlTable } from "../../core/index.js";
 import * as udt from "./valnor_test-enums.js";
 
 export const Order = newSqlTable<{ Select: IOrderSelect; Insert: IOrderInsert; Update: IOrderUpdate }>({
-   tableInfo: { name: "order", schema: "valnor_test" },
+   tableInfo: { name: "order", schema: "main" },
    pk: ["orderId"],
    columns: {
       /**

@@ -1,7 +1,5 @@
 import { SqlBuildContext } from "./sql-build-context.js";
 import { PARAMS, Sql } from "../sql-base.js";
-import { ValueTypeAny, ValueTypeOf } from "./sql-models.js";
-import { SqlBuildError } from "../sql-build-error.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlParamAny = SqlParam<any>;
@@ -21,29 +19,12 @@ export class SqlParam<T extends { Name: string; Type: unknown }> extends Sql {
    build(context: SqlBuildContext): void {
       context.addParam(this);
    }
-
-   is<Type>() {
-      return this as SqlParam<{ Name: T["Name"]; Type: Type }>;
-   }
 }
 
-export type ParamResult<T extends string | Record<string, ValueTypeAny>> = T extends string
-   ? SqlParam<{ Name: T; Type: unknown }>
-   : T extends object
-     ? SqlParam<{ Name: Extract<keyof T, string>; Type: ValueTypeOf<T[keyof T]> }>
-     : never;
-
-export function param<T extends string | Record<string, ValueTypeAny>>(args: T): ParamResult<T> {
-   switch (typeof args) {
-      case "string":
-         return new SqlParam({ name: args }) as ParamResult<T>;
-      case "object": {
-         const [key] = Object.keys(args);
-         if (!key) throw new SqlBuildError("Object must contain at least one key");
-
-         return new SqlParam({ name: key }) as ParamResult<T>;
-      }
-   }
+export function param<T extends Record<string, unknown> | undefined = undefined>(
+   key: Extract<keyof T, string>,
+): SqlParam<{ Name: Extract<keyof T, string>; Type: T[typeof key] }> {
+   return new SqlParam<{ Name: Extract<keyof T, string>; Type: T[typeof key] }>({ name: key });
 }
 
 export type BuildSqlParams<Params> =

@@ -1,19 +1,15 @@
-import { SqlQueryRowOut, Sql, SqlTableColumn, SqlQueryParams, SqlQuery, SqlTableAny, SqlSelectValue } from "valnor";
+import { QueryParams, QueryRow, SqlQuery, SqlQueryToken } from "valnor";
 import { BetterSqlite3QueryHandler } from "./better-sqlite3-query-handler.js";
 
-export function sql<
-   TRow extends SqlQueryRowOut = Record<string, unknown>,
-   TParams extends Record<string, SqlSelectValue> | undefined = undefined,
-   TSql extends Sql = Sql | SqlTableAny | SqlTableColumn,
-   TValue =
-      | SqlSelectValue
-      | TSql
-      | TSql[]
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      | SqlQuery<{ Row: any; Params: Partial<TParams>; QueryResult: object }>
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      | SqlQuery<{ Row: any; Params: Partial<TParams>; QueryResult: object }>[]
-      | SqlQueryParams<TParams>,
->(strings: TemplateStringsArray, ...values: TValue[]): BetterSqlite3QueryHandler<{ Row: TRow; Params: TParams }> {
-   return new BetterSqlite3QueryHandler(new SqlQuery(strings, values));
+export function sql<Token extends SqlQueryToken = SqlQueryToken, Tokens extends Token[] = Token[]>(
+   rawStrings: TemplateStringsArray,
+   ...rawValues: Tokens
+) {
+   const query = new SqlQuery<{
+      Row: QueryRow<typeof rawValues>;
+      Params: QueryParams<typeof rawValues>;
+   }>({ rawStrings: rawStrings, rawValues: rawValues });
+   return new BetterSqlite3QueryHandler<{ Row: QueryRow<typeof rawValues>; Params: QueryParams<typeof rawValues> }>(
+      query,
+   );
 }

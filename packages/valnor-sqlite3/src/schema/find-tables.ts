@@ -1,30 +1,26 @@
-import { sql, param } from "valnor";
-import type { SqlTableInfo, SqlColumnInfo } from "valnor/plugin";
-import { SqliteMaster } from "./models.js";
+import { param, row, sql, val } from "valnor";
+import { PragmaTableInfo, SqliteMaster } from "./models.js";
 
-export const findTables = sql<SqlTableInfo>`
+export const findTables = sql`
    SELECT 
-      ${SqliteMaster.name} as table_name,
-      'main' as table_schema,
-      '[]' as table_columns,
-      NULL as primary_key
+      ${row(SqliteMaster.$name.as("table_name"))},
+      ${val`'main'`.as<{ table_schema: string }>("table_schema")},
+      ${val`'[]'`.as<{ table_columns: string[] }>("table_columns")},
+      ${val`NULL`.as<{ primary_key: string }>("primary_key")}
    FROM ${SqliteMaster}
-   WHERE ${SqliteMaster.type} = 'table' 
-   AND ${SqliteMaster.name} NOT LIKE 'sqlite_%'
+   WHERE ${SqliteMaster.$type} = 'table' 
+   AND ${SqliteMaster.$name} NOT LIKE 'sqlite_%'
 `;
 
-export const findTableColumns = sql<SqlColumnInfo, { tableName: string }>`
-   SELECT 
-      name as column_name,
-      CASE WHEN "notnull" = 0 THEN 'YES' ELSE 'NO' END as is_nullable,
-      dflt_value as column_default,
-      'YES' as is_updatable,
-      type as udt_name
-   FROM pragma_table_info(${param("tableName")})
+export const findTableColumns = sql`
+   SELECT ${row(PragmaTableInfo.$name.as("column_name"), PragmaTableInfo.$dflt_value.as("column_default"), PragmaTableInfo.$type.as("udt_name"))},
+          ${val`CASE WHEN "notnull" = 0 THEN 'YES' ELSE 'NO' END`.as<{ is_nullable: "YES" | "NO" }>("is_nullable")},
+          ${val`'YES'`.as<{ is_updatable: "YES" | "NO" }>("is_updatable")}
+   FROM pragma_table_info(${param<{ tableName: string }>("tableName")}) as ${PragmaTableInfo.render("tableAlias")}
 `;
 
-export const findPrimaryKeys = sql<{ name: string }, { tableName: string }>`
-   SELECT name
-   FROM pragma_table_info(${param("tableName")})
+export const findPrimaryKeys = sql`
+   SELECT ${row(PragmaTableInfo.$name.as("column_name"), PragmaTableInfo.$name.as("constraint_name"), PragmaTableInfo.$cid.as("ordinal_position"))}
+   FROM pragma_table_info(${param<{ tableName: string }>("tableName")}) as ${PragmaTableInfo.render("tableAlias")}
    WHERE pk = 1
 `;

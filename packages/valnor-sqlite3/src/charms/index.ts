@@ -1,1 +1,1 @@
-export * from "./json-group-array-sqlite3.js";
+export * from "./json-many-sqlite3.js";

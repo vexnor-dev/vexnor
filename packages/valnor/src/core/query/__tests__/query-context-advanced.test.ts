@@ -55,4 +55,9 @@ describe("Advanced SqlBuildContext Engine Stress Tests", () => {
       context.next("select data ->> 'name' from events where");
       expect(context.keyword).toBe("where");
    });
+
+   test("should not find coalesce( as function keyword", () => {
+      context.next(`outer apply (select coalesce((`);
+      expect(context.keyword).toBe("fn");
+   });
 });

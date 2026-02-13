@@ -37,7 +37,7 @@ describe("json-agg-postgres tests", () => {
       expect(context.text).toMatchInlineSnapshot(`
         "LEFT JOIN LATERAL (
           SELECT
-            coalesce(jsonb_agg (*), '[]') AS "query_0_result"
+            coalesce(jsonb_agg ("query_0".*), '[]') AS "query_0_result"
           FROM
             (
               SELECT
@@ -51,7 +51,7 @@ describe("json-agg-postgres tests", () => {
                 "children"."modified_at" AS "modifiedAt",
                 "children"."parent_id" AS "parentId"
               FROM
-                "valnor_test"."account" AS "children"
+                "main"."account" AS "children"
               WHERE
                 "children"."parent_id" = "a_1"."account_id"
             ) AS "query_0"
@@ -65,7 +65,7 @@ describe("json-agg-postgres tests", () => {
          from ${Account.as(`children`)}
          where ${Account.as(`children`).$parentId} = ${Account.$accountId}
          order by ${Account.as(`children`).$createdAt} desc
-         limit ${param("limit").is<number>()}
+         limit ${param<{ limit: number }>("limit")}
       `;
 
       assertType<SqlCharm<{ Params: { limit: number } }>>(jsonMany(AccountChildren));
@@ -185,10 +185,10 @@ describe("json-agg-postgres tests", () => {
           "a_1"."parent_id" AS "parentId",
           "query_1_result" AS "children"
         FROM
-          "valnor_test"."account" AS "a_1"
+          "main"."account" AS "a_1"
           LEFT JOIN LATERAL (
             SELECT
-              coalesce(jsonb_agg(*), '[]') AS "query_1_result"
+              coalesce(jsonb_agg("query_1".*), '[]') AS "query_1_result"
             FROM
               (
                 SELECT
@@ -202,9 +202,9 @@ describe("json-agg-postgres tests", () => {
                   "children"."modified_at" AS "modifiedAt",
                   "children"."parent_id" AS "parentId"
                 FROM
-                  "valnor_test"."account" AS "children"
+                  "main"."account" AS "children"
                 WHERE
-                  "children"."parent_id" = "a_2"."account_id"
+                  "children"."parent_id" = "a_1"."account_id"
                 ORDER BY
                   "children"."created_at" DESC
                 LIMIT
@@ -220,7 +220,7 @@ describe("json-agg-postgres tests", () => {
             from ${Account.as(`children`)}
             where ${Account.as(`children`).$parentId} = ${Account.$accountId}
             order by ${Account.$createdAt} desc
-            offset 0 rows fetch next ${param("limit").is<number>()} rows only
+            offset 0 rows fetch next ${param<{ limit: number }>("limit")} rows only
          `;
 
       const target = jsonMany(query);
@@ -236,7 +236,7 @@ describe("json-agg-postgres tests", () => {
             from ${Account.as(`children`)}
             where ${Account.as(`children`).$parentId} = ${Account.$accountId}
             order by ${Account.$createdAt} desc
-            offset 0 rows fetch next ${param("limit").is<number>()} rows only
+            offset 0 rows fetch next ${param<{ limit: number }>("limit")} rows only
          `;
 
       const target = jsonMany(query);

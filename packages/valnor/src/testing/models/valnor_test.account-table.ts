@@ -4,7 +4,7 @@ import { AccountStatusUdt } from "./valnor_test-enums.js";
 export const Account = newSqlTable<{ Select: IAccountSelect; Insert: IAccountInsert; Update: IAccountUpdate }>({
    tableInfo: {
       name: "account",
-      schema: "valnor_test",
+      schema: "main",
    },
    pk: ["accountId"],
    columns: {

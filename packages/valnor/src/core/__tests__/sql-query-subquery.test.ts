@@ -40,12 +40,12 @@ describe("sql subqueries tests", () => {
          ${info({ label: "AccountsWithEmail" })}
          select ${row(Account.$$)}
          from ${Account}
-         where ${Account.$email} = ${param("email").is<string>()}`;
+         where ${Account.$email} = ${param<{ email: string }>("email")}`;
 
       const query = sql`
          select ${row(AccountsWithEmail.$$)}
          from ${AccountsWithEmail}
-         where ${AccountsWithEmail.$firstName} = ${param("firstName").is<string>()}`;
+         where ${AccountsWithEmail.$firstName} = ${param<{ firstName: string }>("firstName")}`;
 
       const { text, values } = query.getSql({ params: { firstName: "John", email: "test@example.com" } });
       expect(values).toEqual(["test@example.com", "John"]);
@@ -80,14 +80,14 @@ describe("sql subqueries tests", () => {
          ${info({ label: "AccountsWithEmail" })}
          select ${row(Account.$$)}
          from ${Account}
-         where ${Account.$email} = ${param("email").is<string>()}
+         where ${Account.$email} = ${param<{ email: string }>("email")}
       `;
 
       const query = sql`
          select ${row(Account.$accountId, Account.$status, Account.$email, Account.$firstName, Account.$lastName)}
          from ${Account}
                  join ${AccountsWithEmail} on ${Account.$accountId} = ${AccountsWithEmail.$accountId}
-         where ${Account.$firstName} = ${param("firstName").is<string>()}`;
+         where ${Account.$firstName} = ${param<{ firstName: string }>("firstName")}`;
 
       const { text, values } = query.getSql({ params: { firstName: "John", email: "test@example.com" } });
       expect(values).toEqual(["test@example.com", "John"]);
@@ -127,7 +127,7 @@ describe("sql subqueries tests", () => {
          select ${row(Account.$$, Account.as`parent`.$firstName.as("parentFirstName"), Account.as`parent`.$lastName.as("parentLastName"))}
          from ${Account}
                  join ${Account.as`parent`} on ${Account.as`parent`.$accountId} = ${Account.$parentId}
-         where ${Account.$firstName} = ${param("firstName").is<string>()}`;
+         where ${Account.$firstName} = ${param<{ firstName: string }>("firstName")}`;
 
       const { text } = query.getSql({ params: { firstName: "John" } });
       expect(text).toMatchInlineSnapshot(`

@@ -1,9 +1,9 @@
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import crypto, { randomUUID } from "node:crypto";
 import { ok } from "node:assert";
-import { param, sql } from "valnor";
-import { jsonGroupArray } from "valnor-sqlite3";
-import { Account, IAccountInsert, IAccountJson, IAccountSelect } from "./codegen/main.account-table.js";
+import { param, row, sql } from "valnor";
+import { jsonMany } from "valnor-sqlite3";
+import { Account, IAccountInsert, IAccountSelect } from "./codegen/main.account-table.js";
 import Database from "better-sqlite3";
 import { SQLITE_PATH } from "./config.js";
 
@@ -14,10 +14,10 @@ describe.sequential("valnor sqlite3 e2e tests", () => {
    const CHILD_FACTOR = 3;
    const db = new Database(SQLITE_PATH);
 
-   const findAccountById = sql<IAccountSelect, { accountId: string }>`
-      select ${Account.$$}
+   const findAccountById = sql`
+      select ${row(Account.$$)}
       from ${Account}
-      where ${Account.$accountId} = ${param("accountId")}
+      where ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}
    `;
 
    afterAll(async () => {
@@ -25,7 +25,7 @@ describe.sequential("valnor sqlite3 e2e tests", () => {
    });
 
    beforeAll(async () => {
-      await sql<object>`
+      await sql`
          delete
          from ${Account}
          where ${Account.$accountId} <> ${randomUUID()}
@@ -47,13 +47,13 @@ describe.sequential("valnor sqlite3 e2e tests", () => {
                email: `john.doe.root-${index}-${id}@example.com`,
             });
          }
-         await sql<IAccountSelect>`
+         await sql`
             insert into ${Account}
                ${Account.insertColsVals(...newAccountsArgs)}
          `.sqlite3.run({ db });
 
-         const accounts = await sql<IAccountSelect>`
-            select ${Account.$$}
+         const accounts = await sql`
+            select ${row(Account.$$)}
             from ${Account}
             where ${Account.$accountId} in (${newAccountsArgs.map((z) => z.accountId)})
          `.sqlite3.getAll({ db });
@@ -80,13 +80,13 @@ describe.sequential("valnor sqlite3 e2e tests", () => {
                parentId: parent.accountId,
             };
 
-            await sql<IAccountSelect>`
+            await sql`
                insert into ${Account}
                   ${Account.insertColsVals(newAccount)}
             `.sqlite3.run({ db });
 
-            const account = await sql<IAccountSelect>`
-               select ${Account.$$}
+            const account = await sql`
+               select ${row(Account.$$)}
                from ${Account}
                where ${Account.$accountId} = ${newAccount.accountId};
             `.sqlite3.getOneRequired({ db });
@@ -111,8 +111,8 @@ describe.sequential("valnor sqlite3 e2e tests", () => {
    });
 
    test(`Fetch all ${ROOT_COUNT} root accounts`, async () => {
-      const actual = await sql<IAccountSelect>`
-         select ${Account.$$}
+      const actual = await sql`
+         select ${row(Account.$$)}
          from ${Account}
          where ${Account.$accountId} in (${rootAccounts.map((z) => z.accountId)})
       `.sqlite3.getAll({ db });
@@ -120,8 +120,8 @@ describe.sequential("valnor sqlite3 e2e tests", () => {
    });
 
    test(`Fetch all ${ROOT_COUNT * CHILD_FACTOR} children accounts`, async () => {
-      const actual = await sql<IAccountSelect>`
-         select ${Account.$$}
+      const actual = await sql`
+         select ${row(Account.$$)}
          from ${Account}
          where ${Account.$accountId} in (${childAccounts.map((z) => z.accountId)})
          order by ${Account.$email}
@@ -148,13 +148,13 @@ describe.sequential("valnor sqlite3 e2e tests", () => {
    });
 
    test("Self join account: fetch accounts with parent info (firstName, lastName, email)", async () => {
-      const actual = await sql<IAccountSelect>`
+      const actual = await sql`
          select ${Account.$$},
-                ${Account`parent`.firstName`parentFirstName`},
-                ${Account`parent`.lastName`parentLastName`},
-                ${Account`parent`.email`parentEmail`}
+                ${Account.as`parent`.$firstName.as(`parentFirstName`)},
+                ${Account.as`parent`.$lastName.as(`parentLastName`)},
+                ${Account.as`parent`.$email.as(`parentEmail`)}
          from ${Account}
-                 join ${Account`parent`} on ${Account`parent`.$accountId} = ${Account.parentId}
+                 join ${Account.as`parent`} on ${Account.as`parent`.$accountId} = ${Account.$parentId}
       `.sqlite3.getAll({
          db,
       });
@@ -173,36 +173,206 @@ describe.sequential("valnor sqlite3 e2e tests", () => {
    });
 
    test("Fetch root accounts and their children as json array", async () => {
-      const accountChildren = sql<IAccountSelect>`
-         select ${Account`children`.$$}
-         from ${Account`children`}
-         where ${Account`children`.parentId} = ${Account.$accountId}
-         order by ${Account`children`.accountId}
+      const accountChildren = sql`
+         select ${row(Account.as`children`.$$)}
+         from ${Account.as`children`}
+         where ${Account.as`children`.$parentId} = ${Account.$accountId}
+         order by ${Account.as`children`.$accountId}
       `;
 
-      const actual = await sql<IAccountSelect & { children: IAccountJson[] }>`
-         select ${Account.$$}, ${jsonGroupArray(accountChildren)} as children
-         from ${Account} ${jsonGroupArray(accountChildren)}
+      const query = sql`
+         select ${row(Account.$$)}, ${jsonMany(accountChildren).as("children")}
+         from ${Account}
          where ${Account.$accountId} in (${rootAccounts.map((z) => z.accountId)})
-      `.sqlite3
-         .getAll({ db })
-         .then((accounts) =>
-            accounts.map((account) => ({
-               ...account,
-               children: account.children.map((child) => ({
-                  ...child,
-                  createdAt: new Date(child.createdAt),
-                  modifiedAt: new Date(child.modifiedAt),
-               })),
+      `;
+      const { text } = query.getSql({ options: { dialect: "sqlite" } });
+      expect(text).toMatchInlineSnapshot(`
+        "SELECT
+          "a_1"."account_id" AS "accountId",
+          "a_1"."status",
+          "a_1"."email",
+          "a_1"."first_name" AS "firstName",
+          "a_1"."last_name" AS "lastName",
+          "a_1"."notes",
+          "a_1"."created_at" AS "createdAt",
+          "a_1"."modified_at" AS "modifiedAt",
+          "a_1"."parent_id" AS "parentId",
+          (
+            SELECT
+              coalesce(
+                json_group_array(
+                  json_object(
+                    'accountId',
+                    "accountId",
+                    'status',
+                    "status",
+                    'email',
+                    "email",
+                    'firstName',
+                    "firstName",
+                    'lastName',
+                    "lastName",
+                    'notes',
+                    "notes",
+                    'createdAt',
+                    "createdAt",
+                    'modifiedAt',
+                    "modifiedAt",
+                    'parentId',
+                    "parentId"
+                  )
+                ),
+                '[]'
+              )
+            FROM
+              (
+                SELECT
+                  "children"."account_id" AS "accountId",
+                  "children"."status",
+                  "children"."email",
+                  "children"."first_name" AS "firstName",
+                  "children"."last_name" AS "lastName",
+                  "children"."notes",
+                  "children"."created_at" AS "createdAt",
+                  "children"."modified_at" AS "modifiedAt",
+                  "children"."parent_id" AS "parentId"
+                FROM
+                  "main"."account" AS "children"
+                WHERE
+                  "children"."parent_id" = "a_1"."account_id"
+                ORDER BY
+                  "children"."account_id"
+              ) AS "query_1"
+          ) AS "children"
+        FROM
+          "main"."account" AS "a_1"
+        WHERE
+          "a_1"."account_id" IN (
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?
+          )"
+      `);
+
+      const actual = await query.sqlite3.getAll({ db }).then((accounts) =>
+         accounts.map((account) => ({
+            ...account,
+            children: (JSON.parse(account.children) as IAccountSelect[]).map((child) => ({
+               ...child,
             })),
-         );
+         })),
+      );
 
       const childrenByParentId = (() => {
          const result = new Map<string, IAccountSelect[]>();
          for (const child of childAccounts) {
             ok(child.parentId);
-            if (!result.has(child.parentId)) result.set(child.parentId, []);
-            result.get(child.parentId)!.push(child);
+            const children = (() => {
+               if (!result.has(child.parentId)) {
+                  result.set(child.parentId, []);
+               }
+
+               return result.get(child.parentId)!;
+            })();
+            children.push(child);
+            children.sort((a, b) => a.accountId.localeCompare(b.accountId));
          }
 
          return result;
@@ -221,9 +391,9 @@ describe.sequential("valnor sqlite3 e2e tests", () => {
    test("Update account by id", async () => {
       const expected = rootAccounts[0];
       ok(expected);
-      await sql<IAccountSelect>`
+      await sql`
          update ${Account}
-         set ${Account.firstName} = ${expected.firstName + "+test"}
+         set ${Account.$firstName} = ${expected.firstName + "+test"}
          where ${Account.$accountId} = ${expected.accountId}
       `.sqlite3.run({ db });
 
@@ -236,7 +406,7 @@ describe.sequential("valnor sqlite3 e2e tests", () => {
    });
 
    test("Delete test accounts", async () => {
-      const { changes } = await sql<object>`
+      const { changes } = await sql`
          delete
          from ${Account}
          where ${Account.$accountId} in (${rootAccounts.map((z) => z.accountId)})

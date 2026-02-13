@@ -23,7 +23,7 @@ describe("sql query type tests", () => {
       const query = sql`
          select ${row(Account.$firstName, Account.$lastName.as("name"), Account.$createdAt)}
          from ${Account}
-         where ${Account.$accountId} = ${param("accountId").is<string>()}
+         where ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}
       `;
 
       expect(query).toBeInstanceOf(SqlQuery);
@@ -45,7 +45,7 @@ describe("sql query type tests", () => {
       const query = sql`
          update ${Account}
          set ${Account.updateSet({ status: AccountStatusUdt.CONFIRMED })} 
-         where ${Account.$accountId} = ${param("accountId").is<string>()}`;
+         where ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}`;
 
       expect(query).toBeInstanceOf(SqlQuery);
       expect(query.ID).toBeDefined();

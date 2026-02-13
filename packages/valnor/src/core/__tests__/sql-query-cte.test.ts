@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { Account } from "./models/valnor_test.schema.js";
 import { sql } from "../sql.js";
-import { param, row, type, TYPES, val } from "../query/index.js";
+import { param, row, val } from "../query/index.js";
 import { info } from "../charms/index.js";
 
 describe("sql CTE (with clause) tests", () => {
@@ -17,15 +17,11 @@ describe("sql CTE (with clause) tests", () => {
          with ${ActiveAccounts}
          select ${row(ActiveAccounts.$$)}
          from ${ActiveAccounts}
-         where ${ActiveAccounts.$firstName} = ${param("firstName").is<string>()}
+         where ${ActiveAccounts.$firstName} = ${param<{ firstName: string }>("firstName")}
       `;
 
       const { text, values } = query.getSql({ params: { firstName: "John" } });
-      expect(values).toMatchInlineSnapshot(`
-        [
-          "John",
-        ]
-      `);
+      expect(values).toEqual(["John"]);
       expect(text).toMatchInlineSnapshot(`
         "WITH
           "ActiveAccounts" AS (
@@ -65,7 +61,7 @@ describe("sql CTE (with clause) tests", () => {
          with ${ActiveAccounts}
                  select ${row(ActiveAccounts.$$)}
                  from ${ActiveAccounts}
-                 where ${ActiveAccounts.$firstName} = ${param("firstName").is<string>()}
+                 where ${ActiveAccounts.$firstName} = ${param<{ firstName: string }>("firstName")}
       `;
 
       const { text, values } = query.getSql({ params: { firstName: "John" } });
@@ -113,7 +109,7 @@ describe("sql CTE (with clause) tests", () => {
          ${info({ label: "RecentAccounts" })}
          select ${row(Account.$$)}
          from ${Account}
-         where ${Account.$createdAt} > ${param("since").is<Date>()}
+         where ${Account.$createdAt} > ${param<{ since: Date }>("since")}
       `;
 
       const query = sql`
@@ -186,7 +182,7 @@ describe("sql CTE (with clause) tests", () => {
       const RecentAccounts = sql`
          select ${row(Account.$$)}
          from ${Account}
-         where ${Account.$createdAt} > ${param("since").is<Date>()}
+         where ${Account.$createdAt} > ${param<{ since: Date }>("since")}
       `;
 
       const r = row(ActiveAccounts.$accountId, RecentAccounts.$email);
@@ -253,7 +249,7 @@ describe("sql CTE (with clause) tests", () => {
       const AccountCounts = sql`
          ${info({ label: "AccountCounts" })}
          select ${row(Account.$status)},
-                ${val`count(*)`.as({ total: type<number>() })}
+                ${val`count(*)`.as<{ total: number }>("total")}
          from ${Account}
          group by ${Account.$status}
       `;
@@ -291,7 +287,7 @@ describe("sql CTE (with clause) tests", () => {
    test("CTE column reference in val template", () => {
       const MaxCreatedAt = sql`
          ${info({ label: "MaxCreatedAt" })}
-         select ${val`max(${Account.$createdAt})`.as({ maxDate: TYPES.Date })}
+         select ${val`max(${Account.$createdAt})`.as<{ maxDate: Date }>("maxDate")}
          from ${Account}
       `;
 
