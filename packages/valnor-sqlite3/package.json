@@ -35,8 +35,7 @@
    },
    "files": [
       "dist",
-      "package.json",
-      "README.md"
+      "package.json"
    ],
    "dependencies": {
       "valnor": "workspace:*"
