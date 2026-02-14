@@ -6,6 +6,7 @@
    "author": "Adrian Topala",
    "license": "Apache-2.0",
    "scripts": {
+      "precodegen": "pnpm run -r --filter='valnor' --filter='valnor-sqlite3' build",
       "codegen": "env-cmd --no-override -x -r ../../env-dev.json -e sqlite3 node ../../packages/valnor/cli.mjs codegen --plugin valnor-sqlite3 --schema main --pascalCaseTables --camelCaseColumns --uri \\$SQLITE_PATH --outDir './src/codegen' | pino-pretty",
       "test": "vitest --coverage run",
       "test:watch": "vitest --watch",

@@ -1,9 +1,8 @@
 import * as console from "node:console";
 import * as crypto from "node:crypto";
 import { ok } from "node:assert";
-import { AccountStatusUdt, OrderStatusUdt } from "./codegen/one_sql-enums.js";
-import { Account, IAccountSelect, IOrderSelect, Order } from "./codegen/one_sql.schema.js";
-import { JsonRow, sql } from "valnor";
+import { Account, AccountStatusUdt, Order, OrderStatusUdt } from "./codegen/valnor_test.schema.js";
+import { row, sql } from "valnor";
 import ValnorPostgres from "valnor-postgres";
 import { Pool } from "pg";
 
@@ -18,7 +17,7 @@ const pool = new Pool({
 async function main() {
    const id = crypto.randomUUID().slice(0, 4);
 
-   const newAccount = await sql<IAccountSelect>`
+   const newAccount = await sql`
       insert into ${Account}
          ${Account.insertColsVals({
             firstName: `John_${id}`,
@@ -26,12 +25,12 @@ async function main() {
             email: `test_${id}@example.com`,
             status: AccountStatusUdt.CREATED,
          })}
-         returning ${Account.$$}
-   `.pg.getOneRequired({ db: pool });
+         returning ${row(Account.$$)}
+   `.postgres.getOneRequired({ db: pool });
    console.log("new account:", newAccount);
    ok(newAccount?.accountId, "accountId is required");
 
-   const newOrders = await sql<IAccountSelect>`
+   const newOrders = await sql`
       insert into ${Order}
          ${Order.insertColsVals(
             {
@@ -47,25 +46,21 @@ async function main() {
                modifiedAt: new Date(),
             },
          )}
-         returning ${Order.$$}
-   `.pg.getAll({ db: pool });
+         returning ${row(Order.$$)}
+   `.postgres.getAll({ db: pool });
    ok(newOrders?.length);
 
-   const accountUpdated = await sql<IAccountSelect>`
+   const accountUpdated = await sql`
       update ${Account}
       set ${Account.updateSet({
          status: AccountStatusUdt.CONFIRMED,
       })}
       where ${Account.$accountId} = ${newAccount.accountId}
-      returning ${Account.$$}
-   `.pg.getOneRequired({ db: pool });
+      returning ${row(Account.$$)}
+   `.postgres.getOneRequired({ db: pool });
    console.log("account updated:", accountUpdated);
 
-   interface AccountWithOrders extends IAccountSelect {
-      orders: JsonRow<Pick<IOrderSelect, "orderId" | "status" | "createdAt" | "modifiedAt">>[];
-   }
-
-   const accountWithLimitedOrders = await sql<AccountWithOrders[]>`
+   const accountWithLimitedOrders = await sql`
       SELECT ${Account.$$},
              COALESCE(
                    jsonb_agg(orders.*) FILTER (WHERE orders IS NOT NULL),
@@ -80,7 +75,7 @@ async function main() {
          LIMIT 5 -- Get only the 5 most recent orders
          ) orders ON true
       WHERE ${Account.$accountId} = ${newAccount.accountId}
-      GROUP BY ${Account.$accountId}`.pg.getAll({ db: pool });
+      GROUP BY ${Account.$accountId}`.postgres.getAll({ db: pool });
 
    console.log("account with orders:\n", accountWithLimitedOrders);
 }

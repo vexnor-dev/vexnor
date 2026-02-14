@@ -2,16 +2,8 @@ import * as console from "node:console";
 import * as crypto from "node:crypto";
 import { ok } from "node:assert";
 import { Pool } from "pg";
-import {
-   Account,
-   AccountStatusUdt,
-   IAccountSelect,
-   IOrderJson,
-   IOrderSelect,
-   Order,
-   OrderStatusUdt,
-} from "./codegen/one_sql.schema.js";
-import { param, sql } from "valnor";
+import { Account, AccountStatusUdt, Order, OrderStatusUdt } from "./codegen/valnor_test.schema.js";
+import { param, row, sql } from "valnor";
 import valnorPostgres, { jsonMany } from "valnor-postgres";
 
 valnorPostgres.register();
@@ -23,7 +15,7 @@ const pool = new Pool({
 });
 
 const id = crypto.randomUUID().slice(0, 4);
-const newAccount = await sql<IAccountSelect>`
+const newAccount = await sql`
    insert into ${Account}
       ${Account.insertColsVals({
          status: AccountStatusUdt.CREATED,
@@ -31,17 +23,17 @@ const newAccount = await sql<IAccountSelect>`
          lastName: `Doe_${id}`,
          email: `john.doe_${id}@example.com`,
       })}
-      returning ${Account.$$}
-`.pg.getOneRequired({ db: pool });
+      returning ${row(Account.$$)}
+`.postgres.getOneRequired({ db: pool });
 console.log("new account:", newAccount);
 ok(newAccount?.accountId, "accountId is required");
 
-const findAccountById = sql<IAccountSelect, { accountId: string }>`
+const findAccountById = sql`
    select ${Account.$$}
    from ${Account}
-   where ${Account.$accountId} = ${param("accountId")}
+   where ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}
 `;
-const account = await findAccountById.pg.getOneRequired({
+const account = await findAccountById.postgres.getOneRequired({
    db: pool,
    params: {
       accountId: newAccount.accountId,
@@ -49,7 +41,7 @@ const account = await findAccountById.pg.getOneRequired({
 });
 console.log(`account (id=${newAccount.accountId}`, account);
 
-const newOrders = await sql<IOrderSelect>`
+const newOrders = await sql`
    INSERT INTO ${Order}
       ${Order.insertColsVals(
          {
@@ -65,38 +57,34 @@ const newOrders = await sql<IOrderSelect>`
             modifiedAt: new Date(),
          },
       )}
-      RETURNING ${Order.$$}
-`.pg.getAll({ db: pool });
+      RETURNING ${row(Order.$$)}
+`.postgres.getAll({ db: pool });
 ok(newOrders?.length);
 
-const accountUpdated = await sql<IAccountSelect>`
+const accountUpdated = await sql`
    update ${Account}
    set ${Account.updateSet({
       status: AccountStatusUdt.CONFIRMED,
    })}
    where ${Account.$accountId} = ${newAccount.accountId}
-   returning ${Account.$$}
-`.pg.getOneRequired({ db: pool });
+   returning ${row(Account.$$)}
+`.postgres.getOneRequired({ db: pool });
 console.log("account updated:", accountUpdated);
 
-type IAccountWithOrders = IAccountSelect & {
-   orders: Pick<IOrderJson, "orderId" | "createdAt" | "status">[];
-};
-
-const UserOrders = sql<IOrderSelect, { limit: number }>`
-   SELECT ${Order.$orderId}, ${Order.$createdAt}, ${Order.$status}
+const UserOrders = sql`
+   SELECT ${row(Order.$orderId, Order.$createdAt, Order.$status)}
    FROM ${Order}
    WHERE ${Order.$accountId} = ${Account.$accountId}
    ORDER BY ${Order.$createdAt} DESC
-   LIMIT ${param("limit")}`;
+   LIMIT ${param<{ limit: number }>("limit")}`;
 
-const findAccountsWithOrders = sql<IAccountWithOrders, { limit: number }>`
-   SELECT ${Account.$$},
-          ${jsonMany(UserOrders)} "orders"
+const findAccountsWithOrders = sql`
+   SELECT ${row(Account.$$)},
+          ${jsonMany(UserOrders).as("orders")}
    FROM ${Account} ${jsonMany(UserOrders)}
    WHERE ${Account.$accountId} = ${newAccount.accountId}`;
 
-const accountWithLimitedOrders = await findAccountsWithOrders.pg.getOneRequired({
+const accountWithLimitedOrders = await findAccountsWithOrders.postgres.getOneRequired({
    db: pool,
    params: {
       limit: 1,

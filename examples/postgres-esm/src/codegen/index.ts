@@ -1,1 +1,1 @@
-export * as one_sql from "./one_sql.schema.js";
+export * as valnor_test from "./valnor_test.schema.js";

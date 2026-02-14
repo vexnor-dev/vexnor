@@ -5,14 +5,13 @@
    "type": "module",
    "module": "./dist/index.js",
    "scripts": {
-      "codegen": "run-s 'codegen:*' | pino-pretty",
-      "codegen:1-generate": "env-cmd --no-override -x -r ../../env-dev.json -e db valnor generate --plugin valnor-postgres --schema one_sql --pascalCaseTables --camelCaseColumns --host \\$POSTGRES_HOST --port \\$POSTGRES_PORT --database \\$POSTGRES_DATABASE --user \\$POSTGRES_USER --password \\$POSTGRES_PASSWORD --outDir 'src/codegen'",
-      "postcodegen": "pnpx eslint --config ../../eslint.config.mjs ./src/codegen/**/*.ts --fix",
+      "precodegen": "pnpm run -r --filter='valnor' --filter='valnor-postgres' build",
+      "codegen": "env-cmd --no-override -x -r ../../env-dev.json -e postgres node ../../packages/valnor/cli.mjs codegen --plugin valnor-postgres --schema valnor_test --pascalCaseTables --camelCaseColumns --host \\$POSTGRES_HOST --port \\$POSTGRES_PORT --database \\$POSTGRES_DATABASE --user \\$POSTGRES_USER --password \\$POSTGRES_PASSWORD --outDir './src/codegen' | pino-pretty",
       "prebuild": "run-s 'codegen'",
       "build": "tsc -b",
       "predev": "run-s 'build'",
       "dev": "run-s 'dev:*'",
-      "dev:1-start": "env-cmd --no-override -x -r ../../env-dev.json -e db vite-node src/index.ts | pino-pretty"
+      "dev:1-start": "env-cmd --no-override -x -r ../../env-dev.json -e postgres vite-node src/index.ts | pino-pretty"
    },
    "keywords": [],
    "author": "",

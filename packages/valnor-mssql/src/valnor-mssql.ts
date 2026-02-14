@@ -121,6 +121,8 @@ export class ValnorMssql extends ValnorPlugin<{ Config: ConnectionConfig; Connec
    }
 }
 
+export const valnorMssql = new ValnorMssql();
+
 // Extend the class type (in scope)
 declare module "valnor" {
    interface SqlQuery<T extends { Row?: unknown; Params?: unknown }> {
