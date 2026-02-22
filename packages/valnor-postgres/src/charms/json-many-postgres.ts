@@ -48,7 +48,6 @@ export class JsonManyPostgres<T extends { Row?: unknown; Params?: unknown }> ext
             `;
             context.scope({ query, inline: true }, () => {
                query.build(context, options);
-               const name = context.getQueryName(query);
             });
             break;
          }

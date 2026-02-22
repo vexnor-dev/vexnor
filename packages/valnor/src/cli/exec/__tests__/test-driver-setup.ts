@@ -17,7 +17,8 @@ export class TestDriverQueryHandler<T extends { Row?: unknown; Params?: unknown 
       return result.rows;
    }
 
-   async run(_args: SqlRunArgs<unknown, T["Params"]>): Promise<{ rows: T["Row"][] }> {
+   // eslint-disable-next-line unused-imports/no-unused-vars
+   async run(args: SqlRunArgs<unknown, T["Params"]>): Promise<{ rows: T["Row"][] }> {
       return { rows: mockData as T["Row"][] };
    }
 }

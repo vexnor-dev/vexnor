@@ -22,3 +22,4 @@ test-results
 mailmap.txt
 @db-sqlite3/*.sqlite
 coverage*
+*.sqlite-journal

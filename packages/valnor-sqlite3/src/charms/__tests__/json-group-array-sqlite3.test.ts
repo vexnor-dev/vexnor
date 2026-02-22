@@ -14,7 +14,7 @@ describe("json-group-array-sqlite3 tests", () => {
         "(
           SELECT
             coalesce(
-              json_group_array (json_object ("query_0".*)),
+              json_group_array (json_object ("query_1".*)),
               '[]'
             )
           FROM
@@ -33,7 +33,7 @@ describe("json-group-array-sqlite3 tests", () => {
                 "main"."account" AS "children"
               WHERE
                 "children"."parent_id" = "a_1"."account_id"
-            ) AS "query_0"
+            ) AS "query_1"
         )"
       `);
    });

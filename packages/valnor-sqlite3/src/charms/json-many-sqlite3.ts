@@ -39,16 +39,9 @@ export class JsonManySqlite3<T extends { Params?: unknown; Row?: unknown }> exte
    build(context: SqlBuildContext, options: SqlBuildOptions) {
       switch (context.keyword) {
          case "select": {
-            const queryName = context.scope({ query: this.query }, () => {
-               return context.getQueryName(this.query);
-            });
-
-            // Build the full correlated subquery.
-            // This structure ensures that if the sub-select has an ORDER BY,
-            // the rows are sorted *before* being passed to json_group_array.
             context.addStrings("(");
             const query = sql`
-               select coalesce(json_group_array(json_object(${raw(queryName)}.${this.query.$$})), '[]')
+               select coalesce(json_group_array(json_object(${this.query.$$})), '[]')
                from ${this.query}`;
             context.scope({ query });
             query.build(context, options);

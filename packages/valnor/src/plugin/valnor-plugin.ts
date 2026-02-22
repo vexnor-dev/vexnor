@@ -14,13 +14,6 @@ export abstract class ValnorPlugin<T extends { Connection: unknown; Config: unkn
    abstract readonly driver: string;
 
    /**
-    * register the current plugin with Valnor
-    */
-   register(): void {
-      //noop
-   }
-
-   /**
     * Gets the column type
     * @param col
     */
