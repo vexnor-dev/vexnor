@@ -3,10 +3,8 @@ import * as crypto from "node:crypto";
 import { ok } from "node:assert";
 import { Account, AccountStatusUdt, Order, OrderStatusUdt } from "./codegen/valnor_test.schema.js";
 import { row, sql } from "valnor";
-import ValnorPostgres from "valnor-postgres";
 import { Pool } from "pg";
-
-ValnorPostgres.register();
+import "valnor-postgres";
 
 const pool = new Pool({
    host: "localhost",

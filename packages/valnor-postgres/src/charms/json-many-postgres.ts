@@ -1,15 +1,17 @@
 import {
-   sql,
-   SqlBuildError,
-   SqlBuildOptions,
-   SqlQuery,
-   SqlBuildContext,
+   AsyncQueryHandler,
+   JsonRow,
    quote,
    raw,
+   sql,
+   SqlBuildContext,
+   SqlBuildError,
+   SqlBuildOptions,
    SqlCharm,
+   SqlQuery,
    SqlSelectCharm,
-   JsonRow,
 } from "valnor";
+import { PostgresQueryHandler } from "../postgres-query-handler.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type JsonAggPostgresAny = JsonManyPostgres<any>;
@@ -21,9 +23,12 @@ export type JsonAggPostgresAny = JsonManyPostgres<any>;
  * FROM ${Account} ${jsonAgg(UserOrders)}
  * WHERE ${Account.$accountId} = ${param("accountId")}
  */
-export class JsonManyPostgres<T extends { Row?: unknown; Params?: unknown }> extends SqlCharm<{ Params: T["Params"] }> {
+export class JsonManyPostgres<T extends { Row?: unknown; Params?: unknown }> extends SqlCharm<Pick<T, "Params">> {
    constructor(public readonly query: SqlQuery<T>) {
-      super({ id: query.id, params: query.params });
+      super({
+         id: query.id,
+         params: query.params,
+      });
    }
 
    build(context: SqlBuildContext, options: SqlBuildOptions) {
@@ -32,7 +37,7 @@ export class JsonManyPostgres<T extends { Row?: unknown; Params?: unknown }> ext
       }
 
       const queryName = context.scope({ query: this.query }, () => {
-         return this.query.$$ ? context.getQueryName(this.query.$$.query) : context.getQueryName(this.query);
+         return context.getQueryName(this.query);
       });
 
       switch (context.keyword) {
@@ -81,6 +86,25 @@ export class JsonManyPostgres<T extends { Row?: unknown; Params?: unknown }> ext
  * FROM ${Account} ${jsonAgg(UserOrders)}
  * WHERE ${Account.$accountId} = ${param("accountId")}
  * */
-export function jsonMany<T extends { Row?: unknown; Params?: unknown }>(query: SqlQuery<T>): JsonManyPostgres<T> {
-   return new JsonManyPostgres(query);
+export function jsonMany<T>(query: T): JsonManyPostgresType<T> {
+   switch (true) {
+      case query instanceof SqlQuery:
+         return new JsonManyPostgres(query) as JsonManyPostgresType<T>;
+      case query instanceof AsyncQueryHandler:
+         return new JsonManyPostgres(query.query) as JsonManyPostgresType<T>;
+      default:
+         throw new SqlBuildError(`Unexpected arg type: ${query}`);
+   }
 }
+
+export type JsonManyPostgresType<T> =
+   T extends SqlQuery<infer Options extends { Row: Record<string, unknown>; Params?: unknown }>
+      ? JsonManyPostgres<Options>
+      : T extends PostgresQueryHandler<infer Options>
+        ? Options extends {
+             Row: Record<string, unknown>;
+             Params?: unknown;
+          }
+           ? JsonManyPostgres<Options>
+           : never
+        : never;

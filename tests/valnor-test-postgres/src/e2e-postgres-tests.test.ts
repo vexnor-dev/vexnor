@@ -1,11 +1,11 @@
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import crypto, { randomUUID } from "node:crypto";
 import { ok } from "node:assert";
-import { param, row, rowType, sql } from "valnor";
+import { param, row, rowType } from "valnor";
 import { Account, IAccountSelect } from "./codegen/valnor_test.account-table.js";
 import { AccountStatusUdt } from "./codegen/valnor_test-enums.js";
 import { pool } from "./postgres-pool.js";
-import { jsonMany } from "valnor-postgres";
+import { jsonMany, sql } from "valnor-postgres";
 
 describe.sequential("valnor postgres e2e tests", () => {
    const rootAccounts: IAccountSelect[] = [];
@@ -28,7 +28,7 @@ describe.sequential("valnor postgres e2e tests", () => {
          delete
          from ${Account}
          where ${Account.$accountId} <> ${randomUUID()}
-      `.postgres.run({ db: pool });
+      `.run({ db: pool });
    });
 
    beforeAll(async () => {
@@ -49,7 +49,7 @@ describe.sequential("valnor postgres e2e tests", () => {
             insert into ${Account}
                ${Account.insertColsVals(...newAccountsArgs)}
                returning ${row(Account.$$)}
-         `.postgres.getAll({ db: pool });
+         `.getAll({ db: pool });
 
          ok(accounts?.length, "root accounts not inserted");
          expect(accounts.length).toBe(100);
@@ -74,7 +74,7 @@ describe.sequential("valnor postgres e2e tests", () => {
                   parentId: parent.accountId,
                })}
                returning ${row(Account.$$)}
-         `.postgres.getOneRequired({ db: pool });
+         `.getOneRequired({ db: pool });
             expect(account).toEqual(
                expect.objectContaining({
                   status: AccountStatusUdt.CREATED,
@@ -100,7 +100,7 @@ describe.sequential("valnor postgres e2e tests", () => {
          from ${Account}
          where ${Account.$accountId} in (${rootAccounts.map((z) => z.accountId)})
          order by ${Account.$email}
-      `.postgres.getAll({ db: pool });
+      `.getAll({ db: pool });
       expect(actual).toEqual(rootAccounts);
    });
 
@@ -110,14 +110,14 @@ describe.sequential("valnor postgres e2e tests", () => {
          from ${Account}
          where ${Account.$accountId} in (${childAccounts.map((z) => z.accountId)})
          order by ${Account.$email}
-      `.postgres.getAll({ db: pool });
+      `.getAll({ db: pool });
       expect(actual).toEqual(childAccounts);
    });
 
    test("Fetch account required by id", async () => {
       const expected = rootAccounts[0];
       ok(expected);
-      const actual = await findAccountById.postgres.getOneRequired({
+      const actual = await findAccountById.getOneRequired({
          db: pool,
          params: { accountId: expected.accountId },
       });
@@ -125,7 +125,7 @@ describe.sequential("valnor postgres e2e tests", () => {
    });
 
    test("Fetch account optional by id", async () => {
-      const actual = await findAccountById.postgres.getOneOptional({
+      const actual = await findAccountById.getOneOptional({
          db: pool,
          params: { accountId: randomUUID() },
       });
@@ -145,7 +145,7 @@ describe.sequential("valnor postgres e2e tests", () => {
                  join ${Account.as`parent`} on ${Account.as`parent`.$accountId} = ${Account.$parentId}
          where ${Account.$accountId} in (${childAccounts.map((z) => z.accountId)})
          order by ${Account.$email}
-      `.postgres.getAll({
+      `.getAll({
          db: pool,
       });
       expect(actual).toBeDefined();
@@ -170,13 +170,15 @@ describe.sequential("valnor postgres e2e tests", () => {
          order by ${Account.as`children`.$email}
       `;
 
+      const jsonChildren = jsonMany(accountChildren);
+
       const query = sql`
-         select ${row(Account.$$)}, ${jsonMany(accountChildren).as("children")}
-         from ${Account} ${jsonMany(accountChildren)}
+         select ${row(Account.$$)}, ${jsonChildren.as("children")}
+         from ${Account} ${jsonChildren}
          where ${Account.$accountId} in (${rootAccounts.map((z) => z.accountId)})
          order by ${Account.$email}
       `;
-      expect(query.getSql({}).text).toMatchInlineSnapshot(`
+      expect(query.query.getSql({}).text).toMatchInlineSnapshot(`
         "SELECT
           "a_1"."account_id" AS "accountId",
           "a_1"."status",
@@ -320,7 +322,7 @@ describe.sequential("valnor postgres e2e tests", () => {
           "a_1"."email""
       `);
 
-      const actual = await query.postgres.getAll({ db: pool }).then((accounts) =>
+      const actual = await query.getAll({ db: pool }).then((accounts) =>
          accounts.map((account) => ({
             ...account,
             children: account.children.map((child) => ({
@@ -361,7 +363,7 @@ describe.sequential("valnor postgres e2e tests", () => {
          set ${Account.$firstName} = ${expected.firstName + "+test"}
          where ${Account.$accountId} = ${expected.accountId}
          returning ${Account.$$}
-      `.postgres.getOneRequired({ db: pool });
+      `.getOneRequired({ db: pool });
       expect(actual).toEqual({ ...expected, firstName: expected.firstName + "+test" });
    });
 
@@ -370,7 +372,7 @@ describe.sequential("valnor postgres e2e tests", () => {
          delete
          from ${Account}
          where ${Account.$accountId} in (${rootAccounts.map((z) => z.accountId)})
-      `.postgres.run({ db: pool });
+      `.run({ db: pool });
       expect(rowCount).toEqual(rootAccounts.length);
    });
 });

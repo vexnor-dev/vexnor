@@ -1,7 +1,8 @@
 import { SqlQuery } from "./sql-query.js";
 import { ok } from "assert";
-import { SqlRunArgs } from "./sql-query-types.js";
-import { PARAMS, TYPE } from "../sql-base.js";
+import { SqlBuildOptions, SqlRunArgs } from "./sql-query-types.js";
+import { PARAMS, Sql, TYPE } from "../sql-base.js";
+import { SqlBuildContext } from "./sql-build-context.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type AsyncQueryHandlerAny = AsyncQueryHandler<any>;
@@ -11,11 +12,15 @@ export type AsyncQueryHandlerAny = AsyncQueryHandler<any>;
  */
 export abstract class AsyncQueryHandler<
    T extends { Row?: unknown; Params?: unknown; QueryResult: object; QueryClient: unknown },
-> {
+> extends Sql {
    declare readonly [TYPE]: T["Row"];
    declare readonly [PARAMS]: T["Params"];
 
-   protected constructor(readonly query: SqlQuery<{ Row: T["Row"]; Params: T["Params"] }>) {}
+   protected constructor(readonly query: SqlQuery<{ Row: T["Row"]; Params: T["Params"] }>) {
+      super({
+         id: query.id,
+      });
+   }
 
    abstract resolveRows(res: T["QueryResult"]): T["Row"][];
 
@@ -47,5 +52,11 @@ export abstract class AsyncQueryHandler<
     */
    async getAll(args: SqlRunArgs<T["QueryClient"], T["Params"]>): Promise<T["Row"][]> {
       return await this.run(args).then((res) => this.resolveRows(res));
+   }
+
+   build(context: SqlBuildContext, options?: SqlBuildOptions) {
+      context.scope({ query: this.query }, () => {
+         return this.query.build(context, options);
+      });
    }
 }

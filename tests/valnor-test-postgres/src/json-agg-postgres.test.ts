@@ -16,7 +16,8 @@ describe("sql plugin jsonAgg() tests", () => {
    test("jsonAgg(): select", () => {
       const context = new SqlBuildContext({ tokenizer: new PostgresTokenizer("test") });
       context.next("select");
-      jsonMany(AccountOrders).build(context, {});
+      const jsonAccountOrders = jsonMany(AccountOrders);
+      jsonAccountOrders.build(context, {});
       expect(context.tokens[0]).toMatchInlineSnapshot(`
         {
           "type": "text",

@@ -98,8 +98,6 @@ import valnorPostgres from 'valnor-postgres';
 import { Account, IAccountSelect } from './models/valnor_test.account-table.js';
 import { Pool } from 'pg';
 
-valnorPostgres.register();
-
 const pool = new Pool({ /* config */ });
 
 // Type-safe insert
