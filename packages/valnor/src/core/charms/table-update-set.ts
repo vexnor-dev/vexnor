@@ -9,7 +9,7 @@ export class TableUpdateSet<T extends { Update: Record<string, unknown> }> exten
       public readonly update: T["Update"],
    ) {
       super({
-         ID: `${Object.keys(update).join(", ")}`,
+         id: `${Object.keys(update).join(", ")}`,
       });
    }
 

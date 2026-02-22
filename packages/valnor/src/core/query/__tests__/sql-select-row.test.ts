@@ -5,11 +5,12 @@ import { SqlBuildContext } from "../sql-build-context.js";
 import { sql } from "../../sql.js";
 import { param } from "../sql-param.js";
 import { AccountStatusUdt } from "@test-models/valnor_test-enums.js";
-import { newSqlSelectColumn, SqlSelectColumnAny } from "../sql-select-column.js";
+import { newSqlSelectColumn, SqlSelectColumn } from "../sql-select-column.js";
 import { Order } from "@test-models/valnor_test.order-table.js";
 import { InferSelectRowByResult } from "../sql-query-types.js";
 import { IAccountSelect } from "../../../testing/index.js";
 import { SqlQuery } from "../sql-query.js";
+import { newSqlTableColumn, SqlTableColumn } from "../../schema/index.js";
 
 describe("SqlSelectRow tests", () => {
    test("infer result row from select row", () => {
@@ -21,68 +22,137 @@ describe("SqlSelectRow tests", () => {
    });
 
    test("SqlSelectRow type inference from columns", () => {
+      const tableInfo = { name: "account", schema: "valnor_test" };
+      const query = sql``;
       type Row = InferSelectRowByResult<
          InferResultRowFromColumns<[typeof Account.$accountId, typeof Account.$status, typeof Account.$createdAt]>
       >;
       const row: Row = {
-         $accountId: newSqlSelectColumn<{ Key: "accountId"; Type: string }>({
+         $accountId: newSqlSelectColumn({
             key: "accountId",
-            columnName: "account_id",
+            query,
+            target: newSqlTableColumn<{ Key: "accountId"; Type: string }>({
+               key: "accountId",
+               columnName: "account_id",
+               tableInfo,
+            }),
          }),
-         $createdAt: newSqlSelectColumn<{ Key: "createdAt"; Type: Date }>({
+         $createdAt: newSqlSelectColumn({
             key: "createdAt",
-            columnName: "created_at",
+            query,
+            target: newSqlTableColumn<{ Key: "createdAt"; Type: Date }>({
+               key: "createdAt",
+               columnName: "created_at",
+               tableInfo,
+            }),
          }),
-         $status: newSqlSelectColumn<{ Key: "status"; Type: AccountStatusUdt }>({
+         $status: newSqlSelectColumn({
             key: "status",
-            columnName: "status",
+            query,
+            target: newSqlTableColumn<{ Key: "status"; Type: AccountStatusUdt }>({
+               key: "status",
+               columnName: "status",
+               tableInfo,
+            }),
          }),
       };
       expect(row).toBeDefined();
    });
 
    test("SqlSelectRow type inference from $$ + column", () => {
+      const tableInfo = { name: "account", schema: "valnor_test" };
       type Row = InferSelectRowByResult<InferResultRowFromColumns<[typeof Account.$$, typeof Order.$orderId]>>;
+      const query = sql``;
       const row: Row = {
-         $accountId: newSqlSelectColumn<{ Key: "accountId"; Type: string }>({
+         $accountId: newSqlSelectColumn({
             key: "accountId",
-            columnName: "account_id",
+            query,
+            target: newSqlTableColumn<{ Key: "accountId"; Type: string }>({
+               key: "accountId",
+               columnName: "account_id",
+               tableInfo,
+            }),
          }),
-         $createdAt: newSqlSelectColumn<{ Key: "createdAt"; Type: Date }>({
+         $createdAt: newSqlSelectColumn({
             key: "createdAt",
-            columnName: "created_at",
+            query,
+            target: newSqlTableColumn<{ Key: "createdAt"; Type: Date }>({
+               key: "createdAt",
+               columnName: "created_at",
+               tableInfo,
+            }),
          }),
-         $email: newSqlSelectColumn<{ Key: "email"; Type: string }>({
+         $email: newSqlSelectColumn({
             key: "email",
-            columnName: "email",
+            query,
+            target: newSqlTableColumn<{ Key: "email"; Type: string }>({
+               key: "email",
+               columnName: "email",
+               tableInfo,
+            }),
          }),
-         $firstName: newSqlSelectColumn<{ Key: "firstName"; Type: string }>({
+         $firstName: newSqlSelectColumn({
             key: "firstName",
-            columnName: "first_name",
+            query,
+            target: newSqlTableColumn<{ Key: "firstName"; Type: string }>({
+               key: "firstName",
+               columnName: "first_name",
+               tableInfo,
+            }),
          }),
-         $lastName: newSqlSelectColumn<{ Key: "lastName"; Type: string }>({
+         $lastName: newSqlSelectColumn({
             key: "lastName",
-            columnName: "last_name",
+            query,
+            target: newSqlTableColumn<{ Key: "lastName"; Type: string }>({
+               key: "lastName",
+               columnName: "last_name",
+               tableInfo,
+            }),
          }),
-         $notes: newSqlSelectColumn<{ Key: "notes"; Type: string }>({
+         $notes: newSqlSelectColumn({
             key: "notes",
-            columnName: "notes",
+            query,
+            target: newSqlTableColumn<{ Key: "notes"; Type: string }>({
+               key: "notes",
+               columnName: "notes",
+               tableInfo,
+            }),
          }),
-         $status: newSqlSelectColumn<{ Key: "status"; Type: AccountStatusUdt }>({
+         $status: newSqlSelectColumn({
             key: "status",
-            columnName: "status",
+            query,
+            target: newSqlTableColumn<{ Key: "status"; Type: AccountStatusUdt }>({
+               key: "status",
+               columnName: "status",
+               tableInfo,
+            }),
          }),
-         $parentId: newSqlSelectColumn<{ Key: "parentId"; Type: string }>({
+         $parentId: newSqlSelectColumn({
             key: "parentId",
-            columnName: "parent_id",
+            query,
+            target: newSqlTableColumn<{ Key: "parentId"; Type: string }>({
+               key: "parentId",
+               columnName: "parent_id",
+               tableInfo,
+            }),
          }),
-         $modifiedAt: newSqlSelectColumn<{ Key: "modifiedAt"; Type: Date }>({
+         $modifiedAt: newSqlSelectColumn({
             key: "modifiedAt",
-            columnName: "modified_at",
+            query,
+            target: newSqlTableColumn<{ Key: "modifiedAt"; Type: Date }>({
+               key: "modifiedAt",
+               columnName: "modified_at",
+               tableInfo,
+            }),
          }),
-         $orderId: newSqlSelectColumn<{ Key: "orderId"; Type: string }>({
+         $orderId: newSqlSelectColumn({
             key: "orderId",
-            columnName: "order_id",
+            query,
+            target: newSqlTableColumn<{ Key: "orderId"; Type: string }>({
+               key: "orderId",
+               columnName: "order_id",
+               tableInfo,
+            }),
          }),
       };
 
@@ -92,24 +162,27 @@ describe("SqlSelectRow tests", () => {
    test("row(...columns) should match expected type", () => {
       const target = row(Account.$accountId, Account.$firstName, Account.$lastName.as("name"));
       assertType<SqlSelectRow<{ Row: { accountId: string; firstName: string; name: string } }>>(target);
-      expect(target.row.$accountId).toBeDefined();
-      expect(target.row.$firstName).toBeDefined();
-      expect(target.row.$name).toBeDefined();
+      const actual = target.getRowByQuery({ query: sql`` });
+      expect(actual.$accountId).toBeDefined();
+      expect(actual.$firstName).toBeDefined();
+      expect(actual.$name).toBeDefined();
    });
 
    test("row(...columns) column should be defined", () => {
       const target = row(Account.$accountId, Account.$firstName, Account.$lastName);
       assertType<SqlSelectRow<{ Row: { accountId: string; firstName: string; lastName: string } }>>(target);
-      expect(target.row.$accountId).toBeDefined();
-      expect(target.row.$firstName).toBeDefined();
-      expect(target.row.$lastName).toBeDefined();
+      const actual = target.getRowByQuery({ query: sql`` });
+      expect(actual.$accountId).toBeDefined();
+      expect(actual.$firstName).toBeDefined();
+      expect(actual.$lastName).toBeDefined();
    });
 
    test("row($$) column should be defined", () => {
       const target = row(Account.$$);
-      expect(target.row.$accountId).toBeDefined();
-      expect(target.row.$firstName).toBeDefined();
-      expect(target.row.$lastName).toBeDefined();
+      const actual = target.getRowByQuery({ query: sql`` });
+      expect(actual.$accountId).toBeDefined();
+      expect(actual.$firstName).toBeDefined();
+      expect(actual.$lastName).toBeDefined();
    });
 
    test("$build with distinct columns", () => {
@@ -131,6 +204,7 @@ describe("SqlSelectRow tests", () => {
       assertType<SqlSelectRow<{ Row: { accountId: string; firstName: string; name: string } }>>(target);
       const context = new SqlBuildContext();
       context.next("select");
+      target.getRowByQuery({ query: sql`` });
       target.build(context);
 
       expect(context.text).toMatchInlineSnapshot(`
@@ -149,6 +223,7 @@ describe("SqlSelectRow tests", () => {
       assertType<SqlSelectRow<{ Row: { accountId: string; firstName: string; name: string } }>>(target);
       const context = new SqlBuildContext();
       context.next("select");
+      target.getRowByQuery({ query: sql`` });
       target.build(context);
 
       expect(context.text).toMatchInlineSnapshot(`
@@ -162,6 +237,7 @@ describe("SqlSelectRow tests", () => {
       const target = row(Account.$$);
       const context = new SqlBuildContext();
       context.next("select");
+      target.getRowByQuery({ query: sql`` });
       target.build(context);
 
       expect(context.text).toMatchInlineSnapshot(`
@@ -182,6 +258,7 @@ describe("SqlSelectRow tests", () => {
       assertType<SqlSelectRow<{ Row: IAccountSelect }>>(target);
       const context = new SqlBuildContext();
       context.next("select");
+      target.getRowByQuery({ query: sql`` });
       target.build(context);
 
       expect(context.text).toMatchInlineSnapshot(`
@@ -203,6 +280,24 @@ describe("SqlSelectRow tests", () => {
          from ${Account}
          where ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}`;
       expect(query.row).toBeDefined();
+      expect(query.row).toMatchObject({
+         $accountId: {
+            type: "SqlSelectColumn",
+            key: "accountId",
+            format: null,
+            target: {
+               type: "SqlTableColumn",
+               columnName: "account_id",
+               key: "accountId",
+               tableInfo: {
+                  name: "account",
+                  schema: "valnor_test",
+               },
+            },
+         },
+         $status: {},
+         $firstName: {},
+      });
    });
 
    test("query.row is not defined", () => {
@@ -211,6 +306,7 @@ describe("SqlSelectRow tests", () => {
          from ${Account}
          where ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}`;
       expect(query.row).toBeFalsy();
+      // eslint-disable-next-line @typescript-eslint/no-empty-object-type
       assertType<SqlQuery<{ Row: {}; Params: { accountId: string } }>>(query);
    });
 
@@ -218,20 +314,45 @@ describe("SqlSelectRow tests", () => {
       const query = sql`
          select ${row(Account.$accountId, Account.$status, Account.$firstName)}
          from ${Account}`;
-      console.log(query.toString());
+
       assertType<SqlQuery<{ Row: { accountId: string; status: AccountStatusUdt; firstName: string } }>>(query);
       expect(query.row).toBeDefined();
       expect(query.row.$accountId).toBeDefined();
       expect(query.$accountId).toBeDefined();
-      expect(query.row.$accountId).toMatchObject<Partial<SqlSelectColumnAny>>({
-         columnName: "accountId",
+      expect(query.row.$accountId).toMatchObject({
+         type: "SqlSelectColumn",
          key: "accountId",
-         tableInfo: null,
          format: null,
+         target: {
+            columnName: "account_id",
+            key: "accountId",
+            type: "SqlTableColumn",
+            id: "SqlTableColumn#1(account.account_id as accountId)",
+            tableInfo: {
+               name: "account",
+               schema: "valnor_test",
+            },
+         },
+         query: {
+            id: "SqlQuery#1",
+         },
       });
+
+      expect(query.$accountId).toBeInstanceOf(SqlSelectColumn);
+      expect(query.$accountId.target).toBeInstanceOf(SqlTableColumn);
+
+      expect(query.getSql({}).text).toMatchInlineSnapshot(`
+        "SELECT
+          "a_1"."account_id" AS "accountId",
+          "a_1"."status",
+          "a_1"."first_name" AS "firstName"
+        FROM
+          "valnor_test"."account" AS "a_1""
+      `);
+
       const context = new SqlBuildContext({ query });
       context.next("where");
-      query.row.$accountId.build(context);
+      query.$accountId.build(context);
       expect(context.text).toEqual(`"query_0"."accountId"`);
    });
 });

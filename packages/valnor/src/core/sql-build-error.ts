@@ -9,7 +9,7 @@ export type SqlBuildErrorOptions = Record<string, unknown> & {
 
 export class SqlBuildError extends Error {
    readonly strings: string[] = [];
-   readonly token?: Sql;
+   readonly token?: Readonly<Sql> | null;
    readonly data: Record<string, unknown> | null;
 
    constructor(message: string, info?: SqlBuildErrorOptions) {
@@ -25,7 +25,7 @@ export class SqlBuildError extends Error {
          this.strings.push(...info.strings);
       }
 
-      this.token = info?.token;
+      this.token = info?.token ?? null;
       this.data = info?.data || null;
    }
 }

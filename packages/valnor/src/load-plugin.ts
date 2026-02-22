@@ -1,7 +1,7 @@
 import { ValnorPlugin } from "./plugin/index.js";
 import { fileURLToPath } from "url";
 import { dirname, resolve } from "path";
-import { ValnorPluginAny } from "./plugin/valnor-plugin.js";
+import { ValnorPluginAny } from "./plugin/index.js";
 
 export async function loadPlugin(packageName: string): Promise<{ plugin: ValnorPluginAny; path: string }> {
    let plugin;

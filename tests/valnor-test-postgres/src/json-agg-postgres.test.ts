@@ -109,7 +109,7 @@ describe("sql plugin jsonAgg() tests", () => {
                 FROM
                   "valnor_test"."order" AS "o_2"
                 WHERE
-                  "o_2"."account_id" = "a_1"."account_id"
+                  "o_2"."account_id" = "a_3"."account_id"
                 ORDER BY
                   "o_2"."created_at" DESC
                 LIMIT
@@ -168,7 +168,7 @@ describe("sql plugin jsonAgg() tests", () => {
                 FROM
                   "valnor_test"."order" AS "o_2"
                 WHERE
-                  "o_2"."account_id" = "a_1"."account_id"
+                  "o_2"."account_id" = "a_3"."account_id"
                 ORDER BY
                   "o_2"."created_at" DESC
                 LIMIT

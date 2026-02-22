@@ -15,7 +15,7 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
       super(query);
    }
 
-   resolveRows(res: RunResult): T["Row"][] {
+   resolveRows(_res: RunResult): T["Row"][] {
       throw new Error("Method not supported: better-sqlite3 result doesn't include any rows");
    }
 

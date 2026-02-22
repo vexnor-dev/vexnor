@@ -8,7 +8,7 @@ export type SqlQueryInfoOptions = {
 export class SqlQueryInfo extends Sql {
    constructor(public readonly options: SqlQueryInfoOptions) {
       super({
-         ID: JSON.stringify(options).replace(`"`, "").replace(" ", ""),
+         id: JSON.stringify(options).replace(`"`, "").replace(" ", ""),
       });
    }
 

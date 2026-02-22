@@ -44,14 +44,15 @@ export class SqlTable<
    readonly $$: SqlTableAll<T["Select"]>;
    readonly tableInfo: { schema?: string; name: string; alias?: string };
    readonly format: SqlTableFormat | null;
-   readonly row: InferTable$RowBySelect<T["Select"]>;
+   readonly cols: InferTable$RowBySelect<T["Select"]>;
+   readonly out: InferTable$RowBySelect<T["Select"]>;
    readonly pk: Array<keyof T["Select"]>;
 
    readonly tableCache = new Map<string, SqlTableExtended<T>>();
 
    constructor({ format, pk, tableInfo, ...options }: SqlTableOptions<T>) {
       super({
-         ID: (() => {
+         id: (() => {
             const schema = tableInfo.schema ? `${tableInfo.schema}.` : "";
             const alias = tableInfo.alias ? ` as ${tableInfo.alias}` : "";
             return `SqlTable(${schema}${tableInfo.name}${alias})`;
@@ -62,21 +63,44 @@ export class SqlTable<
       this.pk = pk;
       const { schema, name } = tableInfo;
 
-      this.row = (() => {
-         const row: Record<string, unknown> = {};
-         for (const key of Object.keys(options.columns)) {
-            const value = options.columns[key];
+      this.cols = (() => {
+         let cols: Partial<InferTable$RowBySelect<T["Select"]>> = {};
+         for (const [key, value] of Object.entries(options.columns)) {
             if (typeof value === "string") {
-               row[`$${key}`] = newSqlTableColumn({ key: key, columnName: value, tableInfo });
+               cols = {
+                  ...(cols ?? {}),
+                  [`$${key}`]: newSqlTableColumn({ key: key, columnName: value, tableInfo }),
+               };
             } else {
-               throw new Error(`Column ${schema}.${name} ${key} must be a string or SqlColumn instance`);
+               throw new Error(`Column ${schema}.${name} ${key} must be a string`);
             }
          }
 
-         return row as InferTable$RowBySelect<T["Select"]>;
+         return cols as InferTable$RowBySelect<T["Select"]>;
       })();
 
-      this.$$ = new SqlTableAll<T["Select"]>(this.row);
+      this.out = (() => {
+         let out: Partial<InferTable$RowBySelect<T["Select"]>> = {};
+         for (const [key, value] of Object.entries(options.columns)) {
+            // const value = options.columns[key];
+            if (typeof value === "string") {
+               out = {
+                  ...(out ?? {}),
+                  [`$${key}`]: newSqlTableColumn({
+                     key: key,
+                     columnName: value,
+                     tableInfo: { ...tableInfo, out: true },
+                  }),
+               };
+            } else {
+               throw new Error(`Column ${schema}.${name} ${key} must be a string`);
+            }
+         }
+
+         return out as InferTable$RowBySelect<T["Select"]>;
+      })();
+
+      this.$$ = new SqlTableAll<T["Select"]>(this.cols);
    }
 
    as(tableName: string | TemplateStringsArray): SqlTableExtended<T> {
@@ -98,7 +122,7 @@ export class SqlTable<
                pk: this.pk,
                columns: (() => {
                   const columns: Record<string, string> = {};
-                  for (const { key, columnName } of Object.values(this.row)) {
+                  for (const { key, columnName } of Object.values(this.cols)) {
                      columns[key] = columnName;
                   }
 
@@ -113,7 +137,7 @@ export class SqlTable<
    }
 
    column(key: string): SqlTableColumnAny {
-      const result = this.row[key as keyof T["Select"]];
+      const result = this.cols[key as keyof T["Select"]];
       if (!result) throw new Error(`Column not found: ${this.tableInfo.name}.${String(key)}`);
 
       return result as unknown as SqlTableColumnAny;
@@ -126,7 +150,7 @@ export class SqlTable<
    updateSet<U extends T["Update"]>(update: U): T["Update"] extends undefined ? never : Sql {
       ok(update, `Update is required`);
       ok(Object.keys(update), `Update doesn't have any values`);
-      return new TableUpdateSet(this.row, update) as unknown as T["Update"] extends undefined ? never : Sql;
+      return new TableUpdateSet(this.cols, update) as unknown as T["Update"] extends undefined ? never : Sql;
    }
 
    /**
@@ -135,7 +159,7 @@ export class SqlTable<
     */
    insertColsVals(...inserts: T["Insert"][]): T["Insert"] extends undefined ? never : Sql {
       ok(insertsAreValid(inserts), `Invalid inserts`);
-      return new TableInsertValues(this.row, inserts) as never as T["Insert"] extends undefined ? never : Sql;
+      return new TableInsertValues(this.cols, inserts) as never as T["Insert"] extends undefined ? never : Sql;
    }
 
    /**
@@ -144,7 +168,7 @@ export class SqlTable<
     */
    insertCols(...inserts: T["Insert"][]): T["Insert"] extends undefined ? never : Sql {
       ok(insertsAreValid(inserts), `Invalid inserts`);
-      return new TableInsertCols(this.row, inserts) as never as T["Insert"] extends undefined ? never : Sql;
+      return new TableInsertCols(this.cols, inserts) as never as T["Insert"] extends undefined ? never : Sql;
    }
 
    /**
@@ -153,7 +177,7 @@ export class SqlTable<
     */
    insertVals(...inserts: T["Insert"][]): T["Insert"] extends undefined ? never : Sql {
       ok(insertsAreValid(inserts), `Invalid inserts`);
-      return new TableInsertRows(this.row, inserts) as never as T["Insert"] extends undefined ? never : Sql;
+      return new TableInsertRows(this.cols, inserts) as never as T["Insert"] extends undefined ? never : Sql;
    }
 
    // eslint-disable-next-line unused-imports/no-unused-vars
@@ -177,7 +201,7 @@ export class SqlTable<
                   });
             }
             break;
-         case "schema.tableName as tableAlias": {
+         case "schema.tableName AS tableAlias": {
             const alias = this.tableInfo.alias ?? context.alias(this.tableInfo);
             if (this.tableInfo.name === alias) {
                context.addQuotes(`${schema}${this.tableInfo.name}`);
@@ -202,7 +226,7 @@ export class SqlTable<
          pk: this.pk,
          columns: (() => {
             const columns: Record<string, string> = {};
-            for (const { key, columnName } of Object.values(this.row)) {
+            for (const { key, columnName } of Object.values(this.cols)) {
                columns[key] = columnName;
             }
 
@@ -221,28 +245,28 @@ export function newSqlTable<
 >(options: SqlTableOptions<T>): SqlTableExtended<T> {
    return new Proxy(new SqlTable(options), {
       ownKeys(target): ArrayLike<string | symbol> {
-         return [...Object.keys(target), ...Object.keys(target.row)];
+         return [...Object.keys(target), ...Object.keys(target.cols)];
       },
       getOwnPropertyDescriptor(target, p: string | symbol): PropertyDescriptor | undefined {
          if (Reflect.has(target, p)) {
             return Reflect.getOwnPropertyDescriptor(target, p);
          }
 
-         if (Reflect.has(target.row, p)) {
-            return Reflect.getOwnPropertyDescriptor(target.row, p);
+         if (Reflect.has(target.cols, p)) {
+            return Reflect.getOwnPropertyDescriptor(target.cols, p);
          }
 
          return undefined;
       },
       has(target, p: string | symbol): boolean {
-         return Reflect.has(target, p) || Reflect.has(target.row, p);
+         return Reflect.has(target, p) || Reflect.has(target.cols, p);
       },
       get(target, p: string | symbol, receiver: unknown): unknown {
          if (Reflect.has(target, p)) {
             return Reflect.get(target, p, receiver);
          }
 
-         return Reflect.get(target.row, p, receiver);
+         return Reflect.get(target.cols, p, receiver);
       },
    }) as SqlTableExtended<T>;
 }

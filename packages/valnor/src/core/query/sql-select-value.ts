@@ -3,11 +3,8 @@ import { PARAMS, ROW, Sql, TYPE } from "../sql-base.js";
 import { SqlBuildContext } from "./sql-build-context.js";
 import { SqlBuildOptions } from "./sql-query-types.js";
 import { SqlQuery, SqlQueryAny } from "./sql-query.js";
-import { quote } from "../utils/index.js";
 import { SqlBuildError } from "../sql-build-error.js";
-import { SqlQueryRow } from "./sql-models.js";
 import { BuildSqlParams } from "./sql-param.js";
-import { newSqlSelectColumn } from "./sql-select-column.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlSelectValueAny = SqlSelectValue<any>;
@@ -28,31 +25,29 @@ export class SqlSelectValue<T extends { Key: string; Type: unknown; Params?: unk
    readonly query: SqlQuery<{ Params: T["Params"] }>;
    readonly key: T["Key"];
    readonly _build: null | ((context: SqlBuildContext, options?: SqlBuildOptions) => void);
-   readonly row: SqlQueryRow<Record<T["Key"], T["Type"]>>;
 
    constructor({ query, key, build }: SqlSelectValueArgs<T>) {
       super({
-         ID: `${query.rawStrings[0]} ... as ${String(key)}`,
+         id: `${query.rawStrings[0]} ... as ${String(key)}`,
       });
       this.query = query;
       this.key = key;
       this._build = build ?? null;
       this.params = query.params;
-      this.row = {
-         [`$${key}`]: newSqlSelectColumn({
-            key,
-            columnName: key,
-         }),
-      } as SqlQueryRow<Record<T["Key"], T["Type"]>>;
+      this.queries = [this.query];
    }
 
+   readonly queries: SqlQueryAny[];
+
    build(context: SqlBuildContext, options?: SqlBuildOptions): void {
-      if (this._build) {
-         this._build(context, options);
-      } else {
-         this.query.build(context, options);
-         context.addStrings(` as ${quote(String(this.key))}`);
-      }
+      context.scope({ query: this.query }, () => {
+         if (this._build) {
+            this._build(context, options);
+         } else {
+            this.query.build(context, options);
+            context.addStrings(` as "${this.key}"`);
+         }
+      });
    }
 }
 
@@ -75,7 +70,7 @@ export function val<Token extends SqlQueryToken = SqlQueryToken, Tokens extends 
                const query = new SqlQuery<{ Params: QueryParams<typeof rawValues> }>({
                   rawStrings: rawStrings,
                   rawValues,
-                  isFragment: true,
+                  inline: true,
                });
                return new SqlSelectValue({
                   query,

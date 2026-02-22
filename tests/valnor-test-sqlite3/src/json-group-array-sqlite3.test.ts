@@ -10,7 +10,7 @@ describe("jsonGroupArray (SQLite)", () => {
       ${info({ label: "AccountOrders" })}
       select ${row(Order.$orderId, Order.$status)}
       from ${Order}
-      where ${Order.$accountId} = ${Account.$accountId}
+      where ${Order.$accountId} = ${Account.out.$accountId}
       limit ${param<{ limit: number }>("limit")}`;
 
    test("jsonGroupArray(): select", () => {

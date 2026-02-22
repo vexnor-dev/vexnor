@@ -1,5 +1,4 @@
-import { ROW, TYPE, TypeOf, Sql } from "../sql-base.js";
-import { SqlBuildContext } from "./sql-build-context.js";
+import { ROW, Sql, TYPE, TypeOf } from "../sql-base.js";
 import { SqlTableColumn } from "../schema/index.js";
 import { SqlSelectValue } from "./sql-select-value.js";
 import { newSqlSelectColumn, SqlSelectColumn } from "./sql-select-column.js";
@@ -8,6 +7,8 @@ import { SqlSelectAll } from "./sql-select-all.js";
 import { InferSelectRowByResult, SqlBuildOptions } from "./sql-query-types.js";
 import { SqlBuildError } from "../sql-build-error.js";
 import { Merge } from "../utils/index.js";
+import { SqlQueryAny } from "./sql-query.js";
+import { SqlBuildContext } from "./sql-build-context.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlSelectRowAny = SqlSelectRow<any>;
@@ -16,9 +17,11 @@ export class SqlSelectRow<T extends { Row: Record<string, unknown> }> extends Sq
    declare readonly [ROW]: T["Row"];
    declare readonly [TYPE]: T["Row"];
 
+   readonly rowsByQueryId = new Map<string, InferSelectRowByResult<T["Row"]>>();
+
    constructor(public readonly columns: Array<Sql>) {
       super({
-         ID: `${columns
+         id: `${columns
             .map((col) => {
                return col.toString();
             })
@@ -26,93 +29,115 @@ export class SqlSelectRow<T extends { Row: Record<string, unknown> }> extends Sq
       });
    }
 
-   private _$$: SqlSelectAll<T["Row"]> | null = null;
-
-   get $$(): SqlSelectAll<T["Row"]> {
-      if (!this._$$) {
-         this._$$ = new SqlSelectAll(this.row);
+   getRowByQuery({
+      query,
+      columns = this.columns,
+   }: {
+      columns?: Array<Sql>;
+      query: SqlQueryAny;
+   }): InferSelectRowByResult<T["Row"]> {
+      if (this.rowsByQueryId.has(query.id)) {
+         return this.rowsByQueryId.get(query.id) as InferSelectRowByResult<T["Row"]>;
       }
 
-      return this._$$;
-   }
+      let row: Partial<InferSelectRowByResult<T["Row"]>> = {};
+      for (const item of columns) {
+         switch (true) {
+            case item instanceof SqlSelectAll:
+               if (!item.row) break;
 
-   private _row: InferSelectRowByResult<T["Row"]> | null = null;
-
-   get row(): InferSelectRowByResult<T["Row"]> {
-      if (!this._row) {
-         const row: Record<string, unknown> = {};
-         for (const item of this.columns) {
-            switch (true) {
-               case item instanceof SqlSelectAll:
-                  if (!item.row) break;
-
-                  for (const col of Object.values(item.row)) {
-                     switch (true) {
-                        case col instanceof SqlTableColumn:
-                           row[`$${col.key}`] = newSqlSelectColumn({
-                              columnName: col.key,
+               for (const col of Object.values(item.row)) {
+                  switch (true) {
+                     case col instanceof SqlTableColumn:
+                        row = {
+                           ...(row ?? {}),
+                           [`$${col.key}`]: newSqlSelectColumn({
                               key: col.key,
-                           });
-                           break;
-                        case col instanceof SqlSelectColumn:
-                           row[`$${col.key}`] = newSqlSelectColumn({
-                              columnName: col.key,
+                              target: col,
+                              query,
+                           }),
+                        };
+                        break;
+                     case col instanceof SqlSelectColumn:
+                        row = {
+                           ...(row ?? {}),
+                           [`$${col.key}`]: newSqlSelectColumn({
                               key: col.key,
-                           });
-                           break;
-                        default:
-                           throw new SqlBuildError(`Invalid column type: ${col}`, {
-                              data: { column: col },
-                           });
-                     }
+                              target: col,
+                              query,
+                           }),
+                        };
+                        break;
+                     default:
+                        throw new SqlBuildError(`Invalid column type: ${col}`, {
+                           data: { column: col },
+                        });
                   }
-                  break;
-               case item instanceof SqlTableAll:
-                  if (!item.row) break;
+               }
+               break;
+            case item instanceof SqlTableAll:
+               if (!item.row) break;
 
-                  for (const col of Object.values(item.row)) {
-                     row[`$${col.key}`] = newSqlSelectColumn({
-                        columnName: col.key,
+               for (const col of Object.values(item.row)) {
+                  row = {
+                     ...(row ?? {}),
+                     [`$${col.key}`]: newSqlSelectColumn({
                         key: col.key,
-                     });
-                  }
-                  break;
-               case item instanceof SqlTableColumn:
-                  row[`$${item.key}`] = newSqlSelectColumn({
-                     columnName: item.key,
+                        target: col,
+                        query,
+                     }),
+                  };
+               }
+               break;
+            case item instanceof SqlTableColumn:
+               row = {
+                  ...(row ?? {}),
+                  [`$${item.key}`]: newSqlSelectColumn({
                      key: item.key,
-                  });
-                  break;
-               case item instanceof SqlSelectColumn:
-                  row[`$${item.key}`] = newSqlSelectColumn({
-                     columnName: item.key,
+                     target: item,
+                     query,
+                  }),
+               };
+               break;
+            case item instanceof SqlSelectColumn:
+               row = {
+                  ...(row ?? {}),
+                  [`$${item.key}`]: newSqlSelectColumn({
                      key: item.key,
-                  });
-                  break;
-               case item instanceof SqlSelectValue:
-                  row[`$${item.key}`] = newSqlSelectColumn({
-                     columnName: item.key,
+                     target: item,
+                     query: query,
+                  }),
+               };
+               break;
+            case item instanceof SqlSelectValue:
+               row = {
+                  ...(row ?? {}),
+                  [`$${item.key}`]: newSqlSelectColumn({
                      key: item.key,
-                  });
-                  break;
-               default:
-                  throw new SqlBuildError(`Invalid column type: ${item}`, {
-                     data: { column: item },
-                  });
-            }
+                     target: item,
+                     query,
+                  }),
+               };
+               break;
+            default:
+               throw new SqlBuildError(`Invalid column type: ${item}`, {
+                  data: { column: item },
+               });
          }
-
-         this._row = row as InferSelectRowByResult<T["Row"]>;
       }
 
-      return this._row;
+      this.rowsByQueryId.set(query.id, row as InferSelectRowByResult<T["Row"]>);
+      return row as InferSelectRowByResult<T["Row"]>;
    }
 
    build(context: SqlBuildContext, options?: SqlBuildOptions): void {
-      let index = 0;
-      for (const item of this.columns) {
-         if (index++ > 0) context.addStrings(", ");
-         item.build(context, options);
+      for (let i = 0; i < this.columns.length; i++) {
+         const col = this.columns[i]!;
+         if (i > 0) {
+            context.addStrings(", ");
+         }
+
+         col.build(context, options);
       }
    }
 }
@@ -127,4 +152,5 @@ export type InferResultRowFromColumns<T> = T extends [infer Start, ...infer Rest
    ? Start extends Sql
       ? Merge<TypeOf<Start>, InferResultRowFromColumns<Rest>>
       : InferResultRowFromColumns<Rest>
-   : {};
+   : // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+     {};

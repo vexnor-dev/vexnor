@@ -12,12 +12,38 @@ describe("SqlQuery tests", () => {
       expect(query.row).toBeDefined();
       expect(query.row).toMatchObject({
          $accountId: {
-            columnName: "accountId",
+            type: "SqlSelectColumn",
             key: "accountId",
-            tableInfo: null,
+            query: {
+               id: "SqlQuery#1",
+            },
+            target: {
+               type: "SqlTableColumn",
+               key: "accountId",
+            },
          },
-         $status: { columnName: "status", key: "status", tableInfo: null },
-         $email: { columnName: "email", key: "email", tableInfo: null },
+         $status: {
+            type: "SqlSelectColumn",
+            key: "status",
+            query: {
+               id: "SqlQuery#1",
+            },
+            target: {
+               type: "SqlTableColumn",
+               key: "status",
+            },
+         },
+         $email: {
+            type: "SqlSelectColumn",
+            key: "email",
+            query: {
+               id: "SqlQuery#1",
+            },
+            target: {
+               type: "SqlTableColumn",
+               key: "email",
+            },
+         },
       });
       expect(Object.keys(query.row)).toMatchObject(["$accountId", "$status", "$email"]);
       expect(query.$accountId).toBeDefined();
@@ -25,15 +51,17 @@ describe("SqlQuery tests", () => {
       expect(query.$email).toBeDefined();
       expect(Reflect.ownKeys(query)).toMatchObject([
          "wrap",
-         "ID",
+         "id",
+         "type",
          "rawStrings",
          "rawValues",
          "info",
-         "isFragment",
+         "inline",
          "row",
          "$$",
          "params",
          "format",
+         "queries",
          "$accountId",
          "$status",
          "$email",

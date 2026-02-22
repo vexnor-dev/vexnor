@@ -4,7 +4,7 @@ import { SqlBuildContext } from "./sql-build-context.js";
 // eslint-disable-next-line unused-imports/no-unused-vars
 export class SqlType<T = unknown> extends Sql {
    constructor() {
-      super({ ID: "" });
+      super({ id: "" });
    }
 
    // eslint-disable-next-line unused-imports/no-unused-vars

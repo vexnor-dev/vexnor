@@ -9,7 +9,7 @@ describe("sql plugin jsonAgg() tests", () => {
       ${info({ label: "AccountOrders" })}
       select ${row(Order.$orderId, Order.$status, Order.$createdAt, Order.$modifiedAt)}
       from ${Order}
-      where ${Order.$accountId} = ${Account.$accountId}
+      where ${Order.$accountId} = ${Account.out.$accountId}
       order by ${Order.$createdAt} desc
       offset 0 rows fetch next ${param<{ limit: number }>("limit")} rows only`;
 

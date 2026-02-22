@@ -48,8 +48,10 @@ export type ExtractResultRowFromQuery<T> =
    T extends SqlQueryExtended<infer U extends { Row?: unknown }> ? U["Row"] : never;
 
 export type ExtractParamsFromQuery<T> =
+   // eslint-disable-next-line @typescript-eslint/no-explicit-any
    T extends SqlQueryExtended<infer U extends { Params?: any }>
       ? U["Params"]
-      : T extends AsyncQueryHandler<infer U extends { Params?: any; Row?: any; QueryResult: any; QueryClient: any }>
+      : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        T extends AsyncQueryHandler<infer U extends { Params?: any; Row?: any; QueryResult: any; QueryClient: any }>
         ? U["Params"]
         : never;

@@ -40,10 +40,10 @@ describe("SqlValue tests", () => {
    });
 
    test("val in row context", () => {
-      const selectRow = row(Account.$accountId, val`COUNT(*)`.as<{ total: number }>("total"));
-
-      expect(selectRow.row.$accountId).toBeDefined();
-      expect(selectRow.row.$total).toBeDefined();
+      const target = row(Account.$accountId, val`COUNT(*)`.as<{ total: number }>("total"));
+      const actual = target.getRowByQuery({ query: sql`` });
+      expect(actual.$accountId).toBeDefined();
+      expect(actual.$total).toBeDefined();
    });
 
    test("val in sql query", () => {

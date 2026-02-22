@@ -54,7 +54,7 @@ describe("SqlCharm tests", () => {
       const accountChildren = sql`
          select ${row(Account.as`children`.$$)}
          from ${Account.as`children`}
-         where ${Account.as`children`.$parentId} = ${Account.$accountId}
+         where ${Account.as`children`.$parentId} = ${Account.out.$accountId}
          order by ${Account.as`children`.$email}
       `;
 
@@ -67,7 +67,6 @@ describe("SqlCharm tests", () => {
       `;
 
       const { text, values } = query.getSql({});
-      expect(values).toEqual(["aa", "bb"]);
       expect(text).toMatchInlineSnapshot(`
         "SELECT
           "a_1"."account_id" AS "accountId",
@@ -104,15 +103,16 @@ describe("SqlCharm tests", () => {
         ORDER BY
           "a_1"."email""
       `);
+      expect(values).toEqual(["aa", "bb"]);
    });
 });
 
 class TestCharm<T extends { Params?: unknown; Row?: unknown }> extends SqlCharm<{
    Params: T["Params"];
 }> {
-   constructor(public readonly query: SqlQuery<{ Params: T["Params"]; Row?: T["Row"] }>) {
+   constructor(public readonly query: SqlQuery<T>) {
       super({
-         ID: "test",
+         id: "test",
          params: query.params,
       });
    }
@@ -136,8 +136,6 @@ class TestCharm<T extends { Params?: unknown; Row?: unknown }> extends SqlCharm<
    }
 }
 
-function testCharm<Params, Row>(
-   query: SqlQuery<{ Params: Params; Row: Row }>,
-): TestCharm<{ Params: Params; Row: Row }> {
-   return new TestCharm<{ Params: Params; Row: Row }>(query);
+function testCharm<T extends { Row?: unknown; Params?: unknown }>(query: SqlQuery<T>): TestCharm<T> {
+   return new TestCharm<T>(query);
 }

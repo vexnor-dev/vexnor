@@ -10,6 +10,7 @@ import { info } from "../../charms/index.js";
 import { OrderItem } from "@test-models/valnor_test.order_item-table.js";
 import { SqlSelectColumn } from "../sql-select-column.js";
 import { before } from "node:test";
+import console from "node:console";
 
 describe("SqlBuildContext getQueryName", () => {
    const findOrderItems = sql`
@@ -49,44 +50,49 @@ describe("SqlBuildContext getQueryName", () => {
    });
 
    test("getQueryName should throw for SqlTable", () => {
+      // @ts-expect-error - Testing param validation
       expect(() => context.getQueryName(Account)).toThrowError(SqlBuildError);
    });
 
    test("getQueryName should throw for included SqlTable.$[column]", () => {
+      // @ts-expect-error - Testing param validation
       expect(() => context.getQueryName(Account.$accountId)).toThrowError(SqlBuildError);
    });
 
    test("getQueryName should throw for not included SqlTable.$[column]", () => {
+      // @ts-expect-error - Testing param validation
       expect(() => context.getQueryName(Account.$email)).toThrowError(SqlBuildError);
    });
 
    test("getQueryName should return value for SqlSelectRow.$all", () => {
+      // @ts-expect-error - Testing param validation
       expect(() => context.getQueryName(Account)).toThrowError(SqlBuildError);
       expect(context.getQueryName(query.$$)).toEqual("Root");
    });
 
    test("getQueryName should return value for own $accountId", () => {
-      expect(context.getQueryName(query.$accountId)).toEqual("Root");
+      const actual = context.getQueryName(query.$accountId);
+      expect(actual).toEqual("Root");
    });
 
    test("getQueryName should return value for subquery $orderId", () => {
       context.scope({ query: findOrders });
       const column = findOrders.$orderId;
-      console.log("\nLooking up query for column:", column.ID);
+      console.log("\nLooking up query for column:", column.id);
 
       // Check what's in root query rawValues
       console.log("\nRoot query rawValues:");
       query.rawValues.forEach((val, idx) => {
-         if (val instanceof SqlSelectColumn && val.ID === column.ID) {
+         if (val instanceof SqlSelectColumn && val.id === column.id) {
             console.log(`  rawValue[${idx}] is SqlSelectColumn with matching ID!`);
             console.log(`  Is it the same instance? ${val === column}`);
          }
          if (val instanceof SqlSelectRow) {
             console.log(`  rawValue[${idx}] is SqlSelectRow`);
             // Check if it contains the original orderQuery.$orderId
-            Object.entries(val.row).forEach(([key, col]) => {
-               if (col.ID === column.ID) {
-                  console.log(`    FOUND! key=${key}, col.ID=${col.ID}`);
+            Object.entries(val.getRowByQuery).forEach(([key, col]) => {
+               if (col.id === column.id) {
+                  console.log(`    FOUND! key=${key}, col.ID=${col.id}`);
                   console.log(`    Is it the same instance? ${col === column}`);
                }
             });
@@ -105,13 +111,14 @@ describe("SqlBuildContext getQueryName", () => {
    });
 
    test("SqlBuildContext should return default query name: OrderItems", () => {
-      expect(context.getQueryName(findOrderItems)).toEqual("OrderItems");
+      const actual = context.scope({ query }, () => context.getQueryName(findOrderItems));
+      expect(actual).toEqual("OrderItems");
    });
 
    test("Check context.queries array", () => {
       console.log("\ncontext.queries:");
       context.queries.forEach((q, idx) => {
-         console.log(`  [${idx}]: ${q.query.info?.label || "unlabeled"}, ID=${q.query.ID}`);
+         console.log(`  [${idx}]: ${q.query.info?.label || "unlabeled"}, ID=${q.query.id}`);
       });
 
       console.log("\nExpected queries: Root, AccountsOld, Orders, OrderItems");
@@ -120,12 +127,12 @@ describe("SqlBuildContext getQueryName", () => {
 
    test("Find where orderQuery.$orderId column is", () => {
       const originalColumn = findOrders.$orderId;
-      console.log("\nLooking for orderQuery.$orderId:", originalColumn.ID);
+      console.log("\nLooking for orderQuery.$orderId:", originalColumn.id);
 
       console.log("\nIs it in orderQuery.row.row?");
       if (findOrders.row) {
          Object.entries(findOrders.row).forEach(([key, col]) => {
-            if (col === originalColumn) {
+            if (col.target === originalColumn) {
                console.log(`  YES! Found at key: ${key}`);
             }
          });
@@ -133,8 +140,8 @@ describe("SqlBuildContext getQueryName", () => {
 
       console.log("\nIs it in orderQuery.rawValues?");
       findOrders.rawValues.forEach((val, idx) => {
-         if (val instanceof SqlSelectRow && val.row) {
-            Object.entries(val.row).forEach(([key, col]) => {
+         if (val instanceof SqlSelectRow && val.getRowByQuery) {
+            Object.entries(val.getRowByQuery).forEach(([key, col]) => {
                if (col === originalColumn) {
                   console.log(`  YES! Found in rawValue[${idx}] at key: ${key}`);
                }
@@ -146,16 +153,16 @@ describe("SqlBuildContext getQueryName", () => {
    test("Check what's in query.row.row vs rawValue.row", () => {
       if (query.row) {
          Object.entries(query.row).forEach(([key, col]) => {
-            console.log(`  ${key}: ${col.ID}`);
+            console.log(`  ${key}: ${col.id}`);
          });
       }
 
       console.log("\nColumns in query.rawValues SqlSelectRow:");
       query.rawValues.forEach((val, idx) => {
-         if (val instanceof SqlSelectRow && val.row) {
+         if (val instanceof SqlSelectRow && val.getRowByQuery) {
             console.log(`  rawValue[${idx}]:`);
-            Object.entries(val.row).forEach(([key, col]) => {
-               console.log(`    ${key}: ${col.ID}`);
+            Object.entries(val.getRowByQuery).forEach(([key, col]) => {
+               console.log(`    ${key}: ${col.id}`);
             });
          }
       });
@@ -168,24 +175,13 @@ describe("SqlBuildContext getQueryName", () => {
       // The column created by row() in the root query
       const rootQueryColumn = query.$orderId;
 
-      console.log("\noriginalColumn ID:", originalColumn.ID);
-      console.log("rootQueryColumn ID:", rootQueryColumn.ID);
+      console.log("\noriginalColumn ID:", originalColumn.id);
+      console.log("rootQueryColumn ID:", rootQueryColumn.id);
       console.log("Are they the same instance?", originalColumn === rootQueryColumn);
-      console.log("Are IDs equal?", originalColumn.ID === rootQueryColumn.ID);
+      console.log("Are IDs equal?", originalColumn.id === rootQueryColumn.id);
 
       // They should be DIFFERENT instances with DIFFERENT IDs
       expect(originalColumn).not.toBe(rootQueryColumn);
-      expect(originalColumn.ID).not.toEqual(rootQueryColumn.ID);
-   });
-
-   test("SqlBuildContext.rawTokens() should match snapshot", () => {
-      const actual = Array.from(context.rowTokens()).map((token) => {
-         return {
-            sql: token,
-            query: token.query.info?.label ?? `query_${context.getQueryName(token.sql)}`,
-         };
-      });
-
-      console.log(actual);
+      expect(originalColumn.id).not.toEqual(rootQueryColumn.id);
    });
 });

@@ -16,7 +16,7 @@ export class TableInsertRows<
       public readonly inserts: T["Insert"][],
    ) {
       super({
-         ID: `rows: ${inserts.length}`,
+         id: `rows: ${inserts.length}`,
       });
       this.keys = getCanonicalInsertKeys(row, inserts);
    }

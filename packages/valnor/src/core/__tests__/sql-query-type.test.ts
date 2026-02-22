@@ -48,7 +48,7 @@ describe("sql query type tests", () => {
          where ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}`;
 
       expect(query).toBeInstanceOf(SqlQuery);
-      expect(query.ID).toBeDefined();
+      expect(query.id).toBeDefined();
 
       type Result = ExtractResultRowFromQuery<typeof query>;
       assertType<Result>({});
@@ -62,7 +62,7 @@ describe("sql query type tests", () => {
          returning ${row(Account.$$)}`;
 
       expect(query).toBeInstanceOf(SqlQuery);
-      expect(query.ID).toBeDefined();
+      expect(query.id).toBeDefined();
 
       type Result = ExtractResultRowFromQuery<typeof query>;
       const result: Result = {

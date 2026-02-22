@@ -115,7 +115,7 @@ describe("sql CTE (with clause) tests", () => {
       const query = sql`
          with ${ActiveAccounts},
               ${RecentAccounts}
-         select ${row(ActiveAccounts.$accountId, ActiveAccounts.$email)}
+         select ${row(ActiveAccounts.$accountId, RecentAccounts.$email)}
          from ${ActiveAccounts}
          join ${RecentAccounts} on ${ActiveAccounts.$accountId} = ${RecentAccounts.$accountId}
       `;
@@ -165,7 +165,7 @@ describe("sql CTE (with clause) tests", () => {
           )
         SELECT
           "ActiveAccounts"."accountId",
-          "ActiveAccounts"."email"
+          "RecentAccounts"."email"
         FROM
           "ActiveAccounts"
           JOIN "RecentAccounts" ON "ActiveAccounts"."accountId" = "RecentAccounts"."accountId""
@@ -184,8 +184,6 @@ describe("sql CTE (with clause) tests", () => {
          from ${Account}
          where ${Account.$createdAt} > ${param<{ since: Date }>("since")}
       `;
-
-      const r = row(ActiveAccounts.$accountId, RecentAccounts.$email);
 
       const query = sql`
          with ${ActiveAccounts},
@@ -285,17 +283,18 @@ describe("sql CTE (with clause) tests", () => {
    });
 
    test("CTE column reference in val template", () => {
-      const MaxCreatedAt = sql`
+      const Children = sql`
          ${info({ label: "MaxCreatedAt" })}
-         select ${val`max(${Account.$createdAt})`.as<{ maxDate: Date }>("maxDate")}
+         select ${row(Account.$parentId)}, ${val`max(${Account.$createdAt})`.as<{ lastCreatedAt: Date }>("lastCreatedAt")}
          from ${Account}
+         group by ${Account.$parentId}
       `;
 
       const query = sql`
-         with ${MaxCreatedAt}
-         select ${row(Account.$$)}
-         from ${Account}, ${MaxCreatedAt}
-         where ${Account.$createdAt} = ${MaxCreatedAt.$maxDate}
+         with ${Children}
+                 select ${row(Account.$$, Children.$lastCreatedAt)}
+                 from ${Account}
+                         left join ${Children} on ${Account.$accountId} = ${Children.$parentId}
       `;
 
       const { text } = query.getSql({});
@@ -304,9 +303,12 @@ describe("sql CTE (with clause) tests", () => {
           "MaxCreatedAt" AS (
             /* --label: MaxCreatedAt */
             SELECT
-              max("a_1"."created_at") AS "maxDate"
+              "a_1"."parent_id" AS "parentId",
+              max("a_1"."created_at") AS "lastCreatedAt"
             FROM
               "valnor_test"."account" AS "a_1"
+            GROUP BY
+              "a_1"."parent_id"
           )
         SELECT
           "a_2"."account_id" AS "accountId",
@@ -317,12 +319,11 @@ describe("sql CTE (with clause) tests", () => {
           "a_2"."notes",
           "a_2"."created_at" AS "createdAt",
           "a_2"."modified_at" AS "modifiedAt",
-          "a_2"."parent_id" AS "parentId"
+          "a_2"."parent_id" AS "parentId",
+          "MaxCreatedAt"."lastCreatedAt"
         FROM
-          "valnor_test"."account" AS "a_2",
-          "MaxCreatedAt"
-        WHERE
-          "a_2"."created_at" = "MaxCreatedAt"."maxDate""
+          "valnor_test"."account" AS "a_2"
+          LEFT JOIN "MaxCreatedAt" ON "a_2"."account_id" = "MaxCreatedAt"."parentId""
       `);
    });
 });

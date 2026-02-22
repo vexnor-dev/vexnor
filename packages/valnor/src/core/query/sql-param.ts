@@ -11,7 +11,7 @@ export class SqlParam<T extends { Name: string; Type: unknown }> extends Sql {
 
    constructor({ name }: { name: T["Name"] }) {
       super({
-         ID: name,
+         id: name,
       });
       this.name = name;
    }

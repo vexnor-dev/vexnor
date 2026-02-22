@@ -1,7 +1,6 @@
 import { SqlSelectColumn } from "./sql-select-column.js";
 import { DefaultFormatter } from "../default-formatter.js";
 import { DefaultTokenizer } from "../default-tokenizer.js";
-import { SqlSelectValue } from "./sql-select-value.js";
 import { SqlLanguage } from "sql-formatter";
 import { SqlParamFormat } from "./sql-models.js";
 import { SqlParamAny } from "./sql-param.js";
@@ -11,15 +10,27 @@ export type InferSelectRowByResult<Row> =
    Row extends Record<string, unknown>
       ? {
            [K in keyof Row as `$${string & K}`]: K extends string
-              ?
-                   | SqlSelectColumn<{
-                        Key: K;
-                        Type: Row[K];
-                     }>
-                   | SqlSelectValue<{ Key: K; Type: Row[K] }>
+              ? SqlSelectColumn<{
+                   Key: K;
+                   Type: Row[K];
+                }>
               : never;
         }
       : never;
+
+// export type InferQueryRowByResult<T extends { Row?: unknown; Params?: unknown }> =
+//    T["Row"] extends Record<string, unknown>
+//       ? {
+//            [K in keyof T["Row"] as `$${string & K}`]: K extends string
+//               ? SqlQueryToken<{
+//                    Params: T["Params"];
+//                    Row: T["Row"];
+//                    Key: K;
+//                    Type: T["Row"][K];
+//                 }>
+//               : never;
+//         }
+//       : never;
 
 export interface SqlBuildOptions {
    formatter?: DefaultFormatter;

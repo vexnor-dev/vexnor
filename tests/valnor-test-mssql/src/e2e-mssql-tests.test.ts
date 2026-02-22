@@ -171,9 +171,9 @@ describe.sequential("valnor mssql e2e tests", () => {
 
    test("Fetch root accounts and their children as json array", async () => {
       const accountChildren = sql`
-         select top 100 percent ${row(Account.as(`children`).$$)}
+         select ${row(Account.as(`children`).$$)}
          from ${Account.as(`children`)}
-         where ${Account.as(`children`).$parentId} = ${Account.$accountId}
+         where ${Account.as(`children`).$parentId} = ${Account.out.$accountId}
          order by ${Account.as(`children`).$email}
       `;
 

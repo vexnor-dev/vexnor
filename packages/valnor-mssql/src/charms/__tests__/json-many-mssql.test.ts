@@ -64,10 +64,10 @@ describe("json-agg-mssql tests", () => {
 
    test("should build full query with json aggregation", () => {
       const AccountChildren = sql`
-         select ${row(Account.as("children").$$)}
-         from ${Account.as(`children`)}
-         where ${Account.as(`children`).$parentId} = ${Account.$accountId}
-         order by ${Account.as(`children`).$createdAt} desc
+         select ${row(Account.$$)}
+         from ${Account}
+         where ${Account.$parentId} = ${Account.out.$accountId}
+         order by ${Account.$createdAt} desc
          offset 0 rows fetch next ${param<{ limit: number }>("limit")} rows only
       `;
 
@@ -105,21 +105,21 @@ describe("json-agg-mssql tests", () => {
               coalesce(
                 (
                   SELECT
-                    "children"."account_id" AS "accountId",
-                    "children"."status",
-                    "children"."email",
-                    "children"."first_name" AS "firstName",
-                    "children"."last_name" AS "lastName",
-                    "children"."notes",
-                    "children"."created_at" AS "createdAt",
-                    "children"."modified_at" AS "modifiedAt",
-                    "children"."parent_id" AS "parentId"
+                    "a_2"."account_id" AS "accountId",
+                    "a_2"."status",
+                    "a_2"."email",
+                    "a_2"."first_name" AS "firstName",
+                    "a_2"."last_name" AS "lastName",
+                    "a_2"."notes",
+                    "a_2"."created_at" AS "createdAt",
+                    "a_2"."modified_at" AS "modifiedAt",
+                    "a_2"."parent_id" AS "parentId"
                   FROM
-                    "main"."account" AS "children"
+                    "main"."account" AS "a_2"
                   WHERE
-                    "children"."parent_id" = "a_1"."account_id"
+                    "a_2"."parent_id" = "a_1"."account_id"
                   ORDER BY
-                    "children"."created_at" DESC
+                    "a_2"."created_at" DESC
                   OFFSET
                     0 ROWS
                   FETCH NEXT

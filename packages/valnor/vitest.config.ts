@@ -8,7 +8,7 @@ export default defineConfig({
          enabled: true,
          checker: "tsc",
       },
-      setupFiles: ["./src/testing/vitest-query-equal.ts"],
+      setupFiles: ["src/testing/setup-test.ts"],
       coverage: {
          provider: "v8",
          reportsDirectory: "./coverage",

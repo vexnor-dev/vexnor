@@ -5,7 +5,6 @@ import {
    SqlBuildOptions,
    SqlCharm,
    SqlQuery,
-   SqlQueryName,
    SqlSelectCharm,
    SqlSelectColumn,
    SqlSelectValue,
@@ -32,7 +31,7 @@ export class JsonManySqlite3<T extends { Params?: unknown; Row?: unknown }> exte
 }> {
    constructor(public readonly query: SqlQuery<T>) {
       super({
-         ID: query.ID,
+         id: query.id,
          params: query.params,
       });
    }
@@ -67,20 +66,20 @@ export class JsonManySqlite3<T extends { Params?: unknown; Row?: unknown }> exte
    }
 
    as<Key extends string>(key: Key): SqlSelectCharm<{ Key: Key; Type: string; Params: T["Params"] }> {
-      const query = this.query;
-      const queryName = new SqlQueryName(this.query);
+      const fields = Object.values(this.query.row ?? {}).flatMap((value) => {
+         if (value instanceof SqlSelectValue || value instanceof SqlSelectColumn) {
+            return [raw(`'${value.key}'`, { quote: false }), raw(value.key)];
+         }
+      });
+      const query = sql`(
+            select coalesce(json_group_array(json_object(${fields})), '[]')
+            from ${this.query.render({ inline: true })}) as ${raw(key)}`;
       return new SqlSelectCharm<{ Key: Key; Type: string; Params: T["Params"] }>({
          key,
          params: this.params,
          build(context, options) {
-            const fields = Object.values(query.row ?? {}).flatMap((value) => {
-               if (value instanceof SqlSelectValue || value instanceof SqlSelectColumn) {
-                  return [raw(`'${value.key}'`, { quote: false }), raw(value.key)];
-               }
-            });
-            sql`(
-            select coalesce(json_group_array(json_object(${fields})), '[]')
-            from (${query.render("sql")}) as ${queryName}) as ${raw(key)}`.build(context, options);
+            context.scope({ query });
+            query.build(context, options);
          },
       });
    }

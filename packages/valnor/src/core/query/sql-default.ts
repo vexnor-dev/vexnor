@@ -3,7 +3,7 @@ import { SqlBuildContext } from "./sql-build-context.js";
 
 export class SqlDefault extends Sql {
    constructor() {
-      super({ ID: "DEFAULT" });
+      super({ id: "DEFAULT" });
    }
 
    build(context: SqlBuildContext) {

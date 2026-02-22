@@ -16,8 +16,8 @@ export class TableInsertValues<
       public readonly inserts: T["Insert"][],
    ) {
       super({
-         ID: `${Object.values(row)
-            .map((z) => z.ID)
+         id: `${Object.values(row)
+            .map((z) => z.id)
             .join(", ")} | rows: ${inserts.length}`,
       });
       this.keys = getCanonicalInsertKeys(row, inserts);

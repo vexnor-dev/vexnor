@@ -11,7 +11,7 @@ export class SqlTableAll<Row extends Record<string, unknown>> extends Sql {
    readonly row: InferTable$RowBySelect<Row>;
 
    constructor(row: InferTable$RowBySelect<Row>) {
-      super({ ID: `${Object.keys(row).join(", ")}` });
+      super({ id: `${Object.keys(row).join(", ")}` });
       this.row = row;
    }
 

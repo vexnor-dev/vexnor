@@ -166,7 +166,7 @@ describe.sequential("valnor postgres e2e tests", () => {
       const accountChildren = sql`
          select ${row(Account.as`children`.$$)}
          from ${Account.as`children`}
-         where ${Account.as`children`.$parentId} = ${Account.$accountId}
+         where ${Account.as`children`.$parentId} = ${Account.out.$accountId}
          order by ${Account.as`children`.$email}
       `;
 

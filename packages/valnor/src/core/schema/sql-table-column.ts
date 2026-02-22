@@ -10,8 +10,8 @@ export interface SqlTableColumnOptions<
 > {
    readonly columnName: string;
    readonly key: T["Key"];
-   readonly tableInfo: { schema?: string; name: string; alias?: string };
-   readonly format?: SqlColumnFormat;
+   readonly tableInfo: { schema?: string; name: string; alias?: string; out?: boolean };
+   readonly format?: SqlColumnFormat | null;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -27,12 +27,12 @@ export class SqlTableColumn<
 
    readonly key: T["Key"];
    readonly columnName: string;
-   readonly tableInfo: { schema?: string; name: string; alias?: string };
-   readonly format?: SqlColumnFormat;
+   readonly tableInfo: { schema?: string; name: string; alias?: string; out?: boolean };
+   readonly format: SqlColumnFormat | null;
 
    constructor({ columnName, key, tableInfo, format }: SqlTableColumnOptions<T>) {
       super({
-         ID: (() => {
+         id: (() => {
             const table = tableInfo.alias || tableInfo.name;
             const alias = key !== columnName ? ` as ${key}` : "";
             return `${table}.${columnName}${alias}`;
@@ -41,7 +41,7 @@ export class SqlTableColumn<
       this.columnName = columnName;
       this.key = key;
       this.tableInfo = tableInfo;
-      this.format = format;
+      this.format = format ?? null;
    }
 
    as<Key extends string>(key: Key): SqlTableColumn<{ Key: Key; Type: T["Type"] }> {
@@ -57,7 +57,7 @@ export class SqlTableColumn<
    build(context: SqlBuildContext, _options?: SqlBuildOptions) {
       const format = this.format ?? context.formatter.getColumnFormat(context);
       switch (format) {
-         case "tableName.columnName as columnAlias": {
+         case "tableName.columnName AS columnAlias": {
             if (this.key === this.columnName || !this.key) {
                context.addQuotes(`${this.tableInfo.name}.${this.columnName}`);
                break;
@@ -80,7 +80,7 @@ export class SqlTableColumn<
          case "tableAlias.columnName":
             context.addQuotes(`${context.alias(this.tableInfo)}.${this.columnName}`);
             break;
-         case "tableAlias.columnName as columnAlias": {
+         case "tableAlias.columnName AS columnAlias": {
             if (this.key === this.columnName || !this.key) {
                context.addQuotes(`${context.alias(this.tableInfo)}.${this.columnName}`);
                break;

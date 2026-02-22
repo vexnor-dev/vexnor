@@ -21,7 +21,7 @@ export class MssqlQueryHandler<T extends { Params?: unknown; Row?: unknown }> ex
             ...args,
             options: {
                ...args.options,
-               tokenizer: new MssqlTokenizer(this.query.ID),
+               tokenizer: new MssqlTokenizer(this.query.id),
                paramFormat: MssqlParamFormatter,
                dialect: "tsql",
             },

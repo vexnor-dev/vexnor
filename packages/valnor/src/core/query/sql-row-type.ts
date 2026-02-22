@@ -7,7 +7,7 @@ export type SqlRowTypeAny = SqlRowType<any>;
 export class SqlRowType<T> extends Sql {
    constructor() {
       super({
-         ID: "/* SqlRowType<?> */",
+         id: "/* SqlRowType<?> */",
       });
    }
 

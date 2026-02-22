@@ -6,7 +6,7 @@ export class SqlRaw extends Sql {
       public readonly value: string,
       public readonly options?: { quote: boolean },
    ) {
-      super({ ID: `SqlRaw(${value})` });
+      super({ id: `SqlRaw(${value})` });
    }
 
    override build(context: SqlBuildContext) {

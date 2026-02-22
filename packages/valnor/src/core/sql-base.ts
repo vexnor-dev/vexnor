@@ -1,11 +1,10 @@
-import { SqlBuildContext, SqlBuildOptions } from "./query/index.js";
+import { SqlBuildContext, SqlBuildOptions, SqlQueryAny } from "./query/index.js";
 
 export type SqlOptions = {
    wrap?: boolean;
-   ID: string;
+   id: string;
+   query?: SqlQueryAny | null;
 };
-
-const IDs = new Set<string>();
 
 export type TypeOf<S> = S extends { readonly [TYPE]?: infer R } ? R : unknown;
 export type ParamsOf<S> = S extends { readonly [PARAMS]?: infer P } ? P : unknown;
@@ -31,29 +30,26 @@ export abstract class Sql {
    /**
     * Unique identifier for the Sql token
     */
-   readonly ID: string;
+   readonly id: string;
+
+   /**
+    * The type of the SQL token
+    */
+   readonly type: string;
 
    protected constructor(options: SqlOptions) {
-      const newId = () => this.constructor.name + "(" + options.ID + ")" + Math.random().toString(36).substring(2, 6);
-      this.ID = (() => {
-         let counter = 0;
-         let id = "";
-         while (counter++ < 3) {
-            id = newId();
-            if (!IDs.has(id)) {
-               IDs.add(id);
-               return id;
-            }
-         }
-
-         throw new Error(`Could not generate unique ID for Sql token: ${this.constructor.name}/${options.ID}`);
-      })();
+      // if (this.constructor.name === "SqlQuery") {
+      //    console.log(`new SqlQuery(${options.id})`, "id counter: ", classCounters.get("SqlQuery") ?? new Set());
+      // }
+      this.id = `${this.constructor.name}#${nextId(this.constructor.name)}${options.id ? `(${options.id})` : ""}`;
 
       this.wrap = (() => {
          if (options?.wrap === undefined) return true;
 
          return options.wrap;
       })();
+
+      this.type = this.constructor.name;
    }
 
    /**
@@ -64,10 +60,23 @@ export abstract class Sql {
    abstract build(context: SqlBuildContext, options?: SqlBuildOptions): void;
 
    toString() {
-      return this.ID;
+      return this.id;
    }
 
    [Symbol.toStringTag]() {
       return this.toString();
    }
+}
+
+export const classCounters = new Map<string, number>();
+
+export function nextId(className: string): number {
+   const current = classCounters.get(className) ?? 0;
+   const next = current + 1;
+   classCounters.set(className, next);
+   return next;
+}
+
+export function resetIds() {
+   classCounters.clear();
 }

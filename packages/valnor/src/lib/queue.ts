@@ -18,4 +18,8 @@ export class Queue<T> {
          yield this._queue.shift()!;
       }
    }
+
+   get items() {
+      return Array.from(this._queue);
+   }
 }

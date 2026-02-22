@@ -17,7 +17,7 @@ export class TestDriverQueryHandler<T extends { Row?: unknown; Params?: unknown 
       return result.rows;
    }
 
-   async run(args: SqlRunArgs<unknown, T["Params"]>): Promise<{ rows: T["Row"][] }> {
+   async run(_args: SqlRunArgs<unknown, T["Params"]>): Promise<{ rows: T["Row"][] }> {
       return { rows: mockData as T["Row"][] };
    }
 }

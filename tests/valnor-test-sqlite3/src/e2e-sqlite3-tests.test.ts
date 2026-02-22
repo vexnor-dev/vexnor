@@ -176,7 +176,7 @@ describe.sequential("valnor sqlite3 e2e tests", () => {
       const accountChildren = sql`
          select ${row(Account.as`children`.$$)}
          from ${Account.as`children`}
-         where ${Account.as`children`.$parentId} = ${Account.$accountId}
+         where ${Account.as`children`.$parentId} = ${Account.out.$accountId}
          order by ${Account.as`children`.$accountId}
       `;
 
@@ -242,7 +242,7 @@ describe.sequential("valnor sqlite3 e2e tests", () => {
                   "children"."parent_id" = "a_1"."account_id"
                 ORDER BY
                   "children"."account_id"
-              ) AS "query_1"
+              ) AS "query_2"
           ) AS "children"
         FROM
           "main"."account" AS "a_1"

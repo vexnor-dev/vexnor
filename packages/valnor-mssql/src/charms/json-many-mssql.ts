@@ -24,7 +24,7 @@ export class JsonManyMssql<T extends { Row?: unknown; Params?: unknown }> extend
 
    constructor(public readonly query: SqlQuery<T>) {
       super({
-         ID: `json_agg(${query.ID})`,
+         id: `json_agg(${query.id})`,
          params: query.params,
       });
    }
@@ -42,9 +42,14 @@ export class JsonManyMssql<T extends { Row?: unknown; Params?: unknown }> extend
             context.addStrings(`"${queryName}_result"."${queryName}"`);
             break;
          case "from": {
-            const query = sql`outer apply (select coalesce((${this.query.render("sql")} for json path, include_null_values), '[]') as ${raw(queryName)}) as ${raw(`${queryName}_result`)}`;
-            context.scope({ query });
-            query.build(context, options);
+            const query = sql`
+               outer apply (
+               select coalesce((${this.query.render({ format: "sql" })} for json path, include_null_values), '[]')
+                  as ${raw(queryName)}) as ${raw(`${queryName}_result`)}`;
+
+            context.scope({ query, inline: true }, () => {
+               query.build(context, options);
+            });
             break;
          }
          default:
@@ -61,10 +66,8 @@ export class JsonManyMssql<T extends { Row?: unknown; Params?: unknown }> extend
       return new SqlSelectCharm<{ Key: Key; Type: string }>({
          key,
          build(context: SqlBuildContext) {
-            context.scope({ query }, () => {
-               const queryName = context.getQueryName(query);
-               context.addStrings(`"${queryName}_result"."${queryName}" as ${quote(this.key)}`);
-            });
+            const queryName = context.getQueryName(query);
+            context.addStrings(`"${queryName}_result"."${queryName}" as ${quote(this.key)}`);
          },
       });
    }

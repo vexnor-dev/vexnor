@@ -19,11 +19,11 @@ describe("DefaultFormatter", () => {
       const tableTestCases: { keyword: string; input: string; expected: string }[] = [
          { keyword: "with", input: "with ", expected: "tableAlias" },
          { keyword: "select", input: "select ", expected: "tableAlias" },
-         { keyword: "from", input: "from ", expected: "schema.tableName as tableAlias" },
+         { keyword: "from", input: "from ", expected: "schema.tableName AS tableAlias" },
          { keyword: "update", input: "update ", expected: "schema.tableName" },
          { keyword: "insert into", input: "insert into ", expected: "schema.tableName" },
          { keyword: "delete from", input: "delete from ", expected: "schema.tableName" },
-         { keyword: "join", input: "join ", expected: "schema.tableName as tableAlias" },
+         { keyword: "join", input: "join ", expected: "schema.tableName AS tableAlias" },
          { keyword: "fn", input: "my_func(", expected: "tableAlias" },
       ];
 
@@ -48,9 +48,9 @@ describe("DefaultFormatter", () => {
 
    describe("SqlColumn Formatting", () => {
       const columnTestCases: { keyword: string; input: string; expected: string }[] = [
-         { keyword: "select", input: "select ", expected: "tableAlias.columnName as columnAlias" },
-         { keyword: "returning", input: "returning ", expected: "tableName.columnName as columnAlias" },
-         { keyword: "output", input: "output ", expected: "tableAlias.columnName as columnAlias" },
+         { keyword: "select", input: "select ", expected: "tableAlias.columnName AS columnAlias" },
+         { keyword: "returning", input: "returning ", expected: "tableName.columnName AS columnAlias" },
+         { keyword: "output", input: "output ", expected: "tableAlias.columnName AS columnAlias" },
          { keyword: "fn", input: "select my_func(", expected: "tableAlias.columnName" },
          { keyword: "where", input: "where ", expected: "tableAlias.columnName" },
          { keyword: "on", input: "on ", expected: "tableAlias.columnName" },

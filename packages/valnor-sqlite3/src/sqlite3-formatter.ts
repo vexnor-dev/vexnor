@@ -8,7 +8,7 @@ export class Sqlite3Formatter extends DefaultFormatter {
          case "set":
             return "tableName.columnName";
          case "returning":
-            return "tableName.columnName as columnAlias";
+            return "tableName.columnName AS columnAlias";
          default:
             return super.getColumnFormat(context);
       }

@@ -4,35 +4,32 @@ import { DefaultFormatter } from "../default-formatter.js";
 import { DefaultTokenizer } from "../default-tokenizer.js";
 import { quote, trim } from "../utils/index.js";
 import { ok } from "assert";
-import { Sql } from "../sql-base.js";
 import { SqlQuery, SqlQueryAny } from "./sql-query.js";
-import { SqlSelectAll } from "./sql-select-all.js";
-import { SqlSelectColumn } from "./sql-select-column.js";
-import { SqlSelectRow } from "./sql-select-row.js";
 import { SqlBuildError } from "../sql-build-error.js";
 import { Queue } from "../../lib/index.js";
-import { format } from "sql-formatter";
-import { SqlLanguage } from "sql-formatter";
+import { format, SqlLanguage } from "sql-formatter";
 import { SqlBuildOptions } from "./sql-query-types.js";
 import { SqlBuildToken } from "./sql-models.js";
+import { SqlSelectColumn, SqlSelectColumnAny } from "./sql-select-column.js";
+import { SqlSelectAll, SqlSelectAllAny } from "./sql-select-all.js";
 
 export interface SqlBuildContextArgs extends SqlBuildOptions {
    query?: SqlQueryAny;
 }
 
+type QueryInfo = { index: number; query: SqlQueryAny; cte: boolean; name: string };
+
 export class SqlBuildContext {
    readonly tokenizer: ITokenizer;
    readonly formatter: DefaultFormatter;
    readonly dialect: SqlLanguage;
-
+   readonly queries = new Map<string, QueryInfo>();
    private readonly _tokens: SqlBuildToken[] = [];
    private readonly _keywordStacks: string[][] = [[]];
    private readonly _contextParentDepths: number[] = [0];
    private _parentDepth: number = 0;
    private readonly _tableAliasById = new Map<string, string>();
-   readonly queries = new Map<string, { index: number; query: SqlQueryAny; cte: boolean }>();
    private _queryStack: SqlQueryAny[] = [];
-   private _text: string | null = null;
 
    constructor(args?: SqlBuildContextArgs) {
       if (args?.query) {
@@ -44,27 +41,7 @@ export class SqlBuildContext {
       this.dialect = args?.dialect ?? "sql";
    }
 
-   get tokens(): ReadonlyArray<SqlBuildToken> {
-      return Object.freeze(this._tokens);
-   }
-
-   get values(): ReadonlyArray<unknown> {
-      return this.tokens.filter((z) => z.type === "value").map((z) => z.value);
-   }
-
-   /**
-    * The current keyword
-    */
-   get keyword(): string | undefined {
-      const stack = this.currentStack;
-      for (let i = stack.length - 1; i >= 0; i--) {
-         const keyword = stack[i]!;
-         if (MAJOR_KEYWORDS.includes(keyword)) {
-            return keyword;
-         }
-      }
-      return undefined;
-   }
+   private _text: string | null = null;
 
    get text() {
       if (this._text) {
@@ -94,7 +71,7 @@ export class SqlBuildContext {
       }
 
       try {
-         return format(text, {
+         return format(text + "\n", {
             language: this.dialect,
             keywordCase: "upper",
          });
@@ -102,6 +79,28 @@ export class SqlBuildContext {
          console.error("Failed to format:\n", text);
          throw err;
       }
+   }
+
+   get tokens(): ReadonlyArray<SqlBuildToken> {
+      return Object.freeze(this._tokens);
+   }
+
+   get values(): ReadonlyArray<unknown> {
+      return this.tokens.filter((z) => z.type === "value").map((z) => z.value);
+   }
+
+   /**
+    * The current keyword
+    */
+   get keyword(): string | undefined {
+      const stack = this.currentStack;
+      for (let i = stack.length - 1; i >= 0; i--) {
+         const keyword = stack[i]!;
+         if (MAJOR_KEYWORDS.includes(keyword)) {
+            return keyword;
+         }
+      }
+      return undefined;
    }
 
    private get currentStack(): string[] {
@@ -121,12 +120,14 @@ export class SqlBuildContext {
       }
    }
 
-   private getAliasId(tableInfo: { schema?: string; name: string; alias?: string }) {
-      return (
-         `${this._queryStack.length}/` +
-         `${this._queryStack.at(-1)?.ID ?? ""}/` +
-         `${tableInfo.schema ? `${tableInfo.schema}.${tableInfo.name}` : tableInfo.name}`
-      );
+   getAliasId({ schema, name, position = -1 }: { schema?: string; name: string; position?: number }) {
+      return `${this._queryStack.at(position)?.id ?? "-"}/` + `${schema ? `${schema}.${name}` : name}`;
+   }
+
+   *getAliasIds(tableInfo: { schema?: string; name: string }): IterableIterator<string> {
+      for (let i = 0; i <= this._queryStack.length; i++) {
+         yield this.getAliasId({ ...tableInfo, position: i });
+      }
    }
 
    setAlias(tableInfo: { schema?: string; name: string; alias?: string }) {
@@ -140,19 +141,27 @@ export class SqlBuildContext {
     * Gets the alias for the respective tableInfo.
     * @param tableInfo
     */
-   alias(tableInfo: { schema?: string; name: string; alias?: string }) {
+   alias(tableInfo: { schema?: string; name: string; alias?: string; out?: boolean }) {
       if (tableInfo.alias) return tableInfo.alias;
 
-      const id = this.getAliasId(tableInfo);
-      if (!this._tableAliasById.has(id)) {
-         const token = tableInfo.name
-            .split("_")
-            .map((z) => z[0])
-            .join("");
-         this._tableAliasById.set(id, `${token}_${this._tableAliasById.size + 1}`);
+      if (tableInfo.out) {
+         const ids = Array.from(this.getAliasIds(tableInfo));
+         for (const id of ids) {
+            if (this._tableAliasById.has(id)) return this._tableAliasById.get(id)!;
+         }
       }
 
-      return this._tableAliasById.get(id)!;
+      const id = this.getAliasId(tableInfo);
+      let result = this._tableAliasById.get(id);
+      if (result) return result;
+
+      const token = tableInfo.name
+         .split("_")
+         .map((z) => z[0])
+         .join("");
+      result = `${token}_${this._tableAliasById.size + 1}`;
+      this._tableAliasById.set(id, result);
+      return result;
    }
 
    next(text: string) {
@@ -198,79 +207,42 @@ export class SqlBuildContext {
       }
    }
 
-   isRowToken(sql: Sql) {
-      switch (true) {
-         case sql instanceof SqlSelectRow:
-         case sql instanceof SqlSelectColumn:
-         case sql instanceof SqlSelectAll:
-         case sql instanceof SqlQuery:
-            return true;
-      }
-
-      return false;
-   }
-
-   *rowTokens(): IterableIterator<{
-      query: SqlQueryAny;
-      sql: Sql;
-   }> {
-      for (const { query } of this.queries.values()) {
-         yield { query, sql: query };
-
-         if (query.$$) {
-            yield { query, sql: query.$$ };
-         }
-
-         if (query.row) {
-            for (const sql of Object.values(query.row)) {
-               yield { query, sql };
-            }
-         }
-      }
-   }
-
    /**
-    * Gets the query for the respective sql
-    * @param sql
+    * Gets the query name for the respective SQL
+    * @param token
     */
-   getQuery(sql: Sql): SqlQueryAny {
-      if (!this.isRowToken(sql)) {
-         throw new SqlBuildError(`Query not tracked for: ${sql}`);
-      }
-
-      for (const token of this.rowTokens()) {
-         if (token.sql === sql) {
-            return token.query;
+   getQueryName(token: SqlQueryAny | SqlSelectColumnAny | SqlSelectAllAny) {
+      const query = (() => {
+         switch (true) {
+            case token instanceof SqlQuery:
+               return token;
+            case token instanceof SqlSelectColumn:
+               return token.query;
+            case token instanceof SqlSelectAll:
+               return token.query;
+            default:
+               throw new SqlBuildError(`Unsupported token type: ${token}`);
          }
-      }
+      })();
 
-      throw new SqlBuildError(
-         `Query not found for ${sql}. If this is a subquery, it needs to be tracked into the build context`,
-         {
-            buildTokens: this.tokens,
-            data: {
-               values: this.values,
+      const { name } = this.scope({ query }, () => {
+         return this.queries.get(query.id)!;
+      });
+
+      // console.log(`getQueryName() ${token.id}: ${name}`);
+      if (!name) {
+         throw new SqlBuildError(
+            `Query not found for '${token.id}'. If this is a subquery, it needs to be scoped into the build context.\n${this.text}`,
+            {
+               buildTokens: this.tokens,
+               data: {
+                  values: this.values,
+               },
             },
-         },
-      );
-   }
-
-   /**
-    * Gets the query name for the respective sql
-    * @param sql
-    */
-   getQueryName(sql: Sql) {
-      const query = sql instanceof SqlQuery ? sql : this.getQuery(sql);
-      if (query.info?.label) {
-         return query.info.label;
+         );
       }
 
-      const index = this.queries.get(query.ID)?.index ?? null;
-      if (index === null) {
-         throw new SqlBuildError(`Query not tracked for: ${sql}`);
-      }
-
-      return `query_${index}`;
+      return name;
    }
 
    /**
@@ -318,46 +290,61 @@ export class SqlBuildContext {
       });
    }
 
-   /**
-    * Stacks the current context with the query.
-    * @param args
-    * @param callback
-    */
-   scope<Result = undefined>(
-      args: { query: SqlQueryAny; cte?: boolean },
-      callback?: () => Result,
-   ): typeof callback extends undefined ? void : Result {
-      this._keywordStacks.push([]);
+   beginScope(args: { query: SqlQueryAny; cte?: boolean; inline?: boolean; keepKeywords?: true }) {
+      const keywords = args?.keepKeywords ? this._keywordStacks.at(-1) : null;
+      this._keywordStacks.push(keywords ?? []);
       this._queryStack.push(args.query);
 
-      if (!this.queries.has(args.query.ID)) {
+      if (!this.queries.has(args.query.id)) {
          const startIndex = this.queries.size;
          const queue = new Queue(args.query);
          let offset = 0;
          for (const query of queue.shift()) {
-            if (!this.queries.has(query.ID)) {
-               this.queries.set(query.ID, { index: startIndex + offset, query, cte: false });
+            if (!this.queries.has(query.id)) {
+               this.queries.set(query.id, {
+                  index: startIndex + offset,
+                  query,
+                  cte: false,
+                  name: query.info?.label ?? `query_${startIndex + offset}`,
+               });
                offset++;
-               queue.add(...query.rawValues.filter((z) => z instanceof SqlQuery));
+               queue.add(...query.queries);
             }
          }
       }
 
       if (args.cte) {
          // Update CTE flag if query is already registered
-         const existing = this.queries.get(args.query.ID)!;
-         this.queries.set(args.query.ID, { ...existing, cte: true });
+         const existing = this.queries.get(args.query.id)!;
+         this.queries.set(args.query.id, { ...existing, cte: true });
+      }
+   }
+
+   endScope() {
+      this._queryStack.pop();
+      this._keywordStacks.pop();
+   }
+
+   /**
+    * Stacks the current context with the query.
+    * @param args
+    * @param callback
+    */
+   scope<Result = undefined>(
+      args: { query: SqlQueryAny; cte?: boolean; inline?: boolean; keepKeywords?: true },
+      callback?: () => Result,
+   ): typeof callback extends undefined ? void : Result {
+      this.beginScope(args);
+
+      if (args.inline || args.query.inline) {
+         this.endScope();
+         return typeof callback === "function" ? callback() : (undefined as Result);
       }
 
       try {
-         if (!callback) return undefined as Result;
-         return callback();
-      } catch (err) {
-         console.error(err);
-         throw err;
+         return typeof callback === "function" ? callback() : (undefined as Result);
       } finally {
-         this._queryStack.pop();
-         this._keywordStacks.pop();
+         this.endScope();
       }
    }
 
@@ -366,6 +353,11 @@ export class SqlBuildContext {
     * @param query
     */
    isCTE(query: SqlQueryAny): boolean {
-      return this.queries.get(query.ID)?.cte ?? false;
+      return this.queries.get(query.id)?.cte ?? false;
+   }
+
+   get query() {
+      if (this._queryStack.length <= 0) throw new SqlBuildError(`Query stack is empty`);
+      return this._queryStack.at(-1)!;
    }
 }

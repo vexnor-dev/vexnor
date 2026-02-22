@@ -25,7 +25,7 @@ export class PostgresQueryHandler<T extends { Row?: unknown; Params?: unknown }>
             ...args,
             options: {
                ...args.options,
-               tokenizer: new PostgresTokenizer(this.query.ID),
+               tokenizer: new PostgresTokenizer(this.query.id),
                dialect: "postgresql",
                paramFormat: (args: { index: number }) => `$${args.index + 1}`,
             },

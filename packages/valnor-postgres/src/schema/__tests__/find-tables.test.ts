@@ -8,13 +8,6 @@ describe("Find Tables tests", () => {
          params: { schemas: ["public"] },
          options: { dialect: "postgresql" },
       });
-      expect(values).toMatchInlineSnapshot(`
-        [
-          "public",
-          "public",
-        ]
-      `);
-
       expect(text).toMatchInlineSnapshot(`
         "WITH
           "query_1" AS (
@@ -61,6 +54,13 @@ describe("Find Tables tests", () => {
           "query_1"
           LEFT JOIN "query_2" ON "query_1"."table_schema" = "query_2"."table_schema"
           AND "query_1"."table_name" = "query_2"."table_name""
+      `);
+
+      expect(values).toMatchInlineSnapshot(`
+        [
+          "public",
+          "public",
+        ]
       `);
    });
 });

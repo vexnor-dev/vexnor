@@ -1,5 +1,4 @@
 import {
-   Sql,
    sql,
    SqlBuildError,
    SqlBuildOptions,
@@ -24,7 +23,7 @@ export type JsonAggPostgresAny = JsonManyPostgres<any>;
  */
 export class JsonManyPostgres<T extends { Row?: unknown; Params?: unknown }> extends SqlCharm<{ Params: T["Params"] }> {
    constructor(public readonly query: SqlQuery<T>) {
-      super({ ID: query.ID, params: query.params });
+      super({ id: query.id, params: query.params });
    }
 
    build(context: SqlBuildContext, options: SqlBuildOptions) {
@@ -33,7 +32,7 @@ export class JsonManyPostgres<T extends { Row?: unknown; Params?: unknown }> ext
       }
 
       const queryName = context.scope({ query: this.query }, () => {
-         return context.getQueryName(this.query);
+         return this.query.$$ ? context.getQueryName(this.query.$$.query) : context.getQueryName(this.query);
       });
 
       switch (context.keyword) {
@@ -43,12 +42,14 @@ export class JsonManyPostgres<T extends { Row?: unknown; Params?: unknown }> ext
          case "from": {
             const query = sql`
                left join lateral (
-               select coalesce(jsonb_agg(${raw(queryName)}.${this.query.$$}), '[]') as ${raw(`${queryName}_result`)}
-               from (${this.query.render("sql")}) as ${raw(queryName)}) as ${raw(queryName)}
+               select coalesce(jsonb_agg(${this.query.$$}), '[]') as ${raw(`${queryName}_result`)}
+               from ${this.query}) as ${raw(queryName)}
                on true
             `;
-            context.scope({ query });
-            query.build(context, options);
+            context.scope({ query, inline: true }, () => {
+               query.build(context, options);
+               const name = context.getQueryName(query);
+            });
             break;
          }
          default:
@@ -65,8 +66,7 @@ export class JsonManyPostgres<T extends { Row?: unknown; Params?: unknown }> ext
       return new SqlSelectCharm<{ Key: Key; Type: JsonRow<T["Row"]>[] }>({
          key,
          build(context: SqlBuildContext) {
-            context.scope({ query });
-            const queryName = context.getQueryName(query);
+            const queryName = context.scope({ query }, () => context.getQueryName(query));
             context.addStrings(`"${queryName}_result" as ${quote(this.key)}`);
          },
       });

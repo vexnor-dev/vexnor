@@ -36,7 +36,7 @@ export class SqlSelectCharm<T extends { Key: string; Type: unknown; Params?: unk
 
    constructor({ key, build, ...args }: SqlSelectCharmArgs<T>) {
       super({
-         ID: `${key}`,
+         id: `${key}`,
       });
       this._build = build;
       this.key = key;

@@ -89,7 +89,7 @@ describe("json-group-array-sqlite3 tests", () => {
                 "main"."account" AS "children"
               WHERE
                 "children"."parent_id" = "a_1"."account_id"
-            ) AS "query_0"
+            ) AS "query_1"
         ) AS "children""
       `);
    });
@@ -108,7 +108,7 @@ describe("json-group-array-sqlite3 tests", () => {
       const AccountChildren = sql`
          select ${row(Account.as("children").$$)}
          from ${Account.as(`children`)}
-         where ${Account.as(`children`).$parentId} = ${Account.$accountId}
+         where ${Account.as(`children`).$parentId} = ${Account.out.$accountId}
          order by ${Account.as(`children`).$createdAt} desc
          limit ${param<{ limit: number }>("limit")}
       `;
@@ -183,7 +183,7 @@ describe("json-group-array-sqlite3 tests", () => {
                   "children"."created_at" DESC
                 LIMIT
                   ?
-              ) AS "query_1"
+              ) AS "query_2"
           ) AS "children"
         FROM
           "main"."account" AS "a_1""
@@ -211,7 +211,7 @@ describe("json-group-array-sqlite3 tests", () => {
       const AccountChildren = sql`
          select ${row(Account.as("children").$$)}
          from ${Account.as(`children`)}
-         where ${Account.as(`children`).$parentId} = ${Account.$accountId}
+         where ${Account.as(`children`).$parentId} = ${Account.out.$accountId}
          order by ${Account.as(`children`).$createdAt} desc
       `;
 
@@ -277,7 +277,7 @@ describe("json-group-array-sqlite3 tests", () => {
                   "children"."parent_id" = "a_1"."account_id"
                 ORDER BY
                   "children"."created_at" DESC
-              ) AS "query_1"
+              ) AS "query_2"
           ) AS "children"
         FROM
           "main"."account" AS "a_1""

@@ -1,15 +1,15 @@
 import { SqlBuildContext } from "./query/index.js";
 
-export type SqlTableFormat = "tableName" | "schema.tableName" | "schema.tableName as tableAlias" | "tableAlias";
+export type SqlTableFormat = "tableName" | "schema.tableName" | "schema.tableName AS tableAlias" | "tableAlias";
 
 const SQL_TABLE_FORMATS: Partial<Record<string, SqlTableFormat>> = {
    with: "tableAlias",
    select: "tableAlias",
-   from: "schema.tableName as tableAlias",
+   from: "schema.tableName AS tableAlias",
    update: "schema.tableName",
    "insert into": "schema.tableName",
    "delete from": "schema.tableName",
-   join: "schema.tableName as tableAlias",
+   join: "schema.tableName AS tableAlias",
    fn: "tableAlias",
 };
 
@@ -20,15 +20,17 @@ export type SqlColumnFormat =
    | "columnAlias"
    | "tableName.columnName"
    | "tableName.columnAlias"
-   | "tableName.columnName as columnAlias"
+   | "tableName.columnName AS columnAlias"
    | "tableAlias.columnName"
-   | "tableAlias.columnName as columnAlias";
+   | "tableAlias.columnName AS columnAlias";
+
+export type SqlSelectFormat = SqlColumnFormat | "(sql) AS columnAlias";
 
 // Default formatting rules, moved here to centralize logic.
 const SQL_COLUMN_FORMATS: Partial<Record<string, SqlColumnFormat>> = {
-   select: "tableAlias.columnName as columnAlias",
-   returning: "tableName.columnName as columnAlias",
-   output: "tableAlias.columnName as columnAlias",
+   select: "tableAlias.columnName AS columnAlias",
+   returning: "tableName.columnName AS columnAlias",
+   output: "tableAlias.columnName AS columnAlias",
    fn: "tableAlias.columnName",
    where: "tableAlias.columnName",
    on: "tableAlias.columnName",
