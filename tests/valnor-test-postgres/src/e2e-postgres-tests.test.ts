@@ -179,7 +179,8 @@ describe.sequential("valnor postgres e2e tests", () => {
          order by ${Account.$email}
       `;
       expect(query.query.getSql({}).text).toMatchInlineSnapshot(`
-        "SELECT
+        "/* <query_0>  */
+        SELECT
           "a_1"."account_id" AS "accountId",
           "a_1"."status",
           "a_1"."email",
@@ -192,11 +193,14 @@ describe.sequential("valnor postgres e2e tests", () => {
           "query_1_result" AS "children"
         FROM
           "valnor_test"."account" AS "a_1"
+          /* <query_2>  */
+          /* --inline: true */
           LEFT JOIN LATERAL (
             SELECT
               coalesce(jsonb_agg ("query_1".*), '[]') AS "query_1_result"
             FROM
               (
+                /* <query_1>  */
                 SELECT
                   "children"."account_id" AS "accountId",
                   "children"."status",
@@ -213,8 +217,10 @@ describe.sequential("valnor postgres e2e tests", () => {
                   "children"."parent_id" = "a_1"."account_id"
                 ORDER BY
                   "children"."email"
+                  /* </query_1> */
               ) AS "query_1"
           ) AS "query_1" ON TRUE
+          /* </query_2> */
         WHERE
           "a_1"."account_id" IN (
             ?,
@@ -319,7 +325,8 @@ describe.sequential("valnor postgres e2e tests", () => {
             ?
           )
         ORDER BY
-          "a_1"."email""
+          "a_1"."email"
+          /* </query_0> */"
       `);
 
       const actual = await query.getAll({ db: pool }).then((accounts) =>

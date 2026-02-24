@@ -39,11 +39,14 @@ describe("sql plugin jsonAgg() tests", () => {
       jsonMany(AccountOrders).build(context, {});
       expect(context.text).toMatchInlineSnapshot(
          `
-        "LEFT JOIN LATERAL (
+        "/* <query_1>  */
+        /* --inline: true */
+        LEFT JOIN LATERAL (
           SELECT
             coalesce(jsonb_agg ("AccountOrders".*), '[]') AS "AccountOrders_result"
           FROM
             (
+              /* <AccountOrders>  */
               /* --label: AccountOrders */
               SELECT
                 "o_1"."order_id" AS "orderId",
@@ -58,8 +61,10 @@ describe("sql plugin jsonAgg() tests", () => {
                 "o_1"."created_at" DESC
               LIMIT
                 ?
+                /* </AccountOrders> */
             ) AS "AccountOrders"
-        ) AS "AccountOrders" ON TRUE"
+        ) AS "AccountOrders" ON TRUE
+        /* </query_1> */"
       `,
       );
    });
@@ -83,7 +88,8 @@ describe("sql plugin jsonAgg() tests", () => {
 
       expect(target.text).toMatchInlineSnapshot(
          `
-        "SELECT
+        "/* <query_0>  */
+        SELECT
           "a_1"."account_id" AS "accountId",
           "a_1"."status",
           "a_1"."email",
@@ -96,11 +102,14 @@ describe("sql plugin jsonAgg() tests", () => {
           "AccountOrders_result" AS "children"
         FROM
           "valnor_test"."account" AS "a_1"
+          /* <query_2>  */
+          /* --inline: true */
           LEFT JOIN LATERAL (
             SELECT
               coalesce(jsonb_agg ("AccountOrders".*), '[]') AS "AccountOrders_result"
             FROM
               (
+                /* <AccountOrders>  */
                 /* --label: AccountOrders */
                 SELECT
                   "o_2"."order_id" AS "orderId",
@@ -115,10 +124,13 @@ describe("sql plugin jsonAgg() tests", () => {
                   "o_2"."created_at" DESC
                 LIMIT
                   ?
+                  /* </AccountOrders> */
               ) AS "AccountOrders"
           ) AS "AccountOrders" ON TRUE
+          /* </query_2> */
         ORDER BY
-          "a_1"."account_id""
+          "a_1"."account_id"
+          /* </query_0> */"
       `,
       );
    });
@@ -142,7 +154,8 @@ describe("sql plugin jsonAgg() tests", () => {
       expect(target.values).toEqual([5]);
       expect(target.text).toMatchInlineSnapshot(
          `
-        "SELECT
+        "/* <query_0>  */
+        SELECT
           "a_1"."account_id" AS "accountId",
           "a_1"."status",
           "a_1"."email",
@@ -155,11 +168,14 @@ describe("sql plugin jsonAgg() tests", () => {
           "AccountOrders_result" AS "orders"
         FROM
           "valnor_test"."account" AS "a_1"
+          /* <query_2>  */
+          /* --inline: true */
           LEFT JOIN LATERAL (
             SELECT
               coalesce(jsonb_agg ("AccountOrders".*), '[]') AS "AccountOrders_result"
             FROM
               (
+                /* <AccountOrders>  */
                 /* --label: AccountOrders */
                 SELECT
                   "o_2"."order_id" AS "orderId",
@@ -174,10 +190,13 @@ describe("sql plugin jsonAgg() tests", () => {
                   "o_2"."created_at" DESC
                 LIMIT
                   ?
+                  /* </AccountOrders> */
               ) AS "AccountOrders"
           ) AS "AccountOrders" ON TRUE
+          /* </query_2> */
         ORDER BY
-          "a_1"."account_id""
+          "a_1"."account_id"
+          /* </query_0> */"
       `,
       );
    });

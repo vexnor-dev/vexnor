@@ -23,7 +23,8 @@ export abstract class SqlCharm<T extends { Params?: unknown }> extends Sql {
 export type SqlSelectCharmArgs<T extends { Key: string; Type: unknown; Params?: unknown }> = {
    key: T["Key"];
    build: Sql["build"];
-} & (T["Params"] extends object ? { params: BuildSqlParams<T["Params"]> } : unknown);
+   params: BuildSqlParams<T["Params"]>;
+};
 
 export class SqlSelectCharm<T extends { Key: string; Type: unknown; Params?: unknown }> extends Sql {
    declare readonly [ROW]: Record<T["Key"], T["Type"]>;

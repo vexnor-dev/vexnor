@@ -9,8 +9,10 @@ describe("Find Tables tests", () => {
          options: { dialect: "postgresql" },
       });
       expect(text).toMatchInlineSnapshot(`
-        "WITH
+        "/* <query_0>  */
+        WITH
           "query_1" AS (
+            /* <query_1>  */
             SELECT
               "c_1"."table_name",
               "c_1"."table_schema",
@@ -26,8 +28,10 @@ describe("Find Tables tests", () => {
             GROUP BY
               "c_1"."table_name",
               "c_1"."table_schema"
+              /* </query_1> */
           ),
           "query_2" AS (
+            /* <query_2>  */
             SELECT
               "kcu_2"."table_name",
               "kcu_2"."table_schema",
@@ -46,6 +50,7 @@ describe("Find Tables tests", () => {
             GROUP BY
               "kcu_2"."table_name",
               "kcu_2"."table_schema"
+              /* </query_2> */
           )
         SELECT
           "query_1".*,
@@ -53,7 +58,8 @@ describe("Find Tables tests", () => {
         FROM
           "query_1"
           LEFT JOIN "query_2" ON "query_1"."table_schema" = "query_2"."table_schema"
-          AND "query_1"."table_name" = "query_2"."table_name""
+          AND "query_1"."table_name" = "query_2"."table_name"
+          /* </query_0> */"
       `);
 
       expect(values).toMatchInlineSnapshot(`

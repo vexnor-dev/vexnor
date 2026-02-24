@@ -1,6 +1,6 @@
 import { assertType, describe, expect, test } from "vitest";
 import { JsonRow, param, row, sql, SqlBuildContext, SqlCharm, SqlParam, SqlQueryExtended } from "valnor";
-import { jsonMany } from "../json-many-postgres.js";
+import { jsonMany } from "../json-aggregation-postgres.js";
 import { Account, IAccountSelect } from "valnor/testing";
 
 describe("json-many-postgres tests", () => {
@@ -35,11 +35,14 @@ describe("json-many-postgres tests", () => {
       target.build(context, {});
       console.log(context.text);
       expect(context.text).toMatchInlineSnapshot(`
-        "LEFT JOIN LATERAL (
+        "/* <query_1>  */
+        /* --inline: true */
+        LEFT JOIN LATERAL (
           SELECT
             coalesce(jsonb_agg ("query_0".*), '[]') AS "query_0_result"
           FROM
             (
+              /* <query_0>  */
               SELECT
                 "children"."account_id" AS "accountId",
                 "children"."status",
@@ -54,8 +57,10 @@ describe("json-many-postgres tests", () => {
                 "main"."account" AS "children"
               WHERE
                 "children"."parent_id" = "a_1"."account_id"
+                /* </query_0> */
             ) AS "query_0"
-        ) AS "query_0" ON TRUE"
+        ) AS "query_0" ON TRUE
+        /* </query_1> */"
       `);
    });
 
@@ -68,11 +73,12 @@ describe("json-many-postgres tests", () => {
          limit ${param<{ limit: number }>("limit")}
       `;
 
-      assertType<SqlCharm<{ Params: { limit: number } }>>(jsonMany(AccountChildren));
+      const manyChildren = jsonMany(AccountChildren);
+      assertType<SqlCharm<{ Params: { limit: number } }>>(manyChildren);
 
       const query = sql`
-         select ${row(Account.$$)}, ${jsonMany(AccountChildren).as("children")}
-         from ${Account} ${jsonMany(AccountChildren)}
+         select ${row(Account.$$)}, ${manyChildren.as("children")}
+         from ${Account} ${manyChildren}
       `;
 
       assertType<
@@ -163,7 +169,8 @@ describe("json-many-postgres tests", () => {
       const { text } = query.getSql({ params: { limit: 10 }, options: { dialect: "postgresql" } });
       console.log(text);
       expect(text).toMatchInlineSnapshot(`
-        "SELECT
+        "/* <query_0>  */
+        SELECT
           "a_1"."account_id" AS "accountId",
           "a_1"."status",
           "a_1"."email",
@@ -176,11 +183,14 @@ describe("json-many-postgres tests", () => {
           "query_1_result" AS "children"
         FROM
           "main"."account" AS "a_1"
+          /* <query_2>  */
+          /* --inline: true */
           LEFT JOIN LATERAL (
             SELECT
               coalesce(jsonb_agg("query_1".*), '[]') AS "query_1_result"
             FROM
               (
+                /* <query_1>  */
                 SELECT
                   "a_2"."account_id" AS "accountId",
                   "a_2"."status",
@@ -199,8 +209,11 @@ describe("json-many-postgres tests", () => {
                   "a_2"."created_at" DESC
                 LIMIT
                   ?
+                  /* </query_1> */
               ) AS "query_1"
-          ) AS "query_1" ON TRUE"
+          ) AS "query_1" ON TRUE
+          /* </query_2> */
+          /* </query_0> */"
       `);
    });
 

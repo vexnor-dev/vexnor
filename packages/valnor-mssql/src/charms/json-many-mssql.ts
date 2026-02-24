@@ -24,7 +24,7 @@ export class JsonManyMssql<T extends { Row?: unknown; Params?: unknown }> extend
 
    constructor(public readonly query: SqlQuery<T>) {
       super({
-         id: `json_agg(${query.id})`,
+         id: query.id,
          params: query.params,
       });
    }

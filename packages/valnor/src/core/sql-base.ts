@@ -38,9 +38,6 @@ export abstract class Sql {
    readonly type: string;
 
    protected constructor(options: SqlOptions) {
-      // if (this.constructor.name === "SqlQuery") {
-      //    console.log(`new SqlQuery(${options.id})`, "id counter: ", classCounters.get("SqlQuery") ?? new Set());
-      // }
       this.id = `${this.constructor.name}#${nextId(this.constructor.name)}${options.id ? `(${options.id})` : ""}`;
 
       this.wrap = (() => {

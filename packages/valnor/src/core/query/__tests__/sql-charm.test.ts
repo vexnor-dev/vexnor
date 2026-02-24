@@ -1,6 +1,6 @@
 import { assertType, describe, expect, test } from "vitest";
 import { ExtractCharmParams, SqlCharm, SqlSelectCharm } from "../sql-charm.js";
-import { param, SqlParam } from "../sql-param.js";
+import { BuildSqlParams, param, SqlParam } from "../sql-param.js";
 import { sql } from "../../sql.js";
 import { row } from "../sql-select-row.js";
 import { Account } from "@test-models/valnor_test.account-table.js";
@@ -107,9 +107,7 @@ describe("SqlCharm tests", () => {
    });
 });
 
-class TestCharm<T extends { Params?: unknown; Row?: unknown }> extends SqlCharm<{
-   Params: T["Params"];
-}> {
+class TestCharm<T extends { Params?: unknown; Row?: unknown }> extends SqlCharm<Pick<T, "Params">> {
    constructor(public readonly query: SqlQuery<T>) {
       super({
          id: "test",
@@ -122,9 +120,10 @@ class TestCharm<T extends { Params?: unknown; Row?: unknown }> extends SqlCharm<
       throw new Error("Method not implemented.");
    }
 
-   as<Key extends string>(key: Key) {
-      return new SqlSelectCharm({
+   as<Key extends string>(key: Key): SqlSelectCharm<{ Key: Key; Type: string; Params: T["Params"] }> {
+      return new SqlSelectCharm<{ Key: Key; Type: string; Params: T["Params"] }>({
          key,
+         params: this.params as BuildSqlParams<T["Params"]>,
          build: (context, options) => {
             context.addStrings(`(`);
             this.query.build(context, options);

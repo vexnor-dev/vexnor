@@ -6,7 +6,8 @@ describe("Find Enums tests", () => {
       const { text, values } = findEnums.getSql({ params: { schemas: ["public"] } });
       expect(values).toEqual(["public"]);
       expect(text).toMatchInlineSnapshot(`
-        "WITH
+        "/* <query_0>  */
+        WITH
           "enum_values" AS (
             SELECT
               "pe_1"."oid",
@@ -19,7 +20,10 @@ describe("Find Enums tests", () => {
         SELECT
           "pt_2"."typname" AS "enum_name",
           "pn_3"."nspname" AS "enum_schema",
-          json_agg ("enum_values") AS "enum_values"
+          /* <query_1>  */
+          json_agg ("enum_values")
+          /* </query_1> */
+          AS "enum_values"
         FROM
           "pg_catalog"."pg_type" AS "pt_2"
           JOIN "enum_values" ON "pt_2"."oid" = "enum_values"."enumtypid"
@@ -31,7 +35,8 @@ describe("Find Enums tests", () => {
           "pt_2"."oid",
           "pt_2"."typname",
           "pt_2"."typelem",
-          "pn_3"."nspname""
+          "pn_3"."nspname"
+          /* </query_0> */"
       `);
    });
 });

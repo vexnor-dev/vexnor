@@ -16,6 +16,8 @@ import console from "node:console";
 import { newSqlSelectColumn, SqlSelectColumn } from "./sql-select-column.js";
 import { SqlSelectField } from "./sql-select-field.js";
 
+export type ExtractQueryOptions<T> = T extends SqlQuery<infer R> ? R : never;
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlQueryAny = SqlQuery<any>;
 
@@ -62,12 +64,12 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
       this.rawStrings = rawStrings;
       this.rawValues = rawValues;
       this.format = args.format ?? null;
-      this.info = this.getInfo();
+      this.info = this.findInfo();
 
       this.row = this.createRow();
       this.queries = this.createQueries();
       this.params = this.createParams();
-      this.inline = args.inline ?? false;
+      this.inline = args.inline ?? this.info?.inline ?? false;
       this.$$ = (() => {
          if (!this.row) return null;
          return new SqlSelectAll({ row: this.row, query: this });
@@ -76,7 +78,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
       sqlQueriesById.set(this.id, this);
    }
 
-   getInfo(rawValues = this.rawValues) {
+   findInfo(rawValues = this.rawValues) {
       const queue = new Queue(...rawValues);
       for (const rawValue of queue.shift()) {
          switch (true) {
@@ -256,8 +258,8 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
 
    build(context: SqlBuildContext, options?: SqlBuildOptions) {
       context.scope({ query: this }, () => {
-         // const queryName = context.getQueryName(this);
-         // context.addStrings(`\n\n/* ${queryName} >>> */\n\n`);
+         const queryName = context.getQueryName(this);
+         context.addStrings(`\n\n/* <${queryName}>  */\n\n`);
          const children = [...this.rawValues];
          let i = -1;
          while (children.length || i < this.rawStrings.length) {
@@ -355,7 +357,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
             }
          }
 
-         // context.addStrings(`\n\n/* >>> ${queryName} */\n\n`);
+         context.addStrings(`\n\n/* </${queryName}> */\n\n`);
       });
    }
 
