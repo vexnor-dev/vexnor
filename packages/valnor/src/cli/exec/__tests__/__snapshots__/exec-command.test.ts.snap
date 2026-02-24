@@ -1,7 +1,8 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`execCommand > applies limit to results 1`] = `
-"SQL:SELECT
+"SQL:/* <query_0> */
+SELECT
   "a_1"."account_id" AS "accountId",
   "a_1"."status",
   "a_1"."email",
@@ -16,6 +17,7 @@ FROM
 WHERE
   "a_1"."account_id" = ?
   AND "a_1"."email" = ?
+  /* </query_0> */
 
 Results:
 [
@@ -31,7 +33,8 @@ Results:
 `;
 
 exports[`execCommand > outputs CSV format when specified 1`] = `
-"SQL:SELECT
+"SQL:/* <query_0> */
+SELECT
   "a_1"."account_id" AS "accountId",
   "a_1"."status",
   "a_1"."email",
@@ -46,6 +49,7 @@ FROM
 WHERE
   "a_1"."account_id" = ?
   AND "a_1"."email" = ?
+  /* </query_0> */
 
 Results:
 id,name,email
@@ -54,7 +58,8 @@ id,name,email
 `;
 
 exports[`execCommand > outputs JSON format by default 1`] = `
-"SQL:SELECT
+"SQL:/* <query_0> */
+SELECT
   "a_1"."account_id" AS "accountId",
   "a_1"."status",
   "a_1"."email",
@@ -69,6 +74,7 @@ FROM
 WHERE
   "a_1"."account_id" = ?
   AND "a_1"."email" = ?
+  /* </query_0> */
 
 Results:
 [
@@ -86,7 +92,8 @@ Results:
 `;
 
 exports[`execCommand > outputs table format when specified 1`] = `
-"SQL:SELECT
+"SQL:/* <query_0> */
+SELECT
   "a_1"."account_id" AS "accountId",
   "a_1"."status",
   "a_1"."email",
@@ -101,6 +108,7 @@ FROM
 WHERE
   "a_1"."account_id" = ?
   AND "a_1"."email" = ?
+  /* </query_0> */
 
 Results:
 id | name  | email            

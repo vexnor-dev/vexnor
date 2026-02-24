@@ -80,7 +80,9 @@ describe("SqlQuery tests", () => {
       const context = new SqlBuildContext({ query });
       query.build(context);
       expect(context.text).toMatchInlineSnapshot(`
-        "JOIN (
+        "/* <query_0> */
+        JOIN (
+          /* <query_1> */
           SELECT
             "a_1"."account_id" AS "accountId",
             "a_1"."status",
@@ -89,7 +91,9 @@ describe("SqlQuery tests", () => {
             "valnor_test"."account" AS "a_1"
           WHERE
             "a_1"."status" = ?
-        ) AS "query_1""
+            /* </query_1> */
+        ) AS "query_1"
+        /* </query_0> */"
       `);
    });
 
@@ -105,7 +109,9 @@ describe("SqlQuery tests", () => {
       const context = new SqlBuildContext();
       rootQuery.build(context);
       expect(context.text).toMatchInlineSnapshot(`
-        "JOIN (
+        "/* <query_0> */
+        JOIN (
+          /* <AccountsCreated> */
           /* --label: AccountsCreated */
           SELECT
             "a_1"."account_id" AS "accountId",
@@ -115,7 +121,9 @@ describe("SqlQuery tests", () => {
             "valnor_test"."account" AS "a_1"
           WHERE
             "a_1"."status" = ?
-        ) AS "AccountsCreated""
+            /* </AccountsCreated> */
+        ) AS "AccountsCreated"
+        /* </query_0> */"
       `);
    });
 
@@ -125,12 +133,14 @@ describe("SqlQuery tests", () => {
             from ${Account}
          `;
       expect(query.getSql({}).text).toMatchInlineSnapshot(`
-        "SELECT
+        "/* <query_0> */
+        SELECT
           "a_1"."account_id" AS "accountId",
           "a_1"."status",
           "a_1"."email"
         FROM
-          "valnor_test"."account" AS "a_1""
+          "valnor_test"."account" AS "a_1"
+          /* </query_0> */"
       `);
    });
 });

@@ -20,7 +20,8 @@ describe("SqlTable.updateSet() tests", () => {
       const { values, text } = query.getSql({ params: { accountId: "123e4567-e89b-12d3-a456-426614174000" } });
       expect(values).toEqual(["Bob", "Smith", "bob@example.com", modifiedAt, "123e4567-e89b-12d3-a456-426614174000"]);
       expect(text).toMatchInlineSnapshot(`
-        "UPDATE "valnor_test"."account"
+        "/* <query_0> */
+        UPDATE "valnor_test"."account"
         SET
           "first_name" = ?,
           "last_name" = ?,
@@ -35,7 +36,8 @@ describe("SqlTable.updateSet() tests", () => {
           "account"."notes",
           "account"."created_at" AS "createdAt",
           "account"."modified_at" AS "modifiedAt",
-          "account"."parent_id" AS "parentId""
+          "account"."parent_id" AS "parentId"
+          /* </query_0> */"
       `);
    });
 });

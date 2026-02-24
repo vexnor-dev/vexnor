@@ -342,12 +342,14 @@ describe("SqlSelectRow tests", () => {
       expect(query.$accountId.target).toBeInstanceOf(SqlTableColumn);
 
       expect(query.getSql({}).text).toMatchInlineSnapshot(`
-        "SELECT
+        "/* <query_0> */
+        SELECT
           "a_1"."account_id" AS "accountId",
           "a_1"."status",
           "a_1"."first_name" AS "firstName"
         FROM
-          "valnor_test"."account" AS "a_1""
+          "valnor_test"."account" AS "a_1"
+          /* </query_0> */"
       `);
 
       const context = new SqlBuildContext({ query });

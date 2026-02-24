@@ -35,14 +35,14 @@ describe("json-many-postgres tests", () => {
       target.build(context, {});
       console.log(context.text);
       expect(context.text).toMatchInlineSnapshot(`
-        "/* <query_1>  */
+        "/* <query_1> */
         /* --inline: true */
         LEFT JOIN LATERAL (
           SELECT
             coalesce(jsonb_agg ("query_0".*), '[]') AS "query_0_result"
           FROM
             (
-              /* <query_0>  */
+              /* <query_0> */
               SELECT
                 "children"."account_id" AS "accountId",
                 "children"."status",
@@ -169,7 +169,7 @@ describe("json-many-postgres tests", () => {
       const { text } = query.getSql({ params: { limit: 10 }, options: { dialect: "postgresql" } });
       console.log(text);
       expect(text).toMatchInlineSnapshot(`
-        "/* <query_0>  */
+        "/* <query_0> */
         SELECT
           "a_1"."account_id" AS "accountId",
           "a_1"."status",
@@ -183,14 +183,14 @@ describe("json-many-postgres tests", () => {
           "query_1_result" AS "children"
         FROM
           "main"."account" AS "a_1"
-          /* <query_2>  */
+          /* <query_2> */
           /* --inline: true */
           LEFT JOIN LATERAL (
             SELECT
               coalesce(jsonb_agg("query_1".*), '[]') AS "query_1_result"
             FROM
               (
-                /* <query_1>  */
+                /* <query_1> */
                 SELECT
                   "a_2"."account_id" AS "accountId",
                   "a_2"."status",

@@ -68,7 +68,8 @@ describe("SqlCharm tests", () => {
 
       const { text, values } = query.getSql({});
       expect(text).toMatchInlineSnapshot(`
-        "SELECT
+        "/* <query_0> */
+        SELECT
           "a_1"."account_id" AS "accountId",
           "a_1"."status",
           "a_1"."email",
@@ -79,6 +80,7 @@ describe("SqlCharm tests", () => {
           "a_1"."modified_at" AS "modifiedAt",
           "a_1"."parent_id" AS "parentId",
           (
+            /* <query_1> */
             SELECT
               "children"."account_id" AS "accountId",
               "children"."status",
@@ -94,14 +96,17 @@ describe("SqlCharm tests", () => {
             WHERE
               "children"."parent_id" = "a_1"."account_id"
             ORDER BY
-              "children"."email" FOR JSON AUTO
+              "children"."email"
+              /* </query_1> */
+              FOR JSON AUTO
           ) AS "children"
         FROM
           "valnor_test"."account" AS "a_1"
         WHERE
           "a_1"."account_id" IN (?, ?)
         ORDER BY
-          "a_1"."email""
+          "a_1"."email"
+          /* </query_0> */"
       `);
       expect(values).toEqual(["aa", "bb"]);
    });

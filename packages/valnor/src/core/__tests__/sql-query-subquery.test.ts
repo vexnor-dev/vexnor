@@ -46,7 +46,7 @@ describe("sql subqueries tests", () => {
         {
           "$accountId": SqlSelectColumn {
             "format": null,
-            "id": "SqlSelectColumn#1(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#1(account.account_id as accountId))",
+            "id": "SqlSelectColumn#1(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#1(account.account_id as accountId))",
             "key": "accountId",
             "params": null,
             "query": SqlQuery {
@@ -58,9 +58,11 @@ describe("sql subqueries tests", () => {
                 "wrap": true,
               },
               "format": null,
-              "id": "SqlQuery#1({label":"AccountsWithEmail"})",
+              "id": "SqlQuery#1(label=AccountsWithEmail)",
               "info": SqlQueryInfo {
                 "id": "SqlQueryInfo#1({label":"AccountsWithEmail"})",
+                "inline": null,
+                "label": "AccountsWithEmail",
                 "options": {
                   "label": "AccountsWithEmail",
                 },
@@ -102,6 +104,8 @@ describe("sql subqueries tests", () => {
               "rawValues": [
                 SqlQueryInfo {
                   "id": "SqlQueryInfo#1({label":"AccountsWithEmail"})",
+                  "inline": null,
+                  "label": "AccountsWithEmail",
                   "options": {
                     "label": "AccountsWithEmail",
                   },
@@ -228,11 +232,11 @@ describe("sql subqueries tests", () => {
                   ],
                   "id": "SqlSelectRow#1(SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId))",
                   "rowsByQueryId": Map {
-                    "SqlQuery#1({label":"AccountsWithEmail"})" => {
+                    "SqlQuery#1(label=AccountsWithEmail)" => {
                       "$accountId": [Circular],
                       "$createdAt": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#7(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#7(account.created_at as createdAt))",
+                        "id": "SqlSelectColumn#7(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#7(account.created_at as createdAt))",
                         "key": "createdAt",
                         "params": null,
                         "query": [Circular],
@@ -253,7 +257,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$email": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#3(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#3(account.email))",
+                        "id": "SqlSelectColumn#3(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#3(account.email))",
                         "key": "email",
                         "params": null,
                         "query": [Circular],
@@ -274,7 +278,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$firstName": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#4(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#4(account.first_name as firstName))",
+                        "id": "SqlSelectColumn#4(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#4(account.first_name as firstName))",
                         "key": "firstName",
                         "params": null,
                         "query": [Circular],
@@ -295,7 +299,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$lastName": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#5(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#5(account.last_name as lastName))",
+                        "id": "SqlSelectColumn#5(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#5(account.last_name as lastName))",
                         "key": "lastName",
                         "params": null,
                         "query": [Circular],
@@ -316,7 +320,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$modifiedAt": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#8(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#8(account.modified_at as modifiedAt))",
+                        "id": "SqlSelectColumn#8(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#8(account.modified_at as modifiedAt))",
                         "key": "modifiedAt",
                         "params": null,
                         "query": [Circular],
@@ -337,7 +341,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$notes": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#6(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#6(account.notes))",
+                        "id": "SqlSelectColumn#6(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#6(account.notes))",
                         "key": "notes",
                         "params": null,
                         "query": [Circular],
@@ -358,7 +362,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$parentId": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#9(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#9(account.parent_id as parentId))",
+                        "id": "SqlSelectColumn#9(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#9(account.parent_id as parentId))",
                         "key": "parentId",
                         "params": null,
                         "query": [Circular],
@@ -379,7 +383,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$status": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#2(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#2(account.status))",
+                        "id": "SqlSelectColumn#2(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#2(account.status))",
                         "key": "status",
                         "params": null,
                         "query": [Circular],
@@ -909,7 +913,7 @@ describe("sql subqueries tests", () => {
           },
           "$createdAt": SqlSelectColumn {
             "format": null,
-            "id": "SqlSelectColumn#7(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#7(account.created_at as createdAt))",
+            "id": "SqlSelectColumn#7(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#7(account.created_at as createdAt))",
             "key": "createdAt",
             "params": null,
             "query": SqlQuery {
@@ -921,9 +925,11 @@ describe("sql subqueries tests", () => {
                 "wrap": true,
               },
               "format": null,
-              "id": "SqlQuery#1({label":"AccountsWithEmail"})",
+              "id": "SqlQuery#1(label=AccountsWithEmail)",
               "info": SqlQueryInfo {
                 "id": "SqlQueryInfo#1({label":"AccountsWithEmail"})",
+                "inline": null,
+                "label": "AccountsWithEmail",
                 "options": {
                   "label": "AccountsWithEmail",
                 },
@@ -965,6 +971,8 @@ describe("sql subqueries tests", () => {
               "rawValues": [
                 SqlQueryInfo {
                   "id": "SqlQueryInfo#1({label":"AccountsWithEmail"})",
+                  "inline": null,
+                  "label": "AccountsWithEmail",
                   "options": {
                     "label": "AccountsWithEmail",
                   },
@@ -1091,10 +1099,10 @@ describe("sql subqueries tests", () => {
                   ],
                   "id": "SqlSelectRow#1(SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId))",
                   "rowsByQueryId": Map {
-                    "SqlQuery#1({label":"AccountsWithEmail"})" => {
+                    "SqlQuery#1(label=AccountsWithEmail)" => {
                       "$accountId": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#1(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#1(account.account_id as accountId))",
+                        "id": "SqlSelectColumn#1(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#1(account.account_id as accountId))",
                         "key": "accountId",
                         "params": null,
                         "query": [Circular],
@@ -1116,7 +1124,7 @@ describe("sql subqueries tests", () => {
                       "$createdAt": [Circular],
                       "$email": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#3(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#3(account.email))",
+                        "id": "SqlSelectColumn#3(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#3(account.email))",
                         "key": "email",
                         "params": null,
                         "query": [Circular],
@@ -1137,7 +1145,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$firstName": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#4(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#4(account.first_name as firstName))",
+                        "id": "SqlSelectColumn#4(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#4(account.first_name as firstName))",
                         "key": "firstName",
                         "params": null,
                         "query": [Circular],
@@ -1158,7 +1166,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$lastName": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#5(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#5(account.last_name as lastName))",
+                        "id": "SqlSelectColumn#5(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#5(account.last_name as lastName))",
                         "key": "lastName",
                         "params": null,
                         "query": [Circular],
@@ -1179,7 +1187,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$modifiedAt": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#8(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#8(account.modified_at as modifiedAt))",
+                        "id": "SqlSelectColumn#8(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#8(account.modified_at as modifiedAt))",
                         "key": "modifiedAt",
                         "params": null,
                         "query": [Circular],
@@ -1200,7 +1208,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$notes": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#6(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#6(account.notes))",
+                        "id": "SqlSelectColumn#6(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#6(account.notes))",
                         "key": "notes",
                         "params": null,
                         "query": [Circular],
@@ -1221,7 +1229,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$parentId": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#9(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#9(account.parent_id as parentId))",
+                        "id": "SqlSelectColumn#9(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#9(account.parent_id as parentId))",
                         "key": "parentId",
                         "params": null,
                         "query": [Circular],
@@ -1242,7 +1250,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$status": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#2(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#2(account.status))",
+                        "id": "SqlSelectColumn#2(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#2(account.status))",
                         "key": "status",
                         "params": null,
                         "query": [Circular],
@@ -1772,7 +1780,7 @@ describe("sql subqueries tests", () => {
           },
           "$email": SqlSelectColumn {
             "format": null,
-            "id": "SqlSelectColumn#3(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#3(account.email))",
+            "id": "SqlSelectColumn#3(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#3(account.email))",
             "key": "email",
             "params": null,
             "query": SqlQuery {
@@ -1784,9 +1792,11 @@ describe("sql subqueries tests", () => {
                 "wrap": true,
               },
               "format": null,
-              "id": "SqlQuery#1({label":"AccountsWithEmail"})",
+              "id": "SqlQuery#1(label=AccountsWithEmail)",
               "info": SqlQueryInfo {
                 "id": "SqlQueryInfo#1({label":"AccountsWithEmail"})",
+                "inline": null,
+                "label": "AccountsWithEmail",
                 "options": {
                   "label": "AccountsWithEmail",
                 },
@@ -1828,6 +1838,8 @@ describe("sql subqueries tests", () => {
               "rawValues": [
                 SqlQueryInfo {
                   "id": "SqlQueryInfo#1({label":"AccountsWithEmail"})",
+                  "inline": null,
+                  "label": "AccountsWithEmail",
                   "options": {
                     "label": "AccountsWithEmail",
                   },
@@ -1954,10 +1966,10 @@ describe("sql subqueries tests", () => {
                   ],
                   "id": "SqlSelectRow#1(SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId))",
                   "rowsByQueryId": Map {
-                    "SqlQuery#1({label":"AccountsWithEmail"})" => {
+                    "SqlQuery#1(label=AccountsWithEmail)" => {
                       "$accountId": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#1(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#1(account.account_id as accountId))",
+                        "id": "SqlSelectColumn#1(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#1(account.account_id as accountId))",
                         "key": "accountId",
                         "params": null,
                         "query": [Circular],
@@ -1978,7 +1990,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$createdAt": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#7(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#7(account.created_at as createdAt))",
+                        "id": "SqlSelectColumn#7(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#7(account.created_at as createdAt))",
                         "key": "createdAt",
                         "params": null,
                         "query": [Circular],
@@ -2000,7 +2012,7 @@ describe("sql subqueries tests", () => {
                       "$email": [Circular],
                       "$firstName": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#4(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#4(account.first_name as firstName))",
+                        "id": "SqlSelectColumn#4(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#4(account.first_name as firstName))",
                         "key": "firstName",
                         "params": null,
                         "query": [Circular],
@@ -2021,7 +2033,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$lastName": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#5(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#5(account.last_name as lastName))",
+                        "id": "SqlSelectColumn#5(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#5(account.last_name as lastName))",
                         "key": "lastName",
                         "params": null,
                         "query": [Circular],
@@ -2042,7 +2054,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$modifiedAt": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#8(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#8(account.modified_at as modifiedAt))",
+                        "id": "SqlSelectColumn#8(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#8(account.modified_at as modifiedAt))",
                         "key": "modifiedAt",
                         "params": null,
                         "query": [Circular],
@@ -2063,7 +2075,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$notes": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#6(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#6(account.notes))",
+                        "id": "SqlSelectColumn#6(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#6(account.notes))",
                         "key": "notes",
                         "params": null,
                         "query": [Circular],
@@ -2084,7 +2096,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$parentId": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#9(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#9(account.parent_id as parentId))",
+                        "id": "SqlSelectColumn#9(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#9(account.parent_id as parentId))",
                         "key": "parentId",
                         "params": null,
                         "query": [Circular],
@@ -2105,7 +2117,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$status": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#2(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#2(account.status))",
+                        "id": "SqlSelectColumn#2(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#2(account.status))",
                         "key": "status",
                         "params": null,
                         "query": [Circular],
@@ -2635,7 +2647,7 @@ describe("sql subqueries tests", () => {
           },
           "$firstName": SqlSelectColumn {
             "format": null,
-            "id": "SqlSelectColumn#4(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#4(account.first_name as firstName))",
+            "id": "SqlSelectColumn#4(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#4(account.first_name as firstName))",
             "key": "firstName",
             "params": null,
             "query": SqlQuery {
@@ -2647,9 +2659,11 @@ describe("sql subqueries tests", () => {
                 "wrap": true,
               },
               "format": null,
-              "id": "SqlQuery#1({label":"AccountsWithEmail"})",
+              "id": "SqlQuery#1(label=AccountsWithEmail)",
               "info": SqlQueryInfo {
                 "id": "SqlQueryInfo#1({label":"AccountsWithEmail"})",
+                "inline": null,
+                "label": "AccountsWithEmail",
                 "options": {
                   "label": "AccountsWithEmail",
                 },
@@ -2691,6 +2705,8 @@ describe("sql subqueries tests", () => {
               "rawValues": [
                 SqlQueryInfo {
                   "id": "SqlQueryInfo#1({label":"AccountsWithEmail"})",
+                  "inline": null,
+                  "label": "AccountsWithEmail",
                   "options": {
                     "label": "AccountsWithEmail",
                   },
@@ -2817,10 +2833,10 @@ describe("sql subqueries tests", () => {
                   ],
                   "id": "SqlSelectRow#1(SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId))",
                   "rowsByQueryId": Map {
-                    "SqlQuery#1({label":"AccountsWithEmail"})" => {
+                    "SqlQuery#1(label=AccountsWithEmail)" => {
                       "$accountId": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#1(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#1(account.account_id as accountId))",
+                        "id": "SqlSelectColumn#1(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#1(account.account_id as accountId))",
                         "key": "accountId",
                         "params": null,
                         "query": [Circular],
@@ -2841,7 +2857,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$createdAt": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#7(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#7(account.created_at as createdAt))",
+                        "id": "SqlSelectColumn#7(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#7(account.created_at as createdAt))",
                         "key": "createdAt",
                         "params": null,
                         "query": [Circular],
@@ -2862,7 +2878,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$email": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#3(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#3(account.email))",
+                        "id": "SqlSelectColumn#3(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#3(account.email))",
                         "key": "email",
                         "params": null,
                         "query": [Circular],
@@ -2884,7 +2900,7 @@ describe("sql subqueries tests", () => {
                       "$firstName": [Circular],
                       "$lastName": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#5(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#5(account.last_name as lastName))",
+                        "id": "SqlSelectColumn#5(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#5(account.last_name as lastName))",
                         "key": "lastName",
                         "params": null,
                         "query": [Circular],
@@ -2905,7 +2921,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$modifiedAt": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#8(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#8(account.modified_at as modifiedAt))",
+                        "id": "SqlSelectColumn#8(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#8(account.modified_at as modifiedAt))",
                         "key": "modifiedAt",
                         "params": null,
                         "query": [Circular],
@@ -2926,7 +2942,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$notes": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#6(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#6(account.notes))",
+                        "id": "SqlSelectColumn#6(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#6(account.notes))",
                         "key": "notes",
                         "params": null,
                         "query": [Circular],
@@ -2947,7 +2963,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$parentId": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#9(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#9(account.parent_id as parentId))",
+                        "id": "SqlSelectColumn#9(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#9(account.parent_id as parentId))",
                         "key": "parentId",
                         "params": null,
                         "query": [Circular],
@@ -2968,7 +2984,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$status": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#2(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#2(account.status))",
+                        "id": "SqlSelectColumn#2(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#2(account.status))",
                         "key": "status",
                         "params": null,
                         "query": [Circular],
@@ -3498,7 +3514,7 @@ describe("sql subqueries tests", () => {
           },
           "$lastName": SqlSelectColumn {
             "format": null,
-            "id": "SqlSelectColumn#5(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#5(account.last_name as lastName))",
+            "id": "SqlSelectColumn#5(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#5(account.last_name as lastName))",
             "key": "lastName",
             "params": null,
             "query": SqlQuery {
@@ -3510,9 +3526,11 @@ describe("sql subqueries tests", () => {
                 "wrap": true,
               },
               "format": null,
-              "id": "SqlQuery#1({label":"AccountsWithEmail"})",
+              "id": "SqlQuery#1(label=AccountsWithEmail)",
               "info": SqlQueryInfo {
                 "id": "SqlQueryInfo#1({label":"AccountsWithEmail"})",
+                "inline": null,
+                "label": "AccountsWithEmail",
                 "options": {
                   "label": "AccountsWithEmail",
                 },
@@ -3554,6 +3572,8 @@ describe("sql subqueries tests", () => {
               "rawValues": [
                 SqlQueryInfo {
                   "id": "SqlQueryInfo#1({label":"AccountsWithEmail"})",
+                  "inline": null,
+                  "label": "AccountsWithEmail",
                   "options": {
                     "label": "AccountsWithEmail",
                   },
@@ -3680,10 +3700,10 @@ describe("sql subqueries tests", () => {
                   ],
                   "id": "SqlSelectRow#1(SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId))",
                   "rowsByQueryId": Map {
-                    "SqlQuery#1({label":"AccountsWithEmail"})" => {
+                    "SqlQuery#1(label=AccountsWithEmail)" => {
                       "$accountId": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#1(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#1(account.account_id as accountId))",
+                        "id": "SqlSelectColumn#1(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#1(account.account_id as accountId))",
                         "key": "accountId",
                         "params": null,
                         "query": [Circular],
@@ -3704,7 +3724,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$createdAt": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#7(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#7(account.created_at as createdAt))",
+                        "id": "SqlSelectColumn#7(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#7(account.created_at as createdAt))",
                         "key": "createdAt",
                         "params": null,
                         "query": [Circular],
@@ -3725,7 +3745,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$email": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#3(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#3(account.email))",
+                        "id": "SqlSelectColumn#3(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#3(account.email))",
                         "key": "email",
                         "params": null,
                         "query": [Circular],
@@ -3746,7 +3766,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$firstName": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#4(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#4(account.first_name as firstName))",
+                        "id": "SqlSelectColumn#4(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#4(account.first_name as firstName))",
                         "key": "firstName",
                         "params": null,
                         "query": [Circular],
@@ -3768,7 +3788,7 @@ describe("sql subqueries tests", () => {
                       "$lastName": [Circular],
                       "$modifiedAt": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#8(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#8(account.modified_at as modifiedAt))",
+                        "id": "SqlSelectColumn#8(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#8(account.modified_at as modifiedAt))",
                         "key": "modifiedAt",
                         "params": null,
                         "query": [Circular],
@@ -3789,7 +3809,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$notes": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#6(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#6(account.notes))",
+                        "id": "SqlSelectColumn#6(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#6(account.notes))",
                         "key": "notes",
                         "params": null,
                         "query": [Circular],
@@ -3810,7 +3830,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$parentId": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#9(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#9(account.parent_id as parentId))",
+                        "id": "SqlSelectColumn#9(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#9(account.parent_id as parentId))",
                         "key": "parentId",
                         "params": null,
                         "query": [Circular],
@@ -3831,7 +3851,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$status": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#2(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#2(account.status))",
+                        "id": "SqlSelectColumn#2(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#2(account.status))",
                         "key": "status",
                         "params": null,
                         "query": [Circular],
@@ -4361,7 +4381,7 @@ describe("sql subqueries tests", () => {
           },
           "$modifiedAt": SqlSelectColumn {
             "format": null,
-            "id": "SqlSelectColumn#8(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#8(account.modified_at as modifiedAt))",
+            "id": "SqlSelectColumn#8(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#8(account.modified_at as modifiedAt))",
             "key": "modifiedAt",
             "params": null,
             "query": SqlQuery {
@@ -4373,9 +4393,11 @@ describe("sql subqueries tests", () => {
                 "wrap": true,
               },
               "format": null,
-              "id": "SqlQuery#1({label":"AccountsWithEmail"})",
+              "id": "SqlQuery#1(label=AccountsWithEmail)",
               "info": SqlQueryInfo {
                 "id": "SqlQueryInfo#1({label":"AccountsWithEmail"})",
+                "inline": null,
+                "label": "AccountsWithEmail",
                 "options": {
                   "label": "AccountsWithEmail",
                 },
@@ -4417,6 +4439,8 @@ describe("sql subqueries tests", () => {
               "rawValues": [
                 SqlQueryInfo {
                   "id": "SqlQueryInfo#1({label":"AccountsWithEmail"})",
+                  "inline": null,
+                  "label": "AccountsWithEmail",
                   "options": {
                     "label": "AccountsWithEmail",
                   },
@@ -4543,10 +4567,10 @@ describe("sql subqueries tests", () => {
                   ],
                   "id": "SqlSelectRow#1(SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId))",
                   "rowsByQueryId": Map {
-                    "SqlQuery#1({label":"AccountsWithEmail"})" => {
+                    "SqlQuery#1(label=AccountsWithEmail)" => {
                       "$accountId": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#1(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#1(account.account_id as accountId))",
+                        "id": "SqlSelectColumn#1(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#1(account.account_id as accountId))",
                         "key": "accountId",
                         "params": null,
                         "query": [Circular],
@@ -4567,7 +4591,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$createdAt": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#7(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#7(account.created_at as createdAt))",
+                        "id": "SqlSelectColumn#7(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#7(account.created_at as createdAt))",
                         "key": "createdAt",
                         "params": null,
                         "query": [Circular],
@@ -4588,7 +4612,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$email": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#3(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#3(account.email))",
+                        "id": "SqlSelectColumn#3(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#3(account.email))",
                         "key": "email",
                         "params": null,
                         "query": [Circular],
@@ -4609,7 +4633,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$firstName": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#4(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#4(account.first_name as firstName))",
+                        "id": "SqlSelectColumn#4(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#4(account.first_name as firstName))",
                         "key": "firstName",
                         "params": null,
                         "query": [Circular],
@@ -4630,7 +4654,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$lastName": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#5(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#5(account.last_name as lastName))",
+                        "id": "SqlSelectColumn#5(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#5(account.last_name as lastName))",
                         "key": "lastName",
                         "params": null,
                         "query": [Circular],
@@ -4652,7 +4676,7 @@ describe("sql subqueries tests", () => {
                       "$modifiedAt": [Circular],
                       "$notes": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#6(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#6(account.notes))",
+                        "id": "SqlSelectColumn#6(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#6(account.notes))",
                         "key": "notes",
                         "params": null,
                         "query": [Circular],
@@ -4673,7 +4697,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$parentId": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#9(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#9(account.parent_id as parentId))",
+                        "id": "SqlSelectColumn#9(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#9(account.parent_id as parentId))",
                         "key": "parentId",
                         "params": null,
                         "query": [Circular],
@@ -4694,7 +4718,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$status": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#2(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#2(account.status))",
+                        "id": "SqlSelectColumn#2(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#2(account.status))",
                         "key": "status",
                         "params": null,
                         "query": [Circular],
@@ -5224,7 +5248,7 @@ describe("sql subqueries tests", () => {
           },
           "$notes": SqlSelectColumn {
             "format": null,
-            "id": "SqlSelectColumn#6(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#6(account.notes))",
+            "id": "SqlSelectColumn#6(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#6(account.notes))",
             "key": "notes",
             "params": null,
             "query": SqlQuery {
@@ -5236,9 +5260,11 @@ describe("sql subqueries tests", () => {
                 "wrap": true,
               },
               "format": null,
-              "id": "SqlQuery#1({label":"AccountsWithEmail"})",
+              "id": "SqlQuery#1(label=AccountsWithEmail)",
               "info": SqlQueryInfo {
                 "id": "SqlQueryInfo#1({label":"AccountsWithEmail"})",
+                "inline": null,
+                "label": "AccountsWithEmail",
                 "options": {
                   "label": "AccountsWithEmail",
                 },
@@ -5280,6 +5306,8 @@ describe("sql subqueries tests", () => {
               "rawValues": [
                 SqlQueryInfo {
                   "id": "SqlQueryInfo#1({label":"AccountsWithEmail"})",
+                  "inline": null,
+                  "label": "AccountsWithEmail",
                   "options": {
                     "label": "AccountsWithEmail",
                   },
@@ -5406,10 +5434,10 @@ describe("sql subqueries tests", () => {
                   ],
                   "id": "SqlSelectRow#1(SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId))",
                   "rowsByQueryId": Map {
-                    "SqlQuery#1({label":"AccountsWithEmail"})" => {
+                    "SqlQuery#1(label=AccountsWithEmail)" => {
                       "$accountId": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#1(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#1(account.account_id as accountId))",
+                        "id": "SqlSelectColumn#1(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#1(account.account_id as accountId))",
                         "key": "accountId",
                         "params": null,
                         "query": [Circular],
@@ -5430,7 +5458,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$createdAt": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#7(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#7(account.created_at as createdAt))",
+                        "id": "SqlSelectColumn#7(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#7(account.created_at as createdAt))",
                         "key": "createdAt",
                         "params": null,
                         "query": [Circular],
@@ -5451,7 +5479,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$email": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#3(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#3(account.email))",
+                        "id": "SqlSelectColumn#3(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#3(account.email))",
                         "key": "email",
                         "params": null,
                         "query": [Circular],
@@ -5472,7 +5500,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$firstName": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#4(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#4(account.first_name as firstName))",
+                        "id": "SqlSelectColumn#4(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#4(account.first_name as firstName))",
                         "key": "firstName",
                         "params": null,
                         "query": [Circular],
@@ -5493,7 +5521,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$lastName": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#5(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#5(account.last_name as lastName))",
+                        "id": "SqlSelectColumn#5(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#5(account.last_name as lastName))",
                         "key": "lastName",
                         "params": null,
                         "query": [Circular],
@@ -5514,7 +5542,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$modifiedAt": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#8(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#8(account.modified_at as modifiedAt))",
+                        "id": "SqlSelectColumn#8(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#8(account.modified_at as modifiedAt))",
                         "key": "modifiedAt",
                         "params": null,
                         "query": [Circular],
@@ -5536,7 +5564,7 @@ describe("sql subqueries tests", () => {
                       "$notes": [Circular],
                       "$parentId": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#9(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#9(account.parent_id as parentId))",
+                        "id": "SqlSelectColumn#9(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#9(account.parent_id as parentId))",
                         "key": "parentId",
                         "params": null,
                         "query": [Circular],
@@ -5557,7 +5585,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$status": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#2(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#2(account.status))",
+                        "id": "SqlSelectColumn#2(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#2(account.status))",
                         "key": "status",
                         "params": null,
                         "query": [Circular],
@@ -6087,7 +6115,7 @@ describe("sql subqueries tests", () => {
           },
           "$parentId": SqlSelectColumn {
             "format": null,
-            "id": "SqlSelectColumn#9(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#9(account.parent_id as parentId))",
+            "id": "SqlSelectColumn#9(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#9(account.parent_id as parentId))",
             "key": "parentId",
             "params": null,
             "query": SqlQuery {
@@ -6099,9 +6127,11 @@ describe("sql subqueries tests", () => {
                 "wrap": true,
               },
               "format": null,
-              "id": "SqlQuery#1({label":"AccountsWithEmail"})",
+              "id": "SqlQuery#1(label=AccountsWithEmail)",
               "info": SqlQueryInfo {
                 "id": "SqlQueryInfo#1({label":"AccountsWithEmail"})",
+                "inline": null,
+                "label": "AccountsWithEmail",
                 "options": {
                   "label": "AccountsWithEmail",
                 },
@@ -6143,6 +6173,8 @@ describe("sql subqueries tests", () => {
               "rawValues": [
                 SqlQueryInfo {
                   "id": "SqlQueryInfo#1({label":"AccountsWithEmail"})",
+                  "inline": null,
+                  "label": "AccountsWithEmail",
                   "options": {
                     "label": "AccountsWithEmail",
                   },
@@ -6269,10 +6301,10 @@ describe("sql subqueries tests", () => {
                   ],
                   "id": "SqlSelectRow#1(SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId))",
                   "rowsByQueryId": Map {
-                    "SqlQuery#1({label":"AccountsWithEmail"})" => {
+                    "SqlQuery#1(label=AccountsWithEmail)" => {
                       "$accountId": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#1(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#1(account.account_id as accountId))",
+                        "id": "SqlSelectColumn#1(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#1(account.account_id as accountId))",
                         "key": "accountId",
                         "params": null,
                         "query": [Circular],
@@ -6293,7 +6325,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$createdAt": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#7(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#7(account.created_at as createdAt))",
+                        "id": "SqlSelectColumn#7(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#7(account.created_at as createdAt))",
                         "key": "createdAt",
                         "params": null,
                         "query": [Circular],
@@ -6314,7 +6346,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$email": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#3(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#3(account.email))",
+                        "id": "SqlSelectColumn#3(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#3(account.email))",
                         "key": "email",
                         "params": null,
                         "query": [Circular],
@@ -6335,7 +6367,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$firstName": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#4(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#4(account.first_name as firstName))",
+                        "id": "SqlSelectColumn#4(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#4(account.first_name as firstName))",
                         "key": "firstName",
                         "params": null,
                         "query": [Circular],
@@ -6356,7 +6388,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$lastName": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#5(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#5(account.last_name as lastName))",
+                        "id": "SqlSelectColumn#5(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#5(account.last_name as lastName))",
                         "key": "lastName",
                         "params": null,
                         "query": [Circular],
@@ -6377,7 +6409,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$modifiedAt": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#8(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#8(account.modified_at as modifiedAt))",
+                        "id": "SqlSelectColumn#8(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#8(account.modified_at as modifiedAt))",
                         "key": "modifiedAt",
                         "params": null,
                         "query": [Circular],
@@ -6398,7 +6430,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$notes": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#6(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#6(account.notes))",
+                        "id": "SqlSelectColumn#6(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#6(account.notes))",
                         "key": "notes",
                         "params": null,
                         "query": [Circular],
@@ -6420,7 +6452,7 @@ describe("sql subqueries tests", () => {
                       "$parentId": [Circular],
                       "$status": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#2(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#2(account.status))",
+                        "id": "SqlSelectColumn#2(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#2(account.status))",
                         "key": "status",
                         "params": null,
                         "query": [Circular],
@@ -6950,7 +6982,7 @@ describe("sql subqueries tests", () => {
           },
           "$status": SqlSelectColumn {
             "format": null,
-            "id": "SqlSelectColumn#2(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#2(account.status))",
+            "id": "SqlSelectColumn#2(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#2(account.status))",
             "key": "status",
             "params": null,
             "query": SqlQuery {
@@ -6962,9 +6994,11 @@ describe("sql subqueries tests", () => {
                 "wrap": true,
               },
               "format": null,
-              "id": "SqlQuery#1({label":"AccountsWithEmail"})",
+              "id": "SqlQuery#1(label=AccountsWithEmail)",
               "info": SqlQueryInfo {
                 "id": "SqlQueryInfo#1({label":"AccountsWithEmail"})",
+                "inline": null,
+                "label": "AccountsWithEmail",
                 "options": {
                   "label": "AccountsWithEmail",
                 },
@@ -7006,6 +7040,8 @@ describe("sql subqueries tests", () => {
               "rawValues": [
                 SqlQueryInfo {
                   "id": "SqlQueryInfo#1({label":"AccountsWithEmail"})",
+                  "inline": null,
+                  "label": "AccountsWithEmail",
                   "options": {
                     "label": "AccountsWithEmail",
                   },
@@ -7132,10 +7168,10 @@ describe("sql subqueries tests", () => {
                   ],
                   "id": "SqlSelectRow#1(SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId))",
                   "rowsByQueryId": Map {
-                    "SqlQuery#1({label":"AccountsWithEmail"})" => {
+                    "SqlQuery#1(label=AccountsWithEmail)" => {
                       "$accountId": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#1(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#1(account.account_id as accountId))",
+                        "id": "SqlSelectColumn#1(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#1(account.account_id as accountId))",
                         "key": "accountId",
                         "params": null,
                         "query": [Circular],
@@ -7156,7 +7192,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$createdAt": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#7(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#7(account.created_at as createdAt))",
+                        "id": "SqlSelectColumn#7(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#7(account.created_at as createdAt))",
                         "key": "createdAt",
                         "params": null,
                         "query": [Circular],
@@ -7177,7 +7213,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$email": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#3(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#3(account.email))",
+                        "id": "SqlSelectColumn#3(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#3(account.email))",
                         "key": "email",
                         "params": null,
                         "query": [Circular],
@@ -7198,7 +7234,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$firstName": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#4(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#4(account.first_name as firstName))",
+                        "id": "SqlSelectColumn#4(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#4(account.first_name as firstName))",
                         "key": "firstName",
                         "params": null,
                         "query": [Circular],
@@ -7219,7 +7255,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$lastName": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#5(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#5(account.last_name as lastName))",
+                        "id": "SqlSelectColumn#5(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#5(account.last_name as lastName))",
                         "key": "lastName",
                         "params": null,
                         "query": [Circular],
@@ -7240,7 +7276,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$modifiedAt": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#8(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#8(account.modified_at as modifiedAt))",
+                        "id": "SqlSelectColumn#8(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#8(account.modified_at as modifiedAt))",
                         "key": "modifiedAt",
                         "params": null,
                         "query": [Circular],
@@ -7261,7 +7297,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$notes": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#6(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#6(account.notes))",
+                        "id": "SqlSelectColumn#6(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#6(account.notes))",
                         "key": "notes",
                         "params": null,
                         "query": [Circular],
@@ -7282,7 +7318,7 @@ describe("sql subqueries tests", () => {
                       },
                       "$parentId": SqlSelectColumn {
                         "format": null,
-                        "id": "SqlSelectColumn#9(SqlQuery#1({label":"AccountsWithEmail"})/SqlTableColumn#9(account.parent_id as parentId))",
+                        "id": "SqlSelectColumn#9(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#9(account.parent_id as parentId))",
                         "key": "parentId",
                         "params": null,
                         "query": [Circular],
@@ -7824,7 +7860,8 @@ describe("sql subqueries tests", () => {
 
       const { text } = query.getSql({ params: { firstName: "John" } });
       expect(text).toMatchInlineSnapshot(`
-        "SELECT
+        "/* <query_0> */
+        SELECT
           "a_1"."account_id" AS "accountId",
           "a_1"."status",
           "a_1"."email",
@@ -7840,7 +7877,8 @@ describe("sql subqueries tests", () => {
           "valnor_test"."account" AS "a_1"
           JOIN "valnor_test"."account" AS "parent" ON "parent"."account_id" = "a_1"."parent_id"
         WHERE
-          "a_1"."first_name" = ?"
+          "a_1"."first_name" = ?
+          /* </query_0> */"
       `);
    });
 });

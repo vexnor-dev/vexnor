@@ -179,7 +179,7 @@ describe.sequential("valnor postgres e2e tests", () => {
          order by ${Account.$email}
       `;
       expect(query.query.getSql({}).text).toMatchInlineSnapshot(`
-        "/* <query_0>  */
+        "/* <query_0> */
         SELECT
           "a_1"."account_id" AS "accountId",
           "a_1"."status",
@@ -193,14 +193,14 @@ describe.sequential("valnor postgres e2e tests", () => {
           "query_1_result" AS "children"
         FROM
           "valnor_test"."account" AS "a_1"
-          /* <query_2>  */
+          /* <query_2> */
           /* --inline: true */
           LEFT JOIN LATERAL (
             SELECT
               coalesce(jsonb_agg ("query_1".*), '[]') AS "query_1_result"
             FROM
               (
-                /* <query_1>  */
+                /* <query_1> */
                 SELECT
                   "children"."account_id" AS "accountId",
                   "children"."status",

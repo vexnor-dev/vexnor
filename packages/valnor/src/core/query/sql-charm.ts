@@ -7,10 +7,13 @@ import { BuildSqlParams } from "./sql-param.js";
 export type SqlCharmAny = SqlCharm<any>;
 
 export type ExtractCharmParams<T> =
-   T extends SqlCharm<infer Options extends { Params: Record<string, unknown> }> ? Options["Params"] : "wtf";
+   T extends SqlCharm<infer Options extends { Params: Record<string, unknown>; Type?: unknown }>
+      ? Options["Params"]
+      : void;
 
-export abstract class SqlCharm<T extends { Params?: unknown }> extends Sql {
+export abstract class SqlCharm<T extends { Params?: unknown; Type?: unknown }> extends Sql {
    declare readonly [PARAMS]: T["Params"];
+   declare readonly [TYPE]: T["Type"];
 
    readonly params: BuildSqlParams<T["Params"]>;
 

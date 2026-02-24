@@ -2,6 +2,7 @@ import {
    BuildSqlParams,
    info,
    JsonRow,
+   QueryOf,
    quote,
    raw,
    sql,
@@ -28,7 +29,7 @@ export type JsonResultType = "one" | "many";
  */
 export class JsonAggregationPostgres<
    T extends { Row?: unknown; Params?: unknown; Type: Array<T["Row"]> | (T["Row"] | null) },
-> extends SqlCharm<Pick<T, "Params">> {
+> extends SqlCharm<Pick<T, "Params" | "Type">> {
    static resultTypes: Record<JsonResultType, { coalesce: string; func: string }> = {
       many: {
          func: "jsonb_agg",
@@ -150,34 +151,16 @@ export function jsonOne<T>(query: T): JsonAggregationOne<T> {
    }
 }
 
-export type JsonAggregationOne<T> =
-   T extends SqlQuery<infer Options extends { Row: Record<string, unknown>; Params?: unknown }>
+export type JsonAggregationOne<Q> =
+   QueryOf<Q> extends SqlQuery<infer Options extends { Row: Record<string, unknown>; Params?: unknown }>
       ? JsonAggregationPostgres<{
            Row: Options["Row"];
            Params: Options["Params"];
            Type: JsonRow<Options["Row"]> | null;
         }>
-      : T extends PostgresQueryHandler<infer Options>
-        ? Options extends {
-             Row: Record<string, unknown>;
-             Params?: unknown;
-          }
-           ? JsonAggregationPostgres<{
-                Row: Options["Row"];
-                Params: Options["Params"];
-                Type: JsonRow<Options["Row"]> | null;
-             }>
-           : never
-        : never;
+      : never;
 
-export type JsonAggregationMany<T> =
-   T extends SqlQuery<infer Options extends { Row: Record<string, unknown>; Params?: unknown }>
+export type JsonAggregationMany<Q> =
+   QueryOf<Q> extends SqlQuery<infer Options extends { Row: Record<string, unknown>; Params?: unknown }>
       ? JsonAggregationPostgres<{ Row: Options["Row"]; Params: Options["Params"]; Type: JsonRow<Options["Row"]>[] }>
-      : T extends PostgresQueryHandler<
-             infer Options extends {
-                Row: Record<string, unknown>;
-                Params?: unknown;
-             }
-          >
-        ? JsonAggregationPostgres<{ Row: Options["Row"]; Params: Options["Params"]; Type: JsonRow<Options["Row"]>[] }>
-        : never;
+      : never;

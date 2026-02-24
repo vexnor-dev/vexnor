@@ -9,10 +9,10 @@ describe("Find Tables tests", () => {
          options: { dialect: "postgresql" },
       });
       expect(text).toMatchInlineSnapshot(`
-        "/* <query_0>  */
+        "/* <query_0> */
         WITH
           "query_1" AS (
-            /* <query_1>  */
+            /* <query_1> */
             SELECT
               "c_1"."table_name",
               "c_1"."table_schema",
@@ -31,7 +31,7 @@ describe("Find Tables tests", () => {
               /* </query_1> */
           ),
           "query_2" AS (
-            /* <query_2>  */
+            /* <query_2> */
             SELECT
               "kcu_2"."table_name",
               "kcu_2"."table_schema",

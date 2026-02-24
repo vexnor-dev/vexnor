@@ -19,13 +19,13 @@ describe("defineQueryConfig", () => {
             findAccountById: {
                profile: "postgres",
                plugin: testPlugin,
-               params: { accountId: 1, email: "test@example.com" },
+               params: { accountId: "1", email: "test@example.com" },
             },
          },
       });
 
       expect(config.queries.findAccountById?.profile).toBe("postgres");
-      expect(config.queries.findAccountById?.params).toEqual({ accountId: 1, email: "test@example.com" });
+      expect(config.queries.findAccountById?.params).toEqual({ accountId: "1", email: "test@example.com" });
    });
 
    test("returns valid config with multiple queries", () => {
@@ -34,7 +34,7 @@ describe("defineQueryConfig", () => {
             findAccountById: {
                profile: "postgres",
                plugin: testPlugin,
-               params: { accountId: 1, email: "test@example.com" },
+               params: { accountId: "1", email: "test@example.com" },
             },
             findAccountByEmail: {
                profile: "postgres",
@@ -55,7 +55,7 @@ describe("defineQueryConfig", () => {
             findAccountById: {
                profile: "postgres",
                plugin: testPlugin,
-               params: { accountId: 1, email: "test@example.com" },
+               params: { accountId: "1", email: "test@example.com" },
             },
          },
       });
@@ -69,7 +69,7 @@ describe("defineQueryConfig", () => {
             findAccountById: {
                profile: "postgres",
                plugin: testPlugin,
-               params: { accountId: 1, email: "test@example.com" },
+               params: { accountId: "1", email: "test@example.com" },
             },
          },
          defaults: {
@@ -90,7 +90,7 @@ describe("defineQueryConfig", () => {
             findAccountById: {
                profile: "postgres",
                plugin: testPlugin,
-               params: { accountId: 1, email: "test@example.com" },
+               params: { accountId: "1", email: "test@example.com" },
                format: "csv",
                limit: 10,
             },
@@ -117,7 +117,7 @@ describe("defineQueryConfig", () => {
             findAccountById: {
                profile: rootConfig.profiles.postgres,
                plugin: testPlugin,
-               params: { accountId: 1, email: "test@example.com" },
+               params: { accountId: "1", email: "test@example.com" },
             },
          },
       });
@@ -131,13 +131,13 @@ describe("defineQueryConfig", () => {
             findAccountById: {
                profile: "postgres",
                plugin: testPlugin,
-               params: { accountId: 1, email: "test@example.com" },
+               params: { accountId: "1", email: "test@example.com" },
             },
          },
       });
 
       expect(config.queries.findAccountById?.query).toBe(findAccountById);
-      expect(config.queries.findAccountById?.params).toEqual({ accountId: 1, email: "test@example.com" });
+      expect(config.queries.findAccountById?.params).toEqual({ accountId: "1", email: "test@example.com" });
    });
 
    test("validates config queries keys match provided queries - missing query in config", () => {
@@ -148,7 +148,7 @@ describe("defineQueryConfig", () => {
                findAccountById: {
                   profile: "postgres",
                   plugin: testPlugin,
-                  params: { accountId: 1, email: "test@example.com" },
+                  params: { accountId: "1", email: "test@example.com" },
                },
             },
          }),
@@ -162,7 +162,7 @@ describe("defineQueryConfig", () => {
                findAccountById: {
                   profile: "postgres",
                   plugin: testPlugin,
-                  params: { accountId: 1, email: "test@example.com" },
+                  params: { accountId: "1", email: "test@example.com" },
                },
                unknownQuery: {
                   profile: "postgres",
@@ -180,7 +180,7 @@ describe("defineQueryConfig", () => {
                // @ts-expect-error - Testing runtime validation of missing query in config
                findAccountById: {
                   plugin: testPlugin,
-                  params: { accountId: 1, email: "test@example.com" },
+                  params: { accountId: "1", email: "test@example.com" },
                },
             },
          }),
@@ -207,7 +207,8 @@ describe("defineQueryConfig", () => {
                findAccountById: {
                   profile: "postgres",
                   plugin: testPlugin,
-                  params: { accountId: 1 },
+                  // @ts-expect-error - Testing param validation
+                  params: { accountId: "1" },
                },
             },
          }),
@@ -221,7 +222,7 @@ describe("defineQueryConfig", () => {
                findAccountById: {
                   profile: "postgres",
                   plugin: testPlugin,
-                  params: { accountId: 1, email: "test@example.com", extra: "value" },
+                  params: { accountId: "1", email: "test@example.com", extra: "value" },
                },
             },
          }),

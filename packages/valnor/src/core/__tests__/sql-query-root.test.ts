@@ -27,7 +27,8 @@ describe("sql() tests", () => {
         ]
       `);
       expect(text).toMatchInlineSnapshot(`
-        "SELECT
+        "/* <query_0> */
+        SELECT
           "a_1"."first_name" AS "firstName",
           min("a_1"."email"),
           "a_1"."email" AS "user_email",
@@ -38,7 +39,8 @@ describe("sql() tests", () => {
           "a_1"."email" = ?
           AND "a_1"."first_name" IN (?, ?, ?)
         GROUP BY
-          "a_1"."email""
+          "a_1"."email"
+          /* </query_0> */"
       `);
    });
 
@@ -51,13 +53,15 @@ describe("sql() tests", () => {
       const { values, text } = query.getSql({});
       expect(values).toEqual([]);
       expect(text).toMatchInlineSnapshot(`
-        "SELECT
+        "/* <query_0> */
+        SELECT
           "a_1"."first_name" AS "firstName",
           "a_1"."last_name" AS "lastName"
         FROM
           "valnor_test"."account" AS "a_1"
         WHERE
-          "a_1"."email" = 'bob@example.com'"
+          "a_1"."email" = 'bob@example.com'
+          /* </query_0> */"
       `);
    });
 
@@ -71,12 +75,14 @@ describe("sql() tests", () => {
       const { values, text } = query.getSql({});
       expect(values).toEqual(["bob@example.com"]);
       expect(text).toMatchInlineSnapshot(`
-        "SELECT
+        "/* <query_0> */
+        SELECT
           "a_1"."first_name" AS "firstName"
         FROM
           "valnor_test"."account" AS "a_1"
         WHERE
-          "a_1"."email" = ?"
+          "a_1"."email" = ?
+          /* </query_0> */"
       `);
    });
 
@@ -96,7 +102,8 @@ describe("sql() tests", () => {
 
       const { text } = query.getSql({});
       expect(text).toMatchInlineSnapshot(`
-        "SELECT
+        "/* <query_0> */
+        SELECT
           "oi_1"."product_id" AS "productId",
           "oi_1"."order_id" AS "orderId",
           "oi_1"."product_price" AS "productPrice",
@@ -107,7 +114,8 @@ describe("sql() tests", () => {
         FROM
           "valnor_test"."order_item" AS "oi_1"
           JOIN "valnor_test"."order" AS "o_2" ON "oi_1"."order_id" = "o_2"."order_id"
-          JOIN "valnor_test"."account" AS "a_3" ON "a_3"."account_id" = "o_2"."account_id""
+          JOIN "valnor_test"."account" AS "a_3" ON "a_3"."account_id" = "o_2"."account_id"
+          /* </query_0> */"
       `);
    });
 
@@ -121,12 +129,14 @@ describe("sql() tests", () => {
 
       const { text } = query.getSql({});
       expect(text).toMatchInlineSnapshot(`
-        "SELECT
+        "/* <query_0> */
+        SELECT
           "a_1"."email",
           "parent"."email" AS "parentEmail"
         FROM
           "valnor_test"."account" AS "a_1"
-          JOIN "valnor_test"."account" AS "parent" ON "a_1"."parent_id" = "parent"."account_id""
+          JOIN "valnor_test"."account" AS "parent" ON "a_1"."parent_id" = "parent"."account_id"
+          /* </query_0> */"
       `);
    });
 
@@ -139,10 +149,12 @@ describe("sql() tests", () => {
       // Note: T-SQL and PostgreSQL do not support aliases on the target table of an INSERT statement.
       // The table format for "insert into" is "schema.tableName", which correctly omits the alias.
       expect(text).toMatchInlineSnapshot(`
-        "INSERT INTO
+        "/* <query_0> */
+        INSERT INTO
           "valnor_test"."account" ("email", "first_name")
         VALUES
-          ('test@example.com', 'Test')"
+          ('test@example.com', 'Test')
+          /* </query_0> */"
       `);
    });
 
@@ -156,11 +168,13 @@ describe("sql() tests", () => {
       // For a simple UPDATE, T-SQL and PG do not alias the target table.
       // Therefore, columns in SET and WHERE clauses for that table must also be un-aliased.
       expect(text).toMatchInlineSnapshot(`
-        "UPDATE "valnor_test"."account"
+        "/* <query_0> */
+        UPDATE "valnor_test"."account"
         SET
           "first_name" = 'Bob'
         WHERE
-          "account"."account_id" = '123'"
+          "account"."account_id" = '123'
+          /* </query_0> */"
       `);
    });
 
@@ -176,14 +190,16 @@ describe("sql() tests", () => {
       const { text } = query.getSql({});
       // In a complex UPDATE, the target table is aliased, and all column references must be qualified.
       expect(text).toMatchInlineSnapshot(`
-        "UPDATE "valnor_test"."account"
+        "/* <query_0> */
+        UPDATE "valnor_test"."account"
         SET
           "first_name" = 'Staged Name'
         FROM
           "valnor_test"."account"
           JOIN "valnor_test"."order" AS "o_2" ON "account"."account_id" = "o_2"."account_id"
         WHERE
-          "o_2"."status" = 'completed'"
+          "o_2"."status" = 'completed'
+          /* </query_0> */"
       `);
    });
 
@@ -196,9 +212,11 @@ describe("sql() tests", () => {
 
       const { text, values } = query.getSql({});
       expect(text).toMatchInlineSnapshot(`
-        "DELETE FROM "valnor_test"."account"
+        "/* <query_0> */
+        DELETE FROM "valnor_test"."account"
         WHERE
-          "account"."account_id" <> ?"
+          "account"."account_id" <> ?
+          /* </query_0> */"
       `);
       expect(values).toEqual([noid]);
    });

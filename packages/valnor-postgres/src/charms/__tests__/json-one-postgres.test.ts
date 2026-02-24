@@ -31,14 +31,14 @@ describe("json-one-postgres tests", () => {
       );
       target.build(context, {});
       expect(context.text).toMatchInlineSnapshot(`
-        "/* <query_1>  */
+        "/* <query_1> */
         /* --inline: true */
         LEFT JOIN LATERAL (
           SELECT
             coalesce(to_jsonb ("query_0".*), NULL) AS "query_0_result"
           FROM
             (
-              /* <query_0>  */
+              /* <query_0> */
               SELECT
                 "parent"."account_id" AS "accountId",
                 "parent"."status",
@@ -87,7 +87,7 @@ describe("json-one-postgres tests", () => {
 
       const { text } = query.getSql({ params: { limit: 1 }, options: { dialect: "postgresql" } });
       expect(text).toMatchInlineSnapshot(`
-        "/* <query_0>  */
+        "/* <query_0> */
         SELECT
           "a_1"."account_id" AS "accountId",
           "a_1"."status",
@@ -101,14 +101,14 @@ describe("json-one-postgres tests", () => {
           "query_1_result" AS "parent"
         FROM
           "main"."account" AS "a_1"
-          /* <query_2>  */
+          /* <query_2> */
           /* --inline: true */
           LEFT JOIN LATERAL (
             SELECT
               coalesce(to_jsonb("query_1".*), NULL) AS "query_1_result"
             FROM
               (
-                /* <query_1>  */
+                /* <query_1> */
                 SELECT
                   "a_2"."account_id" AS "accountId",
                   "a_2"."status",

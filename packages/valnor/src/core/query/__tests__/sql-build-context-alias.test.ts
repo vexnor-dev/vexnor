@@ -101,7 +101,8 @@ describe("SqlBuildContext alias tests", () => {
       expect(actual).toEqual("a_1");
 
       expect(ctx.text).toMatchInlineSnapshot(`
-        "SELECT
+        "/* <query_0> */
+        SELECT
           "a_1"."account_id" AS "accountId",
           "a_1"."status",
           "a_1"."email",
@@ -112,15 +113,21 @@ describe("SqlBuildContext alias tests", () => {
           "a_1"."modified_at" AS "modifiedAt",
           "a_1"."parent_id" AS "parentId",
           (
+            /* <query_1> */
             SELECT
-              count(*) AS "total"
+              /* <query_2> */
+              count(*)
+              /* </query_2> */
+              AS "total"
             FROM
               "valnor_test"."account" AS "a_2"
             WHERE
               "a_2"."parent_id" = "a_1"."account_id"
+              /* </query_1> */
           ) AS "total"
         FROM
-          "valnor_test"."account" AS "a_1""
+          "valnor_test"."account" AS "a_1"
+          /* </query_0> */"
       `);
    });
 });

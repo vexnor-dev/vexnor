@@ -1,4 +1,4 @@
-import { SqlQuery } from "./sql-query.js";
+import { QUERY, SqlQuery } from "./sql-query.js";
 import { ok } from "assert";
 import { SqlBuildOptions, SqlRunArgs } from "./sql-query-types.js";
 import { PARAMS, Sql, TYPE } from "../sql-base.js";
@@ -13,10 +13,12 @@ export type AsyncQueryHandlerAny = AsyncQueryHandler<any>;
 export abstract class AsyncQueryHandler<
    T extends { Row?: unknown; Params?: unknown; QueryResult: object; QueryClient: unknown },
 > extends Sql {
+   declare readonly [QUERY]: SqlQuery<Pick<T, "Row" | "Params">>; // phantom, public
+
    declare readonly [TYPE]: T["Row"];
    declare readonly [PARAMS]: T["Params"];
 
-   protected constructor(readonly query: SqlQuery<{ Row: T["Row"]; Params: T["Params"] }>) {
+   protected constructor(readonly query: SqlQuery<Pick<T, "Row" | "Params">>) {
       super({
          id: query.id,
       });

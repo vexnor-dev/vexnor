@@ -6,7 +6,7 @@ describe("Find Enums tests", () => {
       const { text, values } = findEnums.getSql({ params: { schemas: ["public"] } });
       expect(values).toEqual(["public"]);
       expect(text).toMatchInlineSnapshot(`
-        "/* <query_0>  */
+        "/* <query_0> */
         WITH
           "enum_values" AS (
             SELECT
@@ -20,7 +20,7 @@ describe("Find Enums tests", () => {
         SELECT
           "pt_2"."typname" AS "enum_name",
           "pn_3"."nspname" AS "enum_schema",
-          /* <query_1>  */
+          /* <query_1> */
           json_agg ("enum_values")
           /* </query_1> */
           AS "enum_values"

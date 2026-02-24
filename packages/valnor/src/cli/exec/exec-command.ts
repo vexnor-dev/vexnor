@@ -88,7 +88,7 @@ export async function execCommand(queryName: string, options: ExecOptions): Prom
       return;
    }
 
-   if (!options.confirm) {
+   if (options.confirm !== true) {
       const queryType = detectQueryType(text);
       const confirmMutations = rootConfig.exec?.confirmMutations ?? false;
       const confirmDestructive = rootConfig.exec?.confirmDestructive ?? true;

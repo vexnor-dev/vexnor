@@ -35,7 +35,12 @@ describe("SqlValue tests", () => {
       const context = new SqlBuildContext();
       value.build(context);
       // build() only outputs the query, not the alias
-      expect(context.text).toBe(`COUNT(*) AS "total"`);
+      expect(context.text).toMatchInlineSnapshot(`
+        "/* <query_0> */
+        COUNT(*)
+        /* </query_0> */
+        AS "total""
+      `);
       expect(value.key).toBe("total");
    });
 
@@ -101,7 +106,12 @@ describe("SqlValue tests", () => {
       value.build(context);
 
       // The t<number>() marker should not appear in SQL (only query part)
-      expect(context.text).toBe(`COUNT(*) AS "total"`);
+      expect(context.text).toMatchInlineSnapshot(`
+        "/* <query_0> */
+        COUNT(*)
+        /* </query_0> */
+        AS "total""
+      `);
       expect(value.key).toBe("total");
    });
 
@@ -117,13 +127,18 @@ describe("SqlValue tests", () => {
       expect(query.$total).toBeDefined();
 
       expect(query.getSql({}).text).toMatchInlineSnapshot(`
-        "SELECT
+        "/* <query_0> */
+        SELECT
           "a_1"."account_id" AS "accountId",
-          COUNT(*) AS "total"
+          /* <query_1> */
+          COUNT(*)
+          /* </query_1> */
+          AS "total"
         FROM
           "valnor_test"."account" AS "a_1"
         GROUP BY
-          "a_1"."account_id""
+          "a_1"."account_id"
+          /* </query_0> */"
       `);
    });
 
@@ -140,13 +155,18 @@ describe("SqlValue tests", () => {
       expect(query.row.$accountId).toBeDefined();
 
       expect(query.getSql({}).text).toMatchInlineSnapshot(`
-        "SELECT
+        "/* <query_0> */
+        SELECT
           "a_1"."account_id" AS "accountId",
-          COUNT(*) AS "total"
+          /* <query_1> */
+          COUNT(*)
+          /* </query_1> */
+          AS "total"
         FROM
           "valnor_test"."account" AS "a_1"
         GROUP BY
-          "a_1"."account_id""
+          "a_1"."account_id"
+          /* </query_0> */"
       `);
    });
 

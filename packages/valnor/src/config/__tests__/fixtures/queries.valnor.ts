@@ -7,7 +7,7 @@ export default defineQueryConfig({ findAccountById })({
       findAccountById: {
          profile: "postgres",
          plugin: testPlugin,
-         params: { accountId: 1, email: "test@example.com" },
+         params: { accountId: "1", email: "test@example.com" },
       },
    },
 });

@@ -25,6 +25,11 @@ export type SqlQueryColumns<Row> = Row extends Record<string, unknown> ? InferSe
 
 export type SqlQueryExtended<T extends { Row?: unknown; Params?: unknown }> = SqlQuery<T> & SqlQueryColumns<T["Row"]>;
 
+export declare const QUERY: unique symbol;
+
+export type QueryOf<S> = S extends { readonly [QUERY]?: infer R } ? R : unknown;
+export type ExtractQueryTypeArgs<Q> = Q extends SqlQuery<infer T> ? T : never;
+
 export interface SqlQueryArgs {
    readonly info?: SqlQueryInfo;
    readonly rawStrings: TemplateStringsArray;
@@ -36,6 +41,8 @@ export interface SqlQueryArgs {
 export type SqlQueryFormat = "with" | "select" | "from" | "join" | "fn" | "sql";
 
 export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql {
+   declare readonly [QUERY]: SqlQuery<Pick<T, "Row" | "Params">>; // phantom, public
+
    declare readonly [TYPE]: T["Row"];
    declare readonly [PARAMS]: T["Params"];
 
@@ -259,7 +266,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
    build(context: SqlBuildContext, options?: SqlBuildOptions) {
       context.scope({ query: this }, () => {
          const queryName = context.getQueryName(this);
-         context.addStrings(`\n\n/* <${queryName}>  */\n\n`);
+         context.addStrings(`\n\n/* <${queryName}> */\n\n`);
          const children = [...this.rawValues];
          let i = -1;
          while (children.length || i < this.rawStrings.length) {

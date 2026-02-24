@@ -26,7 +26,8 @@ describe("SqlTable.insertCols() and insertCols() tests", () => {
       const { values, text } = query.getSql({});
       expect(values).toEqual(["john1.doe1@example.com", "John1", "Doe1", "john2.doe2@example.com", "John2", "Doe2"]);
       expect(text).toMatchInlineSnapshot(`
-        "INSERT INTO
+        "/* <query_0> */
+        INSERT INTO
           "valnor_test"."account" ("email", "first_name", "last_name") output "inserted"."account_id" AS "accountId",
           "inserted"."status",
           "inserted"."email",
@@ -38,7 +39,8 @@ describe("SqlTable.insertCols() and insertCols() tests", () => {
           "inserted"."parent_id" AS "parentId"
         VALUES
           (?, ?, ?),
-          (?, ?, ?)"
+          (?, ?, ?)
+          /* </query_0> */"
       `);
    });
 });

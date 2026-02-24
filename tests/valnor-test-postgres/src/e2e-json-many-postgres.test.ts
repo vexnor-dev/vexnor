@@ -39,14 +39,14 @@ describe("sql plugin jsonAgg() tests", () => {
       jsonMany(AccountOrders).build(context, {});
       expect(context.text).toMatchInlineSnapshot(
          `
-        "/* <query_1>  */
+        "/* <query_1> */
         /* --inline: true */
         LEFT JOIN LATERAL (
           SELECT
             coalesce(jsonb_agg ("AccountOrders".*), '[]') AS "AccountOrders_result"
           FROM
             (
-              /* <AccountOrders>  */
+              /* <AccountOrders> */
               /* --label: AccountOrders */
               SELECT
                 "o_1"."order_id" AS "orderId",
@@ -88,7 +88,7 @@ describe("sql plugin jsonAgg() tests", () => {
 
       expect(target.text).toMatchInlineSnapshot(
          `
-        "/* <query_0>  */
+        "/* <query_0> */
         SELECT
           "a_1"."account_id" AS "accountId",
           "a_1"."status",
@@ -102,14 +102,14 @@ describe("sql plugin jsonAgg() tests", () => {
           "AccountOrders_result" AS "children"
         FROM
           "valnor_test"."account" AS "a_1"
-          /* <query_2>  */
+          /* <query_2> */
           /* --inline: true */
           LEFT JOIN LATERAL (
             SELECT
               coalesce(jsonb_agg ("AccountOrders".*), '[]') AS "AccountOrders_result"
             FROM
               (
-                /* <AccountOrders>  */
+                /* <AccountOrders> */
                 /* --label: AccountOrders */
                 SELECT
                   "o_2"."order_id" AS "orderId",
@@ -154,7 +154,7 @@ describe("sql plugin jsonAgg() tests", () => {
       expect(target.values).toEqual([5]);
       expect(target.text).toMatchInlineSnapshot(
          `
-        "/* <query_0>  */
+        "/* <query_0> */
         SELECT
           "a_1"."account_id" AS "accountId",
           "a_1"."status",
@@ -168,14 +168,14 @@ describe("sql plugin jsonAgg() tests", () => {
           "AccountOrders_result" AS "orders"
         FROM
           "valnor_test"."account" AS "a_1"
-          /* <query_2>  */
+          /* <query_2> */
           /* --inline: true */
           LEFT JOIN LATERAL (
             SELECT
               coalesce(jsonb_agg ("AccountOrders".*), '[]') AS "AccountOrders_result"
             FROM
               (
-                /* <AccountOrders>  */
+                /* <AccountOrders> */
                 /* --label: AccountOrders */
                 SELECT
                   "o_2"."order_id" AS "orderId",

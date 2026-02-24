@@ -51,16 +51,20 @@ describe("SqlBuildContextRowTokens", () => {
       });
 
       expect(ctx.text).toMatchInlineSnapshot(`
-        "SELECT
+        "/* <query_0> */
+        SELECT
           "query_1"."accountId"
         FROM
           (
+            /* <query_1> */
             SELECT
               "a_1"."account_id" AS "accountId",
               "a_1"."status"
             FROM
               "valnor_test"."account" AS "a_1"
-          ) AS "query_1""
+              /* </query_1> */
+          ) AS "query_1"
+          /* </query_0> */"
       `);
    });
 

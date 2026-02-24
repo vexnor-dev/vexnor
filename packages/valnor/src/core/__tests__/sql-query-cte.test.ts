@@ -23,8 +23,10 @@ describe("sql CTE (with clause) tests", () => {
       const { text, values } = query.getSql({ params: { firstName: "John" } });
       expect(values).toEqual(["John"]);
       expect(text).toMatchInlineSnapshot(`
-        "WITH
+        "/* <query_0> */
+        WITH
           "ActiveAccounts" AS (
+            /* <ActiveAccounts> */
             /* --label: ActiveAccounts */
             SELECT
               "a_1"."account_id" AS "accountId",
@@ -40,13 +42,15 @@ describe("sql CTE (with clause) tests", () => {
               "valnor_test"."account" AS "a_1"
             WHERE
               "a_1"."status" = 'active'
+              /* </ActiveAccounts> */
           )
         SELECT
           "ActiveAccounts".*
         FROM
           "ActiveAccounts"
         WHERE
-          "ActiveAccounts"."firstName" = ?"
+          "ActiveAccounts"."firstName" = ?
+          /* </query_0> */"
       `);
    });
 
@@ -71,8 +75,10 @@ describe("sql CTE (with clause) tests", () => {
         ]
       `);
       expect(text).toMatchInlineSnapshot(`
-        "WITH
+        "/* <query_0> */
+        WITH
           "query_1" AS (
+            /* <query_1> */
             SELECT
               "a_1"."account_id" AS "accountId",
               "a_1"."status",
@@ -87,13 +93,15 @@ describe("sql CTE (with clause) tests", () => {
               "valnor_test"."account" AS "a_1"
             WHERE
               "a_1"."status" = 'active'
+              /* </query_1> */
           )
         SELECT
           "query_1".*
         FROM
           "query_1"
         WHERE
-          "query_1"."firstName" = ?"
+          "query_1"."firstName" = ?
+          /* </query_0> */"
       `);
    });
 
@@ -128,8 +136,10 @@ describe("sql CTE (with clause) tests", () => {
         ]
       `);
       expect(text).toMatchInlineSnapshot(`
-        "WITH
+        "/* <query_0> */
+        WITH
           "ActiveAccounts" AS (
+            /* <ActiveAccounts> */
             /* --label: ActiveAccounts */
             SELECT
               "a_1"."account_id" AS "accountId",
@@ -145,8 +155,10 @@ describe("sql CTE (with clause) tests", () => {
               "valnor_test"."account" AS "a_1"
             WHERE
               "a_1"."status" = 'active'
+              /* </ActiveAccounts> */
           ),
           "RecentAccounts" AS (
+            /* <RecentAccounts> */
             /* --label: RecentAccounts */
             SELECT
               "a_2"."account_id" AS "accountId",
@@ -162,13 +174,15 @@ describe("sql CTE (with clause) tests", () => {
               "valnor_test"."account" AS "a_2"
             WHERE
               "a_2"."created_at" > ?
+              /* </RecentAccounts> */
           )
         SELECT
           "ActiveAccounts"."accountId",
           "RecentAccounts"."email"
         FROM
           "ActiveAccounts"
-          JOIN "RecentAccounts" ON "ActiveAccounts"."accountId" = "RecentAccounts"."accountId""
+          JOIN "RecentAccounts" ON "ActiveAccounts"."accountId" = "RecentAccounts"."accountId"
+          /* </query_0> */"
       `);
    });
 
@@ -201,8 +215,10 @@ describe("sql CTE (with clause) tests", () => {
         ]
       `);
       expect(text).toMatchInlineSnapshot(`
-        "WITH
+        "/* <query_0> */
+        WITH
           "query_1" AS (
+            /* <query_1> */
             SELECT
               "a_1"."account_id" AS "accountId",
               "a_1"."status",
@@ -217,8 +233,10 @@ describe("sql CTE (with clause) tests", () => {
               "valnor_test"."account" AS "a_1"
             WHERE
               "a_1"."status" = 'active'
+              /* </query_1> */
           ),
           "query_2" AS (
+            /* <query_2> */
             SELECT
               "a_2"."account_id" AS "accountId",
               "a_2"."status",
@@ -233,13 +251,15 @@ describe("sql CTE (with clause) tests", () => {
               "valnor_test"."account" AS "a_2"
             WHERE
               "a_2"."created_at" > ?
+              /* </query_2> */
           )
         SELECT
           "query_1"."accountId",
           "query_2"."email"
         FROM
           "query_1"
-          JOIN "query_2" ON "query_1"."accountId" = "query_2"."accountId""
+          JOIN "query_2" ON "query_1"."accountId" = "query_2"."accountId"
+          /* </query_0> */"
       `);
    });
 
@@ -261,16 +281,22 @@ describe("sql CTE (with clause) tests", () => {
 
       const { text } = query.getSql({});
       expect(text).toMatchInlineSnapshot(`
-        "WITH
+        "/* <query_0> */
+        WITH
           "AccountCounts" AS (
+            /* <AccountCounts> */
             /* --label: AccountCounts */
             SELECT
               "a_1"."status",
-              count(*) AS "total"
+              /* <query_2> */
+              count(*)
+              /* </query_2> */
+              AS "total"
             FROM
               "valnor_test"."account" AS "a_1"
             GROUP BY
               "a_1"."status"
+              /* </AccountCounts> */
           )
         SELECT
           "AccountCounts"."status",
@@ -278,7 +304,8 @@ describe("sql CTE (with clause) tests", () => {
         FROM
           "AccountCounts"
         WHERE
-          "AccountCounts"."total" > 10"
+          "AccountCounts"."total" > 10
+          /* </query_0> */"
       `);
    });
 
@@ -299,16 +326,22 @@ describe("sql CTE (with clause) tests", () => {
 
       const { text } = query.getSql({});
       expect(text).toMatchInlineSnapshot(`
-        "WITH
+        "/* <query_0> */
+        WITH
           "MaxCreatedAt" AS (
+            /* <MaxCreatedAt> */
             /* --label: MaxCreatedAt */
             SELECT
               "a_1"."parent_id" AS "parentId",
-              max("a_1"."created_at") AS "lastCreatedAt"
+              /* <query_2> */
+              max("a_1"."created_at")
+              /* </query_2> */
+              AS "lastCreatedAt"
             FROM
               "valnor_test"."account" AS "a_1"
             GROUP BY
               "a_1"."parent_id"
+              /* </MaxCreatedAt> */
           )
         SELECT
           "a_2"."account_id" AS "accountId",
@@ -323,7 +356,8 @@ describe("sql CTE (with clause) tests", () => {
           "MaxCreatedAt"."lastCreatedAt"
         FROM
           "valnor_test"."account" AS "a_2"
-          LEFT JOIN "MaxCreatedAt" ON "a_2"."account_id" = "MaxCreatedAt"."parentId""
+          LEFT JOIN "MaxCreatedAt" ON "a_2"."account_id" = "MaxCreatedAt"."parentId"
+          /* </query_0> */"
       `);
    });
 });
