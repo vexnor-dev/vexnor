@@ -1,6 +1,6 @@
 import { loadConfig, loadQueryConfig, resolveProfile } from "../../config/index.js";
 import { formatCsv, formatJson, formatTable } from "./formatters.js";
-import { AsyncQueryHandler, AsyncQueryHandlerAny, SqlQuery } from "../../core/index.js";
+import { SqlQueryHandler, AsyncQueryHandlerAny, SqlQuery } from "../../core/index.js";
 import { detectQueryType } from "./detect-query-type.js";
 import { confirmPrompt } from "./confirm-prompt.js";
 import * as path from "node:path";
@@ -66,8 +66,6 @@ export async function execCommand(queryName: string, options: ExecOptions): Prom
       switch (true) {
          case querySettings.query instanceof SqlQuery:
             return querySettings.query;
-         case querySettings.query instanceof AsyncQueryHandler:
-            return querySettings.query.query;
          default:
             throw new SqlExecError(`Unknown query type in config: ${querySettings.query}`);
       }
@@ -129,7 +127,7 @@ export async function execCommand(queryName: string, options: ExecOptions): Prom
          case query instanceof SqlQuery:
             queryHandler = plugin.newQueryHandler(query);
             break;
-         case query instanceof AsyncQueryHandler:
+         case query instanceof SqlQueryHandler:
             queryHandler = query;
             break;
          default:

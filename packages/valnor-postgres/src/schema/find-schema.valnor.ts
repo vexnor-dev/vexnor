@@ -7,7 +7,7 @@ export default defineQueryConfig({ findEnums, findTables, findTableColumns, find
    queries: {
       findEnums: {
          plugin: valnorPostgres,
-         profile: "default",
+         profile: "postgres",
          params: {
             schemas: ["valnor_test"],
          },
@@ -16,7 +16,7 @@ export default defineQueryConfig({ findEnums, findTables, findTableColumns, find
       },
       findTables: {
          plugin: valnorPostgres,
-         profile: "default",
+         profile: "postgres",
          params: {
             schemas: ["valnor_test"],
          },
@@ -25,7 +25,7 @@ export default defineQueryConfig({ findEnums, findTables, findTableColumns, find
       },
       findTableColumns: {
          plugin: valnorPostgres,
-         profile: "default",
+         profile: "postgres",
          params: {
             schemas: ["valnor_test"],
          },
@@ -34,7 +34,7 @@ export default defineQueryConfig({ findEnums, findTables, findTableColumns, find
       },
       findPrimaryKeys: {
          plugin: valnorPostgres,
-         profile: "default",
+         profile: "postgres",
          params: {
             schemas: ["valnor_test"],
          },

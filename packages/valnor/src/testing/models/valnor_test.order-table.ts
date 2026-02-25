@@ -44,11 +44,11 @@ export type IOrderInsert = {
 export type IOrderUpdate = Partial<IOrderInsert>;
 
 export type IOrderSelect = {
-   readonly orderId: string;
-   readonly status: udt.OrderStatusUdt;
-   readonly createdAt: Date;
-   readonly modifiedAt: Date;
-   readonly accountId: string;
+   orderId: string;
+   status: udt.OrderStatusUdt;
+   createdAt: Date;
+   modifiedAt: Date;
+   accountId: string;
 };
 
 export type IOrderJson = JsonRow<IOrderSelect>;

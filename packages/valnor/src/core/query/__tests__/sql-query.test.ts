@@ -12,7 +12,7 @@ describe("SqlQuery tests", () => {
       expect(query.row).toBeDefined();
       expect(query.row).toMatchObject({
          $accountId: {
-            type: "SqlSelectColumn",
+            type: "SqlRowColumn",
             key: "accountId",
             query: {
                id: "SqlQuery#1",
@@ -23,7 +23,7 @@ describe("SqlQuery tests", () => {
             },
          },
          $status: {
-            type: "SqlSelectColumn",
+            type: "SqlRowColumn",
             key: "status",
             query: {
                id: "SqlQuery#1",
@@ -34,7 +34,7 @@ describe("SqlQuery tests", () => {
             },
          },
          $email: {
-            type: "SqlSelectColumn",
+            type: "SqlRowColumn",
             key: "email",
             query: {
                id: "SqlQuery#1",
@@ -49,23 +49,25 @@ describe("SqlQuery tests", () => {
       expect(query.$accountId).toBeDefined();
       expect(query.$status).toBeDefined();
       expect(query.$email).toBeDefined();
-      expect(Reflect.ownKeys(query)).toMatchObject([
-         "wrap",
-         "id",
-         "type",
-         "rawStrings",
-         "rawValues",
-         "info",
-         "inline",
-         "row",
-         "$$",
-         "params",
-         "format",
-         "queries",
-         "$accountId",
-         "$status",
-         "$email",
-      ]);
+      expect(Reflect.ownKeys(query)).toMatchInlineSnapshot(`
+        [
+          "wrap",
+          "id",
+          "type",
+          "rawStrings",
+          "rawValues",
+          "info",
+          "inline",
+          "format",
+          "_queries",
+          "_params",
+          "_row",
+          "_$$",
+          "$accountId",
+          "$status",
+          "$email",
+        ]
+      `);
       expect(query.$$).toBeDefined();
    });
 

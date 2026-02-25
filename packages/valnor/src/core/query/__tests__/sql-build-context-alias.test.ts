@@ -4,7 +4,7 @@ import { sql } from "../../sql.js";
 import { Account } from "@test-models/valnor_test.account-table.js";
 import { row } from "../sql-select-row.js";
 import { val } from "../sql-select-value.js";
-import { col } from "../sql-select-field.js";
+import { col } from "../sql-select-column.js";
 
 describe("SqlBuildContext alias tests", () => {
    test("'account' should alias 'a_1'", () => {

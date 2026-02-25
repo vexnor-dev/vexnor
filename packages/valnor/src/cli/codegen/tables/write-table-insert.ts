@@ -17,12 +17,7 @@ export function writeTableInsert(writer: CodeBlockWriter.default, { table }: Pri
       .inlineBlock(() => {
          columns.forEach((col) => {
             const isNullable = col.is_nullable.toUpperCase() === "YES";
-            const isUpdatable = col.is_updatable.toUpperCase() === "YES";
             const columnName = getColumnName(col.column_name);
-            if (!isUpdatable) {
-               writer.write("readonly ");
-            }
-
             if (col.column_default || isNullable) {
                writer.write(`${columnName}?:`);
             } else {

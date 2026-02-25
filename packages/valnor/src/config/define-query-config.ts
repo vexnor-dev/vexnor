@@ -1,5 +1,5 @@
 import { QuerySettings, QueryDefaults } from "./config-types.js";
-import { SqlQueryAny, AsyncQueryHandlerAny, SqlQuery, AsyncQueryHandler } from "../core/index.js";
+import { SqlQueryAny, AsyncQueryHandlerAny, SqlQuery } from "../core/index.js";
 import { SqlExecError } from "../cli/exec/sql-exec-error.js";
 
 type QueryOrHandler = SqlQueryAny | AsyncQueryHandlerAny;
@@ -44,15 +44,12 @@ export function defineQueryConfig<TQueries extends Record<string, QueryOrHandler
          }
 
          const params = (() => {
-            if (query instanceof SqlQuery) {
-               return query.params ?? {};
+            switch (true) {
+               case query instanceof SqlQuery:
+                  return query.params ?? {};
+               default:
+                  throw new SqlExecError(`Query '${key}' is not a SqlQuery or AsyncQueryHandler`);
             }
-
-            if (query instanceof AsyncQueryHandler) {
-               return query.query.params ?? {};
-            }
-
-            throw new SqlExecError(`Query '${key}' is not a SqlQuery or AsyncQueryHandler`);
          })();
          const queryParamKeys = Object.keys(params).sort();
          const configParamKeys = settings.params ? Object.keys(settings.params).sort() : [];

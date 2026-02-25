@@ -11,7 +11,7 @@ import {
    ValnorPlugin,
 } from "valnor/plugin";
 import { MssqlQueryHandler } from "./mssql-query-handler.js";
-import { AsyncQueryHandler, SqlQuery } from "valnor";
+import { SqlQueryHandler, SqlQuery } from "valnor";
 import { getColumnType } from "./get-column-type.js";
 import { findTables } from "./schema/find-tables.js";
 import mssql from "mssql";
@@ -115,7 +115,7 @@ export class ValnorMssql extends ValnorPlugin<{ Config: ConnectionConfig; Connec
 
    newQueryHandler<T extends { Row?: unknown; Params?: unknown; QueryResult: object; QueryClient: unknown }>(
       query: SqlQuery<{ Params: T["Params"]; Row: T["Row"] }>,
-   ): AsyncQueryHandler<T> {
+   ): SqlQueryHandler<T> {
       return new MssqlQueryHandler(query);
    }
 }

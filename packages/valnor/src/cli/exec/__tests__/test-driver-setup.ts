@@ -1,9 +1,9 @@
-import { SqlQuery, AsyncQueryHandler, SqlRunArgs, SqlQueryToken } from "../../../core/index.js";
+import { SqlQuery, SqlQueryHandler, SqlRunArgs, SqlQueryToken } from "../../../core/index.js";
 import { InferParamsFromSqlTokens, InferRowFromSqlTokens } from "../../../core/sql.js";
 
 let mockData: unknown[] = [{ id: 1, result: "test" }];
 
-export class TestDriverQueryHandler<T extends { Row?: unknown; Params?: unknown }> extends AsyncQueryHandler<{
+export class TestDriverQueryHandler<T extends { Row?: unknown; Params?: unknown }> extends SqlQueryHandler<{
    Row: T["Row"];
    Params: T["Params"];
    QueryResult: { rows: T["Row"][] };

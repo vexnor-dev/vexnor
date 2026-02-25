@@ -16,7 +16,7 @@ export function writeTableSelect(writer: CodeBlockWriter.default, { table }: Pri
          columns.forEach((col) => {
             const isNullable = col.is_nullable === "YES";
             const columnName = getColumnName(col.column_name);
-            writer.write(`readonly ${columnName}: `);
+            writer.write(`${columnName}: `);
 
             const { type, udt } = plugin.getColumnType(col);
             switch (type) {

@@ -1,5 +1,5 @@
 import { ValnorPlugin, ValnorConnection } from "../../../plugin/index.js";
-import { AsyncQueryHandler, SqlQuery } from "../../../core/index.js";
+import { SqlQueryHandler, SqlQuery } from "../../../core/index.js";
 import { TestDriverQueryHandler } from "./test-driver-setup.js";
 
 export class TestPlugin extends ValnorPlugin<{ Config: unknown; Connection: unknown }> {
@@ -24,7 +24,7 @@ export class TestPlugin extends ValnorPlugin<{ Config: unknown; Connection: unkn
 
    newQueryHandler<T extends { Row?: unknown; Params?: unknown; QueryResult: object; QueryClient: unknown }>(
       query: SqlQuery<{ Params: T["Params"]; Row: T["Row"] }>,
-   ): AsyncQueryHandler<T> {
+   ): SqlQueryHandler<T> {
       return new TestDriverQueryHandler(query);
    }
 }

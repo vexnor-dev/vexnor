@@ -1,12 +1,15 @@
-import { afterAll, beforeAll, describe, expect, test } from "vitest";
+import { beforeAll, describe, expect, test } from "vitest";
 import crypto, { randomUUID } from "node:crypto";
 import assert, { ok } from "node:assert";
 import { param, row, sql } from "valnor";
-import { Account, IAccountInsert, IAccountJson, IAccountSelect } from "./codegen/valnor_test.account-table.js";
 import { pool } from "./mssql-pool.js";
 import { jsonMany } from "valnor-mssql";
+import { Account, IAccountInsert, IAccountJson, IAccountSelect } from "./codegen/valnor_test.schema.js";
+import { getTag } from "./config.js";
 
-describe.sequential("valnor mssql e2e tests", () => {
+describe.sequential("valnor mssql e2e tests", (ctx) => {
+   const TAG = getTag(ctx);
+
    const rootAccounts: IAccountSelect[] = [];
    const childAccounts: IAccountSelect[] = [];
    const ROOT_COUNT = 100;
@@ -18,19 +21,6 @@ describe.sequential("valnor mssql e2e tests", () => {
       where ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}
    `;
 
-   afterAll(async () => {
-      await pool.close();
-   });
-
-   beforeAll(async () => {
-      await pool.connect();
-      await sql`
-         delete
-         from ${Account}
-         where ${Account.$accountId} <> ${randomUUID()}
-      `.mssql.run({ db: pool.request() });
-   });
-
    beforeAll(async () => {
       {
          const newAccountsArgs = [];
@@ -39,9 +29,9 @@ describe.sequential("valnor mssql e2e tests", () => {
             const index = String(i).padStart(3, "0");
             newAccountsArgs.push({
                status: "CREATED",
-               firstName: `John-${index}-${id} (root)`,
-               lastName: `Doe-${index}-${id} (root)`,
-               email: `john.doe.root-${index}-${id}@example.com`,
+               firstName: `John-${index}-${id} (root)-${TAG}`,
+               lastName: `Doe-${index}-${id} (root)-${TAG}`,
+               email: `john.doe.root-${index}-${id}-${TAG}@example.com`,
             });
          }
          const accounts = await sql`
@@ -49,16 +39,14 @@ describe.sequential("valnor mssql e2e tests", () => {
                ${Account.insertCols(...newAccountsArgs)}
                output ${row(Account.as(`inserted`).$$)}
                ${Account.insertVals(...newAccountsArgs)}
-         `.mssql
-            .getAll({
-               db: pool.request(),
-               options: {
-                  debug: (data) => {
-                     console.log(data.text);
-                  },
+         `.mssql.getAll({
+            db: pool.request(),
+            options: {
+               debug: (data) => {
+                  console.log(data.text);
                },
-            })
-            .catch((err) => console.error(err));
+            },
+         });
 
          ok(accounts?.length, "root accounts not inserted");
          assert.deepEqual(accounts.length, ROOT_COUNT);
@@ -76,9 +64,9 @@ describe.sequential("valnor mssql e2e tests", () => {
 
             const accountInsert: IAccountInsert = {
                status: "CREATED",
-               firstName: `John-${rootIndex}-${childIndex}-${id} (child ${childIndex})`,
-               lastName: `Doe-${rootIndex}-${childIndex}-${id} (child ${childIndex})`,
-               email: `john.doe.child-${rootIndex}-${childIndex}-${id}@example.com`,
+               firstName: `John-${rootIndex}-${childIndex}-${id} (child ${childIndex})-${TAG}`,
+               lastName: `Doe-${rootIndex}-${childIndex}-${id} (child ${childIndex})-${TAG}`,
+               email: `john.doe.child-${rootIndex}-${childIndex}-${id}-${TAG}@example.com`,
                parentId: parent.accountId,
             };
             const account = await sql`
@@ -90,9 +78,9 @@ describe.sequential("valnor mssql e2e tests", () => {
             expect(account).toEqual(
                expect.objectContaining({
                   status: "CREATED",
-                  firstName: `John-${rootIndex}-${childIndex}-${id} (child ${childIndex})`,
-                  lastName: `Doe-${rootIndex}-${childIndex}-${id} (child ${childIndex})`,
-                  email: `john.doe.child-${rootIndex}-${childIndex}-${id}@example.com`,
+                  firstName: `John-${rootIndex}-${childIndex}-${id} (child ${childIndex})-${TAG}`,
+                  lastName: `Doe-${rootIndex}-${childIndex}-${id} (child ${childIndex})-${TAG}`,
+                  email: `john.doe.child-${rootIndex}-${childIndex}-${id}-${TAG}@example.com`,
                   parentId: parent.accountId,
                }),
             );

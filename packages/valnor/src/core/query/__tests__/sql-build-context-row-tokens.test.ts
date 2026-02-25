@@ -14,15 +14,14 @@ describe("SqlBuildContextRowTokens", () => {
         Map {
           "SqlSelectRow" => 2,
           "SqlQuery" => 2,
-          "SqlSelectColumn" => 3,
-          "SqlSelectAll" => 2,
+          "SqlRowColumn" => 2,
         }
       `);
 
       expect(query1.$accountId).toMatchObject({
-         type: "SqlSelectColumn",
+         type: "SqlRowColumn",
          key: "accountId",
-         id: "SqlSelectColumn#1(SqlQuery#1/SqlTableColumn#1(account.account_id as accountId))",
+         id: "SqlRowColumn#1(SqlQuery#1/SqlTableColumn#1(account.account_id as accountId))",
          query: {
             id: `SqlQuery#1`,
          },
@@ -33,15 +32,15 @@ describe("SqlBuildContextRowTokens", () => {
       });
 
       expect(query0.$accountId).toMatchObject({
-         type: "SqlSelectColumn",
+         type: "SqlRowColumn",
          key: "accountId",
-         id: "SqlSelectColumn#3(SqlQuery#2/SqlSelectColumn#1(SqlQuery#1/SqlTableColumn#1(account.account_id as accountId)))",
+         id: "SqlRowColumn#3(SqlQuery#2/SqlRowColumn#1(SqlQuery#1/SqlTableColumn#1(account.account_id as accountId)))",
          query: {
             id: `SqlQuery#2`,
          },
          target: {
             key: "accountId",
-            id: "SqlSelectColumn#1(SqlQuery#1/SqlTableColumn#1(account.account_id as accountId))",
+            id: "SqlRowColumn#1(SqlQuery#1/SqlTableColumn#1(account.account_id as accountId))",
          },
       });
 

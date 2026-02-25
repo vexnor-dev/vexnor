@@ -1,6 +1,6 @@
 import { LibraryOutputFile, SqlColumnInfo, SqlColumnType, SqlEnumInfo, SqlTableInfo } from "./valnor-schema-types.js";
 import { ValnorConnection } from "./valnor-connection.js";
-import { AsyncQueryHandler, SqlDatabase, SqlQuery } from "../core/index.js";
+import { SqlQueryHandler, SqlDatabase, SqlQuery } from "../core/index.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ValnorPluginAny = ValnorPlugin<any>;
@@ -39,7 +39,7 @@ export abstract class ValnorPlugin<T extends { Connection: unknown; Config: unkn
 
    abstract newQueryHandler<T extends { Row?: unknown; Params?: unknown; QueryResult: object; QueryClient: unknown }>(
       query: SqlQuery<{ Params: T["Params"]; Row: T["Row"] }>,
-   ): AsyncQueryHandler<T>;
+   ): SqlQueryHandler<T>;
 }
 
 export type GetSchemaArgs<T> = { schemas: string[] } & T;

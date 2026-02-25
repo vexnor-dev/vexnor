@@ -1,21 +1,18 @@
 import {
-   BuildSqlParams,
-   info,
-   JsonRow,
-   quote,
-   raw,
-   sql,
-   SqlBuildContext,
-   SqlBuildError,
    SqlBuildOptions,
-   SqlCharm,
+   SqlBuildContext,
    SqlQuery,
-   SqlQueryAny,
+   quote,
+   SqlBuildError,
+   PARAMS,
+   SqlCharm,
    SqlSelectCharm,
+   sql,
+   raw,
+   BuildSqlParams,
+   SqlQueryAny,
 } from "valnor";
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type JsonAggregationPostgresAny = JsonAggregationPostgres<any>;
+import { ok } from "node:assert";
 
 export type JsonResultType = "one" | "many";
 
@@ -26,17 +23,19 @@ export type JsonResultType = "one" | "many";
  * FROM ${Account} ${jsonAgg(UserOrders)}
  * WHERE ${Account.$accountId} = ${param("accountId")}
  */
-export class JsonAggregationPostgres<
-   T extends { Row?: unknown; Params?: unknown; Type?: Array<T["Row"]> | (T["Row"] | null) },
-> extends SqlCharm<Pick<T, "Params" | "Type">> {
-   static resultTypes: Record<JsonResultType, { coalesce: string; func: string }> = {
-      many: {
-         func: "jsonb_agg",
-         coalesce: "'[]'",
-      },
+export class JsonAggregationMssql<T extends { Row?: unknown; Params?: unknown }> extends SqlCharm<Pick<T, "Params">> {
+   declare readonly [PARAMS]: T["Params"];
+   static readonly CONFIG: Record<
+      JsonResultType,
+      {
+         FOR_JSON: string;
+      }
+   > = {
       one: {
-         func: "to_jsonb",
-         coalesce: "null",
+         FOR_JSON: "for json path, WITHOUT_ARRAY_WRAPPER, include_null_values",
+      },
+      many: {
+         FOR_JSON: "for json path, include_null_values",
       },
    };
 
@@ -61,27 +60,25 @@ export class JsonAggregationPostgres<
       const queryName = context.scope({ query: this.query }, () => {
          return context.getQueryName(this.query);
       });
-
       switch (context.keyword) {
          case "select":
-            context.addStrings(`"${queryName}_result"`);
+            context.addStrings(`"${queryName}_result"."${queryName}"`);
             break;
          case "from": {
-            const { coalesce, func } = JsonAggregationPostgres.resultTypes[this.type];
+            const { FOR_JSON } = JsonAggregationMssql.CONFIG[this.type] ?? {};
+            ok(FOR_JSON !== undefined, `FOR_JSON is not defined for type: ${this.type}`);
             const query = sql`
-                ${info({ inline: true })}
-               left join lateral (
-               select coalesce(${raw(func, { quote: false })}(${this.query.$$}), ${raw(coalesce, { quote: false })}) as ${raw(`${queryName}_result`)}
-               from ${this.query}) as ${raw(queryName)}
-               on true
-            `;
+               outer apply (
+               select coalesce((${this.query.render({ format: "sql" })} ${raw(FOR_JSON, { quote: false })}), '[]')
+                  as ${raw(queryName)}) as ${raw(`${queryName}_result`)}`;
+
             context.scope({ query, inline: true }, () => {
                query.build(context, options);
             });
             break;
          }
          default:
-            throw new TypeError(`Cannot use ${this.constructor.name} with SQL keyword: ${context.keyword}`);
+            throw new TypeError(`Cannot use JsonAggregationMssql with SQL keyword: ${context.keyword}`);
       }
    }
 
@@ -89,14 +86,14 @@ export class JsonAggregationPostgres<
     * Returns a SqlSelectValue with the specified key.
     * @param key
     */
-   as<Key extends string>(key: Key): SqlSelectCharm<{ Key: Key; Type: T["Type"]; Params: T["Params"] }> {
+   as<Key extends string>(key: Key): SqlSelectCharm<{ Key: Key; Type: string; Params: T["Params"] }> {
       const query = this.query;
-      return new SqlSelectCharm<{ Key: Key; Type: T["Type"]; Params: T["Params"] }>({
+      return new SqlSelectCharm<{ Key: Key; Type: string; Params: T["Params"] }>({
          key,
          params: this.params as BuildSqlParams<T["Params"]>,
          build(context: SqlBuildContext) {
-            const queryName = context.scope({ query }, () => context.getQueryName(query));
-            context.addStrings(`"${queryName}_result" as ${quote(this.key)}`);
+            const queryName = context.getQueryName(query);
+            context.addStrings(`"${queryName}_result"."${queryName}" as ${quote(this.key)}`);
          },
       });
    }
@@ -112,7 +109,7 @@ export class JsonAggregationPostgres<
  * WHERE ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}
  * */
 export function jsonOne<T extends SqlQueryAny>(query: T): JsonAggregationResult<T> {
-   return new JsonAggregationPostgres(query, {
+   return new JsonAggregationMssql(query, {
       type: "one",
    }) as JsonAggregationResult<T>;
 }
@@ -127,7 +124,7 @@ export function jsonOne<T extends SqlQueryAny>(query: T): JsonAggregationResult<
  * WHERE ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}
  * */
 export function jsonMany<T extends SqlQueryAny>(query: T): JsonAggregationResult<T, []> {
-   return new JsonAggregationPostgres(query, {
+   return new JsonAggregationMssql(query, {
       type: "many",
    }) as JsonAggregationResult<T>;
 }
@@ -135,6 +132,6 @@ export function jsonMany<T extends SqlQueryAny>(query: T): JsonAggregationResult
 export type JsonAggregationResult<T, R extends object | [] = object> =
    T extends SqlQuery<infer O extends { Row?: unknown; Params?: unknown }>
       ? R extends []
-         ? JsonAggregationPostgres<O & { Type: JsonRow<O["Row"]>[] }>
-         : JsonAggregationPostgres<O & { Type: JsonRow<O["Row"]> | null }>
+         ? JsonAggregationMssql<O & { Type: string }>
+         : JsonAggregationMssql<O & { Type: string }>
       : never;

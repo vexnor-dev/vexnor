@@ -1,10 +1,51 @@
-import { describe, expect, test } from "vitest";
-import { info, param, row, sql, SqlBuildContext } from "valnor";
-import { Account, Order } from "./codegen/valnor_test.schema.js";
-import { jsonMany, PostgresTokenizer } from "valnor-postgres";
+import { beforeAll, describe, expect, test } from "vitest";
+import { info, param, row, SqlBuildContext } from "valnor";
+import { Account, AccountStatusUdt, Order } from "./codegen/valnor_test.schema.js";
+import { jsonMany, PostgresTokenizer, sql } from "valnor-postgres";
 import "valnor/testing";
+import { pool } from "./postgres-pool.js";
 
-describe("sql plugin jsonAgg() tests", () => {
+describe.sequential("jsonMany() tests", () => {
+   const TAG = "json-many-test";
+
+   beforeAll(async () => {
+      const parentAccount = await sql`
+         insert into ${Account}
+            ${Account.insertColsVals({
+               status: AccountStatusUdt.CREATED,
+               firstName: "John-0-json-one",
+               lastName: "Doe-0-json-one",
+               email: `john.doe-${TAG}@example.com`,
+            })}
+            returning ${row(Account.$$)}
+      `.getOneRequired({ db: pool });
+      expect(parentAccount.accountId).toBeDefined();
+
+      const childrenAccounts = await sql`
+         insert into ${Account}
+            ${Account.insertColsVals(
+               {
+                  status: AccountStatusUdt.CREATED,
+                  firstName: "John-1-json-one",
+                  lastName: "Doe-1-json-one",
+                  email: `john.doe-1-${TAG}@example.com`,
+                  parentId: parentAccount.accountId,
+               },
+               {
+                  status: AccountStatusUdt.CREATED,
+                  firstName: "John-2-json-one",
+                  lastName: "Doe-2-json-one",
+                  email: `john.doe-2-${TAG}@example.com`,
+                  parentId: parentAccount.accountId,
+               },
+            )}
+            returning ${row(Account.$$)}
+      `.getAll({ db: pool });
+      expect(childrenAccounts).toHaveLength(2);
+
+      console.log("children", childrenAccounts);
+   });
+
    const AccountOrders = sql`
       ${info({ label: "AccountOrders" })}
       select ${row(Order.$orderId, Order.$status, Order.$createdAt, Order.$modifiedAt)}
@@ -13,7 +54,7 @@ describe("sql plugin jsonAgg() tests", () => {
       order by ${Order.$createdAt} desc
       limit ${param<{ limit: number }>("limit")}`;
 
-   test("jsonAgg(): select", () => {
+   test("jsonMany(): select", () => {
       const context = new SqlBuildContext({ tokenizer: new PostgresTokenizer("test") });
       context.next("select");
       const jsonAccountOrders = jsonMany(AccountOrders);
@@ -27,13 +68,15 @@ describe("sql plugin jsonAgg() tests", () => {
    });
 
    const INVALID_KEYWORDS_FOR_JSON_AGG = ["where", "group by", "order by", "update", "delete from"];
-   test.each(INVALID_KEYWORDS_FOR_JSON_AGG)("jsonAgg(): %s throws error", (keyword) => {
+   test.each(INVALID_KEYWORDS_FOR_JSON_AGG)("jsonMany(): %s throws error", (keyword) => {
       const context = new SqlBuildContext({ tokenizer: new PostgresTokenizer("test") });
       context.next(keyword);
-      expect(() => jsonMany(AccountOrders).build(context, {})).toThrow("Cannot use jsonAgg() with SQL keyword:");
+      expect(() => jsonMany(AccountOrders).build(context, {})).toThrow(
+         "Cannot use JsonAggregationPostgres with SQL keyword:",
+      );
    });
 
-   test("jsonAgg(): from", () => {
+   test("jsonMany(): from", () => {
       const context = new SqlBuildContext({ tokenizer: new PostgresTokenizer("test") });
       context.next("from");
       jsonMany(AccountOrders).build(context, {});
@@ -69,7 +112,7 @@ describe("sql plugin jsonAgg() tests", () => {
       );
    });
 
-   test("jsonAgg() with params", () => {
+   test("jsonMany() with params", () => {
       const AccountOrders = sql`
          ${info({ label: "AccountOrders" })}
          select ${row(Order.$orderId, Order.$status, Order.$createdAt, Order.$modifiedAt)}
@@ -83,7 +126,7 @@ describe("sql plugin jsonAgg() tests", () => {
          from ${Account} ${jsonMany(AccountOrders)}
          order by ${Account.$accountId}
       `;
-      const target = query.getSql({ params: { limit: 5 } });
+      const target = query.query.getSql({ params: { limit: 5 } });
       expect(target.values).toEqual([5]);
 
       expect(target.text).toMatchInlineSnapshot(
@@ -135,7 +178,7 @@ describe("sql plugin jsonAgg() tests", () => {
       );
    });
 
-   test("jsonAgg() with custom alias", () => {
+   test("jsonMany() with custom alias", () => {
       const AccountOrders = sql`
          ${info({ label: "AccountOrders" })}
          select ${row(Order.$orderId, Order.$status, Order.$createdAt, Order.$modifiedAt)}
@@ -150,7 +193,7 @@ describe("sql plugin jsonAgg() tests", () => {
          order by ${Account.$accountId}
       `;
 
-      const target = query.getSql({ params: { limit: 5 } });
+      const target = query.query.getSql({ params: { limit: 5 } });
       expect(target.values).toEqual([5]);
       expect(target.text).toMatchInlineSnapshot(
          `

@@ -1,4 +1,4 @@
-import { AsyncQueryHandler, SqlQuery, SqlQueryExtended, newSqlQuery } from "./query/index.js";
+import { SqlQueryHandler, SqlQuery, SqlQueryExtended, newSqlQuery } from "./query/index.js";
 import { Sql, ParamsOf, RowOf } from "./sql-base.js";
 
 type _SqlInlineValue_ = Sql | string | number | boolean | null | undefined | Date | bigint | Buffer;
@@ -52,6 +52,6 @@ export type ExtractParamsFromQuery<T> =
    T extends SqlQueryExtended<infer U extends { Params?: any }>
       ? U["Params"]
       : // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        T extends AsyncQueryHandler<infer U extends { Params?: any; Row?: any; QueryResult: any; QueryClient: any }>
+        T extends SqlQueryHandler<infer U extends { Params?: any; Row?: any; QueryResult: any; QueryClient: any }>
         ? U["Params"]
         : never;

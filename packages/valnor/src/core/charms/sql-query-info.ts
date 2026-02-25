@@ -12,7 +12,9 @@ export class SqlQueryInfo extends Sql {
 
    constructor(public readonly options: SqlQueryInfoOptions) {
       super({
-         id: JSON.stringify(options).replace(`"`, "").replace(" ", ""),
+         id: Object.entries(options)
+            .map(([k, v]) => `${k}=${v}`)
+            .join(", "),
       });
       this.label = options.label ?? null;
       this.inline = options.inline ?? null;

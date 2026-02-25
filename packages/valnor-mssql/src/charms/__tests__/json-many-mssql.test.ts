@@ -1,6 +1,6 @@
 import { assertType, describe, expect, test } from "vitest";
 import { param, row, sql, SqlBuildContext, SqlQuery } from "valnor";
-import { jsonMany } from "../json-many-mssql.js";
+import { jsonMany } from "../json-aggregation-mssql.js";
 import { Account, IAccountSelect } from "valnor/testing";
 
 describe("json-agg-mssql tests", () => {
@@ -36,10 +36,12 @@ describe("json-agg-mssql tests", () => {
       target.build(context, {});
       console.log(context.text);
       expect(context.text).toMatchInlineSnapshot(`
-        "OUTER apply (
+        "/* <query_1> */
+        OUTER apply (
           SELECT
             coalesce(
               (
+                /* <query_2> */
                 SELECT
                   "children"."account_id" AS "accountId",
                   "children"."status",
@@ -53,12 +55,15 @@ describe("json-agg-mssql tests", () => {
                 FROM
                   "main"."account" AS "children"
                 WHERE
-                  "children"."parent_id" = "a_1"."account_id" FOR json path,
+                  "children"."parent_id" = "a_1"."account_id"
+                  /* </query_2> */
+                  FOR json path,
                   include_null_values
               ),
               '[]'
             ) AS "query_0"
-        ) AS "query_0_result""
+        ) AS "query_0_result"
+        /* </query_1> */"
       `);
    });
 
@@ -88,7 +93,8 @@ describe("json-agg-mssql tests", () => {
       const { text } = query.getSql({ params: { limit: 10 }, options: {} });
       console.log(text);
       expect(text).toMatchInlineSnapshot(`
-        "SELECT
+        "/* <query_0> */
+        SELECT
           "a_1"."account_id" AS "accountId",
           "a_1"."status",
           "a_1"."email",
@@ -100,10 +106,13 @@ describe("json-agg-mssql tests", () => {
           "a_1"."parent_id" AS "parentId",
           "query_1_result"."query_1" AS "children"
         FROM
-          "main"."account" AS "a_1" OUTER apply (
+          "main"."account" AS "a_1"
+          /* <query_2> */
+          OUTER apply (
             SELECT
               coalesce(
                 (
+                  /* <query_3> */
                   SELECT
                     "a_2"."account_id" AS "accountId",
                     "a_2"."status",
@@ -123,12 +132,16 @@ describe("json-agg-mssql tests", () => {
                   OFFSET
                     0 ROWS
                   FETCH NEXT
-                    ? ROWS ONLY FOR json path,
+                    ? ROWS ONLY
+                    /* </query_3> */
+                    FOR json path,
                     include_null_values
                 ),
                 '[]'
               ) AS "query_1"
-          ) AS "query_1_result""
+          ) AS "query_1_result"
+          /* </query_2> */
+          /* </query_0> */"
       `);
    });
 

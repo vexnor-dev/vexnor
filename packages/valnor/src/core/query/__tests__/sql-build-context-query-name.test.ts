@@ -8,7 +8,7 @@ import { param } from "../sql-param.js";
 import { Order } from "@test-models/valnor_test.order-table.js";
 import { info } from "../../charms/index.js";
 import { OrderItem } from "@test-models/valnor_test.order_item-table.js";
-import { SqlSelectColumn } from "../sql-select-column.js";
+import { SqlRowColumn } from "../sql-row-column.js";
 import { before } from "node:test";
 import console from "node:console";
 
@@ -83,8 +83,8 @@ describe("SqlBuildContext getQueryName", () => {
       // Check what's in root query rawValues
       console.log("\nRoot query rawValues:");
       query.rawValues.forEach((val, idx) => {
-         if (val instanceof SqlSelectColumn && val.id === column.id) {
-            console.log(`  rawValue[${idx}] is SqlSelectColumn with matching ID!`);
+         if (val instanceof SqlRowColumn && val.id === column.id) {
+            console.log(`  rawValue[${idx}] is SqlRowColumn with matching ID!`);
             console.log(`  Is it the same instance? ${val === column}`);
          }
          if (val instanceof SqlSelectRow) {

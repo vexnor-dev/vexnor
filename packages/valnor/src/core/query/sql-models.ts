@@ -3,8 +3,8 @@ import { SqlSelectAll } from "./sql-select-all.js";
 import { SqlTableColumn } from "../schema/index.js";
 import { SqlSelectValue } from "./sql-select-value.js";
 import { SqlSelectCharm } from "./sql-charm.js";
+import { SqlRowColumn } from "./sql-row-column.js";
 import { SqlSelectColumn } from "./sql-select-column.js";
-import { SqlSelectField } from "./sql-select-field.js";
 
 export type SqlBuildToken =
    | { type: "text"; value: string }
@@ -19,11 +19,11 @@ export type SqlQueryRow<T extends { Row?: unknown; Params?: unknown }> =
 export type SqlQueryAll<Row> = Row extends Record<string, unknown> ? SqlSelectAll<Row> : null;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type SqlColumnTargetAny = SqlColumnTarget<any>;
+export type SqlColumnTargetAny = SqlRowColumnTarget<any>;
 
-export type SqlColumnTarget<T extends { Key: string; Type?: unknown }> =
+export type SqlRowColumnTarget<T extends { Key: string; Type?: unknown }> =
    | SqlTableColumn<{ Key: T["Key"]; Type: T["Type"] }>
-   | SqlSelectColumn<{ Key: T["Key"]; Type: T["Type"] }>
+   | SqlRowColumn<{ Key: T["Key"]; Type: T["Type"] }>
    | SqlSelectValue<{ Key: T["Key"]; Type: T["Type"]; Params?: unknown }>
    | SqlSelectCharm<{ Key: T["Key"]; Type: T["Type"]; Params?: unknown }>
-   | SqlSelectField<{ Key: T["Key"]; Type: T["Type"] }>;
+   | SqlSelectColumn<{ Key: T["Key"]; Type: T["Type"] }>;

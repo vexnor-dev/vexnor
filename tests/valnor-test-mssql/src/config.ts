@@ -23,7 +23,14 @@ const Config = Type.Object({
       .Encode((value) => value.toString()),
 });
 
-export const { MSSQL_USER, MSSQL_DATABASE, MSSQL_PASSWORD, MSSQL_HOST, MSSQL_PORT } = Value.Decode(
-   Config,
-   process.env,
-);
+export const { MSSQL_USER, MSSQL_DATABASE, MSSQL_PASSWORD, MSSQL_HOST, MSSQL_PORT } = Value.Decode(Config, process.env);
+
+export const tags = new Map<string, string>();
+export function getTag(arg: { name: string }): string {
+   if (tags.has(arg.name)) {
+      return tags.get(arg.name)!;
+   }
+
+   tags.set(arg.name, `tag_${tags.size + 1}`);
+   return tags.get(arg.name)!;
+}

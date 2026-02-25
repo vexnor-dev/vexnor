@@ -1,10 +1,61 @@
-import { describe, expect, test } from "vitest";
-import { info, param, row, sql, SqlBuildContext } from "valnor";
-import { Account, Order } from "./codegen/valnor_test.schema.js";
-import { jsonMany, MssqlParamFormatter, MssqlTokenizer } from "valnor-mssql";
-import "valnor/testing";
+import { beforeAll, describe, expect, test } from "vitest";
+import { info, param, row, SqlBuildContext } from "valnor";
+import { Account, IAccountInsert, Order } from "./codegen/valnor_test.schema.js";
+import { jsonMany, MssqlParamFormatter, MssqlTokenizer, sql } from "valnor-mssql";
+import { pool } from "./mssql-pool.js";
+import { getTag } from "./config.js";
 
-describe("sql plugin jsonAgg() tests", () => {
+describe.sequential("jsonMany() tests", (ctx) => {
+   const TAG = getTag(ctx);
+
+   beforeAll(async () => {
+      const parentAccount = await sql`
+         insert into ${Account}
+            ${Account.insertCols({
+               status: "created",
+               firstName: `John-0-${TAG}}`,
+               lastName: `Doe-0-${TAG}}`,
+               email: `john.doe-${TAG}@example.com`,
+            })}
+            output ${row(Account.as(`inserted`).$$)}
+            ${Account.insertVals({
+               status: "created",
+               firstName: `John-0-${TAG}}`,
+               lastName: `Doe-0-${TAG}}`,
+               email: `john.doe-${TAG}@example.com`,
+            })}
+      `.getOneRequired({ db: pool.request() });
+      expect(parentAccount.accountId).toBeDefined();
+
+      const childrenInserts: IAccountInsert[] = [
+         {
+            status: "created",
+            firstName: `John-1-${TAG}`,
+            lastName: "Doe-1-${TAG}",
+            email: `john.doe-1-${TAG}@example.com`,
+            parentId: parentAccount.accountId,
+         },
+         {
+            status: "created",
+            firstName: `John-2-${TAG}`,
+            lastName: `Doe-2-${TAG}`,
+            email: `john.doe-2-${TAG}@example.com`,
+            parentId: parentAccount.accountId,
+         },
+      ];
+
+      const insertChildren = sql`
+         insert into ${Account}
+            ${Account.insertCols(...childrenInserts)}
+            output ${row(Account.as(`inserted`).$$)}
+            ${Account.insertVals(...childrenInserts)}
+      `;
+      const childrenAccounts = await insertChildren.getAll({ db: pool.request() });
+      expect(childrenAccounts).toHaveLength(2);
+
+      console.log("children", childrenAccounts);
+   });
+
    const AccountOrders = sql`
       ${info({ label: "AccountOrders" })}
       select ${row(Order.$orderId, Order.$status, Order.$createdAt, Order.$modifiedAt)}
@@ -25,10 +76,12 @@ describe("sql plugin jsonAgg() tests", () => {
       context.next("from");
       jsonMany(AccountOrders).build(context, {});
       expect(context.text).toMatchInlineSnapshot(`
-        "OUTER apply (
+        "/* <query_1> */
+        OUTER apply (
           SELECT
             coalesce(
               (
+                /* <AccountOrders> */
                 /* --label: AccountOrders */
                 SELECT
                   "o_1"."order_id" AS "orderId",
@@ -44,12 +97,15 @@ describe("sql plugin jsonAgg() tests", () => {
                 OFFSET
                   0 rows
                 FETCH NEXT
-                  ? rows ONLY FOR json path,
+                  ? rows ONLY
+                  /* </AccountOrders> */
+                  FOR json path,
                   include_null_values
               ),
               '[]'
             ) AS "AccountOrders"
-        ) AS "AccountOrders_result""
+        ) AS "AccountOrders_result"
+        /* </query_1> */"
       `);
    });
 
@@ -73,7 +129,8 @@ describe("sql plugin jsonAgg() tests", () => {
         ]
       `);
       expect(text).toMatchInlineSnapshot(`
-        "SELECT
+        "/* <query_0> */
+        SELECT
           "a_1"."account_id" AS "accountId",
           "a_1"."parent_id" AS "parentId",
           "a_1"."status",
@@ -86,10 +143,12 @@ describe("sql plugin jsonAgg() tests", () => {
           "AccountOrders_result"."AccountOrders" AS "orders"
         FROM
           "valnor_test"."account" AS "a_1"
+          /* <query_2> */
           OUTER APPLY (
             SELECT
               coalesce(
                 (
+                  /* <AccountOrders> */
                   /* --label: AccountOrders */
                   SELECT
                     "o_2"."order_id" AS "orderId",
@@ -106,6 +165,7 @@ describe("sql plugin jsonAgg() tests", () => {
                     0 rows
                   FETCH NEXT
                     @param_0 rows only
+                    /* </AccountOrders> */
                   FOR JSON
                     path,
                     include_null_values
@@ -113,10 +173,12 @@ describe("sql plugin jsonAgg() tests", () => {
                 '[]'
               ) AS "AccountOrders"
           ) AS "AccountOrders_result"
+          /* </query_2> */
         WHERE
           "a_1"."email" = @param_1
         ORDER BY
-          "a_1"."account_id""
+          "a_1"."account_id"
+          /* </query_0> */"
       `);
    });
 });

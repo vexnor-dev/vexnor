@@ -1,4 +1,4 @@
-import { AsyncQueryHandler, SqlQuery, SqlRunArgs } from "valnor";
+import { SqlQueryHandler, SqlQuery, SqlRunArgs } from "valnor";
 import type { QueryResult } from "pg";
 import { PostgresTokenizer } from "./postgres-tokenizer.js";
 
@@ -8,7 +8,7 @@ export type PostgresClient = {
 
 type RowOrDefault<T> = T extends object ? T : never;
 
-export class PostgresQueryHandler<T extends { Row?: unknown; Params?: unknown }> extends AsyncQueryHandler<{
+export class PostgresQueryHandler<T extends { Row?: unknown; Params?: unknown }> extends SqlQueryHandler<{
    Row: T["Row"];
    Params: T["Params"];
    QueryResult: QueryResult<RowOrDefault<T["Row"]>>;

@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, describe, expect, test } from "vitest";
+import { beforeAll, describe, expect, test } from "vitest";
 import crypto, { randomUUID } from "node:crypto";
 import { ok } from "node:assert";
 import { param, row, rowType } from "valnor";
@@ -7,11 +7,12 @@ import { AccountStatusUdt } from "./codegen/valnor_test-enums.js";
 import { pool } from "./postgres-pool.js";
 import { jsonMany, sql } from "valnor-postgres";
 
-describe.sequential("valnor postgres e2e tests", () => {
+describe.sequential("valnor postgres e2e tests", { concurrent: false }, () => {
    const rootAccounts: IAccountSelect[] = [];
    const childAccounts: IAccountSelect[] = [];
    const ROOT_COUNT = 100;
    const CHILD_FACTOR = 3;
+   const TEST_MARKER = "e2e-test-suite";
 
    const findAccountById = sql`
          select ${row(Account.$$)}
@@ -19,74 +20,56 @@ describe.sequential("valnor postgres e2e tests", () => {
       where ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}
    `;
 
-   afterAll(async () => {
-      await pool.end();
-   });
-
    beforeAll(async () => {
-      await sql`
-         delete
-         from ${Account}
-         where ${Account.$accountId} <> ${randomUUID()}
-      `.run({ db: pool });
-   });
-
-   beforeAll(async () => {
-      // insert accounts
-      {
-         const newAccountsArgs = [];
-         for (let i = 0; i < ROOT_COUNT; i++) {
-            const index = String(i).padStart(3, "0");
-            const id = crypto.randomUUID().slice(0, 4);
-            newAccountsArgs.push({
-               status: AccountStatusUdt.CREATED,
-               firstName: `John-${index}-${id} (root)`,
-               lastName: `Doe-${index}-${id} (root)`,
-               email: `john.doe.root-${index}-${id}@example.com`,
-            });
-         }
-         const accounts = await sql`
+      const newAccountsArgs = [];
+      for (let i = 0; i < ROOT_COUNT; i++) {
+         const index = String(i).padStart(3, "0");
+         const id = crypto.randomUUID().slice(0, 4);
+         newAccountsArgs.push({
+            status: AccountStatusUdt.CREATED,
+            firstName: `John-${index}-${id} (root)`,
+            lastName: `Doe-${index}-${id} (root)`,
+            email: `john.doe.root-${index}-${id}-${TEST_MARKER}@example.com`,
+         });
+      }
+      const accounts = await sql`
             insert into ${Account}
                ${Account.insertColsVals(...newAccountsArgs)}
                returning ${row(Account.$$)}
          `.getAll({ db: pool });
 
-         ok(accounts?.length, "root accounts not inserted");
-         expect(accounts.length).toBe(100);
-         rootAccounts.push(...accounts);
-      }
+      ok(accounts?.length, "root accounts not inserted");
+      expect(accounts.length).toBe(100);
+      rootAccounts.push(...accounts);
 
+      const childAccountsArgs = [];
       for (let i = 0; i < rootAccounts.length; i++) {
          const rootIndex = String(i).padStart(3, "0");
+         const parent = rootAccounts[i];
+         ok(parent?.accountId);
+
          for (let k = 0; k < CHILD_FACTOR; k++) {
             const childIndex = String(k).padStart(3, "0");
             const id = crypto.randomUUID().slice(0, 4);
-            const parent = rootAccounts[i];
-            ok(parent);
-
-            const account = await sql`
-            insert into ${Account}
-               ${Account.insertColsVals({
-                  status: AccountStatusUdt.CREATED,
-                  firstName: `John-${rootIndex}-${childIndex}-${id} (child ${childIndex})`,
-                  lastName: `Doe-${rootIndex}-${childIndex}-${id} (child ${childIndex})`,
-                  email: `john.doe.child-${rootIndex}-${childIndex}-${id}@example.com`,
-                  parentId: parent.accountId,
-               })}
-               returning ${row(Account.$$)}
-         `.getOneRequired({ db: pool });
-            expect(account).toEqual(
-               expect.objectContaining({
-                  status: AccountStatusUdt.CREATED,
-                  firstName: `John-${rootIndex}-${childIndex}-${id} (child ${childIndex})`,
-                  lastName: `Doe-${rootIndex}-${childIndex}-${id} (child ${childIndex})`,
-                  email: `john.doe.child-${rootIndex}-${childIndex}-${id}@example.com`,
-                  parentId: parent.accountId,
-               }),
-            );
-            childAccounts.push(account);
+            childAccountsArgs.push({
+               status: AccountStatusUdt.CREATED,
+               firstName: `John-${rootIndex}-${childIndex}-${id} (child ${childIndex})`,
+               lastName: `Doe-${rootIndex}-${childIndex}-${id} (child ${childIndex})`,
+               email: `john.doe.child-${rootIndex}-${childIndex}-${id}-${TEST_MARKER}@example.com`,
+               parentId: parent.accountId,
+            });
          }
       }
+
+      const children = await sql`
+         insert into ${Account}
+            ${Account.insertColsVals(...childAccountsArgs)}
+            returning ${row(Account.$$)}
+      `.getAll({ db: pool });
+
+      ok(children?.length, "child accounts not inserted");
+      expect(children.length).toBe(ROOT_COUNT * CHILD_FACTOR);
+      childAccounts.push(...children);
    });
 
    test("Check test accounts inserted", () => {

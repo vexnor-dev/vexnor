@@ -1,10 +1,10 @@
-import { AsyncQueryHandler, SqlInputArgs, SqlQuery, SqlRunArgs } from "valnor";
+import { SqlQueryHandler, SqlInputArgs, SqlQuery, SqlRunArgs } from "valnor";
 import { IResult, Request } from "mssql";
 import { MssqlTokenizer } from "./mssql-tokenizer.js";
 import { MssqlParamFormatter } from "./mssql-param-formatter.js";
 import "valnor/testing";
 
-export class MssqlQueryHandler<T extends { Params?: unknown; Row?: unknown }> extends AsyncQueryHandler<{
+export class MssqlQueryHandler<T extends { Params?: unknown; Row?: unknown }> extends SqlQueryHandler<{
    Row: T["Row"];
    Params: T["Params"];
    QueryResult: IResult<T["Row"]>;

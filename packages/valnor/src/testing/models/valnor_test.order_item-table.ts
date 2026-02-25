@@ -60,14 +60,14 @@ export type IOrderItemInsert = {
 export type IOrderItemUpdate = Partial<IOrderItemInsert>;
 
 export type IOrderItemSelect = {
-   readonly productPrice: string;
-   readonly orderItemId: string;
-   readonly quantity: number;
-   readonly discountPrice: string | null;
-   readonly modifiedAt: Date;
-   readonly createdAt: Date;
-   readonly orderId: string;
-   readonly productId: string;
+   productPrice: string;
+   orderItemId: string;
+   quantity: number;
+   discountPrice: string | null;
+   modifiedAt: Date;
+   createdAt: Date;
+   orderId: string;
+   productId: string;
 };
 
 export type IOrderItemJson = JsonRow<IOrderItemSelect>;

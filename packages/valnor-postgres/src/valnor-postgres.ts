@@ -12,7 +12,7 @@ import {
 import { Pool } from "pg";
 import { findEnums, findTables, getColumnType } from "./schema/index.js";
 import { PostgresQueryHandler } from "./postgres-query-handler.js";
-import { AsyncQueryHandler, SqlQuery } from "valnor";
+import { SqlQueryHandler, SqlQuery } from "valnor";
 
 /**
  * Valnor plugin for postgres.
@@ -78,7 +78,7 @@ export class ValnorPostgres extends ValnorPlugin<{ Config: ConnectionConfig; Con
 
    newQueryHandler<T extends { Row?: unknown; Params?: unknown; QueryResult: object; QueryClient: unknown }>(
       query: SqlQuery<{ Row: T["Row"]; Params: T["Params"] }>,
-   ): AsyncQueryHandler<T> {
+   ): SqlQueryHandler<T> {
       return new PostgresQueryHandler(query);
    }
 }

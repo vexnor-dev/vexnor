@@ -5,18 +5,16 @@ import { PARAMS, Sql, TYPE } from "../sql-base.js";
 import { SqlQueryInfo } from "../charms/index.js";
 import { hasParams, InferSelectRowByResult, SqlBuildOptions, SqlInputArgs } from "./sql-query-types.js";
 import { SqlSelectAll } from "./sql-select-all.js";
-import { Queue } from "../../lib/index.js";
+import { Lazy, Queue } from "../../lib/index.js";
 import { SqlBuildError } from "../sql-build-error.js";
 import { format } from "sql-formatter";
-import { SqlQueryAll, SqlQueryRow } from "./sql-models.js";
+import { SqlQueryRow, SqlQueryAll } from "./sql-models.js";
 import { SqlSelectValue } from "./sql-select-value.js";
 import { SqlSelectRow } from "./sql-select-row.js";
 import { SqlSelectCharm } from "./sql-charm.js";
 import console from "node:console";
-import { newSqlSelectColumn, SqlSelectColumn } from "./sql-select-column.js";
-import { SqlSelectField } from "./sql-select-field.js";
-
-export type ExtractQueryOptions<T> = T extends SqlQuery<infer R> ? R : never;
+import { newSqlRowColumn, SqlRowColumn } from "./sql-row-column.js";
+import { SqlSelectColumn } from "./sql-select-column.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlQueryAny = SqlQuery<any>;
@@ -28,15 +26,9 @@ export type SqlQueryExtended<T extends { Row?: unknown; Params?: unknown }> = Sq
 export declare const QUERY: unique symbol;
 
 export type QueryOf<S> = S extends { readonly [QUERY]?: infer R } ? R : unknown;
-export type ExtractQueryTypeArgs<Q> = Q extends SqlQuery<infer T> ? T : never;
 
-export interface SqlQueryArgs {
-   readonly info?: SqlQueryInfo;
-   readonly rawStrings: TemplateStringsArray;
-   readonly rawValues: unknown[];
-   readonly inline?: boolean;
-   readonly format?: SqlQueryFormat;
-}
+export type SqlQueryArgs = Pick<SqlQueryAny, "rawStrings" | "rawValues"> &
+   Partial<Pick<SqlQueryAny, "info" | "inline" | "format">>;
 
 export type SqlQueryFormat = "with" | "select" | "from" | "join" | "fn" | "sql";
 
@@ -50,11 +42,15 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
    readonly rawValues: unknown[];
    readonly info: SqlQueryInfo | null = null;
    readonly inline: boolean;
-   readonly row: SqlQueryRow<T>;
-   readonly $$: SqlQueryAll<T["Row"]>;
-   readonly params: BuildSqlParams<T["Params"]>;
    readonly format: SqlQueryFormat | null = null;
-   readonly queries: SqlQueryAny[];
+
+   private readonly _queries = new Lazy<SqlQueryAny[]>(this.createQueries.bind(this));
+   private readonly _params = new Lazy<BuildSqlParams<T["Params"]>>(this.createParams.bind(this));
+   private readonly _row = new Lazy<SqlQueryRow<T>>(this.createRow.bind(this));
+   private readonly _$$ = new Lazy<SqlQueryAll<T["Row"]>>(() => {
+      if (!this.row) return null as SqlQueryAll<T["Row"]>;
+      return new SqlSelectAll({ row: this.row, query: this }) as SqlQueryAll<T["Row"]>;
+   });
 
    constructor({ rawStrings, rawValues, ...args }: SqlQueryArgs) {
       super({
@@ -72,17 +68,35 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
       this.rawValues = rawValues;
       this.format = args.format ?? null;
       this.info = this.findInfo();
-
-      this.row = this.createRow();
-      this.queries = this.createQueries();
-      this.params = this.createParams();
       this.inline = args.inline ?? this.info?.inline ?? false;
-      this.$$ = (() => {
-         if (!this.row) return null;
-         return new SqlSelectAll({ row: this.row, query: this });
-      })() as SqlQueryAll<T["Row"]>;
+   }
 
-      sqlQueriesById.set(this.id, this);
+   /**
+    * SQL query parameters
+    */
+   get params() {
+      return this._params.value;
+   }
+
+   /**
+    * SQL query result row
+    */
+   get row() {
+      return this._row.value;
+   }
+
+   /**
+    * SQL query inner queries
+    */
+   get queries() {
+      return this._queries.value;
+   }
+
+   /**
+    * SQL query $$ (SQL *)
+    */
+   get $$() {
+      return this._$$.value;
    }
 
    findInfo(rawValues = this.rawValues) {
@@ -115,7 +129,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
             case rawValue instanceof SqlSelectValue:
                queries.push(rawValue.query);
                break;
-            case rawValue instanceof SqlSelectColumn:
+            case rawValue instanceof SqlRowColumn:
                queries.push(rawValue.query);
                q.add(rawValue.target);
                break;
@@ -141,13 +155,13 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
             case rawValue instanceof SqlSelectAll:
                console.log(`row >> SqlSelectAll: ${this.id} -> ${rawValue.id}`);
                break;
-            case rawValue instanceof SqlSelectField:
+            case rawValue instanceof SqlSelectColumn:
             case rawValue instanceof SqlSelectCharm:
             case rawValue instanceof SqlSelectValue: {
                console.log(`row >> SqlSelectValue: ${this.id} -> ${rawValue.id}`);
                row = {
                   ...(row ?? {}),
-                  [`$${rawValue.key}`]: newSqlSelectColumn({ target: rawValue, key: rawValue.key, query: this }),
+                  [`$${rawValue.key}`]: newSqlRowColumn({ target: rawValue, key: rawValue.key, query: this }),
                };
                break;
             }
@@ -412,9 +426,3 @@ export const SqlQueryFormatByKeyword: Record<string, SqlQueryFormat> = {
    fn: "fn",
    sql: "sql",
 };
-
-const sqlQueriesById = new Map<string, SqlQueryAny>();
-
-export function getQueryById(id: string): SqlQueryAny | undefined {
-   return sqlQueriesById.get(id);
-}

@@ -63,14 +63,14 @@ export type IProductInsert = {
 export type IProductUpdate = Partial<IProductInsert>;
 
 export type IProductSelect = {
-   readonly productId: string;
-   readonly discount: string | null;
-   readonly isAvailable: boolean;
-   readonly isPublished: boolean;
-   readonly label: string;
-   readonly createdAt: Date;
-   readonly modifiedAt: Date;
-   readonly price: string;
+   productId: string;
+   discount: string | null;
+   isAvailable: boolean;
+   isPublished: boolean;
+   label: string;
+   createdAt: Date;
+   modifiedAt: Date;
+   price: string;
 };
 
 export type IProductJson = JsonRow<IProductSelect>;
