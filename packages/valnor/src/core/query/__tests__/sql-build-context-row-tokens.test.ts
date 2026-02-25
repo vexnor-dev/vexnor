@@ -12,6 +12,7 @@ describe("SqlBuildContextRowTokens", () => {
       const query0 = sql`select ${row(query1.$accountId)} from ${query1}`;
       expect(classCounters).toMatchInlineSnapshot(`
         Map {
+          "SqlTableColumn" => 9,
           "SqlSelectRow" => 2,
           "SqlQuery" => 2,
           "SqlRowColumn" => 2,

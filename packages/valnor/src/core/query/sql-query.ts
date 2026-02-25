@@ -51,7 +51,6 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
       if (!this.row) return null as SqlQueryAll<T["Row"]>;
       return new SqlSelectAll({ row: this.row, query: this }) as SqlQueryAll<T["Row"]>;
    });
-
    constructor({ rawStrings, rawValues, ...args }: SqlQueryArgs) {
       super({
          id: (() => {
@@ -134,7 +133,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
                q.add(rawValue.target);
                break;
             case rawValue instanceof SqlSelectRow:
-               for (const item of Object.values(rawValue.getRowByQuery({ query: this }))) {
+               for (const item of Object.values(rawValue.getRow({ query: this }))) {
                   q.add(item);
                }
                break;
@@ -166,9 +165,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
                break;
             }
             case rawValue instanceof SqlSelectRow:
-               for (const [key, item] of Object.entries(
-                  rawValue.getRowByQuery({ query: this, columns: rawValue.columns }),
-               )) {
+               for (const [key, item] of Object.entries(rawValue.getRow({ query: this }))) {
                   row = {
                      ...(row ?? {}),
                      [key]: item,

@@ -46,7 +46,7 @@ describe("SqlValue tests", () => {
 
    test("val in row context", () => {
       const target = row(Account.$accountId, val`COUNT(*)`.as<{ total: number }>("total"));
-      const actual = target.getRowByQuery({ query: sql`` });
+      const actual = target.getRow({ query: sql`` });
       expect(actual.$accountId).toBeDefined();
       expect(actual.$total).toBeDefined();
    });

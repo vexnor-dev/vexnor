@@ -162,7 +162,7 @@ describe("SqlSelectRow tests", () => {
    test("row(...columns) should match expected type", () => {
       const target = row(Account.$accountId, Account.$firstName, Account.$lastName.as("name"));
       assertType<SqlSelectRow<{ Row: { accountId: string; firstName: string; name: string } }>>(target);
-      const actual = target.getRowByQuery({ query: sql`` });
+      const actual = target.getRow({ query: sql`` });
       expect(actual.$accountId).toBeDefined();
       expect(actual.$firstName).toBeDefined();
       expect(actual.$name).toBeDefined();
@@ -171,7 +171,7 @@ describe("SqlSelectRow tests", () => {
    test("row(...columns) column should be defined", () => {
       const target = row(Account.$accountId, Account.$firstName, Account.$lastName);
       assertType<SqlSelectRow<{ Row: { accountId: string; firstName: string; lastName: string } }>>(target);
-      const actual = target.getRowByQuery({ query: sql`` });
+      const actual = target.getRow({ query: sql`` });
       expect(actual.$accountId).toBeDefined();
       expect(actual.$firstName).toBeDefined();
       expect(actual.$lastName).toBeDefined();
@@ -179,7 +179,7 @@ describe("SqlSelectRow tests", () => {
 
    test("row($$) column should be defined", () => {
       const target = row(Account.$$);
-      const actual = target.getRowByQuery({ query: sql`` });
+      const actual = target.getRow({ query: sql`` });
       expect(actual.$accountId).toBeDefined();
       expect(actual.$firstName).toBeDefined();
       expect(actual.$lastName).toBeDefined();
@@ -204,7 +204,7 @@ describe("SqlSelectRow tests", () => {
       assertType<SqlSelectRow<{ Row: { accountId: string; firstName: string; name: string } }>>(target);
       const context = new SqlBuildContext();
       context.next("select");
-      target.getRowByQuery({ query: sql`` });
+      target.getRow({ query: sql`` });
       target.build(context);
 
       expect(context.text).toMatchInlineSnapshot(`
@@ -223,7 +223,7 @@ describe("SqlSelectRow tests", () => {
       assertType<SqlSelectRow<{ Row: { accountId: string; firstName: string; name: string } }>>(target);
       const context = new SqlBuildContext();
       context.next("select");
-      target.getRowByQuery({ query: sql`` });
+      target.getRow({ query: sql`` });
       target.build(context);
 
       expect(context.text).toMatchInlineSnapshot(`
@@ -237,7 +237,7 @@ describe("SqlSelectRow tests", () => {
       const target = row(Account.$$);
       const context = new SqlBuildContext();
       context.next("select");
-      target.getRowByQuery({ query: sql`` });
+      target.getRow({ query: sql`` });
       target.build(context);
 
       expect(context.text).toMatchInlineSnapshot(`
@@ -258,7 +258,7 @@ describe("SqlSelectRow tests", () => {
       assertType<SqlSelectRow<{ Row: IAccountSelect }>>(target);
       const context = new SqlBuildContext();
       context.next("select");
-      target.getRowByQuery({ query: sql`` });
+      target.getRow({ query: sql`` });
       target.build(context);
 
       expect(context.text).toMatchInlineSnapshot(`

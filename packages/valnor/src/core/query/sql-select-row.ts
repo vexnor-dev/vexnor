@@ -30,7 +30,7 @@ export class SqlSelectRow<T extends { Row: Record<string, unknown> }> extends Sq
       });
    }
 
-   getRowByQuery({
+   getRow({
       query,
       columns = this.columns,
    }: {
@@ -137,7 +137,6 @@ export class SqlSelectRow<T extends { Row: Record<string, unknown> }> extends Sq
          }
       }
 
-      this.rowsByQueryId.set(query.id, row as InferSelectRowByResult<T["Row"]>);
       return row as InferSelectRowByResult<T["Row"]>;
    }
 

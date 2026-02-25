@@ -5,6 +5,7 @@ import { ok } from "assert";
 import { TableInsertCols, TableInsertRows, TableInsertValues, TableUpdateSet, SqlTableAll } from "../charms/index.js";
 import { SqlTableFormat } from "../default-formatter.js";
 import { InferTable$RowBySelect } from "../types/index.js";
+import { Lazy } from "../../lib/index.js";
 
 export type SqlTableOptions<
    T extends {
@@ -41,14 +42,14 @@ export class SqlTable<
       Update?: Partial<T["Insert"]>;
    },
 > extends Sql {
-   readonly $$: SqlTableAll<T["Select"]>;
    readonly tableInfo: { schema?: string; name: string; alias?: string };
    readonly format: SqlTableFormat | null;
-   readonly cols: InferTable$RowBySelect<T["Select"]>;
-   readonly out: InferTable$RowBySelect<T["Select"]>;
    readonly pk: Array<keyof T["Select"]>;
-
    readonly tableCache = new Map<string, SqlTableExtended<T>>();
+
+   private readonly _cols: Lazy<InferTable$RowBySelect<T["Select"]>>;
+   private readonly _out: Lazy<InferTable$RowBySelect<T["Select"]>>;
+   private readonly _$$: Lazy<SqlTableAll<T["Select"]>>;
 
    constructor({ format, pk, tableInfo, ...options }: SqlTableOptions<T>) {
       super({
@@ -61,46 +62,58 @@ export class SqlTable<
       this.tableInfo = tableInfo;
       this.format = format ?? null;
       this.pk = pk;
-      const { schema, name } = tableInfo;
 
-      this.cols = (() => {
-         let cols: Partial<InferTable$RowBySelect<T["Select"]>> = {};
-         for (const [key, value] of Object.entries(options.columns)) {
-            if (typeof value === "string") {
-               cols = {
-                  ...(cols ?? {}),
-                  [`$${key}`]: newSqlTableColumn({ key: key, columnName: value, tableInfo }),
-               };
-            } else {
-               throw new Error(`Column ${schema}.${name} ${key} must be a string`);
-            }
+      this._cols = new Lazy(() => this.createCols(options.columns));
+      this._out = new Lazy(() => this.createOut(options.columns));
+      this._$$ = new Lazy(() => new SqlTableAll<T["Select"]>(this.cols));
+   }
+
+   get cols(): InferTable$RowBySelect<T["Select"]> {
+      return this._cols.value;
+   }
+
+   get out(): InferTable$RowBySelect<T["Select"]> {
+      return this._out.value;
+   }
+
+   get $$(): SqlTableAll<T["Select"]> {
+      return this._$$.value;
+   }
+
+   private createCols(columns: Record<keyof T["Select"], string>): InferTable$RowBySelect<T["Select"]> {
+      const { schema, name } = this.tableInfo;
+      let cols: Partial<InferTable$RowBySelect<T["Select"]>> = {};
+      for (const [key, value] of Object.entries(columns)) {
+         if (typeof value === "string") {
+            cols = {
+               ...(cols ?? {}),
+               [`$${key}`]: newSqlTableColumn({ key: key, columnName: value, tableInfo: this.tableInfo }),
+            };
+         } else {
+            throw new Error(`Column ${schema}.${name} ${key} must be a string`);
          }
+      }
+      return cols as InferTable$RowBySelect<T["Select"]>;
+   }
 
-         return cols as InferTable$RowBySelect<T["Select"]>;
-      })();
-
-      this.out = (() => {
-         let out: Partial<InferTable$RowBySelect<T["Select"]>> = {};
-         for (const [key, value] of Object.entries(options.columns)) {
-            // const value = options.columns[key];
-            if (typeof value === "string") {
-               out = {
-                  ...(out ?? {}),
-                  [`$${key}`]: newSqlTableColumn({
-                     key: key,
-                     columnName: value,
-                     tableInfo: { ...tableInfo, out: true },
-                  }),
-               };
-            } else {
-               throw new Error(`Column ${schema}.${name} ${key} must be a string`);
-            }
+   private createOut(columns: Record<keyof T["Select"], string>): InferTable$RowBySelect<T["Select"]> {
+      const { schema, name } = this.tableInfo;
+      let out: Partial<InferTable$RowBySelect<T["Select"]>> = {};
+      for (const [key, value] of Object.entries(columns)) {
+         if (typeof value === "string") {
+            out = {
+               ...(out ?? {}),
+               [`$${key}`]: newSqlTableColumn({
+                  key: key,
+                  columnName: value,
+                  tableInfo: { ...this.tableInfo, out: true },
+               }),
+            };
+         } else {
+            throw new Error(`Column ${schema}.${name} ${key} must be a string`);
          }
-
-         return out as InferTable$RowBySelect<T["Select"]>;
-      })();
-
-      this.$$ = new SqlTableAll<T["Select"]>(this.cols);
+      }
+      return out as InferTable$RowBySelect<T["Select"]>;
    }
 
    as(tableName: string | TemplateStringsArray): SqlTableExtended<T> {

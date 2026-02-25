@@ -90,7 +90,7 @@ describe("SqlBuildContext getQueryName", () => {
          if (val instanceof SqlSelectRow) {
             console.log(`  rawValue[${idx}] is SqlSelectRow`);
             // Check if it contains the original orderQuery.$orderId
-            Object.entries(val.getRowByQuery).forEach(([key, col]) => {
+            Object.entries(val.getRow).forEach(([key, col]) => {
                if (col.id === column.id) {
                   console.log(`    FOUND! key=${key}, col.ID=${col.id}`);
                   console.log(`    Is it the same instance? ${col === column}`);
@@ -140,8 +140,8 @@ describe("SqlBuildContext getQueryName", () => {
 
       console.log("\nIs it in orderQuery.rawValues?");
       findOrders.rawValues.forEach((val, idx) => {
-         if (val instanceof SqlSelectRow && val.getRowByQuery) {
-            Object.entries(val.getRowByQuery).forEach(([key, col]) => {
+         if (val instanceof SqlSelectRow && val.getRow) {
+            Object.entries(val.getRow).forEach(([key, col]) => {
                if (col === originalColumn) {
                   console.log(`  YES! Found in rawValue[${idx}] at key: ${key}`);
                }
@@ -159,9 +159,9 @@ describe("SqlBuildContext getQueryName", () => {
 
       console.log("\nColumns in query.rawValues SqlSelectRow:");
       query.rawValues.forEach((val, idx) => {
-         if (val instanceof SqlSelectRow && val.getRowByQuery) {
+         if (val instanceof SqlSelectRow && val.getRow) {
             console.log(`  rawValue[${idx}]:`);
-            Object.entries(val.getRowByQuery).forEach(([key, col]) => {
+            Object.entries(val.getRow).forEach(([key, col]) => {
                console.log(`    ${key}: ${col.id}`);
             });
          }
