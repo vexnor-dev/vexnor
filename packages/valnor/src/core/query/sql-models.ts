@@ -3,7 +3,7 @@ import { SqlSelectAll } from "./sql-select-all.js";
 import { SqlTableColumn } from "../schema/index.js";
 import { SqlSelectValue } from "./sql-select-value.js";
 import { SqlSelectCharm } from "./sql-charm.js";
-import { SqlRowColumn } from "./sql-row-column.js";
+import { SqlQueryColumn } from "./sql-query-column.js";
 import { SqlSelectColumn } from "./sql-select-column.js";
 
 export type SqlBuildToken =
@@ -23,7 +23,7 @@ export type SqlColumnTargetAny = SqlRowColumnTarget<any>;
 
 export type SqlRowColumnTarget<T extends { Key: string; Type?: unknown }> =
    | SqlTableColumn<{ Key: T["Key"]; Type: T["Type"] }>
-   | SqlRowColumn<{ Key: T["Key"]; Type: T["Type"] }>
+   | SqlQueryColumn<{ Key: T["Key"]; Type: T["Type"] }>
    | SqlSelectValue<{ Key: T["Key"]; Type: T["Type"]; Params?: unknown }>
    | SqlSelectCharm<{ Key: T["Key"]; Type: T["Type"]; Params?: unknown }>
    | SqlSelectColumn<{ Key: T["Key"]; Type: T["Type"] }>;

@@ -1,7 +1,7 @@
 import { ROW, Sql, TYPE, TypeOf } from "../sql-base.js";
 import { SqlTableColumn } from "../schema/index.js";
 import { SqlSelectValue } from "./sql-select-value.js";
-import { newSqlRowColumn, SqlRowColumn } from "./sql-row-column.js";
+import { newSqlSelectColumn, SqlQueryColumn } from "./sql-query-column.js";
 import { SqlTableAll } from "../charms/index.js";
 import { SqlSelectAll } from "./sql-select-all.js";
 import { InferSelectRowByResult, SqlBuildOptions } from "./sql-query-types.js";
@@ -52,17 +52,17 @@ export class SqlSelectRow<T extends { Row: Record<string, unknown> }> extends Sq
                      case col instanceof SqlTableColumn:
                         row = {
                            ...(row ?? {}),
-                           [`$${col.key}`]: newSqlRowColumn({
+                           [`$${col.key}`]: newSqlSelectColumn({
                               key: col.key,
                               target: col,
                               query,
                            }),
                         };
                         break;
-                     case col instanceof SqlRowColumn:
+                     case col instanceof SqlQueryColumn:
                         row = {
                            ...(row ?? {}),
-                           [`$${col.key}`]: newSqlRowColumn({
+                           [`$${col.key}`]: newSqlSelectColumn({
                               key: col.key,
                               target: col,
                               query,
@@ -82,7 +82,7 @@ export class SqlSelectRow<T extends { Row: Record<string, unknown> }> extends Sq
                for (const col of Object.values(item.row)) {
                   row = {
                      ...(row ?? {}),
-                     [`$${col.key}`]: newSqlRowColumn({
+                     [`$${col.key}`]: newSqlSelectColumn({
                         key: col.key,
                         target: col,
                         query,
@@ -93,17 +93,17 @@ export class SqlSelectRow<T extends { Row: Record<string, unknown> }> extends Sq
             case item instanceof SqlTableColumn:
                row = {
                   ...(row ?? {}),
-                  [`$${item.key}`]: newSqlRowColumn({
+                  [`$${item.key}`]: newSqlSelectColumn({
                      key: item.key,
                      target: item,
                      query,
                   }),
                };
                break;
-            case item instanceof SqlRowColumn:
+            case item instanceof SqlQueryColumn:
                row = {
                   ...(row ?? {}),
-                  [`$${item.key}`]: newSqlRowColumn({
+                  [`$${item.key}`]: newSqlSelectColumn({
                      key: item.key,
                      target: item,
                      query: query,
@@ -113,7 +113,7 @@ export class SqlSelectRow<T extends { Row: Record<string, unknown> }> extends Sq
             case item instanceof SqlSelectValue:
                row = {
                   ...(row ?? {}),
-                  [`$${item.key}`]: newSqlRowColumn({
+                  [`$${item.key}`]: newSqlSelectColumn({
                      key: item.key,
                      target: item,
                      query,
@@ -123,7 +123,7 @@ export class SqlSelectRow<T extends { Row: Record<string, unknown> }> extends Sq
             case item instanceof SqlSelectColumn:
                row = {
                   ...(row ?? {}),
-                  [`$${item.key}`]: newSqlRowColumn({
+                  [`$${item.key}`]: newSqlSelectColumn({
                      key: item.key,
                      target: item,
                      query,

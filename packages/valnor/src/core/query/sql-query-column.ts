@@ -2,22 +2,17 @@ import { SqlBuildContext, SqlBuildOptions, SqlRowColumnTarget, SqlQueryAny } fro
 import { SqlSelectFormat } from "../default-formatter.js";
 import { Sql, TYPE } from "../sql-base.js";
 
-export interface SqlRowColumnArgs<
+export type SqlQueryColumnArgs<
    T extends {
       Key: string;
       Type: unknown;
    },
-> {
-   readonly key: T["Key"];
-   readonly format?: SqlSelectFormat | null;
-   readonly target: SqlRowColumnTarget<T>;
-   readonly query: SqlQueryAny;
-}
+> = Pick<SqlQueryColumn<T>, "key" | "target" | "query"> & Partial<Pick<SqlQueryColumn<T>, "format">>;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type SqlRowColumnAny = SqlRowColumn<any>;
+export type SqlQueryColumnAny = SqlQueryColumn<any>;
 
-export class SqlRowColumn<
+export class SqlQueryColumn<
    T extends {
       Key: string;
       Type: unknown;
@@ -31,7 +26,7 @@ export class SqlRowColumn<
    readonly target: SqlRowColumnTarget<T>;
    readonly query: SqlQueryAny;
 
-   constructor({ key, format, target, query }: SqlRowColumnArgs<T>) {
+   constructor({ key, format, target, query }: SqlQueryColumnArgs<T>) {
       super({
          id: `${query.id}/${target.id}`,
       });
@@ -42,7 +37,7 @@ export class SqlRowColumn<
    }
 
    as<Key extends string>(key: Key) {
-      return new SqlRowColumn({
+      return new SqlQueryColumn({
          format: this.format,
          key,
          target: this.target,
@@ -51,7 +46,7 @@ export class SqlRowColumn<
    }
 
    render(format: SqlSelectFormat) {
-      return new SqlRowColumn({
+      return new SqlQueryColumn({
          format: format,
          key: this.key,
          target: this.target,
@@ -115,11 +110,11 @@ export class SqlRowColumn<
    }
 }
 
-export function newSqlRowColumn<
+export function newSqlSelectColumn<
    T extends {
       Key: string;
       Type: unknown;
    },
->(options: SqlRowColumnArgs<T>): SqlRowColumn<T> {
-   return new SqlRowColumn(options);
+>(options: SqlQueryColumnArgs<T>): SqlQueryColumn<T> {
+   return new SqlQueryColumn(options);
 }

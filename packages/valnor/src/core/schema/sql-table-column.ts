@@ -2,17 +2,12 @@ import { SqlColumnFormat } from "../default-formatter.js";
 import { TYPE, Sql } from "../sql-base.js";
 import { SqlBuildContext, SqlBuildOptions } from "../query/index.js";
 
-export interface SqlTableColumnOptions<
+export type SqlTableColumnOptions<
    T extends {
       Key: string;
       Type: unknown;
    },
-> {
-   readonly columnName: string;
-   readonly key: T["Key"];
-   readonly tableInfo: { schema?: string; name: string; alias?: string; out?: boolean };
-   readonly format?: SqlColumnFormat | null;
-}
+> = Pick<SqlTableColumn<T>, "columnName" | "key" | "tableInfo"> & Partial<Pick<SqlTableColumn<T>, "format">>;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlTableColumnAny = SqlTableColumn<any>;

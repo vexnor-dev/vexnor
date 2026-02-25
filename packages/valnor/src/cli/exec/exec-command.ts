@@ -1,6 +1,6 @@
 import { loadConfig, loadQueryConfig, resolveProfile } from "../../config/index.js";
 import { formatCsv, formatJson, formatTable } from "./formatters.js";
-import { SqlQueryHandler, AsyncQueryHandlerAny, SqlQuery } from "../../core/index.js";
+import { SqlQueryHandler, SqlQueryHandlerAny, SqlQuery } from "../../core/index.js";
 import { detectQueryType } from "./detect-query-type.js";
 import { confirmPrompt } from "./confirm-prompt.js";
 import * as path from "node:path";
@@ -122,7 +122,7 @@ export async function execCommand(queryName: string, options: ExecOptions): Prom
    }
 
    try {
-      let queryHandler: AsyncQueryHandlerAny | undefined;
+      let queryHandler: SqlQueryHandlerAny | undefined;
       switch (true) {
          case query instanceof SqlQuery:
             queryHandler = plugin.newQueryHandler(query);

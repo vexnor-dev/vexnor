@@ -10,7 +10,7 @@ import { Queue } from "../../lib/index.js";
 import { format, SqlLanguage } from "sql-formatter";
 import { SqlBuildOptions } from "./sql-query-types.js";
 import { SqlBuildToken } from "./sql-models.js";
-import { SqlRowColumn, SqlRowColumnAny } from "./sql-row-column.js";
+import { SqlQueryColumn, SqlQueryColumnAny } from "./sql-query-column.js";
 import { SqlSelectAll, SqlSelectAllAny } from "./sql-select-all.js";
 
 export interface SqlBuildContextArgs extends SqlBuildOptions {
@@ -211,12 +211,12 @@ export class SqlBuildContext {
     * Gets the query name for the respective SQL
     * @param token
     */
-   getQueryName(token: SqlQueryAny | SqlRowColumnAny | SqlSelectAllAny) {
+   getQueryName(token: SqlQueryAny | SqlQueryColumnAny | SqlSelectAllAny) {
       const query = (() => {
          switch (true) {
             case token instanceof SqlQuery:
                return token;
-            case token instanceof SqlRowColumn:
+            case token instanceof SqlQueryColumn:
                return token.query;
             case token instanceof SqlSelectAll:
                return token.query;

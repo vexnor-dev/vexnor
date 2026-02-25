@@ -1,8 +1,8 @@
 import { QuerySettings, QueryDefaults } from "./config-types.js";
-import { SqlQueryAny, AsyncQueryHandlerAny, SqlQuery } from "../core/index.js";
+import { SqlQueryAny, SqlQueryHandlerAny, SqlQuery } from "../core/index.js";
 import { SqlExecError } from "../cli/exec/sql-exec-error.js";
 
-type QueryOrHandler = SqlQueryAny | AsyncQueryHandlerAny;
+type QueryOrHandler = SqlQueryAny | SqlQueryHandlerAny;
 
 export type QueryConfigResult<TQueries extends Record<string, QueryOrHandler>> = <
    TConfig extends {

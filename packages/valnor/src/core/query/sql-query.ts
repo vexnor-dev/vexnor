@@ -13,7 +13,7 @@ import { SqlSelectValue } from "./sql-select-value.js";
 import { SqlSelectRow } from "./sql-select-row.js";
 import { SqlSelectCharm } from "./sql-charm.js";
 import console from "node:console";
-import { newSqlRowColumn, SqlRowColumn } from "./sql-row-column.js";
+import { newSqlSelectColumn, SqlQueryColumn } from "./sql-query-column.js";
 import { SqlSelectColumn } from "./sql-select-column.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -128,7 +128,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
             case rawValue instanceof SqlSelectValue:
                queries.push(rawValue.query);
                break;
-            case rawValue instanceof SqlRowColumn:
+            case rawValue instanceof SqlQueryColumn:
                queries.push(rawValue.query);
                q.add(rawValue.target);
                break;
@@ -160,7 +160,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
                console.log(`row >> SqlSelectValue: ${this.id} -> ${rawValue.id}`);
                row = {
                   ...(row ?? {}),
-                  [`$${rawValue.key}`]: newSqlRowColumn({ target: rawValue, key: rawValue.key, query: this }),
+                  [`$${rawValue.key}`]: newSqlSelectColumn({ target: rawValue, key: rawValue.key, query: this }),
                };
                break;
             }

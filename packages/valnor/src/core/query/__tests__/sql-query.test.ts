@@ -12,7 +12,7 @@ describe("SqlQuery tests", () => {
       expect(query.row).toBeDefined();
       expect(query.row).toMatchObject({
          $accountId: {
-            type: "SqlRowColumn",
+            type: "SqlQueryColumn",
             key: "accountId",
             query: {
                id: "SqlQuery#1",
@@ -23,7 +23,7 @@ describe("SqlQuery tests", () => {
             },
          },
          $status: {
-            type: "SqlRowColumn",
+            type: "SqlQueryColumn",
             key: "status",
             query: {
                id: "SqlQuery#1",
@@ -34,7 +34,7 @@ describe("SqlQuery tests", () => {
             },
          },
          $email: {
-            type: "SqlRowColumn",
+            type: "SqlQueryColumn",
             key: "email",
             query: {
                id: "SqlQuery#1",

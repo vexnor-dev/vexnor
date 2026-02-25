@@ -1,7 +1,7 @@
-import { AsyncQueryHandlerAny, ExtractParamsFromQuery, SqlQueryAny } from "../core/index.js";
+import { SqlQueryHandlerAny, ExtractParamsFromQuery, SqlQueryAny } from "../core/index.js";
 import { ConnectionConfig, ValnorPluginAny } from "../plugin/index.js";
 
-export type QueryOrHandler = SqlQueryAny | AsyncQueryHandlerAny;
+export type QueryOrHandler = SqlQueryAny | SqlQueryHandlerAny;
 
 export interface ValnorConfig {
    profiles: Record<string, ProfileConfig>;
@@ -47,9 +47,9 @@ export type QuerySettings<Query> = Query extends SqlQueryAny
         format?: "table" | "json" | "csv";
         limit?: number;
      }
-   : Query extends AsyncQueryHandlerAny
+   : Query extends SqlQueryHandlerAny
      ? {
-          query: AsyncQueryHandlerAny;
+          query: SqlQueryHandlerAny;
           profile: ProfileConfig | string;
           plugin: ValnorPluginAny;
           params?: ExtractParamsFromQuery<Query>;

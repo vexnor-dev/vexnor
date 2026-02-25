@@ -1,4 +1,4 @@
-import { SqlRowColumn } from "./sql-row-column.js";
+import { SqlQueryColumn } from "./sql-query-column.js";
 import { DefaultFormatter } from "../default-formatter.js";
 import { DefaultTokenizer } from "../default-tokenizer.js";
 import { SqlLanguage } from "sql-formatter";
@@ -10,7 +10,7 @@ export type InferSelectRowByResult<Row> =
    Row extends Record<string, unknown>
       ? {
            [K in keyof Row as `$${string & K}`]: K extends string
-              ? SqlRowColumn<{
+              ? SqlQueryColumn<{
                    Key: K;
                    Type: Row[K];
                 }>

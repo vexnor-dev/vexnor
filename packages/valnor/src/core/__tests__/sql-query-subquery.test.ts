@@ -44,9 +44,9 @@ describe("sql subqueries tests", () => {
 
       expect(AccountsWithEmail.row).toMatchInlineSnapshot(`
         {
-          "$accountId": SqlRowColumn {
+          "$accountId": SqlQueryColumn {
             "format": null,
-            "id": "SqlRowColumn#1(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#1(account.account_id as accountId))",
+            "id": "SqlQueryColumn#1(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#1(account.account_id as accountId))",
             "key": "accountId",
             "params": null,
             "query": SqlQuery {
@@ -623,12 +623,12 @@ describe("sql subqueries tests", () => {
               "type": "SqlTableColumn",
               "wrap": true,
             },
-            "type": "SqlRowColumn",
+            "type": "SqlQueryColumn",
             "wrap": true,
           },
-          "$createdAt": SqlRowColumn {
+          "$createdAt": SqlQueryColumn {
             "format": null,
-            "id": "SqlRowColumn#7(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#7(account.created_at as createdAt))",
+            "id": "SqlQueryColumn#7(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#7(account.created_at as createdAt))",
             "key": "createdAt",
             "params": null,
             "query": SqlQuery {
@@ -1205,12 +1205,12 @@ describe("sql subqueries tests", () => {
               "type": "SqlTableColumn",
               "wrap": true,
             },
-            "type": "SqlRowColumn",
+            "type": "SqlQueryColumn",
             "wrap": true,
           },
-          "$email": SqlRowColumn {
+          "$email": SqlQueryColumn {
             "format": null,
-            "id": "SqlRowColumn#3(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#3(account.email))",
+            "id": "SqlQueryColumn#3(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#3(account.email))",
             "key": "email",
             "params": null,
             "query": SqlQuery {
@@ -1787,12 +1787,12 @@ describe("sql subqueries tests", () => {
               "type": "SqlTableColumn",
               "wrap": true,
             },
-            "type": "SqlRowColumn",
+            "type": "SqlQueryColumn",
             "wrap": true,
           },
-          "$firstName": SqlRowColumn {
+          "$firstName": SqlQueryColumn {
             "format": null,
-            "id": "SqlRowColumn#4(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#4(account.first_name as firstName))",
+            "id": "SqlQueryColumn#4(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#4(account.first_name as firstName))",
             "key": "firstName",
             "params": null,
             "query": SqlQuery {
@@ -2369,12 +2369,12 @@ describe("sql subqueries tests", () => {
               "type": "SqlTableColumn",
               "wrap": true,
             },
-            "type": "SqlRowColumn",
+            "type": "SqlQueryColumn",
             "wrap": true,
           },
-          "$lastName": SqlRowColumn {
+          "$lastName": SqlQueryColumn {
             "format": null,
-            "id": "SqlRowColumn#5(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#5(account.last_name as lastName))",
+            "id": "SqlQueryColumn#5(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#5(account.last_name as lastName))",
             "key": "lastName",
             "params": null,
             "query": SqlQuery {
@@ -2951,12 +2951,12 @@ describe("sql subqueries tests", () => {
               "type": "SqlTableColumn",
               "wrap": true,
             },
-            "type": "SqlRowColumn",
+            "type": "SqlQueryColumn",
             "wrap": true,
           },
-          "$modifiedAt": SqlRowColumn {
+          "$modifiedAt": SqlQueryColumn {
             "format": null,
-            "id": "SqlRowColumn#8(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#8(account.modified_at as modifiedAt))",
+            "id": "SqlQueryColumn#8(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#8(account.modified_at as modifiedAt))",
             "key": "modifiedAt",
             "params": null,
             "query": SqlQuery {
@@ -3533,12 +3533,12 @@ describe("sql subqueries tests", () => {
               "type": "SqlTableColumn",
               "wrap": true,
             },
-            "type": "SqlRowColumn",
+            "type": "SqlQueryColumn",
             "wrap": true,
           },
-          "$notes": SqlRowColumn {
+          "$notes": SqlQueryColumn {
             "format": null,
-            "id": "SqlRowColumn#6(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#6(account.notes))",
+            "id": "SqlQueryColumn#6(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#6(account.notes))",
             "key": "notes",
             "params": null,
             "query": SqlQuery {
@@ -4115,12 +4115,12 @@ describe("sql subqueries tests", () => {
               "type": "SqlTableColumn",
               "wrap": true,
             },
-            "type": "SqlRowColumn",
+            "type": "SqlQueryColumn",
             "wrap": true,
           },
-          "$parentId": SqlRowColumn {
+          "$parentId": SqlQueryColumn {
             "format": null,
-            "id": "SqlRowColumn#9(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#9(account.parent_id as parentId))",
+            "id": "SqlQueryColumn#9(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#9(account.parent_id as parentId))",
             "key": "parentId",
             "params": null,
             "query": SqlQuery {
@@ -4697,12 +4697,12 @@ describe("sql subqueries tests", () => {
               "type": "SqlTableColumn",
               "wrap": true,
             },
-            "type": "SqlRowColumn",
+            "type": "SqlQueryColumn",
             "wrap": true,
           },
-          "$status": SqlRowColumn {
+          "$status": SqlQueryColumn {
             "format": null,
-            "id": "SqlRowColumn#2(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#2(account.status))",
+            "id": "SqlQueryColumn#2(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#2(account.status))",
             "key": "status",
             "params": null,
             "query": SqlQuery {
@@ -5279,7 +5279,7 @@ describe("sql subqueries tests", () => {
               "type": "SqlTableColumn",
               "wrap": true,
             },
-            "type": "SqlRowColumn",
+            "type": "SqlQueryColumn",
             "wrap": true,
           },
         }

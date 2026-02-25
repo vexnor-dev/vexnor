@@ -3,7 +3,7 @@ import { ok } from "assert";
 import { SqlRunArgs } from "./sql-query-types.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type AsyncQueryHandlerAny = SqlQueryHandler<any>;
+export type SqlQueryHandlerAny = SqlQueryHandler<any>;
 
 /**
  * Base query handler for async database operations
