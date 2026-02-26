@@ -1,13 +1,13 @@
-import { SqlRunArgs, AsyncQueryHandler, SqlQuery } from "valnor";
+import { SqlRunArgs, SqlQueryHandler, SqlQuery } from "valnor";
 import type { Database, RunResult } from "better-sqlite3";
 import { Sqlite3Formatter } from "./sqlite3-formatter.js";
 import { Sqlite3Tokenizer } from "./sqlite3-tokenizer.js";
 
-export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unknown }> extends AsyncQueryHandler<{
+export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unknown }> extends SqlQueryHandler<{
    Row: T["Row"];
    Params: T["Params"];
    QueryResult: RunResult;
-   QueryClient: Database;
+   Connection: Database;
 }> {
    static Formatter = new Sqlite3Formatter();
 
@@ -19,11 +19,11 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
       throw new Error("Method not supported: better-sqlite3 result doesn't include any rows");
    }
 
-   getOptions(args: SqlRunArgs<Database, T["Params"]>) {
+   getOptions(args: SqlRunArgs<{ Connection: Database; Params: T["Params"] }>) {
       let queryInput = undefined;
       try {
          // Create a new options object to inject the tokenizer
-         const newArgs: SqlRunArgs<Database, T["Params"]> = {
+         const newArgs: SqlRunArgs<{ Connection: Database; Params: T["Params"] }> = {
             ...args,
             options: {
                ...args.options,
@@ -49,7 +49,7 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
     * Executes the core and returns the result
     * @param args
     */
-   run(args: SqlRunArgs<Database, T["Params"]>): Promise<RunResult> {
+   run(args: SqlRunArgs<{ Connection: Database; Params: T["Params"] }>): Promise<RunResult> {
       const { db, options: { debug } = {} } = args;
       let queryConfig = undefined;
       try {
@@ -63,7 +63,7 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
       }
    }
 
-   getAll(args: SqlRunArgs<Database, T["Params"]>): Promise<T["Row"][]> {
+   getAll(args: SqlRunArgs<{ Connection: Database; Params: T["Params"] }>): Promise<T["Row"][]> {
       let queryConfig = undefined;
       const { db, options: { debug } = {} } = args;
       try {

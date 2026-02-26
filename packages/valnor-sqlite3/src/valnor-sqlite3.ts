@@ -10,7 +10,7 @@ import {
 } from "valnor/plugin";
 import BetterSqlite3 from "better-sqlite3";
 import { findPrimaryKeys, findTableColumns, findTables, getColumnType } from "./schema/index.js";
-import { AsyncQueryHandler, SqlQuery, SqlRunArgs } from "valnor";
+import { SqlQueryHandler, SqlQuery } from "valnor";
 import { BetterSqlite3QueryHandler } from "./better-sqlite3-query-handler.js";
 import { resolve } from "node:path";
 
@@ -22,9 +22,9 @@ export class ValnorSqlite3 extends ValnorPlugin<{
 }> {
    driver = "better-sqlite3";
 
-   newQueryHandler<T extends { Row?: unknown; Params?: unknown; QueryResult: object; QueryClient: unknown }>(
+   newQueryHandler<T extends { Row?: unknown; Params?: unknown; QueryResult: object; Connection: unknown }>(
       query: SqlQuery<{ Params: T["Params"]; Row: T["Row"] }>,
-   ): AsyncQueryHandler<T> {
+   ): SqlQueryHandler<T> {
       return new BetterSqlite3QueryHandler(query);
    }
 
@@ -47,7 +47,7 @@ export class ValnorSqlite3 extends ValnorPlugin<{
          throw new Error("SQLite requires database file path in uri parameter");
       }
 
-      const runArgs: SqlRunArgs<BetterSqlite3.Database, unknown> = {
+      const runArgs: Parameters<typeof findTables.sqlite3.getAll>[0] = {
          db,
          options: { dialect: "sqlite" },
       };

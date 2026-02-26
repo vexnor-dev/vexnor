@@ -187,7 +187,8 @@ describe.sequential("valnor sqlite3 e2e tests", () => {
       `;
       const { text } = query.getSql({ options: { dialect: "sqlite" } });
       expect(text).toMatchInlineSnapshot(`
-        "SELECT
+        "/* <query_0> */
+        SELECT
           "a_1"."account_id" AS "accountId",
           "a_1"."status",
           "a_1"."email",
@@ -197,6 +198,7 @@ describe.sequential("valnor sqlite3 e2e tests", () => {
           "a_1"."created_at" AS "createdAt",
           "a_1"."modified_at" AS "modifiedAt",
           "a_1"."parent_id" AS "parentId",
+          /* <query_1> */
           (
             SELECT
               coalesce(
@@ -226,6 +228,7 @@ describe.sequential("valnor sqlite3 e2e tests", () => {
               )
             FROM
               (
+                /* <query_2> */
                 SELECT
                   "children"."account_id" AS "accountId",
                   "children"."status",
@@ -242,8 +245,10 @@ describe.sequential("valnor sqlite3 e2e tests", () => {
                   "children"."parent_id" = "a_1"."account_id"
                 ORDER BY
                   "children"."account_id"
+                  /* </query_2> */
               ) AS "query_2"
           ) AS "children"
+          /* </query_1> */
         FROM
           "main"."account" AS "a_1"
         WHERE
@@ -348,7 +353,8 @@ describe.sequential("valnor sqlite3 e2e tests", () => {
             ?,
             ?,
             ?
-          )"
+          )
+          /* </query_0> */"
       `);
 
       const actual = await query.sqlite3.getAll({ db }).then((accounts) =>

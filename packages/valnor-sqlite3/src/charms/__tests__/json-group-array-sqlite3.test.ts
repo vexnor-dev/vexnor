@@ -12,6 +12,7 @@ describe("json-group-array-sqlite3 tests", () => {
       target.build(context, {});
       expect(context.text).toMatchInlineSnapshot(`
         "(
+          /* <query_0> */
           SELECT
             coalesce(
               json_group_array (json_object ("query_1".*)),
@@ -19,6 +20,7 @@ describe("json-group-array-sqlite3 tests", () => {
             )
           FROM
             (
+              /* <query_1> */
               SELECT
                 "a_1"."account_id" AS "accountId",
                 "a_1"."status",
@@ -33,7 +35,9 @@ describe("json-group-array-sqlite3 tests", () => {
                 "main"."account" AS "children"
               WHERE
                 "children"."parent_id" = "a_1"."account_id"
+                /* </query_1> */
             ) AS "query_1"
+            /* </query_0> */
         )"
       `);
    });
@@ -46,7 +50,8 @@ describe("json-group-array-sqlite3 tests", () => {
       ).as("children");
       target.build(context);
       expect(context.text).toMatchInlineSnapshot(`
-        "(
+        "/* <query_0> */
+        (
           SELECT
             coalesce(
               json_group_array (
@@ -75,6 +80,7 @@ describe("json-group-array-sqlite3 tests", () => {
             )
           FROM
             (
+              /* <query_1> */
               SELECT
                 "children"."account_id" AS "accountId",
                 "children"."status",
@@ -89,8 +95,10 @@ describe("json-group-array-sqlite3 tests", () => {
                 "main"."account" AS "children"
               WHERE
                 "children"."parent_id" = "a_1"."account_id"
+                /* </query_1> */
             ) AS "query_1"
-        ) AS "children""
+        ) AS "children"
+        /* </query_0> */"
       `);
    });
 
@@ -126,7 +134,8 @@ describe("json-group-array-sqlite3 tests", () => {
 
       const { text } = query.getSql({ params: { limit: 10 }, options: { dialect: "sqlite" } });
       expect(text).toMatchInlineSnapshot(`
-        "SELECT
+        "/* <query_0> */
+        SELECT
           "a_1"."account_id" AS "accountId",
           "a_1"."status",
           "a_1"."email",
@@ -136,6 +145,7 @@ describe("json-group-array-sqlite3 tests", () => {
           "a_1"."created_at" AS "createdAt",
           "a_1"."modified_at" AS "modifiedAt",
           "a_1"."parent_id" AS "parentId",
+          /* <query_1> */
           (
             SELECT
               coalesce(
@@ -165,6 +175,7 @@ describe("json-group-array-sqlite3 tests", () => {
               )
             FROM
               (
+                /* <query_2> */
                 SELECT
                   "children"."account_id" AS "accountId",
                   "children"."status",
@@ -183,10 +194,13 @@ describe("json-group-array-sqlite3 tests", () => {
                   "children"."created_at" DESC
                 LIMIT
                   ?
+                  /* </query_2> */
               ) AS "query_2"
           ) AS "children"
+          /* </query_1> */
         FROM
-          "main"."account" AS "a_1""
+          "main"."account" AS "a_1"
+          /* </query_0> */"
       `);
    });
 
@@ -222,7 +236,8 @@ describe("json-group-array-sqlite3 tests", () => {
 
       const { text } = query.getSql({ options: { dialect: "sqlite" } });
       expect(text).toMatchInlineSnapshot(`
-        "SELECT
+        "/* <query_0> */
+        SELECT
           "a_1"."account_id" AS "accountId",
           "a_1"."status",
           "a_1"."email",
@@ -232,6 +247,7 @@ describe("json-group-array-sqlite3 tests", () => {
           "a_1"."created_at" AS "createdAt",
           "a_1"."modified_at" AS "modifiedAt",
           "a_1"."parent_id" AS "parentId",
+          /* <query_1> */
           (
             SELECT
               coalesce(
@@ -261,6 +277,7 @@ describe("json-group-array-sqlite3 tests", () => {
               )
             FROM
               (
+                /* <query_2> */
                 SELECT
                   "children"."account_id" AS "accountId",
                   "children"."status",
@@ -277,10 +294,13 @@ describe("json-group-array-sqlite3 tests", () => {
                   "children"."parent_id" = "a_1"."account_id"
                 ORDER BY
                   "children"."created_at" DESC
+                  /* </query_2> */
               ) AS "query_2"
           ) AS "children"
+          /* </query_1> */
         FROM
-          "main"."account" AS "a_1""
+          "main"."account" AS "a_1"
+          /* </query_0> */"
       `);
    });
 });

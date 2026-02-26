@@ -7,10 +7,12 @@ describe("sqlite3 formatting", () => {
       const query = sql`INSERT INTO ${Account} (${Account.$firstName}, ${Account.$email}) VALUES ('John', 'john@example.com')`;
       const { text } = query.getSql({ options: { dialect: "sqlite" } });
       expect(text).toMatchInlineSnapshot(`
-        "INSERT INTO
+        "/* <query_0> */
+        INSERT INTO
           "main"."account" ("first_name", "email")
         VALUES
-          ('John', 'john@example.com')"
+          ('John', 'john@example.com')
+          /* </query_0> */"
       `);
    });
 
@@ -18,10 +20,12 @@ describe("sqlite3 formatting", () => {
       const query = sql`INSERT INTO ${Account.as("a")} (${Account.as("a").$firstName}, ${Account.as("a").$email}) VALUES ('John', 'john@example.com')`;
       const { text } = query.getSql({ options: { dialect: "sqlite" } });
       expect(text).toMatchInlineSnapshot(`
-        "INSERT INTO
+        "/* <query_0> */
+        INSERT INTO
           "main"."account" ("first_name", "email")
         VALUES
-          ('John', 'john@example.com')"
+          ('John', 'john@example.com')
+          /* </query_0> */"
       `);
    });
 
@@ -29,7 +33,8 @@ describe("sqlite3 formatting", () => {
       const query = sql`SELECT ${Account.$$} FROM ${Account} WHERE ${Account.$accountId} = 1`;
       const { text } = query.getSql({ options: { dialect: "sqlite" } });
       expect(text).toMatchInlineSnapshot(`
-        "SELECT
+        "/* <query_0> */
+        SELECT
           "a_1"."account_id" AS "accountId",
           "a_1"."status",
           "a_1"."email",
@@ -42,7 +47,8 @@ describe("sqlite3 formatting", () => {
         FROM
           "main"."account" AS "a_1"
         WHERE
-          "a_1"."account_id" = 1"
+          "a_1"."account_id" = 1
+          /* </query_0> */"
       `);
    });
 
@@ -50,11 +56,13 @@ describe("sqlite3 formatting", () => {
       const query = sql`UPDATE ${Account} SET ${Account.$firstName} = 'Jane' WHERE ${Account.$accountId} = 1`;
       const { text } = query.getSql({ options: { dialect: "sqlite" } });
       expect(text).toMatchInlineSnapshot(`
-        "UPDATE "main"."account"
+        "/* <query_0> */
+        UPDATE "main"."account"
         SET
           "first_name" = 'Jane'
         WHERE
-          "account"."account_id" = 1"
+          "account"."account_id" = 1
+          /* </query_0> */"
       `);
    });
 
@@ -62,9 +70,11 @@ describe("sqlite3 formatting", () => {
       const query = sql`DELETE FROM ${Account} WHERE ${Account.$accountId} = 1`;
       const { text } = query.getSql({ options: { dialect: "sqlite" } });
       expect(text).toMatchInlineSnapshot(`
-        "DELETE FROM "main"."account"
+        "/* <query_0> */
+        DELETE FROM "main"."account"
         WHERE
-          "account"."account_id" = 1"
+          "account"."account_id" = 1
+          /* </query_0> */"
       `);
    });
 });

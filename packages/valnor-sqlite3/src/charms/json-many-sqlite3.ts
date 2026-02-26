@@ -6,7 +6,7 @@ import {
    SqlCharm,
    SqlQuery,
    SqlSelectCharm,
-   SqlSelectColumn,
+   SqlQueryColumn,
    SqlSelectValue,
 } from "valnor";
 
@@ -60,7 +60,7 @@ export class JsonManySqlite3<T extends { Params?: unknown; Row?: unknown }> exte
 
    as<Key extends string>(key: Key): SqlSelectCharm<{ Key: Key; Type: string; Params: T["Params"] }> {
       const fields = Object.values(this.query.row ?? {}).flatMap((value) => {
-         if (value instanceof SqlSelectValue || value instanceof SqlSelectColumn) {
+         if (value instanceof SqlSelectValue || value instanceof SqlQueryColumn) {
             return [raw(`'${value.key}'`, { quote: false }), raw(value.key)];
          }
       });

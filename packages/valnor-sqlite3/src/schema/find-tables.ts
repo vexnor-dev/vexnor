@@ -1,12 +1,12 @@
-import { param, row, sql, val } from "valnor";
+import { col, param, row, sql, val } from "valnor";
 import { PragmaTableInfo, SqliteMaster } from "./models.js";
 
 export const findTables = sql`
    SELECT 
       ${row(SqliteMaster.$name.as("table_name"))},
-      ${val`'main'`.as<{ table_schema: string }>("table_schema")},
-      ${val`'[]'`.as<{ table_columns: string[] }>("table_columns")},
-      ${val`NULL`.as<{ primary_key: string }>("primary_key")}
+      'main' as ${col<{ table_schema: string }>("table_schema")},
+      '[]' as ${col<{ table_columns: string[] }>("table_columns")},
+      NULL as ${col<{ primary_key: string }>("primary_key")}
    FROM ${SqliteMaster}
    WHERE ${SqliteMaster.$type} = 'table' 
    AND ${SqliteMaster.$name} NOT LIKE 'sqlite_%'
