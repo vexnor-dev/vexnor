@@ -1,8 +1,9 @@
 import { describe, expect, test, beforeAll, afterAll } from "vitest";
 import { ValnorSqlite3 } from "../valnor-sqlite3.js";
 import BetterSqlite3 from "better-sqlite3";
-import { sql, param } from "valnor";
+import { sql, param, row } from "valnor";
 import { Account } from "valnor/testing";
+import { jsonOne, jsonMany } from "../charms/json-aggregation-sqlite3.js";
 import "../valnor-sqlite3.js";
 
 describe("integration tests", () => {
@@ -84,5 +85,65 @@ describe("integration tests", () => {
       const deleteQuery = sql`DELETE FROM ${Account} WHERE ${Account.$accountId} = ${param<{ id: number | bigint }>("id")}`;
       const result = await deleteQuery.sqlite3.run({ db, params: { id: deleteId } });
       expect(result.changes).toBe(1);
+   });
+
+   test("should handle jsonMany aggregation", async () => {
+      const parentQuery = sql`
+         INSERT INTO ${Account} (${Account.$firstName}, ${Account.$lastName}, ${Account.$email})
+         VALUES ('Parent', 'Account', 'parent@example.com')
+      `;
+      const parentResult = await parentQuery.sqlite3.run({ db });
+      const parentId = parentResult.lastInsertRowid;
+
+      await sql`
+         INSERT INTO ${Account} (${Account.$firstName}, ${Account.$lastName}, ${Account.$email}, ${Account.$parentId})
+         VALUES ('Child1', 'Account', 'child1@example.com', ${param<{ parentId: number | bigint }>("parentId")})
+      `.sqlite3.run({ db, params: { parentId } });
+
+      await sql`
+         INSERT INTO ${Account} (${Account.$firstName}, ${Account.$lastName}, ${Account.$email}, ${Account.$parentId})
+         VALUES ('Child2', 'Account', 'child2@example.com', ${param<{ parentId: number | bigint }>("parentId")})
+      `.sqlite3.run({ db, params: { parentId } });
+
+      const AccountChildren = sql`
+         SELECT ${row(Account.$$)}
+         FROM ${Account}
+         WHERE ${Account.$parentId} = ${Account.out.$accountId}
+      `;
+
+      const query = sql`
+         SELECT ${row(Account.$$)}, ${jsonMany(AccountChildren).as("children")}
+         FROM ${Account}
+         WHERE ${Account.$accountId} = ${param<{ id: number | bigint }>("id")}
+      `;
+
+      const result = await query.sqlite3.getOneOptional({ db, params: { id: parentId } });
+      expect(result).toBeDefined();
+      expect(result?.children).toBeDefined();
+      const children = JSON.parse(result!.children as unknown as string);
+      expect(Array.isArray(children)).toBe(true);
+      expect(children.length).toBe(2);
+   });
+
+   test("should handle jsonOne aggregation", async () => {
+      const AccountParent = sql`
+         SELECT ${row(Account.$$)}
+         FROM ${Account}
+         WHERE ${Account.$accountId} = ${Account.out.$parentId}
+      `;
+
+      const query = sql`
+         SELECT ${row(Account.$$)}, ${jsonOne(AccountParent).as("parent")}
+         FROM ${Account}
+         WHERE ${Account.$parentId} IS NOT NULL
+         LIMIT 1
+      `;
+
+      const result = await query.sqlite3.getOneOptional({ db });
+      if (result) {
+         expect(result.parent).toBeDefined();
+         const parent = JSON.parse(result.parent as unknown as string);
+         expect(parent.accountId).toBe(result.parentId);
+      }
    });
 });

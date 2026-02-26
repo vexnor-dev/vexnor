@@ -1,1 +1,1 @@
-export * from "./json-many-sqlite3.js";
+export * from "./json-aggregation-sqlite3.js";

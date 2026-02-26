@@ -360,9 +360,7 @@ describe.sequential("valnor sqlite3 e2e tests", () => {
       const actual = await query.sqlite3.getAll({ db }).then((accounts) =>
          accounts.map((account) => ({
             ...account,
-            children: (JSON.parse(account.children) as IAccountSelect[]).map((child) => ({
-               ...child,
-            })),
+            children: JSON.parse(account.children as any) as IAccountSelect[],
          })),
       );
 
