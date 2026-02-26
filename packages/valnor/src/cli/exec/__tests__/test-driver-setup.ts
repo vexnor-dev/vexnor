@@ -7,7 +7,7 @@ export class TestDriverQueryHandler<T extends { Row?: unknown; Params?: unknown 
    Row: T["Row"];
    Params: T["Params"];
    QueryResult: { rows: T["Row"][] };
-   QueryClient: unknown;
+   Connection: unknown;
 }> {
    constructor(query: SqlQuery<{ Params: T["Params"]; Row: T["Row"] }>) {
       super(query);
@@ -18,7 +18,7 @@ export class TestDriverQueryHandler<T extends { Row?: unknown; Params?: unknown 
    }
 
    // eslint-disable-next-line unused-imports/no-unused-vars
-   async run(args: SqlRunArgs<unknown, T["Params"]>): Promise<{ rows: T["Row"][] }> {
+   async run(args: SqlRunArgs<{ Connection: unknown; Params: T["Params"] }>): Promise<{ rows: T["Row"][] }> {
       return { rows: mockData as T["Row"][] };
    }
 }

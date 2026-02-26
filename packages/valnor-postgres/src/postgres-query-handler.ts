@@ -12,13 +12,13 @@ export class PostgresQueryHandler<T extends { Row?: unknown; Params?: unknown }>
    Row: T["Row"];
    Params: T["Params"];
    QueryResult: QueryResult<RowOrDefault<T["Row"]>>;
-   QueryClient: PostgresClient;
+   Connection: PostgresClient;
 }> {
    constructor(readonly query: SqlQuery<{ Row: T["Row"]; Params: T["Params"] }>) {
       super(query);
    }
 
-   getOptions(args: SqlRunArgs<PostgresClient, T["Params"]>) {
+   getOptions(args: SqlRunArgs<{ Connection: PostgresClient; Params: T["Params"] }>) {
       let queryInput = undefined;
       try {
          const newArgs = {
@@ -47,7 +47,9 @@ export class PostgresQueryHandler<T extends { Row?: unknown; Params?: unknown }>
     * Executes the core and returns the result
     * @param args
     */
-   async run(args: SqlRunArgs<PostgresClient, T["Params"]>): Promise<QueryResult<RowOrDefault<T["Row"]>>> {
+   async run(
+      args: SqlRunArgs<{ Connection: PostgresClient; Params: T["Params"] }>,
+   ): Promise<QueryResult<RowOrDefault<T["Row"]>>> {
       const { db, options: { debug } = {} } = args;
       let queryInput = undefined;
       try {

@@ -3,7 +3,7 @@ import { SqlRunArgs } from "../sql-query-types.js";
 
 describe("SqlQueryTypes Inference tests", () => {
    test("SqlRunArgs should include params", () => {
-      type Target = SqlRunArgs<"Connection", { name: string }>;
+      type Target = SqlRunArgs<{ Connection: "Connection"; Params: { name: string } }>;
       const target: Target = {
          db: "Connection",
          params: { name: "test" },
@@ -17,12 +17,12 @@ describe("SqlQueryTypes Inference tests", () => {
    });
 
    test("SqlRunArgs should not include params when Params is never)", () => {
-      type Target = SqlRunArgs<"Connection", undefined>;
+      type Target = SqlRunArgs<{ Connection: "Connection" }>;
       const target: Target = {
          db: "Connection",
+         options: undefined,
       };
       expect(target).toBeDefined();
-      //@ts-expect-error not defined
       expect(target.params).toBeUndefined();
       expect(target.db).toBe("Connection");
    });

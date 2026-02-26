@@ -27,9 +27,9 @@ export interface SqlBuildOptions {
    paramFormat?: SqlParamFormat;
 }
 
-export type SqlRunArgs<Connection, Params> = [keyof Params] extends [never]
-   ? { db: Connection; options?: SqlBuildOptions }
-   : { db: Connection; params: Params; options?: SqlBuildOptions };
+export type SqlRunArgs<T extends { Connection: unknown; Params?: unknown }> = [keyof T["Params"]] extends [never]
+   ? { db: T["Connection"]; options?: SqlBuildOptions; params?: T["Params"] }
+   : { db: T["Connection"]; params: T["Params"]; options?: SqlBuildOptions };
 
 export type SqlInputArgs<Params> = [keyof Params] extends [never]
    ? { options?: SqlBuildOptions }

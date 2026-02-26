@@ -37,7 +37,7 @@ export abstract class ValnorPlugin<T extends { Connection: unknown; Config: unkn
     */
    abstract createConnection(config: T["Config"]): Promise<ValnorConnection<T["Connection"]>>;
 
-   abstract newQueryHandler<T extends { Row?: unknown; Params?: unknown; QueryResult: object; QueryClient: unknown }>(
+   abstract newQueryHandler<T extends { Row?: unknown; Params?: unknown; QueryResult: object; Connection: unknown }>(
       query: SqlQuery<{ Params: T["Params"]; Row: T["Row"] }>,
    ): SqlQueryHandler<T>;
 }

@@ -1,87 +1,177 @@
-import { describe, test, expectTypeOf } from "vitest";
-import { MergeAll } from "../merge-type.js";
+import { describe, test, assertType } from "vitest";
+import { Merge, MergeAll } from "../merge-type.js";
 
-describe("Merge<> type tests", () => {
-   test("merges two record types", () => {
-      type A = { a: string };
-      type B = { b: number };
-      type Result = MergeAll<[A, B]>;
+describe("Merge type utility", () => {
+   test("merges two object types", () => {
+      type A = { a: string; b: number };
+      type B = { c: boolean };
+      type Result = Merge<A, B>;
 
-      expectTypeOf<Result>().toEqualTypeOf<{ a: string; b: number }>();
+      assertType<Result>({
+         a: "",
+         b: 1,
+         c: true,
+      });
    });
 
-   test("merges three record types", () => {
+   test("creates union for overlapping keys", () => {
+      type A = { a: string; b: number };
+      type B = { b: boolean; c: string };
+      type Result = Merge<A, B>;
+
+      assertType<Result>({
+         a: "",
+         b: 1,
+         c: "",
+      });
+
+      assertType<Result>({
+         a: "",
+         b: 1,
+         c: "",
+      });
+   });
+
+   test("returns A when B is not a record", () => {
+      type A = { a: string };
+      type B = string;
+      type Result = Merge<A, B>;
+
+      assertType<Result>({
+         a: "a",
+      });
+   });
+
+   test("returns B when A is not a record", () => {
+      type A = number;
+      type B = { b: string };
+      type Result = Merge<A, B>;
+
+      assertType<Result>({
+         b: "b",
+      });
+   });
+
+   test("returns never when neither A nor B are records", () => {
+      type A = string;
+      type B = number;
+      type Result = Merge<A, B>;
+
+      assertType<Result>({});
+   });
+
+   test("handles empty objects", () => {
+      type A = {};
+      type B = { b: string };
+      type Result = Merge<A, B>;
+
+      assertType<Result>({ b: "" });
+   });
+});
+
+describe("MergeAll type utility", () => {
+   test("merges multiple object types", () => {
       type A = { a: string };
       type B = { b: number };
       type C = { c: boolean };
       type Result = MergeAll<[A, B, C]>;
 
-      expectTypeOf<Result>().toEqualTypeOf<{ a: string; b: number; c: boolean }>();
+      assertType<Result>({ a: "string", b: 1, c: true });
    });
 
-   test("handles empty array", () => {
+   test("handles overlapping keys across multiple types", () => {
+      type A = { a: string; x: number };
+      type B = { b: number; x: string };
+      type C = { c: boolean; x: boolean };
+      type Result = MergeAll<[A, B, C]>;
+
+      assertType<Result>({
+         a: "string",
+         b: 1,
+         c: true,
+         x: true,
+      });
+   });
+
+   test("skips non-record types in tuple", () => {
+      type A = { a: string };
+      type B = number;
+      type C = { c: boolean };
+      type Result = MergeAll<[A, B, C]>;
+
+      assertType<Result>({
+         a: "string",
+         c: true,
+      });
+   });
+
+   test("returns unknown for empty tuple", () => {
       type Result = MergeAll<[]>;
 
-      expectTypeOf<Result>().toEqualTypeOf<unknown>();
+      assertType<Result>({});
    });
 
-   test("handles single record type", () => {
-      type A = { a: string; b: number };
+   test("handles single element tuple", () => {
+      type A = { a: string };
       type Result = MergeAll<[A]>;
 
-      expectTypeOf<Result>().toEqualTypeOf<{ a: string; b: number }>();
+      assertType<Result>({
+         a: "string",
+      });
    });
 
-   test("merges overlapping properties (intersection behavior)", () => {
-      type A = { a: string; shared: number };
-      type B = { b: boolean; shared: string };
-      type Result = MergeAll<[A, B]>;
+   test("returns unknown when all elements are non-records", () => {
+      type Result = MergeAll<[string, number, boolean]>;
 
-      expectTypeOf<Result>().toEqualTypeOf<{ a: string; b: boolean; shared: number | string }>();
+      assertType<Result>({});
    });
 
    test("merges complex nested types", () => {
-      type A = { user: { id: number } };
-      type B = { post: { title: string } };
-      type C = { meta: { count: number } };
+      type A = { a: { nested: string } };
+      type B = { b: string[] };
+      type C = { c: number | null };
       type Result = MergeAll<[A, B, C]>;
 
-      expectTypeOf<Result>().toEqualTypeOf<{
-         user: { id: number };
-         post: { title: string };
-         meta: { count: number };
-      }>();
+      assertType<Result>({
+         a: {
+            nested: "",
+         },
+         b: [""],
+         c: null,
+      });
+
+      assertType<Result>({
+         a: {
+            nested: "",
+         },
+         b: [""],
+         c: 1,
+      });
    });
 
-   test("merges with unknown types in array", () => {
-      type A = { a: string };
-      type Result = MergeAll<[A, unknown]>;
+   test("merging types with optionals should result in optional fields", () => {
+      type A = { a?: string };
+      type B = { b?: number };
+      type C = { c?: boolean };
+      type Result = MergeAll<[A, B, C]>;
 
-      expectTypeOf<Result>().toEqualTypeOf<{ a: string }>();
+      assertType<Result>({
+         a: "a",
+      });
    });
 
-   test("merges with unknown in middle of array", () => {
-      type A = { a: string };
-      type B = { b: number };
-      type Result = MergeAll<[A, unknown, B]>;
+   test("merging optional with required fields should result in required fields", () => {
+      type A = { a: string; b: string; nested: { x: number } };
+      type B = { a?: string; c: boolean };
+      type Result = Merge<A, B>;
 
-      expectTypeOf<Result>().toEqualTypeOf<{ a: string; b: number }>();
-   });
-
-   test("merges with Record<string, unknown> in array", () => {
-      type A = { a: string };
-      type B = { b: number };
-      type Result = MergeAll<[A, B, unknown]>;
-
-      // Should NOT produce index signature
-      expectTypeOf<Result>().toEqualTypeOf<{ a: string; b: number }>();
-   });
-
-   test("merges with empty object in array", () => {
-      type A = { a: string };
-      type B = { b: number };
-      type Result = MergeAll<[A, B, unknown]>;
-
-      expectTypeOf<Result>().toEqualTypeOf<{ a: string; b: number }>();
+      assertType<Result>({
+         a: "a",
+         b: "b",
+         c: true,
+         nested: { x: 1 },
+         // @ts-expect-error - field not existing
+         x: "a",
+      });
    });
 });

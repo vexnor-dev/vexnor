@@ -22,7 +22,7 @@ export class TestPlugin extends ValnorPlugin<{ Config: unknown; Connection: unkn
       return new ValnorConnection<unknown>(mockDb, async () => {});
    }
 
-   newQueryHandler<T extends { Row?: unknown; Params?: unknown; QueryResult: object; QueryClient: unknown }>(
+   newQueryHandler<T extends { Row?: unknown; Params?: unknown; QueryResult: object; Connection: unknown }>(
       query: SqlQuery<{ Params: T["Params"]; Row: T["Row"] }>,
    ): SqlQueryHandler<T> {
       return new TestDriverQueryHandler(query);

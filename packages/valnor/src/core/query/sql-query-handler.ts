@@ -9,7 +9,7 @@ export type SqlQueryHandlerAny = SqlQueryHandler<any>;
  * Base query handler for async database operations
  */
 export abstract class SqlQueryHandler<
-   T extends { Row?: unknown; Params?: unknown; QueryResult: object; QueryClient: unknown },
+   T extends { Row?: unknown; Params?: unknown; QueryResult: object; Connection: unknown },
 > extends SqlQuery<Pick<T, "Params" | "Row">> {
    protected constructor(query: SqlQuery<Pick<T, "Row" | "Params">>) {
       super(query);
@@ -17,13 +17,13 @@ export abstract class SqlQueryHandler<
 
    abstract resolveRows(res: T["QueryResult"]): T["Row"][];
 
-   abstract run(args: SqlRunArgs<T["QueryClient"], T["Params"]>): Promise<T["QueryResult"]>;
+   abstract run(args: SqlRunArgs<Pick<T, "Connection" | "Params">>): Promise<T["QueryResult"]>;
 
    /**
     * Executes the core and returns exactly one row, or throw error when result not found or more
     * @param args
     */
-   async getOneRequired(args: SqlRunArgs<T["QueryClient"], T["Params"]>): Promise<T["Row"]> {
+   async getOneRequired(args: SqlRunArgs<Pick<T, "Connection" | "Params">>): Promise<T["Row"]> {
       const rows = await this.getAll(args);
       ok(rows.length === 1, `Expected one row, actual is ${rows.length} rows.`);
       ok(rows[0], `The one row in result is not defined: ${rows[0]}`);
@@ -34,7 +34,7 @@ export abstract class SqlQueryHandler<
     * Executes the core and returns the first row, or undefined when no rows found
     * @param args
     */
-   async getOneOptional(args: SqlRunArgs<T["QueryClient"], T["Params"]>): Promise<T["Row"] | undefined> {
+   async getOneOptional(args: SqlRunArgs<Pick<T, "Connection" | "Params">>): Promise<T["Row"] | undefined> {
       const rows = await this.getAll(args);
       return rows.length > 0 ? rows[0] : undefined;
    }
@@ -43,7 +43,7 @@ export abstract class SqlQueryHandler<
     * Executes the core and returns all rows
     * @param args
     */
-   async getAll(args: SqlRunArgs<T["QueryClient"], T["Params"]>): Promise<T["Row"][]> {
+   async getAll(args: SqlRunArgs<Pick<T, "Connection" | "Params">>): Promise<T["Row"][]> {
       return await this.run(args).then((res) => this.resolveRows(res));
    }
 }

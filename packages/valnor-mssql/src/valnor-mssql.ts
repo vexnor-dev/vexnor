@@ -113,7 +113,7 @@ export class ValnorMssql extends ValnorPlugin<{ Config: ConnectionConfig; Connec
       return new ValnorConnection(pool, (p) => p.close());
    }
 
-   newQueryHandler<T extends { Row?: unknown; Params?: unknown; QueryResult: object; QueryClient: unknown }>(
+   newQueryHandler<T extends { Row?: unknown; Params?: unknown; QueryResult: object; Connection: unknown }>(
       query: SqlQuery<{ Params: T["Params"]; Row: T["Row"] }>,
    ): SqlQueryHandler<T> {
       return new MssqlQueryHandler(query);

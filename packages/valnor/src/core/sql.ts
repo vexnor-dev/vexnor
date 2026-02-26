@@ -52,6 +52,6 @@ export type ExtractParamsFromQuery<T> =
    T extends SqlQueryExtended<infer U extends { Params?: any }>
       ? U["Params"]
       : // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        T extends SqlQueryHandler<infer U extends { Params?: any; Row?: any; QueryResult: any; QueryClient: any }>
+        T extends SqlQueryHandler<infer U extends { Params?: any; Row?: any; QueryResult: any; Connection: any }>
         ? U["Params"]
         : never;

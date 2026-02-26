@@ -8,13 +8,13 @@ export class MssqlQueryHandler<T extends { Params?: unknown; Row?: unknown }> ex
    Row: T["Row"];
    Params: T["Params"];
    QueryResult: IResult<T["Row"]>;
-   QueryClient: Request;
+   Connection: Request;
 }> {
    constructor(readonly query: SqlQuery<{ Row: T["Row"]; Params: T["Params"] }>) {
       super(query);
    }
 
-   getOptions(args: SqlRunArgs<Request, T["Params"]>) {
+   getOptions(args: SqlRunArgs<{ Connection: Request; Params: T["Params"] }>) {
       let queryInput = undefined;
       try {
          const newArgs: SqlInputArgs<T["Params"]> = {
@@ -43,7 +43,7 @@ export class MssqlQueryHandler<T extends { Params?: unknown; Row?: unknown }> ex
     * Executes the query and returns the result
     * @param args
     */
-   async run(args: SqlRunArgs<Request, T["Params"]>): Promise<IResult<T["Row"]>> {
+   async run(args: SqlRunArgs<{ Connection: Request; Params: T["Params"] }>): Promise<IResult<T["Row"]>> {
       const { db, options: { debug } = {} } = args;
       let queryInput = undefined;
       try {

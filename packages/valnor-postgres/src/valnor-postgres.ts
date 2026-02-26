@@ -76,7 +76,7 @@ export class ValnorPostgres extends ValnorPlugin<{ Config: ConnectionConfig; Con
       return new ValnorConnection(pool, (p) => p.end());
    }
 
-   newQueryHandler<T extends { Row?: unknown; Params?: unknown; QueryResult: object; QueryClient: unknown }>(
+   newQueryHandler<T extends { Row?: unknown; Params?: unknown; QueryResult: object; Connection: unknown }>(
       query: SqlQuery<{ Row: T["Row"]; Params: T["Params"] }>,
    ): SqlQueryHandler<T> {
       return new PostgresQueryHandler(query);
