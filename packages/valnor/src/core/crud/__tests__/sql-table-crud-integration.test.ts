@@ -12,7 +12,7 @@ describe("SqlTable CRUD Integration", () => {
       Delete: true;
    }>({
       crud: {
-         find: true,
+         read: true,
          create: true,
          update: true,
          delete: true,
@@ -29,14 +29,14 @@ describe("SqlTable CRUD Integration", () => {
 
    test("should create CRUD-capable table", () => {
       expect(TestTable).toBeDefined();
-      expect(TestTable.find).toBeDefined();
+      expect(TestTable.read).toBeDefined();
       expect(TestTable.create).toBeDefined();
       expect(TestTable.update).toBeDefined();
       expect(TestTable.delete).toBeDefined();
    });
 
    test("find should generate select query", () => {
-      const query = TestTable.find({});
+      const query = TestTable.read({});
       const { text } = query.getSql({});
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
@@ -52,7 +52,7 @@ describe("SqlTable CRUD Integration", () => {
 
    test("find with where clause", () => {
       const where = sql`where ${BaseTable.$id} = ${param<{ id: string }>("id")}`;
-      const query = TestTable.find({ where });
+      const query = TestTable.read({ where });
 
       const { text } = query.getSql({ params: { id: "test-id" } });
       expect(text).toMatchInlineSnapshot(`
@@ -208,7 +208,7 @@ describe("SqlTable CRUD Partial Support", () => {
             Select: { id: string; name: string };
          }>({
             crud: {
-               find: true,
+               read: true,
                create: false,
                update: false,
                delete: false,
@@ -219,7 +219,7 @@ describe("SqlTable CRUD Partial Support", () => {
          }),
       );
 
-      expect(ReadOnlyTable.find).toBeDefined();
+      expect(ReadOnlyTable.read).toBeDefined();
    });
 
    test("table without Delete should not have delete", () => {
@@ -230,7 +230,7 @@ describe("SqlTable CRUD Partial Support", () => {
             Update: { id: string };
          }>({
             crud: {
-               find: true,
+               read: true,
                create: true,
                update: true,
                delete: false,
@@ -241,7 +241,7 @@ describe("SqlTable CRUD Partial Support", () => {
          }),
       );
 
-      expect(NoDeleteTable.find).toBeDefined();
+      expect(NoDeleteTable.read).toBeDefined();
       expect(NoDeleteTable.create).toBeDefined();
       expect(NoDeleteTable.update).toBeDefined();
    });

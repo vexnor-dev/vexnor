@@ -3,18 +3,18 @@ import { ParamsOf } from "../sql-base.js";
 import { Merge } from "../utils/index.js";
 
 /* Find  */
-export type SqlTableFindResult<
+export type SqlTableReadResult<
    T extends { Select: Record<string, unknown> },
    Args extends { where?: SqlQueryAny },
 > = Args["where"] extends object
    ? SqlQueryExtended<{ Params: ParamsOf<Args["where"]>; Row: T["Select"] }>
    : SqlQueryExtended<{ Params: void; Row: T["Select"] }>;
 
-export type SqlTableFind<T extends { Select: Record<string, unknown> }> = {
-   find<Args extends { where?: SqlQueryAny }>({ where }: Args): SqlTableFindResult<T, Args>;
+export type SqlTableRead<T extends { Select: Record<string, unknown> }> = {
+   read<Args extends { where?: SqlQueryAny }>({ where }: Args): SqlTableReadResult<T, Args>;
 };
 
-export type SqlTableFindOptional<T> = T extends { Select: Record<string, unknown> } ? SqlTableFind<T> : unknown;
+export type SqlTableReadOptional<T> = T extends { Select: Record<string, unknown> } ? SqlTableRead<T> : unknown;
 
 /* Create  */
 export type SqlTableCreateParams<T extends { Insert: Record<string, unknown> }> = {
@@ -94,7 +94,7 @@ export type SqlTableDeleteOptional<T> = T extends {
    ? SqlTableDelete
    : unknown;
 
-export type SqlTableCrud<T> = {} & SqlTableFindOptional<T> &
+export type SqlTableCrud<T> = {} & SqlTableReadOptional<T> &
    SqlTableCreateOptional<T> &
    SqlTableUpdateOptional<T> &
    SqlTableDeleteOptional<T>;

@@ -3,6 +3,12 @@ import { newSqlTable } from "valnor";
 export const SqliteMaster = newSqlTable<{
    Select: { type: string; name: string; tbl_name: string; rootpage: number; sql: string };
 }>({
+   crud: {
+      create: false,
+      read: true,
+      update: false,
+      delete: false,
+   },
    pk: [],
    tableInfo: {
       name: "sqlite_master",
@@ -19,6 +25,12 @@ export const SqliteMaster = newSqlTable<{
 export const PragmaTableInfo = newSqlTable<{
    Select: { cid: number; name: string; type: string; notnull: boolean; dflt_value: string };
 }>({
+   crud: {
+      create: false,
+      read: true,
+      update: false,
+      delete: false,
+   },
    pk: [],
    tableInfo: {
       name: "pragma_table_info",

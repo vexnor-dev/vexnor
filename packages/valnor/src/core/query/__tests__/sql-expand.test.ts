@@ -95,7 +95,7 @@ describe("SqlExpand", () => {
       test("expand for INSERT columns", () => {
          const query = sql`
             INSERT INTO ${Account}
-            (${expand<{ inserts: Array<{ email: string; firstName: string }> }>((params) => {
+            (${expand<{ inserts: Array<{ email: string; firstName: string }> }>(() => {
                return [Account.$email, Account.$firstName];
             })})
             VALUES (${expand<{ inserts: Array<{ email: string; firstName: string }> }>((params) => {
@@ -498,7 +498,9 @@ describe("SqlExpand", () => {
          `;
 
          // @ts-expect-error - Testing runtime validation
-         expect(() => query.getSql({})).toThrowErrorMatchingInlineSnapshot(`[AssertionError: 'context.params' is required to expand SqlExpand#1.]`);
+         expect(() => query.getSql({})).toThrowErrorMatchingInlineSnapshot(
+            `[AssertionError: 'context.params' is required to expand SqlExpand#1.]`,
+         );
       });
    });
 });

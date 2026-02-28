@@ -3,7 +3,14 @@
 */
 import * as valnor from "valnor";
 
-export const Order = valnor.newSqlTable<{ Select: IOrderSelect, Insert: IOrderInsert, Update: IOrderUpdate }>({
+export const Order = valnor.newSqlTable<{ Select: IOrderSelect, Insert: IOrderInsert, Update: IOrderUpdate; Delete: true }>({
+   crud:
+   {
+      create: true, 
+      read: true, 
+      update: true, 
+      delete: true, 
+   },
    tableInfo:
    {
       name: "order",

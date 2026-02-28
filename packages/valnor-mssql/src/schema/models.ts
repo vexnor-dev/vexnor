@@ -1,6 +1,12 @@
 import { newSqlTable } from "valnor";
 
 export const Tables = newSqlTable<{ Select: { table_name: string; table_schema: string; table_type: string } }>({
+   crud: {
+      create: false,
+      read: true,
+      update: false,
+      delete: false,
+   },
    pk: [],
    tableInfo: {
       name: "TABLES",
@@ -28,6 +34,12 @@ export const Columns = newSqlTable<{
       data_type: string;
    };
 }>({
+   crud: {
+      create: false,
+      read: true,
+      update: false,
+      delete: false,
+   },
    pk: [],
    tableInfo: {
       name: "COLUMNS",
@@ -51,6 +63,12 @@ export const Columns = newSqlTable<{
 export const TableConstraints = newSqlTable<{
    Select: { constraint_name: string; table_name: string; table_schema: string; constraint_type: string };
 }>({
+   crud: {
+      create: false,
+      read: true,
+      update: false,
+      delete: false,
+   },
    pk: [],
    tableInfo: {
       name: "TABLE_CONSTRAINTS",
@@ -67,6 +85,12 @@ export const TableConstraints = newSqlTable<{
 export const KeyColumnUsage = newSqlTable<{
    Select: { constraint_name: string; table_name: string; table_schema: string; column_name: string };
 }>({
+   crud: {
+      create: false,
+      read: true,
+      update: false,
+      delete: false,
+   },
    pk: [],
    tableInfo: {
       name: "KEY_COLUMN_USAGE",

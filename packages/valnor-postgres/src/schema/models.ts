@@ -3,6 +3,12 @@ import { newSqlTable } from "valnor";
 export const PgType = newSqlTable<{
    Select: { oid: number; typname: string; typcategory: string; typnamespace: number; typelem: number };
 }>({
+   crud: {
+      create: false,
+      read: true,
+      update: false,
+      delete: false,
+   },
    tableInfo: {
       schema: "pg_catalog",
       name: "pg_type",
@@ -20,6 +26,12 @@ export const PgType = newSqlTable<{
 export const PgEnum = newSqlTable<{
    Select: { oid: number; enumtypid: number; enumlabel: string; enumsortorder: number };
 }>({
+   crud: {
+      create: false,
+      read: true,
+      update: false,
+      delete: false,
+   },
    tableInfo: {
       name: "pg_enum",
       schema: "pg_catalog",
@@ -36,6 +48,12 @@ export const PgEnum = newSqlTable<{
 export const EnumValues = newSqlTable<{
    Select: { enumtypid: number; enumlabel: string; enumsortorder: number };
 }>({
+   crud: {
+      create: false,
+      read: true,
+      update: false,
+      delete: false,
+   },
    tableInfo: {
       name: "enum_values",
    },
@@ -50,6 +68,12 @@ export const EnumValues = newSqlTable<{
 export const PgNamespace = newSqlTable<{
    Select: { oid: number; nspname: string };
 }>({
+   crud: {
+      create: false,
+      read: true,
+      update: false,
+      delete: false,
+   },
    tableInfo: {
       name: "pg_namespace",
       schema: "pg_catalog",
@@ -64,6 +88,12 @@ export const PgNamespace = newSqlTable<{
 export const Columns = newSqlTable<{
    Select: IColumnsSelect;
 }>({
+   crud: {
+      create: false,
+      read: true,
+      update: false,
+      delete: false,
+   },
    tableInfo: {
       name: "columns",
       schema: "information_schema",
@@ -121,6 +151,12 @@ export type IColumnsSelect = {
 export const TableConstraints = newSqlTable<{
    Select: { constraint_name: string; table_name: string; table_schema: string; constraint_type: string };
 }>({
+   crud: {
+      create: false,
+      read: true,
+      update: false,
+      delete: false,
+   },
    tableInfo: {
       name: "table_constraints",
       schema: "information_schema",
@@ -143,6 +179,12 @@ export const KeyColumnUsage = newSqlTable<{
       ordinal_position: number;
    };
 }>({
+   crud: {
+      create: false,
+      read: true,
+      update: false,
+      delete: false,
+   },
    tableInfo: {
       name: "key_column_usage",
       schema: "information_schema",

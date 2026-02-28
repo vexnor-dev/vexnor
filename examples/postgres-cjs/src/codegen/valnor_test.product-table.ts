@@ -4,7 +4,14 @@
 import * as valnor from "valnor";
 import * as udt from "./valnor_test-enums.js";
 
-export const Product = valnor.newSqlTable<{ Select: IProductSelect, Insert: IProductInsert, Update: IProductUpdate }>({
+export const Product = valnor.newSqlTable<{ Select: IProductSelect, Insert: IProductInsert, Update: IProductUpdate; Delete: true }>({
+   crud:
+   {
+      create: true, 
+      read: true, 
+      update: true, 
+      delete: true, 
+   },
    tableInfo:
    {
       name: "product",

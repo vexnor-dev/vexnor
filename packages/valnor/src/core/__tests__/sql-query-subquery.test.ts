@@ -574,7 +574,7 @@ describe("sql subqueries tests", () => {
                   "_crudConfig": {
                     "create": true,
                     "delete": true,
-                    "find": true,
+                    "read": true,
                     "update": true,
                   },
                   "_out": Lazy {
@@ -1162,7 +1162,7 @@ describe("sql subqueries tests", () => {
                   "_crudConfig": {
                     "create": true,
                     "delete": true,
-                    "find": true,
+                    "read": true,
                     "update": true,
                   },
                   "_out": Lazy {
@@ -1750,7 +1750,7 @@ describe("sql subqueries tests", () => {
                   "_crudConfig": {
                     "create": true,
                     "delete": true,
-                    "find": true,
+                    "read": true,
                     "update": true,
                   },
                   "_out": Lazy {
@@ -2338,7 +2338,7 @@ describe("sql subqueries tests", () => {
                   "_crudConfig": {
                     "create": true,
                     "delete": true,
-                    "find": true,
+                    "read": true,
                     "update": true,
                   },
                   "_out": Lazy {
@@ -2926,7 +2926,7 @@ describe("sql subqueries tests", () => {
                   "_crudConfig": {
                     "create": true,
                     "delete": true,
-                    "find": true,
+                    "read": true,
                     "update": true,
                   },
                   "_out": Lazy {
@@ -3514,7 +3514,7 @@ describe("sql subqueries tests", () => {
                   "_crudConfig": {
                     "create": true,
                     "delete": true,
-                    "find": true,
+                    "read": true,
                     "update": true,
                   },
                   "_out": Lazy {
@@ -4102,7 +4102,7 @@ describe("sql subqueries tests", () => {
                   "_crudConfig": {
                     "create": true,
                     "delete": true,
-                    "find": true,
+                    "read": true,
                     "update": true,
                   },
                   "_out": Lazy {
@@ -4690,7 +4690,7 @@ describe("sql subqueries tests", () => {
                   "_crudConfig": {
                     "create": true,
                     "delete": true,
-                    "find": true,
+                    "read": true,
                     "update": true,
                   },
                   "_out": Lazy {
@@ -5278,7 +5278,7 @@ describe("sql subqueries tests", () => {
                   "_crudConfig": {
                     "create": true,
                     "delete": true,
-                    "find": true,
+                    "read": true,
                     "update": true,
                   },
                   "_out": Lazy {

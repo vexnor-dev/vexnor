@@ -12,10 +12,18 @@ export function writeTableType(writer: CodeBlockWriter.default, { table }: Print
 
    writer
       .write(
-         `export const ${tableTypeName} = valnor.newSqlTable<{ Select: ${tableTypeSelect}, Insert: ${tableTypeInsert}, Update: ${tableTypeUpdate} }>(`,
+         `export const ${tableTypeName} = valnor.newSqlTable<{ Select: ${tableTypeSelect}, Insert: ${tableTypeInsert}, Update: ${tableTypeUpdate}; Delete: true }>(`,
       )
       .inlineBlock(() => {
          writer
+            .writeLine(`crud:`)
+            .inlineBlock(() => {
+               writer.writeLine(`create: true, `);
+               writer.writeLine(`read: true, `);
+               writer.writeLine(`update: true, `);
+               writer.writeLine(`delete: true, `);
+            })
+            .write(",")
             .writeLine("tableInfo:")
             .inlineBlock(() => {
                writer.writeLine(`name: "${table_name}",`);

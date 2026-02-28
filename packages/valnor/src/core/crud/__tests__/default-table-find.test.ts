@@ -1,20 +1,20 @@
 import { describe, expect, test } from "vitest";
-import { DefaultTableFind } from "../default-table-find.js";
-import { Account } from "../../__tests__/models/valnor_test.account-table.js";
+import { DefaultTableRead } from "../default-table-read.js";
+import { Account } from "@test-models/valnor_test.account-table.js";
 import { sql } from "../../sql.js";
 import { param } from "../../query/index.js";
 
 describe("DefaultTableFind", () => {
    test("should create find instance", () => {
-      const find = new DefaultTableFind(Account);
+      const find = new DefaultTableRead(Account);
       expect(find).toBeDefined();
       expect(find.table).toBe(Account);
    });
 
    test("should generate find query without where clause", () => {
-      const find = new DefaultTableFind(Account);
-      const query = find.find({});
-      
+      const find = new DefaultTableRead(Account);
+      const query = find.read({});
+
       expect(query).toBeDefined();
       const { text } = query.getSql({});
       expect(text).toMatchInlineSnapshot(`
@@ -36,10 +36,10 @@ describe("DefaultTableFind", () => {
    });
 
    test("should generate find query with where clause", () => {
-      const find = new DefaultTableFind(Account);
+      const find = new DefaultTableRead(Account);
       const where = sql`where ${Account.$accountId} = ${param<{ id: string }>("id")}`;
-      const query = find.find({ where });
-      
+      const query = find.read({ where });
+
       expect(query).toBeDefined();
       const { text } = query.getSql({ params: { id: "test-id" } });
       expect(text).toMatchInlineSnapshot(`
@@ -66,9 +66,9 @@ describe("DefaultTableFind", () => {
    });
 
    test("should return query with correct row type", () => {
-      const find = new DefaultTableFind(Account);
-      const query = find.find({});
-      
+      const find = new DefaultTableRead(Account);
+      const query = find.read({});
+
       expect(query.row).toBeDefined();
    });
 });

@@ -15,28 +15,28 @@ describe("json-many-sqlite3 tests", () => {
           /* <query_0> */
           SELECT
             coalesce(
-              json_group_array (json_object (\"query_1\".*)),
+              json_group_array (json_object ("query_1".*)),
               '[]'
             )
           FROM
             (
               /* <query_1> */
               SELECT
-                \"a_1\".\"account_id\" AS \"accountId\",
-                \"a_1\".\"status\",
-                \"a_1\".\"email\",
-                \"a_1\".\"first_name\" AS \"firstName\",
-                \"a_1\".\"last_name\" AS \"lastName\",
-                \"a_1\".\"notes\",
-                \"a_1\".\"created_at\" AS \"createdAt\",
-                \"a_1\".\"modified_at\" AS \"modifiedAt\",
-                \"a_1\".\"parent_id\" AS \"parentId\"
+                "a_1"."account_id" AS "accountId",
+                "a_1"."status",
+                "a_1"."email",
+                "a_1"."first_name" AS "firstName",
+                "a_1"."last_name" AS "lastName",
+                "a_1"."notes",
+                "a_1"."created_at" AS "createdAt",
+                "a_1"."modified_at" AS "modifiedAt",
+                "a_1"."parent_id" AS "parentId"
               FROM
-                \"main\".\"account\" AS \"children\"
+                "main"."account" AS "children"
               WHERE
-                \"children\".\"parent_id\" = \"a_1\".\"account_id\"
+                "children"."parent_id" = "a_1"."account_id"
                 /* </query_1> */
-            ) AS \"query_1\"
+            ) AS "query_1"
             /* </query_0> */
         )"
       `);
@@ -57,23 +57,23 @@ describe("json-many-sqlite3 tests", () => {
               json_group_array (
                 json_object (
                   'accountId',
-                  \"accountId\",
+                  "accountId",
                   'status',
-                  \"status\",
+                  "status",
                   'email',
-                  \"email\",
+                  "email",
                   'firstName',
-                  \"firstName\",
+                  "firstName",
                   'lastName',
-                  \"lastName\",
+                  "lastName",
                   'notes',
-                  \"notes\",
+                  "notes",
                   'createdAt',
-                  \"createdAt\",
+                  "createdAt",
                   'modifiedAt',
-                  \"modifiedAt\",
+                  "modifiedAt",
                   'parentId',
-                  \"parentId\"
+                  "parentId"
                 )
               ),
               '[]'
@@ -82,22 +82,22 @@ describe("json-many-sqlite3 tests", () => {
             (
               /* <query_1> */
               SELECT
-                \"children\".\"account_id\" AS \"accountId\",
-                \"children\".\"status\",
-                \"children\".\"email\",
-                \"children\".\"first_name\" AS \"firstName\",
-                \"children\".\"last_name\" AS \"lastName\",
-                \"children\".\"notes\",
-                \"children\".\"created_at\" AS \"createdAt\",
-                \"children\".\"modified_at\" AS \"modifiedAt\",
-                \"children\".\"parent_id\" AS \"parentId\"
+                "children"."account_id" AS "accountId",
+                "children"."status",
+                "children"."email",
+                "children"."first_name" AS "firstName",
+                "children"."last_name" AS "lastName",
+                "children"."notes",
+                "children"."created_at" AS "createdAt",
+                "children"."modified_at" AS "modifiedAt",
+                "children"."parent_id" AS "parentId"
               FROM
-                \"main\".\"account\" AS \"children\"
+                "main"."account" AS "children"
               WHERE
-                \"children\".\"parent_id\" = \"a_1\".\"account_id\"
+                "children"."parent_id" = "a_1"."account_id"
                 /* </query_1> */
-            ) AS \"query_1\"
-        ) AS \"children\"
+            ) AS "query_1"
+        ) AS "children"
         /* </query_0> */"
       `);
    });
@@ -140,15 +140,15 @@ describe("json-many-sqlite3 tests", () => {
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         SELECT
-          \"a_1\".\"account_id\" AS \"accountId\",
-          \"a_1\".\"status\",
-          \"a_1\".\"email\",
-          \"a_1\".\"first_name\" AS \"firstName\",
-          \"a_1\".\"last_name\" AS \"lastName\",
-          \"a_1\".\"notes\",
-          \"a_1\".\"created_at\" AS \"createdAt\",
-          \"a_1\".\"modified_at\" AS \"modifiedAt\",
-          \"a_1\".\"parent_id\" AS \"parentId\",
+          "a_1"."account_id" AS "accountId",
+          "a_1"."status",
+          "a_1"."email",
+          "a_1"."first_name" AS "firstName",
+          "a_1"."last_name" AS "lastName",
+          "a_1"."notes",
+          "a_1"."created_at" AS "createdAt",
+          "a_1"."modified_at" AS "modifiedAt",
+          "a_1"."parent_id" AS "parentId",
           /* <query_1> */
           (
             SELECT
@@ -156,23 +156,23 @@ describe("json-many-sqlite3 tests", () => {
                 json_group_array(
                   json_object(
                     'accountId',
-                    \"accountId\",
+                    "accountId",
                     'status',
-                    \"status\",
+                    "status",
                     'email',
-                    \"email\",
+                    "email",
                     'firstName',
-                    \"firstName\",
+                    "firstName",
                     'lastName',
-                    \"lastName\",
+                    "lastName",
                     'notes',
-                    \"notes\",
+                    "notes",
                     'createdAt',
-                    \"createdAt\",
+                    "createdAt",
                     'modifiedAt',
-                    \"modifiedAt\",
+                    "modifiedAt",
                     'parentId',
-                    \"parentId\"
+                    "parentId"
                   )
                 ),
                 '[]'
@@ -181,29 +181,29 @@ describe("json-many-sqlite3 tests", () => {
               (
                 /* <query_2> */
                 SELECT
-                  \"a_2\".\"account_id\" AS \"accountId\",
-                  \"a_2\".\"status\",
-                  \"a_2\".\"email\",
-                  \"a_2\".\"first_name\" AS \"firstName\",
-                  \"a_2\".\"last_name\" AS \"lastName\",
-                  \"a_2\".\"notes\",
-                  \"a_2\".\"created_at\" AS \"createdAt\",
-                  \"a_2\".\"modified_at\" AS \"modifiedAt\",
-                  \"a_2\".\"parent_id\" AS \"parentId\"
+                  "a_2"."account_id" AS "accountId",
+                  "a_2"."status",
+                  "a_2"."email",
+                  "a_2"."first_name" AS "firstName",
+                  "a_2"."last_name" AS "lastName",
+                  "a_2"."notes",
+                  "a_2"."created_at" AS "createdAt",
+                  "a_2"."modified_at" AS "modifiedAt",
+                  "a_2"."parent_id" AS "parentId"
                 FROM
-                  \"main\".\"account\" AS \"a_2\"
+                  "main"."account" AS "a_2"
                 WHERE
-                  \"a_2\".\"parent_id\" = \"a_1\".\"account_id\"
+                  "a_2"."parent_id" = "a_1"."account_id"
                 ORDER BY
-                  \"a_2\".\"created_at\" DESC
+                  "a_2"."created_at" DESC
                 LIMIT
                   ?
                   /* </query_2> */
-              ) AS \"query_2\"
-          ) AS \"children\"
+              ) AS "query_2"
+          ) AS "children"
           /* </query_1> */
         FROM
-          \"main\".\"account\" AS \"a_1\"
+          "main"."account" AS "a_1"
           /* </query_0> */"
       `);
    });

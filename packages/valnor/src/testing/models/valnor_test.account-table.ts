@@ -8,7 +8,7 @@ export const Account = newSqlTable<{
    Delete: true;
 }>({
    crud: {
-      find: true,
+      read: true,
       create: true,
       update: true,
       delete: true,

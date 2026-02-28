@@ -14,26 +14,26 @@ describe("json-one-sqlite3 tests", () => {
         "(
           /* <query_0> */
           SELECT
-            json_object (\"query_1\".*)
+            json_object ("query_1".*)
           FROM
             (
               /* <query_1> */
               SELECT
-                \"a_1\".\"account_id\" AS \"accountId\",
-                \"a_1\".\"status\",
-                \"a_1\".\"email\",
-                \"a_1\".\"first_name\" AS \"firstName\",
-                \"a_1\".\"last_name\" AS \"lastName\",
-                \"a_1\".\"notes\",
-                \"a_1\".\"created_at\" AS \"createdAt\",
-                \"a_1\".\"modified_at\" AS \"modifiedAt\",
-                \"a_1\".\"parent_id\" AS \"parentId\"
+                "a_1"."account_id" AS "accountId",
+                "a_1"."status",
+                "a_1"."email",
+                "a_1"."first_name" AS "firstName",
+                "a_1"."last_name" AS "lastName",
+                "a_1"."notes",
+                "a_1"."created_at" AS "createdAt",
+                "a_1"."modified_at" AS "modifiedAt",
+                "a_1"."parent_id" AS "parentId"
               FROM
-                \"main\".\"account\" AS \"parent\"
+                "main"."account" AS "parent"
               WHERE
-                \"parent\".\"account_id\" = \"a_1\".\"parent_id\"
+                "parent"."account_id" = "a_1"."parent_id"
                 /* </query_1> */
-            ) AS \"query_1\"
+            ) AS "query_1"
           LIMIT
             1
             /* </query_0> */
@@ -54,46 +54,46 @@ describe("json-one-sqlite3 tests", () => {
           SELECT
             json_object (
               'accountId',
-              \"accountId\",
+              "accountId",
               'status',
-              \"status\",
+              "status",
               'email',
-              \"email\",
+              "email",
               'firstName',
-              \"firstName\",
+              "firstName",
               'lastName',
-              \"lastName\",
+              "lastName",
               'notes',
-              \"notes\",
+              "notes",
               'createdAt',
-              \"createdAt\",
+              "createdAt",
               'modifiedAt',
-              \"modifiedAt\",
+              "modifiedAt",
               'parentId',
-              \"parentId\"
+              "parentId"
             )
           FROM
             (
               /* <query_1> */
               SELECT
-                \"parent\".\"account_id\" AS \"accountId\",
-                \"parent\".\"status\",
-                \"parent\".\"email\",
-                \"parent\".\"first_name\" AS \"firstName\",
-                \"parent\".\"last_name\" AS \"lastName\",
-                \"parent\".\"notes\",
-                \"parent\".\"created_at\" AS \"createdAt\",
-                \"parent\".\"modified_at\" AS \"modifiedAt\",
-                \"parent\".\"parent_id\" AS \"parentId\"
+                "parent"."account_id" AS "accountId",
+                "parent"."status",
+                "parent"."email",
+                "parent"."first_name" AS "firstName",
+                "parent"."last_name" AS "lastName",
+                "parent"."notes",
+                "parent"."created_at" AS "createdAt",
+                "parent"."modified_at" AS "modifiedAt",
+                "parent"."parent_id" AS "parentId"
               FROM
-                \"main\".\"account\" AS \"parent\"
+                "main"."account" AS "parent"
               WHERE
-                \"parent\".\"account_id\" = \"a_1\".\"parent_id\"
+                "parent"."account_id" = "a_1"."parent_id"
                 /* </query_1> */
-            ) AS \"query_1\"
+            ) AS "query_1"
           LIMIT
             1
-        ) AS \"parent\"
+        ) AS "parent"
         /* </query_0> */"
       `);
    });
@@ -131,65 +131,65 @@ describe("json-one-sqlite3 tests", () => {
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         SELECT
-          \"a_1\".\"account_id\" AS \"accountId\",
-          \"a_1\".\"status\",
-          \"a_1\".\"email\",
-          \"a_1\".\"first_name\" AS \"firstName\",
-          \"a_1\".\"last_name\" AS \"lastName\",
-          \"a_1\".\"notes\",
-          \"a_1\".\"created_at\" AS \"createdAt\",
-          \"a_1\".\"modified_at\" AS \"modifiedAt\",
-          \"a_1\".\"parent_id\" AS \"parentId\",
+          "a_1"."account_id" AS "accountId",
+          "a_1"."status",
+          "a_1"."email",
+          "a_1"."first_name" AS "firstName",
+          "a_1"."last_name" AS "lastName",
+          "a_1"."notes",
+          "a_1"."created_at" AS "createdAt",
+          "a_1"."modified_at" AS "modifiedAt",
+          "a_1"."parent_id" AS "parentId",
           /* <query_1> */
           (
             SELECT
               json_object(
                 'accountId',
-                \"accountId\",
+                "accountId",
                 'status',
-                \"status\",
+                "status",
                 'email',
-                \"email\",
+                "email",
                 'firstName',
-                \"firstName\",
+                "firstName",
                 'lastName',
-                \"lastName\",
+                "lastName",
                 'notes',
-                \"notes\",
+                "notes",
                 'createdAt',
-                \"createdAt\",
+                "createdAt",
                 'modifiedAt',
-                \"modifiedAt\",
+                "modifiedAt",
                 'parentId',
-                \"parentId\"
+                "parentId"
               )
             FROM
               (
                 /* <query_2> */
                 SELECT
-                  \"a_2\".\"account_id\" AS \"accountId\",
-                  \"a_2\".\"status\",
-                  \"a_2\".\"email\",
-                  \"a_2\".\"first_name\" AS \"firstName\",
-                  \"a_2\".\"last_name\" AS \"lastName\",
-                  \"a_2\".\"notes\",
-                  \"a_2\".\"created_at\" AS \"createdAt\",
-                  \"a_2\".\"modified_at\" AS \"modifiedAt\",
-                  \"a_2\".\"parent_id\" AS \"parentId\"
+                  "a_2"."account_id" AS "accountId",
+                  "a_2"."status",
+                  "a_2"."email",
+                  "a_2"."first_name" AS "firstName",
+                  "a_2"."last_name" AS "lastName",
+                  "a_2"."notes",
+                  "a_2"."created_at" AS "createdAt",
+                  "a_2"."modified_at" AS "modifiedAt",
+                  "a_2"."parent_id" AS "parentId"
                 FROM
-                  \"main\".\"account\" AS \"a_2\"
+                  "main"."account" AS "a_2"
                 WHERE
-                  \"a_2\".\"account_id\" = \"a_1\".\"parent_id\"
+                  "a_2"."account_id" = "a_1"."parent_id"
                 LIMIT
                   ?
                   /* </query_2> */
-              ) AS \"query_2\"
+              ) AS "query_2"
             LIMIT
               1
-          ) AS \"parent\"
+          ) AS "parent"
           /* </query_1> */
         FROM
-          \"main\".\"account\" AS \"a_1\"
+          "main"."account" AS "a_1"
           /* </query_0> */"
       `);
    });
