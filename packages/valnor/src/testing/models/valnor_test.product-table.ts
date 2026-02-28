@@ -1,6 +1,17 @@
 import { JsonRow, newSqlTable } from "../../core/index.js";
 
-export const Product = newSqlTable<{ Select: IProductSelect; Insert: IProductInsert; Update: IProductUpdate }>({
+export const Product = newSqlTable<{
+   Select: IProductSelect;
+   Insert: IProductInsert;
+   Update: IProductUpdate;
+   Delete: true;
+}>({
+   crud: {
+      find: true,
+      create: true,
+      update: true,
+      delete: true,
+   },
    tableInfo: {
       name: "product",
       schema: "main",

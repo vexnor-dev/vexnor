@@ -2,7 +2,13 @@
 import { JsonRow, newSqlTable } from "../../core/index.js";
 import * as udt from "./valnor_test-enums.js";
 
-export const Order = newSqlTable<{ Select: IOrderSelect; Insert: IOrderInsert; Update: IOrderUpdate }>({
+export const Order = newSqlTable<{ Select: IOrderSelect; Insert: IOrderInsert; Update: IOrderUpdate; Delete: true }>({
+   crud: {
+      find: true,
+      create: true,
+      update: true,
+      delete: true,
+   },
    tableInfo: { name: "order", schema: "main" },
    pk: ["orderId"],
    columns: {

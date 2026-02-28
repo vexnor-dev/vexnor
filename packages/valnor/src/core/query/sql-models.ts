@@ -5,11 +5,13 @@ import { SqlSelectValue } from "./sql-select-value.js";
 import { SqlSelectCharm } from "./sql-charm.js";
 import { SqlQueryColumn } from "./sql-query-column.js";
 import { SqlSelectColumn } from "./sql-select-column.js";
+import { SqlExpandHandlerAny } from "./sql-expand.js";
 
 export type SqlBuildToken =
    | { type: "text"; value: string }
    | { type: "param"; name: string }
-   | { type: "value"; value: unknown };
+   | { type: "value"; value: unknown }
+   | { type: "expand"; expand: SqlExpandHandlerAny };
 
 export type SqlParamFormat = (args: { name?: string; index: number }) => string;
 

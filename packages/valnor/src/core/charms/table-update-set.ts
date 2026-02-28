@@ -5,7 +5,7 @@ import { InferTable$RowBySelect } from "../types/index.js";
 
 export class TableUpdateSet<T extends { Update: Record<string, unknown> }> extends Sql {
    constructor(
-      public readonly row: InferTable$RowBySelect<T["Update"]>,
+      public readonly cols: InferTable$RowBySelect<T["Update"]>,
       public readonly update: T["Update"],
    ) {
       super({
@@ -16,12 +16,12 @@ export class TableUpdateSet<T extends { Update: Record<string, unknown> }> exten
    build(context: SqlBuildContext) {
       let i = 0;
       for (const key in this.update) {
-         const col = this.row[`$${key}`];
+         const col = this.cols[`$${key}`];
          if (!col) {
             throw new SqlBuildError(`Column not found: ${key}`, {
                data: {
                   key,
-                  columns: this.row,
+                  columns: this.cols,
                },
             });
          }

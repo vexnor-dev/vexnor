@@ -13,21 +13,21 @@ export class TableInsertCols<
    private readonly keys: string[];
 
    constructor(
-      public readonly row: InferTable$RowBySelect<T["Select"]>,
-      private readonly inserts: T["Insert"][],
+      public readonly cols: InferTable$RowBySelect<T["Select"]>,
+      inserts: T["Insert"][],
    ) {
       super({
-         id: `${Object.values(row)
+         id: `${Object.values(cols)
             .map((c) => c.id)
             .join(", ")} | rows: ${inserts.length}`,
       });
-      this.keys = getCanonicalInsertKeys(row, inserts);
+      this.keys = getCanonicalInsertKeys(cols, inserts);
    }
 
    build(context: SqlBuildContext) {
       context.addStrings("(");
       this.keys.forEach((key, index) => {
-         const column = this.row[`$${key}`];
+         const column = this.cols[`$${key}`];
          ok(column, `Column not found by key: ${key}`);
          if (index > 0) context.addStrings(", ");
          column.build(context);

@@ -5,7 +5,7 @@ import { PARAMS, Sql, TYPE } from "../sql-base.js";
 import { SqlQueryInfo } from "../charms/index.js";
 import { hasParams, InferSelectRowByResult, SqlBuildOptions, SqlInputArgs } from "./sql-query-types.js";
 import { SqlSelectAll } from "./sql-select-all.js";
-import { Lazy, Queue } from "../../lib/index.js";
+import { indexedArray, Lazy, Queue } from "../../lib/index.js";
 import { SqlBuildError } from "../sql-build-error.js";
 import { format } from "sql-formatter";
 import { SqlQueryRow, SqlQueryAll } from "./sql-models.js";
@@ -15,6 +15,7 @@ import { SqlSelectCharm } from "./sql-charm.js";
 import console from "node:console";
 import { newSqlSelectColumn, SqlQueryColumn } from "./sql-query-column.js";
 import { SqlSelectColumn } from "./sql-select-column.js";
+import { ok } from "assert";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlQueryAny = SqlQuery<any>;
@@ -203,7 +204,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
     * @example select * from table where id = ? and name = ?
     */
    getSql({ options, ...args }: SqlInputArgs<T["Params"]>): { text: string; values: unknown[] } {
-      const context = new SqlBuildContext(options);
+      const context = new SqlBuildContext({ ...options, params: hasParams(args) ? args.params : undefined });
       this.build(context, options ?? {});
       const paramFormat = options?.paramFormat ?? (() => "?");
       const tokens: string[] = [];
@@ -230,6 +231,20 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
 
                tokens.push(paramFormat({ index: values.length }));
                values.push(token.value);
+               break;
+            }
+            case "expand": {
+               ok("params" in args, "'args.params' is required to expand.");
+               const expanded = token.expand(args.params);
+               if (Array.isArray(expanded)) {
+                  for (const { index, item } of indexedArray(expanded)) {
+                     if (index > 0) {
+                        tokens.push(", ");
+                     }
+
+                     item.build(context, options);
+                  }
+               }
                break;
             }
             case "param": {
@@ -274,6 +289,68 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
       }
    }
 
+   buildToken(token: unknown, context: SqlBuildContext, options?: SqlBuildOptions) {
+      switch (true) {
+         case token instanceof SqlQuery: {
+            switch (token.format ?? SqlQueryFormatByKeyword[context.keyword ?? "sql"]) {
+               case "with":
+                  context.scope({ query: token, cte: true, inline: token.inline }, () => {
+                     const queryName = context.getQueryName(token);
+                     context.addStrings(`"${queryName}" as (`);
+                     token.build(context, options);
+                     context.addStrings(")");
+                  });
+                  break;
+               case "select":
+                  context.scope({ query: token, inline: this.inline }, () => {
+                     const queryName = context.getQueryName(token);
+                     context.addStrings("(");
+                     token.build(context, options);
+                     context.addStrings(")");
+                     context.addStrings(` as "${queryName}"`);
+                  });
+                  break;
+               case "join":
+               case "from":
+                  context.scope({ query: token, inline: this.inline }, () => {
+                     const queryName = context.getQueryName(token);
+                     if (context.isCTE(token)) {
+                        context.addStrings(`"${queryName}"`);
+                     } else {
+                        context.addStrings("(");
+                        token.build(context, options);
+                        context.addStrings(")");
+                        context.addStrings(` as "${queryName}"`);
+                     }
+                  });
+                  break;
+               case "fn":
+                  context.scope({ query: token, inline: this.inline }, () => {
+                     const queryName = context.getQueryName(token);
+                     context.addStrings(`"${queryName}"`);
+                  });
+                  break;
+               case "sql":
+               default:
+                  context.scope({ query: token, inline: this.inline }, () => {
+                     token.build(context, options);
+                  });
+                  break;
+            }
+            break;
+         }
+         case token instanceof Sql:
+            token.build(context, options);
+            break;
+         case !token:
+            context.addValues(token);
+            break;
+         default:
+            context.addValues(token);
+            break;
+      }
+   }
+
    build(context: SqlBuildContext, options?: SqlBuildOptions) {
       context.scope({ query: this }, () => {
          const queryName = context.getQueryName(this);
@@ -292,68 +369,6 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
 
             const child = children.shift();
 
-            const buildToken = (item: unknown) => {
-               switch (true) {
-                  case item instanceof SqlQuery: {
-                     switch (item.format ?? SqlQueryFormatByKeyword[context.keyword ?? "sql"]) {
-                        case "with":
-                           context.scope({ query: item, cte: true, inline: item.inline }, () => {
-                              const queryName = context.getQueryName(item);
-                              context.addStrings(`"${queryName}" as (`);
-                              item.build(context, options);
-                              context.addStrings(")");
-                           });
-                           break;
-                        case "select":
-                           context.scope({ query: item, inline: this.inline }, () => {
-                              const queryName = context.getQueryName(item);
-                              context.addStrings("(");
-                              item.build(context, options);
-                              context.addStrings(")");
-                              context.addStrings(` as "${queryName}"`);
-                           });
-                           break;
-                        case "join":
-                        case "from":
-                           context.scope({ query: item, inline: this.inline }, () => {
-                              const queryName = context.getQueryName(item);
-                              if (context.isCTE(item)) {
-                                 context.addStrings(`"${queryName}"`);
-                              } else {
-                                 context.addStrings("(");
-                                 item.build(context, options);
-                                 context.addStrings(")");
-                                 context.addStrings(` as "${queryName}"`);
-                              }
-                           });
-                           break;
-                        case "fn":
-                           context.scope({ query: item, inline: this.inline }, () => {
-                              const queryName = context.getQueryName(item);
-                              context.addStrings(`"${queryName}"`);
-                           });
-                           break;
-                        case "sql":
-                        default:
-                           context.scope({ query: item, inline: this.inline }, () => {
-                              item.build(context, options);
-                           });
-                           break;
-                     }
-                     break;
-                  }
-                  case item instanceof Sql:
-                     item.build(context, options);
-                     break;
-                  case !item:
-                     context.addValues(item);
-                     break;
-                  default:
-                     context.addValues(item);
-                     break;
-               }
-            };
-
             try {
                if (Array.isArray(child)) {
                   for (let k = 0; k < child.length; k++) {
@@ -361,10 +376,10 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
                         context.addStrings(", ");
                      }
 
-                     buildToken(child[k]);
+                     this.buildToken(child[k], context, options);
                   }
                } else {
-                  buildToken(child);
+                  this.buildToken(child, context, options);
                }
             } catch (err) {
                logger.error(

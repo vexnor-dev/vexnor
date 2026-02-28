@@ -12,22 +12,22 @@ export class TableInsertValues<
    private readonly keys: string[];
 
    constructor(
-      public readonly row: InferTable$RowBySelect<T["Select"]>,
+      public readonly cols: InferTable$RowBySelect<T["Select"]>,
       public readonly inserts: T["Insert"][],
    ) {
       super({
-         id: `${Object.values(row)
+         id: `${Object.values(cols)
             .map((z) => z.id)
             .join(", ")} | rows: ${inserts.length}`,
       });
-      this.keys = getCanonicalInsertKeys(row, inserts);
+      this.keys = getCanonicalInsertKeys(cols, inserts);
    }
 
    build(context: SqlBuildContext) {
       context.addStrings("(");
       this.keys.forEach((key, i) => {
          if (i > 0) context.addStrings(", ");
-         this.row[`$${key}`]!.build(context);
+         this.cols[`$${key}`]!.build(context);
       });
 
       context.addStrings(")", " values ");

@@ -1,6 +1,17 @@
 import { JsonRow, newSqlTable } from "../../core/index.js";
 
-export const OrderItem = newSqlTable<{ Select: IOrderItemSelect; Insert: IOrderItemInsert; Update: IOrderItemUpdate }>({
+export const OrderItem = newSqlTable<{
+   Select: IOrderItemSelect;
+   Insert: IOrderItemInsert;
+   Update: IOrderItemUpdate;
+   Delete: true;
+}>({
+   crud: {
+      find: true,
+      create: true,
+      update: true,
+      delete: true,
+   },
    tableInfo: { name: "order_item", schema: "main" },
    pk: ["orderId", "productId"],
    columns: {

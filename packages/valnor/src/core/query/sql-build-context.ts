@@ -12,10 +12,9 @@ import { SqlBuildOptions } from "./sql-query-types.js";
 import { SqlBuildToken } from "./sql-models.js";
 import { SqlQueryColumn, SqlQueryColumnAny } from "./sql-query-column.js";
 import { SqlSelectAll, SqlSelectAllAny } from "./sql-select-all.js";
+import { SqlExpandHandlerAny } from "./sql-expand.js";
 
-export interface SqlBuildContextArgs extends SqlBuildOptions {
-   query?: SqlQueryAny;
-}
+export type SqlBuildContextArgs = SqlBuildOptions & Partial<Pick<SqlBuildContext, "query" | "params">>;
 
 type QueryInfo = { index: number; query: SqlQueryAny; cte: boolean; name: string };
 
@@ -24,24 +23,33 @@ export class SqlBuildContext {
    readonly formatter: DefaultFormatter;
    readonly dialect: SqlLanguage;
    readonly queries = new Map<string, QueryInfo>();
-   private readonly _tokens: SqlBuildToken[] = [];
-   private readonly _keywordStacks: string[][] = [[]];
-   private readonly _contextParentDepths: number[] = [0];
+   readonly params: Record<string, unknown> | null;
+
+   private readonly _tokens: SqlBuildToken[];
+   private readonly _keywordStacks: string[][];
+   private readonly _contextParentDepths: number[];
    private _parentDepth: number = 0;
    private readonly _tableAliasById = new Map<string, string>();
-   private _queryStack: SqlQueryAny[] = [];
+   private _queryStack: SqlQueryAny[];
 
    constructor(args?: SqlBuildContextArgs) {
-      if (args?.query) {
-         this.scope({ query: args.query });
-      }
-
       this.tokenizer = args?.tokenizer ?? new DefaultTokenizer();
       this.formatter = args?.formatter ?? new DefaultFormatter();
       this.dialect = args?.dialect ?? "sql";
+      this.params = args?.params ?? null;
+
+      this._tokens = [];
+      this._keywordStacks = [[]];
+      this._contextParentDepths = [0];
+      this._queryStack = [];
+      this._text = null;
+
+      if (args?.query) {
+         this.scope({ query: args.query });
+      }
    }
 
-   private _text: string | null = null;
+   private _text: string | null;
 
    get text() {
       if (this._text) {
@@ -55,6 +63,9 @@ export class SqlBuildContext {
                text += token.value;
                break;
             case "param":
+               text += "?";
+               break;
+            case "expand":
                text += "?";
                break;
             case "value":
@@ -82,7 +93,7 @@ export class SqlBuildContext {
    }
 
    get tokens(): ReadonlyArray<SqlBuildToken> {
-      return Object.freeze(this._tokens);
+      return Object.freeze([...this._tokens]);
    }
 
    get values(): ReadonlyArray<unknown> {
@@ -254,7 +265,12 @@ export class SqlBuildContext {
       const tokens: SqlBuildToken[] = strings.map((value) => {
          return { type: "text", value };
       });
-      this._tokens.push(...tokens);
+      try {
+         this._tokens.push(...tokens);
+      } catch (err) {
+         console.error("Failed to add strings:", strings, " into _tokens:", this._tokens);
+         throw err;
+      }
    }
 
    /**
@@ -287,6 +303,17 @@ export class SqlBuildContext {
       this._tokens.push({
          type: "param",
          name: param.name,
+      });
+   }
+
+   /**
+    * Adds an expand parameter
+    * @param param
+    */
+   addExpand(param: { expand: SqlExpandHandlerAny }) {
+      this._tokens.push({
+         type: "expand",
+         expand: param.expand,
       });
    }
 

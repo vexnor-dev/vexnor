@@ -1,7 +1,18 @@
 import { JsonRow, newSqlTable } from "../../core/index.js";
 import { AccountStatusUdt } from "./valnor_test-enums.js";
 
-export const Account = newSqlTable<{ Select: IAccountSelect; Insert: IAccountInsert; Update: IAccountUpdate }>({
+export const Account = newSqlTable<{
+   Select: IAccountSelect;
+   Insert: IAccountInsert;
+   Update: IAccountUpdate;
+   Delete: true;
+}>({
+   crud: {
+      find: true,
+      create: true,
+      update: true,
+      delete: true,
+   },
    tableInfo: {
       name: "account",
       schema: "main",

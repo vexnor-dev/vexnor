@@ -571,6 +571,12 @@ describe("sql subqueries tests", () => {
                     },
                     "callback": [Function],
                   },
+                  "_crudConfig": {
+                    "create": true,
+                    "delete": true,
+                    "find": true,
+                    "update": true,
+                  },
                   "_out": Lazy {
                     "_computed": false,
                     "_value": null,
@@ -1152,6 +1158,12 @@ describe("sql subqueries tests", () => {
                       },
                     },
                     "callback": [Function],
+                  },
+                  "_crudConfig": {
+                    "create": true,
+                    "delete": true,
+                    "find": true,
+                    "update": true,
                   },
                   "_out": Lazy {
                     "_computed": false,
@@ -1735,6 +1747,12 @@ describe("sql subqueries tests", () => {
                     },
                     "callback": [Function],
                   },
+                  "_crudConfig": {
+                    "create": true,
+                    "delete": true,
+                    "find": true,
+                    "update": true,
+                  },
                   "_out": Lazy {
                     "_computed": false,
                     "_value": null,
@@ -2316,6 +2334,12 @@ describe("sql subqueries tests", () => {
                       },
                     },
                     "callback": [Function],
+                  },
+                  "_crudConfig": {
+                    "create": true,
+                    "delete": true,
+                    "find": true,
+                    "update": true,
                   },
                   "_out": Lazy {
                     "_computed": false,
@@ -2899,6 +2923,12 @@ describe("sql subqueries tests", () => {
                     },
                     "callback": [Function],
                   },
+                  "_crudConfig": {
+                    "create": true,
+                    "delete": true,
+                    "find": true,
+                    "update": true,
+                  },
                   "_out": Lazy {
                     "_computed": false,
                     "_value": null,
@@ -3480,6 +3510,12 @@ describe("sql subqueries tests", () => {
                       },
                     },
                     "callback": [Function],
+                  },
+                  "_crudConfig": {
+                    "create": true,
+                    "delete": true,
+                    "find": true,
+                    "update": true,
                   },
                   "_out": Lazy {
                     "_computed": false,
@@ -4063,6 +4099,12 @@ describe("sql subqueries tests", () => {
                     },
                     "callback": [Function],
                   },
+                  "_crudConfig": {
+                    "create": true,
+                    "delete": true,
+                    "find": true,
+                    "update": true,
+                  },
                   "_out": Lazy {
                     "_computed": false,
                     "_value": null,
@@ -4645,6 +4687,12 @@ describe("sql subqueries tests", () => {
                     },
                     "callback": [Function],
                   },
+                  "_crudConfig": {
+                    "create": true,
+                    "delete": true,
+                    "find": true,
+                    "update": true,
+                  },
                   "_out": Lazy {
                     "_computed": false,
                     "_value": null,
@@ -5226,6 +5274,12 @@ describe("sql subqueries tests", () => {
                       },
                     },
                     "callback": [Function],
+                  },
+                  "_crudConfig": {
+                    "create": true,
+                    "delete": true,
+                    "find": true,
+                    "update": true,
                   },
                   "_out": Lazy {
                     "_computed": false,

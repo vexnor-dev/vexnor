@@ -306,8 +306,7 @@ describe("SqlSelectRow tests", () => {
          from ${Account}
          where ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}`;
       expect(query.row).toBeFalsy();
-      // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-      assertType<SqlQuery<{ Row: {}; Params: { accountId: string } }>>(query);
+      assertType<SqlQuery<{ Row: void; Params: { accountId: string } }>>(query);
    });
 
    test("query.row.[column] renders column", () => {

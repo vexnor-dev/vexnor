@@ -1,7 +1,7 @@
 import { assertType, describe, expect, test } from "vitest";
-import { JsonRow, param, row, sql, SqlBuildContext, SqlCharm, SqlParam, SqlQueryExtended } from "valnor";
+import { param, row, sql, SqlBuildContext, SqlCharm, SqlParam } from "valnor";
 import { jsonOne } from "../json-aggregation-sqlite3.js";
-import { Account, IAccountSelect } from "valnor/testing";
+import { Account } from "valnor/testing";
 
 describe("json-one-sqlite3 tests", () => {
    test("should render select w/o alias", () => {

@@ -18,14 +18,7 @@ describe("sql() tests", () => {
            and ${Account.$firstName} in (${param<{ names: string[] }>("names")})
          group by ${Account.$email}`;
       const { values, text } = query.getSql({ params: { names, email: "test@example.com" } });
-      expect(values).toMatchInlineSnapshot(`
-        [
-          "test@example.com",
-          "One",
-          "Two",
-          "Three",
-        ]
-      `);
+      expect(values).toMatchObject(["test@example.com", "One", "Two", "Three"]);
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         SELECT

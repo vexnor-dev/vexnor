@@ -4,6 +4,8 @@ import { writeTableSelect } from "./write-table-select.js";
 import { PrintTableArgs } from "../../../plugin/index.js";
 import { getCodegenContext } from "../codegen-context.js";
 
+// TODO: write table CRUD flags
+// TODO: write table { Delete: true }
 export function writeTable({ table }: PrintTableArgs): string {
    const writer = getCodegenContext().newWriter();
    const { includeEnums } = getCodegenContext();

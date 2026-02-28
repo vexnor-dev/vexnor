@@ -6,13 +6,17 @@ import { SqlTableAll, TableInsertCols, TableInsertRows, TableInsertValues, Table
 import { SqlTableFormat } from "../default-formatter.js";
 import { InferTable$RowBySelect } from "../types/index.js";
 import { Lazy } from "../../lib/index.js";
+import { SqlTableCrudConfig } from "../crud/index.js";
 
 export type SqlTableOptions<
    T extends {
       Select: Record<string, unknown>;
+      Insert?: Record<string, unknown>;
+      Update?: Record<string, unknown>;
+      Delete?: boolean;
    },
 > = { readonly columns: Record<keyof T["Select"], string> } & Pick<SqlTable<T>, "tableInfo" | "pk"> &
-   Partial<Pick<SqlTable<T>, "tableInfo" | "format">>;
+   Partial<Pick<SqlTable<T>, "format">> & { crud: SqlTableCrudConfig<T> };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlTableAny = SqlTable<any>;
@@ -20,8 +24,9 @@ export type SqlTableAny = SqlTable<any>;
 export type SqlTableExtended<
    T extends {
       Select: Record<string, unknown>;
-      Insert?: Partial<T["Select"]>;
-      Update?: Partial<T["Insert"]>;
+      Insert?: Record<string, unknown>;
+      Update?: Record<string, unknown>;
+      Delete?: boolean;
    },
 > = SqlTable<T> &
    InferTable$RowBySelect<T["Select"]> & {
@@ -34,8 +39,9 @@ export type SqlTableExtendedAny = SqlTableExtended<any>;
 export class SqlTable<
    T extends {
       Select: Record<string, unknown>;
-      Insert?: Partial<T["Select"]>;
-      Update?: Partial<T["Insert"]>;
+      Insert?: Record<string, unknown>;
+      Update?: Record<string, unknown>;
+      Delete?: boolean;
    },
 > extends Sql {
    readonly tableInfo: { schema?: string; name: string; alias?: string };
@@ -43,11 +49,16 @@ export class SqlTable<
    readonly pk: Array<keyof T["Select"]>;
    readonly tableCache = new Map<string, SqlTableExtended<T>>();
 
+   // TODO: ideas for later: onInsert|onUpdate(() => ({})) ?
+   // readonly onInsert?: T["Insert"] extends Record<string, unknown> ? (value: T["Insert"]) => T["Insert"] : boolean;
+   // readonly onUpdate?: T["Update"] extends Record<string, unknown> ? (value: T["Update"]) => T["Update"] : boolean;
+
    private readonly _cols: Lazy<InferTable$RowBySelect<T["Select"]>>;
    private readonly _out: Lazy<InferTable$RowBySelect<T["Select"]>>;
    private readonly _$$: Lazy<SqlTableAll<T["Select"]>>;
+   private readonly _crudConfig: SqlTableCrudConfig<T>;
 
-   constructor({ format, pk, tableInfo, ...options }: SqlTableOptions<T>) {
+   constructor({ format, pk, tableInfo, columns, crud }: SqlTableOptions<T>) {
       super({
          id: (() => {
             const schema = tableInfo.schema ? `${tableInfo.schema}.` : "";
@@ -58,10 +69,10 @@ export class SqlTable<
       this.tableInfo = tableInfo;
       this.format = format ?? null;
       this.pk = pk;
-
-      this._cols = new Lazy(() => this.createCols(options.columns));
-      this._out = new Lazy(() => this.createOut(options.columns));
+      this._cols = new Lazy(() => this.createCols(columns));
+      this._out = new Lazy(() => this.createOut(columns));
       this._$$ = new Lazy(() => new SqlTableAll<T["Select"]>(this.cols));
+      this._crudConfig = crud;
    }
 
    get cols(): InferTable$RowBySelect<T["Select"]> {
@@ -74,6 +85,10 @@ export class SqlTable<
 
    get $$(): SqlTableAll<T["Select"]> {
       return this._$$.value;
+   }
+
+   get crud(): SqlTableCrudConfig<T> {
+      return this._crudConfig;
    }
 
    as(tableName: string | TemplateStringsArray): SqlTableExtended<T> {
@@ -102,6 +117,7 @@ export class SqlTable<
                   return columns as Record<keyof T["Select"], string>;
                })(),
                tableInfo: { ...this.tableInfo, alias },
+               crud: this._crudConfig,
             }),
          );
       }
@@ -205,6 +221,7 @@ export class SqlTable<
 
             return columns as Record<keyof T["Select"], string>;
          })(),
+         crud: this._crudConfig,
       });
    }
 
@@ -249,7 +266,8 @@ export function newSqlTable<
    T extends {
       Select: Record<string, unknown>;
       Insert?: Partial<T["Select"]>;
-      Update?: Partial<T["Insert"]>;
+      Update?: Partial<T["Select"]>;
+      Delete?: boolean;
    },
 >(options: SqlTableOptions<T>): SqlTableExtended<T> {
    return new Proxy(new SqlTable(options), {

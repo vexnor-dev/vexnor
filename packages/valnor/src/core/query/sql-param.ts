@@ -1,5 +1,6 @@
 import { SqlBuildContext } from "./sql-build-context.js";
 import { PARAMS, Sql } from "../sql-base.js";
+import { Primitive } from "../../lib/index.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlParamAny = SqlParam<any>;
@@ -13,6 +14,7 @@ export class SqlParam<T extends { Name: string; Type: unknown }> extends Sql {
       super({
          id: name,
       });
+
       this.name = name;
    }
 
@@ -21,9 +23,9 @@ export class SqlParam<T extends { Name: string; Type: unknown }> extends Sql {
    }
 }
 
-export function param<T extends Record<string, unknown> | undefined = undefined>(
+export function param<T extends Record<string, Primitive | Primitive[]> | undefined = undefined>(
    key: Extract<keyof T, string>,
-): SqlParam<{ Name: Extract<keyof T, string>; Type: T[typeof key] }> {
+): SqlParam<{ Name: Extract<keyof T, string>; Type: T[keyof T] }> {
    return new SqlParam<{ Name: Extract<keyof T, string>; Type: T[typeof key] }>({ name: key });
 }
 

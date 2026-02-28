@@ -12,13 +12,13 @@ export class TableInsertRows<
    private readonly keys: string[];
 
    constructor(
-      public readonly row: InferTable$RowBySelect<T["Select"]>,
+      public readonly cols: InferTable$RowBySelect<T["Select"]>,
       public readonly inserts: T["Insert"][],
    ) {
       super({
          id: `rows: ${inserts.length}`,
       });
-      this.keys = getCanonicalInsertKeys(row, inserts);
+      this.keys = getCanonicalInsertKeys(cols, inserts);
    }
 
    build(context: SqlBuildContext) {

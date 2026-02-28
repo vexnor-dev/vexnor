@@ -51,7 +51,7 @@ describe("sql query type tests", () => {
       expect(query.id).toBeDefined();
 
       type Result = ExtractResultRowFromQuery<typeof query>;
-      assertType<Result>({});
+      assertType<Result>(void 0);
    });
 
    test("query without params", () => {

@@ -10,6 +10,8 @@ export class SqlRaw extends Sql {
    }
 
    override build(context: SqlBuildContext) {
+      if (!this.value) return;
+      
       if (this.options?.quote) {
          context.addQuotes(this.value);
       } else {
@@ -27,3 +29,5 @@ export class SqlRaw extends Sql {
 export function raw(value: string, options: { quote: boolean } = { quote: true }): Sql {
    return new SqlRaw(value, options);
 }
+
+raw.BLANK = new SqlRaw("", { quote: false });

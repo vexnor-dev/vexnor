@@ -42,7 +42,7 @@ export type InferParamsFromSqlTokens<T> = T extends [infer Start, ...infer Rest]
    : unknown;
 
 export type QueryParams<T> = [keyof InferParamsFromSqlTokens<T>] extends [never] ? void : InferParamsFromSqlTokens<T>;
-export type QueryRow<T> = InferRowFromSqlTokens<T>;
+export type QueryRow<T> = [keyof InferRowFromSqlTokens<T>] extends [never] ? void : InferRowFromSqlTokens<T>;
 
 export type ExtractResultRowFromQuery<T> =
    T extends SqlQueryExtended<infer U extends { Row?: unknown }> ? U["Row"] : never;
