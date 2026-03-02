@@ -5,23 +5,6 @@ import { SqlTableUpdate } from "./sql-table-update.js";
 import { SqlTableRead } from "./sql-table-read.js";
 import { SqlTableDelete } from "./sql-table-delete.js";
 
-// Extend the class type (in scope)
-// declare module "valnor" {
-//    interface SqlTable<
-//       T extends {
-//          Select: Record<string, unknown>;
-//          Insert?: Record<string, unknown>;
-//          Update?: Record<string, unknown>;
-//          Delete?: boolean;
-//       },
-//    > {
-//       readonly find: SqlTableCrud<T>["find"];
-//       readonly create: SqlTableCrud<T> extends { create: true } ? SqlTableCrud<T>["create"] : null;
-//       readonly update: SqlTableCrud<T> extends { update: true } ? SqlTableCrud<T>["update"] : null;
-//       readonly delete: SqlTableCrud<T> extends { delete: true } ? SqlTableCrud<T>["delete"] : null;
-//    }
-// }
-
 export function crud<
    T extends {
       Select: Record<string, unknown>;
@@ -51,27 +34,3 @@ export function crud<
 
    return table as SqlTable<T> & SqlTableCrud<T>;
 }
-//
-// Object.defineProperty(SqlTable.prototype, "find", {
-//    get: function () {
-//       return new DefaultTableFind(this);
-//    },
-// });
-//
-// Object.defineProperty(SqlTable.prototype, "create", {
-//    get: function () {
-//       return this.crud.create ? new DefaultTableCreate(this) : null;
-//    },
-// });
-//
-// Object.defineProperty(SqlTable.prototype, "update", {
-//    get: function () {
-//       return this.crud.update ? new DefaultTableUpdate(this) : null;
-//    },
-// });
-//
-// Object.defineProperty(SqlTable.prototype, "delete", {
-//    get: function () {
-//       return this.crud.delete === true ? new DefaultTableDelete(this) : null;
-//    },
-// });

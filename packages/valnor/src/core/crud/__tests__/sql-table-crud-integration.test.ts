@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { newSqlTable } from "../../schema/index.js";
-import { crud } from "../default-crud.js";
+import { crud } from "../crud.js";
 import { sql } from "../../sql.js";
 import { param } from "../../query/index.js";
 
