@@ -1,13 +1,14 @@
-import { PARAMS, Sql } from "../sql-base.js";
+import { ARGS, PARAMS, Sql } from "../sql-base.js";
 import { SqlBuildContext } from "./sql-build-context.js";
 import { SqlBuildOptions } from "./sql-query-types.js";
 import { indexedArray } from "../../lib/index.js";
-import { ok } from "assert";
+import { SqlQuery } from "./sql-query.js";
 
 export type SqlExpandAny = SqlExpand<{ Params: unknown }>;
 
 export class SqlExpand<T extends { Params: unknown }> extends Sql {
    declare readonly [PARAMS]: T["Params"];
+   declare readonly [ARGS]: T["Params"];
 
    constructor(public readonly expand: SqlExpandHandler<T>) {
       super({
@@ -18,27 +19,23 @@ export class SqlExpand<T extends { Params: unknown }> extends Sql {
    }
 
    build(context: SqlBuildContext, options?: SqlBuildOptions): void {
-      switch (context.params) {
-         case undefined:
-            context.addExpand(this);
-            break;
-         default: {
-            ok(context.params, `'context.params' is required to expand ${this.id}.`);
-            const token = this.expand(<T["Params"]>context.params);
-            switch (true) {
-               case Array.isArray(token): {
-                  for (const { index, item: q } of indexedArray(token)) {
-                     if (index > 0) context.addStrings(", ");
-                     q.build(context, options);
-                  }
+      if (!context.params) {
+         context.addExpand(this);
+         context.addStrings(`/* <${this.id} /> */`);
+         return;
+      }
 
-                  break;
-               }
-               default:
-                  token.build(context, options);
-                  break;
-            }
+      let expanded = this.expand(<T["Params"]>context.params) ?? [];
+      if (typeof expanded === "object" && !Array.isArray(expanded)) expanded = [expanded];
+      for (const { index, item } of indexedArray(expanded)) {
+         if (index > 0) context.addStrings(", ");
+
+         if (item instanceof SqlQuery) {
+            item.render("inline").build(context, options);
+            continue;
          }
+
+         item.build(context, options);
       }
    }
 }
@@ -46,7 +43,7 @@ export class SqlExpand<T extends { Params: unknown }> extends Sql {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlExpandHandlerAny = SqlExpandHandler<any>;
 
-export type SqlExpandHandler<T extends { Params: unknown }> = (params: T["Params"]) => Array<Sql> | Sql;
+export type SqlExpandHandler<T extends { Params: unknown }> = (params?: Partial<T["Params"]>) => Sql[] | Sql | null;
 
 /**
  *

@@ -1,35 +1,12 @@
 import { assertType, describe, expect, test } from "vitest";
-import { ExtractParamsFromQuery, InferParamsFromSqlTokens, QueryParams, sql } from "../sql.js";
+import { ExtractParamsFromQuery, SqlParams, sql } from "../sql.js";
 import { param, row, SqlInputArgs, SqlParam, SqlQueryExtended } from "../query/index.js";
-import { Account, AccountStatusUdt } from "./models/valnor_test.schema.js";
+import { Account, AccountStatusUdt, IAccountSelect } from "./models/valnor_test.schema.js";
 import { info } from "../charms/index.js";
-import { ParamsOf } from "../sql-base.js";
 
 describe("SqlQuery.params", () => {
-   test("InferParamFromSql<SqlParam>", () => {
-      // eslint-disable-next-line unused-imports/no-unused-vars
-      const id1 = param<{ id1: string }>("id1");
-      type Params = ParamsOf<typeof id1>;
-      assertType<Params>({
-         id1: "",
-         // @ts-expect-error - Testing runtime validation of extra property
-         test: "a",
-      });
-   });
-
-   test("InferParamFromSql<SqlQuery>", () => {
-      // eslint-disable-next-line unused-imports/no-unused-vars
-      const id1 = sql`${param<{ id1: string }>("id1")}`;
-      type Params = ParamsOf<typeof id1>;
-      assertType<Params>({
-         id1: "",
-         // @ts-expect-error - Testing runtime validation of extra property
-         test: "a",
-      });
-   });
-
    test("Infer params from sql-query", () => {
-      type FullParams = InferParamsFromSqlTokens<
+      type FullParams = SqlParams<
          [
             typeof Account,
             typeof Account.$$,
@@ -48,11 +25,11 @@ describe("SqlQuery.params", () => {
          accountId: "",
          modifiedAt: new Date(),
          limit: 5,
-         id1: 1,
-         id2: 2,
-         id3: 3,
+         id1: 0,
+         id2: 0,
+         id3: 0,
          // @ts-expect-error - Testing runtime validation of extra property
-         id4: 4,
+         id4: 0,
       });
 
       type FullInputArgs = SqlInputArgs<FullParams>;
@@ -69,14 +46,14 @@ describe("SqlQuery.params", () => {
          },
       });
 
-      type EmptyParams = QueryParams<[typeof Account, typeof Account.$$, typeof Account.$accountId]>;
+      type EmptyParams = SqlParams<[typeof Account, typeof Account.$$, typeof Account.$accountId]>;
       assertType<EmptyParams>(void 0);
       type EmptyInputArgs = SqlInputArgs<EmptyParams>;
       assertType<EmptyInputArgs>({});
    });
 
    test("InferParamsFromQueryTokens from sql-query with tokens and params", () => {
-      type Params = InferParamsFromSqlTokens<
+      type Params = SqlParams<
          [
             typeof Account,
             typeof Account.$$,
@@ -94,7 +71,7 @@ describe("SqlQuery.params", () => {
    });
 
    test("InferParamsFromQueryTokens from sql-query with tokens and params incl. array", () => {
-      type Params = InferParamsFromSqlTokens<
+      type Params = SqlParams<
          [
             typeof Account,
             typeof Account.$$,
@@ -113,7 +90,7 @@ describe("SqlQuery.params", () => {
    });
 
    test("InferParamsFromQueryTokens from sql-query without any params", () => {
-      type Params = InferParamsFromSqlTokens<[typeof Account, typeof Account.$$, typeof Account.$accountId]>;
+      type Params = SqlParams<[typeof Account, typeof Account.$$, typeof Account.$accountId]>;
       // Params should be unknown when there are no params
       type ExpectedType = unknown;
       assertType<Params extends ExpectedType ? true : false>(true);
@@ -188,12 +165,7 @@ describe("SqlQuery.params", () => {
          where ${subquery.$accountId} = ${param<{ accountId: string }>("accountId")}
       `;
 
-      assertType<ExtractParamsFromQuery<typeof query>>({
-         email: "",
-         accountId: "",
-         // @ts-expect-error - Testing runtime validation of missing property
-         test: "",
-      });
+      assertType<SqlQueryExtended<{ Row: IAccountSelect; Params: { email: string; accountId: string } }>>(query);
 
       expect(query.params).toMatchObject({
          email: { name: "email" },
@@ -221,6 +193,8 @@ describe("SqlQuery.params", () => {
                   )
            and ${Account.$status} = ${param<{ status: AccountStatusUdt }>("status")}
       `;
+
+      assertType<SqlQueryExtended<{ Params: { id1: string; id2: string; id3: string }; Row: IAccountSelect }>>(query);
 
       expect(query.params).toMatchObject({
          id1: { name: "id1" },

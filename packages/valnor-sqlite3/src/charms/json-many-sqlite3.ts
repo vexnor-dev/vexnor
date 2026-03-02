@@ -43,7 +43,6 @@ export class JsonManySqlite3<T extends { Params?: unknown; Row?: unknown }> exte
             const query = sql`
                select coalesce(json_group_array(json_object(${this.query.$$})), '[]')
                from ${this.query}`;
-            context.scope({ query });
             query.build(context, options);
             context.addStrings(")");
             break;
@@ -66,12 +65,11 @@ export class JsonManySqlite3<T extends { Params?: unknown; Row?: unknown }> exte
       });
       const query = sql`(
             select coalesce(json_group_array(json_object(${fields})), '[]')
-            from ${this.query.render({ inline: true })}) as ${raw(key)}`;
+            from ${this.query.render("inline")}) as ${raw(key)}`;
       return new SqlSelectCharm<{ Key: Key; Type: string; Params: T["Params"] }>({
          key,
          params: this.params,
          build(context, options) {
-            context.scope({ query });
             query.build(context, options);
          },
       });

@@ -1,11 +1,11 @@
 import { BuildSqlParams, SqlParam } from "./sql-param.js";
 import { SqlBuildContext } from "./sql-build-context.js";
 import { logger } from "../logger.js";
-import { PARAMS, Sql, TYPE } from "../sql-base.js";
+import { ARGS, PARAMS, Sql, TYPE } from "../sql-base.js";
 import { SqlQueryInfo } from "../charms/index.js";
 import { hasParams, InferSelectRowByResult, SqlBuildOptions, SqlInputArgs } from "./sql-query-types.js";
 import { SqlSelectAll } from "./sql-select-all.js";
-import { indexedArray, Lazy, Queue } from "../../lib/index.js";
+import { Lazy, Queue } from "../../lib/index.js";
 import { SqlBuildError } from "../sql-build-error.js";
 import { format } from "sql-formatter";
 import { SqlQueryRow, SqlQueryAll } from "./sql-models.js";
@@ -15,7 +15,6 @@ import { SqlSelectCharm } from "./sql-charm.js";
 import console from "node:console";
 import { newSqlSelectColumn, SqlQueryColumn } from "./sql-query-column.js";
 import { SqlSelectColumn } from "./sql-select-column.js";
-import { ok } from "assert";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlQueryAny = SqlQuery<any>;
@@ -38,6 +37,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
 
    declare readonly [TYPE]: T["Row"];
    declare readonly [PARAMS]: T["Params"];
+   declare readonly [ARGS]: T["Params"];
 
    readonly rawStrings: TemplateStringsArray;
    readonly rawValues: unknown[];
@@ -204,7 +204,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
     * @example select * from table where id = ? and name = ?
     */
    getSql({ options, ...args }: SqlInputArgs<T["Params"]>): { text: string; values: unknown[] } {
-      const context = new SqlBuildContext({ ...options, params: hasParams(args) ? args.params : undefined });
+      const context = new SqlBuildContext({ ...options, params: hasParams(args) ? args.params : {} });
       this.build(context, options ?? {});
       const paramFormat = options?.paramFormat ?? (() => "?");
       const tokens: string[] = [];
@@ -231,20 +231,6 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
 
                tokens.push(paramFormat({ index: values.length }));
                values.push(token.value);
-               break;
-            }
-            case "expand": {
-               ok("params" in args, "'args.params' is required to expand.");
-               const expanded = token.expand(args.params);
-               if (Array.isArray(expanded)) {
-                  for (const { index, item } of indexedArray(expanded)) {
-                     if (index > 0) {
-                        tokens.push(", ");
-                     }
-
-                     item.build(context, options);
-                  }
-               }
                break;
             }
             case "param": {
@@ -394,19 +380,20 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
       });
    }
 
-   render(args: { format?: SqlQueryFormat; inline?: boolean }): SqlQueryExtended<T> {
+   render(format: SqlQueryFormat | "inline"): SqlQueryExtended<T> {
+      const inline = format === "inline";
       const query = new SqlQuery<T>({
          rawStrings: this.rawStrings,
          rawValues: this.rawValues,
-         format: args.format ?? this.format ?? undefined,
-         inline: args.inline ?? this.inline,
+         format: (inline ? this.format : format) ?? undefined,
+         inline,
       });
       return newSqlQuery(query);
    }
 }
 
 export function newSqlQuery<T extends { Params?: unknown; Row?: unknown }>(query: SqlQuery<T>): SqlQueryExtended<T> {
-   return new Proxy(query, {
+   return new Proxy(query as SqlQueryExtended<T>, {
       ownKeys(target): ArrayLike<string | symbol> {
          const rowKeys = target.row ? Object.keys(target.row) : [];
          return [...Reflect.ownKeys(target), ...rowKeys];

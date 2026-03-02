@@ -1,4 +1,4 @@
-import { QueryParams, SqlQueryToken } from "../sql.js";
+import { SqlParams, SqlQueryToken } from "../sql.js";
 import { PARAMS, ROW, Sql, TYPE } from "../sql-base.js";
 import { SqlBuildContext } from "./sql-build-context.js";
 import { SqlBuildOptions } from "./sql-query-types.js";
@@ -61,13 +61,13 @@ export function val<Token extends SqlQueryToken = SqlQueryToken, Tokens extends 
       ): SqlSelectValue<{
          Key: Extract<keyof T, string>;
          Type: T[typeof key];
-         Params: QueryParams<typeof rawValues>;
+         Params: SqlParams<typeof rawValues>;
       }> => {
          switch (true) {
             case rawStrings instanceof SqlQuery:
                return new SqlSelectValue({ query: rawStrings, key });
             case Array.isArray(rawStrings): {
-               const query = new SqlQuery<{ Params: QueryParams<typeof rawValues> }>({
+               const query = new SqlQuery<{ Params: SqlParams<typeof rawValues> }>({
                   rawStrings: rawStrings,
                   rawValues,
                   inline: true,

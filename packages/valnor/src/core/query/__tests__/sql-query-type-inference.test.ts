@@ -1,5 +1,5 @@
 import { assertType, describe, expect, test } from "vitest";
-import { QueryParams, sql } from "../../sql.js";
+import { SqlParams, sql } from "../../sql.js";
 import { Account } from "@test-models/valnor_test.account-table.js";
 import { SqlInputArgs } from "../sql-query-types.js";
 import { param, SqlParam } from "../sql-param.js";
@@ -10,7 +10,7 @@ import { AccountStatusUdt } from "@test-models/valnor_test-enums.js";
 
 describe("SqlQuery Type inference", () => {
    test("SqlInputArgs<> from Sql array including params", () => {
-      type Params = QueryParams<
+      type Params = SqlParams<
          [
             typeof Account,
             typeof Account.$$,
@@ -35,7 +35,7 @@ describe("SqlQuery Type inference", () => {
    });
 
    test("SqlInputArgs<> from Sql array without params", () => {
-      type Params = QueryParams<[typeof Account, typeof Account.$$]>;
+      type Params = SqlParams<[typeof Account, typeof Account.$$]>;
 
       type Input = SqlInputArgs<Params>;
       const input: Input = {};

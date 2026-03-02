@@ -1,4 +1,4 @@
-import { SqlQueryHandlerAny, ExtractParamsFromQuery, SqlQueryAny } from "../core/index.js";
+import { SqlQueryHandlerAny, ExtractParamsFromQuery, SqlQueryAny, SqlQuery } from "../core/index.js";
 import { ConnectionConfig, ValnorPluginAny } from "../plugin/index.js";
 
 export type QueryOrHandler = SqlQueryAny | SqlQueryHandlerAny;
@@ -39,28 +39,25 @@ export interface QueryConfig<T extends Record<string, QueryOrHandler>> {
 
 export type QuerySettings<Query> = Query extends SqlQueryAny
    ? {
-        query: SqlQueryAny;
+        query: SqlQueryHandlerAny;
         profile: ProfileConfig | string;
         plugin: ValnorPluginAny;
-        params?: ExtractParamsFromQuery<Query>;
+        params: QuerySettingsParams<Query>;
         environments?: Record<string, ExtractParamsFromQuery<Query>>;
         format?: "table" | "json" | "csv";
         limit?: number;
      }
-   : Query extends SqlQueryHandlerAny
-     ? {
-          query: SqlQueryHandlerAny;
-          profile: ProfileConfig | string;
-          plugin: ValnorPluginAny;
-          params?: ExtractParamsFromQuery<Query>;
-          environments?: Record<string, ExtractParamsFromQuery<Query>>;
-          format?: "table" | "json" | "csv";
-          limit?: number;
-       }
-     : never;
+   : never;
 
 export interface QueryDefaults {
    profile?: ProfileConfig | string;
    format?: "table" | "json" | "csv";
    limit?: number;
 }
+
+export type QuerySettingsParams<T extends SqlQueryAny> =
+   T extends SqlQuery<{ Params: void }>
+      ? Record<string, never>
+      : T extends SqlQuery<infer Q extends { Params?: unknown }>
+        ? Q["Params"]
+        : Record<string, never>;

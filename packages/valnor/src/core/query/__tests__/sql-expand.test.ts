@@ -10,7 +10,7 @@ describe("SqlExpand", () => {
             SELECT ${row(Account.$$)}
             FROM ${Account}
             WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>((params) => {
-               return sql`${params.ids[0]}`;
+               return sql`${params?.ids?.[0]}`;
             })})
          `;
 
@@ -25,7 +25,7 @@ describe("SqlExpand", () => {
             SELECT ${row(Account.$$)}
             FROM ${Account}
             WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>((params) => {
-               return params.ids.map((id) => sql`${id}`);
+               return params?.ids?.map((id) => sql`${id}`) ?? null;
             })})
          `;
 
@@ -40,7 +40,7 @@ describe("SqlExpand", () => {
             SELECT ${row(Account.$$)}
             FROM ${Account}
             WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>((params) => {
-               return params.ids.map((id) => sql`${id}`);
+               return params?.ids?.map((id) => sql`${id}`) ?? null;
             })})
          `;
 
@@ -57,7 +57,7 @@ describe("SqlExpand", () => {
             SELECT ${row(Account.$$)}
             FROM ${Account}
             WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>((params) => {
-               return params.ids.map((id) => sql`${id}`);
+               return params?.ids?.map((id) => sql`${id}`) ?? null;
             })})
             AND ${Account.$email} = ${param<{ email: string }>("email")}
          `;
@@ -73,7 +73,7 @@ describe("SqlExpand", () => {
             SELECT ${row(Account.$$)}
             FROM ${Account}
             WHERE ${expand<{ conditions: Array<{ col: keyof typeof Account.cols; val: string }> }>((params) => {
-               return params.conditions.map((cond) => sql`${Account.cols[cond.col]} = ${cond.val}`);
+               return params?.conditions?.map((cond) => sql`${Account.cols[cond.col]} = ${cond.val}`) ?? null;
             })}
          `;
 
@@ -99,10 +99,12 @@ describe("SqlExpand", () => {
                return [Account.$email, Account.$firstName];
             })})
             VALUES (${expand<{ inserts: Array<{ email: string; firstName: string }> }>((params) => {
-               return params.inserts.map((insert) => {
-                  const values = Object.values(insert);
-                  return sql`(${values})`;
-               });
+               return (
+                  params?.inserts?.map((insert) => {
+                     const values = Object.values(insert);
+                     return sql`(${values})`;
+                  }) ?? null
+               );
             })})
          `;
 
@@ -123,12 +125,14 @@ describe("SqlExpand", () => {
          const query = sql`
             UPDATE ${Account}
             SET ${expand<{ updates: { email?: string; firstName?: string } }>((params) => {
+               const updates = params?.updates;
+               if (!updates) return null;
                const results = [];
-               if (params.updates.email !== undefined) {
-                  results.push(sql`${Account.$email} = ${params.updates.email}`);
+               if (updates.email !== undefined) {
+                  results.push(sql`${Account.$email} = ${updates.email}`);
                }
-               if (params.updates.firstName !== undefined) {
-                  results.push(sql`${Account.$firstName} = ${params.updates.firstName}`);
+               if (updates.firstName !== undefined) {
+                  results.push(sql`${Account.$firstName} = ${updates.firstName}`);
                }
                return results;
             })}
@@ -153,7 +157,7 @@ describe("SqlExpand", () => {
             SELECT ${row(Account.$accountId)}
             FROM ${Account}
             WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>((params) => {
-               return params.ids.map((id) => sql`${id}`);
+               return params?.ids?.map((id) => sql`${id}`) ?? null;
             })})
          `;
 
@@ -174,7 +178,7 @@ describe("SqlExpand", () => {
             SELECT ${row(Account.$accountId)}
             FROM ${Account}
             WHERE ${Account.$status} IN (${expand<{ statuses: string[] }>((params) => {
-               return params.statuses.map((status) => sql`${status}`);
+               return params?.statuses?.map((status) => sql`${status}`) ?? null;
             })})
          `;
 
@@ -207,7 +211,7 @@ describe("SqlExpand", () => {
             SELECT ${row(Account.$accountId)}
             FROM ${Account}
             WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>((params) => {
-               return params.ids.map((id) => sql`${id}`);
+               return params?.ids?.map((id) => sql`${id}`) ?? null;
             })})
          `;
 
@@ -216,7 +220,7 @@ describe("SqlExpand", () => {
             FROM ${Account}
             WHERE ${Account.$accountId} IN (${level3Query})
             AND ${Account.$status} IN (${expand<{ statuses: string[] }>((params) => {
-               return params.statuses.map((status) => sql`${status}`);
+               return params?.statuses?.map((status) => sql`${status}`) ?? null;
             })})
          `;
 
@@ -252,10 +256,10 @@ describe("SqlExpand", () => {
             SELECT ${row(Account.$$)}
             FROM ${Account}
             WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>((params) => {
-               return params.ids.map((id) => sql`${id}`);
+               return params?.ids?.map((id) => sql`${id}`) ?? null;
             })})
             AND ${Account.$status} IN (${expand<{ statuses: string[] }>((params) => {
-               return params.statuses.map((status) => sql`${status}`);
+               return params?.statuses?.map((status) => sql`${status}`) ?? null;
             })})
          `;
 
@@ -275,11 +279,11 @@ describe("SqlExpand", () => {
             SELECT ${row(Account.$$)}
             FROM ${Account}
             WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>((params) => {
-               return params.ids.map((id) => sql`${id}`);
+               return params?.ids?.map((id) => sql`${id}`) ?? null;
             })})
             AND ${Account.$email} = ${param<{ email: string }>("email")}
             AND ${Account.$status} IN (${expand<{ statuses: string[] }>((params) => {
-               return params.statuses.map((status) => sql`${status}`);
+               return params?.statuses?.map((status) => sql`${status}`) ?? null;
             })})
             AND ${Account.$firstName} = ${param<{ firstName: string }>("firstName")}
          `;
@@ -304,8 +308,8 @@ describe("SqlExpand", () => {
             SELECT ${row(Account.$$)}
             FROM ${Account}
             WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>((params) => {
-               assertType<{ ids: string[] }>(params);
-               return params.ids.map((id) => sql`${id}`);
+               assertType<Partial<{ ids: string[] }> | undefined>(params);
+               return params?.ids?.map((id) => sql`${id}`) ?? null;
             })})
          `;
 
@@ -320,7 +324,7 @@ describe("SqlExpand", () => {
             SELECT ${row(Account.$$)}
             FROM ${Account}
             WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>((params) => {
-               return params.ids.map((id) => sql`${id}`);
+               return params?.ids?.map((id) => sql`${id}`) ?? null;
             })})
             AND ${Account.$email} = ${param<{ email: string }>("email")}
          `;
@@ -338,7 +342,7 @@ describe("SqlExpand", () => {
             SELECT ${row(Account.$accountId)}
             FROM ${Account}
             WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>((params) => {
-               return params.ids.map((id) => sql`${id}`);
+               return params?.ids?.map((id) => sql`${id}`) ?? null;
             })})
          `;
 
@@ -363,7 +367,7 @@ describe("SqlExpand", () => {
             SELECT ${row(Account.$accountId)}
             FROM ${Account}
             WHERE ${Account.$status} IN (${expand<{ statuses: string[] }>((params) => {
-               return params.statuses.map((status) => sql`${status}`);
+               return params?.statuses?.map((status) => sql`${status}`) ?? null;
             })})
          `;
 
@@ -404,7 +408,7 @@ describe("SqlExpand", () => {
             SELECT ${row(Account.$accountId)}
             FROM ${Account}
             WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>((params) => {
-               return params.ids.map((id) => sql`${id}`);
+               return params?.ids?.map((id) => sql`${id}`) ?? null;
             })})
          `;
 
@@ -413,7 +417,7 @@ describe("SqlExpand", () => {
             FROM ${Account}
             WHERE ${Account.$accountId} IN (${level3Query})
             AND ${Account.$status} IN (${expand<{ statuses: string[] }>((params) => {
-               return params.statuses.map((status) => sql`${status}`);
+               return params?.statuses?.map((status) => sql`${status}`) ?? null;
             })})
          `;
 
@@ -464,10 +468,10 @@ describe("SqlExpand", () => {
             SELECT ${row(Account.$$)}
             FROM ${Account}
             WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>((params) => {
-               return params.ids.map((id) => sql`${id}`);
+               return params?.ids?.map((id) => sql`${id}`) ?? null;
             })})
             AND ${Account.$status} IN (${expand<{ statuses: string[] }>((params) => {
-               return params.statuses.map((status) => sql`${status}`);
+               return params?.statuses?.map((status) => sql`${status}`) ?? null;
             })})
             AND ${Account.$email} = ${param<{ email: string }>("email")}
          `;
@@ -493,14 +497,29 @@ describe("SqlExpand", () => {
             SELECT ${row(Account.$$)}
             FROM ${Account}
             WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>((params) => {
-               return params.ids.map((id) => sql`${id}`);
+               return params?.ids?.map((id) => sql`${id}`) ?? null;
             })})
          `;
 
          // @ts-expect-error - Testing runtime validation
-         expect(() => query.getSql({})).toThrowErrorMatchingInlineSnapshot(
-            `[AssertionError: 'context.params' is required to expand SqlExpand#1.]`,
-         );
+         expect(query.getSql({}).text).toMatchInlineSnapshot(`
+           "/* <query_0> */
+           SELECT
+             "a_1"."account_id" AS "accountId",
+             "a_1"."status",
+             "a_1"."email",
+             "a_1"."first_name" AS "firstName",
+             "a_1"."last_name" AS "lastName",
+             "a_1"."notes",
+             "a_1"."created_at" AS "createdAt",
+             "a_1"."modified_at" AS "modifiedAt",
+             "a_1"."parent_id" AS "parentId"
+           FROM
+             "valnor_test"."account" AS "a_1"
+           WHERE
+             "a_1"."account_id" IN ()
+             /* </query_0> */"
+         `);
       });
    });
 });

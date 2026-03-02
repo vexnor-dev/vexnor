@@ -40,10 +40,12 @@ describe("SqlTable CRUD Integration", () => {
       const { text } = query.getSql({});
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
+        /* <query_1> */
         SELECT
           "tt_1"."id",
           "tt_1"."name",
           "tt_1"."email"
+          /* </query_1> */
         FROM
           "public"."test_table" AS "tt_1"
           /* </query_0> */"
@@ -54,20 +56,21 @@ describe("SqlTable CRUD Integration", () => {
       const where = sql`where ${BaseTable.$id} = ${param<{ id: string }>("id")}`;
       const query = TestTable.read({ where });
 
-      const { text } = query.getSql({ params: { id: "test-id" } });
+      const { text } = query.getSql({ params: { where: { id: "test-id" } } });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
+        /* <query_1> */
         SELECT
           "tt_1"."id",
           "tt_1"."name",
           "tt_1"."email"
+          /* </query_1> */
         FROM
-          "public"."test_table" AS "tt_1" (
-            /* <query_1> */
-            WHERE
-              "tt_2"."id" = ?
-              /* </query_1> */
-          ) AS "query_1"
+          "public"."test_table" AS "tt_1"
+          /* <query_2> */
+        WHERE
+          "tt_1"."id" = ?
+          /* </query_2> */
           /* </query_0> */"
       `);
    });
@@ -98,9 +101,7 @@ describe("SqlTable CRUD Integration", () => {
       const from = sql`select * from ${BaseTable}`;
       const query = TestTable.create({ from });
 
-      const { text } = query.getSql({
-         params: { inserts: [{ name: "Test", email: "test@test.com" }], from: undefined },
-      });
+      const { text } = query.getSql({});
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         INSERT INTO
@@ -120,14 +121,18 @@ describe("SqlTable CRUD Integration", () => {
 
    test("update should generate update query", () => {
       const query = TestTable.update({});
-      const { text } = query.getSql({ params: { value: { name: "Updated" } } });
+      const { text } = query.getSql({ params: { set: { name: "Updated" } }, options: { dialect: "sqlite" } });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         UPDATE "public"."test_table"
         SET
           /* <query_1> */
-          "tt_2"."name" = ?
+          "name" = ?
           /* </query_1> */
+        RETURNING
+          "test_table"."id",
+          "test_table"."name",
+          "test_table"."email"
           /* </query_0> */"
       `);
    });
@@ -136,24 +141,36 @@ describe("SqlTable CRUD Integration", () => {
       const where = sql`where ${BaseTable.$id} = ${param<{ id: string }>("id")}`;
       const query = TestTable.update({ where });
 
-      const { text } = query.getSql({ params: { value: { name: "Updated" }, where: { id: "test-id" } } });
+      const { text } = query.getSql({
+         params: { set: { name: "Updated" }, where: { id: "test-id" } },
+         options: { dialect: "sqlite" },
+      });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         UPDATE "public"."test_table"
         SET
-          /* <query_2> */
-          "tt_2"."name" = ?
-          /* </query_2> */
           /* <query_1> */
-        WHERE
-          "tt_3"."id" = ?
+          "name" = ?
           /* </query_1> */
+          /* <query_2> */
+        WHERE
+          "test_table"."id" = ?
+          /* </query_2> */
+        RETURNING
+          "test_table"."id",
+          "test_table"."name",
+          "test_table"."email"
           /* </query_0> */"
       `);
    });
 
    test("delete should require where or force", () => {
-      expect(() => TestTable.delete({})).toThrow();
+      expect(() =>
+         TestTable.delete({
+            //@ts-expect-error build fails
+            force: false,
+         }),
+      ).toThrow();
    });
 
    test("delete with where clause", () => {
@@ -166,7 +183,7 @@ describe("SqlTable CRUD Integration", () => {
         DELETE FROM "public"."test_table"
         /* <query_1> */
         WHERE
-          "tt_2"."id" = ?
+          "test_table"."id" = ?
           /* </query_1> */
           /* </query_0> */"
       `);

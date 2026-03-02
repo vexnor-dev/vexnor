@@ -1,9 +1,9 @@
-import { DefaultTableRead } from "./default-table-read.js";
 import { SqlTable } from "../schema/index.js";
 import { SqlTableCrud } from "./sql-table-crud.js";
-import { DefaultTableCreate } from "./default-table-create.js";
-import { DefaultTableUpdate } from "./default-table-update.js";
-import { DefaultTableDelete } from "./default-table-delete.js";
+import { SqlTableCreate } from "./sql-table-create.js";
+import { SqlTableUpdate } from "./sql-table-update.js";
+import { SqlTableRead } from "./sql-table-read.js";
+import { SqlTableDelete } from "./sql-table-delete.js";
 
 // Extend the class type (in scope)
 // declare module "valnor" {
@@ -30,14 +30,17 @@ export function crud<
       Delete?: boolean;
    },
 >(table: SqlTable<T>): SqlTable<T> & SqlTableCrud<T> {
-   const read = new DefaultTableRead(table);
+   const read = new SqlTableRead(table);
    const create = table.crud.create
-      ? new DefaultTableCreate(<SqlTable<{ Select: Record<string, unknown>; Insert: Record<string, unknown> }>>table)
+      ? new SqlTableCreate(<SqlTable<{ Select: Record<string, unknown>; Insert: Record<string, unknown> }>>table)
       : null;
    const update = table.crud.update
-      ? new DefaultTableUpdate(<SqlTable<{ Select: Record<string, unknown>; Update: Record<string, unknown> }>>table)
+      ? new SqlTableUpdate(<SqlTable<{ Select: Record<string, unknown>; Update: Record<string, unknown> }>>table)
       : null;
-   const delete$ = table.crud.delete === true ? new DefaultTableDelete(table) : null;
+   const delete$ =
+      table.crud.delete === true
+         ? new SqlTableDelete(<SqlTable<{ Select: Record<string, unknown>; Delete: true }>>table)
+         : null;
 
    Object.assign(table, {
       read: read.read.bind(read),

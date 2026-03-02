@@ -35,7 +35,7 @@ export class SqlBuildContext {
    constructor(args?: SqlBuildContextArgs) {
       this.tokenizer = args?.tokenizer ?? new DefaultTokenizer();
       this.formatter = args?.formatter ?? new DefaultFormatter();
-      this.dialect = args?.dialect ?? "sql";
+      this.dialect = args?.dialect ?? "sqlite";
       this.params = args?.params ?? null;
 
       this._tokens = [];
@@ -308,12 +308,13 @@ export class SqlBuildContext {
 
    /**
     * Adds an expand parameter
-    * @param param
+    * @param expand
     */
-   addExpand(param: { expand: SqlExpandHandlerAny }) {
+   addExpand(expand: { id: string; expand: SqlExpandHandlerAny }) {
       this._tokens.push({
+         id: expand.id,
          type: "expand",
-         expand: param.expand,
+         expand: expand.expand,
       });
    }
 

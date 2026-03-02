@@ -69,7 +69,7 @@ export class JsonAggregationMssql<T extends { Row?: unknown; Params?: unknown }>
             ok(FOR_JSON !== undefined, `FOR_JSON is not defined for type: ${this.type}`);
             const query = sql`
                outer apply (
-               select coalesce((${this.query.render({ format: "sql" })} ${raw(FOR_JSON, { quote: false })}), '[]')
+               select coalesce((${this.query.render("sql")} ${raw(FOR_JSON, { quote: false })}), '[]')
                   as ${raw(queryName)}) as ${raw(`${queryName}_result`)}`;
 
             context.scope({ query, inline: true }, () => {

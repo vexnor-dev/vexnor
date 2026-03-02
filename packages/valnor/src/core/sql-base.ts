@@ -6,13 +6,20 @@ export type SqlOptions = {
    query?: SqlQueryAny | null;
 };
 
-export type TypeOf<S> = S extends { readonly [TYPE]?: infer R } ? R : unknown;
-export type ParamsOf<S> = S extends { readonly [PARAMS]?: infer P } ? P : unknown;
-export type RowOf<S> = S extends { readonly [ROW]?: infer R } ? R : unknown;
+export type TypeOf<S> = S extends { readonly [TYPE]?: infer R } ? R : void;
+export type ArgsOf<S> = S extends { readonly [ARGS]?: infer R } ? R : void;
+export type ParamsOf<S> = S extends { readonly [PARAMS]?: infer R } ? R : void;
+export type RowOf<S> = S extends { readonly [ROW]?: infer R } ? R : void;
+
+export type ParamsOfArgs<T> =
+   T extends Record<string, unknown>
+      ? { [K in keyof T as ParamsOfArgs<T[K]> extends void ? never : K]: ParamsOfArgs<T[K]> }
+      : ArgsOf<T>;
 
 export declare const ROW: unique symbol;
 export declare const TYPE: unique symbol;
 export declare const PARAMS: unique symbol;
+export declare const ARGS: unique symbol;
 
 /**
  * Base class for all SQL tokens
@@ -21,6 +28,7 @@ export abstract class Sql {
    declare readonly [ROW]?: unknown; // phantom, public
    declare readonly [TYPE]?: unknown; // phantom, public
    declare readonly [PARAMS]?: unknown; // phantom, public
+   declare readonly [ARGS]?: unknown; // phantom, public
 
    /**
     * Whether to wrap the SQL token in parentheses

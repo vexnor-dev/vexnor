@@ -1,0 +1,36 @@
+import { newSqlParameters, SqlParameters } from "./sql-parameters.js";
+import { SqlQueryAny, SqlQueryExtended } from "./sql-query.js";
+import { sql } from "../sql.js";
+import { Account } from "@test-models/valnor_test.account-table.js";
+import { row } from "./sql-select-row.js";
+import { assertType } from "vitest";
+import { RowOf } from "../sql-base.js";
+import { param } from "./sql-param.js";
+
+export type NewSqlQuery<T extends { Params: Record<string, unknown>; Row?: unknown }> = (
+   params: SqlParameters<T["Params"]>,
+) => SqlQueryExtended<T>;
+
+// TODO: remove if not used
+export function query<Params extends Record<string, unknown>>(
+   callback: (params: SqlParameters<Params>) => SqlQueryAny,
+): QueryResult<{ Params: Params; Row: RowOf<ReturnType<typeof callback>> }> {
+   const params = newSqlParameters<Params>();
+   return callback(params) as QueryResult<{ Params: Params; Row: RowOf<ReturnType<typeof callback>> }>;
+}
+
+export type QueryResult<T> = T extends { Params?: Record<string, unknown>; Row?: unknown }
+   ? SqlQueryExtended<T>
+   : never;
+
+const findAccounts = query<{ id: string }>((params) => {
+   const result = sql`select ${row(Account.$firstName)}
+          from ${Account}
+          where ${Account.$accountId} = ${param<{ id: string }>("id")}`;
+   return result;
+});
+
+assertType<SqlQueryExtended<{ Params: { id: string }; Row: { firstName: string } }>>(findAccounts);
+
+const params = newSqlParameters<{ id: number; name: string }>();
+params.name;

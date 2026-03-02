@@ -69,7 +69,6 @@ export class JsonAggregationSqlite3<T extends { Params?: unknown; Row?: unknown 
                   ? sql`select json_object(${this.query.$$}) from ${this.query} limit 1`
                   : sql`select coalesce(json_group_array(json_object(${this.query.$$})), ${raw(coalesce, { quote: false })}) from ${this.query}`;
 
-            context.scope({ query: innerQuery });
             innerQuery.build(context, options);
             context.addStrings(")");
             break;
@@ -92,14 +91,13 @@ export class JsonAggregationSqlite3<T extends { Params?: unknown; Row?: unknown 
       const { coalesce } = JsonAggregationSqlite3.CONFIG[this.type];
       const innerQuery =
          this.type === "one"
-            ? sql`(select json_object(${fields}) from ${this.query.render({ inline: true })} limit 1) as ${raw(key)}`
-            : sql`(select coalesce(json_group_array(json_object(${fields})), ${raw(coalesce, { quote: false })}) from ${this.query.render({ inline: true })}) as ${raw(key)}`;
+            ? sql`(select json_object(${fields}) from ${this.query.render("inline")} limit 1) as ${raw(key)}`
+            : sql`(select coalesce(json_group_array(json_object(${fields})), ${raw(coalesce, { quote: false })}) from ${this.query.render("inline")}) as ${raw(key)}`;
 
       return new SqlSelectCharm<{ Key: Key; Type: string; Params: T["Params"] }>({
          key,
          params: this.params as BuildSqlParams<T["Params"]>,
          build(context, options) {
-            context.scope({ query: innerQuery });
             innerQuery.build(context, options);
          },
       });

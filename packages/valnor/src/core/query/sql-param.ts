@@ -1,5 +1,5 @@
 import { SqlBuildContext } from "./sql-build-context.js";
-import { PARAMS, Sql } from "../sql-base.js";
+import { PARAMS, ARGS, Sql } from "../sql-base.js";
 import { Primitive } from "../../lib/index.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -7,6 +7,7 @@ export type SqlParamAny = SqlParam<any>;
 
 export class SqlParam<T extends { Name: string; Type: unknown }> extends Sql {
    declare readonly [PARAMS]: Record<T["Name"], T["Type"]>;
+   declare readonly [ARGS]?: T["Type"];
 
    readonly name: T["Name"];
 

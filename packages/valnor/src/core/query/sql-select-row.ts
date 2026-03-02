@@ -6,7 +6,6 @@ import { SqlTableAll } from "../charms/index.js";
 import { SqlSelectAll } from "./sql-select-all.js";
 import { InferSelectRowByResult, SqlBuildOptions } from "./sql-query-types.js";
 import { SqlBuildError } from "../sql-build-error.js";
-import { Merge } from "../utils/index.js";
 import { SqlQueryAny } from "./sql-query.js";
 import { SqlBuildContext } from "./sql-build-context.js";
 import { SqlSelectColumn } from "./sql-select-column.js";
@@ -160,7 +159,7 @@ export function row<Column extends Sql, Columns extends Column[]>(
 
 export type InferResultRowFromColumns<T> = T extends [infer Start, ...infer Rest]
    ? Start extends Sql
-      ? Merge<TypeOf<Start>, InferResultRowFromColumns<Rest>>
+      ? TypeOf<Start> & InferResultRowFromColumns<Rest>
       : InferResultRowFromColumns<Rest>
    : // eslint-disable-next-line @typescript-eslint/no-empty-object-type
      {};

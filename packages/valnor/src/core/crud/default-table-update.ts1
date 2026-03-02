@@ -1,0 +1,46 @@
+import { SqlTableUpdate } from "./sql-table-update.js";
+import { expand, SqlQueryAny } from "../query/index.js";
+import { sql } from "../sql.js";
+import { isPrimitive } from "../../lib/index.js";
+import { ok } from "assert";
+import { ParamsOfTree } from "../sql-base.js";
+
+export class DefaultTableUpdate<
+   T extends { Select: Record<string, unknown>; Update: Partial<T["Select"]> },
+> extends SqlTableUpdate<T> {
+   update(args) {
+      const result = sql`
+         update ${this.table}
+         set ${expand<{ value: T["Update"] }>((params) => {
+            if (!params?.value) return null;
+
+            const results: SqlQueryAny[] = [];
+            for (const [key, value] of Object.entries(params.value)) {
+               const col = this.table.cols[`$${key}`];
+               ok(col, `Column not found: ${key}`);
+               ok(isPrimitive(value), `Value it's not a primitive: ${value}`);
+               results.push(sql` ${col} = ${value}`);
+            }
+
+            return results;
+         })}
+         ${expand<ParamsOfTree<Args>>((params) => {
+            if (!args.where) return null;
+            if (!params?.where) return null;
+            if (!params.where) return null;
+
+            const hasPrefix = (() => {
+               if (!params?.where) return false;
+
+               return args.where.rawStrings[0]?.trim().toLowerCase().includes("where");
+            })();
+
+            if (hasPrefix) return args.where;
+
+            return sql`where ${args.where.render("inline")}`;
+         })}
+      `;
+
+      return result;
+   }
+}

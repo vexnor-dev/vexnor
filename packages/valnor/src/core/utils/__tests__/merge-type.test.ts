@@ -21,12 +21,14 @@ describe("Merge type utility", () => {
 
       assertType<Result>({
          a: "",
+         // @ts-expect-error - field never
          b: 1,
          c: "",
       });
 
       assertType<Result>({
          a: "",
+         // @ts-expect-error - field never
          b: 1,
          c: "",
       });
@@ -89,6 +91,7 @@ describe("MergeAll type utility", () => {
          a: "string",
          b: 1,
          c: true,
+         // @ts-expect-error - field never
          x: true,
       });
    });
@@ -166,11 +169,11 @@ describe("MergeAll type utility", () => {
       type Result = Merge<A, B>;
 
       assertType<Result>({
+         // @ts-expect-error - field never
          a: "a",
          b: "b",
          c: true,
          nested: { x: 1 },
-         // @ts-expect-error - field not existing
          x: "a",
       });
    });

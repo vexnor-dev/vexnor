@@ -1,17 +1,17 @@
 import { describe, expect, test } from "vitest";
-import { DefaultTableCreate } from "../default-table-create.js";
-import { Account } from "../../__tests__/models/valnor_test.account-table.js";
+import { Account } from "../../__tests__/models/valnor_test.schema.js";
 import { sql } from "../../sql.js";
+import { SqlTableCreate } from "../sql-table-create.js";
 
-describe("DefaultTableCreate", () => {
+describe("SqlTableCreate", () => {
    test("should create instance", () => {
-      const create = new DefaultTableCreate(Account);
+      const create = new SqlTableCreate(Account);
       expect(create).toBeDefined();
       expect(create.table).toBe(Account);
    });
 
    test("should generate insert query without from clause", () => {
-      const create = new DefaultTableCreate(Account);
+      const create = new SqlTableCreate(Account);
       const query = create.create({});
 
       expect(query).toBeDefined();
@@ -44,14 +44,12 @@ describe("DefaultTableCreate", () => {
    });
 
    test("should generate insert query with from subquery", () => {
-      const create = new DefaultTableCreate(Account);
+      const create = new SqlTableCreate(Account);
       const from = sql`select * from ${Account} where ${Account.$status} = 'active'`;
       const query = create.create({ from });
 
       expect(query).toBeDefined();
-      const { text } = query.getSql({
-         params: { inserts: [{ email: "test@test.com", firstName: "John", lastName: "Doe" }], from: undefined },
-      });
+      const { text } = query.getSql({});
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         INSERT INTO
@@ -78,7 +76,7 @@ describe("DefaultTableCreate", () => {
    });
 
    test("should handle expand columns correctly", () => {
-      const create = new DefaultTableCreate(Account);
+      const create = new SqlTableCreate(Account);
       const query = create.create({});
 
       const { text } = query.getSql({
