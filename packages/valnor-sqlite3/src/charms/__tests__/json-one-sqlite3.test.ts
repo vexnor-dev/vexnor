@@ -98,14 +98,15 @@ describe("json-one-sqlite3 tests", () => {
       `);
    });
 
-   test("should render from w/o alias", () => {
+   test("should throw 'from' w/o alias", () => {
       const context = new SqlBuildContext();
       context.next("from");
       const target = jsonOne(
          sql`select ${row(Account.as("parent").$$)} from ${Account.as("parent")} where ${Account.as("parent").$accountId} = ${Account.$parentId}`,
       );
-      target.build(context, {});
-      expect(context.text).toMatchInlineSnapshot(`""`);
+      expect(() => target.build(context, {})).toThrowErrorMatchingInlineSnapshot(
+         `[TypeError: Cannot use json aggregation with SQL keyword 'from']`,
+      );
    });
 
    test("should build full query with json aggregation", () => {

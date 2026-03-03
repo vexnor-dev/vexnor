@@ -2,12 +2,12 @@ import { beforeAll, describe, expect, test } from "vitest";
 import crypto, { randomUUID } from "node:crypto";
 import assert, { ok } from "node:assert";
 import { param, row, sql } from "valnor";
-import { pool } from "./mssql-pool.js";
 import { jsonMany } from "valnor-mssql";
 import { Account, IAccountInsert, IAccountJson, IAccountSelect } from "./codegen/valnor_test.schema.js";
 import { getTag } from "./config.js";
+import { pool } from "./mssql-pool.js";
 
-describe.sequential("valnor mssql e2e tests", (ctx) => {
+describe.sequential("valnor mssql e2e tests", async (ctx) => {
    const TAG = getTag(ctx);
 
    const rootAccounts: IAccountSelect[] = [];

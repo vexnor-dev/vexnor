@@ -3,6 +3,7 @@ import {
    info,
    JsonRow,
    quote,
+   quoteText,
    raw,
    sql,
    SqlBuildContext,
@@ -71,8 +72,8 @@ export class JsonAggregationPostgres<
             const query = sql`
                 ${info({ inline: true })}
                left join lateral (
-               select coalesce(${raw(func, { quote: false })}(${this.query.$$}), ${raw(coalesce, { quote: false })}) as ${raw(`${queryName}_result`)}
-               from ${this.query}) as ${raw(queryName)}
+               select coalesce(${raw(func)}(${this.query.$$}), ${raw(coalesce)}) as ${quote(`${queryName}_result`)}
+               from ${this.query}) as ${quote(queryName)}
                on true
             `;
             context.scope({ query, inline: true }, () => {
@@ -96,7 +97,7 @@ export class JsonAggregationPostgres<
          params: this.params as BuildSqlParams<T["Params"]>,
          build(context: SqlBuildContext) {
             const queryName = context.scope({ query }, () => context.getQueryName(query));
-            context.addStrings(`"${queryName}_result" as ${quote(this.key)}`);
+            context.addStrings(`"${queryName}_result" as ${quoteText(this.key)}`);
          },
       });
    }

@@ -12,6 +12,7 @@ import {
    SqlQueryAny,
    JsonRow,
    SqlBuildError,
+   quote,
 } from "valnor";
 
 export type JsonResultType = "one" | "many";
@@ -56,7 +57,7 @@ export class JsonAggregationSqlite3<T extends { Params?: unknown; Row?: unknown 
 
    build(context: SqlBuildContext, options: SqlBuildOptions) {
       if (!this.query.row) {
-         throw new SqlBuildError(`query row is required for json aggregation`);
+         throw new SqlBuildError(`'this.query.row' is required for json aggregation`);
       }
 
       const { coalesce } = JsonAggregationSqlite3.CONFIG[this.type];
@@ -67,32 +68,29 @@ export class JsonAggregationSqlite3<T extends { Params?: unknown; Row?: unknown 
             const innerQuery =
                this.type === "one"
                   ? sql`select json_object(${this.query.$$}) from ${this.query} limit 1`
-                  : sql`select coalesce(json_group_array(json_object(${this.query.$$})), ${raw(coalesce, { quote: false })}) from ${this.query}`;
+                  : sql`select coalesce(json_group_array(json_object(${this.query.$$})), ${raw(coalesce)}) from ${this.query}`;
 
             innerQuery.build(context, options);
             context.addStrings(")");
             break;
          }
-         case "from":
-            // Correlated subquery in SELECT list does not add to FROM clause
-            return;
          default:
-            throw new TypeError(`Cannot use jsonGroupArray() with SQL keyword: ${context.keyword}`);
+            throw new TypeError(`Cannot use json aggregation with SQL keyword '${context.keyword}'`);
       }
    }
 
    as<Key extends string>(key: Key): SqlSelectCharm<{ Key: Key; Type: string; Params: T["Params"] }> {
       const fields = Object.values(this.query.row ?? {}).flatMap((value) => {
          if (value instanceof SqlSelectValue || value instanceof SqlQueryColumn) {
-            return [raw(`'${value.key}'`, { quote: false }), raw(value.key)];
+            return [raw(`'${value.key}'`), quote(value.key)];
          }
       });
 
       const { coalesce } = JsonAggregationSqlite3.CONFIG[this.type];
       const innerQuery =
          this.type === "one"
-            ? sql`(select json_object(${fields}) from ${this.query.render("inline")} limit 1) as ${raw(key)}`
-            : sql`(select coalesce(json_group_array(json_object(${fields})), ${raw(coalesce, { quote: false })}) from ${this.query.render("inline")}) as ${raw(key)}`;
+            ? sql`(select json_object(${fields}) from ${this.query.render("inline")} limit 1) as ${quote(key)}`
+            : sql`(select coalesce(json_group_array(json_object(${fields})), ${raw(coalesce)}) from ${this.query.render("inline")}) as ${quote(key)}`;
 
       return new SqlSelectCharm<{ Key: Key; Type: string; Params: T["Params"] }>({
          key,

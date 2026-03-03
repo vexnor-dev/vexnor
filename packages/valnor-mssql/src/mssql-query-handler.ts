@@ -1,5 +1,5 @@
 import { SqlQueryHandler, SqlInputArgs, SqlQuery, SqlRunArgs } from "valnor";
-import { IResult, Request } from "mssql";
+import { IResult, Promise, Request } from "mssql";
 import { MssqlTokenizer } from "./mssql-tokenizer.js";
 import { MssqlParamFormatter } from "./mssql-param-formatter.js";
 import "valnor/testing";
@@ -43,7 +43,9 @@ export class MssqlQueryHandler<T extends { Params?: unknown; Row?: unknown }> ex
     * Executes the query and returns the result
     * @param args
     */
-   async run(args: SqlRunArgs<{ Connection: Request; Params: T["Params"] }>): Promise<IResult<T["Row"]>> {
+   async run<Args extends SqlRunArgs<{ Connection: Request; Params: T["Params"] }>>(
+      args: Args,
+   ): Promise<IResult<T["Row"]>> {
       const { db, options: { debug } = {} } = args;
       let queryInput = undefined;
       try {
@@ -52,10 +54,10 @@ export class MssqlQueryHandler<T extends { Params?: unknown; Row?: unknown }> ex
          const { text, values } = queryInput;
 
          for (let i = 0; i < values.length; i++) {
-            db.input(`param_${i}`, values[i]);
+            (await db).input(`param_${i}`, values[i]);
          }
 
-         return await db.query(text);
+         return await (await db).query(text);
       } catch (err) {
          console.error(err, "\n", queryInput?.text ?? "error building query");
          throw err;

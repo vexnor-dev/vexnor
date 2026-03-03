@@ -2,7 +2,7 @@ import { ITokenizer } from "../sql-tokenizer.js";
 import { MAJOR_KEYWORDS, SUBQUERY_STARTERS } from "../sql-constants.js";
 import { DefaultFormatter } from "../default-formatter.js";
 import { DefaultTokenizer } from "../default-tokenizer.js";
-import { quote, trim } from "../utils/index.js";
+import { quoteText, trim } from "../utils/index.js";
 import { ok } from "assert";
 import { SqlQuery, SqlQueryAny } from "./sql-query.js";
 import { SqlBuildError } from "../sql-build-error.js";
@@ -35,7 +35,7 @@ export class SqlBuildContext {
    constructor(args?: SqlBuildContextArgs) {
       this.tokenizer = args?.tokenizer ?? new DefaultTokenizer();
       this.formatter = args?.formatter ?? new DefaultFormatter();
-      this.dialect = args?.dialect ?? "sqlite";
+      this.dialect = args?.dialect ?? "sql";
       this.params = args?.params ?? null;
 
       this._tokens = [];
@@ -280,7 +280,7 @@ export class SqlBuildContext {
    addQuotes(...quotes: string[]) {
       ok(quotes[0], `quotes is required`);
       const tokens: SqlBuildToken[] = quotes.map((value) => {
-         return { type: "text", value: quote(value) };
+         return { type: "text", value: quoteText(value) };
       });
       this._tokens.push(...tokens);
    }

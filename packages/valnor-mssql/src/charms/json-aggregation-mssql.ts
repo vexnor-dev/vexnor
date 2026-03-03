@@ -2,7 +2,7 @@ import {
    SqlBuildOptions,
    SqlBuildContext,
    SqlQuery,
-   quote,
+   quoteText,
    SqlBuildError,
    PARAMS,
    SqlCharm,
@@ -11,6 +11,7 @@ import {
    raw,
    BuildSqlParams,
    SqlQueryAny,
+   quote,
 } from "valnor";
 import { ok } from "node:assert";
 
@@ -69,8 +70,8 @@ export class JsonAggregationMssql<T extends { Row?: unknown; Params?: unknown }>
             ok(FOR_JSON !== undefined, `FOR_JSON is not defined for type: ${this.type}`);
             const query = sql`
                outer apply (
-               select coalesce((${this.query.render("sql")} ${raw(FOR_JSON, { quote: false })}), '[]')
-                  as ${raw(queryName)}) as ${raw(`${queryName}_result`)}`;
+               select coalesce((${this.query.render("sql")} ${raw(FOR_JSON)}), '[]')
+                  as ${quote(queryName)}) as ${quote(`${queryName}_result`)}`;
 
             context.scope({ query, inline: true }, () => {
                query.build(context, options);
@@ -93,7 +94,7 @@ export class JsonAggregationMssql<T extends { Row?: unknown; Params?: unknown }>
          params: this.params as BuildSqlParams<T["Params"]>,
          build(context: SqlBuildContext) {
             const queryName = context.getQueryName(query);
-            context.addStrings(`"${queryName}_result"."${queryName}" as ${quote(this.key)}`);
+            context.addStrings(`"${queryName}_result"."${queryName}" as ${quoteText(this.key)}`);
          },
       });
    }

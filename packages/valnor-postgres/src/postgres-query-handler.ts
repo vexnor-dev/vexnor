@@ -56,7 +56,7 @@ export class PostgresQueryHandler<T extends { Row?: unknown; Params?: unknown }>
          queryInput = this.getOptions(args);
          if (debug) debug(Object.freeze(queryInput));
          const { text, values } = queryInput;
-         return await db.query({ text, values });
+         return await (await db).query({ text, values });
       } catch (err) {
          console.error(err, "\n", queryInput?.text ?? "error building core");
          throw err;

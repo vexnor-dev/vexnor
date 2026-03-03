@@ -75,7 +75,7 @@ describe.sequential("jsonOne() tests", () => {
       const context = new SqlBuildContext({ tokenizer: new Sqlite3Tokenizer() });
       context.next(keyword);
       expect(() => jsonOne(AccountParent).build(context, {})).toThrow(
-         "Cannot use jsonGroupArray() with SQL keyword:",
+         `Cannot use json aggregation with SQL keyword '${keyword}'`,
       );
    });
 

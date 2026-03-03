@@ -102,13 +102,15 @@ describe("json-many-sqlite3 tests", () => {
       `);
    });
 
-   test("should render from w/o alias", () => {
+   test("should throw 'from' w/o alias", () => {
       const context = new SqlBuildContext();
       context.next("from");
       const target = jsonMany(
          sql`select ${row(Account.as("children").$$)} from ${Account.as("children")} where ${Account.as("children").$parentId} = ${Account.$accountId}`,
       );
-      target.build(context, {});
+      expect(() => target.build(context, {})).toThrowErrorMatchingInlineSnapshot(
+         `[TypeError: Cannot use json aggregation with SQL keyword 'from']`,
+      );
       expect(context.text).toMatchInlineSnapshot(`""`);
    });
 

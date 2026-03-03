@@ -1,10 +1,13 @@
-import { pool } from "./mssql-pool.js";
 import { sql } from "valnor-mssql";
 import { Account } from "./codegen/valnor_test.account-table.js";
 import { TestProject } from "vitest/node";
 
 export default async function (proj: TestProject) {
+   process.env["ENV_PATH"] = proj.config.env["ENV_PATH"];
+
+   let pool = undefined;
    try {
+      ({ pool } = await import("./mssql-pool.js"));
       await pool.connect();
       const timestamp = new Date();
       const {
@@ -17,6 +20,6 @@ export default async function (proj: TestProject) {
 
       proj.vitest.logger.log(`global-setup: Deleted ${rowsAffected} rows from Account table older than ${timestamp}`);
    } finally {
-      await pool.close();
+      await pool?.close();
    }
 }

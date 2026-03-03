@@ -36,7 +36,3 @@ export type BuildSqlParams<Params> =
            [K in keyof Params]: K extends string ? SqlParam<{ Name: K; Type: Params[K] }> : never;
         }
       : unknown;
-
-export type SqlQueryParams<T> = T extends { Params: Record<infer Key extends string, infer Type> }
-   ? Record<Key, SqlParam<{ Name: Key; Type: Type }>>
-   : null;

@@ -15,6 +15,7 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
       super(query);
    }
 
+   // eslint-disable-next-line unused-imports/no-unused-vars
    resolveRows(_res: RunResult): T["Row"][] {
       throw new Error("Method not supported: better-sqlite3 result doesn't include any rows");
    }
@@ -49,13 +50,13 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
     * Executes the core and returns the result
     * @param args
     */
-   run(args: SqlRunArgs<{ Connection: Database; Params: T["Params"] }>): Promise<RunResult> {
+   async run(args: SqlRunArgs<{ Connection: Database; Params: T["Params"] }>): Promise<RunResult> {
       const { db, options: { debug } = {} } = args;
       let queryConfig = undefined;
       try {
          queryConfig = this.getOptions(args);
          if (debug) debug(Object.freeze(queryConfig));
-         const result = db.prepare(queryConfig.sql).run(queryConfig.values);
+         const result = (await db).prepare(queryConfig.sql).run(queryConfig.values);
          return Promise.resolve(result);
       } catch (err) {
          console.error(err, "\n", queryConfig?.sql ?? "error building core");
@@ -63,13 +64,13 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
       }
    }
 
-   getAll(args: SqlRunArgs<{ Connection: Database; Params: T["Params"] }>): Promise<T["Row"][]> {
+   async getAll(args: SqlRunArgs<{ Connection: Database; Params: T["Params"] }>): Promise<T["Row"][]> {
       let queryConfig = undefined;
       const { db, options: { debug } = {} } = args;
       try {
          queryConfig = this.getOptions(args);
          if (debug) debug(Object.freeze(queryConfig));
-         const result = db.prepare<unknown[] | object, T["Row"]>(queryConfig.sql).all(queryConfig.values);
+         const result = (await db).prepare<unknown[] | object, T["Row"]>(queryConfig.sql).all(queryConfig.values);
          return Promise.resolve(result);
       } catch (err) {
          console.error(err, "\n", queryConfig?.sql ?? "error building core");

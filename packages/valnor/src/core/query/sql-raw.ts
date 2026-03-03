@@ -11,7 +11,7 @@ export class SqlRaw extends Sql {
 
    override build(context: SqlBuildContext) {
       if (!this.value) return;
-      
+
       if (this.options?.quote) {
          context.addQuotes(this.value);
       } else {
@@ -21,13 +21,24 @@ export class SqlRaw extends Sql {
 }
 
 /**
- * Creates a raw SQL string.
+ * Creates an unquoted raw SQL string.
  * @param value The raw SQL string.
- * @param options
  * @returns The raw SQL string.
  */
-export function raw(value: string, options: { quote: boolean } = { quote: true }): Sql {
-   return new SqlRaw(value, options);
+export function raw(value: string): Sql {
+   return new SqlRaw(value, { quote: false });
 }
 
+/**
+ * Creates a quoted raw SQL string.
+ * @param value The raw SQL string.
+ * @returns The raw SQL string.
+ */
+export function quote(value: string): Sql {
+   return new SqlRaw(value, { quote: true });
+}
+
+/**
+ * SQL raw blank string
+ */
 raw.BLANK = new SqlRaw("", { quote: false });

@@ -98,8 +98,7 @@ describe.sequential("jsonMany() tests", () => {
    test("jsonMany(): from", () => {
       const context = new SqlBuildContext({ tokenizer: new Sqlite3Tokenizer() });
       context.next("from");
-      jsonMany(AccountOrders).build(context, {});
-      expect(context.text).toMatchInlineSnapshot(`""`);
+      expect(() => jsonMany(AccountOrders).build(context, {})).toThrowErrorMatchingInlineSnapshot(`[TypeError: Cannot use json aggregation with SQL keyword 'from']`);
    });
 
    test("jsonMany() with params", () => {

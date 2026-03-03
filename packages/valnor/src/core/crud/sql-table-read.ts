@@ -96,11 +96,11 @@ export class SqlTableRead<T extends { Select: Record<string, unknown> }> impleme
                      break;
                   case !!prefix:
                      if (arg instanceof SqlQuery) {
-                        results.push(sql`${raw(prefix, { quote: false })} ${arg.render("inline")}`);
+                        results.push(sql`${raw(prefix)} ${arg.render("inline")}`);
                         break;
                      }
 
-                     results.push(sql`${raw(prefix, { quote: false })} ${arg}`);
+                     results.push(sql`${raw(prefix)} ${arg}`);
                      break;
                   default:
                      results.push(arg);

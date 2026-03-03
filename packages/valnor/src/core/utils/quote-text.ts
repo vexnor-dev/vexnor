@@ -3,7 +3,7 @@
  * Used for controlling quoting for column names
  * @param text
  */
-export function quote<U extends string>(text: U) {
+export function quoteText<U extends string>(text: U) {
    function q(value: string) {
       if (value === "*") return value;
 
@@ -17,6 +17,11 @@ export function quote<U extends string>(text: U) {
 
    return text
       .split(" as ")
-      .map((part) => part.split(".").map((z) => q(z)).join("."))
+      .map((part) =>
+         part
+            .split(".")
+            .map((z) => q(z))
+            .join("."),
+      )
       .join(" as ");
 }

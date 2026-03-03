@@ -1,5 +1,5 @@
 {
-   "name": "@valnor/valnor-postgres-test",
+   "name": "@valnor/valnor-test-mssql",
    "version": "1.0.0-beta.1",
    "description": "Integration tests for valnor",
    "type": "module",
@@ -24,6 +24,7 @@
       "@types/mssql": "^9.1.8",
       "@valnor/test-utils": "workspace:*",
       "@vitest/coverage-v8": "^3.2.4",
+      "vite-tsconfig-paths": "^5.1.4",
       "vitest": "^3.2.4"
    }
 }

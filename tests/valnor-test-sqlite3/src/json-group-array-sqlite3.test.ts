@@ -52,7 +52,9 @@ describe("jsonGroupArray (SQLite)", () => {
    test.each(INVALID_KEYWORDS_FOR_JSON_AGG)("jsonGroupArray(): %s throws error", (keyword) => {
       const context = new SqlBuildContext({ tokenizer: new Sqlite3Tokenizer() });
       context.next(keyword);
-      expect(() => jsonMany(AccountOrders).build(context, {})).toThrow("Cannot use jsonGroupArray() with SQL keyword:");
+      expect(() => jsonMany(AccountOrders).build(context, {})).toThrow(
+         `Cannot use json aggregation with SQL keyword '${keyword}'`,
+      );
    });
 
    test("jsonGroupArray() with params", () => {

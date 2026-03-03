@@ -49,7 +49,7 @@ export class SqlTable<
    readonly pk: Array<keyof T["Select"]>;
    readonly tableCache = new Map<string, SqlTableExtended<T>>();
 
-   // TODO: ideas for later: onInsert|onUpdate(() => ({})) ?
+   // TODO: ideas for later: onBeforeInsert|onBeforeUpdate|onAfterInsert|onAfterUpdate  ((T) => T) ?
    // readonly onInsert?: T["Insert"] extends Record<string, unknown> ? (value: T["Insert"]) => T["Insert"] : boolean;
    // readonly onUpdate?: T["Update"] extends Record<string, unknown> ? (value: T["Update"]) => T["Update"] : boolean;
 
