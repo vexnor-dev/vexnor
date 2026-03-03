@@ -1,8 +1,8 @@
-import { describe, expect, test } from "vitest";
+import { assertType, describe, expect, test } from "vitest";
 import { newSqlTable } from "../../schema/index.js";
 import { crud } from "../crud.js";
 import { sql } from "../../sql.js";
-import { param } from "../../query/index.js";
+import { input, param, SqlQueryExtended } from "../../query/index.js";
 
 describe("SqlTable CRUD Integration", () => {
    const BaseTable = newSqlTable<{
@@ -138,8 +138,12 @@ describe("SqlTable CRUD Integration", () => {
    });
 
    test("update with where clause", () => {
-      const where = sql`where ${BaseTable.$id} = ${param<{ id: string }>("id")}`;
+      type Select = { id: string; name: string; email: string };
+      const params = input<{ id: string }>();
+      const where = sql`where ${BaseTable.$id} = ${params.$id}`;
       const query = TestTable.update({ where });
+
+      assertType<SqlQueryExtended<{ Row: Select; Params: { set: Partial<Select>; where: { id: string } } }>>(query);
 
       const { text } = query.getSql({
          params: { set: { name: "Updated" }, where: { id: "test-id" } },
@@ -183,7 +187,10 @@ describe("SqlTable CRUD Integration", () => {
         DELETE FROM "public"."test_table"
         /* <query_1> */
         WHERE
+          /* <query_2> */
+        WHERE
           "test_table"."id" = ?
+          /* </query_2> */
           /* </query_1> */
           /* </query_0> */"
       `);

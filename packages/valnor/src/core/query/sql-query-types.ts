@@ -27,13 +27,15 @@ export interface SqlBuildOptions {
    paramFormat?: SqlParamFormat;
 }
 
-export type SqlRunArgs<T extends { Connection: unknown; Params?: unknown }> = T["Params"] extends object
-   ? { db: T["Connection"]; params: T["Params"]; options?: SqlBuildOptions }
-   : { db: T["Connection"]; params?: T["Params"]; options?: SqlBuildOptions };
+export type SqlRunArgs<T extends { Connection: unknown; Params?: unknown }> =
+   T["Params"] extends Record<string, unknown>
+      ? { db: T["Connection"]; params: T["Params"]; options?: SqlBuildOptions }
+      : { db: T["Connection"]; params?: T["Params"]; options?: SqlBuildOptions };
 
-export type SqlInputArgs<Params> = Params extends object
-   ? { params: Params; options?: SqlBuildOptions }
-   : { params?: Params; options?: SqlBuildOptions };
+export type SqlInputArgs<Params> =
+   Params extends Record<string, unknown>
+      ? { params: Params; options?: SqlBuildOptions }
+      : { params?: Params; options?: SqlBuildOptions };
 
 export function hasParams(value: unknown): value is { params: Record<string, SqlParamAny> } {
    if (!value) return false;

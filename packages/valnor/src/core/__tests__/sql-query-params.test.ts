@@ -1,8 +1,10 @@
 import { assertType, describe, expect, test } from "vitest";
-import { ExtractParamsFromQuery, SqlParams, sql } from "../sql.js";
+import { SqlParams, sql } from "../sql.js";
 import { param, row, SqlInputArgs, SqlParam, SqlQueryExtended } from "../query/index.js";
 import { Account, AccountStatusUdt, IAccountSelect } from "./models/valnor_test.schema.js";
 import { info } from "../charms/index.js";
+import { ParamsOf } from "../sql-base.js";
+import { Simplify, Void } from "../utils/index.js";
 
 describe("SqlQuery.params", () => {
    test("Infer params from sql-query", () => {
@@ -109,7 +111,7 @@ describe("SqlQuery.params", () => {
          accountId: { name: "accountId" },
       });
       expect(Object.keys(query.params)).toHaveLength(2);
-      assertType<ExtractParamsFromQuery<typeof query>>({
+      assertType<ParamsOf<typeof query>>({
          email: "",
          accountId: "",
          // @ts-expect-error - Testing runtime validation of missing property
@@ -123,7 +125,7 @@ describe("SqlQuery.params", () => {
          from ${Account}
       `;
 
-      assertType<ExtractParamsFromQuery<typeof query>>(void 0);
+      assertType<ParamsOf<typeof query>>(void 0);
       expect(query.params).toBeNull();
       // @ts-expect-error - Testing runtime validation of missing property
       expect(query.params?.accountId).toBeUndefined();
@@ -137,7 +139,7 @@ describe("SqlQuery.params", () => {
             or ${Account.$email} = ${param<{ email: string }>("email")}
       `;
 
-      assertType<ExtractParamsFromQuery<typeof query>>({
+      assertType<ParamsOf<typeof query>>({
          email: "",
          // @ts-expect-error - Testing runtime validation of missing property
          test: "",
@@ -241,5 +243,10 @@ describe("SqlQuery.params", () => {
       expect(query.params.id1).toMatchObject({ name: "id1" });
       expect(query.params.id2).toMatchObject({ name: "id2" });
       expect(query.params.email).toMatchObject({ name: "email" });
+   });
+
+   test(`SqlParams<void & {...}> should return {...}`, () => {
+      assertType<Simplify<void & { name: string }>>({ name: "a" });
+      assertType<Void<void & { name: string }>>({ name: "a" });
    });
 });

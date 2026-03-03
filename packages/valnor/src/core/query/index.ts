@@ -17,5 +17,5 @@ export * from "./sql-query-column.js";
 export * from "./sql-select-all.js";
 export * from "./sql-select-column.js";
 export * from "./sql-expand.js";
-export * from "./sql-parameters.js";
+export * from "./sql-input.js";
 // export * from "./query.ts1";

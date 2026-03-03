@@ -1,10 +1,10 @@
 import { expand, row, SqlQueryAny, SqlQueryExtended } from "../query/index.js";
-import { MergeParams } from "../utils/index.js";
 import { ParamsOfArgs } from "../sql-base.js";
 import { SqlTableCommand } from "./sql-table-command.js";
 import { sql } from "../sql.js";
 import { ok } from "assert";
 import { isPrimitive } from "../../lib/index.js";
+import { Void } from "../utils/index.js";
 
 export type SqlTableUpdateArgs = {
    where?: SqlQueryAny;
@@ -16,7 +16,7 @@ export type SqlTableUpdateResult<
    T extends { Select: Record<string, unknown>; Update: Record<string, unknown> },
    Args extends SqlTableUpdateArgs,
 > = SqlQueryExtended<{
-   Params: MergeParams<SqlTableUpdateParameters<T>, ParamsOfArgs<Args>>;
+   Params: Void<SqlTableUpdateParameters<T> & ParamsOfArgs<Args>>;
    Row: T["Select"];
 }>;
 
@@ -24,7 +24,7 @@ export class SqlTableUpdate<
    T extends { Select: Record<string, unknown>; Update: Record<string, unknown> },
 > extends SqlTableCommand<T> {
    update<Args extends SqlTableUpdateArgs>(args: Args): SqlTableUpdateResult<T, Args> {
-      const result = sql`
+      const res = sql`
          update ${this.table}
          set ${expand<SqlTableUpdateParameters<T>>((params) => {
             if (!params?.set) return null;
@@ -40,7 +40,7 @@ export class SqlTableUpdate<
 
             return setValues;
          })}
-                ${expand<ParamsOfArgs<SqlTableUpdateArgs>>((params) => {
+                ${expand<ParamsOfArgs<Args>>((params) => {
                    if (!args.where) return null;
                    if (!params?.where) return null;
                    if (!params.where) return null;
@@ -53,14 +53,13 @@ export class SqlTableUpdate<
 
                    if (hasPrefix) return args.where;
 
-                   return sql`where
-                   ${args.where.render("inline")}`;
+                   return sql`where ${args.where.render("inline")}`;
                 })}
          
          returning ${row(this.table.$$)}
       `;
 
-      return result as SqlTableUpdateResult<T, Args>;
+      return res as SqlTableUpdateResult<T, Args>;
    }
 }
 

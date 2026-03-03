@@ -3,7 +3,8 @@ import { ParamsOfArgs, RowOf, Sql } from "../sql-base.js";
 import { sql } from "../sql.js";
 import { SqlTable } from "../schema/index.js";
 import { SqlTableCommand } from "./sql-table-command.js";
-import { Simplify } from "../utils/index.js";
+import { Simplify, Void } from "../utils/index.js";
+import { ok } from "assert";
 
 export type SqlTableReadArgs = {
    select?: SqlQueryAny;
@@ -11,17 +12,47 @@ export type SqlTableReadArgs = {
    join?: SqlQueryAny;
    groupBy?: SqlQueryAny;
    having?: SqlQueryAny;
+   orderBy?: SqlQueryAny;
    offset?: SqlParam<{ Name: "offset"; Type: number }>;
    limit?: SqlParam<{ Name: "limit"; Type: number }>;
+   includeOne?: Record<string, SqlQueryAny>;
+   includeMany?: Record<string, SqlQueryAny>;
 };
 
 export type SqlTableReadResult<
    T extends { Select: Record<string, unknown> },
    Args extends SqlTableReadArgs,
 > = SqlQueryExtended<{
-   Params: Simplify<ParamsOfArgs<Args>>;
-   Row: Args["select"] extends SqlQueryAny ? RowOf<Args["select"]> : T["Select"];
+   Params: Void<ParamsOfArgs<Args>>;
+   Row: SqlTableReadRow<T, Args>;
 }>;
+
+export type SqlTableReadRow<T extends { Select: Record<string, unknown> }, Args extends SqlTableReadArgs> = Simplify<
+   SqlTableReadRowSelect<T, Args> & SqlTableReadRowIncludeOne<Args> & SqlTableReadRowIncludeMany<Args>
+>;
+
+type SqlTableReadRowSelect<
+   T extends { Select: Record<string, unknown> },
+   Args extends SqlTableReadArgs,
+> = Args["select"] extends SqlQueryAny ? RowOf<Args["select"]> : T["Select"];
+
+type SqlTableReadRowIncludeOne<Args extends SqlTableReadArgs> =
+   Args extends Pick<SqlTableReadArgs, "includeOne">
+      ? {
+           [K in keyof Args["includeOne"]]: Args["includeOne"][K] extends SqlQueryAny
+              ? RowOf<Args["includeOne"][K]>
+              : never;
+        }
+      : unknown;
+
+type SqlTableReadRowIncludeMany<Args extends SqlTableReadArgs> =
+   Args extends Pick<SqlTableReadArgs, "includeMany">
+      ? {
+           [K in keyof Args["includeMany"]]: Args["includeMany"][K] extends SqlQueryAny
+              ? RowOf<Args["includeMany"][K]>[]
+              : never;
+        }
+      : unknown;
 
 export type SqlTableReadOptional<T> = T extends { Select: Record<string, unknown> } ? SqlTableRead<T> : unknown;
 
@@ -29,7 +60,10 @@ export class SqlTableRead<T extends { Select: Record<string, unknown> }> impleme
    constructor(public readonly table: SqlTable<T>) {}
 
    read<Args extends SqlTableReadArgs>(args: Args): SqlTableReadResult<T, Args> {
-      const { select } = args;
+      const { select, includeOne, includeMany } = args;
+      ok(!includeMany || Object.keys(includeMany).length === 0, `'includeMany' not supported by default SqlTableRead.`);
+      ok(!includeOne || Object.keys(includeOne).length === 0, `'includeOne' not supported by default SqlTableRead.`);
+
       return sql`
          ${expand(() => {
             if (!select) return sql`select ${this.table.$$}`;
@@ -45,12 +79,13 @@ export class SqlTableRead<T extends { Select: Record<string, unknown> }> impleme
             if (!params) return null;
 
             const results: Sql[] = [];
-            for (const [paramKey, { keyword, prefix }] of Object.entries(CONFIG)) {
-               const param = params[<keyof ParamsOfArgs<SqlTableReadArgs>>paramKey];
+            for (const [paramKey, { keyword, prefix }] of CONFIG.entries()) {
+               const param = params[<keyof ParamsOfArgs<SqlTableReadArgs>>paramKey] ?? {};
                if (!param) continue;
 
                const arg = args[<keyof SqlTableReadArgs>paramKey];
                if (!arg) continue;
+               if (!(arg instanceof Sql)) continue;
 
                const query = arg instanceof SqlQuery ? arg : undefined;
                const search = (keyword ?? prefix)?.toLowerCase();
@@ -79,18 +114,15 @@ export class SqlTableRead<T extends { Select: Record<string, unknown> }> impleme
    }
 }
 
-const CONFIG: Record<
-   keyof SqlTableReadArgs,
-   {
-      prefix?: string;
-      keyword?: string;
-   }
-> = {
-   where: { prefix: "where" },
-   select: { prefix: "select" },
-   join: { keyword: "join" },
-   groupBy: { prefix: "group by" },
-   having: { prefix: "having" },
-   offset: { prefix: "offset" },
-   limit: { prefix: "limit" },
-};
+const CONFIG = new Map<
+   keyof Omit<SqlTableReadArgs, "includeOne" | "includeMany">,
+   { prefix?: string; keyword?: string }
+>([
+   ["where", { prefix: "where" }],
+   ["select", { prefix: "select" }],
+   ["join", { keyword: "join" }],
+   ["groupBy", { prefix: "group by" }],
+   ["having", { prefix: "having" }],
+   ["offset", { prefix: "offset" }],
+   ["limit", { prefix: "limit" }],
+]);

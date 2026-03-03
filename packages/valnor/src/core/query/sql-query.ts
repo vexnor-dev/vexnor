@@ -200,7 +200,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
    }
 
    /**
-    * Get the core text with input values and parameters replaced by the ? wildcards
+    * Get the SQL  text with input values and parameters replaced by the ? wildcards
     * @example select * from table where id = ? and name = ?
     */
    getSql({ options, ...args }: SqlInputArgs<T["Params"]>): { text: string; values: unknown[] } {

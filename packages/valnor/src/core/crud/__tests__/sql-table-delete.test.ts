@@ -33,7 +33,10 @@ describe("SqlTableDelete", () => {
         DELETE FROM "valnor_test"."account"
         /* <query_1> */
         WHERE
+          /* <query_2> */
+        WHERE
           "account"."account_id" = ?
+          /* </query_2> */
           /* </query_1> */
           /* </query_0> */"
       `);

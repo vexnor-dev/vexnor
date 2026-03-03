@@ -1,5 +1,5 @@
 import { expand, row, SqlQueryAny, SqlQueryExtended } from "../query/index.js";
-import { getCanonicalInsertKeys, Simplify } from "../utils/index.js";
+import { getCanonicalInsertKeys, Void } from "../utils/index.js";
 import { SqlTableCommand } from "./sql-table-command.js";
 import { sql } from "../sql.js";
 import { ok } from "assert";
@@ -20,7 +20,7 @@ export type SqlTableCreateResult<
    Args extends SqlTableCreateArgs,
 > = Args extends { from: SqlQueryAny }
    ? SqlQueryExtended<{
-        Params: Simplify<ParamsOfArgs<Args>>;
+        Params: Void<ParamsOfArgs<Args>>;
         Row: T["Select"];
      }>
    : SqlQueryExtended<{

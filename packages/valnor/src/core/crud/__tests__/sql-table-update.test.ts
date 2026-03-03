@@ -1,7 +1,7 @@
-import { describe, expect, test } from "vitest";
-import { Account } from "../../__tests__/models/valnor_test.schema.js";
+import { assertType, describe, expect, test } from "vitest";
+import { Account, IAccountSelect, IAccountUpdate } from "../../__tests__/models/valnor_test.schema.js";
 import { sql } from "../../sql.js";
-import { param } from "../../query/index.js";
+import { param, SqlQueryExtended } from "../../query/index.js";
 import { SqlTableUpdate } from "../sql-table-update.js";
 
 describe("SqlTableUpdate", () => {
@@ -16,6 +16,7 @@ describe("SqlTableUpdate", () => {
       const query = update.update({});
 
       expect(query).toBeDefined();
+      assertType<SqlQueryExtended<{ Row: IAccountSelect; Params: { set: IAccountUpdate } }>>(query);
       const { text } = query.getSql({ params: { set: { email: "new@test.com" } }, options: { dialect: "sqlite" } });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */

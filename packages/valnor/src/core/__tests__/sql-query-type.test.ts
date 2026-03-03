@@ -1,8 +1,9 @@
 import { assertType, describe, expect, test } from "vitest";
 import { param, row, SqlQuery } from "../query/index.js";
 import { Account } from "./models/valnor_test.account-table.js";
-import { ExtractParamsFromQuery, ExtractResultRowFromQuery, sql, SqlRow } from "../sql.js";
+import { ExtractParamsFromSqlQuery, sql, SqlRow } from "../sql.js";
 import { AccountStatusUdt } from "./models/valnor_test-enums.js";
+import { RowOf } from "../sql-base.js";
 
 describe("sql query type tests", () => {
    test("Infer row result type from sql-row", () => {
@@ -28,14 +29,14 @@ describe("sql query type tests", () => {
 
       expect(query).toBeInstanceOf(SqlQuery);
 
-      const result: ExtractResultRowFromQuery<typeof query> = {
+      const result: RowOf<typeof query> = {
          firstName: "a",
          name: "b",
          createdAt: new Date(),
       };
       expect(result).toBeDefined();
 
-      const params: ExtractParamsFromQuery<typeof query> = {
+      const params: ExtractParamsFromSqlQuery<typeof query> = {
          accountId: "123",
       };
       expect(params).toBeDefined();
@@ -50,7 +51,7 @@ describe("sql query type tests", () => {
       expect(query).toBeInstanceOf(SqlQuery);
       expect(query.id).toBeDefined();
 
-      type Result = ExtractResultRowFromQuery<typeof query>;
+      type Result = RowOf<typeof query>;
       assertType<Result>(void 0);
    });
 
@@ -64,7 +65,7 @@ describe("sql query type tests", () => {
       expect(query).toBeInstanceOf(SqlQuery);
       expect(query.id).toBeDefined();
 
-      type Result = ExtractResultRowFromQuery<typeof query>;
+      type Result = RowOf<typeof query>;
       const result: Result = {
          accountId: "XXX",
          firstName: "a",
