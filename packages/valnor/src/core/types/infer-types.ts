@@ -11,5 +11,3 @@ export type InferTable$RowBySelect<Select> =
               : never;
         }
       : never;
-
-export type NullWhenUnknown<T> = T extends unknown ? null : T;

@@ -13,7 +13,7 @@ SELECT
   "a_1"."modified_at" AS "modifiedAt",
   "a_1"."parent_id" AS "parentId"
 FROM
-  "valnor_test"."account" AS "a_1"
+  "main"."account" AS "a_1"
 WHERE
   "a_1"."account_id" = ?
   AND "a_1"."email" = ?
@@ -45,7 +45,7 @@ SELECT
   "a_1"."modified_at" AS "modifiedAt",
   "a_1"."parent_id" AS "parentId"
 FROM
-  "valnor_test"."account" AS "a_1"
+  "main"."account" AS "a_1"
 WHERE
   "a_1"."account_id" = ?
   AND "a_1"."email" = ?
@@ -70,7 +70,7 @@ SELECT
   "a_1"."modified_at" AS "modifiedAt",
   "a_1"."parent_id" AS "parentId"
 FROM
-  "valnor_test"."account" AS "a_1"
+  "main"."account" AS "a_1"
 WHERE
   "a_1"."account_id" = ?
   AND "a_1"."email" = ?
@@ -104,7 +104,7 @@ SELECT
   "a_1"."modified_at" AS "modifiedAt",
   "a_1"."parent_id" AS "parentId"
 FROM
-  "valnor_test"."account" AS "a_1"
+  "main"."account" AS "a_1"
 WHERE
   "a_1"."account_id" = ?
   AND "a_1"."email" = ?

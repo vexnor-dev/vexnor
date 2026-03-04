@@ -92,7 +92,7 @@ describe("SqlCharm tests", () => {
               "children"."modified_at" AS "modifiedAt",
               "children"."parent_id" AS "parentId"
             FROM
-              "valnor_test"."account" AS "children"
+              "main"."account" AS "children"
             WHERE
               "children"."parent_id" = "a_1"."account_id"
             ORDER BY
@@ -101,7 +101,7 @@ describe("SqlCharm tests", () => {
               FOR JSON AUTO
           ) AS "children"
         FROM
-          "valnor_test"."account" AS "a_1"
+          "main"."account" AS "a_1"
         WHERE
           "a_1"."account_id" IN (?, ?)
         ORDER BY

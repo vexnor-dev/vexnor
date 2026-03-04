@@ -1,7 +1,7 @@
 import { assertType, describe, expect, test } from "vitest";
 import { sql } from "../../sql.js";
 import { expand, param, row, SqlQuery } from "../index.js";
-import { Account, IAccountSelect } from "../../__tests__/models/valnor_test.schema.js";
+import { Account, IAccountSelect } from "@test-models/valnor_test.schema.js";
 
 describe("SqlExpand", () => {
    describe("basic expand functionality", () => {
@@ -515,7 +515,7 @@ describe("SqlExpand", () => {
              "a_1"."modified_at" AS "modifiedAt",
              "a_1"."parent_id" AS "parentId"
            FROM
-             "valnor_test"."account" AS "a_1"
+             "main"."account" AS "a_1"
            WHERE
              "a_1"."account_id" IN ()
              /* </query_0> */"

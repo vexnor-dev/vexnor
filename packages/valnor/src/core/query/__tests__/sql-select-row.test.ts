@@ -8,7 +8,7 @@ import { AccountStatusUdt } from "@test-models/valnor_test-enums.js";
 import { newSqlSelectColumn, SqlQueryColumn } from "../sql-query-column.js";
 import { Order } from "@test-models/valnor_test.order-table.js";
 import { InferSelectRowByResult } from "../sql-query-types.js";
-import { IAccountSelect } from "../../../testing/index.js";
+import { IAccountSelect } from "../../../test/index.js";
 import { SqlQuery } from "../sql-query.js";
 import { newSqlTableColumn, SqlTableColumn } from "../../schema/index.js";
 
@@ -291,7 +291,7 @@ describe("SqlSelectRow tests", () => {
                key: "accountId",
                tableInfo: {
                   name: "account",
-                  schema: "valnor_test",
+                  schema: "main",
                },
             },
          },
@@ -329,7 +329,7 @@ describe("SqlSelectRow tests", () => {
             id: "SqlTableColumn#1(account.account_id as accountId)",
             tableInfo: {
                name: "account",
-               schema: "valnor_test",
+               schema: "main",
             },
          },
          query: {
@@ -347,7 +347,7 @@ describe("SqlSelectRow tests", () => {
           "a_1"."status",
           "a_1"."first_name" AS "firstName"
         FROM
-          "valnor_test"."account" AS "a_1"
+          "main"."account" AS "a_1"
           /* </query_0> */"
       `);
 

@@ -1,10 +1,11 @@
 import { assertType, describe, expect, test } from "vitest";
-import { Account, IAccountSelect } from "./models/valnor_test.account-table.js";
+import { Account, IAccountSelect } from "@test-models/valnor_test.account-table.js";
 import { InferTable$RowBySelect } from "../types/index.js";
 import { newSqlTableColumn } from "../schema/index.js";
 import { param, SqlParam } from "../query/index.js";
 import { ParamsOf, ParamsOfArgs } from "../sql-base.js";
 import { sql } from "../sql.js";
+import { Void } from "../utils/index.js";
 
 describe("SqlBase tests", () => {
    test("InferSqlRowFromRecord", () => {
@@ -166,6 +167,14 @@ describe("SqlBase tests", () => {
       type Params = ParamsOfArgs<typeof target>;
       assertType<Params>({
          b: { id1: "a" },
+      });
+   });
+
+   test("Void<{}> should trim void props", () => {
+      type Target = { name: void; city: string };
+      assertType<Void<Target>>({
+         name: void 0,
+         city: "test",
       });
    });
 });

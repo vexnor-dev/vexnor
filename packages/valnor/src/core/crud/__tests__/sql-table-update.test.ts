@@ -1,5 +1,5 @@
 import { assertType, describe, expect, test } from "vitest";
-import { Account, IAccountSelect, IAccountUpdate } from "../../__tests__/models/valnor_test.schema.js";
+import { Account, IAccountSelect, IAccountUpdate } from "@test-models/valnor_test.schema.js";
 import { sql } from "../../sql.js";
 import { param, SqlQueryExtended } from "../../query/index.js";
 import { SqlTableUpdate } from "../sql-table-update.js";
@@ -20,7 +20,7 @@ describe("SqlTableUpdate", () => {
       const { text } = query.getSql({ params: { set: { email: "new@test.com" } }, options: { dialect: "sqlite" } });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
-        UPDATE "valnor_test"."account"
+        UPDATE "main"."account"
         SET
           /* <query_1> */
           "email" = ?
@@ -51,7 +51,7 @@ describe("SqlTableUpdate", () => {
       });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
-        UPDATE "valnor_test"."account"
+        UPDATE "main"."account"
         SET
           /* <query_1> */
           "email" = ?
@@ -81,7 +81,7 @@ describe("SqlTableUpdate", () => {
       const { text } = query.getSql({ params: { set: { email: "new@test.com" } }, options: { dialect: "sqlite" } });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
-        UPDATE "valnor_test"."account"
+        UPDATE "main"."account"
         SET
           /* <query_1> */
           "email" = ?
@@ -109,7 +109,7 @@ describe("SqlTableUpdate", () => {
       const { text } = query.getSql({ params: { set: { email: "new@test.com" } }, options: { dialect: "sqlite" } });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
-        UPDATE "valnor_test"."account"
+        UPDATE "main"."account"
         SET
           /* <query_1> */
           "email" = ?

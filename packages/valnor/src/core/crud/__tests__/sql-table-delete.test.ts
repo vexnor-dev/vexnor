@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { SqlTableDelete } from "../sql-table-delete.js";
-import { Account } from "../../__tests__/models/valnor_test.schema.js";
+import { Account } from "@test-models/valnor_test.schema.js";
 import { sql } from "../../sql.js";
 import { param } from "../../query/index.js";
 
@@ -30,7 +30,7 @@ describe("SqlTableDelete", () => {
       const { text } = query.getSql({ params: { where: { id: "test-id" } } });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
-        DELETE FROM "valnor_test"."account"
+        DELETE FROM "main"."account"
         /* <query_1> */
         WHERE
           /* <query_2> */
@@ -50,7 +50,7 @@ describe("SqlTableDelete", () => {
       const { text } = query.getSql({});
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
-        DELETE FROM "valnor_test"."account"
+        DELETE FROM "main"."account"
         /* </query_0> */"
       `);
    });

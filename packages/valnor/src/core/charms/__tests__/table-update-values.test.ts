@@ -21,7 +21,7 @@ describe("SqlTable.updateSet() tests", () => {
       expect(values).toEqual(["Bob", "Smith", "bob@example.com", modifiedAt, "123e4567-e89b-12d3-a456-426614174000"]);
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
-        UPDATE "valnor_test"."account"
+        UPDATE "main"."account"
         SET
           "first_name" = ?,
           "last_name" = ?,

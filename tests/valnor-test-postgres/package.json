@@ -22,10 +22,10 @@
    "devDependencies": {
       "@types/pg": "^8.15.5",
       "@valnor/test-utils": "workspace:*",
-      "@vitest/coverage-v8": "^3.2.4",
+      "@vitest/coverage-v8": "^4.0.18",
       "env-cmd": "^10.1.0",
       "vite-node": "^2.1.8",
-      "vite-tsconfig-paths": "^5.1.4",
-      "vitest": "^3.2.4"
+      "vite-tsconfig-paths": "^6.1.1",
+      "vitest": "^4.0.18"
    }
 }

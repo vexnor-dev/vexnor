@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { Account } from "./models/valnor_test.schema.js";
+import { Account } from "@test-models/valnor_test.schema.js";
 import { sql } from "../sql.js";
 import { param, row, val } from "../query/index.js";
 import { info } from "../charms/index.js";
@@ -39,7 +39,7 @@ describe("sql CTE (with clause) tests", () => {
               "a_1"."modified_at" AS "modifiedAt",
               "a_1"."parent_id" AS "parentId"
             FROM
-              "valnor_test"."account" AS "a_1"
+              "main"."account" AS "a_1"
             WHERE
               "a_1"."status" = 'active'
               /* </ActiveAccounts> */
@@ -90,7 +90,7 @@ describe("sql CTE (with clause) tests", () => {
               "a_1"."modified_at" AS "modifiedAt",
               "a_1"."parent_id" AS "parentId"
             FROM
-              "valnor_test"."account" AS "a_1"
+              "main"."account" AS "a_1"
             WHERE
               "a_1"."status" = 'active'
               /* </query_1> */
@@ -152,7 +152,7 @@ describe("sql CTE (with clause) tests", () => {
               "a_1"."modified_at" AS "modifiedAt",
               "a_1"."parent_id" AS "parentId"
             FROM
-              "valnor_test"."account" AS "a_1"
+              "main"."account" AS "a_1"
             WHERE
               "a_1"."status" = 'active'
               /* </ActiveAccounts> */
@@ -171,7 +171,7 @@ describe("sql CTE (with clause) tests", () => {
               "a_2"."modified_at" AS "modifiedAt",
               "a_2"."parent_id" AS "parentId"
             FROM
-              "valnor_test"."account" AS "a_2"
+              "main"."account" AS "a_2"
             WHERE
               "a_2"."created_at" > ?
               /* </RecentAccounts> */
@@ -230,7 +230,7 @@ describe("sql CTE (with clause) tests", () => {
               "a_1"."modified_at" AS "modifiedAt",
               "a_1"."parent_id" AS "parentId"
             FROM
-              "valnor_test"."account" AS "a_1"
+              "main"."account" AS "a_1"
             WHERE
               "a_1"."status" = 'active'
               /* </query_1> */
@@ -248,7 +248,7 @@ describe("sql CTE (with clause) tests", () => {
               "a_2"."modified_at" AS "modifiedAt",
               "a_2"."parent_id" AS "parentId"
             FROM
-              "valnor_test"."account" AS "a_2"
+              "main"."account" AS "a_2"
             WHERE
               "a_2"."created_at" > ?
               /* </query_2> */
@@ -293,7 +293,7 @@ describe("sql CTE (with clause) tests", () => {
               /* </query_2> */
               AS "total"
             FROM
-              "valnor_test"."account" AS "a_1"
+              "main"."account" AS "a_1"
             GROUP BY
               "a_1"."status"
               /* </AccountCounts> */
@@ -338,7 +338,7 @@ describe("sql CTE (with clause) tests", () => {
               /* </query_2> */
               AS "lastCreatedAt"
             FROM
-              "valnor_test"."account" AS "a_1"
+              "main"."account" AS "a_1"
             GROUP BY
               "a_1"."parent_id"
               /* </MaxCreatedAt> */
@@ -355,7 +355,7 @@ describe("sql CTE (with clause) tests", () => {
           "a_2"."parent_id" AS "parentId",
           "MaxCreatedAt"."lastCreatedAt"
         FROM
-          "valnor_test"."account" AS "a_2"
+          "main"."account" AS "a_2"
           LEFT JOIN "MaxCreatedAt" ON "a_2"."account_id" = "MaxCreatedAt"."parentId"
           /* </query_0> */"
       `);

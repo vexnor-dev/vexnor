@@ -16,6 +16,11 @@ export type ParamsOfArgs<T> =
       ? { [K in keyof T as ParamsOfArgs<T[K]> extends void ? never : K]: ParamsOfArgs<T[K]> }
       : ArgsOf<T>;
 
+// export type ParamsOfArgs<T> =
+//    T extends Record<string, unknown>
+//       ? { [K in keyof T as ParamsOfArgs<T[K]> extends void ? never : K]: ArgsOf<T[K]> }
+//       : ArgsOf<T>;
+
 export declare const ROW: unique symbol;
 export declare const TYPE: unique symbol;
 export declare const PARAMS: unique symbol;
@@ -25,10 +30,10 @@ export declare const ARGS: unique symbol;
  * Base class for all SQL tokens
  */
 export abstract class Sql {
-   declare readonly [ROW]?: unknown; // phantom, public
-   declare readonly [TYPE]?: unknown; // phantom, public
-   declare readonly [PARAMS]?: unknown; // phantom, public
-   declare readonly [ARGS]?: unknown; // phantom, public
+   declare readonly [ROW]?: unknown;
+   declare readonly [TYPE]?: unknown;
+   declare readonly [PARAMS]?: unknown;
+   declare readonly [ARGS]?: unknown;
 
    /**
     * Whether to wrap the SQL token in parentheses

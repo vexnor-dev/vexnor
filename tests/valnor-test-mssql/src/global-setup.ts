@@ -3,7 +3,8 @@ import { Account } from "./codegen/valnor_test.account-table.js";
 import { TestProject } from "vitest/node";
 
 export default async function (proj: TestProject) {
-   process.env["ENV_PATH"] = proj.config.env["ENV_PATH"];
+   Object.assign(process.env, proj.config.env ?? proj.globalConfig.env);
+   console.log(`global-setup.ts '${proj.name}'`, process.env["VALNOR_ENV_PATH"]);
 
    let pool = undefined;
    try {

@@ -68,7 +68,7 @@ describe.sequential("jsonMany() tests", () => {
           /* <query_0> */
           SELECT
             coalesce(
-              json_group_array (json_object (\"AccountOrders\".*)),
+              json_group_array (json_object ("AccountOrders".*)),
               '[]'
             )
           FROM
@@ -76,20 +76,20 @@ describe.sequential("jsonMany() tests", () => {
               /* <AccountOrders> */
               /* --label: AccountOrders */
               SELECT
-                \"o_1\".\"order_id\" AS \"orderId\",
-                \"o_1\".\"status\",
-                \"o_1\".\"created_at\" AS \"createdAt\",
-                \"o_1\".\"modified_at\" AS \"modifiedAt\"
+                "o_1"."order_id" AS "orderId",
+                "o_1"."status",
+                "o_1"."created_at" AS "createdAt",
+                "o_1"."modified_at" AS "modifiedAt"
               FROM
-                \"main\".\"order\" AS \"o_1\"
+                "main"."order" AS "o_1"
               WHERE
-                \"o_1\".\"account_id\" = \"a_2\".\"account_id\"
+                "o_1"."account_id" = "a_2"."account_id"
               ORDER BY
-                \"o_1\".\"created_at\" DESC
+                "o_1"."created_at" DESC
               LIMIT
                 ?
                 /* </AccountOrders> */
-            ) AS \"AccountOrders\"
+            ) AS "AccountOrders"
             /* </query_0> */
         )"
       `);
@@ -123,15 +123,15 @@ describe.sequential("jsonMany() tests", () => {
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         SELECT
-          \"a_1\".\"account_id\" AS \"accountId\",
-          \"a_1\".\"status\",
-          \"a_1\".\"email\",
-          \"a_1\".\"first_name\" AS \"firstName\",
-          \"a_1\".\"last_name\" AS \"lastName\",
-          \"a_1\".\"notes\",
-          \"a_1\".\"created_at\" AS \"createdAt\",
-          \"a_1\".\"modified_at\" AS \"modifiedAt\",
-          \"a_1\".\"parent_id\" AS \"parentId\",
+          "a_1"."account_id" AS "accountId",
+          "a_1"."status",
+          "a_1"."email",
+          "a_1"."first_name" AS "firstName",
+          "a_1"."last_name" AS "lastName",
+          "a_1"."notes",
+          "a_1"."created_at" AS "createdAt",
+          "a_1"."modified_at" AS "modifiedAt",
+          "a_1"."parent_id" AS "parentId",
           /* <query_1> */
           (
             SELECT
@@ -139,13 +139,13 @@ describe.sequential("jsonMany() tests", () => {
                 json_group_array(
                   json_object(
                     'orderId',
-                    \"orderId\",
+                    "orderId",
                     'status',
-                    \"status\",
+                    "status",
                     'createdAt',
-                    \"createdAt\",
+                    "createdAt",
                     'modifiedAt',
-                    \"modifiedAt\"
+                    "modifiedAt"
                   )
                 ),
                 '[]'
@@ -155,28 +155,28 @@ describe.sequential("jsonMany() tests", () => {
                 /* <AccountOrders> */
                 /* --label: AccountOrders */
                 SELECT
-                  \"o_2\".\"order_id\" AS \"orderId\",
-                  \"o_2\".\"status\",
-                  \"o_2\".\"created_at\" AS \"createdAt\",
-                  \"o_2\".\"modified_at\" AS \"modifiedAt\"
+                  "o_2"."order_id" AS "orderId",
+                  "o_2"."status",
+                  "o_2"."created_at" AS "createdAt",
+                  "o_2"."modified_at" AS "modifiedAt"
                 FROM
-                  \"main\".\"order\" AS \"o_2\"
+                  "main"."order" AS "o_2"
                 WHERE
-                  \"o_2\".\"account_id\" = \"a_1\".\"account_id\"
+                  "o_2"."account_id" = "a_1"."account_id"
                 ORDER BY
-                  \"o_2\".\"created_at\" DESC
+                  "o_2"."created_at" DESC
                 LIMIT
                   ?
                   /* </AccountOrders> */
-              ) AS \"AccountOrders\"
-          ) AS \"orders\"
+              ) AS "AccountOrders"
+          ) AS "orders"
           /* </query_1> */
         FROM
-          \"main\".\"account\" AS \"a_1\"
+          "main"."account" AS "a_1"
         WHERE
-          \"a_1\".\"email\" = ?
+          "a_1"."email" = ?
         ORDER BY
-          \"a_1\".\"account_id\"
+          "a_1"."account_id"
           /* </query_0> */"
       `);
    });

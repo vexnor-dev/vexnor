@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { beforeEach, describe, expect, test } from "vitest";
 import { SqlBuildContext } from "../sql-build-context.js";
 import { sql } from "../../sql.js";
 import { Account } from "@test-models/valnor_test.account-table.js";
@@ -9,8 +9,6 @@ import { Order } from "@test-models/valnor_test.order-table.js";
 import { info } from "../../charms/index.js";
 import { OrderItem } from "@test-models/valnor_test.order_item-table.js";
 import { SqlQueryColumn } from "../sql-query-column.js";
-import { before } from "node:test";
-import console from "node:console";
 
 describe("SqlBuildContext getQueryName", () => {
    const findOrderItems = sql`
@@ -43,7 +41,7 @@ describe("SqlBuildContext getQueryName", () => {
 
    let context!: SqlBuildContext;
 
-   before(() => {
+   beforeEach(() => {
       context = new SqlBuildContext({
          query,
       });

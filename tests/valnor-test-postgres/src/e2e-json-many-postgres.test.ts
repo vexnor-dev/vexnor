@@ -2,7 +2,6 @@ import { beforeAll, describe, expect, test } from "vitest";
 import { info, param, row, SqlBuildContext } from "valnor";
 import { Account, AccountStatusUdt, Order } from "./codegen/valnor_test.schema.js";
 import { jsonMany, PostgresTokenizer, sql } from "valnor-postgres";
-import "valnor/testing";
 import { pool } from "./postgres-pool.js";
 
 describe.sequential("jsonMany() tests", () => {

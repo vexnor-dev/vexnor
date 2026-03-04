@@ -41,7 +41,7 @@ export class SqlTableCreate<
          ` as SqlTableCreateResult<T, Args>;
       }
 
-      const expandColumns = expand<{ inserts: T["Insert"][] }>((params) => {
+      const expandColumns = expand<SqlTableCreateParams<T>>((params) => {
          const inserts = params?.inserts;
          if (!inserts) return null;
          const columns = getCanonicalInsertKeys(this.table.cols, inserts).map((key) => {
@@ -52,7 +52,7 @@ export class SqlTableCreate<
          return sql` ${info({ inline: true })} (${columns})`;
       });
 
-      const expandValues = expand<{ inserts: T["Insert"][] }>((params) => {
+      const expandValues = expand<SqlTableCreateParams<T>>((params) => {
          const inserts = params?.inserts;
          if (!inserts) return null;
          const keys = getCanonicalInsertKeys(this.table.cols, inserts);

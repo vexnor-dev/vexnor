@@ -11,9 +11,6 @@
       "node": ">=22.0.0",
       "pnpm": ">=10.17.0"
    },
-   "workspaces": [
-      "packages/*"
-   ],
    "scripts": {
       "preinstall": "npx only-allow pnpm",
       "db-migrate": "run-s 'db-migrate:*'",
@@ -36,16 +33,15 @@
       "codegen:3-generate-sqlite3": "node ./packages/valnor/cli.mjs generate --plugin valnor-sqlite3 --schema one_sql --pascalCaseTables --camelCaseColumns --uri '@db-sqlite3/valnor-test.sqlite' --outDir 'packages/valnor-sqlite3/src/__tests__/codegen' | pino-pretty",
       "codegen:4-generate-mssql": "env-cmd --no-override -x -r ./env-dev.json -e db node ./packages/valnor/cli.mjs generate --plugin valnor-mssql --schema one_sql --pascalCaseTables --camelCaseColumns --host \\$MSSQL_HOST --port \\$MSSQL_PORT --database \\$MSSQL_DATABASE --user \\$MSSQL_USER --password \\$MSSQL_PASSWORD --outDir 'packages/valnor-mssql/src/__tests__/codegen' | pino-pretty",
       "pretest": "run-s 'codegen'",
-      "test": "run-s 'test:*'",
-      "test:1-vitest": "vitest run",
-      "test:2-testing-e2e": "pnpm --filter './packages/testing-e2e' run test"
+      "test": "vitest --coverage run"
    },
    "devDependencies": {
       "@eslint/js": "^9.17.0",
       "@types/node": "20.19.0",
-      "@vitest/coverage-v8": "^3.2.4",
+      "@vitest/coverage-v8": "^4.0.18",
       "add": "^2.0.6",
       "copyfiles": "^2.4.1",
+      "deepmerge": "^4.3.1",
       "env-cmd": "^10.1.0",
       "eslint": "^9.17.0",
       "eslint-config-prettier": "^9.1.0",
@@ -66,7 +62,7 @@
       "valnor": "workspace:^",
       "vite": "^7.3.1",
       "vite-node": "^2.1.8",
-      "vitest": "^3.2.4"
+      "vitest": "^4.0.18"
    },
    "pnpm": {
       "overrides": {

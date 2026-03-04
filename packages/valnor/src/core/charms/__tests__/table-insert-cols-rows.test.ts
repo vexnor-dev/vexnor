@@ -28,7 +28,7 @@ describe("SqlTable.insertCols() and insertCols() tests", () => {
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         INSERT INTO
-          "valnor_test"."account" ("email", "first_name", "last_name") output "inserted"."account_id" AS "accountId",
+          "main"."account" ("email", "first_name", "last_name") output "inserted"."account_id" AS "accountId",
           "inserted"."status",
           "inserted"."email",
           "inserted"."first_name" AS "firstName",

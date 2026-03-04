@@ -23,9 +23,9 @@
          "require": "./dist/config/index.js"
       },
       "./testing": {
-         "import": "./dist/testing/index.js",
-         "types": "./dist/testing/index.d.ts",
-         "require": "./dist/testing/index.js"
+         "import": "./dist/test/index.js",
+         "types": "./dist/test/index.d.ts",
+         "require": "./dist/test/index.js"
       }
    },
    "keywords": [
@@ -83,9 +83,9 @@
    },
    "devDependencies": {
       "@types/pg": "^8.15.5",
-      "@vitest/coverage-v8": "^3.2.4",
-      "vite-tsconfig-paths": "^5.1.4",
-      "vitest": "^3.2.4"
+      "@vitest/coverage-v8": "^4.0.18",
+      "vite-tsconfig-paths": "^6.1.1",
+      "vitest": "^4.0.18"
    },
    "peerDependencies": {
       "mariadb": "^3.4.5",

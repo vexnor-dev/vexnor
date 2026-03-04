@@ -135,7 +135,7 @@ describe("SqlValue tests", () => {
           /* </query_1> */
           AS "total"
         FROM
-          "valnor_test"."account" AS "a_1"
+          "main"."account" AS "a_1"
         GROUP BY
           "a_1"."account_id"
           /* </query_0> */"
@@ -163,7 +163,7 @@ describe("SqlValue tests", () => {
           /* </query_1> */
           AS "total"
         FROM
-          "valnor_test"."account" AS "a_1"
+          "main"."account" AS "a_1"
         GROUP BY
           "a_1"."account_id"
           /* </query_0> */"

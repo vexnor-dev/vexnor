@@ -1,8 +1,8 @@
 import { assertType, describe, expect, test } from "vitest";
 import { param, row, SqlQuery } from "../query/index.js";
-import { Account } from "./models/valnor_test.account-table.js";
+import { Account } from "@test-models/valnor_test.account-table.js";
 import { ExtractParamsFromSqlQuery, sql, SqlRow } from "../sql.js";
-import { AccountStatusUdt } from "./models/valnor_test-enums.js";
+import { AccountStatusUdt } from "@test-models/valnor_test-enums.js";
 import { RowOf } from "../sql-base.js";
 
 describe("sql query type tests", () => {

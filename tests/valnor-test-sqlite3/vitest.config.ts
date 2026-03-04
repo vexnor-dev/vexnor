@@ -1,7 +1,10 @@
-import { defineConfig } from "vitest/config";
+import { mergeConfig } from "vite";
+import { sharedConfig } from "../../vitest.shared.js";
 
-export default defineConfig({
+export default mergeConfig(sharedConfig, {
+   base: "../../vitest.shared.js",
    test: {
-      fileParallelism: false,
+      name: "valnor-test-sqlite3",
+      globalSetup: ["./src/global-setup.ts"],
    },
 });

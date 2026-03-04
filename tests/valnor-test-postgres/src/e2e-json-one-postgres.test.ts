@@ -3,7 +3,6 @@ import { info, row, SqlBuildContext } from "valnor";
 import { Account, AccountStatusUdt } from "./codegen/valnor_test.schema.js";
 import { jsonOne, PostgresTokenizer, sql } from "valnor-postgres";
 import { pool } from "./postgres-pool.js";
-import "valnor/testing";
 
 describe.sequential("jsonOne() tests", () => {
    const TAG = "json-one-test";

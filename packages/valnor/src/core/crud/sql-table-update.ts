@@ -42,6 +42,8 @@ export class SqlTableUpdate<
          })}
                 ${expand<ParamsOfArgs<Args>>((params) => {
                    if (!args.where) return null;
+                   if (!params) return null;
+                   if (!("where" in params)) return null;
                    if (!params?.where) return null;
                    if (!params.where) return null;
 

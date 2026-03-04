@@ -26,7 +26,7 @@ describe("SqlColumn tests", () => {
          key: "accountId",
          tableInfo: {
             name: "account",
-            schema: "valnor_test",
+            schema: "main",
          },
       });
    });
@@ -37,7 +37,7 @@ describe("SqlColumn tests", () => {
          columnName: "first_name",
          key: "parentFirstName",
          tableInfo: {
-            schema: "valnor_test",
+            schema: "main",
             name: "account",
          },
       });
@@ -48,7 +48,7 @@ describe("SqlColumn tests", () => {
          columnName: "first_name",
          key: "parentFirstName",
          tableInfo: {
-            schema: "valnor_test",
+            schema: "main",
             name: "account",
             alias: "parent",
          },

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { Account } from "../../__tests__/models/valnor_test.schema.js";
+import { Account } from "@test-models/valnor_test.schema.js";
 import { sql } from "../../sql.js";
 import { SqlTableCreate } from "../sql-table-create.js";
 
@@ -21,7 +21,7 @@ describe("SqlTableCreate", () => {
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         INSERT INTO
-          "valnor_test"."account"
+          "main"."account"
           /* <query_1> */
           /* --inline: true */
           ("email", "first_name", "last_name")
@@ -53,12 +53,12 @@ describe("SqlTableCreate", () => {
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         INSERT INTO
-          "valnor_test"."account"
+          "main"."account"
           /* <query_1> */
         SELECT
           *
         FROM
-          "valnor_test"."account" AS "a_2"
+          "main"."account" AS "a_2"
         WHERE
           "a_2"."status" = 'active'
           /* </query_1> */
@@ -85,7 +85,7 @@ describe("SqlTableCreate", () => {
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         INSERT INTO
-          "valnor_test"."account"
+          "main"."account"
           /* <query_1> */
           /* --inline: true */
           ("email", "first_name", "last_name")

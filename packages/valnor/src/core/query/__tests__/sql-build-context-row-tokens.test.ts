@@ -61,7 +61,7 @@ describe("SqlBuildContextRowTokens", () => {
               "a_1"."account_id" AS "accountId",
               "a_1"."status"
             FROM
-              "valnor_test"."account" AS "a_1"
+              "main"."account" AS "a_1"
               /* </query_1> */
           ) AS "query_1"
           /* </query_0> */"
@@ -77,6 +77,6 @@ describe("SqlBuildContextRowTokens", () => {
          query0.build(ctx, {});
          return Array.from(ctx.getAliasIds(Account.out.$parentId.tableInfo));
       });
-      expect(actual).toMatchObject(["SqlQuery#3/valnor_test.account", "-/valnor_test.account"]);
+      expect(actual).toMatchObject(["SqlQuery#3/main.account", "-/main.account"]);
    });
 });

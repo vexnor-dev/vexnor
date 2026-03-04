@@ -3,12 +3,12 @@ import { SqlParams, SqlRow } from "../../../core/sql.js";
 
 let mockData: unknown[] = [{ id: 1, result: "test" }];
 
-export class TestDriverQueryHandler<T extends { Row?: unknown; Params?: unknown }> extends SqlQueryHandler<{
-   Row: T["Row"];
-   Params: T["Params"];
-   QueryResult: { rows: T["Row"][] };
-   Connection: unknown;
-}> {
+export class TestDriverQueryHandler<T extends { Row?: unknown; Params?: unknown }> extends SqlQueryHandler<
+   Pick<T, "Params" | "Row"> & {
+      QueryResult: { rows: T["Row"][] };
+      Connection: unknown;
+   }
+> {
    constructor(query: SqlQuery<{ Params: T["Params"]; Row: T["Row"] }>) {
       super(query);
    }

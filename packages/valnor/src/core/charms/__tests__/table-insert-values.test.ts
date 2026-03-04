@@ -27,7 +27,7 @@ describe("SqlTable.insertColsVals() tests", () => {
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         INSERT INTO
-          "valnor_test"."account" ("email", "first_name", "last_name")
+          "main"."account" ("email", "first_name", "last_name")
         VALUES
           (?, ?, ?),
           (?, ?, ?) returning "account"."account_id" AS "accountId",
@@ -81,7 +81,7 @@ describe("SqlTable.insertColsVals() tests", () => {
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         INSERT INTO
-          "valnor_test"."account" ("email", "first_name", "last_name")
+          "main"."account" ("email", "first_name", "last_name")
         VALUES
           (?, ?, ?),
           (?, ?, ?),

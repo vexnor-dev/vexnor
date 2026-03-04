@@ -25,7 +25,7 @@ export class TestPlugin extends ValnorPlugin<{ Config: unknown; Connection: unkn
    newQueryHandler<T extends { Row?: unknown; Params?: unknown; QueryResult: object; Connection: unknown }>(
       query: SqlQuery<{ Params: T["Params"]; Row: T["Row"] }>,
    ): SqlQueryHandler<T> {
-      return new TestDriverQueryHandler(query);
+      return new TestDriverQueryHandler<T>(query);
    }
 }
 

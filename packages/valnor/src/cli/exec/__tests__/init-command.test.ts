@@ -37,10 +37,10 @@ describe("initCommand", () => {
 
       const configContent = await fs.readFile("valnor.config.ts", "utf-8");
 
-      expect(configContent).toContain('import { defineConfig } from "valnor"');
-      expect(configContent).toContain('plugin: "<SET ME>"');
-      expect(configContent).toContain("defaultProfile: \"dev\"");
-      expect(configContent).toContain("confirmMutations: true");
+      expect(configContent).toContain(`import { defineConfig } from "valnor"`);
+      expect(configContent).toContain(`plugin: "<SET ME>"`);
+      expect(configContent).toContain(`defaultProfile: "dev"`);
+      expect(configContent).toContain(`confirmMutations: true`);
    });
 
    it("should create valid query config file content", async () => {

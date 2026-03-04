@@ -43,13 +43,13 @@ export class SqlExpand<T extends { Params: unknown }> extends Sql {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlExpandHandlerAny = SqlExpandHandler<any>;
 
-export type SqlExpandHandler<T extends { Params: unknown }> = (params?: Partial<T["Params"]>) => Sql[] | Sql | null;
+export type SqlExpandHandler<T extends { Params: unknown }> = (params: T["Params"]) => Sql[] | Sql | null;
 
 /**
  *
  * @param handler
  */
-export function expand<Params extends unknown[] | Record<string, unknown>>(
+export function expand<Params extends unknown[] | Record<string, unknown> | void>(
    handler: SqlExpandHandler<{ Params: Params }>,
 ): SqlExpand<{ Params: Params }> {
    return new SqlExpand(handler);

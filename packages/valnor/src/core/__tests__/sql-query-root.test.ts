@@ -3,9 +3,9 @@ import { describe, expect, test } from "vitest";
 import { randomUUID } from "node:crypto";
 import { param, row, rowType } from "../query/index.js";
 import { sql } from "../sql.js";
-import { Account, IAccountSelect } from "./models/valnor_test.account-table.js";
-import { IOrderItemSelect, OrderItem } from "./models/valnor_test.order_item-table.js";
-import { Order } from "./models/valnor_test.order-table.js";
+import { Account, IAccountSelect } from "@test-models/valnor_test.account-table.js";
+import { IOrderItemSelect, OrderItem } from "@test-models/valnor_test.order_item-table.js";
+import { Order } from "@test-models/valnor_test.order-table.js";
 
 describe("sql() tests", () => {
    test("sql() select", () => {
@@ -27,7 +27,7 @@ describe("sql() tests", () => {
           "a_1"."email" AS "user_email",
           "a_1"."created_at" AS "createdAt"
         FROM
-          "valnor_test"."account" AS "a_1"
+          "main"."account" AS "a_1"
         WHERE
           "a_1"."email" = ?
           AND "a_1"."first_name" IN (?, ?, ?)
@@ -51,7 +51,7 @@ describe("sql() tests", () => {
           "a_1"."first_name" AS "firstName",
           "a_1"."last_name" AS "lastName"
         FROM
-          "valnor_test"."account" AS "a_1"
+          "main"."account" AS "a_1"
         WHERE
           "a_1"."email" = 'bob@example.com'
           /* </query_0> */"
@@ -72,7 +72,7 @@ describe("sql() tests", () => {
         SELECT
           "a_1"."first_name" AS "firstName"
         FROM
-          "valnor_test"."account" AS "a_1"
+          "main"."account" AS "a_1"
         WHERE
           "a_1"."email" = ?
           /* </query_0> */"
@@ -105,9 +105,9 @@ describe("sql() tests", () => {
           "a_3"."first_name" AS "firstName",
           "a_3"."last_name" AS "lastName"
         FROM
-          "valnor_test"."order_item" AS "oi_1"
-          JOIN "valnor_test"."order" AS "o_2" ON "oi_1"."order_id" = "o_2"."order_id"
-          JOIN "valnor_test"."account" AS "a_3" ON "a_3"."account_id" = "o_2"."account_id"
+          "main"."order_item" AS "oi_1"
+          JOIN "main"."order" AS "o_2" ON "oi_1"."order_id" = "o_2"."order_id"
+          JOIN "main"."account" AS "a_3" ON "a_3"."account_id" = "o_2"."account_id"
           /* </query_0> */"
       `);
    });
@@ -127,8 +127,8 @@ describe("sql() tests", () => {
           "a_1"."email",
           "parent"."email" AS "parentEmail"
         FROM
-          "valnor_test"."account" AS "a_1"
-          JOIN "valnor_test"."account" AS "parent" ON "a_1"."parent_id" = "parent"."account_id"
+          "main"."account" AS "a_1"
+          JOIN "main"."account" AS "parent" ON "a_1"."parent_id" = "parent"."account_id"
           /* </query_0> */"
       `);
    });
@@ -144,7 +144,7 @@ describe("sql() tests", () => {
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         INSERT INTO
-          "valnor_test"."account" ("email", "first_name")
+          "main"."account" ("email", "first_name")
         VALUES
           ('test@example.com', 'Test')
           /* </query_0> */"
@@ -162,7 +162,7 @@ describe("sql() tests", () => {
       // Therefore, columns in SET and WHERE clauses for that table must also be un-aliased.
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
-        UPDATE "valnor_test"."account"
+        UPDATE "main"."account"
         SET
           "first_name" = 'Bob'
         WHERE
@@ -184,12 +184,12 @@ describe("sql() tests", () => {
       // In a complex UPDATE, the target table is aliased, and all column references must be qualified.
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
-        UPDATE "valnor_test"."account"
+        UPDATE "main"."account"
         SET
           "first_name" = 'Staged Name'
         FROM
-          "valnor_test"."account"
-          JOIN "valnor_test"."order" AS "o_2" ON "account"."account_id" = "o_2"."account_id"
+          "main"."account"
+          JOIN "main"."order" AS "o_2" ON "account"."account_id" = "o_2"."account_id"
         WHERE
           "o_2"."status" = 'completed'
           /* </query_0> */"
@@ -206,7 +206,7 @@ describe("sql() tests", () => {
       const { text, values } = query.getSql({});
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
-        DELETE FROM "valnor_test"."account"
+        DELETE FROM "main"."account"
         WHERE
           "account"."account_id" <> ?
           /* </query_0> */"

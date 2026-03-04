@@ -13,7 +13,7 @@ SELECT
   "a_1"."modified_at" AS "modifiedAt",
   "a_1"."parent_id" AS "parentId"
 FROM
-  "valnor_test"."account" AS "a_1"
+  "main"."account" AS "a_1"
 WHERE
   "a_1"."account_id" IN (
     /* <query_1> */
@@ -44,7 +44,7 @@ SELECT
   "a_1"."modified_at" AS "modifiedAt",
   "a_1"."parent_id" AS "parentId"
 FROM
-  "valnor_test"."account" AS "a_1"
+  "main"."account" AS "a_1"
 WHERE
   "a_1"."account_id" IN ()
   /* </query_0> */"
@@ -63,7 +63,7 @@ SELECT
   "a_1"."modified_at" AS "modifiedAt",
   "a_1"."parent_id" AS "parentId"
 FROM
-  "valnor_test"."account" AS "a_1"
+  "main"."account" AS "a_1"
 WHERE
   "a_1"."account_id" IN (
     /* <query_1> */
@@ -76,7 +76,7 @@ WHERE
 exports[`SqlExpand > expand in CRUD operations > expand for INSERT columns 1`] = `
 "/* <query_0> */
 INSERT INTO
-  "valnor_test"."account" ("email", "first_name")
+  "main"."account" ("email", "first_name")
 VALUES
   (
     /* <query_1> */
@@ -92,7 +92,7 @@ VALUES
 
 exports[`SqlExpand > expand in CRUD operations > expand for UPDATE SET clause 1`] = `
 "/* <query_0> */
-UPDATE "valnor_test"."account"
+UPDATE "main"."account"
 SET
   /* <query_1> */
   "email" = ?
@@ -119,7 +119,7 @@ SELECT
   "a_1"."modified_at" AS "modifiedAt",
   "a_1"."parent_id" AS "parentId"
 FROM
-  "valnor_test"."account" AS "a_1"
+  "main"."account" AS "a_1"
 WHERE
   "a_1"."account_id" IN (
     /* <query_1> */
@@ -127,21 +127,21 @@ WHERE
       "a_2"."account_id" AS "accountId",
       "a_2"."email"
     FROM
-      "valnor_test"."account" AS "a_2"
+      "main"."account" AS "a_2"
     WHERE
       "a_2"."account_id" IN (
         /* <query_2> */
         SELECT
           "a_3"."account_id" AS "accountId"
         FROM
-          "valnor_test"."account" AS "a_3"
+          "main"."account" AS "a_3"
         WHERE
           "a_3"."account_id" IN (
             /* <query_3> */
             SELECT
               "a_4"."account_id" AS "accountId"
             FROM
-              "valnor_test"."account" AS "a_4"
+              "main"."account" AS "a_4"
             WHERE
               "a_4"."account_id" IN (
                 /* <query_4> */
@@ -184,7 +184,7 @@ SELECT
   "a_1"."modified_at" AS "modifiedAt",
   "a_1"."parent_id" AS "parentId"
 FROM
-  "valnor_test"."account" AS "a_1"
+  "main"."account" AS "a_1"
 WHERE
   "a_1"."account_id" IN (
     /* <query_1> */
@@ -192,14 +192,14 @@ WHERE
       "a_2"."account_id" AS "accountId",
       "a_2"."email"
     FROM
-      "valnor_test"."account" AS "a_2"
+      "main"."account" AS "a_2"
     WHERE
       "a_2"."account_id" IN (
         /* <query_2> */
         SELECT
           "a_3"."account_id" AS "accountId"
         FROM
-          "valnor_test"."account" AS "a_3"
+          "main"."account" AS "a_3"
         WHERE
           "a_3"."status" IN (
             /* <query_3> */
@@ -231,14 +231,14 @@ SELECT
   "a_1"."modified_at" AS "modifiedAt",
   "a_1"."parent_id" AS "parentId"
 FROM
-  "valnor_test"."account" AS "a_1"
+  "main"."account" AS "a_1"
 WHERE
   "a_1"."account_id" IN (
     /* <query_1> */
     SELECT
       "a_2"."account_id" AS "accountId"
     FROM
-      "valnor_test"."account" AS "a_2"
+      "main"."account" AS "a_2"
     WHERE
       "a_2"."account_id" IN (
         /* <query_2> */
@@ -271,7 +271,7 @@ SELECT
   "a_1"."modified_at" AS "modifiedAt",
   "a_1"."parent_id" AS "parentId"
 FROM
-  "valnor_test"."account" AS "a_1"
+  "main"."account" AS "a_1"
 WHERE
   "a_1"."account_id" IN (
     /* <query_1> */
@@ -307,7 +307,7 @@ SELECT
   "a_1"."modified_at" AS "modifiedAt",
   "a_1"."parent_id" AS "parentId"
 FROM
-  "valnor_test"."account" AS "a_1"
+  "main"."account" AS "a_1"
 WHERE
   "a_1"."account_id" IN (
     /* <query_1> */
@@ -341,7 +341,7 @@ SELECT
   "a_1"."modified_at" AS "modifiedAt",
   "a_1"."parent_id" AS "parentId"
 FROM
-  "valnor_test"."account" AS "a_1"
+  "main"."account" AS "a_1"
 WHERE
   "a_1"."account_id" IN (
     /* <query_1> */
@@ -369,7 +369,7 @@ SELECT
   "a_1"."modified_at" AS "modifiedAt",
   "a_1"."parent_id" AS "parentId"
 FROM
-  "valnor_test"."account" AS "a_1"
+  "main"."account" AS "a_1"
 WHERE
   /* <query_1> */
   "a_1"."email" = ?

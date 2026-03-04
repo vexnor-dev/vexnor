@@ -90,7 +90,7 @@ describe("SqlQuery tests", () => {
             "a_1"."status",
             "a_1"."email"
           FROM
-            "valnor_test"."account" AS "a_1"
+            "main"."account" AS "a_1"
           WHERE
             "a_1"."status" = ?
             /* </query_1> */
@@ -120,7 +120,7 @@ describe("SqlQuery tests", () => {
             "a_1"."status",
             "a_1"."email"
           FROM
-            "valnor_test"."account" AS "a_1"
+            "main"."account" AS "a_1"
           WHERE
             "a_1"."status" = ?
             /* </AccountsCreated> */
@@ -141,7 +141,7 @@ describe("SqlQuery tests", () => {
           "a_1"."status",
           "a_1"."email"
         FROM
-          "valnor_test"."account" AS "a_1"
+          "main"."account" AS "a_1"
           /* </query_0> */"
       `);
    });

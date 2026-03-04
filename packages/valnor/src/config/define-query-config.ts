@@ -1,10 +1,7 @@
 import { QuerySettings, QueryDefaults } from "./config-types.js";
-import { SqlQueryAny, SqlQueryHandlerAny, SqlQuery } from "../core/index.js";
-import { SqlExecError } from "../cli/exec/sql-exec-error.js";
+import { SqlQueryAny } from "../core/index.js";
 
-type QueryOrHandler = SqlQueryAny | SqlQueryHandlerAny;
-
-export type QueryConfigResult<TQueries extends Record<string, QueryOrHandler>> = <
+export type QueryConfigResult<TQueries extends Record<string, SqlQueryAny>> = <
    TConfig extends {
       queries: { [K in keyof TQueries]: Omit<QuerySettings<TQueries[K]>, "query"> };
       defaults?: QueryDefaults;
@@ -13,7 +10,7 @@ export type QueryConfigResult<TQueries extends Record<string, QueryOrHandler>> =
    config: TConfig,
 ) => { queries: { [K in keyof TQueries]: QuerySettings<TQueries[K]> }; defaults?: QueryDefaults };
 
-export function defineQueryConfig<TQueries extends Record<string, QueryOrHandler>>(
+export function defineQueryConfig<TQueries extends Record<string, SqlQueryAny>>(
    queries: TQueries,
 ): QueryConfigResult<TQueries> {
    return (config) => {
@@ -43,14 +40,7 @@ export function defineQueryConfig<TQueries extends Record<string, QueryOrHandler
             throw new Error(`Query '${key}' missing params`);
          }
 
-         const params = (() => {
-            switch (true) {
-               case query instanceof SqlQuery:
-                  return query.params ?? {};
-               default:
-                  throw new SqlExecError(`Query '${key}' is not a SqlQuery or AsyncQueryHandler`);
-            }
-         })();
+         const params = query.params ?? {};
          const queryParamKeys = Object.keys(params).sort();
          const configParamKeys = settings.params ? Object.keys(settings.params).sort() : [];
 

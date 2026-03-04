@@ -104,7 +104,7 @@ describe("SqlBuildContext Engine - basic tests", () => {
       });
 
       test("should NOT throw for valid uses of '$' in strings or identifiers", () => {
-         expect(() => context.next("select 'not a param $', \"my$col\"")).not.toThrow();
+         expect(() => context.next(`"select 'not a param $', "my$col"`)).not.toThrow();
       });
    });
 });

@@ -10,7 +10,7 @@
       "composite": true,
       "baseUrl": ".",
       "paths": {
-         "@test-models/*": ["./src/core/__tests__/models/*"]
+         "@test-models/*": ["./src/test/models/*"]
       }
    },
    "include": ["src/**/*"]

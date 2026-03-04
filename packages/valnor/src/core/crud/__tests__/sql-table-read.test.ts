@@ -32,7 +32,7 @@ describe("SqlTableRead", () => {
           "a_1"."parent_id" AS "parentId"
           /* </query_1> */
         FROM
-          "valnor_test"."account" AS "a_1"
+          "main"."account" AS "a_1"
           /* </query_0> */"
       `);
    });
@@ -58,7 +58,7 @@ describe("SqlTableRead", () => {
           "a_1"."parent_id" AS "parentId"
           /* </query_1> */
         FROM
-          "valnor_test"."account" AS "a_1"
+          "main"."account" AS "a_1"
           /* <query_2> */
         WHERE
           (

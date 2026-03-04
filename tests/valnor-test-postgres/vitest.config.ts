@@ -1,13 +1,10 @@
-import { defineConfig } from "vite";
-import path from "node:path";
+import { mergeConfig } from "vite";
+import { sharedConfig } from "../../vitest.shared.js";
 
-// vitest.config.ts
-export default defineConfig({
+export default mergeConfig(sharedConfig, {
    test: {
+      name: "valnor-test-postgres",
       setupFiles: ["./src/test-setup.ts"],
       globalSetup: ["./src/global-setup.ts"],
-      env: {
-         ENV_PATH: path.resolve("../../env-dev.json"),
-      },
    },
 });

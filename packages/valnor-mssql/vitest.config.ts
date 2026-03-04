@@ -1,15 +1,8 @@
-import { defineConfig } from "vitest/config";
 import tsconfigPaths from "vite-tsconfig-paths";
+import { mergeConfig } from "vite";
+import { sharedConfig } from "../../vitest.shared.js";
 
-export default defineConfig({
+export default mergeConfig(sharedConfig, {
    plugins: [tsconfigPaths()],
-   test: {
-      coverage: {
-         provider: "v8",
-         reportsDirectory: "./coverage",
-         reporter: ["text", "html", "json"],
-         include: ["src/**/*"],
-         exclude: ["**/__tests__/**", "**/test/**"],
-      },
-   },
+   test: {},
 });

@@ -1,7 +1,7 @@
 import { assertType, describe, expect, test } from "vitest";
 import { SqlParams, sql } from "../sql.js";
 import { param, row, SqlInputArgs, SqlParam, SqlQueryExtended } from "../query/index.js";
-import { Account, AccountStatusUdt, IAccountSelect } from "./models/valnor_test.schema.js";
+import { Account, AccountStatusUdt, IAccountSelect } from "@test-models//valnor_test.schema.js";
 import { info } from "../charms/index.js";
 import { ParamsOf } from "../sql-base.js";
 import { Simplify, Void } from "../utils/index.js";

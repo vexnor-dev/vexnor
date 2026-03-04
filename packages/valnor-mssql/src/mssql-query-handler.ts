@@ -2,7 +2,6 @@ import { SqlQueryHandler, SqlInputArgs, SqlQuery, SqlRunArgs } from "valnor";
 import { IResult, Promise, Request } from "mssql";
 import { MssqlTokenizer } from "./mssql-tokenizer.js";
 import { MssqlParamFormatter } from "./mssql-param-formatter.js";
-import "valnor/testing";
 
 export class MssqlQueryHandler<T extends { Params?: unknown; Row?: unknown }> extends SqlQueryHandler<{
    Row: T["Row"];

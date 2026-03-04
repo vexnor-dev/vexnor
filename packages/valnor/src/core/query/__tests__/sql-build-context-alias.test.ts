@@ -50,7 +50,7 @@ describe("SqlBuildContext alias tests", () => {
       const actual = ctx.scope({ query }, () => {
          return ctx.getAliasId(Account.$parentId.tableInfo);
       });
-      expect(actual).toEqual("SqlQuery#2/valnor_test.account");
+      expect(actual).toEqual("SqlQuery#2/main.account");
    });
 
    test("should return alias ids", () => {
@@ -61,10 +61,10 @@ describe("SqlBuildContext alias tests", () => {
          query.build(ctx, {});
          return Array.from(ctx.getAliasIds(Account.out.$parentId.tableInfo));
       });
-      expect(actual).toMatchObject(["SqlQuery#2/valnor_test.account", "-/valnor_test.account"]);
+      expect(actual).toMatchObject(["SqlQuery#2/main.account", "-/main.account"]);
       expect(ctx["_tableAliasById"]).toMatchInlineSnapshot(`
         Map {
-          "SqlQuery#2/valnor_test.account" => "a_1",
+          "SqlQuery#2/main.account" => "a_1",
         }
       `);
    });
@@ -79,7 +79,7 @@ describe("SqlBuildContext alias tests", () => {
       });
       expect(ctx["_tableAliasById"]).toMatchInlineSnapshot(`
         Map {
-          "SqlQuery#3/valnor_test.account" => "a_1",
+          "SqlQuery#3/main.account" => "a_1",
         }
       `);
       expect(actual).toEqual("a_1");
@@ -120,13 +120,13 @@ describe("SqlBuildContext alias tests", () => {
               /* </query_2> */
               AS "total"
             FROM
-              "valnor_test"."account" AS "a_2"
+              "main"."account" AS "a_2"
             WHERE
               "a_2"."parent_id" = "a_1"."account_id"
               /* </query_1> */
           ) AS "total"
         FROM
-          "valnor_test"."account" AS "a_1"
+          "main"."account" AS "a_1"
           /* </query_0> */"
       `);
    });

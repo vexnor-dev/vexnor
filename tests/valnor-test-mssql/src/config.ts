@@ -3,12 +3,8 @@ import { Value } from "@sinclair/typebox/value";
 import { loadEnv } from "@valnor/test-utils";
 
 const Env = Type.Object({
-   ENV_PATH: Type.String({ minLength: 1 }),
+   VALNOR_ENV_PATH: Type.String({ minLength: 1 }),
 });
-
-export async function readEnv() {
-   return Value.Decode(Env, process.env);
-}
 
 const Config = Type.Object({
    MSSQL_USER: Type.String({ minLength: 1 }),
@@ -27,14 +23,11 @@ const Config = Type.Object({
 });
 
 export async function readConfig() {
-   const { ENV_PATH } = await readEnv();
-   const env = await loadEnv({
-      filePath: ENV_PATH,
+   const { VALNOR_ENV_PATH } = Value.Decode(Env, process.env);
+   await loadEnv({
+      filePath: VALNOR_ENV_PATH,
       environments: ["mssql"],
    });
-
-   console.log({ env });
-
    return Value.Decode(Config, process.env);
 }
 

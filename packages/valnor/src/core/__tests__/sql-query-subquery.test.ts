@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { Account, AccountStatusUdt } from "./models/valnor_test.schema.js";
+import { Account, AccountStatusUdt } from "@test-models/valnor_test.schema.js";
 import { ExtractParamsFromSqlQuery, sql } from "../sql.js";
 import { info } from "../charms/index.js";
 import { param, row } from "../query/index.js";
@@ -118,7 +118,7 @@ describe("sql subqueries tests", () => {
                           "key": "accountId",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -130,7 +130,7 @@ describe("sql subqueries tests", () => {
                           "key": "createdAt",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -142,7 +142,7 @@ describe("sql subqueries tests", () => {
                           "key": "email",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -154,7 +154,7 @@ describe("sql subqueries tests", () => {
                           "key": "firstName",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -166,7 +166,7 @@ describe("sql subqueries tests", () => {
                           "key": "lastName",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -178,7 +178,7 @@ describe("sql subqueries tests", () => {
                           "key": "modifiedAt",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -190,7 +190,7 @@ describe("sql subqueries tests", () => {
                           "key": "notes",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -202,7 +202,7 @@ describe("sql subqueries tests", () => {
                           "key": "parentId",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -214,7 +214,7 @@ describe("sql subqueries tests", () => {
                           "key": "status",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -237,7 +237,7 @@ describe("sql subqueries tests", () => {
                     "key": "accountId",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -249,7 +249,7 @@ describe("sql subqueries tests", () => {
                     "key": "createdAt",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -261,7 +261,7 @@ describe("sql subqueries tests", () => {
                     "key": "email",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -273,7 +273,7 @@ describe("sql subqueries tests", () => {
                     "key": "firstName",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -285,7 +285,7 @@ describe("sql subqueries tests", () => {
                     "key": "lastName",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -297,7 +297,7 @@ describe("sql subqueries tests", () => {
                     "key": "modifiedAt",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -309,7 +309,7 @@ describe("sql subqueries tests", () => {
                     "key": "notes",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -321,7 +321,7 @@ describe("sql subqueries tests", () => {
                     "key": "parentId",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -333,7 +333,7 @@ describe("sql subqueries tests", () => {
                     "key": "status",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -350,7 +350,7 @@ describe("sql subqueries tests", () => {
                           "key": "accountId",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -362,7 +362,7 @@ describe("sql subqueries tests", () => {
                           "key": "createdAt",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -374,7 +374,7 @@ describe("sql subqueries tests", () => {
                           "key": "email",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -386,7 +386,7 @@ describe("sql subqueries tests", () => {
                           "key": "firstName",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -398,7 +398,7 @@ describe("sql subqueries tests", () => {
                           "key": "lastName",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -410,7 +410,7 @@ describe("sql subqueries tests", () => {
                           "key": "modifiedAt",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -422,7 +422,7 @@ describe("sql subqueries tests", () => {
                           "key": "notes",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -434,7 +434,7 @@ describe("sql subqueries tests", () => {
                           "key": "parentId",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -446,7 +446,7 @@ describe("sql subqueries tests", () => {
                           "key": "status",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -467,7 +467,7 @@ describe("sql subqueries tests", () => {
                         "key": "accountId",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -479,7 +479,7 @@ describe("sql subqueries tests", () => {
                         "key": "createdAt",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -491,7 +491,7 @@ describe("sql subqueries tests", () => {
                         "key": "email",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -503,7 +503,7 @@ describe("sql subqueries tests", () => {
                         "key": "firstName",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -515,7 +515,7 @@ describe("sql subqueries tests", () => {
                         "key": "lastName",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -527,7 +527,7 @@ describe("sql subqueries tests", () => {
                         "key": "modifiedAt",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -539,7 +539,7 @@ describe("sql subqueries tests", () => {
                         "key": "notes",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -551,7 +551,7 @@ describe("sql subqueries tests", () => {
                         "key": "parentId",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -563,7 +563,7 @@ describe("sql subqueries tests", () => {
                         "key": "status",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -583,14 +583,14 @@ describe("sql subqueries tests", () => {
                     "callback": [Function],
                   },
                   "format": null,
-                  "id": "SqlTable#1(SqlTable(valnor_test.account))",
+                  "id": "SqlTable#1(SqlTable(main.account))",
                   "pk": [
                     "accountId",
                   ],
                   "tableCache": Map {},
                   "tableInfo": {
                     "name": "account",
-                    "schema": "valnor_test",
+                    "schema": "main",
                   },
                   "type": "SqlTable",
                   "wrap": true,
@@ -602,7 +602,7 @@ describe("sql subqueries tests", () => {
                   "key": "email",
                   "tableInfo": {
                     "name": "account",
-                    "schema": "valnor_test",
+                    "schema": "main",
                   },
                   "type": "SqlTableColumn",
                   "wrap": true,
@@ -624,7 +624,7 @@ describe("sql subqueries tests", () => {
               "key": "accountId",
               "tableInfo": {
                 "name": "account",
-                "schema": "valnor_test",
+                "schema": "main",
               },
               "type": "SqlTableColumn",
               "wrap": true,
@@ -706,7 +706,7 @@ describe("sql subqueries tests", () => {
                           "key": "accountId",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -718,7 +718,7 @@ describe("sql subqueries tests", () => {
                           "key": "createdAt",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -730,7 +730,7 @@ describe("sql subqueries tests", () => {
                           "key": "email",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -742,7 +742,7 @@ describe("sql subqueries tests", () => {
                           "key": "firstName",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -754,7 +754,7 @@ describe("sql subqueries tests", () => {
                           "key": "lastName",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -766,7 +766,7 @@ describe("sql subqueries tests", () => {
                           "key": "modifiedAt",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -778,7 +778,7 @@ describe("sql subqueries tests", () => {
                           "key": "notes",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -790,7 +790,7 @@ describe("sql subqueries tests", () => {
                           "key": "parentId",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -802,7 +802,7 @@ describe("sql subqueries tests", () => {
                           "key": "status",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -825,7 +825,7 @@ describe("sql subqueries tests", () => {
                     "key": "accountId",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -837,7 +837,7 @@ describe("sql subqueries tests", () => {
                     "key": "createdAt",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -849,7 +849,7 @@ describe("sql subqueries tests", () => {
                     "key": "email",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -861,7 +861,7 @@ describe("sql subqueries tests", () => {
                     "key": "firstName",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -873,7 +873,7 @@ describe("sql subqueries tests", () => {
                     "key": "lastName",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -885,7 +885,7 @@ describe("sql subqueries tests", () => {
                     "key": "modifiedAt",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -897,7 +897,7 @@ describe("sql subqueries tests", () => {
                     "key": "notes",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -909,7 +909,7 @@ describe("sql subqueries tests", () => {
                     "key": "parentId",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -921,7 +921,7 @@ describe("sql subqueries tests", () => {
                     "key": "status",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -938,7 +938,7 @@ describe("sql subqueries tests", () => {
                           "key": "accountId",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -950,7 +950,7 @@ describe("sql subqueries tests", () => {
                           "key": "createdAt",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -962,7 +962,7 @@ describe("sql subqueries tests", () => {
                           "key": "email",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -974,7 +974,7 @@ describe("sql subqueries tests", () => {
                           "key": "firstName",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -986,7 +986,7 @@ describe("sql subqueries tests", () => {
                           "key": "lastName",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -998,7 +998,7 @@ describe("sql subqueries tests", () => {
                           "key": "modifiedAt",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -1010,7 +1010,7 @@ describe("sql subqueries tests", () => {
                           "key": "notes",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -1022,7 +1022,7 @@ describe("sql subqueries tests", () => {
                           "key": "parentId",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -1034,7 +1034,7 @@ describe("sql subqueries tests", () => {
                           "key": "status",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -1055,7 +1055,7 @@ describe("sql subqueries tests", () => {
                         "key": "accountId",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -1067,7 +1067,7 @@ describe("sql subqueries tests", () => {
                         "key": "createdAt",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -1079,7 +1079,7 @@ describe("sql subqueries tests", () => {
                         "key": "email",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -1091,7 +1091,7 @@ describe("sql subqueries tests", () => {
                         "key": "firstName",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -1103,7 +1103,7 @@ describe("sql subqueries tests", () => {
                         "key": "lastName",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -1115,7 +1115,7 @@ describe("sql subqueries tests", () => {
                         "key": "modifiedAt",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -1127,7 +1127,7 @@ describe("sql subqueries tests", () => {
                         "key": "notes",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -1139,7 +1139,7 @@ describe("sql subqueries tests", () => {
                         "key": "parentId",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -1151,7 +1151,7 @@ describe("sql subqueries tests", () => {
                         "key": "status",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -1171,14 +1171,14 @@ describe("sql subqueries tests", () => {
                     "callback": [Function],
                   },
                   "format": null,
-                  "id": "SqlTable#1(SqlTable(valnor_test.account))",
+                  "id": "SqlTable#1(SqlTable(main.account))",
                   "pk": [
                     "accountId",
                   ],
                   "tableCache": Map {},
                   "tableInfo": {
                     "name": "account",
-                    "schema": "valnor_test",
+                    "schema": "main",
                   },
                   "type": "SqlTable",
                   "wrap": true,
@@ -1190,7 +1190,7 @@ describe("sql subqueries tests", () => {
                   "key": "email",
                   "tableInfo": {
                     "name": "account",
-                    "schema": "valnor_test",
+                    "schema": "main",
                   },
                   "type": "SqlTableColumn",
                   "wrap": true,
@@ -1212,7 +1212,7 @@ describe("sql subqueries tests", () => {
               "key": "createdAt",
               "tableInfo": {
                 "name": "account",
-                "schema": "valnor_test",
+                "schema": "main",
               },
               "type": "SqlTableColumn",
               "wrap": true,
@@ -1294,7 +1294,7 @@ describe("sql subqueries tests", () => {
                           "key": "accountId",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -1306,7 +1306,7 @@ describe("sql subqueries tests", () => {
                           "key": "createdAt",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -1318,7 +1318,7 @@ describe("sql subqueries tests", () => {
                           "key": "email",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -1330,7 +1330,7 @@ describe("sql subqueries tests", () => {
                           "key": "firstName",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -1342,7 +1342,7 @@ describe("sql subqueries tests", () => {
                           "key": "lastName",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -1354,7 +1354,7 @@ describe("sql subqueries tests", () => {
                           "key": "modifiedAt",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -1366,7 +1366,7 @@ describe("sql subqueries tests", () => {
                           "key": "notes",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -1378,7 +1378,7 @@ describe("sql subqueries tests", () => {
                           "key": "parentId",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -1390,7 +1390,7 @@ describe("sql subqueries tests", () => {
                           "key": "status",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -1413,7 +1413,7 @@ describe("sql subqueries tests", () => {
                     "key": "accountId",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -1425,7 +1425,7 @@ describe("sql subqueries tests", () => {
                     "key": "createdAt",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -1437,7 +1437,7 @@ describe("sql subqueries tests", () => {
                     "key": "email",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -1449,7 +1449,7 @@ describe("sql subqueries tests", () => {
                     "key": "firstName",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -1461,7 +1461,7 @@ describe("sql subqueries tests", () => {
                     "key": "lastName",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -1473,7 +1473,7 @@ describe("sql subqueries tests", () => {
                     "key": "modifiedAt",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -1485,7 +1485,7 @@ describe("sql subqueries tests", () => {
                     "key": "notes",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -1497,7 +1497,7 @@ describe("sql subqueries tests", () => {
                     "key": "parentId",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -1509,7 +1509,7 @@ describe("sql subqueries tests", () => {
                     "key": "status",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -1526,7 +1526,7 @@ describe("sql subqueries tests", () => {
                           "key": "accountId",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -1538,7 +1538,7 @@ describe("sql subqueries tests", () => {
                           "key": "createdAt",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -1550,7 +1550,7 @@ describe("sql subqueries tests", () => {
                           "key": "email",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -1562,7 +1562,7 @@ describe("sql subqueries tests", () => {
                           "key": "firstName",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -1574,7 +1574,7 @@ describe("sql subqueries tests", () => {
                           "key": "lastName",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -1586,7 +1586,7 @@ describe("sql subqueries tests", () => {
                           "key": "modifiedAt",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -1598,7 +1598,7 @@ describe("sql subqueries tests", () => {
                           "key": "notes",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -1610,7 +1610,7 @@ describe("sql subqueries tests", () => {
                           "key": "parentId",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -1622,7 +1622,7 @@ describe("sql subqueries tests", () => {
                           "key": "status",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -1643,7 +1643,7 @@ describe("sql subqueries tests", () => {
                         "key": "accountId",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -1655,7 +1655,7 @@ describe("sql subqueries tests", () => {
                         "key": "createdAt",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -1667,7 +1667,7 @@ describe("sql subqueries tests", () => {
                         "key": "email",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -1679,7 +1679,7 @@ describe("sql subqueries tests", () => {
                         "key": "firstName",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -1691,7 +1691,7 @@ describe("sql subqueries tests", () => {
                         "key": "lastName",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -1703,7 +1703,7 @@ describe("sql subqueries tests", () => {
                         "key": "modifiedAt",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -1715,7 +1715,7 @@ describe("sql subqueries tests", () => {
                         "key": "notes",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -1727,7 +1727,7 @@ describe("sql subqueries tests", () => {
                         "key": "parentId",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -1739,7 +1739,7 @@ describe("sql subqueries tests", () => {
                         "key": "status",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -1759,14 +1759,14 @@ describe("sql subqueries tests", () => {
                     "callback": [Function],
                   },
                   "format": null,
-                  "id": "SqlTable#1(SqlTable(valnor_test.account))",
+                  "id": "SqlTable#1(SqlTable(main.account))",
                   "pk": [
                     "accountId",
                   ],
                   "tableCache": Map {},
                   "tableInfo": {
                     "name": "account",
-                    "schema": "valnor_test",
+                    "schema": "main",
                   },
                   "type": "SqlTable",
                   "wrap": true,
@@ -1778,7 +1778,7 @@ describe("sql subqueries tests", () => {
                   "key": "email",
                   "tableInfo": {
                     "name": "account",
-                    "schema": "valnor_test",
+                    "schema": "main",
                   },
                   "type": "SqlTableColumn",
                   "wrap": true,
@@ -1800,7 +1800,7 @@ describe("sql subqueries tests", () => {
               "key": "email",
               "tableInfo": {
                 "name": "account",
-                "schema": "valnor_test",
+                "schema": "main",
               },
               "type": "SqlTableColumn",
               "wrap": true,
@@ -1882,7 +1882,7 @@ describe("sql subqueries tests", () => {
                           "key": "accountId",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -1894,7 +1894,7 @@ describe("sql subqueries tests", () => {
                           "key": "createdAt",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -1906,7 +1906,7 @@ describe("sql subqueries tests", () => {
                           "key": "email",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -1918,7 +1918,7 @@ describe("sql subqueries tests", () => {
                           "key": "firstName",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -1930,7 +1930,7 @@ describe("sql subqueries tests", () => {
                           "key": "lastName",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -1942,7 +1942,7 @@ describe("sql subqueries tests", () => {
                           "key": "modifiedAt",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -1954,7 +1954,7 @@ describe("sql subqueries tests", () => {
                           "key": "notes",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -1966,7 +1966,7 @@ describe("sql subqueries tests", () => {
                           "key": "parentId",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -1978,7 +1978,7 @@ describe("sql subqueries tests", () => {
                           "key": "status",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -2001,7 +2001,7 @@ describe("sql subqueries tests", () => {
                     "key": "accountId",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -2013,7 +2013,7 @@ describe("sql subqueries tests", () => {
                     "key": "createdAt",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -2025,7 +2025,7 @@ describe("sql subqueries tests", () => {
                     "key": "email",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -2037,7 +2037,7 @@ describe("sql subqueries tests", () => {
                     "key": "firstName",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -2049,7 +2049,7 @@ describe("sql subqueries tests", () => {
                     "key": "lastName",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -2061,7 +2061,7 @@ describe("sql subqueries tests", () => {
                     "key": "modifiedAt",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -2073,7 +2073,7 @@ describe("sql subqueries tests", () => {
                     "key": "notes",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -2085,7 +2085,7 @@ describe("sql subqueries tests", () => {
                     "key": "parentId",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -2097,7 +2097,7 @@ describe("sql subqueries tests", () => {
                     "key": "status",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -2114,7 +2114,7 @@ describe("sql subqueries tests", () => {
                           "key": "accountId",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -2126,7 +2126,7 @@ describe("sql subqueries tests", () => {
                           "key": "createdAt",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -2138,7 +2138,7 @@ describe("sql subqueries tests", () => {
                           "key": "email",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -2150,7 +2150,7 @@ describe("sql subqueries tests", () => {
                           "key": "firstName",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -2162,7 +2162,7 @@ describe("sql subqueries tests", () => {
                           "key": "lastName",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -2174,7 +2174,7 @@ describe("sql subqueries tests", () => {
                           "key": "modifiedAt",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -2186,7 +2186,7 @@ describe("sql subqueries tests", () => {
                           "key": "notes",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -2198,7 +2198,7 @@ describe("sql subqueries tests", () => {
                           "key": "parentId",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -2210,7 +2210,7 @@ describe("sql subqueries tests", () => {
                           "key": "status",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -2231,7 +2231,7 @@ describe("sql subqueries tests", () => {
                         "key": "accountId",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -2243,7 +2243,7 @@ describe("sql subqueries tests", () => {
                         "key": "createdAt",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -2255,7 +2255,7 @@ describe("sql subqueries tests", () => {
                         "key": "email",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -2267,7 +2267,7 @@ describe("sql subqueries tests", () => {
                         "key": "firstName",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -2279,7 +2279,7 @@ describe("sql subqueries tests", () => {
                         "key": "lastName",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -2291,7 +2291,7 @@ describe("sql subqueries tests", () => {
                         "key": "modifiedAt",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -2303,7 +2303,7 @@ describe("sql subqueries tests", () => {
                         "key": "notes",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -2315,7 +2315,7 @@ describe("sql subqueries tests", () => {
                         "key": "parentId",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -2327,7 +2327,7 @@ describe("sql subqueries tests", () => {
                         "key": "status",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -2347,14 +2347,14 @@ describe("sql subqueries tests", () => {
                     "callback": [Function],
                   },
                   "format": null,
-                  "id": "SqlTable#1(SqlTable(valnor_test.account))",
+                  "id": "SqlTable#1(SqlTable(main.account))",
                   "pk": [
                     "accountId",
                   ],
                   "tableCache": Map {},
                   "tableInfo": {
                     "name": "account",
-                    "schema": "valnor_test",
+                    "schema": "main",
                   },
                   "type": "SqlTable",
                   "wrap": true,
@@ -2366,7 +2366,7 @@ describe("sql subqueries tests", () => {
                   "key": "email",
                   "tableInfo": {
                     "name": "account",
-                    "schema": "valnor_test",
+                    "schema": "main",
                   },
                   "type": "SqlTableColumn",
                   "wrap": true,
@@ -2388,7 +2388,7 @@ describe("sql subqueries tests", () => {
               "key": "firstName",
               "tableInfo": {
                 "name": "account",
-                "schema": "valnor_test",
+                "schema": "main",
               },
               "type": "SqlTableColumn",
               "wrap": true,
@@ -2470,7 +2470,7 @@ describe("sql subqueries tests", () => {
                           "key": "accountId",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -2482,7 +2482,7 @@ describe("sql subqueries tests", () => {
                           "key": "createdAt",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -2494,7 +2494,7 @@ describe("sql subqueries tests", () => {
                           "key": "email",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -2506,7 +2506,7 @@ describe("sql subqueries tests", () => {
                           "key": "firstName",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -2518,7 +2518,7 @@ describe("sql subqueries tests", () => {
                           "key": "lastName",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -2530,7 +2530,7 @@ describe("sql subqueries tests", () => {
                           "key": "modifiedAt",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -2542,7 +2542,7 @@ describe("sql subqueries tests", () => {
                           "key": "notes",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -2554,7 +2554,7 @@ describe("sql subqueries tests", () => {
                           "key": "parentId",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -2566,7 +2566,7 @@ describe("sql subqueries tests", () => {
                           "key": "status",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -2589,7 +2589,7 @@ describe("sql subqueries tests", () => {
                     "key": "accountId",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -2601,7 +2601,7 @@ describe("sql subqueries tests", () => {
                     "key": "createdAt",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -2613,7 +2613,7 @@ describe("sql subqueries tests", () => {
                     "key": "email",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -2625,7 +2625,7 @@ describe("sql subqueries tests", () => {
                     "key": "firstName",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -2637,7 +2637,7 @@ describe("sql subqueries tests", () => {
                     "key": "lastName",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -2649,7 +2649,7 @@ describe("sql subqueries tests", () => {
                     "key": "modifiedAt",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -2661,7 +2661,7 @@ describe("sql subqueries tests", () => {
                     "key": "notes",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -2673,7 +2673,7 @@ describe("sql subqueries tests", () => {
                     "key": "parentId",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -2685,7 +2685,7 @@ describe("sql subqueries tests", () => {
                     "key": "status",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -2702,7 +2702,7 @@ describe("sql subqueries tests", () => {
                           "key": "accountId",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -2714,7 +2714,7 @@ describe("sql subqueries tests", () => {
                           "key": "createdAt",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -2726,7 +2726,7 @@ describe("sql subqueries tests", () => {
                           "key": "email",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -2738,7 +2738,7 @@ describe("sql subqueries tests", () => {
                           "key": "firstName",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -2750,7 +2750,7 @@ describe("sql subqueries tests", () => {
                           "key": "lastName",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -2762,7 +2762,7 @@ describe("sql subqueries tests", () => {
                           "key": "modifiedAt",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -2774,7 +2774,7 @@ describe("sql subqueries tests", () => {
                           "key": "notes",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -2786,7 +2786,7 @@ describe("sql subqueries tests", () => {
                           "key": "parentId",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -2798,7 +2798,7 @@ describe("sql subqueries tests", () => {
                           "key": "status",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -2819,7 +2819,7 @@ describe("sql subqueries tests", () => {
                         "key": "accountId",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -2831,7 +2831,7 @@ describe("sql subqueries tests", () => {
                         "key": "createdAt",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -2843,7 +2843,7 @@ describe("sql subqueries tests", () => {
                         "key": "email",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -2855,7 +2855,7 @@ describe("sql subqueries tests", () => {
                         "key": "firstName",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -2867,7 +2867,7 @@ describe("sql subqueries tests", () => {
                         "key": "lastName",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -2879,7 +2879,7 @@ describe("sql subqueries tests", () => {
                         "key": "modifiedAt",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -2891,7 +2891,7 @@ describe("sql subqueries tests", () => {
                         "key": "notes",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -2903,7 +2903,7 @@ describe("sql subqueries tests", () => {
                         "key": "parentId",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -2915,7 +2915,7 @@ describe("sql subqueries tests", () => {
                         "key": "status",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -2935,14 +2935,14 @@ describe("sql subqueries tests", () => {
                     "callback": [Function],
                   },
                   "format": null,
-                  "id": "SqlTable#1(SqlTable(valnor_test.account))",
+                  "id": "SqlTable#1(SqlTable(main.account))",
                   "pk": [
                     "accountId",
                   ],
                   "tableCache": Map {},
                   "tableInfo": {
                     "name": "account",
-                    "schema": "valnor_test",
+                    "schema": "main",
                   },
                   "type": "SqlTable",
                   "wrap": true,
@@ -2954,7 +2954,7 @@ describe("sql subqueries tests", () => {
                   "key": "email",
                   "tableInfo": {
                     "name": "account",
-                    "schema": "valnor_test",
+                    "schema": "main",
                   },
                   "type": "SqlTableColumn",
                   "wrap": true,
@@ -2976,7 +2976,7 @@ describe("sql subqueries tests", () => {
               "key": "lastName",
               "tableInfo": {
                 "name": "account",
-                "schema": "valnor_test",
+                "schema": "main",
               },
               "type": "SqlTableColumn",
               "wrap": true,
@@ -3058,7 +3058,7 @@ describe("sql subqueries tests", () => {
                           "key": "accountId",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -3070,7 +3070,7 @@ describe("sql subqueries tests", () => {
                           "key": "createdAt",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -3082,7 +3082,7 @@ describe("sql subqueries tests", () => {
                           "key": "email",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -3094,7 +3094,7 @@ describe("sql subqueries tests", () => {
                           "key": "firstName",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -3106,7 +3106,7 @@ describe("sql subqueries tests", () => {
                           "key": "lastName",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -3118,7 +3118,7 @@ describe("sql subqueries tests", () => {
                           "key": "modifiedAt",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -3130,7 +3130,7 @@ describe("sql subqueries tests", () => {
                           "key": "notes",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -3142,7 +3142,7 @@ describe("sql subqueries tests", () => {
                           "key": "parentId",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -3154,7 +3154,7 @@ describe("sql subqueries tests", () => {
                           "key": "status",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -3177,7 +3177,7 @@ describe("sql subqueries tests", () => {
                     "key": "accountId",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -3189,7 +3189,7 @@ describe("sql subqueries tests", () => {
                     "key": "createdAt",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -3201,7 +3201,7 @@ describe("sql subqueries tests", () => {
                     "key": "email",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -3213,7 +3213,7 @@ describe("sql subqueries tests", () => {
                     "key": "firstName",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -3225,7 +3225,7 @@ describe("sql subqueries tests", () => {
                     "key": "lastName",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -3237,7 +3237,7 @@ describe("sql subqueries tests", () => {
                     "key": "modifiedAt",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -3249,7 +3249,7 @@ describe("sql subqueries tests", () => {
                     "key": "notes",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -3261,7 +3261,7 @@ describe("sql subqueries tests", () => {
                     "key": "parentId",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -3273,7 +3273,7 @@ describe("sql subqueries tests", () => {
                     "key": "status",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -3290,7 +3290,7 @@ describe("sql subqueries tests", () => {
                           "key": "accountId",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -3302,7 +3302,7 @@ describe("sql subqueries tests", () => {
                           "key": "createdAt",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -3314,7 +3314,7 @@ describe("sql subqueries tests", () => {
                           "key": "email",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -3326,7 +3326,7 @@ describe("sql subqueries tests", () => {
                           "key": "firstName",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -3338,7 +3338,7 @@ describe("sql subqueries tests", () => {
                           "key": "lastName",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -3350,7 +3350,7 @@ describe("sql subqueries tests", () => {
                           "key": "modifiedAt",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -3362,7 +3362,7 @@ describe("sql subqueries tests", () => {
                           "key": "notes",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -3374,7 +3374,7 @@ describe("sql subqueries tests", () => {
                           "key": "parentId",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -3386,7 +3386,7 @@ describe("sql subqueries tests", () => {
                           "key": "status",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -3407,7 +3407,7 @@ describe("sql subqueries tests", () => {
                         "key": "accountId",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -3419,7 +3419,7 @@ describe("sql subqueries tests", () => {
                         "key": "createdAt",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -3431,7 +3431,7 @@ describe("sql subqueries tests", () => {
                         "key": "email",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -3443,7 +3443,7 @@ describe("sql subqueries tests", () => {
                         "key": "firstName",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -3455,7 +3455,7 @@ describe("sql subqueries tests", () => {
                         "key": "lastName",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -3467,7 +3467,7 @@ describe("sql subqueries tests", () => {
                         "key": "modifiedAt",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -3479,7 +3479,7 @@ describe("sql subqueries tests", () => {
                         "key": "notes",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -3491,7 +3491,7 @@ describe("sql subqueries tests", () => {
                         "key": "parentId",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -3503,7 +3503,7 @@ describe("sql subqueries tests", () => {
                         "key": "status",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -3523,14 +3523,14 @@ describe("sql subqueries tests", () => {
                     "callback": [Function],
                   },
                   "format": null,
-                  "id": "SqlTable#1(SqlTable(valnor_test.account))",
+                  "id": "SqlTable#1(SqlTable(main.account))",
                   "pk": [
                     "accountId",
                   ],
                   "tableCache": Map {},
                   "tableInfo": {
                     "name": "account",
-                    "schema": "valnor_test",
+                    "schema": "main",
                   },
                   "type": "SqlTable",
                   "wrap": true,
@@ -3542,7 +3542,7 @@ describe("sql subqueries tests", () => {
                   "key": "email",
                   "tableInfo": {
                     "name": "account",
-                    "schema": "valnor_test",
+                    "schema": "main",
                   },
                   "type": "SqlTableColumn",
                   "wrap": true,
@@ -3564,7 +3564,7 @@ describe("sql subqueries tests", () => {
               "key": "modifiedAt",
               "tableInfo": {
                 "name": "account",
-                "schema": "valnor_test",
+                "schema": "main",
               },
               "type": "SqlTableColumn",
               "wrap": true,
@@ -3646,7 +3646,7 @@ describe("sql subqueries tests", () => {
                           "key": "accountId",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -3658,7 +3658,7 @@ describe("sql subqueries tests", () => {
                           "key": "createdAt",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -3670,7 +3670,7 @@ describe("sql subqueries tests", () => {
                           "key": "email",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -3682,7 +3682,7 @@ describe("sql subqueries tests", () => {
                           "key": "firstName",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -3694,7 +3694,7 @@ describe("sql subqueries tests", () => {
                           "key": "lastName",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -3706,7 +3706,7 @@ describe("sql subqueries tests", () => {
                           "key": "modifiedAt",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -3718,7 +3718,7 @@ describe("sql subqueries tests", () => {
                           "key": "notes",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -3730,7 +3730,7 @@ describe("sql subqueries tests", () => {
                           "key": "parentId",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -3742,7 +3742,7 @@ describe("sql subqueries tests", () => {
                           "key": "status",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -3765,7 +3765,7 @@ describe("sql subqueries tests", () => {
                     "key": "accountId",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -3777,7 +3777,7 @@ describe("sql subqueries tests", () => {
                     "key": "createdAt",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -3789,7 +3789,7 @@ describe("sql subqueries tests", () => {
                     "key": "email",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -3801,7 +3801,7 @@ describe("sql subqueries tests", () => {
                     "key": "firstName",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -3813,7 +3813,7 @@ describe("sql subqueries tests", () => {
                     "key": "lastName",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -3825,7 +3825,7 @@ describe("sql subqueries tests", () => {
                     "key": "modifiedAt",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -3837,7 +3837,7 @@ describe("sql subqueries tests", () => {
                     "key": "notes",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -3849,7 +3849,7 @@ describe("sql subqueries tests", () => {
                     "key": "parentId",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -3861,7 +3861,7 @@ describe("sql subqueries tests", () => {
                     "key": "status",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -3878,7 +3878,7 @@ describe("sql subqueries tests", () => {
                           "key": "accountId",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -3890,7 +3890,7 @@ describe("sql subqueries tests", () => {
                           "key": "createdAt",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -3902,7 +3902,7 @@ describe("sql subqueries tests", () => {
                           "key": "email",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -3914,7 +3914,7 @@ describe("sql subqueries tests", () => {
                           "key": "firstName",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -3926,7 +3926,7 @@ describe("sql subqueries tests", () => {
                           "key": "lastName",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -3938,7 +3938,7 @@ describe("sql subqueries tests", () => {
                           "key": "modifiedAt",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -3950,7 +3950,7 @@ describe("sql subqueries tests", () => {
                           "key": "notes",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -3962,7 +3962,7 @@ describe("sql subqueries tests", () => {
                           "key": "parentId",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -3974,7 +3974,7 @@ describe("sql subqueries tests", () => {
                           "key": "status",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -3995,7 +3995,7 @@ describe("sql subqueries tests", () => {
                         "key": "accountId",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -4007,7 +4007,7 @@ describe("sql subqueries tests", () => {
                         "key": "createdAt",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -4019,7 +4019,7 @@ describe("sql subqueries tests", () => {
                         "key": "email",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -4031,7 +4031,7 @@ describe("sql subqueries tests", () => {
                         "key": "firstName",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -4043,7 +4043,7 @@ describe("sql subqueries tests", () => {
                         "key": "lastName",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -4055,7 +4055,7 @@ describe("sql subqueries tests", () => {
                         "key": "modifiedAt",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -4067,7 +4067,7 @@ describe("sql subqueries tests", () => {
                         "key": "notes",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -4079,7 +4079,7 @@ describe("sql subqueries tests", () => {
                         "key": "parentId",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -4091,7 +4091,7 @@ describe("sql subqueries tests", () => {
                         "key": "status",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -4111,14 +4111,14 @@ describe("sql subqueries tests", () => {
                     "callback": [Function],
                   },
                   "format": null,
-                  "id": "SqlTable#1(SqlTable(valnor_test.account))",
+                  "id": "SqlTable#1(SqlTable(main.account))",
                   "pk": [
                     "accountId",
                   ],
                   "tableCache": Map {},
                   "tableInfo": {
                     "name": "account",
-                    "schema": "valnor_test",
+                    "schema": "main",
                   },
                   "type": "SqlTable",
                   "wrap": true,
@@ -4130,7 +4130,7 @@ describe("sql subqueries tests", () => {
                   "key": "email",
                   "tableInfo": {
                     "name": "account",
-                    "schema": "valnor_test",
+                    "schema": "main",
                   },
                   "type": "SqlTableColumn",
                   "wrap": true,
@@ -4152,7 +4152,7 @@ describe("sql subqueries tests", () => {
               "key": "notes",
               "tableInfo": {
                 "name": "account",
-                "schema": "valnor_test",
+                "schema": "main",
               },
               "type": "SqlTableColumn",
               "wrap": true,
@@ -4234,7 +4234,7 @@ describe("sql subqueries tests", () => {
                           "key": "accountId",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -4246,7 +4246,7 @@ describe("sql subqueries tests", () => {
                           "key": "createdAt",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -4258,7 +4258,7 @@ describe("sql subqueries tests", () => {
                           "key": "email",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -4270,7 +4270,7 @@ describe("sql subqueries tests", () => {
                           "key": "firstName",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -4282,7 +4282,7 @@ describe("sql subqueries tests", () => {
                           "key": "lastName",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -4294,7 +4294,7 @@ describe("sql subqueries tests", () => {
                           "key": "modifiedAt",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -4306,7 +4306,7 @@ describe("sql subqueries tests", () => {
                           "key": "notes",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -4318,7 +4318,7 @@ describe("sql subqueries tests", () => {
                           "key": "parentId",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -4330,7 +4330,7 @@ describe("sql subqueries tests", () => {
                           "key": "status",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -4353,7 +4353,7 @@ describe("sql subqueries tests", () => {
                     "key": "accountId",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -4365,7 +4365,7 @@ describe("sql subqueries tests", () => {
                     "key": "createdAt",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -4377,7 +4377,7 @@ describe("sql subqueries tests", () => {
                     "key": "email",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -4389,7 +4389,7 @@ describe("sql subqueries tests", () => {
                     "key": "firstName",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -4401,7 +4401,7 @@ describe("sql subqueries tests", () => {
                     "key": "lastName",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -4413,7 +4413,7 @@ describe("sql subqueries tests", () => {
                     "key": "modifiedAt",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -4425,7 +4425,7 @@ describe("sql subqueries tests", () => {
                     "key": "notes",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -4437,7 +4437,7 @@ describe("sql subqueries tests", () => {
                     "key": "parentId",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -4449,7 +4449,7 @@ describe("sql subqueries tests", () => {
                     "key": "status",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -4466,7 +4466,7 @@ describe("sql subqueries tests", () => {
                           "key": "accountId",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -4478,7 +4478,7 @@ describe("sql subqueries tests", () => {
                           "key": "createdAt",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -4490,7 +4490,7 @@ describe("sql subqueries tests", () => {
                           "key": "email",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -4502,7 +4502,7 @@ describe("sql subqueries tests", () => {
                           "key": "firstName",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -4514,7 +4514,7 @@ describe("sql subqueries tests", () => {
                           "key": "lastName",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -4526,7 +4526,7 @@ describe("sql subqueries tests", () => {
                           "key": "modifiedAt",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -4538,7 +4538,7 @@ describe("sql subqueries tests", () => {
                           "key": "notes",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -4550,7 +4550,7 @@ describe("sql subqueries tests", () => {
                           "key": "parentId",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -4562,7 +4562,7 @@ describe("sql subqueries tests", () => {
                           "key": "status",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -4583,7 +4583,7 @@ describe("sql subqueries tests", () => {
                         "key": "accountId",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -4595,7 +4595,7 @@ describe("sql subqueries tests", () => {
                         "key": "createdAt",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -4607,7 +4607,7 @@ describe("sql subqueries tests", () => {
                         "key": "email",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -4619,7 +4619,7 @@ describe("sql subqueries tests", () => {
                         "key": "firstName",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -4631,7 +4631,7 @@ describe("sql subqueries tests", () => {
                         "key": "lastName",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -4643,7 +4643,7 @@ describe("sql subqueries tests", () => {
                         "key": "modifiedAt",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -4655,7 +4655,7 @@ describe("sql subqueries tests", () => {
                         "key": "notes",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -4667,7 +4667,7 @@ describe("sql subqueries tests", () => {
                         "key": "parentId",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -4679,7 +4679,7 @@ describe("sql subqueries tests", () => {
                         "key": "status",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -4699,14 +4699,14 @@ describe("sql subqueries tests", () => {
                     "callback": [Function],
                   },
                   "format": null,
-                  "id": "SqlTable#1(SqlTable(valnor_test.account))",
+                  "id": "SqlTable#1(SqlTable(main.account))",
                   "pk": [
                     "accountId",
                   ],
                   "tableCache": Map {},
                   "tableInfo": {
                     "name": "account",
-                    "schema": "valnor_test",
+                    "schema": "main",
                   },
                   "type": "SqlTable",
                   "wrap": true,
@@ -4718,7 +4718,7 @@ describe("sql subqueries tests", () => {
                   "key": "email",
                   "tableInfo": {
                     "name": "account",
-                    "schema": "valnor_test",
+                    "schema": "main",
                   },
                   "type": "SqlTableColumn",
                   "wrap": true,
@@ -4740,7 +4740,7 @@ describe("sql subqueries tests", () => {
               "key": "parentId",
               "tableInfo": {
                 "name": "account",
-                "schema": "valnor_test",
+                "schema": "main",
               },
               "type": "SqlTableColumn",
               "wrap": true,
@@ -4822,7 +4822,7 @@ describe("sql subqueries tests", () => {
                           "key": "accountId",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -4834,7 +4834,7 @@ describe("sql subqueries tests", () => {
                           "key": "createdAt",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -4846,7 +4846,7 @@ describe("sql subqueries tests", () => {
                           "key": "email",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -4858,7 +4858,7 @@ describe("sql subqueries tests", () => {
                           "key": "firstName",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -4870,7 +4870,7 @@ describe("sql subqueries tests", () => {
                           "key": "lastName",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -4882,7 +4882,7 @@ describe("sql subqueries tests", () => {
                           "key": "modifiedAt",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -4894,7 +4894,7 @@ describe("sql subqueries tests", () => {
                           "key": "notes",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -4906,7 +4906,7 @@ describe("sql subqueries tests", () => {
                           "key": "parentId",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -4918,7 +4918,7 @@ describe("sql subqueries tests", () => {
                           "key": "status",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -4941,7 +4941,7 @@ describe("sql subqueries tests", () => {
                     "key": "accountId",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -4953,7 +4953,7 @@ describe("sql subqueries tests", () => {
                     "key": "createdAt",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -4965,7 +4965,7 @@ describe("sql subqueries tests", () => {
                     "key": "email",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -4977,7 +4977,7 @@ describe("sql subqueries tests", () => {
                     "key": "firstName",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -4989,7 +4989,7 @@ describe("sql subqueries tests", () => {
                     "key": "lastName",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -5001,7 +5001,7 @@ describe("sql subqueries tests", () => {
                     "key": "modifiedAt",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -5013,7 +5013,7 @@ describe("sql subqueries tests", () => {
                     "key": "notes",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -5025,7 +5025,7 @@ describe("sql subqueries tests", () => {
                     "key": "parentId",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -5037,7 +5037,7 @@ describe("sql subqueries tests", () => {
                     "key": "status",
                     "tableInfo": {
                       "name": "account",
-                      "schema": "valnor_test",
+                      "schema": "main",
                     },
                     "type": "SqlTableColumn",
                     "wrap": true,
@@ -5054,7 +5054,7 @@ describe("sql subqueries tests", () => {
                           "key": "accountId",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -5066,7 +5066,7 @@ describe("sql subqueries tests", () => {
                           "key": "createdAt",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -5078,7 +5078,7 @@ describe("sql subqueries tests", () => {
                           "key": "email",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -5090,7 +5090,7 @@ describe("sql subqueries tests", () => {
                           "key": "firstName",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -5102,7 +5102,7 @@ describe("sql subqueries tests", () => {
                           "key": "lastName",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -5114,7 +5114,7 @@ describe("sql subqueries tests", () => {
                           "key": "modifiedAt",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -5126,7 +5126,7 @@ describe("sql subqueries tests", () => {
                           "key": "notes",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -5138,7 +5138,7 @@ describe("sql subqueries tests", () => {
                           "key": "parentId",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -5150,7 +5150,7 @@ describe("sql subqueries tests", () => {
                           "key": "status",
                           "tableInfo": {
                             "name": "account",
-                            "schema": "valnor_test",
+                            "schema": "main",
                           },
                           "type": "SqlTableColumn",
                           "wrap": true,
@@ -5171,7 +5171,7 @@ describe("sql subqueries tests", () => {
                         "key": "accountId",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -5183,7 +5183,7 @@ describe("sql subqueries tests", () => {
                         "key": "createdAt",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -5195,7 +5195,7 @@ describe("sql subqueries tests", () => {
                         "key": "email",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -5207,7 +5207,7 @@ describe("sql subqueries tests", () => {
                         "key": "firstName",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -5219,7 +5219,7 @@ describe("sql subqueries tests", () => {
                         "key": "lastName",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -5231,7 +5231,7 @@ describe("sql subqueries tests", () => {
                         "key": "modifiedAt",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -5243,7 +5243,7 @@ describe("sql subqueries tests", () => {
                         "key": "notes",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -5255,7 +5255,7 @@ describe("sql subqueries tests", () => {
                         "key": "parentId",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -5267,7 +5267,7 @@ describe("sql subqueries tests", () => {
                         "key": "status",
                         "tableInfo": {
                           "name": "account",
-                          "schema": "valnor_test",
+                          "schema": "main",
                         },
                         "type": "SqlTableColumn",
                         "wrap": true,
@@ -5287,14 +5287,14 @@ describe("sql subqueries tests", () => {
                     "callback": [Function],
                   },
                   "format": null,
-                  "id": "SqlTable#1(SqlTable(valnor_test.account))",
+                  "id": "SqlTable#1(SqlTable(main.account))",
                   "pk": [
                     "accountId",
                   ],
                   "tableCache": Map {},
                   "tableInfo": {
                     "name": "account",
-                    "schema": "valnor_test",
+                    "schema": "main",
                   },
                   "type": "SqlTable",
                   "wrap": true,
@@ -5306,7 +5306,7 @@ describe("sql subqueries tests", () => {
                   "key": "email",
                   "tableInfo": {
                     "name": "account",
-                    "schema": "valnor_test",
+                    "schema": "main",
                   },
                   "type": "SqlTableColumn",
                   "wrap": true,
@@ -5328,7 +5328,7 @@ describe("sql subqueries tests", () => {
               "key": "status",
               "tableInfo": {
                 "name": "account",
-                "schema": "valnor_test",
+                "schema": "main",
               },
               "type": "SqlTableColumn",
               "wrap": true,
@@ -5363,8 +5363,8 @@ describe("sql subqueries tests", () => {
           "parent"."first_name" AS "parentFirstName",
           "parent"."last_name" AS "parentLastName"
         FROM
-          "valnor_test"."account" AS "a_1"
-          JOIN "valnor_test"."account" AS "parent" ON "parent"."account_id" = "a_1"."parent_id"
+          "main"."account" AS "a_1"
+          JOIN "main"."account" AS "parent" ON "parent"."account_id" = "a_1"."parent_id"
         WHERE
           "a_1"."first_name" = ?
           /* </query_0> */"

@@ -25,7 +25,7 @@ describe("SqlTable tests", () => {
       expect(actual).toBeDefined();
       expect(actual.tableInfo).toEqual(
          expect.objectContaining({
-            schema: "valnor_test",
+            schema: "main",
             name: "account",
             alias: "parent",
          }),
@@ -37,7 +37,7 @@ describe("SqlTable tests", () => {
       console.log(actual);
       expect(actual).toBeDefined();
       expect(actual.tableInfo).toEqual<typeof actual.tableInfo>({
-         schema: "valnor_test",
+         schema: "main",
          name: "account",
          alias: "parent",
       });
@@ -53,7 +53,7 @@ describe("SqlTable tests", () => {
             key: "accountId",
             columnName: "account_id",
             tableInfo: {
-               schema: "valnor_test",
+               schema: "main",
                name: "account",
                alias: "inserted",
             },
@@ -62,7 +62,7 @@ describe("SqlTable tests", () => {
             key: "status",
             columnName: "status",
             tableInfo: {
-               schema: "valnor_test",
+               schema: "main",
                name: "account",
                alias: "inserted",
             },
@@ -71,7 +71,7 @@ describe("SqlTable tests", () => {
             key: "firstName",
             columnName: "first_name",
             tableInfo: {
-               schema: "valnor_test",
+               schema: "main",
                name: "account",
                alias: "inserted",
             },
@@ -80,7 +80,7 @@ describe("SqlTable tests", () => {
             key: "lastName",
             columnName: "last_name",
             tableInfo: {
-               schema: "valnor_test",
+               schema: "main",
                name: "account",
                alias: "inserted",
             },
@@ -89,7 +89,7 @@ describe("SqlTable tests", () => {
             key: "email",
             columnName: "email",
             tableInfo: {
-               schema: "valnor_test",
+               schema: "main",
                name: "account",
                alias: "inserted",
             },
@@ -98,7 +98,7 @@ describe("SqlTable tests", () => {
             key: "createdAt",
             columnName: "created_at",
             tableInfo: {
-               schema: "valnor_test",
+               schema: "main",
                name: "account",
                alias: "inserted",
             },
@@ -107,7 +107,7 @@ describe("SqlTable tests", () => {
             key: "modifiedAt",
             columnName: "modified_at",
             tableInfo: {
-               schema: "valnor_test",
+               schema: "main",
                name: "account",
                alias: "inserted",
             },
@@ -116,7 +116,7 @@ describe("SqlTable tests", () => {
             key: "parentId",
             columnName: "parent_id",
             tableInfo: {
-               schema: "valnor_test",
+               schema: "main",
                name: "account",
                alias: "inserted",
             },
