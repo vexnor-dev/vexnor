@@ -1,36 +1,45 @@
 export class Queue<T> {
-   private _queue: Item<T>[] = [];
+   private _items: Item<T>[] = [];
 
-   constructor(...items: T[]) {
-      this.add(...items);
+   constructor(items?: T[]) {
+      if (items?.length) {
+         this.add(...items);
+      }
    }
 
    add(...items: T[]): void {
-      let index = this._queue.length;
+      let index = this._items.length;
       for (const item of items) {
-         this._queue.push({ item, index: index++ });
+         this._items.push({ item, index: index++ });
       }
    }
 
    get length(): number {
-      return this._queue.length;
+      return this._items.length;
    }
 
    *shift(): IterableIterator<T> {
-      while (this._queue.length) {
-         const { item } = this._queue.shift()!;
+      while (this._items.length) {
+         const { item } = this._items.shift()!;
+         yield item;
+      }
+   }
+
+   *pop(): IterableIterator<T> {
+      while (this._items.length) {
+         const { item } = this._items.pop()!;
          yield item;
       }
    }
 
    *each(): IterableIterator<Item<T>> {
-      for (const item of this._queue) {
+      for (const item of this._items) {
          yield item;
       }
    }
 
    get items() {
-      return Array.from(this._queue);
+      return Array.from(this._items);
    }
 }
 

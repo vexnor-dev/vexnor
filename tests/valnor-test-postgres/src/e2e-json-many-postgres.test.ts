@@ -82,14 +82,14 @@ describe.sequential("jsonMany() tests", () => {
       expect(context.text).toMatchInlineSnapshot(
          `
         "/* <query_1> */
-        /* --inline: true */
+        /* inline: true */
         LEFT JOIN LATERAL (
           SELECT
             coalesce(jsonb_agg ("AccountOrders".*), '[]') AS "AccountOrders_result"
           FROM
             (
               /* <AccountOrders> */
-              /* --label: AccountOrders */
+              /* label: AccountOrders */
               SELECT
                 "o_1"."order_id" AS "orderId",
                 "o_1"."status",
@@ -102,8 +102,7 @@ describe.sequential("jsonMany() tests", () => {
               ORDER BY
                 "o_1"."created_at" DESC
               LIMIT
-                ?
-                /* </AccountOrders> */
+                ? /* </AccountOrders> */
             ) AS "AccountOrders"
         ) AS "AccountOrders" ON TRUE
         /* </query_1> */"
@@ -143,16 +142,15 @@ describe.sequential("jsonMany() tests", () => {
           "a_1"."parent_id" AS "parentId",
           "AccountOrders_result" AS "children"
         FROM
-          "valnor_test"."account" AS "a_1"
-          /* <query_2> */
-          /* --inline: true */
+          "valnor_test"."account" AS "a_1" /* <query_2> */
+          /* inline: true */
           LEFT JOIN LATERAL (
             SELECT
               coalesce(jsonb_agg ("AccountOrders".*), '[]') AS "AccountOrders_result"
             FROM
               (
                 /* <AccountOrders> */
-                /* --label: AccountOrders */
+                /* label: AccountOrders */
                 SELECT
                   "o_2"."order_id" AS "orderId",
                   "o_2"."status",
@@ -165,8 +163,7 @@ describe.sequential("jsonMany() tests", () => {
                 ORDER BY
                   "o_2"."created_at" DESC
                 LIMIT
-                  ?
-                  /* </AccountOrders> */
+                  ? /* </AccountOrders> */
               ) AS "AccountOrders"
           ) AS "AccountOrders" ON TRUE
           /* </query_2> */
@@ -209,16 +206,15 @@ describe.sequential("jsonMany() tests", () => {
           "a_1"."parent_id" AS "parentId",
           "AccountOrders_result" AS "orders"
         FROM
-          "valnor_test"."account" AS "a_1"
-          /* <query_2> */
-          /* --inline: true */
+          "valnor_test"."account" AS "a_1" /* <query_2> */
+          /* inline: true */
           LEFT JOIN LATERAL (
             SELECT
               coalesce(jsonb_agg ("AccountOrders".*), '[]') AS "AccountOrders_result"
             FROM
               (
                 /* <AccountOrders> */
-                /* --label: AccountOrders */
+                /* label: AccountOrders */
                 SELECT
                   "o_2"."order_id" AS "orderId",
                   "o_2"."status",
@@ -231,8 +227,7 @@ describe.sequential("jsonMany() tests", () => {
                 ORDER BY
                   "o_2"."created_at" DESC
                 LIMIT
-                  ?
-                  /* </AccountOrders> */
+                  ? /* </AccountOrders> */
               ) AS "AccountOrders"
           ) AS "AccountOrders" ON TRUE
           /* </query_2> */

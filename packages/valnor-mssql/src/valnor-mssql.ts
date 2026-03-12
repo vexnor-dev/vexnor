@@ -11,7 +11,7 @@ import {
    ValnorPlugin,
 } from "valnor/plugin";
 import { MssqlQueryHandler } from "./mssql-query-handler.js";
-import { SqlQueryHandler, SqlQuery } from "valnor";
+import { SqlQueryHandler, SqlQuery, newSqlQueryHandler } from "valnor";
 import { getColumnType } from "./get-column-type.js";
 import { findTables } from "./schema/find-tables.js";
 import mssql from "mssql";
@@ -21,6 +21,7 @@ import mssql from "mssql";
  */
 export class ValnorMssql extends ValnorPlugin<{ Config: ConnectionConfig; Connection: mssql.ConnectionPool }> {
    driver = "mssql";
+   dialect = "tsql";
 
    getLibrary(): LibraryOutputFile[] {
       return [];
@@ -38,11 +39,6 @@ export class ValnorMssql extends ValnorPlugin<{ Config: ConnectionConfig; Connec
             .getAll({
                db: connection.db.request(),
                params: { schemas },
-               options: {
-                  debug: (args) => {
-                     console.log(args.text);
-                  },
-               },
             })
             .catch((err) => {
                console.error(err);
@@ -131,6 +127,7 @@ declare module "valnor" {
 
 Object.defineProperty(SqlQuery.prototype, "mssql", {
    get: function () {
-      return new MssqlQueryHandler(this);
+      const handler = new MssqlQueryHandler(this);
+      return newSqlQueryHandler(handler);
    },
 });

@@ -4,7 +4,7 @@ import { TestProject } from "vitest/node";
 import { sql } from "valnor-sqlite3";
 
 export default async function (proj: TestProject) {
-   process.env["SQLITE_PATH"] = proj.config.env?.["SQLITE_PATH"] ?? proj.globalConfig.env?.["SQLITE_PATH"];
+   Object.assign(process.env, proj.config.env ?? proj.globalConfig.env);
 
    const { db } = await import("./config.js");
    const timestamp = new Date();

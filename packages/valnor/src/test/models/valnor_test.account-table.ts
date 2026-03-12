@@ -1,5 +1,6 @@
-import { JsonRow, newSqlTable } from "../../core/index.js";
-import { AccountStatusUdt } from "./valnor_test-enums.js";
+import { JsonRow } from "#/core/schema/schema-types.js";
+import { newSqlTable } from "#/core/schema/sql-table.js";
+import { AccountStatusUdt } from "#/test/models/valnor_test-enums.js";
 
 export const Account = newSqlTable<{
    Select: IAccountSelect;
@@ -8,14 +9,16 @@ export const Account = newSqlTable<{
    Delete: true;
 }>({
    crud: {
-      read: true,
-      create: true,
+      select: true,
+      insert: true,
       update: true,
       delete: true,
    },
    tableInfo: {
       name: "account",
       schema: "main",
+      out: false,
+      alias: null,
    },
    pk: ["accountId"],
    columns: {

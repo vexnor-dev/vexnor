@@ -6,8 +6,8 @@ import * as valnor from "valnor";
 export const Order = valnor.newSqlTable<{ Select: IOrderSelect, Insert: IOrderInsert, Update: IOrderUpdate; Delete: true }>({
    crud:
    {
-      create: true, 
-      read: true, 
+      select: true, 
+      insert: true, 
       update: true, 
       delete: true, 
    },
@@ -17,6 +17,7 @@ export const Order = valnor.newSqlTable<{ Select: IOrderSelect, Insert: IOrderIn
       schema: "valnor_test",
    },
    pk: ["orderId"], 
+   dialect: "tsql",
    columns:
    {
 

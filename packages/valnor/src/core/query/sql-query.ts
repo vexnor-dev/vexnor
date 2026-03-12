@@ -1,25 +1,41 @@
-import { BuildSqlParams, SqlParam } from "./sql-param.js";
-import { SqlBuildContext } from "./sql-build-context.js";
-import { logger } from "../logger.js";
-import { ARGS, PARAMS, Sql, TYPE } from "../sql-base.js";
-import { SqlQueryInfo } from "../charms/index.js";
-import { hasParams, InferSelectRowByResult, SqlBuildOptions, SqlInputArgs } from "./sql-query-types.js";
-import { SqlSelectAll } from "./sql-select-all.js";
-import { Lazy, Queue } from "../../lib/index.js";
-import { SqlBuildError } from "../sql-build-error.js";
+import {
+   hasParams,
+   InferSelectRowByResult,
+   SqlInputArgs,
+   SqlQueryFormat,
+   SqlQueryScope,
+   SqlQueryType,
+} from "#/core/query/sql-query-types.js";
+import { ARGS, PARAMS, Sql, TYPE } from "#/core/sql-base.js";
+import { Lazy } from "#/lib/lazy.js";
+import { BuildSqlParams, SqlParam } from "#/core/query/sql-param.js";
+import { SqlQueryAll, SqlQueryRow } from "#/core/query/sql-models.js";
+import { SqlQueryInfo } from "#/core/charms/sql-query-info.js";
+import { findQueryComment } from "#/core/utils/find-query-comment.js";
+import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
+import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
+import { newSqlQueryRef, SqlQueryRef, SqlQueryRefAny, SqlQueryRefExtended } from "#/core/query/sql-query-ref.js";
+import { SqlBuildError } from "#/core/sql-build-error.js";
+import { Queue } from "#/lib/queue.js";
+import { SqlSelectAll } from "#/core/query/sql-select-all.js";
+import { SqlSelectValue } from "#/core/query/sql-select-value.js";
+import { newSqlSelectColumn, SqlQueryColumn } from "#/core/query/sql-query-column.js";
+import { SqlSelectRow } from "#/core/query/sql-select-row.js";
+import { SqlSelectColumn } from "#/core/query/sql-select-column.js";
+import { SqlSelectCharm } from "#/core/query/sql-charm.js";
 import { format } from "sql-formatter";
-import { SqlQueryRow, SqlQueryAll } from "./sql-models.js";
-import { SqlSelectValue } from "./sql-select-value.js";
-import { SqlSelectRow } from "./sql-select-row.js";
-import { SqlSelectCharm } from "./sql-charm.js";
-import console from "node:console";
-import { newSqlSelectColumn, SqlQueryColumn } from "./sql-query-column.js";
-import { SqlSelectColumn } from "./sql-select-column.js";
+import { SqlTable } from "#/core/schema/sql-table.js";
+import { ok } from "assert";
+import { isSqlLanguage } from "#/core/query/lib/is-sql-language.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlQueryAny = SqlQuery<any>;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type SqlQueryExtendedAny = SqlQueryExtended<any>;
+
 export type SqlQueryColumns<Row> = Row extends Record<string, unknown> ? InferSelectRowByResult<Row> : unknown;
+export type SqlQueryAllRec<Row> = Row extends Record<string, unknown> ? Pick<SqlQuery<{ Row: Row }>, "$$"> : unknown;
 
 export type SqlQueryExtended<T extends { Row?: unknown; Params?: unknown }> = SqlQuery<T> & SqlQueryColumns<T["Row"]>;
 
@@ -28,33 +44,31 @@ export declare const QUERY: unique symbol;
 export type QueryOf<S> = S extends { readonly [QUERY]?: infer R } ? R : unknown;
 
 export type SqlQueryArgs = Pick<SqlQueryAny, "rawStrings" | "rawValues"> &
-   Partial<Pick<SqlQueryAny, "info" | "inline" | "format">>;
-
-export type SqlQueryFormat = "with" | "select" | "from" | "join" | "fn" | "sql";
+   Partial<Pick<SqlQueryAny, "info" | "tag" | "label">>;
 
 export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql {
-   declare readonly [QUERY]: SqlQuery<Pick<T, "Row" | "Params">>; // phantom, public
-
+   declare readonly [QUERY]: SqlQuery<Pick<T, "Row" | "Params">>;
    declare readonly [TYPE]: T["Row"];
    declare readonly [PARAMS]: T["Params"];
    declare readonly [ARGS]: T["Params"];
 
    readonly rawStrings: TemplateStringsArray;
    readonly rawValues: unknown[];
-   readonly info: SqlQueryInfo | null = null;
-   readonly inline: boolean;
-   readonly format: SqlQueryFormat | null = null;
 
-   private readonly _queries = new Lazy<SqlQueryAny[]>(this.createQueries.bind(this));
-   private readonly _params = new Lazy<BuildSqlParams<T["Params"]>>(this.createParams.bind(this));
-   private readonly _row = new Lazy<SqlQueryRow<T>>(this.createRow.bind(this));
-   private readonly _$$ = new Lazy<SqlQueryAll<T["Row"]>>(() => {
-      if (!this.row) return null as SqlQueryAll<T["Row"]>;
-      return new SqlSelectAll({ row: this.row, query: this }) as SqlQueryAll<T["Row"]>;
-   });
+   private readonly _innerQueriesLazy = new Lazy<SqlQueryAny[]>(this.initInnerQueries.bind(this));
+   private readonly _dialectsLazy = new Lazy<Set<string>>(this.initDialects.bind(this));
+   private readonly _paramsLazy = new Lazy<BuildSqlParams<T["Params"]>>(this.initParams.bind(this));
+   private readonly _rowLazy = new Lazy<SqlQueryRow<T>>(this.initRow.bind(this));
+   private readonly _$$Lazy = new Lazy<SqlQueryAll<T["Row"]>>(this.initSelectAll$$.bind(this));
+   private readonly _labelLazy: Lazy<string> = new Lazy(this.initLabel.bind(this));
+   private readonly _infoLazy: Lazy<SqlQueryInfo | null> = new Lazy(this.initInfo.bind(this));
+
    constructor({ rawStrings, rawValues, ...args }: SqlQueryArgs) {
       super({
          id: (() => {
+            const comment = findQueryComment(rawStrings);
+            if (comment) return comment;
+
             const info = args.info ?? rawValues.find((z) => z instanceof SqlQueryInfo);
             if (!info) return "";
 
@@ -62,45 +76,183 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
                .map(([k, v]) => `${k}=${v}`)
                .join(", ");
          })(),
+         tag: args.tag,
       });
 
       this.rawStrings = rawStrings;
       this.rawValues = rawValues;
-      this.format = args.format ?? null;
-      this.info = this.findInfo();
-      this.inline = args.inline ?? this.info?.inline ?? false;
+   }
+
+   get info() {
+      return this._infoLazy.value;
+   }
+
+   get label() {
+      return this._labelLazy.value;
    }
 
    /**
     * SQL query parameters
     */
    get params() {
-      return this._params.value;
+      return this._paramsLazy.value;
    }
 
    /**
     * SQL query result row
     */
    get row() {
-      return this._row.value;
+      return this._rowLazy.value;
    }
 
    /**
     * SQL query inner queries
     */
-   get queries() {
-      return this._queries.value;
+   get innerQueries() {
+      return this._innerQueriesLazy.value;
+   }
+
+   get dialects(): Set<string> {
+      return this._dialectsLazy.value;
    }
 
    /**
     * SQL query $$ (SQL *)
     */
    get $$() {
-      return this._$$.value;
+      return this._$$Lazy.value;
    }
 
-   findInfo(rawValues = this.rawValues) {
-      const queue = new Queue(...rawValues);
+   static buildInnerQueryRef(
+      queryRef: SqlQueryAny | SqlQueryRefAny,
+      context: SqlBuildContext,
+      options?: SqlBuildOptions | null,
+   ) {
+      let scope: undefined | SqlQueryScope = undefined;
+      let query = undefined;
+      switch (true) {
+         case queryRef instanceof SqlQuery:
+            query = queryRef;
+            break;
+         case queryRef instanceof SqlQueryRef:
+            query = queryRef.innerQuery;
+            scope = queryRef.scope;
+            break;
+         default:
+            throw new SqlBuildError(`Unsupported query ref type: ${queryRef}`);
+      }
+
+      switch (scope?.queryFormat ?? SqlQueryFormatByKeyword[context.keyword ?? "default"] ?? null) {
+         case "with": {
+            const queryName = context.getQueryName(query);
+            context.addStrings(`"${queryName}" as (`);
+            query.build(context, options, { queryType: "main", cte: true });
+            context.addStrings(")");
+            break;
+         }
+         case "select": {
+            const queryName = context.getQueryName(query);
+            context.addStrings("(");
+            query.build(context, options, { queryType: "main", cte: false });
+            context.addStrings(")");
+            context.addStrings(` as "${queryName}"`);
+            break;
+         }
+         case "join":
+         case "from": {
+            const queryName = context.getQueryName(query);
+            if (context.isCTE(query)) {
+               context.addStrings(`"${queryName}"`);
+            } else {
+               context.addStrings("(");
+               query.build(context, options, { queryType: "main", cte: false });
+               context.addStrings(")");
+               context.addStrings(` as "${queryName}"`);
+            }
+            break;
+         }
+         case "fn": {
+            const queryName = context.getQueryName(query);
+            context.addStrings(`"${queryName}"`);
+            break;
+         }
+         case "default":
+         case null:
+            query.build(context, options, {
+               queryType: scope?.queryType ?? "main",
+               queryFormat: scope?.queryFormat ?? "default",
+               cte: false,
+            });
+            break;
+         default:
+            throw new SqlBuildError(`Unsupported query format: ${scope?.queryFormat}`);
+      }
+   }
+
+   static buildInnerToken(token: unknown, context: SqlBuildContext, options?: SqlBuildOptions | null) {
+      switch (true) {
+         case token instanceof SqlQuery:
+         case token instanceof SqlQueryRef:
+            this.buildInnerQueryRef(token, context, options);
+            break;
+         case token instanceof Sql:
+            token.build(context, options ?? undefined);
+            break;
+         case !token:
+            context.addValues(token);
+            break;
+         default:
+            context.addValues(token);
+            break;
+      }
+   }
+
+   write<SqlQueryScope>(
+      context: SqlBuildContext,
+      options: SqlBuildOptions | null = null,
+      scope?: SqlQueryScope | null,
+   ) {
+      context.scope(
+         this,
+         () => {
+            const queryName = context.getQueryName(this);
+            // TODO: include additional tracing in sql-query.build(): ${this.fragment ? "fragment " : ""}format="${this.format}"
+            context.addStrings(` /* <${queryName}> */ `);
+            const children = [...this.rawValues];
+            let i = -1;
+            while (children.length || i < this.rawStrings.length) {
+               i++;
+               const rawString = i < this.rawStrings.length ? this.rawStrings[i] : undefined;
+               if (rawString) {
+                  context.addStrings(rawString);
+                  context.next(rawString);
+               }
+
+               if (!children.length) break;
+
+               const child = children.shift();
+
+               if (Array.isArray(child)) {
+                  for (let k = 0; k < child.length; k++) {
+                     if (k > 0) {
+                        context.addStrings(", ");
+                     }
+
+                     SqlQuery.buildInnerToken(child[k], context, options);
+                  }
+               } else {
+                  SqlQuery.buildInnerToken(child, context, options);
+               }
+            }
+
+            context.addStrings(`/* </${queryName}> */`);
+         },
+         scope ?? { queryType: "main", cte: false },
+      );
+   }
+
+   initInfo(rawValues = this.rawValues): SqlQueryInfo | null {
+      const queue = new Queue(rawValues);
       for (const rawValue of queue.shift()) {
          switch (true) {
             case rawValue instanceof SqlQueryInfo:
@@ -114,23 +266,85 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
       return null;
    }
 
-   createQueries(rawValues = this.rawValues) {
-      const queries: SqlQueryAny[] = [];
-      const q = new Queue(...rawValues);
+   initSelectAll$$() {
+      if (!this.row) return null as SqlQueryAll<T["Row"]>;
+      return new SqlSelectAll({ row: this.row, innerQuery: this }) as SqlQueryAll<T["Row"]>;
+   }
+
+   initLabel(rawStrings = this.rawStrings, rawValues = this.rawValues): string {
+      const comment = findQueryComment(rawStrings);
+      return (
+         comment ??
+         this.info?.label ??
+         this.id +
+            ": " +
+            rawStrings
+               .map((rawString, index) => {
+                  const rawValue = rawValues.at(index);
+                  switch (true) {
+                     case rawValue === null:
+                        return rawString;
+                     case rawValue instanceof SqlQuery:
+                        return `${rawString} (${rawValue.label})`;
+                     case rawValue instanceof SqlQueryRef:
+                        return `${rawString} (${rawValue.innerQuery.label})`;
+                     case rawValue instanceof SqlParam:
+                        return `${rawString} $${rawValue.name}`;
+                     case rawValue instanceof Sql:
+                        return `${rawString} ${rawValue.id}`;
+                     default:
+                        return `${rawString}` + rawValue ? ` ${rawValue}` : "";
+                  }
+               })
+               .join(" ")
+      );
+   }
+
+   initDialects(rawValues = this.rawValues): Set<string> {
+      const result = new Set<string>();
+      const q = new Queue(rawValues);
+      for (const rawValue of q.shift()) {
+         switch (true) {
+            case Array.isArray(rawValue):
+               q.add(...rawValue);
+               break;
+            case rawValue instanceof SqlTable:
+               result.add(rawValue.dialect);
+               break;
+            case rawValue instanceof SqlQuery:
+               for (const d of rawValue.dialects) result.add(d);
+               break;
+            case rawValue instanceof SqlSelectRow:
+               for (const item of Object.values(rawValue.getRow({ query: this }))) q.add(item);
+               break;
+            case rawValue instanceof SqlSelectValue:
+               q.add(rawValue.innerQuery);
+               break;
+            case rawValue instanceof SqlQueryColumn:
+               q.add(rawValue.target);
+               break;
+         }
+      }
+      return result;
+   }
+
+   initInnerQueries(rawValues = this.rawValues): SqlQueryAny[] {
+      const results: SqlQueryAny[] = [];
+      const q = new Queue(rawValues);
       for (const rawValue of q.shift()) {
          switch (true) {
             case Array.isArray(rawValue):
                q.add(...rawValue);
                break;
             case rawValue instanceof SqlQuery:
-               queries.push(rawValue);
-               queries.push(...rawValue.queries);
+               results.push(rawValue);
+               results.push(...rawValue.innerQueries);
                break;
             case rawValue instanceof SqlSelectValue:
-               queries.push(rawValue.query);
+               results.push(rawValue.innerQuery);
                break;
             case rawValue instanceof SqlQueryColumn:
-               queries.push(rawValue.query);
+               results.push(rawValue.query);
                q.add(rawValue.target);
                break;
             case rawValue instanceof SqlSelectRow:
@@ -141,24 +355,22 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
          }
       }
 
-      return queries;
+      return results;
    }
 
-   createRow(rawValues = this.rawValues): SqlQueryRow<T> {
+   initRow(rawValues = this.rawValues): SqlQueryRow<T> {
       let row: Partial<SqlQueryRow<T>> | null = null;
-      const q = new Queue(...rawValues);
+      const q = new Queue(rawValues);
       for (const rawValue of q.shift()) {
          switch (true) {
             case Array.isArray(rawValue):
                q.add(...rawValue);
                break;
             case rawValue instanceof SqlSelectAll:
-               console.log(`row >> SqlSelectAll: ${this.id} -> ${rawValue.id}`);
                break;
             case rawValue instanceof SqlSelectColumn:
             case rawValue instanceof SqlSelectCharm:
             case rawValue instanceof SqlSelectValue: {
-               console.log(`row >> SqlSelectValue: ${this.id} -> ${rawValue.id}`);
                row = {
                   ...(row ?? {}),
                   [`$${rawValue.key}`]: newSqlSelectColumn({ target: rawValue, key: rawValue.key, query: this }),
@@ -179,9 +391,9 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
       return row as SqlQueryRow<T>;
    }
 
-   createParams(rawValues = this.rawValues) {
+   initParams(rawValues = this.rawValues): BuildSqlParams<T["Params"]> {
       let params: Partial<BuildSqlParams<T["Params"]>> | null = null;
-      const q = new Queue(...rawValues);
+      const q = new Queue(rawValues);
       for (const rawValue of q.shift()) {
          switch (true) {
             case Array.isArray(rawValue):
@@ -204,8 +416,15 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
     * @example select * from table where id = ? and name = ?
     */
    getSql({ options, ...args }: SqlInputArgs<T["Params"]>): { text: string; values: unknown[] } {
-      const context = new SqlBuildContext({ ...options, params: hasParams(args) ? args.params : {} });
-      this.build(context, options ?? {});
+      const dialect = options?.dialect ?? this.dialects.values().next().value ?? "sql";
+      ok(isSqlLanguage(dialect), `Invalid dialect: ${dialect}`);
+
+      const context = new SqlBuildContext({
+         dialect,
+         ...options,
+         params: hasParams(args) ? Object.freeze(args.params) : {},
+      });
+      this.build(context, options ?? null, { queryType: "main" });
       const paramFormat = options?.paramFormat ?? (() => "?");
       const tokens: string[] = [];
       const values = [];
@@ -261,139 +480,34 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
       }
 
       const text = tokens.join("");
+      const shouldFormat = options?.format ?? process.env.NODE_ENV !== "production";
+      if (!shouldFormat) return { text, values };
       try {
          return {
             text: format(text, {
-               language: options?.dialect ?? "sql",
+               language: context.dialect,
                keywordCase: "upper",
             }),
             values,
          };
       } catch (err) {
-         console.error("Failed to format:\n", text);
-         throw err;
+         throw new SqlBuildError(`Failed to format SQL using dialect '${context.dialect}'.\n${text}`, { cause: err });
       }
    }
 
-   buildToken(token: unknown, context: SqlBuildContext, options?: SqlBuildOptions) {
-      switch (true) {
-         case token instanceof SqlQuery: {
-            switch (token.format ?? SqlQueryFormatByKeyword[context.keyword ?? "sql"]) {
-               case "with":
-                  context.scope({ query: token, cte: true, inline: token.inline }, () => {
-                     const queryName = context.getQueryName(token);
-                     context.addStrings(`"${queryName}" as (`);
-                     token.build(context, options);
-                     context.addStrings(")");
-                  });
-                  break;
-               case "select":
-                  context.scope({ query: token, inline: this.inline }, () => {
-                     const queryName = context.getQueryName(token);
-                     context.addStrings("(");
-                     token.build(context, options);
-                     context.addStrings(")");
-                     context.addStrings(` as "${queryName}"`);
-                  });
-                  break;
-               case "join":
-               case "from":
-                  context.scope({ query: token, inline: this.inline }, () => {
-                     const queryName = context.getQueryName(token);
-                     if (context.isCTE(token)) {
-                        context.addStrings(`"${queryName}"`);
-                     } else {
-                        context.addStrings("(");
-                        token.build(context, options);
-                        context.addStrings(")");
-                        context.addStrings(` as "${queryName}"`);
-                     }
-                  });
-                  break;
-               case "fn":
-                  context.scope({ query: token, inline: this.inline }, () => {
-                     const queryName = context.getQueryName(token);
-                     context.addStrings(`"${queryName}"`);
-                  });
-                  break;
-               case "sql":
-               default:
-                  context.scope({ query: token, inline: this.inline }, () => {
-                     token.build(context, options);
-                  });
-                  break;
-            }
-            break;
-         }
-         case token instanceof Sql:
-            token.build(context, options);
-            break;
-         case !token:
-            context.addValues(token);
-            break;
-         default:
-            context.addValues(token);
-            break;
-      }
+   render(queryFormat: SqlQueryFormat, queryType?: SqlQueryType | null): SqlQueryRefExtended<T> {
+      return newSqlQueryRef(this, { queryFormat, queryType });
    }
 
-   build(context: SqlBuildContext, options?: SqlBuildOptions) {
-      context.scope({ query: this }, () => {
-         const queryName = context.getQueryName(this);
-         context.addStrings(`\n\n/* <${queryName}> */\n\n`);
-         const children = [...this.rawValues];
-         let i = -1;
-         while (children.length || i < this.rawStrings.length) {
-            i++;
-            const rawString = i < this.rawStrings.length ? this.rawStrings[i] : undefined;
-            if (rawString) {
-               context.addStrings(rawString);
-               context.next(rawString);
-            }
-
-            if (!children.length) break;
-
-            const child = children.shift();
-
-            try {
-               if (Array.isArray(child)) {
-                  for (let k = 0; k < child.length; k++) {
-                     if (k > 0) {
-                        context.addStrings(", ");
-                     }
-
-                     this.buildToken(child[k], context, options);
-                  }
-               } else {
-                  this.buildToken(child, context, options);
-               }
-            } catch (err) {
-               logger.error(
-                  { err, context: context, rawString, child: child instanceof Sql ? child : "xxx" },
-                  "Query context",
-               );
-               throw err;
-            }
-         }
-
-         context.addStrings(`\n\n/* </${queryName}> */\n\n`);
-      });
-   }
-
-   render(format: SqlQueryFormat | "inline"): SqlQueryExtended<T> {
-      const inline = format === "inline";
-      const query = new SqlQuery<T>({
-         rawStrings: this.rawStrings,
-         rawValues: this.rawValues,
-         format: (inline ? this.format : format) ?? undefined,
-         inline,
-      });
-      return newSqlQuery(query);
+   inline(queryFormat?: SqlQueryFormat | null): SqlQueryRefExtended<T> {
+      return newSqlQueryRef(this, { queryType: "inline", queryFormat });
    }
 }
 
-export function newSqlQuery<T extends { Params?: unknown; Row?: unknown }>(query: SqlQuery<T>): SqlQueryExtended<T> {
-   return new Proxy(query as SqlQueryExtended<T>, {
+export function newSqlQuery<T extends { Params?: unknown; Row?: unknown }, Handler extends SqlQuery<T>>(
+   query: Handler,
+): Handler & SqlQueryExtended<T> {
+   return new Proxy(query, {
       ownKeys(target): ArrayLike<string | symbol> {
          const rowKeys = target.row ? Object.keys(target.row) : [];
          return [...Reflect.ownKeys(target), ...rowKeys];
@@ -414,7 +528,7 @@ export function newSqlQuery<T extends { Params?: unknown; Row?: unknown }>(query
 
          return undefined;
       },
-   }) as SqlQueryExtended<T>;
+   }) as Handler & SqlQueryExtended<T>;
 }
 
 export const SqlQueryFormatByKeyword: Record<string, SqlQueryFormat> = {
@@ -423,5 +537,7 @@ export const SqlQueryFormatByKeyword: Record<string, SqlQueryFormat> = {
    select: "select",
    join: "join",
    fn: "fn",
-   sql: "sql",
+   default: "default",
+   in: "default",
+   exists: "default",
 };

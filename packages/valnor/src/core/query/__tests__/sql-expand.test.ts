@@ -1,6 +1,9 @@
 import { assertType, describe, expect, test } from "vitest";
-import { sql } from "../../sql.js";
-import { expand, param, row, SqlQuery } from "../index.js";
+import { sql } from "#/core/sql.js";
+import { expand } from "#/core/query/sql-expand.js";
+import { param } from "#/core/query/sql-param.js";
+import { row } from "#/core/query/sql-select-row.js";
+import { SqlQuery } from "#/core/query/sql-query.js";
 import { Account, IAccountSelect } from "@test-models/valnor_test.schema.js";
 
 describe("SqlExpand", () => {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { Queue } from "../queue.js";
+import { Queue } from "#/lib/queue.js";
 
 describe("Queue", () => {
    describe("constructor", () => {
@@ -9,7 +9,7 @@ describe("Queue", () => {
       });
 
       it("should initialize with items", () => {
-         const queue = new Queue(1, 2, 3);
+         const queue = new Queue([1, 2, 3]);
          expect(queue.length).toBe(3);
       });
    });
@@ -28,7 +28,7 @@ describe("Queue", () => {
       });
 
       it("should append to existing items", () => {
-         const queue = new Queue(1, 2);
+         const queue = new Queue([1, 2]);
          queue.add(3, 4);
          expect(queue.length).toBe(4);
       });
@@ -36,7 +36,7 @@ describe("Queue", () => {
 
    describe("length", () => {
       it("should return correct length", () => {
-         const queue = new Queue(1, 2, 3);
+         const queue = new Queue([1, 2, 3]);
          expect(queue.length).toBe(3);
       });
 
@@ -50,13 +50,13 @@ describe("Queue", () => {
 
    describe("shift", () => {
       it("should yield items in FIFO order", () => {
-         const queue = new Queue(1, 2, 3);
+         const queue = new Queue([1, 2, 3]);
          const result = [...queue.shift()];
          expect(result).toEqual([1, 2, 3]);
       });
 
       it("should drain the queue", () => {
-         const queue = new Queue(1, 2, 3);
+         const queue = new Queue([1, 2, 3]);
          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
          [...queue.shift()];
          expect(queue.length).toBe(0);
@@ -69,7 +69,7 @@ describe("Queue", () => {
       });
 
       it("should work with for...of loop", () => {
-         const queue = new Queue(1, 2, 3);
+         const queue = new Queue([1, 2, 3]);
          const result: number[] = [];
          for (const item of queue.shift()) {
             result.push(item);
@@ -79,7 +79,7 @@ describe("Queue", () => {
       });
 
       it("should allow partial iteration", () => {
-         const queue = new Queue(1, 2, 3, 4, 5);
+         const queue = new Queue([1, 2, 3, 4, 5]);
          const iterator = queue.shift();
          expect(iterator.next().value).toBe(1);
          expect(iterator.next().value).toBe(2);
@@ -87,7 +87,7 @@ describe("Queue", () => {
       });
 
       it("should handle items added during iteration", () => {
-         const queue = new Queue(1, 2);
+         const queue = new Queue([1, 2]);
          const iterator = queue.shift();
          expect(iterator.next().value).toBe(1);
          queue.add(3);
@@ -99,14 +99,14 @@ describe("Queue", () => {
 
    describe("generic types", () => {
       it("should work with strings", () => {
-         const queue = new Queue("a", "b", "c");
+         const queue = new Queue(["a", "b", "c"]);
          expect([...queue.shift()]).toEqual(["a", "b", "c"]);
       });
 
       it("should work with objects", () => {
          const obj1 = { id: 1 };
          const obj2 = { id: 2 };
-         const queue = new Queue(obj1, obj2);
+         const queue = new Queue([obj1, obj2]);
          expect([...queue.shift()]).toEqual([obj1, obj2]);
       });
    });

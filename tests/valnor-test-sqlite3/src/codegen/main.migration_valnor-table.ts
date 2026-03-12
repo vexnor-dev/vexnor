@@ -3,43 +3,44 @@
 */
 import * as valnor from "valnor";
 
-export const MigrationValnor = valnor.newSqlTable<{ Select: IMigrationValnorSelect, Insert: IMigrationValnorInsert, Update: IMigrationValnorUpdate; Delete: true }>({
-   crud:
-   {
-      create: true, 
-      read: true, 
-      update: true, 
-      delete: true, 
+export const MigrationValnor = valnor.newSqlTable<{
+   Select: IMigrationValnorSelect;
+   Insert: IMigrationValnorInsert;
+   Update: IMigrationValnorUpdate;
+   Delete: true;
+}>({
+   crud: {
+      insert: true,
+      select: true,
+      update: true,
+      delete: true,
    },
-   tableInfo:
-   {
+   tableInfo: {
       name: "migration_valnor",
       schema: "main",
    },
-   pk: ["version"], 
-   columns:
-   {
-
+   pk: ["version"],
+   columns: {
       /**
        * version INTEGER
-      */
+       */
       version: "version",
 
       /**
        * name TEXT
-      */
+       */
       name: "name",
 
       /**
        * md5 TEXT
-      */
+       */
       md5: "md5",
 
       /**
        * run_at TIMESTAMP WITH TIME ZONE
-      */
+       */
       runAt: "run_at",
-   }
+   },
 });
 
 export type IMigrationValnorInsert = {
@@ -47,15 +48,15 @@ export type IMigrationValnorInsert = {
    name?: string | null;
    md5?: string | null;
    runAt?: string | null;
-}
+};
 
 export type IMigrationValnorUpdate = Partial<IMigrationValnorInsert>;
 
 export type IMigrationValnorSelect = {
-   version: number | null
-   name: string | null
-   md5: string | null
-   runAt: string | null
-}
+   version: number | null;
+   name: string | null;
+   md5: string | null;
+   runAt: string | null;
+};
 
 export type IMigrationValnorJson = valnor.JsonRow<IMigrationValnorSelect>;

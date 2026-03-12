@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, test } from "vitest";
-import { SqlBuildContext } from "../sql-build-context.js";
-import { DefaultTokenizer } from "../../default-tokenizer.js";
-import { DefaultFormatter } from "../../default-formatter.js";
+import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
+import { DefaultTokenizer } from "#/core/builder/default-tokenizer.js";
+import { DefaultFormatter } from "#/core/builder/default-formatter.js";
 
 describe("Advanced SqlBuildContext Engine Stress Tests", () => {
    let context!: SqlBuildContext;

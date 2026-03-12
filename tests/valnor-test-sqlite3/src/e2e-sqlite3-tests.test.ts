@@ -198,8 +198,7 @@ describe.sequential("valnor sqlite3 e2e tests", () => {
           "a_1"."created_at" AS "createdAt",
           "a_1"."modified_at" AS "modifiedAt",
           "a_1"."parent_id" AS "parentId",
-          /* <query_1> */
-          (
+          /* <query_1> */ (
             SELECT
               coalesce(
                 json_group_array(
@@ -247,8 +246,7 @@ describe.sequential("valnor sqlite3 e2e tests", () => {
                   "children"."account_id"
                   /* </query_2> */
               ) AS "query_2"
-          ) AS "children"
-          /* </query_1> */
+          ) AS "children" /* </query_1> */
         FROM
           "main"."account" AS "a_1"
         WHERE

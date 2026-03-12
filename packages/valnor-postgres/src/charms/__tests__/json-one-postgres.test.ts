@@ -1,6 +1,6 @@
 import { assertType, describe, expect, test } from "vitest";
 import { JsonRow, param, row, sql, SqlBuildContext, SqlCharm, SqlParam, SqlQueryExtended } from "valnor";
-import { jsonOne } from "../json-aggregation-postgres.js";
+import { jsonOne } from "#/charms/json-aggregation-postgres.js";
 import { Account, IAccountSelect } from "valnor/testing";
 
 describe("json-one-postgres tests", () => {
@@ -32,7 +32,7 @@ describe("json-one-postgres tests", () => {
       target.build(context, {});
       expect(context.text).toMatchInlineSnapshot(`
         "/* <query_1> */
-        /* --inline: true */
+        /* inline: true */
         LEFT JOIN LATERAL (
           SELECT
             coalesce(to_jsonb ("query_0".*), NULL) AS "query_0_result"
@@ -52,8 +52,7 @@ describe("json-one-postgres tests", () => {
               FROM
                 "main"."account" AS "parent"
               WHERE
-                "parent"."account_id" = "a_1"."parent_id"
-                /* </query_0> */
+                "parent"."account_id" = "a_1"."parent_id" /* </query_0> */
             ) AS "query_0"
         ) AS "query_0" ON TRUE
         /* </query_1> */"
@@ -100,9 +99,8 @@ describe("json-one-postgres tests", () => {
           "a_1"."parent_id" AS "parentId",
           "query_1_result" AS "parent"
         FROM
-          "main"."account" AS "a_1"
-          /* <query_2> */
-          /* --inline: true */
+          "main"."account" AS "a_1" /* <query_2> */
+          /* inline: true */
           LEFT JOIN LATERAL (
             SELECT
               coalesce(to_jsonb("query_1".*), NULL) AS "query_1_result"

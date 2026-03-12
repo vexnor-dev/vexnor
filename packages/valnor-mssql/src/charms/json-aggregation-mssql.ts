@@ -1,17 +1,18 @@
 import {
-   SqlBuildOptions,
-   SqlBuildContext,
-   SqlQuery,
-   quoteText,
-   SqlBuildError,
-   PARAMS,
-   SqlCharm,
-   SqlSelectCharm,
-   sql,
-   raw,
    BuildSqlParams,
-   SqlQueryAny,
+   PARAMS,
    quote,
+   quoteText,
+   raw,
+   row,
+   sql,
+   SqlBuildContext,
+   SqlBuildError,
+   SqlBuildOptions,
+   SqlCharm,
+   SqlQuery,
+   SqlQueryAny,
+   SqlSelectCharm,
 } from "valnor";
 import { ok } from "node:assert";
 
@@ -25,7 +26,6 @@ export type JsonResultType = "one" | "many";
  * WHERE ${Account.$accountId} = ${param("accountId")}
  */
 export class JsonAggregationMssql<T extends { Row?: unknown; Params?: unknown }> extends SqlCharm<Pick<T, "Params">> {
-   declare readonly [PARAMS]: T["Params"];
    static readonly CONFIG: Record<
       JsonResultType,
       {
@@ -39,7 +39,7 @@ export class JsonAggregationMssql<T extends { Row?: unknown; Params?: unknown }>
          FOR_JSON: "for json path, include_null_values",
       },
    };
-
+   declare readonly [PARAMS]: T["Params"];
    readonly type: JsonResultType;
 
    constructor(
@@ -53,14 +53,12 @@ export class JsonAggregationMssql<T extends { Row?: unknown; Params?: unknown }>
       this.type = type;
    }
 
-   build(context: SqlBuildContext, options: SqlBuildOptions) {
+   write(context: SqlBuildContext, options: SqlBuildOptions) {
       if (!this.query.row) {
          throw new SqlBuildError(`query row is required for json aggregation`);
       }
 
-      const queryName = context.scope({ query: this.query }, () => {
-         return context.getQueryName(this.query);
-      });
+      const queryName = context.getQueryName(this.query);
       switch (context.keyword) {
          case "select":
             context.addStrings(`"${queryName}_result"."${queryName}"`);
@@ -70,12 +68,10 @@ export class JsonAggregationMssql<T extends { Row?: unknown; Params?: unknown }>
             ok(FOR_JSON !== undefined, `FOR_JSON is not defined for type: ${this.type}`);
             const query = sql`
                outer apply (
-               select coalesce((${this.query.render("sql")} ${raw(FOR_JSON)}), '[]')
+               select coalesce((${this.query.render("default")} ${raw(FOR_JSON)}), ${raw(this.type === "one" ? "null" : "'[]'")})
                   as ${quote(queryName)}) as ${quote(`${queryName}_result`)}`;
 
-            context.scope({ query, inline: true }, () => {
-               query.build(context, options);
-            });
+            query.build(context, options, { queryType: "inline" });
             break;
          }
          default:
@@ -92,7 +88,7 @@ export class JsonAggregationMssql<T extends { Row?: unknown; Params?: unknown }>
       return new SqlSelectCharm<{ Key: Key; Type: string; Params: T["Params"] }>({
          key,
          params: this.params as BuildSqlParams<T["Params"]>,
-         build(context: SqlBuildContext) {
+         write(context: SqlBuildContext) {
             const queryName = context.getQueryName(query);
             context.addStrings(`"${queryName}_result"."${queryName}" as ${quoteText(this.key)}`);
          },
@@ -110,7 +106,9 @@ export class JsonAggregationMssql<T extends { Row?: unknown; Params?: unknown }>
  * WHERE ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}
  * */
 export function jsonOne<T extends SqlQueryAny>(query: T): JsonAggregationResult<T> {
-   return new JsonAggregationMssql(query, {
+   ok(query.$$, `'query.$$' is required. check if the query does return a row.`);
+   const findOne = sql`select top 1 ${row(query.$$)} from ${query.inline()}`;
+   return new JsonAggregationMssql(findOne, {
       type: "one",
    }) as JsonAggregationResult<T>;
 }

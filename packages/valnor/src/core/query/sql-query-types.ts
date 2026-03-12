@@ -1,10 +1,11 @@
-import { SqlQueryColumn } from "./sql-query-column.js";
-import { DefaultFormatter } from "../default-formatter.js";
-import { DefaultTokenizer } from "../default-tokenizer.js";
-import { SqlLanguage } from "sql-formatter";
-import { SqlParamFormat } from "./sql-models.js";
-import { SqlParamAny } from "./sql-param.js";
-import { Sql } from "../sql-base.js";
+import { SqlQueryColumn } from "#/core/query/sql-query-column.js";
+import { SqlParamAny } from "#/core/query/sql-param.js";
+import { Sql } from "#/core/sql-base.js";
+import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
+
+export type SqlQueryFormat = "with" | "select" | "from" | "join" | "fn" | "default";
+
+export type SqlQueryType = "main" | "inline";
 
 export type InferSelectRowByResult<Row> =
    Row extends Record<string, unknown>
@@ -17,15 +18,6 @@ export type InferSelectRowByResult<Row> =
               : never;
         }
       : never;
-
-export interface SqlBuildOptions {
-   formatter?: DefaultFormatter;
-   tokenizer?: DefaultTokenizer;
-   onAddString?: (text: string) => string;
-   debug?: (args: Readonly<Record<string, unknown>>) => void;
-   dialect?: SqlLanguage;
-   paramFormat?: SqlParamFormat;
-}
 
 export type SqlRunArgs<T extends { Connection: unknown; Params?: unknown }> =
    T["Params"] extends Record<string, unknown>
@@ -56,3 +48,11 @@ export function hasRow(value: unknown): value is { row: Record<string, Sql> } {
    if (!(value instanceof Sql)) return false;
    return "row" in value;
 }
+
+export type SqlQueryOptions = {
+   queryType?: SqlQueryType | null;
+   queryFormat?: SqlQueryFormat | null;
+   paramKey?: string | null;
+};
+
+export type SqlQueryScope = { cte?: boolean } & SqlQueryOptions;

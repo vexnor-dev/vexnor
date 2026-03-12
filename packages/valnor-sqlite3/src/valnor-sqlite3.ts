@@ -9,9 +9,10 @@ import {
    ValnorPlugin,
 } from "valnor/plugin";
 import BetterSqlite3 from "better-sqlite3";
-import { findPrimaryKeys, findTableColumns, findTables, getColumnType } from "./schema/index.js";
+import { findPrimaryKeys, findTableColumns, findTables } from "#/schema/find-tables.js";
+import { getColumnType } from "#/schema/get-column-type.js";
 import { SqlQueryHandler, SqlQuery } from "valnor";
-import { BetterSqlite3QueryHandler } from "./better-sqlite3-query-handler.js";
+import { BetterSqlite3QueryHandler } from "#/better-sqlite3-query-handler.js";
 import { resolve } from "node:path";
 
 export type Sqlite3ConnectionConfig = { uri: string };
@@ -21,6 +22,7 @@ export class ValnorSqlite3 extends ValnorPlugin<{
    Connection: BetterSqlite3.Database;
 }> {
    driver = "better-sqlite3";
+   dialect = "sqlite3";
 
    newQueryHandler<T extends { Row?: unknown; Params?: unknown; QueryResult: object; Connection: unknown }>(
       query: SqlQuery<{ Params: T["Params"]; Row: T["Row"] }>,

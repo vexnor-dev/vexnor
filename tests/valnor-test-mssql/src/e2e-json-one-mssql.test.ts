@@ -2,57 +2,19 @@ import { beforeAll, describe, expect, test } from "vitest";
 import { info, row, SqlBuildContext } from "valnor";
 import { pool } from "./mssql-pool.js";
 import { jsonOne, MssqlTokenizer, sql } from "valnor-mssql";
-import { Account, IAccountInsert } from "./codegen/valnor_test.schema.js";
-import { getTag } from "./config.js";
+import { Account } from "./codegen/valnor_test.schema.js";
+import { TestDataManager } from "./test-data-manager.js";
 
 describe.sequential("jsonOne() tests", (ctx) => {
-   const TAG = getTag(ctx);
-
-   beforeAll(async () => {
-      const parentInsert: IAccountInsert = {
-         status: "created",
-         firstName: `John-0-${TAG}}`,
-         lastName: `Doe-0-${TAG}}`,
-         email: `john.doe-${TAG}@example.com`,
-      };
-      const parentAccount = await sql`
-         insert into ${Account}
-            ${Account.insertCols(parentInsert)}
-            output ${row(Account.as`inserted`.$$)}
-            ${Account.insertVals(parentInsert)}
-      `.getOneRequired({ db: pool.request() });
-      expect(parentAccount.accountId).toBeDefined();
-
-      const childrenInserts: IAccountInsert[] = [
-         {
-            status: "created",
-            firstName: `John-1-${TAG}`,
-            lastName: `Doe-1-${TAG}`,
-            email: `john.doe-1-${TAG}@example.com`,
-            parentId: parentAccount.accountId,
-         },
-         {
-            status: "created",
-            firstName: `John-2-${TAG}`,
-            lastName: `Doe-2-${TAG}`,
-            email: `john.doe-2-${TAG}@example.com`,
-            parentId: parentAccount.accountId,
-         },
-      ];
-      const insertChildren = sql`
-         insert into ${Account}
-            ${Account.insertCols(...childrenInserts)}
-            output ${row(Account.as`inserted`.$$)}
-            ${Account.insertVals(...childrenInserts)}
-      `;
-      const x = insertChildren.getSql({});
-      console.log("jsonOne: insert children", x.values, "\n", x.text);
-      const childrenInserted = await insertChildren.getAll({ db: pool.request() });
-      expect(childrenInserted).toHaveLength(2);
-
-      console.log("children", childrenInserted);
+   const dataManager = new TestDataManager(ctx, {
+      ACCOUNT_ROOT_COUNT: 1,
+      ACCOUNT_CHILD_FACTOR: 2,
    });
 
+   beforeAll(async () => {
+      await dataManager.initRootAccounts(pool);
+      await dataManager.initChildAccounts(pool);
+   });
    const AccountParent = sql`
       ${info({ label: "AccountParent" })}
       select ${row(Account.$$)}
@@ -60,21 +22,21 @@ describe.sequential("jsonOne() tests", (ctx) => {
       where ${Account.$accountId} = ${Account.out.$parentId}`;
 
    test("jsonOne(): select", () => {
-      const context = new SqlBuildContext({ tokenizer: new MssqlTokenizer("test") });
+      const context = new SqlBuildContext({ tokenizer: new MssqlTokenizer() });
       context.next("select");
       const jsonAccountParent = jsonOne(AccountParent);
       jsonAccountParent.build(context, {});
       expect(context.tokens[0]).toMatchInlineSnapshot(`
         {
           "type": "text",
-          "value": ""AccountParent_result"."AccountParent"",
+          "value": ""query_0_result"."query_0"",
         }
       `);
    });
 
    const INVALID_KEYWORDS_FOR_JSON_ONE = ["where", "group by", "order by", "update", "delete from"];
    test.each(INVALID_KEYWORDS_FOR_JSON_ONE)("jsonOne().build() throws error for keyword: %s", (keyword) => {
-      const context = new SqlBuildContext({ tokenizer: new MssqlTokenizer("test") });
+      const context = new SqlBuildContext({ tokenizer: new MssqlTokenizer() });
       context.next(keyword);
       expect(() => jsonOne(AccountParent).build(context, {})).toThrow(
          "Cannot use JsonAggregationMssql with SQL keyword:",
@@ -116,7 +78,7 @@ describe.sequential("jsonOne() tests", (ctx) => {
                            where ${Account.$parentId} is not null
                            group by ${Account.$parentId})
          select top 1 ${row(Account.$$)}, ${oneChild.as("parent")}
-         from ${Account} ${jsonOne(AccountChildren)}
+         from ${Account} ${oneChild}
                  join children on children.parent_id = ${Account.$accountId}
          where children.children_count > 1
       `;
@@ -136,7 +98,7 @@ describe.sequential("jsonOne() tests", (ctx) => {
               "a_1"."parent_id"
           )
         SELECT
-          top 1 "a_1"."account_id" AS "accountId",
+          TOP 1 "a_1"."account_id" AS "accountId",
           "a_1"."parent_id" AS "parentId",
           "a_1"."status",
           "a_1"."email",
@@ -147,36 +109,41 @@ describe.sequential("jsonOne() tests", (ctx) => {
           "a_1"."modified_at" AS "modifiedAt",
           "query_1_result"."query_1" AS "parent"
         FROM
-          "valnor_test"."account" AS "a_1"
-          /* <query_2> */
-          OUTER apply (
+          "valnor_test"."account" AS "a_1" /* <query_3> */
+          OUTER APPLY (
             SELECT
               coalesce(
                 (
-                  /* <query_3> */
+                  /* <query_1> */
                   SELECT
-                    "children"."account_id" AS "accountId",
-                    "children"."parent_id" AS "parentId",
-                    "children"."status",
-                    "children"."email",
-                    "children"."first_name" AS "firstName",
-                    "children"."last_name" AS "lastName",
-                    "children"."notes",
-                    "children"."created_at" AS "createdAt",
-                    "children"."modified_at" AS "modifiedAt"
+                    TOP 1 "query_2".*
                   FROM
-                    "valnor_test"."account" AS "children"
-                  WHERE
-                    "children"."parent_id" = "a_1"."account_id"
-                    /* </query_3> */
-                    FOR json path,
+                    (
+                      /* <query_2> */
+                      SELECT
+                        "children"."account_id" AS "accountId",
+                        "children"."parent_id" AS "parentId",
+                        "children"."status",
+                        "children"."email",
+                        "children"."first_name" AS "firstName",
+                        "children"."last_name" AS "lastName",
+                        "children"."notes",
+                        "children"."created_at" AS "createdAt",
+                        "children"."modified_at" AS "modifiedAt"
+                      FROM
+                        "valnor_test"."account" AS "children"
+                      WHERE
+                        "children"."parent_id" = "a_1"."account_id"
+                        /* </query_2> */
+                    ) AS "query_2" /* </query_1> */
+                  FOR JSON
+                    path,
                     WITHOUT_ARRAY_WRAPPER,
                     include_null_values
                 ),
-                '[]'
+                NULL
               ) AS "query_1"
-          ) AS "query_1_result"
-          /* </query_2> */
+          ) AS "query_1_result" /* </query_3> */
           JOIN children ON children.parent_id = "a_1"."account_id"
         WHERE
           children.children_count > 1

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { defineConfig } from "../define-config.js";
+import { defineConfig } from "#/config/define-config.js";
 
 describe("defineConfig", () => {
    test("validates config has profiles", () => {

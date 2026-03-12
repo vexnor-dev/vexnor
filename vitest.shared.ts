@@ -2,6 +2,7 @@ import path from "node:path";
 import fs from "node:fs/promises";
 import { fileURLToPath } from "url";
 import * as vitest from "vitest/config";
+import { GetEnvVars } from "env-cmd";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -21,6 +22,16 @@ for (const [key, value] of Object.entries(paths)) {
    }
 }
 
+const env = await GetEnvVars({
+   rc: {
+      environments: ["db"],
+      filePath: paths.VALNOR_ENV_PATH,
+   },
+   verbose: true,
+});
+
+console.log("Vitest env:", env);
+
 // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 type Config = Exclude<Awaited<Parameters<typeof vitest.defineConfig>[0]>, Function>;
 
@@ -28,7 +39,10 @@ export const sharedConfig: Config = {
    test: {
       include: ["./**/*.{test,spec}.{ts,js}"],
       exclude: ["**/node_modules/**", "**/dist/**"],
-      env: paths,
+      env: {
+         ...paths,
+         ...env,
+      },
       typecheck: {
          enabled: true,
          checker: "tsc",

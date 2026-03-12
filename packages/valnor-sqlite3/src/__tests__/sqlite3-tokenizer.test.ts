@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { Sqlite3Tokenizer } from "../sqlite3-tokenizer.js";
+import { Sqlite3Tokenizer } from "#/sqlite3-tokenizer.js";
 
 describe("sqlite3 tokenizer tests", () => {
    test("should tokenize basic queries", () => {

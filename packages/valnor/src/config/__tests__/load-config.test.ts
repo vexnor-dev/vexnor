@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { loadConfig } from "../load-config.js";
+import { loadConfig } from "#/config/load-config.js";
 import { join } from "path";
 
 describe("loadConfig", () => {

@@ -1,5 +1,5 @@
-import { Sql } from "../sql-base.js";
-import { SqlBuildContext } from "./sql-build-context.js";
+import { Sql } from "#/core/sql-base.js";
+import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
 
 export class SqlRaw extends Sql {
    constructor(
@@ -9,7 +9,7 @@ export class SqlRaw extends Sql {
       super({ id: `SqlRaw(${value})` });
    }
 
-   override build(context: SqlBuildContext) {
+   override write(context: SqlBuildContext) {
       if (!this.value) return;
 
       if (this.options?.quote) {
@@ -42,3 +42,8 @@ export function quote(value: string): Sql {
  * SQL raw blank string
  */
 raw.BLANK = new SqlRaw("", { quote: false });
+
+/**
+ * SQL raw space string
+ */
+raw.SPACE = new SqlRaw(" ", { quote: false });

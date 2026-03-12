@@ -1,11 +1,11 @@
 import { assertType, describe, expect, test } from "vitest";
 import { Account, IAccountSelect } from "@test-models/valnor_test.account-table.js";
-import { InferTable$RowBySelect } from "../types/index.js";
-import { newSqlTableColumn } from "../schema/index.js";
-import { param, SqlParam } from "../query/index.js";
-import { ParamsOf, ParamsOfArgs } from "../sql-base.js";
-import { sql } from "../sql.js";
-import { Void } from "../utils/index.js";
+import { InferTable$RowBySelect } from "#/core/types/infer-types.js";
+import { newSqlTableColumn } from "#/core/schema/sql-table-column.js";
+import { param, SqlParam } from "#/core/query/sql-param.js";
+import { ParamsOf, ParamsOfArgs } from "#/core/sql-base.js";
+import { sql } from "#/core/sql.js";
+import { Void } from "#/core/utils/utility-types.js";
 
 describe("SqlBase tests", () => {
    test("InferSqlRowFromRecord", () => {
@@ -54,8 +54,8 @@ describe("SqlBase tests", () => {
       };
       type Actual = ParamsOfArgs<typeof target>;
       assertType<Actual>({
-         one: { value: "one" },
-         two: { value: 2 },
+         one: "one",
+         two: 2,
          // @ts-expect-error - Testing param validation
          error: "a",
       });
@@ -72,8 +72,10 @@ describe("SqlBase tests", () => {
       };
       type Actual = ParamsOfArgs<Target>;
       assertType<Actual>({
-         one: { value: "one" },
-         two: { value: 2 },
+         one: "one",
+         two: 2,
+         // @ts-expect-error - Testing param validation
+         error: "a",
       });
    });
 
@@ -88,8 +90,10 @@ describe("SqlBase tests", () => {
       };
       type Actual = ParamsOfArgs<Target>;
       assertType<Actual>({
-         where: { email: "a" },
-         groupBy: { parentId: "." },
+         email: "a",
+         parentId: ".",
+         // @ts-expect-error - Testing param validation
+         error: "a",
       });
    });
 
@@ -104,29 +108,23 @@ describe("SqlBase tests", () => {
       };
       type Actual = ParamsOfArgs<Target>;
       assertType<Actual>({
-         where: { email: "a" },
-         groupBy: { parentId: "." },
-         // @ts-expect-error - field never
+         email: "a",
+         parentId: ".",
+         // @ts-expect-error - Testing param validation
          error: "a",
-      });
-
-      assertType<Actual>({
-         groupBy: {
-            parentId: ".",
-            // @ts-expect-error - field never
-            error: "a",
-         },
       });
    });
 
-   test("ParamsOfKeys should merge params from types with required", () => {
+   test("ParamsOfKeys should merge params from types with only optional", () => {
       type Target = {
          where?: {
             email: SqlParam<{ Name: "email"; Type: string }>;
          };
       };
       type Actual = ParamsOfArgs<Target>;
-      assertType<Actual>({});
+      assertType<Actual>({
+         email: "a",
+      });
    });
 
    test("ParamsOf<SqlParam<{}>> is {}", () => {
@@ -166,7 +164,7 @@ describe("SqlBase tests", () => {
       };
       type Params = ParamsOfArgs<typeof target>;
       assertType<Params>({
-         b: { id1: "a" },
+         id1: "a",
       });
    });
 

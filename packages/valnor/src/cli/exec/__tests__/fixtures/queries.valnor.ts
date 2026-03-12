@@ -1,4 +1,4 @@
-import { defineQueryConfig } from "../../../../config/index.js";
+import { defineQueryConfig } from "../../../../config/config.js";
 import { findAccountById } from "../../../../config/__tests__/test-queries.js";
 import testPlugin from "../test-plugin.js";
 

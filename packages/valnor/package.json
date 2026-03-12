@@ -8,24 +8,24 @@
    "module": "./dist/core/index.js",
    "exports": {
       ".": {
-         "import": "./dist/core/index.js",
-         "types": "./dist/core/index.d.ts",
-         "require": "./dist/core/index.js"
+         "import": "./dist/core/core.js",
+         "types": "./dist/core/core.d.ts",
+         "require": "./dist/core/core.js"
       },
       "./plugin": {
-         "import": "./dist/plugin/index.js",
-         "types": "./dist/plugin/index.d.ts",
-         "require": "./dist/plugin/index.js"
+         "import": "./dist/plugin/plugin.js",
+         "types": "./dist/plugin/plugin.d.ts",
+         "require": "./dist/plugin/plugin.js"
       },
       "./config": {
-         "import": "./dist/config/index.js",
-         "types": "./dist/config/index.d.ts",
-         "require": "./dist/config/index.js"
+         "import": "./dist/config/config.js",
+         "types": "./dist/config/config.d.ts",
+         "require": "./dist/config/config.js"
       },
       "./testing": {
-         "import": "./dist/test/index.js",
-         "types": "./dist/test/index.d.ts",
-         "require": "./dist/test/index.js"
+         "import": "./dist/test/testing.js",
+         "types": "./dist/test/testing.d.ts",
+         "require": "./dist/test/testing.js"
       }
    },
    "keywords": [
@@ -54,12 +54,13 @@
       "valnor": "./cli.mjs"
    },
    "engines": {
-      "node": ">=18.0.0"
+      "node": ">=22.21.1"
    },
    "scripts": {
       "clean": "rimraf dist tsconfig.tsbuildinfo",
       "build": "run-s 'build:*'",
       "build:1-tsc": "tsc -b",
+      "build:2-alias": "tsc-alias",
       "prepack:1-copy-readme": "copyfiles -f \"../../README.md\" .",
       "prepack": "run-s 'build' 'prepack:*'",
       "pretest": "run-s 'build'",
@@ -84,23 +85,8 @@
    "devDependencies": {
       "@types/pg": "^8.15.5",
       "@vitest/coverage-v8": "^4.0.18",
+      "tsc-alias": "^1.8.16",
       "vite-tsconfig-paths": "^6.1.1",
       "vitest": "^4.0.18"
-   },
-   "peerDependencies": {
-      "mariadb": "^3.4.5",
-      "mssql": "^11.0.1",
-      "pg": "^8.16.3"
-   },
-   "peerDependenciesMeta": {
-      "pg": {
-         "optional": true
-      },
-      "mssql": {
-         "optional": true
-      },
-      "mariadb": {
-         "optional": true
-      }
    }
 }

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
-import { sql } from "../../sql.js";
-import { info } from "../sql-query-info.js";
+import { sql } from "#/core/sql.js";
+import { info } from "#/core/charms/sql-query-info.js";
 
 describe("SqlQueryInfo tests", () => {
    test("query should have info label", () => {

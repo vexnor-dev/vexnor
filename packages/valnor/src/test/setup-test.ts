@@ -1,5 +1,5 @@
-import { resetIds } from "../core/index.js";
 import { beforeEach } from "vitest";
+import { resetIds } from "#/core/sql-base.js";
 
 beforeEach(() => {
    resetIds();

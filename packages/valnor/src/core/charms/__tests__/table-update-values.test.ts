@@ -1,7 +1,8 @@
 import { describe, expect, test } from "vitest";
 import { Account, IAccountSelect } from "@test-models/valnor_test.account-table.js";
-import { sql } from "../../sql.js";
-import { param, rowType } from "../../query/index.js";
+import { sql } from "#/core/sql.js";
+import { param } from "#/core/query/sql-param.js";
+import { rowType } from "#/core/query/sql-row-type.js";
 
 describe("SqlTable.updateSet() tests", () => {
    test("sql() update with $set()", () => {
@@ -36,8 +37,7 @@ describe("SqlTable.updateSet() tests", () => {
           "account"."notes",
           "account"."created_at" AS "createdAt",
           "account"."modified_at" AS "modifiedAt",
-          "account"."parent_id" AS "parentId"
-          /* </query_0> */"
+          "account"."parent_id" AS "parentId" /* </query_0> */"
       `);
    });
 });

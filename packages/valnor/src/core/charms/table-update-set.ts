@@ -1,7 +1,7 @@
-import { Sql } from "../sql-base.js";
-import { SqlBuildContext } from "../query/index.js";
-import { SqlBuildError } from "../sql-build-error.js";
-import { InferTable$RowBySelect } from "../types/index.js";
+import { InferTable$RowBySelect } from "#/core/types/infer-types.js";
+import { Sql } from "#/core/sql-base.js";
+import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
+import { ok } from "assert";
 
 export class TableUpdateSet<T extends { Update: Record<string, unknown> }> extends Sql {
    constructor(
@@ -13,18 +13,11 @@ export class TableUpdateSet<T extends { Update: Record<string, unknown> }> exten
       });
    }
 
-   build(context: SqlBuildContext) {
+   write(context: SqlBuildContext) {
       let i = 0;
       for (const key in this.update) {
          const col = this.cols[`$${key}`];
-         if (!col) {
-            throw new SqlBuildError(`Column not found: ${key}`, {
-               data: {
-                  key,
-                  columns: this.cols,
-               },
-            });
-         }
+         ok(col, `Column not found: ${key}. Current columns: ${this.cols}`);
 
          if (i++ > 0) context.addStrings(", ");
          col.build(context);

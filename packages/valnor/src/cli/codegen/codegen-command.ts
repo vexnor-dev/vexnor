@@ -1,14 +1,15 @@
 import path from "node:path";
 import fs from "node:fs/promises";
 import console from "node:console";
-import { loadPlugin } from "../../load-plugin.js";
+import { loadPlugin } from "#/load-plugin.js";
 import { ok } from "assert";
-import { CodegenCommandOptions } from "./types/index.js";
-import { CodegenContext, CodegenContextModel, getCodegenContext } from "./codegen-context.js";
-import { printEnums, printSchemas } from "./schemas/index.js";
-import { printTables } from "./tables/index.js";
-import { writeLibrary } from "./library/index.js";
-import { writeIndex } from "./write-index.js";
+import { CodegenCommandOptions } from "#/cli/codegen/types/types.js";
+import { CodegenContext, CodegenContextModel, getCodegenContext } from "#/cli/codegen/codegen-context.js";
+import { printEnums } from "#/cli/codegen/schemas/print-enums.js";
+import { printSchemas } from "#/cli/codegen/schemas/print-schema.js";
+import { printTables } from "#/cli/codegen/tables/print-tables.js";
+import { writeLibrary } from "#/cli/codegen/library/write-library.js";
+import { writeIndex } from "#/cli/codegen/write-index.js";
 
 export async function codegenCommand(options: CodegenCommandOptions) {
    const {

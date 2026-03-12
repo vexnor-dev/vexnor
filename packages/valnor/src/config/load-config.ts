@@ -1,5 +1,5 @@
 import { pathToFileURL } from "url";
-import { ValnorConfig } from "./config-types.js";
+import { ValnorConfig } from "#/config/config-types.js";
 import { access } from "fs/promises";
 
 export async function loadConfig(configPath: string): Promise<ValnorConfig> {

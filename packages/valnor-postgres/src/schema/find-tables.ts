@@ -1,6 +1,6 @@
 import { col, param, row, sql } from "valnor";
 import { SqlColumnInfo, SqlPrimaryKeyInfo } from "valnor/plugin";
-import { Columns, KeyColumnUsage, TableConstraints } from "./models.js";
+import { Columns, KeyColumnUsage, TableConstraints } from "#/schema/models.js";
 
 export const findTableColumns = sql`
    select ${row(Columns.$table_name, Columns.$table_schema)},

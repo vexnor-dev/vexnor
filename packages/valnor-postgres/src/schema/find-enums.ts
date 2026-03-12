@@ -1,5 +1,5 @@
 import { param, row, sql, val } from "valnor";
-import { PgEnum, PgNamespace, PgType } from "./models.js";
+import { PgEnum, PgNamespace, PgType } from "#/schema/models.js";
 import { SqlEnumValue } from "valnor/plugin";
 
 export const findEnums = sql`

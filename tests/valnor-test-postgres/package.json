@@ -21,7 +21,6 @@
    },
    "devDependencies": {
       "@types/pg": "^8.15.5",
-      "@valnor/test-utils": "workspace:*",
       "@vitest/coverage-v8": "^4.0.18",
       "env-cmd": "^10.1.0",
       "vite-node": "^2.1.8",

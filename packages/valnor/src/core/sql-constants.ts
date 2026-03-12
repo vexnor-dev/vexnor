@@ -21,7 +21,7 @@ export const MAJOR_KEYWORDS: string[] = [
    "over",
    "output",
    "exists",
-   "apply",
+   "apply", //TODO: check we need "in" here?
 ].sort((a, b) => b.length - a.length); // Sort is essential for the tokenizer
 
-export const SUBQUERY_STARTERS: string[] = ["from", "join", "in"];
+export const SUBQUERY_STARTERS: string[] = ["from", "join", "in", "exists"];

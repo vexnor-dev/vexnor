@@ -1,9 +1,9 @@
 import "../../cli/exec/__tests__/test-driver-setup.js";
 import { describe, expect, test } from "vitest";
-import { defineQueryConfig } from "../define-query-config.js";
-import { defineConfig } from "../define-config.js";
-import { findAccountById, findAccountByEmail } from "./test-queries.js";
-import testPlugin from "../../cli/exec/__tests__/test-plugin.js";
+import { defineQueryConfig } from "#/config/define-query-config.js";
+import { defineConfig } from "#/config/define-config.js";
+import { findAccountById, findAccountByEmail } from "#/config/__tests__/test-queries.js";
+import testPlugin from "#/cli/exec/__tests__/test-plugin.js";
 
 describe("defineQueryConfig", () => {
    test("validates config has queries", () => {

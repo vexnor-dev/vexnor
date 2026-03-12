@@ -1,5 +1,5 @@
 import { col, param, row, sql } from "valnor";
-import { Columns, KeyColumnUsage, TableConstraints, Tables } from "./models.js";
+import { Columns, KeyColumnUsage, TableConstraints, Tables } from "#/schema/models.js";
 
 const TableColumns = sql`
    SELECT ${row(Columns.$column_name, Columns.$column_default, Columns.$is_nullable, Columns.$udt_name, Columns.$domain_name, Columns.$numeric_precision_radix)},
@@ -29,7 +29,7 @@ export const findTables = sql`
    SELECT ${row(Tables.$table_name, Tables.$table_schema, findPrimaryKeys.$primary_key)},
           "table_columns_result"."table_columns" as ${col<{ table_columns: string }>("table_columns")}
    FROM ${Tables}
-           OUTER APPLY (SELECT coalesce((${TableColumns.render("sql")} for json path, include_null_values), '[]')
+           OUTER APPLY (SELECT coalesce((${TableColumns.render("default")} for json path, include_null_values), '[]')
                                   AS "table_columns") AS "table_columns_result"
            JOIN ${findPrimaryKeys} ON ${Tables.$table_schema} = ${findPrimaryKeys.row.$table_schema} AND
                                       ${Tables.$table_name} = ${findPrimaryKeys.row.$table_name}

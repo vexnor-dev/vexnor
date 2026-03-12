@@ -23,3 +23,4 @@ mailmap.txt
 @db-sqlite3/*.sqlite
 coverage*
 *.sqlite-journal
+@ignore

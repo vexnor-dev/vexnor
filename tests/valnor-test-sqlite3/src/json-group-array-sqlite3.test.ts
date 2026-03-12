@@ -3,9 +3,8 @@ import { info, param, row, sql, SqlBuildContext } from "valnor";
 import { Order } from "./codegen/main.order-table.js";
 import { Account } from "./codegen/main.account-table.js";
 import { jsonMany, Sqlite3Tokenizer } from "valnor-sqlite3";
-import "@valnor/test-utils";
 
-describe("jsonGroupArray (SQLite)", () => {
+describe("Sqlite3JsonAggregation", () => {
    const AccountOrders = sql`
       ${info({ label: "AccountOrders" })}
       select ${row(Order.$orderId, Order.$status)}
@@ -13,11 +12,11 @@ describe("jsonGroupArray (SQLite)", () => {
       where ${Order.$accountId} = ${Account.out.$accountId}
       limit ${param<{ limit: number }>("limit")}`;
 
-   test("jsonGroupArray(): select", () => {
+   test("should build 'select'", () => {
       const context = new SqlBuildContext({ tokenizer: new Sqlite3Tokenizer() });
       context.next("select");
+      context.setAlias(Account.tableInfo, { alias: "_out_" });
       jsonMany(AccountOrders).build(context, {});
-      // Updated expected string to exactly match the actual output from the error message
       expect(context.text).toMatchInlineSnapshot(
          `
         "(
@@ -30,26 +29,24 @@ describe("jsonGroupArray (SQLite)", () => {
           FROM
             (
               /* <AccountOrders> */
-              /* --label: AccountOrders */
+              /* label: AccountOrders */
               SELECT
                 "o_1"."order_id" AS "orderId",
                 "o_1"."status"
               FROM
                 "main"."order" AS "o_1"
               WHERE
-                "o_1"."account_id" = "a_2"."account_id"
+                "o_1"."account_id" = "_out_"."account_id"
               LIMIT
-                ?
-                /* </AccountOrders> */
-            ) AS "AccountOrders"
-            /* </query_0> */
+                ? /* </AccountOrders> */
+            ) AS "AccountOrders" /* </query_0> */
         )"
       `,
       );
    });
 
    const INVALID_KEYWORDS_FOR_JSON_AGG = ["where", "group by", "order by", "update", "delete from"];
-   test.each(INVALID_KEYWORDS_FOR_JSON_AGG)("jsonGroupArray(): %s throws error", (keyword) => {
+   test.each(INVALID_KEYWORDS_FOR_JSON_AGG)("%s throws error", (keyword) => {
       const context = new SqlBuildContext({ tokenizer: new Sqlite3Tokenizer() });
       context.next(keyword);
       expect(() => jsonMany(AccountOrders).build(context, {})).toThrow(
@@ -57,7 +54,7 @@ describe("jsonGroupArray (SQLite)", () => {
       );
    });
 
-   test("jsonGroupArray() with params", () => {
+   test("should have 'params'", () => {
       const query = sql`
          select ${row(Account.$$)}, ${jsonMany(AccountOrders).as("orders")}
          from ${Account}
@@ -77,8 +74,7 @@ describe("jsonGroupArray (SQLite)", () => {
           "a_1"."created_at" AS "createdAt",
           "a_1"."modified_at" AS "modifiedAt",
           "a_1"."parent_id" AS "parentId",
-          /* <query_1> */
-          (
+          /* <query_1> */ (
             SELECT
               coalesce(
                 json_group_array (
@@ -89,7 +85,7 @@ describe("jsonGroupArray (SQLite)", () => {
             FROM
               (
                 /* <AccountOrders> */
-                /* --label: AccountOrders */
+                /* label: AccountOrders */
                 SELECT
                   "o_2"."order_id" AS "orderId",
                   "o_2"."status"
@@ -98,11 +94,9 @@ describe("jsonGroupArray (SQLite)", () => {
                 WHERE
                   "o_2"."account_id" = "a_1"."account_id"
                 LIMIT
-                  ?
-                  /* </AccountOrders> */
+                  ? /* </AccountOrders> */
               ) AS "AccountOrders"
-          ) AS "orders"
-          /* </query_1> */
+          ) AS "orders" /* </query_1> */
         FROM
           "main"."account" AS "a_1"
           /* </query_0> */"

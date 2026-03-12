@@ -1,10 +1,11 @@
-import { loadConfig, loadQueryConfig, resolveProfile } from "../../config/index.js";
-import { formatCsv, formatJson, formatTable } from "./formatters.js";
-import { SqlQueryHandler, SqlQueryHandlerAny, SqlQuery } from "../../core/index.js";
-import { detectQueryType } from "./detect-query-type.js";
-import { confirmPrompt } from "./confirm-prompt.js";
+import { loadConfig, loadQueryConfig, resolveProfile } from "#/config/config.js";
+import { formatCsv, formatJson, formatTable } from "#/cli/exec/formatters.js";
+import { SqlQueryHandler, SqlQueryHandlerAny } from "#/core/query/sql-query-handler.js";
+import { SqlQuery } from "#/core/query/sql-query.js";
+import { detectQueryType } from "#/cli/exec/detect-query-type.js";
+import { confirmPrompt } from "#/cli/exec/confirm-prompt.js";
 import * as path from "node:path";
-import { SqlExecError } from "./sql-exec-error.js";
+import { SqlExecError } from "#/cli/exec/sql-exec-error.js";
 
 export interface ExecOptions {
    config: string;

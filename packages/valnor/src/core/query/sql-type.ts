@@ -1,5 +1,5 @@
-import { Sql } from "../sql-base.js";
-import { SqlBuildContext } from "./sql-build-context.js";
+import { Sql } from "#/core/sql-base.js";
+import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
 
 // eslint-disable-next-line unused-imports/no-unused-vars
 export class SqlType<T = unknown> extends Sql {
@@ -8,7 +8,7 @@ export class SqlType<T = unknown> extends Sql {
    }
 
    // eslint-disable-next-line unused-imports/no-unused-vars
-   build(_context: SqlBuildContext): void {
+   write(_context: SqlBuildContext): void {
       // No-op: type markers don't produce SQL
    }
 }

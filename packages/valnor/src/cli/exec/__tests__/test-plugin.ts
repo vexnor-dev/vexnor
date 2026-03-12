@@ -1,9 +1,11 @@
-import { ValnorPlugin, ValnorConnection } from "../../../plugin/index.js";
-import { SqlQueryHandler, SqlQuery } from "../../../core/index.js";
-import { TestDriverQueryHandler } from "./test-driver-setup.js";
+import { ValnorPlugin, ValnorConnection } from "#/plugin/plugin.js";
+import { SqlQueryHandler } from "#/core/query/sql-query-handler.js";
+import { SqlQuery } from "#/core/query/sql-query.js";
+import { TestDriverQueryHandler } from "#/cli/exec/__tests__/test-driver-setup.js";
 
 export class TestPlugin extends ValnorPlugin<{ Config: unknown; Connection: unknown }> {
    driver = "test";
+   dialect = "sql";
 
    getColumnType(): never {
       throw new Error("Not implemented");

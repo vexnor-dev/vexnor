@@ -1,8 +1,8 @@
 import CodeBlockWriter from "code-block-writer";
 import { ok } from "node:assert";
 import to from "to-case";
-import { PrintTableArgs, SqlLiteralType } from "../../../plugin/index.js";
-import { getCodegenContext } from "../codegen-context.js";
+import { PrintTableArgs, SqlLiteralType } from "#/plugin/plugin.js";
+import { getCodegenContext } from "#/cli/codegen/codegen-context.js";
 
 export function writeTableSelect(writer: CodeBlockWriter.default, { table }: PrintTableArgs) {
    const { table_name, columns } = table;

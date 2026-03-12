@@ -1,6 +1,8 @@
 import { Command, Option } from "commander";
-import { execCommand, ExecOptions, initCommand, InitOptions } from "./exec/index.js";
-import { codegenCommand, CodegenCommandOptions } from "./codegen/index.js";
+import { execCommand, ExecOptions } from "#/cli/exec/exec-command.js";
+import { initCommand, InitOptions } from "#/cli/exec/init-command.js";
+import { codegenCommand } from "#/cli/codegen/codegen-command.js";
+import { CodegenCommandOptions } from "#/cli/codegen/types/types.js";
 
 const main = new Command();
 

@@ -1,8 +1,8 @@
-import { TYPE, Sql } from "../sql-base.js";
-import { SqlBuildContext, SqlBuildOptions } from "../query/index.js";
-import { InferTable$RowBySelect } from "../types/index.js";
+import { InferTable$RowBySelect } from "#/core/types/infer-types.js";
+import { Sql, TYPE } from "#/core/sql-base.js";
+import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
+import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlTableAllAny = SqlTableAll<any>;
 
 export class SqlTableAll<Row extends Record<string, unknown>> extends Sql {
@@ -15,7 +15,7 @@ export class SqlTableAll<Row extends Record<string, unknown>> extends Sql {
       this.row = row;
    }
 
-   build(context: SqlBuildContext, options?: SqlBuildOptions) {
+   write(context: SqlBuildContext, options?: SqlBuildOptions) {
       const [keyword, exists] = context.keywords();
 
       switch (true) {

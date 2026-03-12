@@ -139,9 +139,8 @@ describe.sequential("jsonOne() tests", () => {
           "a_1"."parent_id" AS "parentId",
           "query_1_result" AS "parent"
         FROM
-          "valnor_test"."account" AS "a_1"
-          /* <query_2> */
-          /* --inline: true */
+          "valnor_test"."account" AS "a_1" /* <query_2> */
+          /* inline: true */
           LEFT JOIN LATERAL (
             SELECT
               coalesce(to_jsonb ("query_1".*), NULL) AS "query_1_result"

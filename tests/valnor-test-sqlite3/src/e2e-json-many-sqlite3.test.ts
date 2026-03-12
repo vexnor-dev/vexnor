@@ -62,6 +62,7 @@ describe.sequential("jsonMany() tests", () => {
    test("jsonMany(): select build", () => {
       const context = new SqlBuildContext({ tokenizer: new Sqlite3Tokenizer() });
       context.next("select");
+      context.setAlias(Account.tableInfo, { alias: "_out_" });
       jsonMany(AccountOrders).build(context, {});
       expect(context.text).toMatchInlineSnapshot(`
         "(
@@ -74,7 +75,7 @@ describe.sequential("jsonMany() tests", () => {
           FROM
             (
               /* <AccountOrders> */
-              /* --label: AccountOrders */
+              /* label: AccountOrders */
               SELECT
                 "o_1"."order_id" AS "orderId",
                 "o_1"."status",
@@ -83,14 +84,12 @@ describe.sequential("jsonMany() tests", () => {
               FROM
                 "main"."order" AS "o_1"
               WHERE
-                "o_1"."account_id" = "a_2"."account_id"
+                "o_1"."account_id" = "_out_"."account_id"
               ORDER BY
                 "o_1"."created_at" DESC
               LIMIT
-                ?
-                /* </AccountOrders> */
-            ) AS "AccountOrders"
-            /* </query_0> */
+                ? /* </AccountOrders> */
+            ) AS "AccountOrders" /* </query_0> */
         )"
       `);
    });
@@ -98,10 +97,15 @@ describe.sequential("jsonMany() tests", () => {
    test("jsonMany(): from", () => {
       const context = new SqlBuildContext({ tokenizer: new Sqlite3Tokenizer() });
       context.next("from");
-      expect(() => jsonMany(AccountOrders).build(context, {})).toThrowErrorMatchingInlineSnapshot(`[TypeError: Cannot use json aggregation with SQL keyword 'from']`);
+      expect(() => jsonMany(AccountOrders).build(context, {})).toThrowErrorMatchingInlineSnapshot(
+         `
+        [TypeError: Error building 'JsonAggregationSqlite3#2(BetterSqlite3QueryHandler#1(label=AccountOrders))' in query '-'
+        Cannot use json aggregation with SQL keyword 'from']
+      `,
+      );
    });
 
-   test("jsonMany() with params", () => {
+   test("jsonMany().as() with params", () => {
       const query = sql`
          select ${row(Account.$$)}, ${jsonMany(AccountOrders).as("orders")}
          from ${Account}
@@ -132,8 +136,7 @@ describe.sequential("jsonMany() tests", () => {
           "a_1"."created_at" AS "createdAt",
           "a_1"."modified_at" AS "modifiedAt",
           "a_1"."parent_id" AS "parentId",
-          /* <query_1> */
-          (
+          /* <query_1> */ (
             SELECT
               coalesce(
                 json_group_array(
@@ -153,7 +156,7 @@ describe.sequential("jsonMany() tests", () => {
             FROM
               (
                 /* <AccountOrders> */
-                /* --label: AccountOrders */
+                /* label: AccountOrders */
                 SELECT
                   "o_2"."order_id" AS "orderId",
                   "o_2"."status",
@@ -166,11 +169,9 @@ describe.sequential("jsonMany() tests", () => {
                 ORDER BY
                   "o_2"."created_at" DESC
                 LIMIT
-                  ?
-                  /* </AccountOrders> */
+                  ? /* </AccountOrders> */
               ) AS "AccountOrders"
-          ) AS "orders"
-          /* </query_1> */
+          ) AS "orders" /* </query_1> */
         FROM
           "main"."account" AS "a_1"
         WHERE

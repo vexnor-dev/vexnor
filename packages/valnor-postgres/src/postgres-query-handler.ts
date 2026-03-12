@@ -1,6 +1,6 @@
 import { SqlQueryHandler, SqlQuery, SqlRunArgs } from "valnor";
 import type { QueryResult } from "pg";
-import { PostgresTokenizer } from "./postgres-tokenizer.js";
+import { PostgresTokenizer } from "#/postgres-tokenizer.js";
 
 export type PostgresClient = {
    query: (queryConfig: { text: string; values: unknown[] }) => Promise<QueryResult>;

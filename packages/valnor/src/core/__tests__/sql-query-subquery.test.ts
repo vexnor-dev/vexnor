@@ -1,8 +1,10 @@
 import { describe, expect, test } from "vitest";
 import { Account, AccountStatusUdt } from "@test-models/valnor_test.schema.js";
-import { ExtractParamsFromSqlQuery, sql } from "../sql.js";
-import { info } from "../charms/index.js";
-import { param, row } from "../query/index.js";
+import { sql } from "#/core/sql.js";
+import { info } from "#/core/charms/sql-query-info.js";
+import { param } from "#/core/query/sql-param.js";
+import { row } from "#/core/query/sql-select-row.js";
+import { ParamsOf } from "#/core/sql-base.js";
 
 describe("sql subqueries tests", () => {
    test("sub-query CTE/with", () => {
@@ -29,7 +31,7 @@ describe("sql subqueries tests", () => {
             join ${AccountsOld} on ${Account.$accountId} = ${AccountsOld.$accountId}         
       `;
 
-      type Params = ExtractParamsFromSqlQuery<typeof query>;
+      type Params = ParamsOf<typeof query>;
       const params: Params = undefined;
       console.log(query.getSql({}));
       expect(params).toBeUndefined();
@@ -50,39 +52,42 @@ describe("sql subqueries tests", () => {
             "key": "accountId",
             "params": null,
             "query": SqlQuery {
-              "_$$": Lazy {
+              "_$$Lazy": Lazy {
                 "_computed": false,
                 "_value": null,
                 "callback": [Function],
               },
-              "_params": Lazy {
+              "_dialectsLazy": Lazy {
                 "_computed": false,
                 "_value": null,
                 "callback": [Function],
               },
-              "_queries": Lazy {
+              "_infoLazy": Lazy {
                 "_computed": false,
                 "_value": null,
                 "callback": [Function],
               },
-              "_row": Lazy {
+              "_innerQueriesLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
+              "_labelLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
+              "_paramsLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
+              "_rowLazy": Lazy {
                 "_computed": true,
                 "_value": [Circular],
                 "callback": [Function],
               },
-              "format": null,
               "id": "SqlQuery#1(label=AccountsWithEmail)",
-              "info": SqlQueryInfo {
-                "id": "SqlQueryInfo#1(label=AccountsWithEmail)",
-                "inline": null,
-                "label": "AccountsWithEmail",
-                "options": {
-                  "label": "AccountsWithEmail",
-                },
-                "type": "SqlQueryInfo",
-                "wrap": true,
-              },
-              "inline": false,
               "rawStrings": [
                 "
                  ",
@@ -98,13 +103,12 @@ describe("sql subqueries tests", () => {
               "rawValues": [
                 SqlQueryInfo {
                   "id": "SqlQueryInfo#1(label=AccountsWithEmail)",
-                  "inline": null,
                   "label": "AccountsWithEmail",
                   "options": {
                     "label": "AccountsWithEmail",
                   },
+                  "tag": null,
                   "type": "SqlQueryInfo",
-                  "wrap": true,
                 },
                 SqlSelectRow {
                   "columns": [
@@ -117,11 +121,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#1(account.account_id as accountId)",
                           "key": "accountId",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$createdAt": SqlTableColumn {
                           "columnName": "created_at",
@@ -129,11 +135,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#7(account.created_at as createdAt)",
                           "key": "createdAt",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$email": SqlTableColumn {
                           "columnName": "email",
@@ -141,11 +149,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#3(account.email)",
                           "key": "email",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$firstName": SqlTableColumn {
                           "columnName": "first_name",
@@ -153,11 +163,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#4(account.first_name as firstName)",
                           "key": "firstName",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$lastName": SqlTableColumn {
                           "columnName": "last_name",
@@ -165,11 +177,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#5(account.last_name as lastName)",
                           "key": "lastName",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$modifiedAt": SqlTableColumn {
                           "columnName": "modified_at",
@@ -177,11 +191,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                           "key": "modifiedAt",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$notes": SqlTableColumn {
                           "columnName": "notes",
@@ -189,11 +205,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#6(account.notes)",
                           "key": "notes",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$parentId": SqlTableColumn {
                           "columnName": "parent_id",
@@ -201,11 +219,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#9(account.parent_id as parentId)",
                           "key": "parentId",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$status": SqlTableColumn {
                           "columnName": "status",
@@ -213,21 +233,23 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#2(account.status)",
                           "key": "status",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                       },
+                      "tag": null,
                       "type": "SqlTableAll",
-                      "wrap": true,
                     },
                   ],
                   "id": "SqlSelectRow#1(SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId))",
                   "rowsByQueryId": Map {},
+                  "tag": null,
                   "type": "SqlSelectRow",
-                  "wrap": true,
                 },
                 SqlTable {
                   "$accountId": SqlTableColumn {
@@ -236,11 +258,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#1(account.account_id as accountId)",
                     "key": "accountId",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$createdAt": SqlTableColumn {
                     "columnName": "created_at",
@@ -248,11 +272,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#7(account.created_at as createdAt)",
                     "key": "createdAt",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$email": SqlTableColumn {
                     "columnName": "email",
@@ -260,11 +286,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#3(account.email)",
                     "key": "email",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$firstName": SqlTableColumn {
                     "columnName": "first_name",
@@ -272,11 +300,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#4(account.first_name as firstName)",
                     "key": "firstName",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$lastName": SqlTableColumn {
                     "columnName": "last_name",
@@ -284,11 +314,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#5(account.last_name as lastName)",
                     "key": "lastName",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$modifiedAt": SqlTableColumn {
                     "columnName": "modified_at",
@@ -296,11 +328,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                     "key": "modifiedAt",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$notes": SqlTableColumn {
                     "columnName": "notes",
@@ -308,11 +342,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#6(account.notes)",
                     "key": "notes",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$parentId": SqlTableColumn {
                     "columnName": "parent_id",
@@ -320,11 +356,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#9(account.parent_id as parentId)",
                     "key": "parentId",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$status": SqlTableColumn {
                     "columnName": "status",
@@ -332,11 +370,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#2(account.status)",
                     "key": "status",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "_$$": Lazy {
                     "_computed": true,
@@ -349,11 +389,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#1(account.account_id as accountId)",
                           "key": "accountId",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$createdAt": SqlTableColumn {
                           "columnName": "created_at",
@@ -361,11 +403,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#7(account.created_at as createdAt)",
                           "key": "createdAt",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$email": SqlTableColumn {
                           "columnName": "email",
@@ -373,11 +417,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#3(account.email)",
                           "key": "email",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$firstName": SqlTableColumn {
                           "columnName": "first_name",
@@ -385,11 +431,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#4(account.first_name as firstName)",
                           "key": "firstName",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$lastName": SqlTableColumn {
                           "columnName": "last_name",
@@ -397,11 +445,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#5(account.last_name as lastName)",
                           "key": "lastName",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$modifiedAt": SqlTableColumn {
                           "columnName": "modified_at",
@@ -409,11 +459,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                           "key": "modifiedAt",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$notes": SqlTableColumn {
                           "columnName": "notes",
@@ -421,11 +473,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#6(account.notes)",
                           "key": "notes",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$parentId": SqlTableColumn {
                           "columnName": "parent_id",
@@ -433,11 +487,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#9(account.parent_id as parentId)",
                           "key": "parentId",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$status": SqlTableColumn {
                           "columnName": "status",
@@ -445,15 +501,17 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#2(account.status)",
                           "key": "status",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                       },
+                      "tag": null,
                       "type": "SqlTableAll",
-                      "wrap": true,
                     },
                     "callback": [Function],
                   },
@@ -466,11 +524,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#1(account.account_id as accountId)",
                         "key": "accountId",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$createdAt": SqlTableColumn {
                         "columnName": "created_at",
@@ -478,11 +538,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#7(account.created_at as createdAt)",
                         "key": "createdAt",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$email": SqlTableColumn {
                         "columnName": "email",
@@ -490,11 +552,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#3(account.email)",
                         "key": "email",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$firstName": SqlTableColumn {
                         "columnName": "first_name",
@@ -502,11 +566,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#4(account.first_name as firstName)",
                         "key": "firstName",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$lastName": SqlTableColumn {
                         "columnName": "last_name",
@@ -514,11 +580,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#5(account.last_name as lastName)",
                         "key": "lastName",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$modifiedAt": SqlTableColumn {
                         "columnName": "modified_at",
@@ -526,11 +594,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                         "key": "modifiedAt",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$notes": SqlTableColumn {
                         "columnName": "notes",
@@ -538,11 +608,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#6(account.notes)",
                         "key": "notes",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$parentId": SqlTableColumn {
                         "columnName": "parent_id",
@@ -550,11 +622,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#9(account.parent_id as parentId)",
                         "key": "parentId",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$status": SqlTableColumn {
                         "columnName": "status",
@@ -562,19 +636,21 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#2(account.status)",
                         "key": "status",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                     },
                     "callback": [Function],
                   },
                   "_crudConfig": {
-                    "create": true,
                     "delete": true,
-                    "read": true,
+                    "insert": true,
+                    "select": true,
                     "update": true,
                   },
                   "_out": Lazy {
@@ -582,6 +658,7 @@ describe("sql subqueries tests", () => {
                     "_value": null,
                     "callback": [Function],
                   },
+                  "dialect": "sql",
                   "format": null,
                   "id": "SqlTable#1(SqlTable(main.account))",
                   "pk": [
@@ -589,11 +666,13 @@ describe("sql subqueries tests", () => {
                   ],
                   "tableCache": Map {},
                   "tableInfo": {
+                    "alias": null,
                     "name": "account",
+                    "out": false,
                     "schema": "main",
                   },
+                  "tag": null,
                   "type": "SqlTable",
-                  "wrap": true,
                 },
                 SqlTableColumn {
                   "columnName": "email",
@@ -601,36 +680,40 @@ describe("sql subqueries tests", () => {
                   "id": "SqlTableColumn#3(account.email)",
                   "key": "email",
                   "tableInfo": {
+                    "alias": null,
                     "name": "account",
+                    "out": false,
                     "schema": "main",
                   },
+                  "tag": null,
                   "type": "SqlTableColumn",
-                  "wrap": true,
                 },
                 SqlParam {
                   "id": "SqlParam#1(email)",
                   "name": "email",
+                  "tag": null,
                   "type": "SqlParam",
-                  "wrap": true,
                 },
               ],
+              "tag": null,
               "type": "SqlQuery",
-              "wrap": true,
             },
+            "tag": null,
             "target": SqlTableColumn {
               "columnName": "account_id",
               "format": null,
               "id": "SqlTableColumn#1(account.account_id as accountId)",
               "key": "accountId",
               "tableInfo": {
+                "alias": null,
                 "name": "account",
+                "out": false,
                 "schema": "main",
               },
+              "tag": null,
               "type": "SqlTableColumn",
-              "wrap": true,
             },
             "type": "SqlQueryColumn",
-            "wrap": true,
           },
           "$createdAt": SqlQueryColumn {
             "format": null,
@@ -638,39 +721,42 @@ describe("sql subqueries tests", () => {
             "key": "createdAt",
             "params": null,
             "query": SqlQuery {
-              "_$$": Lazy {
+              "_$$Lazy": Lazy {
                 "_computed": false,
                 "_value": null,
                 "callback": [Function],
               },
-              "_params": Lazy {
+              "_dialectsLazy": Lazy {
                 "_computed": false,
                 "_value": null,
                 "callback": [Function],
               },
-              "_queries": Lazy {
+              "_infoLazy": Lazy {
                 "_computed": false,
                 "_value": null,
                 "callback": [Function],
               },
-              "_row": Lazy {
+              "_innerQueriesLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
+              "_labelLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
+              "_paramsLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
+              "_rowLazy": Lazy {
                 "_computed": true,
                 "_value": [Circular],
                 "callback": [Function],
               },
-              "format": null,
               "id": "SqlQuery#1(label=AccountsWithEmail)",
-              "info": SqlQueryInfo {
-                "id": "SqlQueryInfo#1(label=AccountsWithEmail)",
-                "inline": null,
-                "label": "AccountsWithEmail",
-                "options": {
-                  "label": "AccountsWithEmail",
-                },
-                "type": "SqlQueryInfo",
-                "wrap": true,
-              },
-              "inline": false,
               "rawStrings": [
                 "
                  ",
@@ -686,13 +772,12 @@ describe("sql subqueries tests", () => {
               "rawValues": [
                 SqlQueryInfo {
                   "id": "SqlQueryInfo#1(label=AccountsWithEmail)",
-                  "inline": null,
                   "label": "AccountsWithEmail",
                   "options": {
                     "label": "AccountsWithEmail",
                   },
+                  "tag": null,
                   "type": "SqlQueryInfo",
-                  "wrap": true,
                 },
                 SqlSelectRow {
                   "columns": [
@@ -705,11 +790,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#1(account.account_id as accountId)",
                           "key": "accountId",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$createdAt": SqlTableColumn {
                           "columnName": "created_at",
@@ -717,11 +804,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#7(account.created_at as createdAt)",
                           "key": "createdAt",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$email": SqlTableColumn {
                           "columnName": "email",
@@ -729,11 +818,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#3(account.email)",
                           "key": "email",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$firstName": SqlTableColumn {
                           "columnName": "first_name",
@@ -741,11 +832,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#4(account.first_name as firstName)",
                           "key": "firstName",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$lastName": SqlTableColumn {
                           "columnName": "last_name",
@@ -753,11 +846,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#5(account.last_name as lastName)",
                           "key": "lastName",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$modifiedAt": SqlTableColumn {
                           "columnName": "modified_at",
@@ -765,11 +860,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                           "key": "modifiedAt",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$notes": SqlTableColumn {
                           "columnName": "notes",
@@ -777,11 +874,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#6(account.notes)",
                           "key": "notes",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$parentId": SqlTableColumn {
                           "columnName": "parent_id",
@@ -789,11 +888,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#9(account.parent_id as parentId)",
                           "key": "parentId",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$status": SqlTableColumn {
                           "columnName": "status",
@@ -801,21 +902,23 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#2(account.status)",
                           "key": "status",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                       },
+                      "tag": null,
                       "type": "SqlTableAll",
-                      "wrap": true,
                     },
                   ],
                   "id": "SqlSelectRow#1(SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId))",
                   "rowsByQueryId": Map {},
+                  "tag": null,
                   "type": "SqlSelectRow",
-                  "wrap": true,
                 },
                 SqlTable {
                   "$accountId": SqlTableColumn {
@@ -824,11 +927,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#1(account.account_id as accountId)",
                     "key": "accountId",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$createdAt": SqlTableColumn {
                     "columnName": "created_at",
@@ -836,11 +941,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#7(account.created_at as createdAt)",
                     "key": "createdAt",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$email": SqlTableColumn {
                     "columnName": "email",
@@ -848,11 +955,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#3(account.email)",
                     "key": "email",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$firstName": SqlTableColumn {
                     "columnName": "first_name",
@@ -860,11 +969,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#4(account.first_name as firstName)",
                     "key": "firstName",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$lastName": SqlTableColumn {
                     "columnName": "last_name",
@@ -872,11 +983,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#5(account.last_name as lastName)",
                     "key": "lastName",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$modifiedAt": SqlTableColumn {
                     "columnName": "modified_at",
@@ -884,11 +997,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                     "key": "modifiedAt",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$notes": SqlTableColumn {
                     "columnName": "notes",
@@ -896,11 +1011,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#6(account.notes)",
                     "key": "notes",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$parentId": SqlTableColumn {
                     "columnName": "parent_id",
@@ -908,11 +1025,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#9(account.parent_id as parentId)",
                     "key": "parentId",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$status": SqlTableColumn {
                     "columnName": "status",
@@ -920,11 +1039,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#2(account.status)",
                     "key": "status",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "_$$": Lazy {
                     "_computed": true,
@@ -937,11 +1058,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#1(account.account_id as accountId)",
                           "key": "accountId",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$createdAt": SqlTableColumn {
                           "columnName": "created_at",
@@ -949,11 +1072,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#7(account.created_at as createdAt)",
                           "key": "createdAt",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$email": SqlTableColumn {
                           "columnName": "email",
@@ -961,11 +1086,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#3(account.email)",
                           "key": "email",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$firstName": SqlTableColumn {
                           "columnName": "first_name",
@@ -973,11 +1100,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#4(account.first_name as firstName)",
                           "key": "firstName",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$lastName": SqlTableColumn {
                           "columnName": "last_name",
@@ -985,11 +1114,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#5(account.last_name as lastName)",
                           "key": "lastName",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$modifiedAt": SqlTableColumn {
                           "columnName": "modified_at",
@@ -997,11 +1128,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                           "key": "modifiedAt",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$notes": SqlTableColumn {
                           "columnName": "notes",
@@ -1009,11 +1142,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#6(account.notes)",
                           "key": "notes",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$parentId": SqlTableColumn {
                           "columnName": "parent_id",
@@ -1021,11 +1156,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#9(account.parent_id as parentId)",
                           "key": "parentId",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$status": SqlTableColumn {
                           "columnName": "status",
@@ -1033,15 +1170,17 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#2(account.status)",
                           "key": "status",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                       },
+                      "tag": null,
                       "type": "SqlTableAll",
-                      "wrap": true,
                     },
                     "callback": [Function],
                   },
@@ -1054,11 +1193,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#1(account.account_id as accountId)",
                         "key": "accountId",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$createdAt": SqlTableColumn {
                         "columnName": "created_at",
@@ -1066,11 +1207,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#7(account.created_at as createdAt)",
                         "key": "createdAt",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$email": SqlTableColumn {
                         "columnName": "email",
@@ -1078,11 +1221,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#3(account.email)",
                         "key": "email",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$firstName": SqlTableColumn {
                         "columnName": "first_name",
@@ -1090,11 +1235,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#4(account.first_name as firstName)",
                         "key": "firstName",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$lastName": SqlTableColumn {
                         "columnName": "last_name",
@@ -1102,11 +1249,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#5(account.last_name as lastName)",
                         "key": "lastName",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$modifiedAt": SqlTableColumn {
                         "columnName": "modified_at",
@@ -1114,11 +1263,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                         "key": "modifiedAt",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$notes": SqlTableColumn {
                         "columnName": "notes",
@@ -1126,11 +1277,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#6(account.notes)",
                         "key": "notes",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$parentId": SqlTableColumn {
                         "columnName": "parent_id",
@@ -1138,11 +1291,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#9(account.parent_id as parentId)",
                         "key": "parentId",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$status": SqlTableColumn {
                         "columnName": "status",
@@ -1150,19 +1305,21 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#2(account.status)",
                         "key": "status",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                     },
                     "callback": [Function],
                   },
                   "_crudConfig": {
-                    "create": true,
                     "delete": true,
-                    "read": true,
+                    "insert": true,
+                    "select": true,
                     "update": true,
                   },
                   "_out": Lazy {
@@ -1170,6 +1327,7 @@ describe("sql subqueries tests", () => {
                     "_value": null,
                     "callback": [Function],
                   },
+                  "dialect": "sql",
                   "format": null,
                   "id": "SqlTable#1(SqlTable(main.account))",
                   "pk": [
@@ -1177,11 +1335,13 @@ describe("sql subqueries tests", () => {
                   ],
                   "tableCache": Map {},
                   "tableInfo": {
+                    "alias": null,
                     "name": "account",
+                    "out": false,
                     "schema": "main",
                   },
+                  "tag": null,
                   "type": "SqlTable",
-                  "wrap": true,
                 },
                 SqlTableColumn {
                   "columnName": "email",
@@ -1189,36 +1349,40 @@ describe("sql subqueries tests", () => {
                   "id": "SqlTableColumn#3(account.email)",
                   "key": "email",
                   "tableInfo": {
+                    "alias": null,
                     "name": "account",
+                    "out": false,
                     "schema": "main",
                   },
+                  "tag": null,
                   "type": "SqlTableColumn",
-                  "wrap": true,
                 },
                 SqlParam {
                   "id": "SqlParam#1(email)",
                   "name": "email",
+                  "tag": null,
                   "type": "SqlParam",
-                  "wrap": true,
                 },
               ],
+              "tag": null,
               "type": "SqlQuery",
-              "wrap": true,
             },
+            "tag": null,
             "target": SqlTableColumn {
               "columnName": "created_at",
               "format": null,
               "id": "SqlTableColumn#7(account.created_at as createdAt)",
               "key": "createdAt",
               "tableInfo": {
+                "alias": null,
                 "name": "account",
+                "out": false,
                 "schema": "main",
               },
+              "tag": null,
               "type": "SqlTableColumn",
-              "wrap": true,
             },
             "type": "SqlQueryColumn",
-            "wrap": true,
           },
           "$email": SqlQueryColumn {
             "format": null,
@@ -1226,39 +1390,42 @@ describe("sql subqueries tests", () => {
             "key": "email",
             "params": null,
             "query": SqlQuery {
-              "_$$": Lazy {
+              "_$$Lazy": Lazy {
                 "_computed": false,
                 "_value": null,
                 "callback": [Function],
               },
-              "_params": Lazy {
+              "_dialectsLazy": Lazy {
                 "_computed": false,
                 "_value": null,
                 "callback": [Function],
               },
-              "_queries": Lazy {
+              "_infoLazy": Lazy {
                 "_computed": false,
                 "_value": null,
                 "callback": [Function],
               },
-              "_row": Lazy {
+              "_innerQueriesLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
+              "_labelLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
+              "_paramsLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
+              "_rowLazy": Lazy {
                 "_computed": true,
                 "_value": [Circular],
                 "callback": [Function],
               },
-              "format": null,
               "id": "SqlQuery#1(label=AccountsWithEmail)",
-              "info": SqlQueryInfo {
-                "id": "SqlQueryInfo#1(label=AccountsWithEmail)",
-                "inline": null,
-                "label": "AccountsWithEmail",
-                "options": {
-                  "label": "AccountsWithEmail",
-                },
-                "type": "SqlQueryInfo",
-                "wrap": true,
-              },
-              "inline": false,
               "rawStrings": [
                 "
                  ",
@@ -1274,13 +1441,12 @@ describe("sql subqueries tests", () => {
               "rawValues": [
                 SqlQueryInfo {
                   "id": "SqlQueryInfo#1(label=AccountsWithEmail)",
-                  "inline": null,
                   "label": "AccountsWithEmail",
                   "options": {
                     "label": "AccountsWithEmail",
                   },
+                  "tag": null,
                   "type": "SqlQueryInfo",
-                  "wrap": true,
                 },
                 SqlSelectRow {
                   "columns": [
@@ -1293,11 +1459,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#1(account.account_id as accountId)",
                           "key": "accountId",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$createdAt": SqlTableColumn {
                           "columnName": "created_at",
@@ -1305,11 +1473,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#7(account.created_at as createdAt)",
                           "key": "createdAt",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$email": SqlTableColumn {
                           "columnName": "email",
@@ -1317,11 +1487,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#3(account.email)",
                           "key": "email",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$firstName": SqlTableColumn {
                           "columnName": "first_name",
@@ -1329,11 +1501,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#4(account.first_name as firstName)",
                           "key": "firstName",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$lastName": SqlTableColumn {
                           "columnName": "last_name",
@@ -1341,11 +1515,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#5(account.last_name as lastName)",
                           "key": "lastName",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$modifiedAt": SqlTableColumn {
                           "columnName": "modified_at",
@@ -1353,11 +1529,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                           "key": "modifiedAt",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$notes": SqlTableColumn {
                           "columnName": "notes",
@@ -1365,11 +1543,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#6(account.notes)",
                           "key": "notes",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$parentId": SqlTableColumn {
                           "columnName": "parent_id",
@@ -1377,11 +1557,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#9(account.parent_id as parentId)",
                           "key": "parentId",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$status": SqlTableColumn {
                           "columnName": "status",
@@ -1389,21 +1571,23 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#2(account.status)",
                           "key": "status",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                       },
+                      "tag": null,
                       "type": "SqlTableAll",
-                      "wrap": true,
                     },
                   ],
                   "id": "SqlSelectRow#1(SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId))",
                   "rowsByQueryId": Map {},
+                  "tag": null,
                   "type": "SqlSelectRow",
-                  "wrap": true,
                 },
                 SqlTable {
                   "$accountId": SqlTableColumn {
@@ -1412,11 +1596,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#1(account.account_id as accountId)",
                     "key": "accountId",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$createdAt": SqlTableColumn {
                     "columnName": "created_at",
@@ -1424,11 +1610,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#7(account.created_at as createdAt)",
                     "key": "createdAt",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$email": SqlTableColumn {
                     "columnName": "email",
@@ -1436,11 +1624,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#3(account.email)",
                     "key": "email",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$firstName": SqlTableColumn {
                     "columnName": "first_name",
@@ -1448,11 +1638,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#4(account.first_name as firstName)",
                     "key": "firstName",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$lastName": SqlTableColumn {
                     "columnName": "last_name",
@@ -1460,11 +1652,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#5(account.last_name as lastName)",
                     "key": "lastName",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$modifiedAt": SqlTableColumn {
                     "columnName": "modified_at",
@@ -1472,11 +1666,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                     "key": "modifiedAt",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$notes": SqlTableColumn {
                     "columnName": "notes",
@@ -1484,11 +1680,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#6(account.notes)",
                     "key": "notes",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$parentId": SqlTableColumn {
                     "columnName": "parent_id",
@@ -1496,11 +1694,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#9(account.parent_id as parentId)",
                     "key": "parentId",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$status": SqlTableColumn {
                     "columnName": "status",
@@ -1508,11 +1708,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#2(account.status)",
                     "key": "status",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "_$$": Lazy {
                     "_computed": true,
@@ -1525,11 +1727,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#1(account.account_id as accountId)",
                           "key": "accountId",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$createdAt": SqlTableColumn {
                           "columnName": "created_at",
@@ -1537,11 +1741,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#7(account.created_at as createdAt)",
                           "key": "createdAt",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$email": SqlTableColumn {
                           "columnName": "email",
@@ -1549,11 +1755,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#3(account.email)",
                           "key": "email",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$firstName": SqlTableColumn {
                           "columnName": "first_name",
@@ -1561,11 +1769,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#4(account.first_name as firstName)",
                           "key": "firstName",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$lastName": SqlTableColumn {
                           "columnName": "last_name",
@@ -1573,11 +1783,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#5(account.last_name as lastName)",
                           "key": "lastName",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$modifiedAt": SqlTableColumn {
                           "columnName": "modified_at",
@@ -1585,11 +1797,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                           "key": "modifiedAt",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$notes": SqlTableColumn {
                           "columnName": "notes",
@@ -1597,11 +1811,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#6(account.notes)",
                           "key": "notes",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$parentId": SqlTableColumn {
                           "columnName": "parent_id",
@@ -1609,11 +1825,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#9(account.parent_id as parentId)",
                           "key": "parentId",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$status": SqlTableColumn {
                           "columnName": "status",
@@ -1621,15 +1839,17 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#2(account.status)",
                           "key": "status",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                       },
+                      "tag": null,
                       "type": "SqlTableAll",
-                      "wrap": true,
                     },
                     "callback": [Function],
                   },
@@ -1642,11 +1862,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#1(account.account_id as accountId)",
                         "key": "accountId",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$createdAt": SqlTableColumn {
                         "columnName": "created_at",
@@ -1654,11 +1876,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#7(account.created_at as createdAt)",
                         "key": "createdAt",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$email": SqlTableColumn {
                         "columnName": "email",
@@ -1666,11 +1890,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#3(account.email)",
                         "key": "email",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$firstName": SqlTableColumn {
                         "columnName": "first_name",
@@ -1678,11 +1904,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#4(account.first_name as firstName)",
                         "key": "firstName",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$lastName": SqlTableColumn {
                         "columnName": "last_name",
@@ -1690,11 +1918,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#5(account.last_name as lastName)",
                         "key": "lastName",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$modifiedAt": SqlTableColumn {
                         "columnName": "modified_at",
@@ -1702,11 +1932,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                         "key": "modifiedAt",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$notes": SqlTableColumn {
                         "columnName": "notes",
@@ -1714,11 +1946,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#6(account.notes)",
                         "key": "notes",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$parentId": SqlTableColumn {
                         "columnName": "parent_id",
@@ -1726,11 +1960,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#9(account.parent_id as parentId)",
                         "key": "parentId",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$status": SqlTableColumn {
                         "columnName": "status",
@@ -1738,19 +1974,21 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#2(account.status)",
                         "key": "status",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                     },
                     "callback": [Function],
                   },
                   "_crudConfig": {
-                    "create": true,
                     "delete": true,
-                    "read": true,
+                    "insert": true,
+                    "select": true,
                     "update": true,
                   },
                   "_out": Lazy {
@@ -1758,6 +1996,7 @@ describe("sql subqueries tests", () => {
                     "_value": null,
                     "callback": [Function],
                   },
+                  "dialect": "sql",
                   "format": null,
                   "id": "SqlTable#1(SqlTable(main.account))",
                   "pk": [
@@ -1765,11 +2004,13 @@ describe("sql subqueries tests", () => {
                   ],
                   "tableCache": Map {},
                   "tableInfo": {
+                    "alias": null,
                     "name": "account",
+                    "out": false,
                     "schema": "main",
                   },
+                  "tag": null,
                   "type": "SqlTable",
-                  "wrap": true,
                 },
                 SqlTableColumn {
                   "columnName": "email",
@@ -1777,36 +2018,40 @@ describe("sql subqueries tests", () => {
                   "id": "SqlTableColumn#3(account.email)",
                   "key": "email",
                   "tableInfo": {
+                    "alias": null,
                     "name": "account",
+                    "out": false,
                     "schema": "main",
                   },
+                  "tag": null,
                   "type": "SqlTableColumn",
-                  "wrap": true,
                 },
                 SqlParam {
                   "id": "SqlParam#1(email)",
                   "name": "email",
+                  "tag": null,
                   "type": "SqlParam",
-                  "wrap": true,
                 },
               ],
+              "tag": null,
               "type": "SqlQuery",
-              "wrap": true,
             },
+            "tag": null,
             "target": SqlTableColumn {
               "columnName": "email",
               "format": null,
               "id": "SqlTableColumn#3(account.email)",
               "key": "email",
               "tableInfo": {
+                "alias": null,
                 "name": "account",
+                "out": false,
                 "schema": "main",
               },
+              "tag": null,
               "type": "SqlTableColumn",
-              "wrap": true,
             },
             "type": "SqlQueryColumn",
-            "wrap": true,
           },
           "$firstName": SqlQueryColumn {
             "format": null,
@@ -1814,39 +2059,42 @@ describe("sql subqueries tests", () => {
             "key": "firstName",
             "params": null,
             "query": SqlQuery {
-              "_$$": Lazy {
+              "_$$Lazy": Lazy {
                 "_computed": false,
                 "_value": null,
                 "callback": [Function],
               },
-              "_params": Lazy {
+              "_dialectsLazy": Lazy {
                 "_computed": false,
                 "_value": null,
                 "callback": [Function],
               },
-              "_queries": Lazy {
+              "_infoLazy": Lazy {
                 "_computed": false,
                 "_value": null,
                 "callback": [Function],
               },
-              "_row": Lazy {
+              "_innerQueriesLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
+              "_labelLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
+              "_paramsLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
+              "_rowLazy": Lazy {
                 "_computed": true,
                 "_value": [Circular],
                 "callback": [Function],
               },
-              "format": null,
               "id": "SqlQuery#1(label=AccountsWithEmail)",
-              "info": SqlQueryInfo {
-                "id": "SqlQueryInfo#1(label=AccountsWithEmail)",
-                "inline": null,
-                "label": "AccountsWithEmail",
-                "options": {
-                  "label": "AccountsWithEmail",
-                },
-                "type": "SqlQueryInfo",
-                "wrap": true,
-              },
-              "inline": false,
               "rawStrings": [
                 "
                  ",
@@ -1862,13 +2110,12 @@ describe("sql subqueries tests", () => {
               "rawValues": [
                 SqlQueryInfo {
                   "id": "SqlQueryInfo#1(label=AccountsWithEmail)",
-                  "inline": null,
                   "label": "AccountsWithEmail",
                   "options": {
                     "label": "AccountsWithEmail",
                   },
+                  "tag": null,
                   "type": "SqlQueryInfo",
-                  "wrap": true,
                 },
                 SqlSelectRow {
                   "columns": [
@@ -1881,11 +2128,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#1(account.account_id as accountId)",
                           "key": "accountId",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$createdAt": SqlTableColumn {
                           "columnName": "created_at",
@@ -1893,11 +2142,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#7(account.created_at as createdAt)",
                           "key": "createdAt",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$email": SqlTableColumn {
                           "columnName": "email",
@@ -1905,11 +2156,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#3(account.email)",
                           "key": "email",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$firstName": SqlTableColumn {
                           "columnName": "first_name",
@@ -1917,11 +2170,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#4(account.first_name as firstName)",
                           "key": "firstName",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$lastName": SqlTableColumn {
                           "columnName": "last_name",
@@ -1929,11 +2184,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#5(account.last_name as lastName)",
                           "key": "lastName",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$modifiedAt": SqlTableColumn {
                           "columnName": "modified_at",
@@ -1941,11 +2198,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                           "key": "modifiedAt",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$notes": SqlTableColumn {
                           "columnName": "notes",
@@ -1953,11 +2212,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#6(account.notes)",
                           "key": "notes",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$parentId": SqlTableColumn {
                           "columnName": "parent_id",
@@ -1965,11 +2226,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#9(account.parent_id as parentId)",
                           "key": "parentId",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$status": SqlTableColumn {
                           "columnName": "status",
@@ -1977,21 +2240,23 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#2(account.status)",
                           "key": "status",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                       },
+                      "tag": null,
                       "type": "SqlTableAll",
-                      "wrap": true,
                     },
                   ],
                   "id": "SqlSelectRow#1(SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId))",
                   "rowsByQueryId": Map {},
+                  "tag": null,
                   "type": "SqlSelectRow",
-                  "wrap": true,
                 },
                 SqlTable {
                   "$accountId": SqlTableColumn {
@@ -2000,11 +2265,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#1(account.account_id as accountId)",
                     "key": "accountId",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$createdAt": SqlTableColumn {
                     "columnName": "created_at",
@@ -2012,11 +2279,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#7(account.created_at as createdAt)",
                     "key": "createdAt",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$email": SqlTableColumn {
                     "columnName": "email",
@@ -2024,11 +2293,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#3(account.email)",
                     "key": "email",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$firstName": SqlTableColumn {
                     "columnName": "first_name",
@@ -2036,11 +2307,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#4(account.first_name as firstName)",
                     "key": "firstName",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$lastName": SqlTableColumn {
                     "columnName": "last_name",
@@ -2048,11 +2321,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#5(account.last_name as lastName)",
                     "key": "lastName",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$modifiedAt": SqlTableColumn {
                     "columnName": "modified_at",
@@ -2060,11 +2335,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                     "key": "modifiedAt",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$notes": SqlTableColumn {
                     "columnName": "notes",
@@ -2072,11 +2349,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#6(account.notes)",
                     "key": "notes",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$parentId": SqlTableColumn {
                     "columnName": "parent_id",
@@ -2084,11 +2363,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#9(account.parent_id as parentId)",
                     "key": "parentId",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$status": SqlTableColumn {
                     "columnName": "status",
@@ -2096,11 +2377,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#2(account.status)",
                     "key": "status",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "_$$": Lazy {
                     "_computed": true,
@@ -2113,11 +2396,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#1(account.account_id as accountId)",
                           "key": "accountId",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$createdAt": SqlTableColumn {
                           "columnName": "created_at",
@@ -2125,11 +2410,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#7(account.created_at as createdAt)",
                           "key": "createdAt",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$email": SqlTableColumn {
                           "columnName": "email",
@@ -2137,11 +2424,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#3(account.email)",
                           "key": "email",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$firstName": SqlTableColumn {
                           "columnName": "first_name",
@@ -2149,11 +2438,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#4(account.first_name as firstName)",
                           "key": "firstName",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$lastName": SqlTableColumn {
                           "columnName": "last_name",
@@ -2161,11 +2452,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#5(account.last_name as lastName)",
                           "key": "lastName",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$modifiedAt": SqlTableColumn {
                           "columnName": "modified_at",
@@ -2173,11 +2466,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                           "key": "modifiedAt",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$notes": SqlTableColumn {
                           "columnName": "notes",
@@ -2185,11 +2480,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#6(account.notes)",
                           "key": "notes",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$parentId": SqlTableColumn {
                           "columnName": "parent_id",
@@ -2197,11 +2494,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#9(account.parent_id as parentId)",
                           "key": "parentId",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$status": SqlTableColumn {
                           "columnName": "status",
@@ -2209,15 +2508,17 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#2(account.status)",
                           "key": "status",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                       },
+                      "tag": null,
                       "type": "SqlTableAll",
-                      "wrap": true,
                     },
                     "callback": [Function],
                   },
@@ -2230,11 +2531,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#1(account.account_id as accountId)",
                         "key": "accountId",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$createdAt": SqlTableColumn {
                         "columnName": "created_at",
@@ -2242,11 +2545,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#7(account.created_at as createdAt)",
                         "key": "createdAt",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$email": SqlTableColumn {
                         "columnName": "email",
@@ -2254,11 +2559,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#3(account.email)",
                         "key": "email",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$firstName": SqlTableColumn {
                         "columnName": "first_name",
@@ -2266,11 +2573,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#4(account.first_name as firstName)",
                         "key": "firstName",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$lastName": SqlTableColumn {
                         "columnName": "last_name",
@@ -2278,11 +2587,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#5(account.last_name as lastName)",
                         "key": "lastName",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$modifiedAt": SqlTableColumn {
                         "columnName": "modified_at",
@@ -2290,11 +2601,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                         "key": "modifiedAt",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$notes": SqlTableColumn {
                         "columnName": "notes",
@@ -2302,11 +2615,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#6(account.notes)",
                         "key": "notes",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$parentId": SqlTableColumn {
                         "columnName": "parent_id",
@@ -2314,11 +2629,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#9(account.parent_id as parentId)",
                         "key": "parentId",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$status": SqlTableColumn {
                         "columnName": "status",
@@ -2326,19 +2643,21 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#2(account.status)",
                         "key": "status",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                     },
                     "callback": [Function],
                   },
                   "_crudConfig": {
-                    "create": true,
                     "delete": true,
-                    "read": true,
+                    "insert": true,
+                    "select": true,
                     "update": true,
                   },
                   "_out": Lazy {
@@ -2346,6 +2665,7 @@ describe("sql subqueries tests", () => {
                     "_value": null,
                     "callback": [Function],
                   },
+                  "dialect": "sql",
                   "format": null,
                   "id": "SqlTable#1(SqlTable(main.account))",
                   "pk": [
@@ -2353,11 +2673,13 @@ describe("sql subqueries tests", () => {
                   ],
                   "tableCache": Map {},
                   "tableInfo": {
+                    "alias": null,
                     "name": "account",
+                    "out": false,
                     "schema": "main",
                   },
+                  "tag": null,
                   "type": "SqlTable",
-                  "wrap": true,
                 },
                 SqlTableColumn {
                   "columnName": "email",
@@ -2365,36 +2687,40 @@ describe("sql subqueries tests", () => {
                   "id": "SqlTableColumn#3(account.email)",
                   "key": "email",
                   "tableInfo": {
+                    "alias": null,
                     "name": "account",
+                    "out": false,
                     "schema": "main",
                   },
+                  "tag": null,
                   "type": "SqlTableColumn",
-                  "wrap": true,
                 },
                 SqlParam {
                   "id": "SqlParam#1(email)",
                   "name": "email",
+                  "tag": null,
                   "type": "SqlParam",
-                  "wrap": true,
                 },
               ],
+              "tag": null,
               "type": "SqlQuery",
-              "wrap": true,
             },
+            "tag": null,
             "target": SqlTableColumn {
               "columnName": "first_name",
               "format": null,
               "id": "SqlTableColumn#4(account.first_name as firstName)",
               "key": "firstName",
               "tableInfo": {
+                "alias": null,
                 "name": "account",
+                "out": false,
                 "schema": "main",
               },
+              "tag": null,
               "type": "SqlTableColumn",
-              "wrap": true,
             },
             "type": "SqlQueryColumn",
-            "wrap": true,
           },
           "$lastName": SqlQueryColumn {
             "format": null,
@@ -2402,39 +2728,42 @@ describe("sql subqueries tests", () => {
             "key": "lastName",
             "params": null,
             "query": SqlQuery {
-              "_$$": Lazy {
+              "_$$Lazy": Lazy {
                 "_computed": false,
                 "_value": null,
                 "callback": [Function],
               },
-              "_params": Lazy {
+              "_dialectsLazy": Lazy {
                 "_computed": false,
                 "_value": null,
                 "callback": [Function],
               },
-              "_queries": Lazy {
+              "_infoLazy": Lazy {
                 "_computed": false,
                 "_value": null,
                 "callback": [Function],
               },
-              "_row": Lazy {
+              "_innerQueriesLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
+              "_labelLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
+              "_paramsLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
+              "_rowLazy": Lazy {
                 "_computed": true,
                 "_value": [Circular],
                 "callback": [Function],
               },
-              "format": null,
               "id": "SqlQuery#1(label=AccountsWithEmail)",
-              "info": SqlQueryInfo {
-                "id": "SqlQueryInfo#1(label=AccountsWithEmail)",
-                "inline": null,
-                "label": "AccountsWithEmail",
-                "options": {
-                  "label": "AccountsWithEmail",
-                },
-                "type": "SqlQueryInfo",
-                "wrap": true,
-              },
-              "inline": false,
               "rawStrings": [
                 "
                  ",
@@ -2450,13 +2779,12 @@ describe("sql subqueries tests", () => {
               "rawValues": [
                 SqlQueryInfo {
                   "id": "SqlQueryInfo#1(label=AccountsWithEmail)",
-                  "inline": null,
                   "label": "AccountsWithEmail",
                   "options": {
                     "label": "AccountsWithEmail",
                   },
+                  "tag": null,
                   "type": "SqlQueryInfo",
-                  "wrap": true,
                 },
                 SqlSelectRow {
                   "columns": [
@@ -2469,11 +2797,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#1(account.account_id as accountId)",
                           "key": "accountId",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$createdAt": SqlTableColumn {
                           "columnName": "created_at",
@@ -2481,11 +2811,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#7(account.created_at as createdAt)",
                           "key": "createdAt",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$email": SqlTableColumn {
                           "columnName": "email",
@@ -2493,11 +2825,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#3(account.email)",
                           "key": "email",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$firstName": SqlTableColumn {
                           "columnName": "first_name",
@@ -2505,11 +2839,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#4(account.first_name as firstName)",
                           "key": "firstName",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$lastName": SqlTableColumn {
                           "columnName": "last_name",
@@ -2517,11 +2853,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#5(account.last_name as lastName)",
                           "key": "lastName",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$modifiedAt": SqlTableColumn {
                           "columnName": "modified_at",
@@ -2529,11 +2867,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                           "key": "modifiedAt",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$notes": SqlTableColumn {
                           "columnName": "notes",
@@ -2541,11 +2881,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#6(account.notes)",
                           "key": "notes",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$parentId": SqlTableColumn {
                           "columnName": "parent_id",
@@ -2553,11 +2895,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#9(account.parent_id as parentId)",
                           "key": "parentId",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$status": SqlTableColumn {
                           "columnName": "status",
@@ -2565,21 +2909,23 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#2(account.status)",
                           "key": "status",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                       },
+                      "tag": null,
                       "type": "SqlTableAll",
-                      "wrap": true,
                     },
                   ],
                   "id": "SqlSelectRow#1(SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId))",
                   "rowsByQueryId": Map {},
+                  "tag": null,
                   "type": "SqlSelectRow",
-                  "wrap": true,
                 },
                 SqlTable {
                   "$accountId": SqlTableColumn {
@@ -2588,11 +2934,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#1(account.account_id as accountId)",
                     "key": "accountId",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$createdAt": SqlTableColumn {
                     "columnName": "created_at",
@@ -2600,11 +2948,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#7(account.created_at as createdAt)",
                     "key": "createdAt",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$email": SqlTableColumn {
                     "columnName": "email",
@@ -2612,11 +2962,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#3(account.email)",
                     "key": "email",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$firstName": SqlTableColumn {
                     "columnName": "first_name",
@@ -2624,11 +2976,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#4(account.first_name as firstName)",
                     "key": "firstName",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$lastName": SqlTableColumn {
                     "columnName": "last_name",
@@ -2636,11 +2990,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#5(account.last_name as lastName)",
                     "key": "lastName",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$modifiedAt": SqlTableColumn {
                     "columnName": "modified_at",
@@ -2648,11 +3004,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                     "key": "modifiedAt",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$notes": SqlTableColumn {
                     "columnName": "notes",
@@ -2660,11 +3018,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#6(account.notes)",
                     "key": "notes",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$parentId": SqlTableColumn {
                     "columnName": "parent_id",
@@ -2672,11 +3032,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#9(account.parent_id as parentId)",
                     "key": "parentId",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$status": SqlTableColumn {
                     "columnName": "status",
@@ -2684,11 +3046,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#2(account.status)",
                     "key": "status",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "_$$": Lazy {
                     "_computed": true,
@@ -2701,11 +3065,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#1(account.account_id as accountId)",
                           "key": "accountId",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$createdAt": SqlTableColumn {
                           "columnName": "created_at",
@@ -2713,11 +3079,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#7(account.created_at as createdAt)",
                           "key": "createdAt",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$email": SqlTableColumn {
                           "columnName": "email",
@@ -2725,11 +3093,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#3(account.email)",
                           "key": "email",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$firstName": SqlTableColumn {
                           "columnName": "first_name",
@@ -2737,11 +3107,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#4(account.first_name as firstName)",
                           "key": "firstName",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$lastName": SqlTableColumn {
                           "columnName": "last_name",
@@ -2749,11 +3121,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#5(account.last_name as lastName)",
                           "key": "lastName",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$modifiedAt": SqlTableColumn {
                           "columnName": "modified_at",
@@ -2761,11 +3135,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                           "key": "modifiedAt",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$notes": SqlTableColumn {
                           "columnName": "notes",
@@ -2773,11 +3149,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#6(account.notes)",
                           "key": "notes",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$parentId": SqlTableColumn {
                           "columnName": "parent_id",
@@ -2785,11 +3163,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#9(account.parent_id as parentId)",
                           "key": "parentId",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$status": SqlTableColumn {
                           "columnName": "status",
@@ -2797,15 +3177,17 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#2(account.status)",
                           "key": "status",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                       },
+                      "tag": null,
                       "type": "SqlTableAll",
-                      "wrap": true,
                     },
                     "callback": [Function],
                   },
@@ -2818,11 +3200,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#1(account.account_id as accountId)",
                         "key": "accountId",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$createdAt": SqlTableColumn {
                         "columnName": "created_at",
@@ -2830,11 +3214,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#7(account.created_at as createdAt)",
                         "key": "createdAt",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$email": SqlTableColumn {
                         "columnName": "email",
@@ -2842,11 +3228,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#3(account.email)",
                         "key": "email",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$firstName": SqlTableColumn {
                         "columnName": "first_name",
@@ -2854,11 +3242,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#4(account.first_name as firstName)",
                         "key": "firstName",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$lastName": SqlTableColumn {
                         "columnName": "last_name",
@@ -2866,11 +3256,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#5(account.last_name as lastName)",
                         "key": "lastName",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$modifiedAt": SqlTableColumn {
                         "columnName": "modified_at",
@@ -2878,11 +3270,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                         "key": "modifiedAt",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$notes": SqlTableColumn {
                         "columnName": "notes",
@@ -2890,11 +3284,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#6(account.notes)",
                         "key": "notes",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$parentId": SqlTableColumn {
                         "columnName": "parent_id",
@@ -2902,11 +3298,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#9(account.parent_id as parentId)",
                         "key": "parentId",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$status": SqlTableColumn {
                         "columnName": "status",
@@ -2914,19 +3312,21 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#2(account.status)",
                         "key": "status",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                     },
                     "callback": [Function],
                   },
                   "_crudConfig": {
-                    "create": true,
                     "delete": true,
-                    "read": true,
+                    "insert": true,
+                    "select": true,
                     "update": true,
                   },
                   "_out": Lazy {
@@ -2934,6 +3334,7 @@ describe("sql subqueries tests", () => {
                     "_value": null,
                     "callback": [Function],
                   },
+                  "dialect": "sql",
                   "format": null,
                   "id": "SqlTable#1(SqlTable(main.account))",
                   "pk": [
@@ -2941,11 +3342,13 @@ describe("sql subqueries tests", () => {
                   ],
                   "tableCache": Map {},
                   "tableInfo": {
+                    "alias": null,
                     "name": "account",
+                    "out": false,
                     "schema": "main",
                   },
+                  "tag": null,
                   "type": "SqlTable",
-                  "wrap": true,
                 },
                 SqlTableColumn {
                   "columnName": "email",
@@ -2953,36 +3356,40 @@ describe("sql subqueries tests", () => {
                   "id": "SqlTableColumn#3(account.email)",
                   "key": "email",
                   "tableInfo": {
+                    "alias": null,
                     "name": "account",
+                    "out": false,
                     "schema": "main",
                   },
+                  "tag": null,
                   "type": "SqlTableColumn",
-                  "wrap": true,
                 },
                 SqlParam {
                   "id": "SqlParam#1(email)",
                   "name": "email",
+                  "tag": null,
                   "type": "SqlParam",
-                  "wrap": true,
                 },
               ],
+              "tag": null,
               "type": "SqlQuery",
-              "wrap": true,
             },
+            "tag": null,
             "target": SqlTableColumn {
               "columnName": "last_name",
               "format": null,
               "id": "SqlTableColumn#5(account.last_name as lastName)",
               "key": "lastName",
               "tableInfo": {
+                "alias": null,
                 "name": "account",
+                "out": false,
                 "schema": "main",
               },
+              "tag": null,
               "type": "SqlTableColumn",
-              "wrap": true,
             },
             "type": "SqlQueryColumn",
-            "wrap": true,
           },
           "$modifiedAt": SqlQueryColumn {
             "format": null,
@@ -2990,39 +3397,42 @@ describe("sql subqueries tests", () => {
             "key": "modifiedAt",
             "params": null,
             "query": SqlQuery {
-              "_$$": Lazy {
+              "_$$Lazy": Lazy {
                 "_computed": false,
                 "_value": null,
                 "callback": [Function],
               },
-              "_params": Lazy {
+              "_dialectsLazy": Lazy {
                 "_computed": false,
                 "_value": null,
                 "callback": [Function],
               },
-              "_queries": Lazy {
+              "_infoLazy": Lazy {
                 "_computed": false,
                 "_value": null,
                 "callback": [Function],
               },
-              "_row": Lazy {
+              "_innerQueriesLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
+              "_labelLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
+              "_paramsLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
+              "_rowLazy": Lazy {
                 "_computed": true,
                 "_value": [Circular],
                 "callback": [Function],
               },
-              "format": null,
               "id": "SqlQuery#1(label=AccountsWithEmail)",
-              "info": SqlQueryInfo {
-                "id": "SqlQueryInfo#1(label=AccountsWithEmail)",
-                "inline": null,
-                "label": "AccountsWithEmail",
-                "options": {
-                  "label": "AccountsWithEmail",
-                },
-                "type": "SqlQueryInfo",
-                "wrap": true,
-              },
-              "inline": false,
               "rawStrings": [
                 "
                  ",
@@ -3038,13 +3448,12 @@ describe("sql subqueries tests", () => {
               "rawValues": [
                 SqlQueryInfo {
                   "id": "SqlQueryInfo#1(label=AccountsWithEmail)",
-                  "inline": null,
                   "label": "AccountsWithEmail",
                   "options": {
                     "label": "AccountsWithEmail",
                   },
+                  "tag": null,
                   "type": "SqlQueryInfo",
-                  "wrap": true,
                 },
                 SqlSelectRow {
                   "columns": [
@@ -3057,11 +3466,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#1(account.account_id as accountId)",
                           "key": "accountId",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$createdAt": SqlTableColumn {
                           "columnName": "created_at",
@@ -3069,11 +3480,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#7(account.created_at as createdAt)",
                           "key": "createdAt",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$email": SqlTableColumn {
                           "columnName": "email",
@@ -3081,11 +3494,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#3(account.email)",
                           "key": "email",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$firstName": SqlTableColumn {
                           "columnName": "first_name",
@@ -3093,11 +3508,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#4(account.first_name as firstName)",
                           "key": "firstName",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$lastName": SqlTableColumn {
                           "columnName": "last_name",
@@ -3105,11 +3522,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#5(account.last_name as lastName)",
                           "key": "lastName",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$modifiedAt": SqlTableColumn {
                           "columnName": "modified_at",
@@ -3117,11 +3536,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                           "key": "modifiedAt",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$notes": SqlTableColumn {
                           "columnName": "notes",
@@ -3129,11 +3550,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#6(account.notes)",
                           "key": "notes",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$parentId": SqlTableColumn {
                           "columnName": "parent_id",
@@ -3141,11 +3564,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#9(account.parent_id as parentId)",
                           "key": "parentId",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$status": SqlTableColumn {
                           "columnName": "status",
@@ -3153,21 +3578,23 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#2(account.status)",
                           "key": "status",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                       },
+                      "tag": null,
                       "type": "SqlTableAll",
-                      "wrap": true,
                     },
                   ],
                   "id": "SqlSelectRow#1(SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId))",
                   "rowsByQueryId": Map {},
+                  "tag": null,
                   "type": "SqlSelectRow",
-                  "wrap": true,
                 },
                 SqlTable {
                   "$accountId": SqlTableColumn {
@@ -3176,11 +3603,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#1(account.account_id as accountId)",
                     "key": "accountId",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$createdAt": SqlTableColumn {
                     "columnName": "created_at",
@@ -3188,11 +3617,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#7(account.created_at as createdAt)",
                     "key": "createdAt",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$email": SqlTableColumn {
                     "columnName": "email",
@@ -3200,11 +3631,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#3(account.email)",
                     "key": "email",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$firstName": SqlTableColumn {
                     "columnName": "first_name",
@@ -3212,11 +3645,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#4(account.first_name as firstName)",
                     "key": "firstName",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$lastName": SqlTableColumn {
                     "columnName": "last_name",
@@ -3224,11 +3659,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#5(account.last_name as lastName)",
                     "key": "lastName",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$modifiedAt": SqlTableColumn {
                     "columnName": "modified_at",
@@ -3236,11 +3673,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                     "key": "modifiedAt",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$notes": SqlTableColumn {
                     "columnName": "notes",
@@ -3248,11 +3687,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#6(account.notes)",
                     "key": "notes",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$parentId": SqlTableColumn {
                     "columnName": "parent_id",
@@ -3260,11 +3701,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#9(account.parent_id as parentId)",
                     "key": "parentId",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$status": SqlTableColumn {
                     "columnName": "status",
@@ -3272,11 +3715,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#2(account.status)",
                     "key": "status",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "_$$": Lazy {
                     "_computed": true,
@@ -3289,11 +3734,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#1(account.account_id as accountId)",
                           "key": "accountId",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$createdAt": SqlTableColumn {
                           "columnName": "created_at",
@@ -3301,11 +3748,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#7(account.created_at as createdAt)",
                           "key": "createdAt",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$email": SqlTableColumn {
                           "columnName": "email",
@@ -3313,11 +3762,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#3(account.email)",
                           "key": "email",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$firstName": SqlTableColumn {
                           "columnName": "first_name",
@@ -3325,11 +3776,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#4(account.first_name as firstName)",
                           "key": "firstName",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$lastName": SqlTableColumn {
                           "columnName": "last_name",
@@ -3337,11 +3790,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#5(account.last_name as lastName)",
                           "key": "lastName",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$modifiedAt": SqlTableColumn {
                           "columnName": "modified_at",
@@ -3349,11 +3804,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                           "key": "modifiedAt",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$notes": SqlTableColumn {
                           "columnName": "notes",
@@ -3361,11 +3818,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#6(account.notes)",
                           "key": "notes",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$parentId": SqlTableColumn {
                           "columnName": "parent_id",
@@ -3373,11 +3832,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#9(account.parent_id as parentId)",
                           "key": "parentId",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$status": SqlTableColumn {
                           "columnName": "status",
@@ -3385,15 +3846,17 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#2(account.status)",
                           "key": "status",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                       },
+                      "tag": null,
                       "type": "SqlTableAll",
-                      "wrap": true,
                     },
                     "callback": [Function],
                   },
@@ -3406,11 +3869,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#1(account.account_id as accountId)",
                         "key": "accountId",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$createdAt": SqlTableColumn {
                         "columnName": "created_at",
@@ -3418,11 +3883,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#7(account.created_at as createdAt)",
                         "key": "createdAt",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$email": SqlTableColumn {
                         "columnName": "email",
@@ -3430,11 +3897,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#3(account.email)",
                         "key": "email",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$firstName": SqlTableColumn {
                         "columnName": "first_name",
@@ -3442,11 +3911,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#4(account.first_name as firstName)",
                         "key": "firstName",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$lastName": SqlTableColumn {
                         "columnName": "last_name",
@@ -3454,11 +3925,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#5(account.last_name as lastName)",
                         "key": "lastName",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$modifiedAt": SqlTableColumn {
                         "columnName": "modified_at",
@@ -3466,11 +3939,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                         "key": "modifiedAt",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$notes": SqlTableColumn {
                         "columnName": "notes",
@@ -3478,11 +3953,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#6(account.notes)",
                         "key": "notes",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$parentId": SqlTableColumn {
                         "columnName": "parent_id",
@@ -3490,11 +3967,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#9(account.parent_id as parentId)",
                         "key": "parentId",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$status": SqlTableColumn {
                         "columnName": "status",
@@ -3502,19 +3981,21 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#2(account.status)",
                         "key": "status",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                     },
                     "callback": [Function],
                   },
                   "_crudConfig": {
-                    "create": true,
                     "delete": true,
-                    "read": true,
+                    "insert": true,
+                    "select": true,
                     "update": true,
                   },
                   "_out": Lazy {
@@ -3522,6 +4003,7 @@ describe("sql subqueries tests", () => {
                     "_value": null,
                     "callback": [Function],
                   },
+                  "dialect": "sql",
                   "format": null,
                   "id": "SqlTable#1(SqlTable(main.account))",
                   "pk": [
@@ -3529,11 +4011,13 @@ describe("sql subqueries tests", () => {
                   ],
                   "tableCache": Map {},
                   "tableInfo": {
+                    "alias": null,
                     "name": "account",
+                    "out": false,
                     "schema": "main",
                   },
+                  "tag": null,
                   "type": "SqlTable",
-                  "wrap": true,
                 },
                 SqlTableColumn {
                   "columnName": "email",
@@ -3541,36 +4025,40 @@ describe("sql subqueries tests", () => {
                   "id": "SqlTableColumn#3(account.email)",
                   "key": "email",
                   "tableInfo": {
+                    "alias": null,
                     "name": "account",
+                    "out": false,
                     "schema": "main",
                   },
+                  "tag": null,
                   "type": "SqlTableColumn",
-                  "wrap": true,
                 },
                 SqlParam {
                   "id": "SqlParam#1(email)",
                   "name": "email",
+                  "tag": null,
                   "type": "SqlParam",
-                  "wrap": true,
                 },
               ],
+              "tag": null,
               "type": "SqlQuery",
-              "wrap": true,
             },
+            "tag": null,
             "target": SqlTableColumn {
               "columnName": "modified_at",
               "format": null,
               "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
               "key": "modifiedAt",
               "tableInfo": {
+                "alias": null,
                 "name": "account",
+                "out": false,
                 "schema": "main",
               },
+              "tag": null,
               "type": "SqlTableColumn",
-              "wrap": true,
             },
             "type": "SqlQueryColumn",
-            "wrap": true,
           },
           "$notes": SqlQueryColumn {
             "format": null,
@@ -3578,39 +4066,42 @@ describe("sql subqueries tests", () => {
             "key": "notes",
             "params": null,
             "query": SqlQuery {
-              "_$$": Lazy {
+              "_$$Lazy": Lazy {
                 "_computed": false,
                 "_value": null,
                 "callback": [Function],
               },
-              "_params": Lazy {
+              "_dialectsLazy": Lazy {
                 "_computed": false,
                 "_value": null,
                 "callback": [Function],
               },
-              "_queries": Lazy {
+              "_infoLazy": Lazy {
                 "_computed": false,
                 "_value": null,
                 "callback": [Function],
               },
-              "_row": Lazy {
+              "_innerQueriesLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
+              "_labelLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
+              "_paramsLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
+              "_rowLazy": Lazy {
                 "_computed": true,
                 "_value": [Circular],
                 "callback": [Function],
               },
-              "format": null,
               "id": "SqlQuery#1(label=AccountsWithEmail)",
-              "info": SqlQueryInfo {
-                "id": "SqlQueryInfo#1(label=AccountsWithEmail)",
-                "inline": null,
-                "label": "AccountsWithEmail",
-                "options": {
-                  "label": "AccountsWithEmail",
-                },
-                "type": "SqlQueryInfo",
-                "wrap": true,
-              },
-              "inline": false,
               "rawStrings": [
                 "
                  ",
@@ -3626,13 +4117,12 @@ describe("sql subqueries tests", () => {
               "rawValues": [
                 SqlQueryInfo {
                   "id": "SqlQueryInfo#1(label=AccountsWithEmail)",
-                  "inline": null,
                   "label": "AccountsWithEmail",
                   "options": {
                     "label": "AccountsWithEmail",
                   },
+                  "tag": null,
                   "type": "SqlQueryInfo",
-                  "wrap": true,
                 },
                 SqlSelectRow {
                   "columns": [
@@ -3645,11 +4135,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#1(account.account_id as accountId)",
                           "key": "accountId",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$createdAt": SqlTableColumn {
                           "columnName": "created_at",
@@ -3657,11 +4149,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#7(account.created_at as createdAt)",
                           "key": "createdAt",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$email": SqlTableColumn {
                           "columnName": "email",
@@ -3669,11 +4163,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#3(account.email)",
                           "key": "email",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$firstName": SqlTableColumn {
                           "columnName": "first_name",
@@ -3681,11 +4177,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#4(account.first_name as firstName)",
                           "key": "firstName",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$lastName": SqlTableColumn {
                           "columnName": "last_name",
@@ -3693,11 +4191,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#5(account.last_name as lastName)",
                           "key": "lastName",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$modifiedAt": SqlTableColumn {
                           "columnName": "modified_at",
@@ -3705,11 +4205,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                           "key": "modifiedAt",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$notes": SqlTableColumn {
                           "columnName": "notes",
@@ -3717,11 +4219,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#6(account.notes)",
                           "key": "notes",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$parentId": SqlTableColumn {
                           "columnName": "parent_id",
@@ -3729,11 +4233,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#9(account.parent_id as parentId)",
                           "key": "parentId",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$status": SqlTableColumn {
                           "columnName": "status",
@@ -3741,21 +4247,23 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#2(account.status)",
                           "key": "status",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                       },
+                      "tag": null,
                       "type": "SqlTableAll",
-                      "wrap": true,
                     },
                   ],
                   "id": "SqlSelectRow#1(SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId))",
                   "rowsByQueryId": Map {},
+                  "tag": null,
                   "type": "SqlSelectRow",
-                  "wrap": true,
                 },
                 SqlTable {
                   "$accountId": SqlTableColumn {
@@ -3764,11 +4272,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#1(account.account_id as accountId)",
                     "key": "accountId",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$createdAt": SqlTableColumn {
                     "columnName": "created_at",
@@ -3776,11 +4286,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#7(account.created_at as createdAt)",
                     "key": "createdAt",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$email": SqlTableColumn {
                     "columnName": "email",
@@ -3788,11 +4300,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#3(account.email)",
                     "key": "email",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$firstName": SqlTableColumn {
                     "columnName": "first_name",
@@ -3800,11 +4314,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#4(account.first_name as firstName)",
                     "key": "firstName",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$lastName": SqlTableColumn {
                     "columnName": "last_name",
@@ -3812,11 +4328,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#5(account.last_name as lastName)",
                     "key": "lastName",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$modifiedAt": SqlTableColumn {
                     "columnName": "modified_at",
@@ -3824,11 +4342,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                     "key": "modifiedAt",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$notes": SqlTableColumn {
                     "columnName": "notes",
@@ -3836,11 +4356,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#6(account.notes)",
                     "key": "notes",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$parentId": SqlTableColumn {
                     "columnName": "parent_id",
@@ -3848,11 +4370,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#9(account.parent_id as parentId)",
                     "key": "parentId",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$status": SqlTableColumn {
                     "columnName": "status",
@@ -3860,11 +4384,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#2(account.status)",
                     "key": "status",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "_$$": Lazy {
                     "_computed": true,
@@ -3877,11 +4403,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#1(account.account_id as accountId)",
                           "key": "accountId",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$createdAt": SqlTableColumn {
                           "columnName": "created_at",
@@ -3889,11 +4417,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#7(account.created_at as createdAt)",
                           "key": "createdAt",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$email": SqlTableColumn {
                           "columnName": "email",
@@ -3901,11 +4431,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#3(account.email)",
                           "key": "email",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$firstName": SqlTableColumn {
                           "columnName": "first_name",
@@ -3913,11 +4445,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#4(account.first_name as firstName)",
                           "key": "firstName",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$lastName": SqlTableColumn {
                           "columnName": "last_name",
@@ -3925,11 +4459,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#5(account.last_name as lastName)",
                           "key": "lastName",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$modifiedAt": SqlTableColumn {
                           "columnName": "modified_at",
@@ -3937,11 +4473,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                           "key": "modifiedAt",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$notes": SqlTableColumn {
                           "columnName": "notes",
@@ -3949,11 +4487,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#6(account.notes)",
                           "key": "notes",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$parentId": SqlTableColumn {
                           "columnName": "parent_id",
@@ -3961,11 +4501,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#9(account.parent_id as parentId)",
                           "key": "parentId",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$status": SqlTableColumn {
                           "columnName": "status",
@@ -3973,15 +4515,17 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#2(account.status)",
                           "key": "status",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                       },
+                      "tag": null,
                       "type": "SqlTableAll",
-                      "wrap": true,
                     },
                     "callback": [Function],
                   },
@@ -3994,11 +4538,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#1(account.account_id as accountId)",
                         "key": "accountId",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$createdAt": SqlTableColumn {
                         "columnName": "created_at",
@@ -4006,11 +4552,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#7(account.created_at as createdAt)",
                         "key": "createdAt",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$email": SqlTableColumn {
                         "columnName": "email",
@@ -4018,11 +4566,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#3(account.email)",
                         "key": "email",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$firstName": SqlTableColumn {
                         "columnName": "first_name",
@@ -4030,11 +4580,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#4(account.first_name as firstName)",
                         "key": "firstName",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$lastName": SqlTableColumn {
                         "columnName": "last_name",
@@ -4042,11 +4594,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#5(account.last_name as lastName)",
                         "key": "lastName",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$modifiedAt": SqlTableColumn {
                         "columnName": "modified_at",
@@ -4054,11 +4608,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                         "key": "modifiedAt",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$notes": SqlTableColumn {
                         "columnName": "notes",
@@ -4066,11 +4622,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#6(account.notes)",
                         "key": "notes",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$parentId": SqlTableColumn {
                         "columnName": "parent_id",
@@ -4078,11 +4636,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#9(account.parent_id as parentId)",
                         "key": "parentId",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$status": SqlTableColumn {
                         "columnName": "status",
@@ -4090,19 +4650,21 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#2(account.status)",
                         "key": "status",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                     },
                     "callback": [Function],
                   },
                   "_crudConfig": {
-                    "create": true,
                     "delete": true,
-                    "read": true,
+                    "insert": true,
+                    "select": true,
                     "update": true,
                   },
                   "_out": Lazy {
@@ -4110,6 +4672,7 @@ describe("sql subqueries tests", () => {
                     "_value": null,
                     "callback": [Function],
                   },
+                  "dialect": "sql",
                   "format": null,
                   "id": "SqlTable#1(SqlTable(main.account))",
                   "pk": [
@@ -4117,11 +4680,13 @@ describe("sql subqueries tests", () => {
                   ],
                   "tableCache": Map {},
                   "tableInfo": {
+                    "alias": null,
                     "name": "account",
+                    "out": false,
                     "schema": "main",
                   },
+                  "tag": null,
                   "type": "SqlTable",
-                  "wrap": true,
                 },
                 SqlTableColumn {
                   "columnName": "email",
@@ -4129,36 +4694,40 @@ describe("sql subqueries tests", () => {
                   "id": "SqlTableColumn#3(account.email)",
                   "key": "email",
                   "tableInfo": {
+                    "alias": null,
                     "name": "account",
+                    "out": false,
                     "schema": "main",
                   },
+                  "tag": null,
                   "type": "SqlTableColumn",
-                  "wrap": true,
                 },
                 SqlParam {
                   "id": "SqlParam#1(email)",
                   "name": "email",
+                  "tag": null,
                   "type": "SqlParam",
-                  "wrap": true,
                 },
               ],
+              "tag": null,
               "type": "SqlQuery",
-              "wrap": true,
             },
+            "tag": null,
             "target": SqlTableColumn {
               "columnName": "notes",
               "format": null,
               "id": "SqlTableColumn#6(account.notes)",
               "key": "notes",
               "tableInfo": {
+                "alias": null,
                 "name": "account",
+                "out": false,
                 "schema": "main",
               },
+              "tag": null,
               "type": "SqlTableColumn",
-              "wrap": true,
             },
             "type": "SqlQueryColumn",
-            "wrap": true,
           },
           "$parentId": SqlQueryColumn {
             "format": null,
@@ -4166,39 +4735,42 @@ describe("sql subqueries tests", () => {
             "key": "parentId",
             "params": null,
             "query": SqlQuery {
-              "_$$": Lazy {
+              "_$$Lazy": Lazy {
                 "_computed": false,
                 "_value": null,
                 "callback": [Function],
               },
-              "_params": Lazy {
+              "_dialectsLazy": Lazy {
                 "_computed": false,
                 "_value": null,
                 "callback": [Function],
               },
-              "_queries": Lazy {
+              "_infoLazy": Lazy {
                 "_computed": false,
                 "_value": null,
                 "callback": [Function],
               },
-              "_row": Lazy {
+              "_innerQueriesLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
+              "_labelLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
+              "_paramsLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
+              "_rowLazy": Lazy {
                 "_computed": true,
                 "_value": [Circular],
                 "callback": [Function],
               },
-              "format": null,
               "id": "SqlQuery#1(label=AccountsWithEmail)",
-              "info": SqlQueryInfo {
-                "id": "SqlQueryInfo#1(label=AccountsWithEmail)",
-                "inline": null,
-                "label": "AccountsWithEmail",
-                "options": {
-                  "label": "AccountsWithEmail",
-                },
-                "type": "SqlQueryInfo",
-                "wrap": true,
-              },
-              "inline": false,
               "rawStrings": [
                 "
                  ",
@@ -4214,13 +4786,12 @@ describe("sql subqueries tests", () => {
               "rawValues": [
                 SqlQueryInfo {
                   "id": "SqlQueryInfo#1(label=AccountsWithEmail)",
-                  "inline": null,
                   "label": "AccountsWithEmail",
                   "options": {
                     "label": "AccountsWithEmail",
                   },
+                  "tag": null,
                   "type": "SqlQueryInfo",
-                  "wrap": true,
                 },
                 SqlSelectRow {
                   "columns": [
@@ -4233,11 +4804,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#1(account.account_id as accountId)",
                           "key": "accountId",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$createdAt": SqlTableColumn {
                           "columnName": "created_at",
@@ -4245,11 +4818,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#7(account.created_at as createdAt)",
                           "key": "createdAt",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$email": SqlTableColumn {
                           "columnName": "email",
@@ -4257,11 +4832,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#3(account.email)",
                           "key": "email",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$firstName": SqlTableColumn {
                           "columnName": "first_name",
@@ -4269,11 +4846,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#4(account.first_name as firstName)",
                           "key": "firstName",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$lastName": SqlTableColumn {
                           "columnName": "last_name",
@@ -4281,11 +4860,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#5(account.last_name as lastName)",
                           "key": "lastName",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$modifiedAt": SqlTableColumn {
                           "columnName": "modified_at",
@@ -4293,11 +4874,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                           "key": "modifiedAt",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$notes": SqlTableColumn {
                           "columnName": "notes",
@@ -4305,11 +4888,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#6(account.notes)",
                           "key": "notes",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$parentId": SqlTableColumn {
                           "columnName": "parent_id",
@@ -4317,11 +4902,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#9(account.parent_id as parentId)",
                           "key": "parentId",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$status": SqlTableColumn {
                           "columnName": "status",
@@ -4329,21 +4916,23 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#2(account.status)",
                           "key": "status",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                       },
+                      "tag": null,
                       "type": "SqlTableAll",
-                      "wrap": true,
                     },
                   ],
                   "id": "SqlSelectRow#1(SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId))",
                   "rowsByQueryId": Map {},
+                  "tag": null,
                   "type": "SqlSelectRow",
-                  "wrap": true,
                 },
                 SqlTable {
                   "$accountId": SqlTableColumn {
@@ -4352,11 +4941,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#1(account.account_id as accountId)",
                     "key": "accountId",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$createdAt": SqlTableColumn {
                     "columnName": "created_at",
@@ -4364,11 +4955,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#7(account.created_at as createdAt)",
                     "key": "createdAt",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$email": SqlTableColumn {
                     "columnName": "email",
@@ -4376,11 +4969,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#3(account.email)",
                     "key": "email",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$firstName": SqlTableColumn {
                     "columnName": "first_name",
@@ -4388,11 +4983,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#4(account.first_name as firstName)",
                     "key": "firstName",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$lastName": SqlTableColumn {
                     "columnName": "last_name",
@@ -4400,11 +4997,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#5(account.last_name as lastName)",
                     "key": "lastName",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$modifiedAt": SqlTableColumn {
                     "columnName": "modified_at",
@@ -4412,11 +5011,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                     "key": "modifiedAt",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$notes": SqlTableColumn {
                     "columnName": "notes",
@@ -4424,11 +5025,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#6(account.notes)",
                     "key": "notes",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$parentId": SqlTableColumn {
                     "columnName": "parent_id",
@@ -4436,11 +5039,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#9(account.parent_id as parentId)",
                     "key": "parentId",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$status": SqlTableColumn {
                     "columnName": "status",
@@ -4448,11 +5053,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#2(account.status)",
                     "key": "status",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "_$$": Lazy {
                     "_computed": true,
@@ -4465,11 +5072,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#1(account.account_id as accountId)",
                           "key": "accountId",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$createdAt": SqlTableColumn {
                           "columnName": "created_at",
@@ -4477,11 +5086,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#7(account.created_at as createdAt)",
                           "key": "createdAt",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$email": SqlTableColumn {
                           "columnName": "email",
@@ -4489,11 +5100,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#3(account.email)",
                           "key": "email",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$firstName": SqlTableColumn {
                           "columnName": "first_name",
@@ -4501,11 +5114,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#4(account.first_name as firstName)",
                           "key": "firstName",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$lastName": SqlTableColumn {
                           "columnName": "last_name",
@@ -4513,11 +5128,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#5(account.last_name as lastName)",
                           "key": "lastName",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$modifiedAt": SqlTableColumn {
                           "columnName": "modified_at",
@@ -4525,11 +5142,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                           "key": "modifiedAt",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$notes": SqlTableColumn {
                           "columnName": "notes",
@@ -4537,11 +5156,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#6(account.notes)",
                           "key": "notes",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$parentId": SqlTableColumn {
                           "columnName": "parent_id",
@@ -4549,11 +5170,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#9(account.parent_id as parentId)",
                           "key": "parentId",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$status": SqlTableColumn {
                           "columnName": "status",
@@ -4561,15 +5184,17 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#2(account.status)",
                           "key": "status",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                       },
+                      "tag": null,
                       "type": "SqlTableAll",
-                      "wrap": true,
                     },
                     "callback": [Function],
                   },
@@ -4582,11 +5207,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#1(account.account_id as accountId)",
                         "key": "accountId",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$createdAt": SqlTableColumn {
                         "columnName": "created_at",
@@ -4594,11 +5221,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#7(account.created_at as createdAt)",
                         "key": "createdAt",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$email": SqlTableColumn {
                         "columnName": "email",
@@ -4606,11 +5235,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#3(account.email)",
                         "key": "email",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$firstName": SqlTableColumn {
                         "columnName": "first_name",
@@ -4618,11 +5249,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#4(account.first_name as firstName)",
                         "key": "firstName",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$lastName": SqlTableColumn {
                         "columnName": "last_name",
@@ -4630,11 +5263,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#5(account.last_name as lastName)",
                         "key": "lastName",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$modifiedAt": SqlTableColumn {
                         "columnName": "modified_at",
@@ -4642,11 +5277,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                         "key": "modifiedAt",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$notes": SqlTableColumn {
                         "columnName": "notes",
@@ -4654,11 +5291,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#6(account.notes)",
                         "key": "notes",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$parentId": SqlTableColumn {
                         "columnName": "parent_id",
@@ -4666,11 +5305,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#9(account.parent_id as parentId)",
                         "key": "parentId",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$status": SqlTableColumn {
                         "columnName": "status",
@@ -4678,19 +5319,21 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#2(account.status)",
                         "key": "status",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                     },
                     "callback": [Function],
                   },
                   "_crudConfig": {
-                    "create": true,
                     "delete": true,
-                    "read": true,
+                    "insert": true,
+                    "select": true,
                     "update": true,
                   },
                   "_out": Lazy {
@@ -4698,6 +5341,7 @@ describe("sql subqueries tests", () => {
                     "_value": null,
                     "callback": [Function],
                   },
+                  "dialect": "sql",
                   "format": null,
                   "id": "SqlTable#1(SqlTable(main.account))",
                   "pk": [
@@ -4705,11 +5349,13 @@ describe("sql subqueries tests", () => {
                   ],
                   "tableCache": Map {},
                   "tableInfo": {
+                    "alias": null,
                     "name": "account",
+                    "out": false,
                     "schema": "main",
                   },
+                  "tag": null,
                   "type": "SqlTable",
-                  "wrap": true,
                 },
                 SqlTableColumn {
                   "columnName": "email",
@@ -4717,36 +5363,40 @@ describe("sql subqueries tests", () => {
                   "id": "SqlTableColumn#3(account.email)",
                   "key": "email",
                   "tableInfo": {
+                    "alias": null,
                     "name": "account",
+                    "out": false,
                     "schema": "main",
                   },
+                  "tag": null,
                   "type": "SqlTableColumn",
-                  "wrap": true,
                 },
                 SqlParam {
                   "id": "SqlParam#1(email)",
                   "name": "email",
+                  "tag": null,
                   "type": "SqlParam",
-                  "wrap": true,
                 },
               ],
+              "tag": null,
               "type": "SqlQuery",
-              "wrap": true,
             },
+            "tag": null,
             "target": SqlTableColumn {
               "columnName": "parent_id",
               "format": null,
               "id": "SqlTableColumn#9(account.parent_id as parentId)",
               "key": "parentId",
               "tableInfo": {
+                "alias": null,
                 "name": "account",
+                "out": false,
                 "schema": "main",
               },
+              "tag": null,
               "type": "SqlTableColumn",
-              "wrap": true,
             },
             "type": "SqlQueryColumn",
-            "wrap": true,
           },
           "$status": SqlQueryColumn {
             "format": null,
@@ -4754,39 +5404,42 @@ describe("sql subqueries tests", () => {
             "key": "status",
             "params": null,
             "query": SqlQuery {
-              "_$$": Lazy {
+              "_$$Lazy": Lazy {
                 "_computed": false,
                 "_value": null,
                 "callback": [Function],
               },
-              "_params": Lazy {
+              "_dialectsLazy": Lazy {
                 "_computed": false,
                 "_value": null,
                 "callback": [Function],
               },
-              "_queries": Lazy {
+              "_infoLazy": Lazy {
                 "_computed": false,
                 "_value": null,
                 "callback": [Function],
               },
-              "_row": Lazy {
+              "_innerQueriesLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
+              "_labelLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
+              "_paramsLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
+              "_rowLazy": Lazy {
                 "_computed": true,
                 "_value": [Circular],
                 "callback": [Function],
               },
-              "format": null,
               "id": "SqlQuery#1(label=AccountsWithEmail)",
-              "info": SqlQueryInfo {
-                "id": "SqlQueryInfo#1(label=AccountsWithEmail)",
-                "inline": null,
-                "label": "AccountsWithEmail",
-                "options": {
-                  "label": "AccountsWithEmail",
-                },
-                "type": "SqlQueryInfo",
-                "wrap": true,
-              },
-              "inline": false,
               "rawStrings": [
                 "
                  ",
@@ -4802,13 +5455,12 @@ describe("sql subqueries tests", () => {
               "rawValues": [
                 SqlQueryInfo {
                   "id": "SqlQueryInfo#1(label=AccountsWithEmail)",
-                  "inline": null,
                   "label": "AccountsWithEmail",
                   "options": {
                     "label": "AccountsWithEmail",
                   },
+                  "tag": null,
                   "type": "SqlQueryInfo",
-                  "wrap": true,
                 },
                 SqlSelectRow {
                   "columns": [
@@ -4821,11 +5473,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#1(account.account_id as accountId)",
                           "key": "accountId",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$createdAt": SqlTableColumn {
                           "columnName": "created_at",
@@ -4833,11 +5487,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#7(account.created_at as createdAt)",
                           "key": "createdAt",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$email": SqlTableColumn {
                           "columnName": "email",
@@ -4845,11 +5501,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#3(account.email)",
                           "key": "email",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$firstName": SqlTableColumn {
                           "columnName": "first_name",
@@ -4857,11 +5515,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#4(account.first_name as firstName)",
                           "key": "firstName",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$lastName": SqlTableColumn {
                           "columnName": "last_name",
@@ -4869,11 +5529,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#5(account.last_name as lastName)",
                           "key": "lastName",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$modifiedAt": SqlTableColumn {
                           "columnName": "modified_at",
@@ -4881,11 +5543,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                           "key": "modifiedAt",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$notes": SqlTableColumn {
                           "columnName": "notes",
@@ -4893,11 +5557,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#6(account.notes)",
                           "key": "notes",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$parentId": SqlTableColumn {
                           "columnName": "parent_id",
@@ -4905,11 +5571,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#9(account.parent_id as parentId)",
                           "key": "parentId",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$status": SqlTableColumn {
                           "columnName": "status",
@@ -4917,21 +5585,23 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#2(account.status)",
                           "key": "status",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                       },
+                      "tag": null,
                       "type": "SqlTableAll",
-                      "wrap": true,
                     },
                   ],
                   "id": "SqlSelectRow#1(SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId))",
                   "rowsByQueryId": Map {},
+                  "tag": null,
                   "type": "SqlSelectRow",
-                  "wrap": true,
                 },
                 SqlTable {
                   "$accountId": SqlTableColumn {
@@ -4940,11 +5610,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#1(account.account_id as accountId)",
                     "key": "accountId",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$createdAt": SqlTableColumn {
                     "columnName": "created_at",
@@ -4952,11 +5624,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#7(account.created_at as createdAt)",
                     "key": "createdAt",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$email": SqlTableColumn {
                     "columnName": "email",
@@ -4964,11 +5638,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#3(account.email)",
                     "key": "email",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$firstName": SqlTableColumn {
                     "columnName": "first_name",
@@ -4976,11 +5652,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#4(account.first_name as firstName)",
                     "key": "firstName",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$lastName": SqlTableColumn {
                     "columnName": "last_name",
@@ -4988,11 +5666,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#5(account.last_name as lastName)",
                     "key": "lastName",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$modifiedAt": SqlTableColumn {
                     "columnName": "modified_at",
@@ -5000,11 +5680,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                     "key": "modifiedAt",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$notes": SqlTableColumn {
                     "columnName": "notes",
@@ -5012,11 +5694,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#6(account.notes)",
                     "key": "notes",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$parentId": SqlTableColumn {
                     "columnName": "parent_id",
@@ -5024,11 +5708,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#9(account.parent_id as parentId)",
                     "key": "parentId",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "$status": SqlTableColumn {
                     "columnName": "status",
@@ -5036,11 +5722,13 @@ describe("sql subqueries tests", () => {
                     "id": "SqlTableColumn#2(account.status)",
                     "key": "status",
                     "tableInfo": {
+                      "alias": null,
                       "name": "account",
+                      "out": false,
                       "schema": "main",
                     },
+                    "tag": null,
                     "type": "SqlTableColumn",
-                    "wrap": true,
                   },
                   "_$$": Lazy {
                     "_computed": true,
@@ -5053,11 +5741,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#1(account.account_id as accountId)",
                           "key": "accountId",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$createdAt": SqlTableColumn {
                           "columnName": "created_at",
@@ -5065,11 +5755,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#7(account.created_at as createdAt)",
                           "key": "createdAt",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$email": SqlTableColumn {
                           "columnName": "email",
@@ -5077,11 +5769,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#3(account.email)",
                           "key": "email",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$firstName": SqlTableColumn {
                           "columnName": "first_name",
@@ -5089,11 +5783,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#4(account.first_name as firstName)",
                           "key": "firstName",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$lastName": SqlTableColumn {
                           "columnName": "last_name",
@@ -5101,11 +5797,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#5(account.last_name as lastName)",
                           "key": "lastName",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$modifiedAt": SqlTableColumn {
                           "columnName": "modified_at",
@@ -5113,11 +5811,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                           "key": "modifiedAt",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$notes": SqlTableColumn {
                           "columnName": "notes",
@@ -5125,11 +5825,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#6(account.notes)",
                           "key": "notes",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$parentId": SqlTableColumn {
                           "columnName": "parent_id",
@@ -5137,11 +5839,13 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#9(account.parent_id as parentId)",
                           "key": "parentId",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                         "$status": SqlTableColumn {
                           "columnName": "status",
@@ -5149,15 +5853,17 @@ describe("sql subqueries tests", () => {
                           "id": "SqlTableColumn#2(account.status)",
                           "key": "status",
                           "tableInfo": {
+                            "alias": null,
                             "name": "account",
+                            "out": false,
                             "schema": "main",
                           },
+                          "tag": null,
                           "type": "SqlTableColumn",
-                          "wrap": true,
                         },
                       },
+                      "tag": null,
                       "type": "SqlTableAll",
-                      "wrap": true,
                     },
                     "callback": [Function],
                   },
@@ -5170,11 +5876,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#1(account.account_id as accountId)",
                         "key": "accountId",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$createdAt": SqlTableColumn {
                         "columnName": "created_at",
@@ -5182,11 +5890,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#7(account.created_at as createdAt)",
                         "key": "createdAt",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$email": SqlTableColumn {
                         "columnName": "email",
@@ -5194,11 +5904,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#3(account.email)",
                         "key": "email",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$firstName": SqlTableColumn {
                         "columnName": "first_name",
@@ -5206,11 +5918,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#4(account.first_name as firstName)",
                         "key": "firstName",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$lastName": SqlTableColumn {
                         "columnName": "last_name",
@@ -5218,11 +5932,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#5(account.last_name as lastName)",
                         "key": "lastName",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$modifiedAt": SqlTableColumn {
                         "columnName": "modified_at",
@@ -5230,11 +5946,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                         "key": "modifiedAt",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$notes": SqlTableColumn {
                         "columnName": "notes",
@@ -5242,11 +5960,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#6(account.notes)",
                         "key": "notes",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$parentId": SqlTableColumn {
                         "columnName": "parent_id",
@@ -5254,11 +5974,13 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#9(account.parent_id as parentId)",
                         "key": "parentId",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                       "$status": SqlTableColumn {
                         "columnName": "status",
@@ -5266,19 +5988,21 @@ describe("sql subqueries tests", () => {
                         "id": "SqlTableColumn#2(account.status)",
                         "key": "status",
                         "tableInfo": {
+                          "alias": null,
                           "name": "account",
+                          "out": false,
                           "schema": "main",
                         },
+                        "tag": null,
                         "type": "SqlTableColumn",
-                        "wrap": true,
                       },
                     },
                     "callback": [Function],
                   },
                   "_crudConfig": {
-                    "create": true,
                     "delete": true,
-                    "read": true,
+                    "insert": true,
+                    "select": true,
                     "update": true,
                   },
                   "_out": Lazy {
@@ -5286,6 +6010,7 @@ describe("sql subqueries tests", () => {
                     "_value": null,
                     "callback": [Function],
                   },
+                  "dialect": "sql",
                   "format": null,
                   "id": "SqlTable#1(SqlTable(main.account))",
                   "pk": [
@@ -5293,11 +6018,13 @@ describe("sql subqueries tests", () => {
                   ],
                   "tableCache": Map {},
                   "tableInfo": {
+                    "alias": null,
                     "name": "account",
+                    "out": false,
                     "schema": "main",
                   },
+                  "tag": null,
                   "type": "SqlTable",
-                  "wrap": true,
                 },
                 SqlTableColumn {
                   "columnName": "email",
@@ -5305,36 +6032,40 @@ describe("sql subqueries tests", () => {
                   "id": "SqlTableColumn#3(account.email)",
                   "key": "email",
                   "tableInfo": {
+                    "alias": null,
                     "name": "account",
+                    "out": false,
                     "schema": "main",
                   },
+                  "tag": null,
                   "type": "SqlTableColumn",
-                  "wrap": true,
                 },
                 SqlParam {
                   "id": "SqlParam#1(email)",
                   "name": "email",
+                  "tag": null,
                   "type": "SqlParam",
-                  "wrap": true,
                 },
               ],
+              "tag": null,
               "type": "SqlQuery",
-              "wrap": true,
             },
+            "tag": null,
             "target": SqlTableColumn {
               "columnName": "status",
               "format": null,
               "id": "SqlTableColumn#2(account.status)",
               "key": "status",
               "tableInfo": {
+                "alias": null,
                 "name": "account",
+                "out": false,
                 "schema": "main",
               },
+              "tag": null,
               "type": "SqlTableColumn",
-              "wrap": true,
             },
             "type": "SqlQueryColumn",
-            "wrap": true,
           },
         }
       `);
@@ -5366,8 +6097,7 @@ describe("sql subqueries tests", () => {
           "main"."account" AS "a_1"
           JOIN "main"."account" AS "parent" ON "parent"."account_id" = "a_1"."parent_id"
         WHERE
-          "a_1"."first_name" = ?
-          /* </query_0> */"
+          "a_1"."first_name" = ? /* </query_0> */"
       `);
    });
 });

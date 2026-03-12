@@ -1,10 +1,6 @@
 import { DefaultTokenizer, MAJOR_KEYWORDS, SqlBuildError } from "valnor";
 
 export class MssqlTokenizer extends DefaultTokenizer {
-   constructor(public readonly queryName: string) {
-      super();
-   }
-
    // We override the entire tokenize method to allow the '@' parameter marker for MSSQL.
    override tokenize(text: string): string[] {
       const tokens: string[] = [];
@@ -70,9 +66,7 @@ export class MssqlTokenizer extends DefaultTokenizer {
          if (tokenMatch) {
             const token = tokenMatch[0]!;
             if (token === "?") {
-               throw new SqlBuildError(`Query contains forbidden parameter characters (?). Use param() instead.`, {
-                  queryName: this.queryName,
-               });
+               throw new SqlBuildError(`Query contains forbidden parameter characters (?). Use param() instead.`);
             }
             tokens.push(token);
             i += token.length;

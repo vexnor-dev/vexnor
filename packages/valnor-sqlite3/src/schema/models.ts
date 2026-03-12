@@ -4,8 +4,8 @@ export const SqliteMaster = newSqlTable<{
    Select: { type: string; name: string; tbl_name: string; rootpage: number; sql: string };
 }>({
    crud: {
-      create: false,
-      read: true,
+      select: true,
+      insert: false,
       update: false,
       delete: false,
    },
@@ -26,8 +26,8 @@ export const PragmaTableInfo = newSqlTable<{
    Select: { cid: number; name: string; type: string; notnull: boolean; dflt_value: string };
 }>({
    crud: {
-      create: false,
-      read: true,
+      select: true,
+      insert: false,
       update: false,
       delete: false,
    },

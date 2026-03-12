@@ -1,4 +1,4 @@
-import { defineConfig } from "../../../../config/index.js";
+import { defineConfig } from "../../../../config/config.js";
 
 export default defineConfig({
    profiles: {

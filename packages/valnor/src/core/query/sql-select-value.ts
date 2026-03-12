@@ -1,18 +1,18 @@
-import { SqlParams, SqlQueryToken } from "../sql.js";
-import { PARAMS, ROW, Sql, TYPE } from "../sql-base.js";
-import { SqlBuildContext } from "./sql-build-context.js";
-import { SqlBuildOptions } from "./sql-query-types.js";
-import { SqlQuery, SqlQueryAny } from "./sql-query.js";
-import { SqlBuildError } from "../sql-build-error.js";
-import { BuildSqlParams } from "./sql-param.js";
+import { SqlQuery, SqlQueryAny } from "#/core/query/sql-query.js";
+import { PARAMS, ROW, Sql, TYPE } from "#/core/sql-base.js";
+import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
+import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
+import { SqlParams, SqlQueryToken } from "#/core/sql.js";
+import { SqlBuildError } from "#/core/sql-build-error.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlSelectValueAny = SqlSelectValue<any>;
 
-export type SqlSelectValueArgs<T extends { Key: string; Type: unknown; Params?: unknown }> = {
-   query: SqlQuery<{ Params: T["Params"] }>;
-   key: T["Key"];
-   build?: (context: SqlBuildContext, options?: SqlBuildOptions) => void;
+export type SqlSelectValueArgs<T extends { Key: string; Type: unknown; Params?: unknown }> = Pick<
+   SqlSelectValue<T>,
+   "key"
+> & {
+   innerQuery: SqlQuery<{ Params: T["Params"] }>;
 };
 
 export class SqlSelectValue<T extends { Key: string; Type: unknown; Params?: unknown }> extends Sql {
@@ -20,34 +20,27 @@ export class SqlSelectValue<T extends { Key: string; Type: unknown; Params?: unk
    declare readonly [TYPE]: Record<T["Key"], T["Type"]>;
    declare readonly [PARAMS]: T["Params"];
 
-   readonly params: BuildSqlParams<T["Params"]>;
-
-   readonly query: SqlQuery<{ Params: T["Params"] }>;
+   readonly innerQuery: SqlQuery<{ Params: T["Params"] }>;
    readonly key: T["Key"];
-   readonly _build: null | ((context: SqlBuildContext, options?: SqlBuildOptions) => void);
 
-   constructor({ query, key, build }: SqlSelectValueArgs<T>) {
+   constructor({ innerQuery, key }: SqlSelectValueArgs<T>) {
       super({
-         id: `${query.rawStrings[0]} ... as ${String(key)}`,
+         id: `${innerQuery.rawStrings[0]} ... as ${String(key)}`,
       });
-      this.query = query;
+      this.innerQuery = innerQuery;
       this.key = key;
-      this._build = build ?? null;
-      this.params = query.params;
-      this.queries = [this.query];
+      this.queries = [innerQuery];
+   }
+
+   get params(): T["Params"] {
+      return this.innerQuery.params;
    }
 
    readonly queries: SqlQueryAny[];
 
-   build(context: SqlBuildContext, options?: SqlBuildOptions): void {
-      context.scope({ query: this.query }, () => {
-         if (this._build) {
-            this._build(context, options);
-         } else {
-            this.query.build(context, options);
-            context.addStrings(` as "${this.key}"`);
-         }
-      });
+   write(context: SqlBuildContext, options?: SqlBuildOptions): void {
+      this.innerQuery.build(context, options, { queryType: "inline", queryFormat: "select" });
+      context.addStrings(` as "${this.key}"`);
    }
 }
 
@@ -65,15 +58,13 @@ export function val<Token extends SqlQueryToken = SqlQueryToken, Tokens extends 
       }> => {
          switch (true) {
             case rawStrings instanceof SqlQuery:
-               return new SqlSelectValue({ query: rawStrings, key });
+               return new SqlSelectValue({ innerQuery: rawStrings, key });
             case Array.isArray(rawStrings): {
-               const query = new SqlQuery<{ Params: SqlParams<typeof rawValues> }>({
-                  rawStrings: rawStrings,
-                  rawValues,
-                  inline: true,
-               });
                return new SqlSelectValue({
-                  query,
+                  innerQuery: new SqlQuery<{ Params: SqlParams<typeof rawValues> }>({
+                     rawStrings: rawStrings,
+                     rawValues,
+                  }),
                   key,
                });
             }

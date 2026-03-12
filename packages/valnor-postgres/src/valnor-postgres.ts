@@ -10,8 +10,10 @@ import {
    logger,
 } from "valnor/plugin";
 import { Pool } from "pg";
-import { findEnums, findTables, getColumnType } from "./schema/index.js";
-import { PostgresQueryHandler } from "./postgres-query-handler.js";
+import { findEnums } from "#/schema/find-enums.js";
+import { findTables } from "#/schema/find-tables.js";
+import { getColumnType } from "#/schema/get-column-type.js";
+import { PostgresQueryHandler } from "#/postgres-query-handler.js";
 import { SqlQueryHandler, SqlQuery } from "valnor";
 
 /**
@@ -20,6 +22,7 @@ import { SqlQueryHandler, SqlQuery } from "valnor";
  */
 export class ValnorPostgres extends ValnorPlugin<{ Config: ConnectionConfig; Connection: Pool }> {
    driver = "postgres";
+   dialect = "postgresql";
 
    getLibrary(): LibraryOutputFile[] {
       return [];

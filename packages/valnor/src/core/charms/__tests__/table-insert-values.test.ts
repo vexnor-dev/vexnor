@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { Account, IAccountInsert } from "@test-models/valnor_test.account-table.js";
-import { sql } from "../../sql.js";
-import { row } from "../../query/index.js";
+import { sql } from "#/core/sql.js";
+import { row } from "#/core/query/sql-select-row.js";
 
 describe("SqlTable.insertColsVals() tests", () => {
    test("sql() insert with $values()", () => {
@@ -38,8 +38,7 @@ describe("SqlTable.insertColsVals() tests", () => {
           "account"."notes",
           "account"."created_at" AS "createdAt",
           "account"."modified_at" AS "modifiedAt",
-          "account"."parent_id" AS "parentId"
-          /* </query_0> */"
+          "account"."parent_id" AS "parentId" /* </query_0> */"
       `);
    });
 
@@ -93,8 +92,7 @@ describe("SqlTable.insertColsVals() tests", () => {
           "account"."notes",
           "account"."created_at" AS "createdAt",
           "account"."modified_at" AS "modifiedAt",
-          "account"."parent_id" AS "parentId"
-          /* </query_0> */"
+          "account"."parent_id" AS "parentId" /* </query_0> */"
       `);
    });
 

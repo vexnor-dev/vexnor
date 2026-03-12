@@ -1,5 +1,5 @@
-import { QuerySettings, QueryDefaults } from "./config-types.js";
-import { SqlQueryAny } from "../core/index.js";
+import { QuerySettings, QueryDefaults } from "#/config/config-types.js";
+import { SqlQueryAny } from "#/core/query/sql-query.js";
 
 export type QueryConfigResult<TQueries extends Record<string, SqlQueryAny>> = <
    TConfig extends {

@@ -4,8 +4,8 @@ export const PgType = newSqlTable<{
    Select: { oid: number; typname: string; typcategory: string; typnamespace: number; typelem: number };
 }>({
    crud: {
-      create: false,
-      read: true,
+      select: true,
+      insert: false,
       update: false,
       delete: false,
    },
@@ -27,8 +27,8 @@ export const PgEnum = newSqlTable<{
    Select: { oid: number; enumtypid: number; enumlabel: string; enumsortorder: number };
 }>({
    crud: {
-      create: false,
-      read: true,
+      select: true,
+      insert: false,
       update: false,
       delete: false,
    },
@@ -49,8 +49,8 @@ export const EnumValues = newSqlTable<{
    Select: { enumtypid: number; enumlabel: string; enumsortorder: number };
 }>({
    crud: {
-      create: false,
-      read: true,
+      select: true,
+      insert: false,
       update: false,
       delete: false,
    },
@@ -69,8 +69,8 @@ export const PgNamespace = newSqlTable<{
    Select: { oid: number; nspname: string };
 }>({
    crud: {
-      create: false,
-      read: true,
+      select: true,
+      insert: false,
       update: false,
       delete: false,
    },
@@ -89,8 +89,8 @@ export const Columns = newSqlTable<{
    Select: IColumnsSelect;
 }>({
    crud: {
-      create: false,
-      read: true,
+      select: true,
+      insert: false,
       update: false,
       delete: false,
    },
@@ -152,8 +152,8 @@ export const TableConstraints = newSqlTable<{
    Select: { constraint_name: string; table_name: string; table_schema: string; constraint_type: string };
 }>({
    crud: {
-      create: false,
-      read: true,
+      select: true,
+      insert: false,
       update: false,
       delete: false,
    },
@@ -180,8 +180,8 @@ export const KeyColumnUsage = newSqlTable<{
    };
 }>({
    crud: {
-      create: false,
-      read: true,
+      select: true,
+      insert: false,
       update: false,
       delete: false,
    },

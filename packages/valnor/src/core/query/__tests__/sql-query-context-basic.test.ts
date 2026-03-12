@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, test } from "vitest";
-import { SqlBuildContext } from "../sql-build-context.js";
-import { DefaultTokenizer } from "../../default-tokenizer.js";
-import { DefaultFormatter } from "../../default-formatter.js";
-import { SqlBuildError } from "../../sql-build-error.js";
+import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
+import { DefaultTokenizer } from "#/core/builder/default-tokenizer.js";
+import { DefaultFormatter } from "#/core/builder/default-formatter.js";
+import { SqlBuildError } from "#/core/sql-build-error.js";
 
 describe("SqlBuildContext Engine - basic tests", () => {
    let context!: SqlBuildContext;
@@ -16,7 +16,7 @@ describe("SqlBuildContext Engine - basic tests", () => {
 
    describe("SqlBuildContext alias()", () => {
       test("alias should init with _1 suffix", () => {
-         const actual = context.alias({ name: "Account", schema: "valnor_test" });
+         const actual = context.getAlias({ name: "Account", schema: "valnor_test" });
          expect(actual).toBe("A_1");
       });
    });
@@ -85,7 +85,7 @@ describe("SqlBuildContext Engine - basic tests", () => {
          expect(context.keyword).toBe("from");
          context.next(") as sub");
          context.next(")");
-         // We are back in the main query's WHERE clause
+         // We are back in the main query's IN clause
          expect(context.keyword).toBe("where");
       });
    });

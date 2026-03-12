@@ -1,7 +1,7 @@
 import { SqlRunArgs, SqlQueryHandler, SqlQuery } from "valnor";
 import type { Database, RunResult } from "better-sqlite3";
-import { Sqlite3Formatter } from "./sqlite3-formatter.js";
-import { Sqlite3Tokenizer } from "./sqlite3-tokenizer.js";
+import { Sqlite3Formatter } from "#/sqlite3-formatter.js";
+import { Sqlite3Tokenizer } from "#/sqlite3-tokenizer.js";
 
 export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unknown }> extends SqlQueryHandler<{
    Row: T["Row"];
@@ -59,7 +59,7 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
          const result = (await db).prepare(queryConfig.sql).run(queryConfig.values);
          return Promise.resolve(result);
       } catch (err) {
-         console.error(err, "\n", queryConfig?.sql ?? "error building core");
+         console.error(err, "\n", queryConfig?.sql);
          throw err;
       }
    }

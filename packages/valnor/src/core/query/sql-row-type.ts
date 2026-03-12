@@ -1,4 +1,4 @@
-import { Sql } from "../sql-base.js";
+import { Sql } from "#/core/sql-base.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlRowTypeAny = SqlRowType<any>;
@@ -11,7 +11,7 @@ export class SqlRowType<T> extends Sql {
       });
    }
 
-   build(): void {
+   write(): void {
       // write the row type declaration as sql comments
    }
 }

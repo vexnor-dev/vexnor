@@ -1,9 +1,9 @@
 import { beforeAll, describe, expect, test } from "vitest";
 import { info, param, row, SqlBuildContext } from "valnor";
 import { Account, IAccountInsert, Order } from "./codegen/valnor_test.schema.js";
-import { jsonMany, MssqlParamFormatter, MssqlTokenizer, sql } from "valnor-mssql";
+import { defaultQueryOptions, jsonMany, MssqlTokenizer, sql } from "valnor-mssql";
 import { pool } from "./mssql-pool.js";
-import { getTag } from "./config.js";
+import { getTag } from "./tags.js";
 
 describe.sequential("jsonMany() tests", (ctx) => {
    const TAG = getTag(ctx);
@@ -65,24 +65,24 @@ describe.sequential("jsonMany() tests", (ctx) => {
       offset 0 rows fetch next ${param<{ limit: number }>("limit")} rows only`;
 
    test("jsonAgg(): select build", () => {
-      const context = new SqlBuildContext({ tokenizer: new MssqlTokenizer("test") });
+      const context = new SqlBuildContext({ tokenizer: new MssqlTokenizer() });
       context.next("select");
       jsonMany(AccountOrders).build(context, {});
       expect(context.text).toMatchInlineSnapshot(`""AccountOrders_result"."AccountOrders""`);
    });
 
    test("jsonAgg(): from", () => {
-      const context = new SqlBuildContext({ dialect: "postgresql", tokenizer: new MssqlTokenizer("test") });
+      const context = new SqlBuildContext({ tokenizer: new MssqlTokenizer() });
       context.next("from");
+      context.setAlias(Account.tableInfo, { alias: "a_out" });
       jsonMany(AccountOrders).build(context, {});
       expect(context.text).toMatchInlineSnapshot(`
-        "/* <query_1> */
-        OUTER apply (
+        "/* <query_1> */ OUTER apply (
           SELECT
             coalesce(
               (
                 /* <AccountOrders> */
-                /* --label: AccountOrders */
+                /* label: AccountOrders */
                 SELECT
                   "o_1"."order_id" AS "orderId",
                   "o_1"."status",
@@ -91,21 +91,18 @@ describe.sequential("jsonMany() tests", (ctx) => {
                 FROM
                   "valnor_test"."order" AS "o_1"
                 WHERE
-                  "o_1"."account_id" = "a_2"."account_id"
+                  "o_1"."account_id" = "a_out"."account_id"
                 ORDER BY
                   "o_1"."created_at" DESC
                 OFFSET
-                  0 rows
+                  0 ROWS
                 FETCH NEXT
-                  ? rows ONLY
-                  /* </AccountOrders> */
-                  FOR json path,
+                  ? ROWS ONLY /* </AccountOrders> */ FOR json path,
                   include_null_values
               ),
               '[]'
             ) AS "AccountOrders"
-        ) AS "AccountOrders_result"
-        /* </query_1> */"
+        ) AS "AccountOrders_result" /* </query_1> */"
       `);
    });
 
@@ -119,7 +116,7 @@ describe.sequential("jsonMany() tests", (ctx) => {
 
       const { text, values } = query.getSql({
          params: { email: "test@example.com", limit: 5 },
-         options: { paramFormat: MssqlParamFormatter, dialect: "tsql" },
+         options: defaultQueryOptions,
       });
 
       expect(values).toMatchInlineSnapshot(`
@@ -142,14 +139,13 @@ describe.sequential("jsonMany() tests", (ctx) => {
           "a_1"."modified_at" AS "modifiedAt",
           "AccountOrders_result"."AccountOrders" AS "orders"
         FROM
-          "valnor_test"."account" AS "a_1"
-          /* <query_2> */
+          "valnor_test"."account" AS "a_1" /* <query_2> */
           OUTER APPLY (
             SELECT
               coalesce(
                 (
                   /* <AccountOrders> */
-                  /* --label: AccountOrders */
+                  /* label: AccountOrders */
                   SELECT
                     "o_2"."order_id" AS "orderId",
                     "o_2"."status",
@@ -164,16 +160,14 @@ describe.sequential("jsonMany() tests", (ctx) => {
                   OFFSET
                     0 rows
                   FETCH NEXT
-                    @param_0 rows only
-                    /* </AccountOrders> */
+                    @param_0 rows only /* </AccountOrders> */
                   FOR JSON
                     path,
                     include_null_values
                 ),
                 '[]'
               ) AS "AccountOrders"
-          ) AS "AccountOrders_result"
-          /* </query_2> */
+          ) AS "AccountOrders_result" /* </query_2> */
         WHERE
           "a_1"."email" = @param_1
         ORDER BY

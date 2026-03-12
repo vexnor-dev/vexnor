@@ -1,7 +1,7 @@
 import { defineQueryConfig } from "valnor/config";
-import { findEnums } from "./find-enums.js";
-import { valnorPostgres } from "../valnor-postgres.js";
-import { findTables, findTableColumns, findPrimaryKeys } from "./find-tables.js";
+import { findEnums } from "#/schema/find-enums.js";
+import { valnorPostgres } from "#/valnor-postgres.js";
+import { findTables, findTableColumns, findPrimaryKeys } from "#/schema/find-tables.js";
 
 export default defineQueryConfig({ findEnums, findTables, findTableColumns, findPrimaryKeys })({
    queries: {

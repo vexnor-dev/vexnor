@@ -1,7 +1,8 @@
 import { describe, expect, test } from "vitest";
-import { SqlTable, SqlTableColumn } from "../../schema/index.js";
+import { SqlTable } from "#/core/schema/sql-table.js";
+import { SqlTableColumn } from "#/core/schema/sql-table-column.js";
 import { Account } from "@test-models/valnor_test.account-table.js";
-import { Sql } from "../../sql-base.js";
+import { Sql } from "#/core/sql-base.js";
 
 describe("SqlTable tests", () => {
    test("SqlTable inherits SqlBase", () => {
@@ -36,10 +37,11 @@ describe("SqlTable tests", () => {
       const actual = Account.as`parent`.$accountId;
       console.log(actual);
       expect(actual).toBeDefined();
-      expect(actual.tableInfo).toEqual<typeof actual.tableInfo>({
+      expect(actual.tableInfo).toMatchObject({
          schema: "main",
          name: "account",
          alias: "parent",
+         out: false,
       });
       expect(actual.columnName).toEqual("account_id");
       expect(actual.key).toEqual("accountId");

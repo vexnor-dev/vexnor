@@ -1,6 +1,6 @@
 import { defineQueryConfig } from "valnor/config";
-import { findTables, findPrimaryKeys } from "./find-tables.js";
-import { valnorMssql } from "../valnor-mssql.js";
+import { findTables, findPrimaryKeys } from "#/schema/find-tables.js";
+import { valnorMssql } from "#/valnor-mssql.js";
 
 export default defineQueryConfig({ findTables, findPrimaryKeys })({
    queries: {

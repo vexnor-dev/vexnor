@@ -1,11 +1,11 @@
 import "./test-driver-setup.js";
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { execCommand } from "../exec-command.js";
-import { loadPlugin } from "../../../load-plugin.js";
+import { execCommand } from "#/cli/exec/exec-command.js";
+import { loadPlugin } from "#/load-plugin.js";
 import { join } from "path";
-import { setTestMockData } from "./test-driver-setup.js";
-import testPlugin from "./test-plugin.js";
-import * as confirmPromptModule from "../confirm-prompt.js";
+import { setTestMockData } from "#/cli/exec/__tests__/test-driver-setup.js";
+import testPlugin from "#/cli/exec/__tests__/test-plugin.js";
+import * as confirmPromptModule from "#/cli/exec/confirm-prompt.js";
 
 vi.mock("../../../load-plugin.js");
 vi.mock("../confirm-prompt.js");

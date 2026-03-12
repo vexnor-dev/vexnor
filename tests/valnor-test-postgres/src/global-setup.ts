@@ -3,7 +3,7 @@ import { TestProject } from "vitest/node";
 import { sql } from "valnor-postgres";
 
 export default async function (proj: TestProject) {
-   process.env["VALNOR_ENV_PATH"] = proj.config.env?.["VALNOR_ENV_PATH"] ?? proj.globalConfig.env?.["VALNOR_ENV_PATH"];
+   Object.assign(process.env, proj.config.env ?? proj.globalConfig.env);
 
    const timestamp = new Date();
    const { pool } = await import("./postgres-pool.js");

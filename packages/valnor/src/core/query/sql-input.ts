@@ -1,15 +1,15 @@
-import { SqlParam, SqlParamAny } from "./sql-param.js";
-import { ARGS, PARAMS, Sql } from "../sql-base.js";
-import { SqlBuildContext } from "./sql-build-context.js";
-import { SqlBuildOptions } from "./sql-query-types.js";
-import { cache } from "../../lib/index.js";
+import { SqlBuildContext } from "#/core/core.js";
+import { ARGS, PARAMS, Sql } from "#/core/sql-base.js";
+import { SqlBuildOptions } from "#/core/core.js";
+import { SqlParam, SqlParamAny } from "#/core/query/sql-param.js";
+import { cache } from "#/lib/cache.js";
 
 export class SqlInput<T extends { Params: Record<string, unknown> }> extends Sql {
    declare readonly [PARAMS]: T["Params"];
    declare readonly [ARGS]?: T["Params"];
 
    // eslint-disable-next-line unused-imports/no-unused-vars
-   build(_context: SqlBuildContext, _options?: SqlBuildOptions) {}
+   write(_context: SqlBuildContext, _options?: SqlBuildOptions) {}
 }
 
 export type SqlInputParams<T extends { Params: Record<string, unknown> }> = {

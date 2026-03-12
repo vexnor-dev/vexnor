@@ -60,13 +60,36 @@ describe.sequential("jsonOne() tests", () => {
    test("jsonOne(): select", () => {
       const context = new SqlBuildContext({ tokenizer: new Sqlite3Tokenizer() });
       context.next("select");
+      context.setAlias(Account.tableInfo, { alias: "_out_" });
       const jsonAccountParent = jsonOne(AccountParent);
       jsonAccountParent.build(context, {});
-      expect(context.tokens[0]).toMatchInlineSnapshot(`
-        {
-          "type": "text",
-          "value": "(",
-        }
+      expect(context.text).toMatchInlineSnapshot(`
+        "(
+          /* <query_0> */
+          SELECT
+            json_object ("AccountParent".*)
+          FROM
+            (
+              /* <AccountParent> */
+              /* label: AccountParent */
+              SELECT
+                "a_1"."account_id" AS "accountId",
+                "a_1"."status",
+                "a_1"."email",
+                "a_1"."first_name" AS "firstName",
+                "a_1"."last_name" AS "lastName",
+                "a_1"."notes",
+                "a_1"."created_at" AS "createdAt",
+                "a_1"."modified_at" AS "modifiedAt",
+                "a_1"."parent_id" AS "parentId"
+              FROM
+                "main"."account" AS "a_1"
+              WHERE
+                "a_1"."account_id" = "_out_"."parent_id" /* </AccountParent> */
+            ) AS "AccountParent"
+          LIMIT
+            1 /* </query_0> */
+        )"
       `);
    });
 

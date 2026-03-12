@@ -1,12 +1,17 @@
-import { ARGS, PARAMS, Sql } from "../sql-base.js";
-import { SqlBuildContext } from "./sql-build-context.js";
-import { SqlBuildOptions } from "./sql-query-types.js";
-import { indexedArray } from "../../lib/index.js";
-import { SqlQuery } from "./sql-query.js";
+import { ARGS, PARAMS, ROW, Sql } from "#/core/sql-base.js";
+import { SqlQuery } from "#/core/query/sql-query.js";
+import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
+import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
 
 export type SqlExpandAny = SqlExpand<{ Params: unknown }>;
 
 export class SqlExpand<T extends { Params: unknown }> extends Sql {
+   declare readonly [ROW]: ReturnType<typeof expand> extends SqlQuery<
+      infer Options extends { Row: Record<string, unknown> }
+   >
+      ? Options["Row"]
+      : void;
+
    declare readonly [PARAMS]: T["Params"];
    declare readonly [ARGS]: T["Params"];
 
@@ -18,7 +23,7 @@ export class SqlExpand<T extends { Params: unknown }> extends Sql {
       this.expand = expand;
    }
 
-   build(context: SqlBuildContext, options?: SqlBuildOptions): void {
+   write(context: SqlBuildContext, options?: SqlBuildOptions): void {
       if (!context.params) {
          context.addExpand(this);
          context.addStrings(`/* <${this.id} /> */`);
@@ -27,11 +32,11 @@ export class SqlExpand<T extends { Params: unknown }> extends Sql {
 
       let expanded = this.expand(<T["Params"]>context.params) ?? [];
       if (typeof expanded === "object" && !Array.isArray(expanded)) expanded = [expanded];
-      for (const { index, item } of indexedArray(expanded)) {
+      for (const [index, item] of expanded.entries()) {
          if (index > 0) context.addStrings(", ");
 
          if (item instanceof SqlQuery) {
-            item.render("inline").build(context, options);
+            item.build(context, options, { queryType: "inline" });
             continue;
          }
 

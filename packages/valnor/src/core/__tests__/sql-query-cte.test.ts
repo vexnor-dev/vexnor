@@ -1,8 +1,10 @@
 import { describe, expect, test } from "vitest";
 import { Account } from "@test-models/valnor_test.schema.js";
-import { sql } from "../sql.js";
-import { param, row, val } from "../query/index.js";
-import { info } from "../charms/index.js";
+import { sql } from "#/core/sql.js";
+import { param } from "#/core/query/sql-param.js";
+import { row } from "#/core/query/sql-select-row.js";
+import { val } from "#/core/query/sql-select-value.js";
+import { info } from "#/core/charms/sql-query-info.js";
 
 describe("sql CTE (with clause) tests", () => {
    test("simple CTE with label naming", () => {
@@ -27,7 +29,7 @@ describe("sql CTE (with clause) tests", () => {
         WITH
           "ActiveAccounts" AS (
             /* <ActiveAccounts> */
-            /* --label: ActiveAccounts */
+            /* label: ActiveAccounts */
             SELECT
               "a_1"."account_id" AS "accountId",
               "a_1"."status",
@@ -140,7 +142,7 @@ describe("sql CTE (with clause) tests", () => {
         WITH
           "ActiveAccounts" AS (
             /* <ActiveAccounts> */
-            /* --label: ActiveAccounts */
+            /* label: ActiveAccounts */
             SELECT
               "a_1"."account_id" AS "accountId",
               "a_1"."status",
@@ -159,7 +161,7 @@ describe("sql CTE (with clause) tests", () => {
           ),
           "RecentAccounts" AS (
             /* <RecentAccounts> */
-            /* --label: RecentAccounts */
+            /* label: RecentAccounts */
             SELECT
               "a_2"."account_id" AS "accountId",
               "a_2"."status",
@@ -285,13 +287,11 @@ describe("sql CTE (with clause) tests", () => {
         WITH
           "AccountCounts" AS (
             /* <AccountCounts> */
-            /* --label: AccountCounts */
+            /* label: AccountCounts */
             SELECT
               "a_1"."status",
               /* <query_2> */
-              count(*)
-              /* </query_2> */
-              AS "total"
+              count(*) /* </query_2> */ AS "total"
             FROM
               "main"."account" AS "a_1"
             GROUP BY
@@ -330,13 +330,10 @@ describe("sql CTE (with clause) tests", () => {
         WITH
           "MaxCreatedAt" AS (
             /* <MaxCreatedAt> */
-            /* --label: MaxCreatedAt */
+            /* label: MaxCreatedAt */
             SELECT
               "a_1"."parent_id" AS "parentId",
-              /* <query_2> */
-              max("a_1"."created_at")
-              /* </query_2> */
-              AS "lastCreatedAt"
+              /* <query_2> */ max("a_1"."created_at") /* </query_2> */ AS "lastCreatedAt"
             FROM
               "main"."account" AS "a_1"
             GROUP BY

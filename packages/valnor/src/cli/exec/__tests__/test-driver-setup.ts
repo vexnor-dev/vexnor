@@ -1,5 +1,7 @@
-import { SqlQuery, SqlQueryHandler, SqlRunArgs, SqlQueryToken } from "../../../core/index.js";
-import { SqlParams, SqlRow } from "../../../core/sql.js";
+import { SqlQuery } from "#/core/query/sql-query.js";
+import { SqlQueryHandler } from "#/core/query/sql-query-handler.js";
+import { SqlRunArgs } from "#/core/query/sql-query-types.js";
+import { SqlQueryToken, SqlParams, SqlRow } from "#/core/sql.js";
 
 let mockData: unknown[] = [{ id: 1, result: "test" }];
 

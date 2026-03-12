@@ -1,6 +1,6 @@
 import CodeBlockWriter from "code-block-writer";
-import { PrintTableArgs } from "../../../plugin/index.js";
-import { getCodegenContext } from "../codegen-context.js";
+import { PrintTableArgs } from "#/plugin/plugin.js";
+import { getCodegenContext } from "#/cli/codegen/codegen-context.js";
 
 export function writeTableType(writer: CodeBlockWriter.default, { table }: PrintTableArgs) {
    const { getTableName, getColumnName } = getCodegenContext();
@@ -18,8 +18,8 @@ export function writeTableType(writer: CodeBlockWriter.default, { table }: Print
          writer
             .writeLine(`crud:`)
             .inlineBlock(() => {
-               writer.writeLine(`create: true, `);
-               writer.writeLine(`read: true, `);
+               writer.writeLine(`select: true, `);
+               writer.writeLine(`insert: true, `);
                writer.writeLine(`update: true, `);
                writer.writeLine(`delete: true, `);
             })
@@ -31,6 +31,7 @@ export function writeTableType(writer: CodeBlockWriter.default, { table }: Print
             })
             .write(",");
          writer.writeLine(`pk: ["${primary_keys.map((pk) => getColumnName(pk.column_name)).join('","')}"], `);
+         writer.writeLine(`dialect: "${getCodegenContext().plugin.dialect}",`);
          writer.writeLine(`columns:`).inlineBlock(() => {
             columns.forEach((col) => {
                const colAlias = getColumnName(col.column_name);

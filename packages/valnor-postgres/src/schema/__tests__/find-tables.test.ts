@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { findTables } from "../find-tables.js";
+import { findTables } from "#/schema/find-tables.js";
 
 describe("Find Tables tests", () => {
    test("Find Tables query should match expected SQL", () => {
@@ -26,8 +26,7 @@ describe("Find Tables tests", () => {
               "c_1"."table_schema" IN (?)
             GROUP BY
               "c_1"."table_name",
-              "c_1"."table_schema"
-              /* </query_1> */
+              "c_1"."table_schema" /* </query_1> */
           ),
           "query_2" AS (
             /* <query_2> */
@@ -48,8 +47,7 @@ describe("Find Tables tests", () => {
               AND "tc_3"."table_schema" IN (?)
             GROUP BY
               "kcu_2"."table_name",
-              "kcu_2"."table_schema"
-              /* </query_2> */
+              "kcu_2"."table_schema" /* </query_2> */
           )
         SELECT
           "query_1".*,
@@ -57,8 +55,7 @@ describe("Find Tables tests", () => {
         FROM
           "query_1"
           LEFT JOIN "query_2" ON "query_1"."table_schema" = "query_2"."table_schema"
-          AND "query_1"."table_name" = "query_2"."table_name"
-          /* </query_0> */"
+          AND "query_1"."table_name" = "query_2"."table_name" /* </query_0> */"
       `);
 
       expect(values).toMatchInlineSnapshot(`

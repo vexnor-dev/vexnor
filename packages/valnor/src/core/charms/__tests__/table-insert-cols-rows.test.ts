@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { Account, IAccountInsert } from "@test-models/valnor_test.account-table.js";
-import { sql } from "../../sql.js";
-import { row } from "../../query/index.js";
+import { sql } from "#/core/sql.js";
+import { row } from "#/core/query/sql-select-row.js";
 
 describe("SqlTable.insertCols() and insertCols() tests", () => {
    test("sql() insert with $$cols() and $$rows()", () => {
@@ -39,8 +39,7 @@ describe("SqlTable.insertCols() and insertCols() tests", () => {
           "inserted"."parent_id" AS "parentId"
         VALUES
           (?, ?, ?),
-          (?, ?, ?)
-          /* </query_0> */"
+          (?, ?, ?) /* </query_0> */"
       `);
    });
 });

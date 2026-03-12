@@ -1,33 +1,20 @@
 import { assertType, describe, expect, test } from "vitest";
-import { SqlSelectValue, val } from "../sql-select-value.js";
-import { t } from "../sql-type.js";
-import { row } from "../sql-select-row.js";
-import { sql } from "../../sql.js";
-import { SqlBuildContext } from "../sql-build-context.js";
+import { SqlSelectValue, val } from "#/core/query/sql-select-value.js";
+import { t } from "#/core/query/sql-type.js";
+import { row } from "#/core/query/sql-select-row.js";
+import { sql } from "#/core/sql.js";
+import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
 import { Account } from "@test-models/valnor_test.account-table.js";
-import { param } from "../sql-param.js";
-import { ParamsOf } from "../../sql-base.js";
-import { SqlQueryExtended } from "../sql-query.js";
+import { param } from "#/core/query/sql-param.js";
+import { ParamsOf } from "#/core/sql-base.js";
+import { SqlQueryExtended } from "#/core/query/sql-query.js";
 
 describe("SqlValue tests", () => {
    test("val with generic type parameter", () => {
       const value = val`array_agg(name)`.as<{ names: string[] }>("names");
       expect(value.key).toBe("names");
 
-      // Type check
-      type ValueType = typeof value extends { key: string } ? true : false;
-      const typeCheck: ValueType = true;
-      expect(typeCheck).toBe(true);
-   });
-
-   test("val with inline type marker", () => {
-      const value = val`array_agg(name)`.as<{ counts: number[] }>("counts");
-      expect(value.key).toBe("counts");
-   });
-
-   test("val without type defaults to unknown", () => {
-      const value = val`some_column`.as<{ col: string }>("col");
-      expect(value.key).toBe("col");
+      assertType<SqlSelectValue<{ Key: "names"; Type: string[]; Params: void }>>(value);
    });
 
    test("val builds SQL correctly", () => {
@@ -35,12 +22,7 @@ describe("SqlValue tests", () => {
       const context = new SqlBuildContext();
       value.build(context);
       // build() only outputs the query, not the alias
-      expect(context.text).toMatchInlineSnapshot(`
-        "/* <query_0> */
-        COUNT(*)
-        /* </query_0> */
-        AS "total""
-      `);
+      expect(context.text).toMatchInlineSnapshot(`"/* <query_0> */ COUNT(*) /* </query_0> */ AS "total""`);
       expect(value.key).toBe("total");
    });
 
@@ -106,12 +88,7 @@ describe("SqlValue tests", () => {
       value.build(context);
 
       // The t<number>() marker should not appear in SQL (only query part)
-      expect(context.text).toMatchInlineSnapshot(`
-        "/* <query_0> */
-        COUNT(*)
-        /* </query_0> */
-        AS "total""
-      `);
+      expect(context.text).toMatchInlineSnapshot(`"/* <query_0> */ COUNT(*) /* </query_0> */ AS "total""`);
       expect(value.key).toBe("total");
    });
 
@@ -130,10 +107,7 @@ describe("SqlValue tests", () => {
         "/* <query_0> */
         SELECT
           "a_1"."account_id" AS "accountId",
-          /* <query_1> */
-          COUNT(*)
-          /* </query_1> */
-          AS "total"
+          /* <query_1> */ COUNT(*) /* </query_1> */ AS "total"
         FROM
           "main"."account" AS "a_1"
         GROUP BY
@@ -158,10 +132,7 @@ describe("SqlValue tests", () => {
         "/* <query_0> */
         SELECT
           "a_1"."account_id" AS "accountId",
-          /* <query_1> */
-          COUNT(*)
-          /* </query_1> */
-          AS "total"
+          /* <query_1> */ COUNT(*) /* </query_1> */ AS "total"
         FROM
           "main"."account" AS "a_1"
         GROUP BY

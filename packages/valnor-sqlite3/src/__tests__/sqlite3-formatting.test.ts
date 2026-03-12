@@ -11,8 +11,7 @@ describe("sqlite3 formatting", () => {
         INSERT INTO
           "main"."account" ("first_name", "email")
         VALUES
-          ('John', 'john@example.com')
-          /* </query_0> */"
+          ('John', 'john@example.com') /* </query_0> */"
       `);
    });
 
@@ -24,8 +23,7 @@ describe("sqlite3 formatting", () => {
         INSERT INTO
           "main"."account" ("first_name", "email")
         VALUES
-          ('John', 'john@example.com')
-          /* </query_0> */"
+          ('John', 'john@example.com') /* </query_0> */"
       `);
    });
 
@@ -47,8 +45,7 @@ describe("sqlite3 formatting", () => {
         FROM
           "main"."account" AS "a_1"
         WHERE
-          "a_1"."account_id" = 1
-          /* </query_0> */"
+          "a_1"."account_id" = 1 /* </query_0> */"
       `);
    });
 
@@ -61,8 +58,7 @@ describe("sqlite3 formatting", () => {
         SET
           "first_name" = 'Jane'
         WHERE
-          "account"."account_id" = 1
-          /* </query_0> */"
+          "account"."account_id" = 1 /* </query_0> */"
       `);
    });
 
@@ -73,8 +69,7 @@ describe("sqlite3 formatting", () => {
         "/* <query_0> */
         DELETE FROM "main"."account"
         WHERE
-          "account"."account_id" = 1
-          /* </query_0> */"
+          "account"."account_id" = 1 /* </query_0> */"
       `);
    });
 });

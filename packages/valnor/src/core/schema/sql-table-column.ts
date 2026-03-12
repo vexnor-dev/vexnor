@@ -1,6 +1,8 @@
-import { SqlColumnFormat } from "../default-formatter.js";
-import { TYPE, Sql } from "../sql-base.js";
-import { SqlBuildContext, SqlBuildOptions } from "../query/index.js";
+import { SqlColumnFormat } from "#/core/builder/default-formatter.js";
+import { TYPE, Sql } from "#/core/sql-base.js";
+import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
+import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
+import { SqlTableIdentity } from "#/core/schema/sql-table-identity.js";
 
 export type SqlTableColumnOptions<
    T extends {
@@ -22,7 +24,7 @@ export class SqlTableColumn<
 
    readonly key: T["Key"];
    readonly columnName: string;
-   readonly tableInfo: { schema?: string; name: string; alias?: string; out?: boolean };
+   readonly tableInfo: SqlTableIdentity;
    readonly format: SqlColumnFormat | null;
 
    constructor({ columnName, key, tableInfo, format }: SqlTableColumnOptions<T>) {
@@ -49,7 +51,7 @@ export class SqlTableColumn<
    }
 
    // eslint-disable-next-line unused-imports/no-unused-vars
-   build(context: SqlBuildContext, _options?: SqlBuildOptions) {
+   write(context: SqlBuildContext, _options?: SqlBuildOptions) {
       const format = this.format ?? context.formatter.getColumnFormat(context);
       switch (format) {
          case "tableName.columnName AS columnAlias": {
@@ -73,15 +75,15 @@ export class SqlTableColumn<
             context.addQuotes(`${this.key ?? this.columnName}`);
             break;
          case "tableAlias.columnName":
-            context.addQuotes(`${context.alias(this.tableInfo)}.${this.columnName}`);
+            context.addQuotes(`${context.getAlias(this.tableInfo)}.${this.columnName}`);
             break;
          case "tableAlias.columnName AS columnAlias": {
             if (this.key === this.columnName || !this.key) {
-               context.addQuotes(`${context.alias(this.tableInfo)}.${this.columnName}`);
+               context.addQuotes(`${context.getAlias(this.tableInfo)}.${this.columnName}`);
                break;
             }
 
-            context.addQuotes(`${context.alias(this.tableInfo)}.${this.columnName} as ${this.key}`);
+            context.addQuotes(`${context.getAlias(this.tableInfo)}.${this.columnName} as ${this.key}`);
             break;
          }
       }

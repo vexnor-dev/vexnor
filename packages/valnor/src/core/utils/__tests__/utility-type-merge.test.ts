@@ -1,5 +1,5 @@
 import { describe, test, assertType } from "vitest";
-import { Merge, MergeAll } from "../utility-types.js";
+import { Merge, MergeAll } from "#/core/utils/utility-types.js";
 
 describe("Merge type utility", () => {
    test("merges two object types", () => {

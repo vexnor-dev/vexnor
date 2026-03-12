@@ -1,6 +1,9 @@
-import { SqlBuildContext, SqlBuildOptions, SqlRowColumnTarget, SqlQueryAny } from "../query/index.js";
-import { SqlSelectFormat } from "../default-formatter.js";
-import { Sql, TYPE } from "../sql-base.js";
+import { Sql, TYPE } from "#/core/sql-base.js";
+import { SqlSelectFormat } from "#/core/builder/default-formatter.js";
+import { SqlRowColumnTarget } from "#/core/query/sql-models.js";
+import { SqlQueryAny } from "#/core/query/sql-query.js";
+import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
+import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
 
 export type SqlQueryColumnArgs<
    T extends {
@@ -54,10 +57,9 @@ export class SqlQueryColumn<
       });
    }
 
-   build(context: SqlBuildContext, options?: SqlBuildOptions) {
+   write(context: SqlBuildContext, options?: SqlBuildOptions) {
       const tableInfo = (() => {
          const queryName = context.getQueryName(this);
-         console.log(`SqlRowColumn.build ${context.keyword ?? "...."} ${this.id}: ${queryName}`);
          return {
             name: queryName,
             alias: queryName,
@@ -88,22 +90,20 @@ export class SqlQueryColumn<
             context.addQuotes(`${this.key ?? columnName}`);
             break;
          case "tableAlias.columnName":
-            context.addQuotes(`${context.alias(tableInfo)}.${columnName}`);
+            context.addQuotes(`${context.getAlias(tableInfo)}.${columnName}`);
             break;
          case "tableAlias.columnName AS columnAlias": {
             if (this.key === columnName || !this.key) {
-               context.addQuotes(`${context.alias(tableInfo)}.${columnName}`);
+               context.addQuotes(`${context.getAlias(tableInfo)}.${columnName}`);
                break;
             }
 
-            context.addQuotes(`${context.alias(tableInfo)}.${columnName} as ${this.key}`);
+            context.addQuotes(`${context.getAlias(tableInfo)}.${columnName} as ${this.key}`);
             break;
          }
          case "(sql) AS columnAlias": {
             context.addStrings("(");
-            context.scope({ query: this.query }, () => {
-               this.query.build(context, options);
-            });
+            this.query.build(context, options, { queryType: "main" });
             context.addStrings(`) as "${this.key}"`);
          }
       }

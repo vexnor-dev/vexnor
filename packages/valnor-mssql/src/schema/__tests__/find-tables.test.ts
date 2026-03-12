@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { findTables } from "../find-tables.js";
+import { findTables } from "#/schema/find-tables.js";
 
 describe("findTables() tests", () => {
    test("findTables() snapshot match", () => {
@@ -10,14 +10,14 @@ describe("findTables() tests", () => {
         SELECT
           "T_1"."TABLE_NAME" AS "table_name",
           "T_1"."TABLE_SCHEMA" AS "table_schema",
-          "query_2"."primary_key",
+          "query_1"."primary_key",
           "table_columns_result"."table_columns" AS "table_columns"
         FROM
           "INFORMATION_SCHEMA"."TABLES" AS "T_1" OUTER APPLY (
             SELECT
               coalesce(
                 (
-                  /* <query_1> */
+                  /* <query_2> */
                   SELECT
                     "C_2"."COLUMN_NAME" AS "column_name",
                     "C_2"."COLUMN_DEFAULT" AS "column_default",
@@ -40,7 +40,7 @@ describe("findTables() tests", () => {
                     AND "C_2"."TABLE_NAME" = "T_1"."TABLE_NAME"
                   ORDER BY
                     "C_2"."ORDINAL_POSITION"
-                    /* </query_1> */
+                    /* </query_2> */
                     FOR json path,
                     include_null_values
                 ),
@@ -48,7 +48,7 @@ describe("findTables() tests", () => {
               ) AS "table_columns"
           ) AS "table_columns_result"
           JOIN (
-            /* <query_2> */
+            /* <query_1> */
             SELECT DISTINCT
               "TC_3"."TABLE_SCHEMA" AS "table_schema",
               "TC_3"."TABLE_NAME" AS "table_name",
@@ -60,17 +60,15 @@ describe("findTables() tests", () => {
               AND "TC_3"."TABLE_NAME" = "KCU_4"."TABLE_NAME"
             WHERE
               "TC_3"."TABLE_SCHEMA" IN (?)
-              AND "TC_3"."CONSTRAINT_TYPE" = 'PRIMARY KEY'
-              /* </query_2> */
-          ) AS "query_2" ON "T_1"."TABLE_SCHEMA" = "query_2"."table_schema"
-          AND "T_1"."TABLE_NAME" = "query_2"."table_name"
+              AND "TC_3"."CONSTRAINT_TYPE" = 'PRIMARY KEY' /* </query_1> */
+          ) AS "query_1" ON "T_1"."TABLE_SCHEMA" = "query_1"."table_schema"
+          AND "T_1"."TABLE_NAME" = "query_1"."table_name"
         WHERE
           "T_1"."TABLE_SCHEMA" IN (?)
           AND "T_1"."TABLE_TYPE" = 'BASE TABLE'
         ORDER BY
           "T_1"."TABLE_SCHEMA",
-          "T_1"."TABLE_NAME"
-          /* </query_0> */"
+          "T_1"."TABLE_NAME" /* </query_0> */"
       `);
    });
 });

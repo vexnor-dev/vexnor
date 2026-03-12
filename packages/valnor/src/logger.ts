@@ -1,5 +1,5 @@
 import { pino, stdTimeFunctions } from "pino";
-import { LOG_LEVEL } from "./config.js";
+import { LOG_LEVEL } from "#/config.js";
 
 const opts: pino.LoggerOptions = {
    formatters: {

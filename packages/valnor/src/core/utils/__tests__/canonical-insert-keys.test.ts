@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
-import { getCanonicalInsertKeys } from "../canonical-insert-keys.js";
-import { InferTable$RowBySelect } from "../../types/index.js";
+import { getCanonicalInsertKeys } from "#/core/utils/canonical-insert-keys.js";
+import { InferTable$RowBySelect } from "#/core/types/infer-types.js";
 
 describe("getCanonicalInsertKeys() tests", () => {
    const mockRow: InferTable$RowBySelect<Record<string, unknown>> = {

@@ -1,6 +1,6 @@
 import { assertType, describe, expect, test } from "vitest";
 import { param, row, sql, SqlBuildContext, SqlCharm, SqlParam } from "valnor";
-import { jsonOne } from "../json-aggregation-sqlite3.js";
+import { jsonOne } from "#/charms/json-aggregation-sqlite3.js";
 import { Account } from "valnor/testing";
 
 describe("json-one-sqlite3 tests", () => {
@@ -31,12 +31,10 @@ describe("json-one-sqlite3 tests", () => {
               FROM
                 "main"."account" AS "parent"
               WHERE
-                "parent"."account_id" = "a_1"."parent_id"
-                /* </query_1> */
+                "parent"."account_id" = "a_1"."parent_id" /* </query_1> */
             ) AS "query_1"
           LIMIT
-            1
-            /* </query_0> */
+            1 /* </query_0> */
         )"
       `);
    });
@@ -49,8 +47,7 @@ describe("json-one-sqlite3 tests", () => {
       ).as("parent");
       target.build(context);
       expect(context.text).toMatchInlineSnapshot(`
-        "/* <query_0> */
-        (
+        "/* <query_0> */ (
           SELECT
             json_object (
               'accountId',
@@ -88,13 +85,11 @@ describe("json-one-sqlite3 tests", () => {
               FROM
                 "main"."account" AS "parent"
               WHERE
-                "parent"."account_id" = "a_1"."parent_id"
-                /* </query_1> */
+                "parent"."account_id" = "a_1"."parent_id" /* </query_1> */
             ) AS "query_1"
           LIMIT
             1
-        ) AS "parent"
-        /* </query_0> */"
+        ) AS "parent" /* </query_0> */"
       `);
    });
 
@@ -105,7 +100,10 @@ describe("json-one-sqlite3 tests", () => {
          sql`select ${row(Account.as("parent").$$)} from ${Account.as("parent")} where ${Account.as("parent").$accountId} = ${Account.$parentId}`,
       );
       expect(() => target.build(context, {})).toThrowErrorMatchingInlineSnapshot(
-         `[TypeError: Cannot use json aggregation with SQL keyword 'from']`,
+         `
+        [TypeError: Error building 'JsonAggregationSqlite3#3(SqlQuery#5)' in query '-'
+        Cannot use json aggregation with SQL keyword 'from']
+      `,
       );
    });
 
@@ -141,8 +139,7 @@ describe("json-one-sqlite3 tests", () => {
           "a_1"."created_at" AS "createdAt",
           "a_1"."modified_at" AS "modifiedAt",
           "a_1"."parent_id" AS "parentId",
-          /* <query_1> */
-          (
+          /* <query_1> */ (
             SELECT
               json_object(
                 'accountId',
@@ -187,8 +184,7 @@ describe("json-one-sqlite3 tests", () => {
               ) AS "query_2"
             LIMIT
               1
-          ) AS "parent"
-          /* </query_1> */
+          ) AS "parent" /* </query_1> */
         FROM
           "main"."account" AS "a_1"
           /* </query_0> */"

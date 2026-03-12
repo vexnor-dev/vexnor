@@ -1,6 +1,6 @@
-import { newSqlQuery, SqlQuery, SqlQueryExtended, SqlQueryHandler } from "./query/index.js";
-import { ParamsOf, RowOf, Sql } from "./sql-base.js";
-import { Void } from "./utils/index.js";
+import { newSqlQuery, SqlQuery, SqlQueryExtended } from "#/core/query/sql-query.js";
+import { ParamsOf, RowOf, Sql } from "#/core/sql-base.js";
+import { Void } from "#/core/utils/utility-types.js";
 
 type _SqlInlineValue_ = Sql | string | number | boolean | null | undefined | Date | bigint | Buffer;
 export type SqlQueryToken = _SqlInlineValue_ | _SqlInlineValue_[];
@@ -34,12 +34,3 @@ type BuildSqlParams<T> = T extends [infer Start, ...infer Rest]
       ? ParamsOf<A> & BuildSqlParams<B> & BuildSqlParams<Rest>
       : ParamsOf<Start> & BuildSqlParams<Rest>
    : void;
-
-export type ExtractParamsFromSqlQuery<T> =
-   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-   T extends SqlQueryExtended<infer U extends { Params?: any }>
-      ? U["Params"]
-      : // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        T extends SqlQueryHandler<infer U extends { Params?: any; Row?: any; QueryResult: any; Connection: any }>
-        ? U["Params"]
-        : never;

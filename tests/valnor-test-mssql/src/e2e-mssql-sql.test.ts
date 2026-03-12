@@ -3,7 +3,7 @@ import { sql } from "valnor-mssql";
 import { Account } from "./codegen/valnor_test.account-table.js";
 import { pool } from "./mssql-pool.js";
 import { row } from "valnor";
-import { getTag } from "./config.js";
+import { getTag } from "./tags.js";
 
 describe("valnor postgres sql tests", (ctx) => {
    const TAG = getTag(ctx);

@@ -1,73 +1,85 @@
-import { SqlBuildContext, SqlBuildOptions, SqlQueryAny } from "./query/index.js";
-
-export type SqlOptions = {
-   wrap?: boolean;
-   id: string;
-   query?: SqlQueryAny | null;
-};
+import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
+import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
+import { isError } from "#/lib/is-error.js";
 
 export type TypeOf<S> = S extends { readonly [TYPE]?: infer R } ? R : void;
 export type ArgsOf<S> = S extends { readonly [ARGS]?: infer R } ? R : void;
 export type ParamsOf<S> = S extends { readonly [PARAMS]?: infer R } ? R : void;
 export type RowOf<S> = S extends { readonly [ROW]?: infer R } ? R : void;
 
-export type ParamsOfArgs<T> =
-   T extends Record<string, unknown>
-      ? { [K in keyof T as ParamsOfArgs<T[K]> extends void ? never : K]: ParamsOfArgs<T[K]> }
-      : ArgsOf<T>;
+type UnionToIntersection<U> = (U extends unknown ? (x: U) => void : never) extends (x: infer I) => void ? I : never;
 
-// export type ParamsOfArgs<T> =
-//    T extends Record<string, unknown>
-//       ? { [K in keyof T as ParamsOfArgs<T[K]> extends void ? never : K]: ArgsOf<T[K]> }
-//       : ArgsOf<T>;
+export type RowsOfArgs<T> = {
+   [K in keyof T as RowOf<T[K]> extends Record<string, unknown> ? K : never]: RowOf<T[K]>;
+};
+
+type CollectParams<T> =
+   ParamsOf<T> extends Record<string, unknown>
+      ? ParamsOf<T>
+      : T extends Record<string, unknown>
+        ? UnionToIntersection<{ [K in keyof T]-?: CollectParams<NonNullable<T[K]>> }[keyof T]>
+        : never;
+
+export type ParamsOfArgs<T> = [CollectParams<T>] extends [never]
+   ? void
+   : CollectParams<T> extends Record<string, unknown>
+     ? CollectParams<T>
+     : void;
 
 export declare const ROW: unique symbol;
 export declare const TYPE: unique symbol;
 export declare const PARAMS: unique symbol;
 export declare const ARGS: unique symbol;
 
-/**
- * Base class for all SQL tokens
- */
+export type SqlOptions = Pick<Sql, "id"> & Partial<Pick<Sql, "tag">>;
+
 export abstract class Sql {
    declare readonly [ROW]?: unknown;
    declare readonly [TYPE]?: unknown;
    declare readonly [PARAMS]?: unknown;
    declare readonly [ARGS]?: unknown;
 
-   /**
-    * Whether to wrap the SQL token in parentheses
-    */
-   readonly wrap: boolean | undefined;
-
-   /**
-    * Unique identifier for the Sql token
-    */
    readonly id: string;
 
-   /**
-    * The type of the SQL token
-    */
    readonly type: string;
 
+   readonly tag: string | null;
+
    protected constructor(options: SqlOptions) {
-      this.id = `${this.constructor.name}#${nextId(this.constructor.name)}${options.id ? `(${options.id})` : ""}`;
+      this.id = `${this.constructor.name}#${nextId(this.constructor.name)}`;
+      if (options.tag || options.id) {
+         this.id += "(";
+      }
 
-      this.wrap = (() => {
-         if (options?.wrap === undefined) return true;
+      if (options.tag) {
+         this.id += `#${options.tag}#`;
+      }
 
-         return options.wrap;
-      })();
+      if (options.id) {
+         this.id += `${options.id}`;
+      }
+
+      if (options.tag || options.id) {
+         this.id += ")";
+      }
 
       this.type = this.constructor.name;
+      this.tag = options?.tag ?? null;
    }
 
-   /**
-    * Build the SQL token using the context and options
-    * @param context
-    * @param options
-    */
-   abstract build(context: SqlBuildContext, options?: SqlBuildOptions): void;
+   protected abstract write<T>(context: SqlBuildContext, options?: SqlBuildOptions | null, scope?: T | null): void;
+
+   build(context: SqlBuildContext, options?: SqlBuildOptions | null, ...args: unknown[]) {
+      try {
+         this.write(context, options, ...args);
+      } catch (err) {
+         if (isError(err)) {
+            err.message = `Error building '${this.id}' in query '${context.query?.id ?? "-"}'\n${err.message}`;
+         }
+
+         throw err;
+      }
+   }
 
    toString() {
       return this.id;

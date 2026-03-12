@@ -1,14 +1,14 @@
 import { beforeEach, describe, expect, test } from "vitest";
-import { SqlBuildContext } from "../sql-build-context.js";
-import { sql } from "../../sql.js";
+import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
+import { sql } from "#/core/sql.js";
 import { Account } from "@test-models/valnor_test.account-table.js";
-import { row, SqlSelectRow } from "../sql-select-row.js";
-import { SqlBuildError } from "../../sql-build-error.js";
-import { param } from "../sql-param.js";
+import { row, SqlSelectRow } from "#/core/query/sql-select-row.js";
+import { SqlBuildError } from "#/core/sql-build-error.js";
+import { param } from "#/core/query/sql-param.js";
 import { Order } from "@test-models/valnor_test.order-table.js";
-import { info } from "../../charms/index.js";
+import { info } from "#/core/charms/sql-query-info.js";
 import { OrderItem } from "@test-models/valnor_test.order_item-table.js";
-import { SqlQueryColumn } from "../sql-query-column.js";
+import { SqlQueryColumn } from "#/core/query/sql-query-column.js";
 
 describe("SqlBuildContext getQueryName", () => {
    const findOrderItems = sql`
@@ -74,7 +74,7 @@ describe("SqlBuildContext getQueryName", () => {
    });
 
    test("getQueryName should return value for subquery $orderId", () => {
-      context.scope({ query: findOrders });
+      context.addQuery(findOrders);
       const column = findOrders.$orderId;
       console.log("\nLooking up query for column:", column.id);
 
@@ -109,18 +109,20 @@ describe("SqlBuildContext getQueryName", () => {
    });
 
    test("SqlBuildContext should return default query name: OrderItems", () => {
-      const actual = context.scope({ query }, () => context.getQueryName(findOrderItems));
+      const actual = context.getQueryName(findOrderItems);
       expect(actual).toEqual("OrderItems");
    });
 
    test("Check context.queries array", () => {
       console.log("\ncontext.queries:");
-      context.queries.forEach((q, idx) => {
+      const ctx = new SqlBuildContext();
+      query.build(ctx, {});
+      ctx.queries.forEach((q, idx) => {
          console.log(`  [${idx}]: ${q.query.info?.label || "unlabeled"}, ID=${q.query.id}`);
       });
 
       console.log("\nExpected queries: Root, AccountsOld, Orders, OrderItems");
-      expect(context.queries.size).toBe(4);
+      expect(ctx.queries.size).toBe(4);
    });
 
    test("Find where orderQuery.$orderId column is", () => {

@@ -1,7 +1,6 @@
-import { SqlQueryHandler, SqlInputArgs, SqlQuery, SqlRunArgs } from "valnor";
+import { SqlQueryHandler, SqlInputArgs, SqlQuery, SqlRunArgs, SqlRunError } from "valnor";
 import { IResult, Promise, Request } from "mssql";
-import { MssqlTokenizer } from "./mssql-tokenizer.js";
-import { MssqlParamFormatter } from "./mssql-param-formatter.js";
+import { defaultQueryOptions } from "./default-query-options.js";
 
 export class MssqlQueryHandler<T extends { Params?: unknown; Row?: unknown }> extends SqlQueryHandler<{
    Row: T["Row"];
@@ -19,10 +18,8 @@ export class MssqlQueryHandler<T extends { Params?: unknown; Row?: unknown }> ex
          const newArgs: SqlInputArgs<T["Params"]> = {
             ...args,
             options: {
+               ...defaultQueryOptions,
                ...args.options,
-               tokenizer: new MssqlTokenizer(this.query.id),
-               paramFormat: MssqlParamFormatter,
-               dialect: "tsql",
             },
          };
 
@@ -46,20 +43,17 @@ export class MssqlQueryHandler<T extends { Params?: unknown; Row?: unknown }> ex
       args: Args,
    ): Promise<IResult<T["Row"]>> {
       const { db, options: { debug } = {} } = args;
-      let queryInput = undefined;
+      const queryInput = this.getOptions(args);
+      if (debug) debug(Object.freeze(queryInput));
+      const { values, text } = queryInput;
+      for (let i = 0; i < values.length; i++) {
+         (await db).input(`param_${i}`, values[i]);
+      }
+
       try {
-         queryInput = this.getOptions(args);
-         if (debug) debug(Object.freeze(queryInput));
-         const { text, values } = queryInput;
-
-         for (let i = 0; i < values.length; i++) {
-            (await db).input(`param_${i}`, values[i]);
-         }
-
          return await (await db).query(text);
       } catch (err) {
-         console.error(err, "\n", queryInput?.text ?? "error building query");
-         throw err;
+         throw new SqlRunError(`Error running MSSQL query.\n${text}`, this, { cause: err }, text);
       }
    }
 }

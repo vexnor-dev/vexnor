@@ -3,48 +3,49 @@
 */
 import * as valnor from "valnor";
 
-export const Order = valnor.newSqlTable<{ Select: IOrderSelect, Insert: IOrderInsert, Update: IOrderUpdate; Delete: true }>({
-   crud:
-   {
-      create: true, 
-      read: true, 
-      update: true, 
-      delete: true, 
+export const Order = valnor.newSqlTable<{
+   Select: IOrderSelect;
+   Insert: IOrderInsert;
+   Update: IOrderUpdate;
+   Delete: true;
+}>({
+   crud: {
+      insert: true,
+      select: true,
+      update: true,
+      delete: true,
    },
-   tableInfo:
-   {
+   tableInfo: {
       name: "order",
       schema: "main",
    },
-   pk: ["orderId"], 
-   columns:
-   {
-
+   pk: ["orderId"],
+   columns: {
       /**
        * order_id TEXT default lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-4' || substr(lower(hex(randomblob(2))),2) || '-' || substr('89ab',abs(random()) % 4 + 1, 1) || substr(lower(hex(randomblob(2))),2) || '-' || lower(hex(randomblob(6)))
-      */
+       */
       orderId: "order_id",
 
       /**
        * status TEXT default 'created'
-      */
+       */
       status: "status",
 
       /**
        * created_at TEXT default datetime('now')
-      */
+       */
       createdAt: "created_at",
 
       /**
        * modified_at TEXT default datetime('now')
-      */
+       */
       modifiedAt: "modified_at",
 
       /**
        * account_id TEXT
-      */
+       */
       accountId: "account_id",
-   }
+   },
 });
 
 export type IOrderInsert = {
@@ -53,16 +54,16 @@ export type IOrderInsert = {
    createdAt?: string;
    modifiedAt?: string;
    accountId: string;
-}
+};
 
 export type IOrderUpdate = Partial<IOrderInsert>;
 
 export type IOrderSelect = {
-   orderId: string | null
-   status: string
-   createdAt: string
-   modifiedAt: string
-   accountId: string
-}
+   orderId: string | null;
+   status: string;
+   createdAt: string;
+   modifiedAt: string;
+   accountId: string;
+};
 
 export type IOrderJson = valnor.JsonRow<IOrderSelect>;

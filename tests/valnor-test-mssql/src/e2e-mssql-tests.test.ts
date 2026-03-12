@@ -1,19 +1,19 @@
 import { beforeAll, describe, expect, test } from "vitest";
-import crypto, { randomUUID } from "node:crypto";
-import assert, { ok } from "node:assert";
+import { randomUUID } from "node:crypto";
+import { ok } from "node:assert";
 import { param, row, sql } from "valnor";
 import { jsonMany } from "valnor-mssql";
-import { Account, IAccountInsert, IAccountJson, IAccountSelect } from "./codegen/valnor_test.schema.js";
-import { getTag } from "./config.js";
+import { Account, IAccountJson, IAccountSelect } from "./codegen/valnor_test.schema.js";
 import { pool } from "./mssql-pool.js";
+import { TestDataManager } from "./test-data-manager.js";
 
 describe.sequential("valnor mssql e2e tests", async (ctx) => {
-   const TAG = getTag(ctx);
+   const dataManager = new TestDataManager(ctx);
 
-   const rootAccounts: IAccountSelect[] = [];
-   const childAccounts: IAccountSelect[] = [];
-   const ROOT_COUNT = 100;
-   const CHILD_FACTOR = 3;
+   beforeAll(async () => {
+      await dataManager.initRootAccounts(pool);
+      await dataManager.initChildAccounts(pool);
+   });
 
    const findAccountById = sql`
       select ${row(Account.$$)}
@@ -21,102 +21,34 @@ describe.sequential("valnor mssql e2e tests", async (ctx) => {
       where ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}
    `;
 
-   beforeAll(async () => {
-      {
-         const newAccountsArgs = [];
-         for (let i = 0; i < ROOT_COUNT; i++) {
-            const id = crypto.randomUUID().slice(0, 4);
-            const index = String(i).padStart(3, "0");
-            newAccountsArgs.push({
-               status: "CREATED",
-               firstName: `John-${index}-${id} (root)-${TAG}`,
-               lastName: `Doe-${index}-${id} (root)-${TAG}`,
-               email: `john.doe.root-${index}-${id}-${TAG}@example.com`,
-            });
-         }
-         const accounts = await sql`
-            insert into ${Account}
-               ${Account.insertCols(...newAccountsArgs)}
-               output ${row(Account.as(`inserted`).$$)}
-               ${Account.insertVals(...newAccountsArgs)}
-         `.mssql.getAll({
-            db: pool.request(),
-            options: {
-               debug: (data) => {
-                  console.log(data.text);
-               },
-            },
-         });
-
-         ok(accounts?.length, "root accounts not inserted");
-         assert.deepEqual(accounts.length, ROOT_COUNT);
-         // expect(accounts.length).toBe(ROOT_COUNT);
-         rootAccounts.push(...accounts);
-      }
-
-      for (let i = 0; i < rootAccounts.length; i++) {
-         const rootIndex = String(i).padStart(3, "0");
-         for (let k = 0; k < CHILD_FACTOR; k++) {
-            const childIndex = String(k).padStart(3, "0");
-            const id = crypto.randomUUID().slice(0, 4);
-            const parent = rootAccounts[i]!;
-            ok(parent);
-
-            const accountInsert: IAccountInsert = {
-               status: "CREATED",
-               firstName: `John-${rootIndex}-${childIndex}-${id} (child ${childIndex})-${TAG}`,
-               lastName: `Doe-${rootIndex}-${childIndex}-${id} (child ${childIndex})-${TAG}`,
-               email: `john.doe.child-${rootIndex}-${childIndex}-${id}-${TAG}@example.com`,
-               parentId: parent.accountId,
-            };
-            const account = await sql`
-               insert into ${Account}
-                  ${Account.insertCols(accountInsert)}
-                  output ${row(Account.as(`inserted`).$$)}
-                  ${Account.insertVals(accountInsert)}
-            `.mssql.getOneRequired({ db: pool.request() });
-            expect(account).toEqual(
-               expect.objectContaining({
-                  status: "CREATED",
-                  firstName: `John-${rootIndex}-${childIndex}-${id} (child ${childIndex})-${TAG}`,
-                  lastName: `Doe-${rootIndex}-${childIndex}-${id} (child ${childIndex})-${TAG}`,
-                  email: `john.doe.child-${rootIndex}-${childIndex}-${id}-${TAG}@example.com`,
-                  parentId: parent.accountId,
-               }),
-            );
-            childAccounts.push(account);
-         }
-      }
-   });
-
    test("Check test accounts inserted", () => {
-      expect(rootAccounts.length).toBe(ROOT_COUNT);
-      expect(childAccounts.length).toBe(ROOT_COUNT * CHILD_FACTOR);
+      expect(dataManager.rootAccounts.length).toBe(dataManager.ACCOUNT_ROOT_COUNT);
+      expect(dataManager.childAccounts.length).toBe(dataManager.ACCOUNT_ROOT_COUNT * dataManager.ACCOUNT_CHILD_FACTOR);
    });
 
-   test(`Fetch all ${ROOT_COUNT} root accounts`, async () => {
+   test(`Fetch all ${dataManager.ACCOUNT_ROOT_COUNT} root accounts`, async () => {
       const actual = await sql`
          select ${row(Account.$$)}
          from ${Account}
-         where ${Account.$accountId} in (${rootAccounts.map((z) => z.accountId)})
+         where ${Account.$accountId} in (${dataManager.rootAccounts.map((z) => z.accountId)})
          order by ${Account.$email}
       `.mssql.getAll({ db: pool.request() });
 
-      expect(actual).toEqual(rootAccounts);
+      expect(actual).toEqual(dataManager.rootAccounts);
    });
 
-   test(`Fetch all ${ROOT_COUNT * CHILD_FACTOR} children accounts`, async () => {
+   test(`Fetch all ${dataManager.ACCOUNT_ROOT_COUNT * dataManager.ACCOUNT_CHILD_FACTOR} children accounts`, async () => {
       const actual = await sql`
     select ${Account.$$}
     from ${Account}
-    where ${Account.$accountId} in (${childAccounts.map((z) => z.accountId)})
+    where ${Account.$accountId} in (${dataManager.childAccounts.map((z) => z.accountId)})
     order by ${Account.$email} asc
 `.mssql.getAll({ db: pool.request() });
-      expect(actual).toEqual(childAccounts);
+      expect(actual).toEqual(dataManager.childAccounts);
    });
 
    test("Fetch account required by id", async () => {
-      const expected = rootAccounts[0];
+      const expected = dataManager.rootAccounts[0];
       ok(expected);
       const actual = await findAccountById.mssql.getOneRequired({
          db: pool.request(),
@@ -138,14 +70,14 @@ describe.sequential("valnor mssql e2e tests", async (ctx) => {
          select ${row(Account.$$, Account.as(`parent`).$firstName.as(`parentFirstName`), Account.as(`parent`).$lastName.as(`parentLastName`), Account.as(`parent`).$email.as(`parentEmail`))}
          from ${Account}
                  join ${Account.as(`parent`)} on ${Account.as(`parent`).$accountId} = ${Account.$parentId}
-         where ${Account.$accountId} in (${childAccounts.map((z) => z.accountId)})
+         where ${Account.$accountId} in (${dataManager.childAccounts.map((z) => z.accountId)})
          order by ${Account.$email}
       `.mssql.getAll({
          db: pool.request(),
       });
       expect(actual).toBeDefined();
-      const expected = childAccounts.map((child) => {
-         const parent = rootAccounts.find((parent) => parent.accountId === child.parentId);
+      const expected = dataManager.childAccounts.map((child) => {
+         const parent = dataManager.rootAccounts.find((parent) => parent.accountId === child.parentId);
          ok(parent);
          return {
             ...child,
@@ -168,7 +100,7 @@ describe.sequential("valnor mssql e2e tests", async (ctx) => {
       const query = sql`
          select ${row(Account.$$)}, ${jsonMany(accountChildren).as("children")}
          from ${Account} ${jsonMany(accountChildren)}
-         where ${Account.$accountId} in (${rootAccounts.map((z) => z.accountId)})
+         where ${Account.$accountId} in (${dataManager.rootAccounts.map((z) => z.accountId)})
          order by ${Account.$email}
       `;
 
@@ -187,7 +119,7 @@ describe.sequential("valnor mssql e2e tests", async (ctx) => {
 
       const childrenByParentId = (() => {
          const result = new Map<string, IAccountSelect[]>();
-         for (const child of childAccounts) {
+         for (const child of dataManager.childAccounts) {
             ok(child.parentId);
             if (!result.has(child.parentId)) result.set(child.parentId, []);
             result.get(child.parentId)!.push(child);
@@ -196,7 +128,7 @@ describe.sequential("valnor mssql e2e tests", async (ctx) => {
          return result;
       })();
 
-      const expected = rootAccounts.map((account) => {
+      const expected = dataManager.rootAccounts.map((account) => {
          return {
             ...account,
             children: childrenByParentId.get(account.accountId),
@@ -207,7 +139,7 @@ describe.sequential("valnor mssql e2e tests", async (ctx) => {
    });
 
    test("Update account by id", async () => {
-      const expected = rootAccounts[0];
+      const expected = dataManager.rootAccounts[0];
       ok(expected);
       const actual = await sql`
          update ${Account}
@@ -222,13 +154,15 @@ describe.sequential("valnor mssql e2e tests", async (ctx) => {
       const { rowsAffected } = await sql`
          delete
          from ${Account}
-         where ${Account.$accountId} in (${childAccounts.map((z) => z.accountId)});
+         where ${Account.$accountId} in (${dataManager.childAccounts.map((z) => z.accountId)});
 
          delete
          from ${Account}
-         where ${Account.$accountId} in (${rootAccounts.map((z) => z.accountId)})
+         where ${Account.$accountId} in (${dataManager.rootAccounts.map((z) => z.accountId)})
       `.mssql.run({ db: pool.request() });
 
-      expect(rowsAffected[0]! + rowsAffected[1]!).toEqual(ROOT_COUNT + ROOT_COUNT * CHILD_FACTOR);
+      expect(rowsAffected[0]! + rowsAffected[1]!).toEqual(
+         dataManager.ACCOUNT_ROOT_COUNT + dataManager.ACCOUNT_ROOT_COUNT * dataManager.ACCOUNT_CHILD_FACTOR,
+      );
    });
 });

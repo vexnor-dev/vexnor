@@ -1,5 +1,7 @@
-import { SqlQueryHandlerAny, SqlQueryAny, SqlQuery, ParamsOf } from "../core/index.js";
-import { ConnectionConfig, ValnorPluginAny } from "../plugin/index.js";
+import { SqlQueryHandlerAny } from "#/core/query/sql-query-handler.js";
+import { SqlQueryAny, SqlQuery } from "#/core/query/sql-query.js";
+import { ParamsOf } from "#/core/sql-base.js";
+import { ConnectionConfig, ValnorPluginAny } from "#/plugin/plugin.js";
 
 export type QueryOrHandler = SqlQueryAny | SqlQueryHandlerAny;
 

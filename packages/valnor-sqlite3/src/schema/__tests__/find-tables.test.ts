@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { findTables, findTableColumns, findPrimaryKeys } from "../find-tables.js";
+import { findTables, findTableColumns, findPrimaryKeys } from "#/schema/find-tables.js";
 
 describe("Find Tables tests", () => {
    test("Find Tables query should match expected SQL", () => {
@@ -41,13 +41,9 @@ describe("Find Tables tests", () => {
           CASE
             WHEN "notnull" = 0 THEN 'YES'
             ELSE 'NO'
-          END
-          /* </query_1> */
-          AS "is_nullable",
+          END /* </query_1> */ AS "is_nullable",
           /* <query_2> */
-          'YES'
-          /* </query_2> */
-          AS "is_updatable"
+          'YES' /* </query_2> */ AS "is_updatable"
         FROM
           pragma_table_info (?) AS "pti_1"
           /* </query_0> */"

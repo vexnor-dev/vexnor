@@ -7,8 +7,8 @@ import * as udt from "./valnor_test-enums.js";
 export const Account = valnor.newSqlTable<{ Select: IAccountSelect, Insert: IAccountInsert, Update: IAccountUpdate; Delete: true }>({
    crud:
    {
-      create: true, 
-      read: true, 
+      select: true, 
+      insert: true, 
       update: true, 
       delete: true, 
    },
@@ -18,6 +18,7 @@ export const Account = valnor.newSqlTable<{ Select: IAccountSelect, Insert: IAcc
       schema: "valnor_test",
    },
    pk: ["accountId"], 
+   dialect: "postgresql",
    columns:
    {
 

@@ -1,5 +1,5 @@
 import { col, param, row, sql, val } from "valnor";
-import { PragmaTableInfo, SqliteMaster } from "./models.js";
+import { PragmaTableInfo, SqliteMaster } from "#/schema/models.js";
 
 export const findTables = sql`
    SELECT 

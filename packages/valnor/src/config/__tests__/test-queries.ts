@@ -1,5 +1,6 @@
-import { sql } from "../../cli/exec/__tests__/test-driver-setup.js";
-import { param, row } from "../../core/index.js";
+import { sql } from "#/cli/exec/__tests__/test-driver-setup.js";
+import { param } from "#/core/query/sql-param.js";
+import { row } from "#/core/query/sql-select-row.js";
 import { Account } from "@test-models/valnor_test.account-table.js";
 
 export const findAccountById = sql`

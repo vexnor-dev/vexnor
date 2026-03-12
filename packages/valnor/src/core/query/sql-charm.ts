@@ -1,9 +1,9 @@
-import { PARAMS, ROW, Sql, SqlOptions, TYPE } from "../sql-base.js";
-import { SqlBuildContext } from "./sql-build-context.js";
-import { hasParams, SqlBuildOptions } from "./sql-query-types.js";
-import { BuildSqlParams } from "./sql-param.js";
+import { BuildSqlParams } from "#/core/query/sql-param.js";
+import { PARAMS, ROW, Sql, SqlOptions, TYPE } from "#/core/sql-base.js";
+import { hasParams } from "#/core/query/sql-query-types.js";
+import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
+import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlCharmAny = SqlCharm<any>;
 
 export type ExtractCharmParams<T> =
@@ -25,7 +25,7 @@ export abstract class SqlCharm<T extends { Params?: unknown; Type?: unknown }> e
 
 export type SqlSelectCharmArgs<T extends { Key: string; Type: unknown; Params?: unknown }> = {
    key: T["Key"];
-   build: Sql["build"];
+   write: Sql["write"];
    params: BuildSqlParams<T["Params"]>;
 };
 
@@ -34,20 +34,20 @@ export class SqlSelectCharm<T extends { Key: string; Type: unknown; Params?: unk
    declare readonly [TYPE]: Record<T["Key"], T["Type"]>;
    declare readonly [PARAMS]: T["Params"];
 
-   private readonly _build: Sql["build"];
    readonly key: T["Key"];
    readonly params: BuildSqlParams<T["Params"]>;
 
-   constructor({ key, build, ...args }: SqlSelectCharmArgs<T>) {
+   constructor({ key, write, ...args }: SqlSelectCharmArgs<T>) {
       super({
          id: `${key}`,
       });
-      this._build = build;
+      this.write = write;
       this.key = key;
       this.params = (hasParams(args) ? args.params : null) as BuildSqlParams<T["Params"]>;
    }
 
-   build(context: SqlBuildContext, options?: SqlBuildOptions): void {
-      this._build(context, options);
+   // eslint-disable-next-line unused-imports/no-unused-vars
+   protected write<T>(_context: SqlBuildContext, _options?: SqlBuildOptions | null, scope?: T | null): void {
+      throw new Error("Method not implemented.");
    }
 }

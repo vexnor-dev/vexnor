@@ -1,5 +1,6 @@
 import { assertType, describe, expect, test } from "vitest";
-import { input, param, SqlParam, SqlInputParams } from "../query/index.js";
+import { input, SqlInputParams } from "#/core/query/sql-input.js";
+import { param, SqlParam } from "#/core/query/sql-param.js";
 
 describe("SqlInput<{}> tests", () => {
    test("should generate params on the fly", () => {

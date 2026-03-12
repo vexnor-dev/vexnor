@@ -5,14 +5,13 @@ import {
    SqlBuildOptions,
    SqlCharm,
    SqlQuery,
-   SqlSelectCharm,
    SqlQueryColumn,
    SqlSelectValue,
-   BuildSqlParams,
    SqlQueryAny,
    JsonRow,
    SqlBuildError,
    quote,
+   SqlSelectColumn,
 } from "valnor";
 
 export type JsonResultType = "one" | "many";
@@ -55,7 +54,7 @@ export class JsonAggregationSqlite3<T extends { Params?: unknown; Row?: unknown 
       this.type = type;
    }
 
-   build(context: SqlBuildContext, options: SqlBuildOptions) {
+   write(context: SqlBuildContext, options: SqlBuildOptions) {
       if (!this.query.row) {
          throw new SqlBuildError(`'this.query.row' is required for json aggregation`);
       }
@@ -79,7 +78,7 @@ export class JsonAggregationSqlite3<T extends { Params?: unknown; Row?: unknown 
       }
    }
 
-   as<Key extends string>(key: Key): SqlSelectCharm<{ Key: Key; Type: string; Params: T["Params"] }> {
+   as<Key extends string>(key: Key): SqlSelectColumn<{ Key: Key; Type: string; Params: T["Params"] }> {
       const fields = Object.values(this.query.row ?? {}).flatMap((value) => {
          if (value instanceof SqlSelectValue || value instanceof SqlQueryColumn) {
             return [raw(`'${value.key}'`), quote(value.key)];
@@ -89,15 +88,13 @@ export class JsonAggregationSqlite3<T extends { Params?: unknown; Row?: unknown 
       const { coalesce } = JsonAggregationSqlite3.CONFIG[this.type];
       const innerQuery =
          this.type === "one"
-            ? sql`(select json_object(${fields}) from ${this.query.render("inline")} limit 1) as ${quote(key)}`
-            : sql`(select coalesce(json_group_array(json_object(${fields})), ${raw(coalesce)}) from ${this.query.render("inline")}) as ${quote(key)}`;
+            ? sql`(select json_object(${fields}) from ${this.query} limit 1) as ${quote(key)}`
+            : sql`(select coalesce(json_group_array(json_object(${fields})), ${raw(coalesce)}) from ${this.query}) as ${quote(key)}`;
 
-      return new SqlSelectCharm<{ Key: Key; Type: string; Params: T["Params"] }>({
+      return new SqlSelectColumn<{ Key: Key; Type: string; Params: T["Params"] }>({
          key,
-         params: this.params as BuildSqlParams<T["Params"]>,
-         build(context, options) {
-            innerQuery.build(context, options);
-         },
+         onWrite: (context, options) => innerQuery.build(context, options),
+         params: this.params,
       });
    }
 }

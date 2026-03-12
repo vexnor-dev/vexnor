@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { formatJson, formatCsv, formatTable } from "../formatters.js";
+import { formatJson, formatCsv, formatTable } from "#/cli/exec/formatters.js";
 
 describe("formatters", () => {
    const sampleData = [

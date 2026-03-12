@@ -1,6 +1,6 @@
 import { assertType, describe, expect, test } from "vitest";
 import { JsonRow, param, row, sql, SqlBuildContext, SqlCharm, SqlParam, SqlQueryExtended } from "valnor";
-import { jsonMany } from "../json-aggregation-postgres.js";
+import { jsonMany } from "#/charms/json-aggregation-postgres.js";
 import { Account, IAccountSelect } from "valnor/testing";
 
 describe("json-many-postgres tests", () => {
@@ -36,7 +36,7 @@ describe("json-many-postgres tests", () => {
       console.log(context.text);
       expect(context.text).toMatchInlineSnapshot(`
         "/* <query_1> */
-        /* --inline: true */
+        /* inline: true */
         LEFT JOIN LATERAL (
           SELECT
             coalesce(jsonb_agg ("query_0".*), '[]') AS "query_0_result"
@@ -56,8 +56,7 @@ describe("json-many-postgres tests", () => {
               FROM
                 "main"."account" AS "children"
               WHERE
-                "children"."parent_id" = "a_1"."account_id"
-                /* </query_0> */
+                "children"."parent_id" = "a_1"."account_id" /* </query_0> */
             ) AS "query_0"
         ) AS "query_0" ON TRUE
         /* </query_1> */"
@@ -93,70 +92,60 @@ describe("json-many-postgres tests", () => {
             format: null,
             key: "accountId",
             params: null,
-            wrap: true,
          },
          $createdAt: {
             type: "SqlQueryColumn",
             format: null,
             key: "createdAt",
             params: null,
-            wrap: true,
          },
          $email: {
             type: "SqlQueryColumn",
             format: null,
             key: "email",
             params: null,
-            wrap: true,
          },
          $firstName: {
             type: "SqlQueryColumn",
             format: null,
             key: "firstName",
             params: null,
-            wrap: true,
          },
          $lastName: {
             type: "SqlQueryColumn",
             format: null,
             key: "lastName",
             params: null,
-            wrap: true,
          },
          $modifiedAt: {
             type: "SqlQueryColumn",
             format: null,
             key: "modifiedAt",
             params: null,
-            wrap: true,
          },
          $notes: {
             type: "SqlQueryColumn",
             format: null,
             key: "notes",
             params: null,
-            wrap: true,
          },
          $parentId: {
             type: "SqlQueryColumn",
             format: null,
             key: "parentId",
             params: null,
-            wrap: true,
          },
          $status: {
             type: "SqlQueryColumn",
             format: null,
             key: "status",
             params: null,
-            wrap: true,
          },
          $children: {
             type: "SqlQueryColumn",
             format: null,
             key: "children",
             params: null,
-            wrap: true,
          },
       });
       expect(query.row.$children).toBeDefined();
@@ -182,9 +171,8 @@ describe("json-many-postgres tests", () => {
           "a_1"."parent_id" AS "parentId",
           "query_1_result" AS "children"
         FROM
-          "main"."account" AS "a_1"
-          /* <query_2> */
-          /* --inline: true */
+          "main"."account" AS "a_1" /* <query_2> */
+          /* inline: true */
           LEFT JOIN LATERAL (
             SELECT
               coalesce(jsonb_agg("query_1".*), '[]') AS "query_1_result"

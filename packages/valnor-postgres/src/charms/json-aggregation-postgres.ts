@@ -54,15 +54,12 @@ export class JsonAggregationPostgres<
       this.type = type;
    }
 
-   build(context: SqlBuildContext, options: SqlBuildOptions) {
+   write(context: SqlBuildContext, options: SqlBuildOptions) {
       if (!this.query.row) {
          throw new SqlBuildError(`query row is required for json aggregation`);
       }
 
-      const queryName = context.scope({ query: this.query }, () => {
-         return context.getQueryName(this.query);
-      });
-
+      const queryName = context.getQueryName(this.query);
       switch (context.keyword) {
          case "select":
             context.addStrings(`"${queryName}_result"`);
@@ -76,9 +73,7 @@ export class JsonAggregationPostgres<
                from ${this.query}) as ${quote(queryName)}
                on true
             `;
-            context.scope({ query, inline: true }, () => {
-               query.build(context, options);
-            });
+            query.build(context, options, { queryType: "inline" });
             break;
          }
          default:
@@ -91,12 +86,12 @@ export class JsonAggregationPostgres<
     * @param key
     */
    as<Key extends string>(key: Key): SqlSelectCharm<{ Key: Key; Type: T["Type"]; Params: T["Params"] }> {
-      const query = this.query;
+      const _query = this.query;
       return new SqlSelectCharm<{ Key: Key; Type: T["Type"]; Params: T["Params"] }>({
          key,
          params: this.params as BuildSqlParams<T["Params"]>,
-         build(context: SqlBuildContext) {
-            const queryName = context.scope({ query }, () => context.getQueryName(query));
+         write(context: SqlBuildContext) {
+            const queryName = context.getQueryName(_query);
             context.addStrings(`"${queryName}_result" as ${quoteText(this.key)}`);
          },
       });

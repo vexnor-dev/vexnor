@@ -1,5 +1,5 @@
 import { pathToFileURL } from "url";
-import { QueryConfig, QueryOrHandler } from "./config-types.js";
+import { QueryConfig, QueryOrHandler } from "#/config/config-types.js";
 import { access } from "fs/promises";
 import { resolve } from "path";
 import { register } from "tsx/esm/api";

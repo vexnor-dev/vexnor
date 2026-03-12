@@ -1,14 +1,15 @@
-import { ROW, Sql, TYPE, TypeOf } from "../sql-base.js";
-import { SqlTableColumn } from "../schema/index.js";
-import { SqlSelectValue } from "./sql-select-value.js";
-import { newSqlSelectColumn, SqlQueryColumn } from "./sql-query-column.js";
-import { SqlTableAll } from "../charms/index.js";
-import { SqlSelectAll } from "./sql-select-all.js";
-import { InferSelectRowByResult, SqlBuildOptions } from "./sql-query-types.js";
-import { SqlBuildError } from "../sql-build-error.js";
-import { SqlQueryAny } from "./sql-query.js";
-import { SqlBuildContext } from "./sql-build-context.js";
-import { SqlSelectColumn } from "./sql-select-column.js";
+import { ROW, Sql, TYPE, TypeOf } from "#/core/sql-base.js";
+import { InferSelectRowByResult } from "#/core/query/sql-query-types.js";
+import { SqlQueryAny } from "#/core/query/sql-query.js";
+import { SqlSelectAll } from "#/core/query/sql-select-all.js";
+import { SqlTableColumn } from "#/core/schema/sql-table-column.js";
+import { newSqlSelectColumn, SqlQueryColumn } from "#/core/query/sql-query-column.js";
+import { SqlBuildError } from "#/core/sql-build-error.js";
+import { SqlTableAll } from "#/core/charms/sql-table-all.js";
+import { SqlSelectValue } from "#/core/query/sql-select-value.js";
+import { SqlSelectColumn } from "#/core/query/sql-select-column.js";
+import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
+import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlSelectRowAny = SqlSelectRow<any>;
@@ -54,7 +55,7 @@ export class SqlSelectRow<T extends { Row: Record<string, unknown> }> extends Sq
                            [`$${col.key}`]: newSqlSelectColumn({
                               key: col.key,
                               target: col,
-                              query,
+                              query: query,
                            }),
                         };
                         break;
@@ -64,14 +65,12 @@ export class SqlSelectRow<T extends { Row: Record<string, unknown> }> extends Sq
                            [`$${col.key}`]: newSqlSelectColumn({
                               key: col.key,
                               target: col,
-                              query,
+                              query: query,
                            }),
                         };
                         break;
                      default:
-                        throw new SqlBuildError(`Invalid column type: ${col}`, {
-                           data: { column: col },
-                        });
+                        throw new SqlBuildError(`Invalid column type '${col}'.`);
                   }
                }
                break;
@@ -84,7 +83,7 @@ export class SqlSelectRow<T extends { Row: Record<string, unknown> }> extends Sq
                      [`$${col.key}`]: newSqlSelectColumn({
                         key: col.key,
                         target: col,
-                        query,
+                        query: query,
                      }),
                   };
                }
@@ -95,7 +94,7 @@ export class SqlSelectRow<T extends { Row: Record<string, unknown> }> extends Sq
                   [`$${item.key}`]: newSqlSelectColumn({
                      key: item.key,
                      target: item,
-                     query,
+                     query: query,
                   }),
                };
                break;
@@ -115,7 +114,7 @@ export class SqlSelectRow<T extends { Row: Record<string, unknown> }> extends Sq
                   [`$${item.key}`]: newSqlSelectColumn({
                      key: item.key,
                      target: item,
-                     query,
+                     query: query,
                   }),
                };
                break;
@@ -125,21 +124,19 @@ export class SqlSelectRow<T extends { Row: Record<string, unknown> }> extends Sq
                   [`$${item.key}`]: newSqlSelectColumn({
                      key: item.key,
                      target: item,
-                     query,
+                     query: query,
                   }),
                };
                break;
             default:
-               throw new SqlBuildError(`Invalid column type: ${item}`, {
-                  data: { column: item },
-               });
+               throw new SqlBuildError(`Invalid column type '${item}'.`);
          }
       }
 
       return row as InferSelectRowByResult<T["Row"]>;
    }
 
-   build(context: SqlBuildContext, options?: SqlBuildOptions): void {
+   write(context: SqlBuildContext, options?: SqlBuildOptions): void {
       for (let i = 0; i < this.columns.length; i++) {
          const col = this.columns[i]!;
          if (i > 0) {

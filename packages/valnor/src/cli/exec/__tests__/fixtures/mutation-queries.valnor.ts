@@ -1,4 +1,4 @@
-import { defineQueryConfig } from "../../../../config/index.js";
+import { defineQueryConfig } from "../../../../config/config.js";
 
 import testPlugin from "../test-plugin.js";
 import { sql } from "../test-driver-setup.js";

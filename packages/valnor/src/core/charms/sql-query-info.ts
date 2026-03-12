@@ -1,14 +1,12 @@
-import { Sql } from "../sql-base.js";
-import { SqlBuildContext } from "../query/index.js";
+import { Sql } from "#/core/sql-base.js";
+import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
+import { Queue } from "#/lib/queue.js";
 
-export type SqlQueryInfoOptions = {
-   label?: string;
-   inline?: boolean;
-} & Record<string, unknown>;
+export type SqlQueryInfoOptions = Partial<Pick<SqlQueryInfo, "label" | "driver">> & Record<string, unknown>;
 
 export class SqlQueryInfo extends Sql {
    readonly label: string | null;
-   readonly inline: boolean | null;
+   readonly driver: string | null;
 
    constructor(public readonly options: SqlQueryInfoOptions) {
       super({
@@ -17,15 +15,20 @@ export class SqlQueryInfo extends Sql {
             .join(", "),
       });
       this.label = options.label ?? null;
-      this.inline = options.inline ?? null;
+      this.driver = options.driver ?? null;
    }
 
-   build(context: SqlBuildContext) {
-      context.addStrings("\n/*");
-      for (const [key, value] of Object.entries(this.options)) {
-         context.addStrings(` --${key}: ${value} `);
+   write(context: SqlBuildContext) {
+      context.addStrings("\n/* ");
+      const q = new Queue(Object.entries(this.options));
+      for (const {
+         item: [key, value],
+         index,
+      } of q.each()) {
+         if (index > 0) context.addStrings(", ");
+         context.addStrings(`${key}: ${value}`);
       }
-      context.addStrings("*/\n");
+      context.addStrings(" */\n");
    }
 }
 

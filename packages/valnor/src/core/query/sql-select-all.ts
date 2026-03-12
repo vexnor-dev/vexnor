@@ -1,7 +1,9 @@
-import { ROW, TYPE } from "../sql-base.js";
-import { SqlBuildContext, SqlBuildOptions, SqlQueryAny } from "../query/index.js";
-import { Sql } from "../sql-base.js";
-import { InferSelectRowByResult } from "./sql-query-types.js";
+import { ROW, TYPE } from "#/core/sql-base.js";
+import { Sql } from "#/core/sql-base.js";
+import { InferSelectRowByResult } from "#/core/query/sql-query-types.js";
+import { SqlQueryAny } from "#/core/query/sql-query.js";
+import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
+import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlSelectAllAny = SqlSelectAll<any>;
@@ -11,23 +13,23 @@ export class SqlSelectAll<Row extends Record<string, unknown>> extends Sql {
    declare readonly [ROW]: Row;
 
    readonly row: InferSelectRowByResult<Row>;
-   readonly query: SqlQueryAny;
+   readonly innerQuery: SqlQueryAny;
 
-   constructor({ row, query }: { row: InferSelectRowByResult<Row>; query: SqlQueryAny }) {
+   constructor({ row, innerQuery }: { row: InferSelectRowByResult<Row>; innerQuery: SqlQueryAny }) {
       super({
          id: `${Object.keys(row)
             .map((z) => z.toString())
             .join(", ")}`,
       });
       this.row = row;
-      this.query = query;
+      this.innerQuery = innerQuery;
    }
 
    // eslint-disable-next-line unused-imports/no-unused-vars
-   build(context: SqlBuildContext, _options?: SqlBuildOptions) {
+   write(context: SqlBuildContext, _options?: SqlBuildOptions) {
       const [keyword, exists] = context.keywords();
 
-      const queryName = context.getQueryName(this.query);
+      const queryName = context.getQueryName(this.innerQuery);
 
       switch (true) {
          case keyword === "fn":

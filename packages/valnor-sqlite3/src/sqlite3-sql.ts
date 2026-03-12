@@ -1,5 +1,5 @@
 import { SqlQuery, SqlQueryToken, SqlRow, SqlParams } from "valnor";
-import { BetterSqlite3QueryHandler } from "./better-sqlite3-query-handler.js";
+import { BetterSqlite3QueryHandler } from "#/better-sqlite3-query-handler.js";
 
 export function sql<Token extends SqlQueryToken = SqlQueryToken, Tokens extends Token[] = Token[]>(
    rawStrings: TemplateStringsArray,

@@ -1,16 +1,17 @@
 import { assertType, describe, expect, test } from "vitest";
-import { InferResultRowFromColumns, row, SqlSelectRow } from "../sql-select-row.js";
+import { InferResultRowFromColumns, row, SqlSelectRow } from "#/core/query/sql-select-row.js";
 import { Account } from "@test-models/valnor_test.account-table.js";
-import { SqlBuildContext } from "../sql-build-context.js";
-import { sql } from "../../sql.js";
-import { param } from "../sql-param.js";
+import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
+import { sql } from "#/core/sql.js";
+import { param } from "#/core/query/sql-param.js";
 import { AccountStatusUdt } from "@test-models/valnor_test-enums.js";
-import { newSqlSelectColumn, SqlQueryColumn } from "../sql-query-column.js";
+import { newSqlSelectColumn, SqlQueryColumn } from "#/core/query/sql-query-column.js";
 import { Order } from "@test-models/valnor_test.order-table.js";
-import { InferSelectRowByResult } from "../sql-query-types.js";
-import { IAccountSelect } from "../../../test/index.js";
-import { SqlQuery } from "../sql-query.js";
-import { newSqlTableColumn, SqlTableColumn } from "../../schema/index.js";
+import { InferSelectRowByResult } from "#/core/query/sql-query-types.js";
+import { IAccountSelect } from "#/test/testing.js";
+import { SqlQuery } from "#/core/query/sql-query.js";
+import { newSqlTableColumn, SqlTableColumn } from "#/core/schema/sql-table-column.js";
+import { SqlTableIdentity } from "#/core/schema/sql-table-identity.js";
 
 describe("SqlSelectRow tests", () => {
    test("infer result row from select row", () => {
@@ -22,7 +23,7 @@ describe("SqlSelectRow tests", () => {
    });
 
    test("SqlSelectRow type inference from columns", () => {
-      const tableInfo = { name: "account", schema: "valnor_test" };
+      const tableInfo: SqlTableIdentity = { name: "account", schema: "valnor_test", out: false, alias: null };
       const query = sql``;
       type Row = InferSelectRowByResult<
          InferResultRowFromColumns<[typeof Account.$accountId, typeof Account.$status, typeof Account.$createdAt]>
@@ -30,7 +31,7 @@ describe("SqlSelectRow tests", () => {
       const row: Row = {
          $accountId: newSqlSelectColumn({
             key: "accountId",
-            query,
+            query: query,
             target: newSqlTableColumn<{ Key: "accountId"; Type: string }>({
                key: "accountId",
                columnName: "account_id",
@@ -39,7 +40,7 @@ describe("SqlSelectRow tests", () => {
          }),
          $createdAt: newSqlSelectColumn({
             key: "createdAt",
-            query,
+            query: query,
             target: newSqlTableColumn<{ Key: "createdAt"; Type: Date }>({
                key: "createdAt",
                columnName: "created_at",
@@ -48,7 +49,7 @@ describe("SqlSelectRow tests", () => {
          }),
          $status: newSqlSelectColumn({
             key: "status",
-            query,
+            query: query,
             target: newSqlTableColumn<{ Key: "status"; Type: AccountStatusUdt }>({
                key: "status",
                columnName: "status",
@@ -60,13 +61,13 @@ describe("SqlSelectRow tests", () => {
    });
 
    test("SqlSelectRow type inference from $$ + column", () => {
-      const tableInfo = { name: "account", schema: "valnor_test" };
+      const tableInfo: SqlTableIdentity = { name: "account", schema: "valnor_test", out: false, alias: null };
       type Row = InferSelectRowByResult<InferResultRowFromColumns<[typeof Account.$$, typeof Order.$orderId]>>;
       const query = sql``;
       const row: Row = {
          $accountId: newSqlSelectColumn({
             key: "accountId",
-            query,
+            query: query,
             target: newSqlTableColumn<{ Key: "accountId"; Type: string }>({
                key: "accountId",
                columnName: "account_id",
@@ -75,7 +76,7 @@ describe("SqlSelectRow tests", () => {
          }),
          $createdAt: newSqlSelectColumn({
             key: "createdAt",
-            query,
+            query: query,
             target: newSqlTableColumn<{ Key: "createdAt"; Type: Date }>({
                key: "createdAt",
                columnName: "created_at",
@@ -84,7 +85,7 @@ describe("SqlSelectRow tests", () => {
          }),
          $email: newSqlSelectColumn({
             key: "email",
-            query,
+            query: query,
             target: newSqlTableColumn<{ Key: "email"; Type: string }>({
                key: "email",
                columnName: "email",
@@ -93,7 +94,7 @@ describe("SqlSelectRow tests", () => {
          }),
          $firstName: newSqlSelectColumn({
             key: "firstName",
-            query,
+            query: query,
             target: newSqlTableColumn<{ Key: "firstName"; Type: string }>({
                key: "firstName",
                columnName: "first_name",
@@ -102,7 +103,7 @@ describe("SqlSelectRow tests", () => {
          }),
          $lastName: newSqlSelectColumn({
             key: "lastName",
-            query,
+            query: query,
             target: newSqlTableColumn<{ Key: "lastName"; Type: string }>({
                key: "lastName",
                columnName: "last_name",
@@ -111,7 +112,7 @@ describe("SqlSelectRow tests", () => {
          }),
          $notes: newSqlSelectColumn({
             key: "notes",
-            query,
+            query: query,
             target: newSqlTableColumn<{ Key: "notes"; Type: string }>({
                key: "notes",
                columnName: "notes",
@@ -120,7 +121,7 @@ describe("SqlSelectRow tests", () => {
          }),
          $status: newSqlSelectColumn({
             key: "status",
-            query,
+            query: query,
             target: newSqlTableColumn<{ Key: "status"; Type: AccountStatusUdt }>({
                key: "status",
                columnName: "status",
@@ -129,7 +130,7 @@ describe("SqlSelectRow tests", () => {
          }),
          $parentId: newSqlSelectColumn({
             key: "parentId",
-            query,
+            query: query,
             target: newSqlTableColumn<{ Key: "parentId"; Type: string }>({
                key: "parentId",
                columnName: "parent_id",
@@ -138,7 +139,7 @@ describe("SqlSelectRow tests", () => {
          }),
          $modifiedAt: newSqlSelectColumn({
             key: "modifiedAt",
-            query,
+            query: query,
             target: newSqlTableColumn<{ Key: "modifiedAt"; Type: Date }>({
                key: "modifiedAt",
                columnName: "modified_at",
@@ -147,7 +148,7 @@ describe("SqlSelectRow tests", () => {
          }),
          $orderId: newSqlSelectColumn({
             key: "orderId",
-            query,
+            query: query,
             target: newSqlTableColumn<{ Key: "orderId"; Type: string }>({
                key: "orderId",
                columnName: "order_id",
@@ -347,8 +348,7 @@ describe("SqlSelectRow tests", () => {
           "a_1"."status",
           "a_1"."first_name" AS "firstName"
         FROM
-          "main"."account" AS "a_1"
-          /* </query_0> */"
+          "main"."account" AS "a_1" /* </query_0> */"
       `);
 
       const context = new SqlBuildContext({ query });

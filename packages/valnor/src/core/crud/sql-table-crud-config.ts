@@ -6,8 +6,8 @@ export type SqlTableCrudConfig<
       Delete?: boolean;
    },
 > = {
-   read: true;
-   create: T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> } ? true : false;
+   select: true;
+   insert: T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> } ? true : false;
    update: T extends { Select: Record<string, unknown>; Update: Record<string, unknown> } ? true : false;
    delete?: T extends { Delete: true } ? true : false;
 };

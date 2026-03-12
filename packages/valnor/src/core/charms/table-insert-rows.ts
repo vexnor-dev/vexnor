@@ -1,7 +1,7 @@
-import { Sql } from "../sql-base.js";
-import { SqlBuildContext } from "../query/index.js";
-import { InferTable$RowBySelect } from "../types/index.js";
-import { getCanonicalInsertKeys } from "../utils/index.js";
+import { InferTable$RowBySelect } from "#/core/types/infer-types.js";
+import { Sql } from "#/core/sql-base.js";
+import { getCanonicalInsertKeys } from "#/core/utils/canonical-insert-keys.js";
+import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
 
 export class TableInsertRows<
    T extends {
@@ -21,7 +21,7 @@ export class TableInsertRows<
       this.keys = getCanonicalInsertKeys(cols, inserts);
    }
 
-   build(context: SqlBuildContext) {
+   write(context: SqlBuildContext) {
       context.addStrings("values ");
       for (let i = 0; i < this.inserts.length; i++) {
          const insert = this.inserts[i]!;

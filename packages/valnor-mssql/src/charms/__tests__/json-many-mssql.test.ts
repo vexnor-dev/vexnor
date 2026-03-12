@@ -1,7 +1,8 @@
 import { assertType, describe, expect, test } from "vitest";
 import { param, row, sql, SqlBuildContext, SqlQuery } from "valnor";
-import { jsonMany } from "../json-aggregation-mssql.js";
+import { jsonMany } from "#/charms/json-aggregation-mssql.js";
 import { Account, IAccountSelect } from "valnor/testing";
+import { defaultQueryOptions } from "#/default-query-options.js";
 
 describe("json-agg-mssql tests", () => {
    test("should render select w/o alias", () => {
@@ -36,12 +37,11 @@ describe("json-agg-mssql tests", () => {
       target.build(context, {});
       console.log(context.text);
       expect(context.text).toMatchInlineSnapshot(`
-        "/* <query_1> */
-        OUTER apply (
+        "/* <query_1> */ OUTER apply (
           SELECT
             coalesce(
               (
-                /* <query_2> */
+                /* <query_0> */
                 SELECT
                   "children"."account_id" AS "accountId",
                   "children"."status",
@@ -55,15 +55,12 @@ describe("json-agg-mssql tests", () => {
                 FROM
                   "main"."account" AS "children"
                 WHERE
-                  "children"."parent_id" = "a_1"."account_id"
-                  /* </query_2> */
-                  FOR json path,
+                  "children"."parent_id" = "a_1"."account_id" /* </query_0> */ FOR json path,
                   include_null_values
               ),
               '[]'
             ) AS "query_0"
-        ) AS "query_0_result"
-        /* </query_1> */"
+        ) AS "query_0_result" /* </query_1> */"
       `);
    });
 
@@ -90,7 +87,7 @@ describe("json-agg-mssql tests", () => {
 
       expect(query.params.limit).toMatchObject({ name: "limit" });
 
-      const { text } = query.getSql({ params: { limit: 10 }, options: {} });
+      const { text } = query.getSql({ params: { limit: 10 }, options: defaultQueryOptions });
       console.log(text);
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
@@ -106,13 +103,12 @@ describe("json-agg-mssql tests", () => {
           "a_1"."parent_id" AS "parentId",
           "query_1_result"."query_1" AS "children"
         FROM
-          "main"."account" AS "a_1"
-          /* <query_2> */
-          OUTER apply (
+          "main"."account" AS "a_1" /* <query_2> */
+          OUTER APPLY (
             SELECT
               coalesce(
                 (
-                  /* <query_3> */
+                  /* <query_1> */
                   SELECT
                     "a_2"."account_id" AS "accountId",
                     "a_2"."status",
@@ -130,17 +126,17 @@ describe("json-agg-mssql tests", () => {
                   ORDER BY
                     "a_2"."created_at" DESC
                   OFFSET
-                    0 ROWS
+                    0 rows
                   FETCH NEXT
-                    ? ROWS ONLY
-                    /* </query_3> */
-                    FOR json path,
+                    @param_0 rows only
+                    /* </query_1> */
+                  FOR JSON
+                    path,
                     include_null_values
                 ),
                 '[]'
               ) AS "query_1"
-          ) AS "query_1_result"
-          /* </query_2> */
+          ) AS "query_1_result" /* </query_2> */
           /* </query_0> */"
       `);
    });

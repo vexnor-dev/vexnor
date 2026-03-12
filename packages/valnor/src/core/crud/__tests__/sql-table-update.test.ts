@@ -1,30 +1,23 @@
 import { assertType, describe, expect, test } from "vitest";
 import { Account, IAccountSelect, IAccountUpdate } from "@test-models/valnor_test.schema.js";
-import { sql } from "../../sql.js";
-import { param, SqlQueryExtended } from "../../query/index.js";
-import { SqlTableUpdate } from "../sql-table-update.js";
+import { sql } from "#/core/sql.js";
+import { input } from "#/core/query/sql-input.js";
+import { sqlUpdate } from "#/core/crud/sql-update.js";
+import { SqlQuery } from "#/core/query/sql-query.js";
 
 describe("SqlTableUpdate", () => {
-   test("should create instance", () => {
-      const update = new SqlTableUpdate(Account);
-      expect(update).toBeDefined();
-      expect(update.table).toBe(Account);
-   });
-
    test("should generate update query without where clause", () => {
-      const update = new SqlTableUpdate(Account);
-      const query = update.update({});
+      const query = sqlUpdate(Account, {});
 
       expect(query).toBeDefined();
-      assertType<SqlQueryExtended<{ Row: IAccountSelect; Params: { set: IAccountUpdate } }>>(query);
+      assertType<SqlQuery<{ Row: IAccountSelect; Params: { set: IAccountUpdate } }>>(query);
       const { text } = query.getSql({ params: { set: { email: "new@test.com" } }, options: { dialect: "sqlite" } });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         UPDATE "main"."account"
+        /* <query_1> */
         SET
-          /* <query_1> */
-          "email" = ?
-          /* </query_1> */
+          /* <query_2> */ "email" = ? /* </query_2> */ /* </query_1> */
         RETURNING
           "account"."account_id" AS "accountId",
           "account"."status",
@@ -40,26 +33,26 @@ describe("SqlTableUpdate", () => {
    });
 
    test("should generate update query with where clause", () => {
-      const update = new SqlTableUpdate(Account);
-      const where = sql`where ${Account.$accountId} = ${param<{ id: string }>("id")}`;
-      const query = update.update({ where });
+      const params = input<{ id: string }>();
+      const query = sqlUpdate(Account, {
+         WHERE: sql`${Account.$accountId} = ${params.$id}`,
+      });
 
       expect(query).toBeDefined();
       const { text } = query.getSql({
-         params: { set: { email: "new@test.com" }, where: { id: "test-id" } },
+         params: { set: { email: "new@test.com" }, id: "test-id" },
          options: { dialect: "sqlite" },
       });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         UPDATE "main"."account"
+        /* <query_1> */
         SET
-          /* <query_1> */
-          "email" = ?
-          /* </query_1> */
-          /* <query_2> */
+          /* <query_2> */ "email" = ? /* </query_2> */ /* </query_1> */
+          /* <query_3> */
         WHERE
-          "account"."account_id" = ?
-          /* </query_2> */
+          /* <query_4> */
+          "account"."account_id" = ? /* </query_4> */ /* </query_3> */
         RETURNING
           "account"."account_id" AS "accountId",
           "account"."status",
@@ -75,17 +68,15 @@ describe("SqlTableUpdate", () => {
    });
 
    test("should handle expand set clause", () => {
-      const update = new SqlTableUpdate(Account);
-      const query = update.update({});
+      const query = sqlUpdate(Account, {});
 
       const { text } = query.getSql({ params: { set: { email: "new@test.com" } }, options: { dialect: "sqlite" } });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         UPDATE "main"."account"
+        /* <query_1> */
         SET
-          /* <query_1> */
-          "email" = ?
-          /* </query_1> */
+          /* <query_2> */ "email" = ? /* </query_2> */ /* </query_1> */
         RETURNING
           "account"."account_id" AS "accountId",
           "account"."status",
@@ -101,19 +92,21 @@ describe("SqlTableUpdate", () => {
    });
 
    test("should generate update query with where clause - no params", () => {
-      const update = new SqlTableUpdate(Account);
-      const where = sql`where ${Account.$accountId} = ${"123"}`;
-      const query = update.update({ where });
+      const where = sql`${Account.$accountId} = ${"123"}`;
+      const query = sqlUpdate(Account, { WHERE: where });
 
       expect(query).toBeDefined();
       const { text } = query.getSql({ params: { set: { email: "new@test.com" } }, options: { dialect: "sqlite" } });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         UPDATE "main"."account"
+        /* <query_1> */
         SET
-          /* <query_1> */
-          "email" = ?
-          /* </query_1> */
+          /* <query_2> */ "email" = ? /* </query_2> */ /* </query_1> */
+          /* <query_3> */
+        WHERE
+          /* <query_4> */
+          "account"."account_id" = ? /* </query_4> */ /* </query_3> */
         RETURNING
           "account"."account_id" AS "accountId",
           "account"."status",

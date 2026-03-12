@@ -175,9 +175,8 @@ describe.sequential("valnor postgres e2e tests", { concurrent: false }, () => {
           "a_1"."parent_id" AS "parentId",
           "query_1_result" AS "children"
         FROM
-          "valnor_test"."account" AS "a_1"
-          /* <query_2> */
-          /* --inline: true */
+          "valnor_test"."account" AS "a_1" /* <query_2> */
+          /* inline: true */
           LEFT JOIN LATERAL (
             SELECT
               coalesce(jsonb_agg ("query_1".*), '[]') AS "query_1_result"

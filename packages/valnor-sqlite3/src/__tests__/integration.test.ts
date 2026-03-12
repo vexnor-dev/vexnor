@@ -1,9 +1,9 @@
 import { describe, expect, test, beforeAll, afterAll } from "vitest";
-import { ValnorSqlite3 } from "../valnor-sqlite3.js";
+import { ValnorSqlite3 } from "#/valnor-sqlite3.js";
 import BetterSqlite3 from "better-sqlite3";
 import { sql, param, row } from "valnor";
 import { Account } from "valnor/testing";
-import { jsonOne, jsonMany } from "../charms/json-aggregation-sqlite3.js";
+import { jsonOne, jsonMany } from "#/charms/json-aggregation-sqlite3.js";
 import "../valnor-sqlite3.js";
 
 describe("integration tests", () => {

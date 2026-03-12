@@ -1,40 +1,28 @@
-import { LibraryOutputFile, SqlColumnInfo, SqlColumnType, SqlEnumInfo, SqlTableInfo } from "./valnor-schema-types.js";
-import { ValnorConnection } from "./valnor-connection.js";
-import { SqlQueryHandler, SqlDatabase, SqlQuery } from "../core/index.js";
+import {
+   LibraryOutputFile,
+   SqlColumnInfo,
+   SqlColumnType,
+   SqlEnumInfo,
+   SqlTableInfo,
+} from "#/plugin/valnor-schema-types.js";
+import { ValnorConnection } from "#/plugin/valnor-connection.js";
+import { SqlQueryHandler } from "#/core/query/sql-query-handler.js";
+import { SqlQuery } from "#/core/query/sql-query.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ValnorPluginAny = ValnorPlugin<any>;
 
-/**
- * Valnor plugin for handling core execution to different DB engines
- */
-export abstract class ValnorPlugin<T extends { Connection: unknown; Config: unknown }>
-   implements SqlDatabase<T["Connection"]>
-{
+export abstract class ValnorPlugin<T extends { Connection: unknown; Config: unknown }> {
+   abstract dialect: string;
+
    abstract readonly driver: string;
 
-   /**
-    * Gets the column type
-    * @param col
-    */
    abstract getColumnType(col: SqlColumnInfo): SqlColumnType;
 
-   /**
-    * Gets the schema for the given database
-    * @param args
-    */
    abstract getSchema(args: GetSchemaArgs<T["Config"]>): Promise<SqlSchema>;
 
-   /**
-    * Gets the library for the given database.
-    * Such library consists of custom code that gets injected in the target package via code generation.
-    */
    abstract getLibrary(): LibraryOutputFile[];
 
-   /**
-    * Creates a database connection from connection config
-    * @param config
-    */
    abstract createConnection(config: T["Config"]): Promise<ValnorConnection<T["Connection"]>>;
 
    abstract newQueryHandler<T extends { Row?: unknown; Params?: unknown; QueryResult: object; Connection: unknown }>(

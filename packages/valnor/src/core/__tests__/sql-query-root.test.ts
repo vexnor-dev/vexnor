@@ -1,8 +1,10 @@
 import { describe, expect, test } from "vitest";
 
 import { randomUUID } from "node:crypto";
-import { param, row, rowType } from "../query/index.js";
-import { sql } from "../sql.js";
+import { param } from "#/core/query/sql-param.js";
+import { rowType } from "#/core/query/sql-row-type.js";
+import { row } from "#/core/query/sql-select-row.js";
+import { sql } from "#/core/sql.js";
 import { Account, IAccountSelect } from "@test-models/valnor_test.account-table.js";
 import { IOrderItemSelect, OrderItem } from "@test-models/valnor_test.order_item-table.js";
 import { Order } from "@test-models/valnor_test.order-table.js";
@@ -32,8 +34,7 @@ describe("sql() tests", () => {
           "a_1"."email" = ?
           AND "a_1"."first_name" IN (?, ?, ?)
         GROUP BY
-          "a_1"."email"
-          /* </query_0> */"
+          "a_1"."email" /* </query_0> */"
       `);
    });
 
@@ -53,8 +54,7 @@ describe("sql() tests", () => {
         FROM
           "main"."account" AS "a_1"
         WHERE
-          "a_1"."email" = 'bob@example.com'
-          /* </query_0> */"
+          "a_1"."email" = 'bob@example.com' /* </query_0> */"
       `);
    });
 
@@ -74,8 +74,7 @@ describe("sql() tests", () => {
         FROM
           "main"."account" AS "a_1"
         WHERE
-          "a_1"."email" = ?
-          /* </query_0> */"
+          "a_1"."email" = ? /* </query_0> */"
       `);
    });
 
@@ -107,8 +106,7 @@ describe("sql() tests", () => {
         FROM
           "main"."order_item" AS "oi_1"
           JOIN "main"."order" AS "o_2" ON "oi_1"."order_id" = "o_2"."order_id"
-          JOIN "main"."account" AS "a_3" ON "a_3"."account_id" = "o_2"."account_id"
-          /* </query_0> */"
+          JOIN "main"."account" AS "a_3" ON "a_3"."account_id" = "o_2"."account_id" /* </query_0> */"
       `);
    });
 
@@ -128,8 +126,7 @@ describe("sql() tests", () => {
           "parent"."email" AS "parentEmail"
         FROM
           "main"."account" AS "a_1"
-          JOIN "main"."account" AS "parent" ON "a_1"."parent_id" = "parent"."account_id"
-          /* </query_0> */"
+          JOIN "main"."account" AS "parent" ON "a_1"."parent_id" = "parent"."account_id" /* </query_0> */"
       `);
    });
 
@@ -146,8 +143,7 @@ describe("sql() tests", () => {
         INSERT INTO
           "main"."account" ("email", "first_name")
         VALUES
-          ('test@example.com', 'Test')
-          /* </query_0> */"
+          ('test@example.com', 'Test') /* </query_0> */"
       `);
    });
 
@@ -166,8 +162,7 @@ describe("sql() tests", () => {
         SET
           "first_name" = 'Bob'
         WHERE
-          "account"."account_id" = '123'
-          /* </query_0> */"
+          "account"."account_id" = '123' /* </query_0> */"
       `);
    });
 
@@ -189,10 +184,9 @@ describe("sql() tests", () => {
           "first_name" = 'Staged Name'
         FROM
           "main"."account"
-          JOIN "main"."order" AS "o_2" ON "account"."account_id" = "o_2"."account_id"
+          JOIN "main"."order" AS "o_1" ON "account"."account_id" = "o_1"."account_id"
         WHERE
-          "o_2"."status" = 'completed'
-          /* </query_0> */"
+          "o_1"."status" = 'completed' /* </query_0> */"
       `);
    });
 
@@ -208,8 +202,7 @@ describe("sql() tests", () => {
         "/* <query_0> */
         DELETE FROM "main"."account"
         WHERE
-          "account"."account_id" <> ?
-          /* </query_0> */"
+          "account"."account_id" <> ? /* </query_0> */"
       `);
       expect(values).toEqual([noid]);
    });

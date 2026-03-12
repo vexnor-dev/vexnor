@@ -1,4 +1,5 @@
-import { JsonRow, newSqlTable } from "../../core/index.js";
+import { JsonRow } from "#/core/schema/schema-types.js";
+import { newSqlTable } from "#/core/schema/sql-table.js";
 
 export const Product = newSqlTable<{
    Select: IProductSelect;
@@ -7,14 +8,16 @@ export const Product = newSqlTable<{
    Delete: true;
 }>({
    crud: {
-      read: true,
-      create: true,
+      select: true,
+      insert: true,
       update: true,
       delete: true,
    },
    tableInfo: {
       name: "product",
       schema: "main",
+      out: false,
+      alias: null,
    },
    pk: ["productId"],
    columns: {

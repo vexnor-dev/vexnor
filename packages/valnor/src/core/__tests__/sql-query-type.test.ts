@@ -1,9 +1,11 @@
 import { assertType, describe, expect, test } from "vitest";
-import { param, row, SqlQuery } from "../query/index.js";
+import { param } from "#/core/query/sql-param.js";
+import { SqlQuery } from "#/core/query/sql-query.js";
+import { row } from "#/core/query/sql-select-row.js";
 import { Account } from "@test-models/valnor_test.account-table.js";
-import { ExtractParamsFromSqlQuery, sql, SqlRow } from "../sql.js";
+import { sql, SqlRow } from "#/core/sql.js";
 import { AccountStatusUdt } from "@test-models/valnor_test-enums.js";
-import { RowOf } from "../sql-base.js";
+import { ParamsOf, RowOf } from "#/core/sql-base.js";
 
 describe("sql query type tests", () => {
    test("Infer row result type from sql-row", () => {
@@ -36,7 +38,7 @@ describe("sql query type tests", () => {
       };
       expect(result).toBeDefined();
 
-      const params: ExtractParamsFromSqlQuery<typeof query> = {
+      const params: ParamsOf<typeof query> = {
          accountId: "123",
       };
       expect(params).toBeDefined();

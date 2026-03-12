@@ -1,11 +1,11 @@
-import { InferSelectRowByResult } from "./sql-query-types.js";
-import { SqlSelectAll } from "./sql-select-all.js";
-import { SqlTableColumn } from "../schema/index.js";
-import { SqlSelectValue } from "./sql-select-value.js";
-import { SqlSelectCharm } from "./sql-charm.js";
-import { SqlQueryColumn } from "./sql-query-column.js";
-import { SqlSelectColumn } from "./sql-select-column.js";
-import { SqlExpandHandlerAny } from "./sql-expand.js";
+import { SqlExpandHandlerAny } from "#/core/query/sql-expand.js";
+import { InferSelectRowByResult } from "#/core/query/sql-query-types.js";
+import { SqlSelectAll } from "#/core/query/sql-select-all.js";
+import { SqlTableColumn } from "#/core/schema/sql-table-column.js";
+import { SqlQueryColumn } from "#/core/query/sql-query-column.js";
+import { SqlSelectValue } from "#/core/query/sql-select-value.js";
+import { SqlSelectCharm } from "#/core/query/sql-charm.js";
+import { SqlSelectColumn } from "#/core/query/sql-select-column.js";
 
 export type SqlBuildToken =
    | { type: "text"; value: string }

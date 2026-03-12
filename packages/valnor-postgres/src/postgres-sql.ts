@@ -1,5 +1,5 @@
 import { SqlQuery, SqlQueryToken, SqlRow, SqlParams } from "valnor";
-import { PostgresQueryHandler } from "./postgres-query-handler.js";
+import { PostgresQueryHandler } from "#/postgres-query-handler.js";
 
 export function sql<Token extends SqlQueryToken = SqlQueryToken, Tokens extends Token[] = Token[]>(
    rawStrings: TemplateStringsArray,

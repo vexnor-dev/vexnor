@@ -1,10 +1,9 @@
 import { describe, expect, test } from "vitest";
-import { sql } from "../../sql.js";
-import { row } from "../sql-select-row.js";
+import { sql } from "#/core/sql.js";
+import { row } from "#/core/query/sql-select-row.js";
 import { Account } from "@test-models/valnor_test.account-table.js";
-import { classCounters } from "../../sql-base.js";
-import { SqlBuildContext } from "../sql-build-context.js";
-import { val } from "../sql-select-value.js";
+import { classCounters } from "#/core/sql-base.js";
+import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
 
 describe("SqlBuildContextRowTokens", () => {
    test("should identify row token from 2-level query", () => {
@@ -46,9 +45,7 @@ describe("SqlBuildContextRowTokens", () => {
       });
 
       const ctx = new SqlBuildContext();
-      ctx.scope({ query: query0 }, () => {
-         query0.build(ctx, {});
-      });
+      query0.build(ctx, {});
 
       expect(ctx.text).toMatchInlineSnapshot(`
         "/* <query_0> */
@@ -61,22 +58,8 @@ describe("SqlBuildContextRowTokens", () => {
               "a_1"."account_id" AS "accountId",
               "a_1"."status"
             FROM
-              "main"."account" AS "a_1"
-              /* </query_1> */
-          ) AS "query_1"
-          /* </query_0> */"
+              "main"."account" AS "a_1" /* </query_1> */
+          ) AS "query_1" /* </query_0> */"
       `);
-   });
-
-   test("should return alias ids", () => {
-      const ctx = new SqlBuildContext({});
-      const query1 = sql`select ${val`count(*)`.as<{ total: number }>("total")} from ${Account} where ${Account.$parentId} = ${Account.out.$accountId}`;
-      const query0 = sql`select ${row(Account.$$, query1.$total)} from ${Account}`;
-
-      const actual = ctx.scope({ query: query0 }, () => {
-         query0.build(ctx, {});
-         return Array.from(ctx.getAliasIds(Account.out.$parentId.tableInfo));
-      });
-      expect(actual).toMatchObject(["SqlQuery#3/main.account", "-/main.account"]);
    });
 });

@@ -1,4 +1,4 @@
-import { InferTable$RowBySelect } from "../types/index.js";
+import { InferTable$RowBySelect } from "#/core/types/infer-types.js";
 
 export function getCanonicalInsertKeys(
    row: InferTable$RowBySelect<Record<string, unknown>>,
