@@ -179,7 +179,7 @@ describe.sequential("valnor postgres e2e tests", { concurrent: false }, () => {
           /* inline: true */
           LEFT JOIN LATERAL (
             SELECT
-              coalesce(jsonb_agg ("query_1".*), '[]') AS "query_1_result"
+              coalesce(jsonb_agg("query_1".*), '[]') AS "query_1_result"
             FROM
               (
                 /* <query_1> */

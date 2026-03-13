@@ -3,74 +3,75 @@
 */
 import * as valnor from "valnor";
 
-export const Product = valnor.newSqlTable<{
-   Select: IProductSelect;
-   Insert: IProductInsert;
-   Update: IProductUpdate;
-   Delete: true;
-}>({
-   crud: {
-      insert: true,
-      select: true,
-      update: true,
-      delete: true,
+
+export const Product = valnor.newSqlTable<{ Select: IProductSelect, Insert: IProductInsert, Update: IProductUpdate; Delete: true }>({
+   crud:
+   {
+      select: true, 
+      insert: true, 
+      update: true, 
+      delete: true, 
    },
-   tableInfo: {
+   tableInfo:
+   {
       name: "product",
       schema: "valnor_test",
    },
-   pk: ["productId"],
-   columns: {
+   pk: ["productId"], 
+   dialect: "postgresql",
+   columns:
+   {
+
       /**
        * product_id uuid default gen_random_uuid()
-       */
+      */
       productId: "product_id",
 
       /**
        * created_at timestamptz default now()
-       */
+      */
       createdAt: "created_at",
 
       /**
        * modified_at timestamptz default now()
-       */
+      */
       modifiedAt: "modified_at",
 
       /**
        * label varchar
-       */
+      */
       label: "label",
 
       /**
        * price numeric
-       */
+      */
       price: "price",
 
       /**
        * discount numeric
-       */
+      */
       discount: "discount",
 
       /**
        * is_available bool default true
-       */
+      */
       isAvailable: "is_available",
 
       /**
        * is_published bool default false
-       */
+      */
       isPublished: "is_published",
 
       /**
        * metadata jsonb
-       */
+      */
       metadata: "metadata",
 
       /**
        * tags _text
-       */
+      */
       tags: "tags",
-   },
+   }
 });
 
 export type IProductInsert = {
@@ -84,21 +85,21 @@ export type IProductInsert = {
    isPublished?: boolean;
    metadata?: string | null;
    tags?: unknown | null;
-};
+}
 
 export type IProductUpdate = Partial<IProductInsert>;
 
 export type IProductSelect = {
-   productId: string;
-   createdAt: Date;
-   modifiedAt: Date;
-   label: string;
-   price: string;
-   discount: string | null;
-   isAvailable: boolean;
-   isPublished: boolean;
-   metadata: string | null;
-   tags: unknown | null;
-};
+   productId: string
+   createdAt: Date
+   modifiedAt: Date
+   label: string
+   price: string
+   discount: string | null
+   isAvailable: boolean
+   isPublished: boolean
+   metadata: string | null
+   tags: unknown | null
+}
 
 export type IProductJson = valnor.JsonRow<IProductSelect>;

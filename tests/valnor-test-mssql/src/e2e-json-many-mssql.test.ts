@@ -1,42 +1,44 @@
 import { beforeAll, describe, expect, test } from "vitest";
 import { info, param, row, SqlBuildContext } from "valnor";
-import { Account, IAccountInsert, Order } from "./codegen/valnor_test.schema.js";
+import { Account, IAccountSelect, IOrderSelect, Order } from "./codegen/valnor_test.schema.js";
 import { defaultQueryOptions, jsonMany, MssqlTokenizer, sql } from "valnor-mssql";
 import { pool } from "./mssql-pool.js";
 import { getTag } from "./tags.js";
 
 describe.sequential("jsonMany() tests", (ctx) => {
    const TAG = getTag(ctx);
+   let parentAccount!: IAccountSelect;
+   let orders!: IOrderSelect[];
 
    beforeAll(async () => {
-      const parentAccount = await sql`
+      parentAccount = await sql`
          insert into ${Account}
             ${Account.insertCols({
                status: "created",
-               firstName: `John-0-${TAG}}`,
-               lastName: `Doe-0-${TAG}}`,
+               firstName: `John-0-${TAG}`,
+               lastName: `Doe-0-${TAG}`,
                email: `john.doe-${TAG}@example.com`,
             })}
             output ${row(Account.as(`inserted`).$$)}
             ${Account.insertVals({
                status: "created",
-               firstName: `John-0-${TAG}}`,
-               lastName: `Doe-0-${TAG}}`,
+               firstName: `John-0-${TAG}`,
+               lastName: `Doe-0-${TAG}`,
                email: `john.doe-${TAG}@example.com`,
             })}
       `.getOneRequired({ db: pool.request() });
       expect(parentAccount.accountId).toBeDefined();
 
-      const childrenInserts: IAccountInsert[] = [
+      const childrenInserts = [
          {
-            status: "created",
+            status: "created" as const,
             firstName: `John-1-${TAG}`,
-            lastName: "Doe-1-${TAG}",
+            lastName: `Doe-1-${TAG}`,
             email: `john.doe-1-${TAG}@example.com`,
             parentId: parentAccount.accountId,
          },
          {
-            status: "created",
+            status: "created" as const,
             firstName: `John-2-${TAG}`,
             lastName: `Doe-2-${TAG}`,
             email: `john.doe-2-${TAG}@example.com`,
@@ -44,16 +46,25 @@ describe.sequential("jsonMany() tests", (ctx) => {
          },
       ];
 
-      const insertChildren = sql`
+      const childrenAccounts = await sql`
          insert into ${Account}
             ${Account.insertCols(...childrenInserts)}
             output ${row(Account.as(`inserted`).$$)}
             ${Account.insertVals(...childrenInserts)}
-      `;
-      const childrenAccounts = await insertChildren.getAll({ db: pool.request() });
+      `.getAll({ db: pool.request() });
       expect(childrenAccounts).toHaveLength(2);
 
-      console.log("children", childrenAccounts);
+      const orderInserts = [
+         { accountId: parentAccount.accountId },
+         { accountId: parentAccount.accountId },
+      ];
+      orders = await sql`
+         insert into ${Order}
+            ${Order.insertCols(...orderInserts)}
+            output ${row(Order.as(`inserted`).$$)}
+            ${Order.insertVals(...orderInserts)}
+      `.mssql.getAll({ db: pool.request() });
+      expect(orders).toHaveLength(2);
    });
 
    const AccountOrders = sql`
@@ -103,7 +114,8 @@ describe.sequential("jsonMany() tests", (ctx) => {
               '[]'
             ) AS "AccountOrders"
         ) AS "AccountOrders_result" /* </query_1> */"
-      `);
+      `
+      );
    });
 
    test("jsonAgg() with params", () => {
@@ -173,6 +185,43 @@ describe.sequential("jsonMany() tests", (ctx) => {
         ORDER BY
           "a_1"."account_id"
           /* </query_0> */"
-      `);
+      `
+      );
+   });
+
+   test("jsonMany() E2E: returns aggregated orders for account", async () => {
+      const query = sql`
+         select ${row(Account.$$)}, ${jsonMany(AccountOrders).as("orders")}
+         from ${Account} ${jsonMany(AccountOrders)}
+         where ${Account.$accountId} = ${parentAccount.accountId}
+      `;
+
+      const results = await query.mssql.getAll({ db: pool.request(), params: { limit: 10 } });
+      expect(results).toHaveLength(1);
+      const parsedOrders = JSON.parse(results[0]!.orders as unknown as string) as IOrderSelect[];
+      expect(parsedOrders).toHaveLength(2);
+      expect(parsedOrders.map((o) => o.orderId)).toEqual(
+         expect.arrayContaining(orders.map((o) => o.orderId)),
+      );
+   });
+
+   test("jsonMany() E2E: returns empty array when no orders", async () => {
+      const accountWithNoOrders = await sql`
+         insert into ${Account}
+            ${Account.insertCols({ status: "created", firstName: "No-orders", lastName: "Account", email: `no-orders-${TAG}@example.com` })}
+            output ${row(Account.as(`inserted`).$$)}
+            ${Account.insertVals({ status: "created", firstName: "No-orders", lastName: "Account", email: `no-orders-${TAG}@example.com` })}
+      `.getOneRequired({ db: pool.request() });
+
+      const query = sql`
+         select ${row(Account.$$)}, ${jsonMany(AccountOrders).as("orders")}
+         from ${Account} ${jsonMany(AccountOrders)}
+         where ${Account.$accountId} = ${accountWithNoOrders.accountId}
+      `;
+
+      const results = await query.mssql.getAll({ db: pool.request(), params: { limit: 10 } });
+      expect(results).toHaveLength(1);
+      const parsedOrders = JSON.parse(results[0]!.orders as unknown as string) as IOrderSelect[];
+      expect(parsedOrders).toEqual([]);
    });
 });

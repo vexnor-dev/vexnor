@@ -4,49 +4,49 @@
 import * as valnor from "valnor";
 import * as udt from "./valnor_test-enums.js";
 
-export const Order = valnor.newSqlTable<{
-   Select: IOrderSelect;
-   Insert: IOrderInsert;
-   Update: IOrderUpdate;
-   Delete: true;
-}>({
-   crud: {
-      insert: true,
-      select: true,
-      update: true,
-      delete: true,
+export const Order = valnor.newSqlTable<{ Select: IOrderSelect, Insert: IOrderInsert, Update: IOrderUpdate; Delete: true }>({
+   crud:
+   {
+      select: true, 
+      insert: true, 
+      update: true, 
+      delete: true, 
    },
-   tableInfo: {
+   tableInfo:
+   {
       name: "order",
       schema: "valnor_test",
    },
-   pk: ["orderId"],
-   columns: {
+   pk: ["orderId"], 
+   dialect: "postgresql",
+   columns:
+   {
+
       /**
        * order_id uuid default gen_random_uuid()
-       */
+      */
       orderId: "order_id",
 
       /**
        * status order_status default 'created'::valnor_test.order_status
-       */
+      */
       status: "status",
 
       /**
        * created_at timestamptz default now()
-       */
+      */
       createdAt: "created_at",
 
       /**
        * modified_at timestamptz default now()
-       */
+      */
       modifiedAt: "modified_at",
 
       /**
        * account_id uuid
-       */
+      */
       accountId: "account_id",
-   },
+   }
 });
 
 export type IOrderInsert = {
@@ -55,16 +55,16 @@ export type IOrderInsert = {
    createdAt?: Date;
    modifiedAt?: Date;
    accountId: string;
-};
+}
 
 export type IOrderUpdate = Partial<IOrderInsert>;
 
 export type IOrderSelect = {
-   orderId: string;
-   status: udt.OrderStatusUdt;
-   createdAt: Date;
-   modifiedAt: Date;
-   accountId: string;
-};
+   orderId: string
+   status: udt.OrderStatusUdt
+   createdAt: Date
+   modifiedAt: Date
+   accountId: string
+}
 
 export type IOrderJson = valnor.JsonRow<IOrderSelect>;

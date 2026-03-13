@@ -44,11 +44,10 @@ describe("SqlTable CRUD Integration", () => {
       const { text } = query.getSql({});
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
-        /* <query_1> */
         SELECT
           "tt_1"."id",
           "tt_1"."name",
-          "tt_1"."email" /* </query_1> */
+          "tt_1"."email"
         FROM
           "public"."test_table" AS "tt_1"
           /* </query_0> */"
@@ -62,18 +61,17 @@ describe("SqlTable CRUD Integration", () => {
       const { text } = query.getSql({ params: { id: "test-id" } });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
-        /* <query_1> */
         SELECT
           "tt_1"."id",
           "tt_1"."name",
-          "tt_1"."email" /* </query_1> */
+          "tt_1"."email"
         FROM
           "public"."test_table" AS "tt_1"
+          /* <query_1> */
+        WHERE
           /* <query_2> */
         WHERE
-          /* <query_3> */
-        WHERE
-          "tt_1"."id" = ? /* </query_3> */ /* </query_2> */
+          "tt_1"."id" = ? /* </query_2> */ /* </query_1> */
           /* </query_0> */"
       `);
    });

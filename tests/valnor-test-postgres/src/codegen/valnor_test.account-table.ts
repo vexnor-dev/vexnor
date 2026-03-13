@@ -4,69 +4,69 @@
 import * as valnor from "valnor";
 import * as udt from "./valnor_test-enums.js";
 
-export const Account = valnor.newSqlTable<{
-   Select: IAccountSelect;
-   Insert: IAccountInsert;
-   Update: IAccountUpdate;
-   Delete: true;
-}>({
-   crud: {
-      insert: true,
-      select: true,
-      update: true,
-      delete: true,
+export const Account = valnor.newSqlTable<{ Select: IAccountSelect, Insert: IAccountInsert, Update: IAccountUpdate; Delete: true }>({
+   crud:
+   {
+      select: true, 
+      insert: true, 
+      update: true, 
+      delete: true, 
    },
-   tableInfo: {
+   tableInfo:
+   {
       name: "account",
       schema: "valnor_test",
    },
-   pk: ["accountId"],
-   columns: {
+   pk: ["accountId"], 
+   dialect: "postgresql",
+   columns:
+   {
+
       /**
        * account_id uuid default gen_random_uuid()
-       */
+      */
       accountId: "account_id",
 
       /**
        * status account_status default 'created'::valnor_test.account_status
-       */
+      */
       status: "status",
 
       /**
        * email varchar
-       */
+      */
       email: "email",
 
       /**
        * first_name varchar
-       */
+      */
       firstName: "first_name",
 
       /**
        * last_name varchar
-       */
+      */
       lastName: "last_name",
 
       /**
        * notes text
-       */
+      */
       notes: "notes",
 
       /**
        * created_at timestamptz default now()
-       */
+      */
       createdAt: "created_at",
 
       /**
        * modified_at timestamptz default now()
-       */
+      */
       modifiedAt: "modified_at",
 
       /**
        * parent_id uuid
-       */
+      */
       parentId: "parent_id",
-   },
+   }
 });
 
 export type IAccountInsert = {
@@ -79,20 +79,20 @@ export type IAccountInsert = {
    createdAt?: Date;
    modifiedAt?: Date;
    parentId?: string | null;
-};
+}
 
 export type IAccountUpdate = Partial<IAccountInsert>;
 
 export type IAccountSelect = {
-   accountId: string;
-   status: udt.AccountStatusUdt;
-   email: string;
-   firstName: string;
-   lastName: string;
-   notes: string | null;
-   createdAt: Date;
-   modifiedAt: Date;
-   parentId: string | null;
-};
+   accountId: string
+   status: udt.AccountStatusUdt
+   email: string
+   firstName: string
+   lastName: string
+   notes: string | null
+   createdAt: Date
+   modifiedAt: Date
+   parentId: string | null
+}
 
 export type IAccountJson = valnor.JsonRow<IAccountSelect>;

@@ -1,14 +1,14 @@
 import { beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
 import { param, row } from "valnor";
-import { defaultQueryOptions, mssqlCrud, sql } from "valnor-mssql";
+import { defaultQueryOptions, postgresCrud, sql } from "valnor-postgres";
 import { Account, IAccountSelect, IOrderSelect, Order } from "./codegen/valnor_test.schema.js";
-import { pool } from "./mssql-pool.js";
+import { pool } from "./postgres-pool.js";
 import { TestDataManager } from "./test-data-manager.js";
 
-describe.sequential("valnor mssql CRUD - select", async (ctx) => {
-   const AccountCrud = mssqlCrud(Account);
-   const OrderCrud = mssqlCrud(Order);
+describe.sequential("valnor postgres CRUD - select", async (ctx) => {
+   const AccountCrud = postgresCrud(Account);
+   const OrderCrud = postgresCrud(Order);
 
    let rootAccount!: IAccountSelect;
    let childAccount!: IAccountSelect;
@@ -50,27 +50,27 @@ describe.sequential("valnor mssql CRUD - select", async (ctx) => {
         "/* <query_0> */
         SELECT
           "a_1"."account_id" AS "accountId",
-          "a_1"."parent_id" AS "parentId",
           "a_1"."status",
           "a_1"."email",
           "a_1"."first_name" AS "firstName",
           "a_1"."last_name" AS "lastName",
           "a_1"."notes",
           "a_1"."created_at" AS "createdAt",
-          "a_1"."modified_at" AS "modifiedAt"
+          "a_1"."modified_at" AS "modifiedAt",
+          "a_1"."parent_id" AS "parentId"
         FROM
           "valnor_test"."account" AS "a_1"
           /* <query_1> */
         WHERE
-          /* <query_2> */ "a_1"."account_id" = @param_0 /* </query_2> */ /* </query_1> */
+          /* <query_2> */ "a_1"."account_id" = $1 /* </query_2> */ /* </query_1> */
           /* </query_0> */"
       `);
-      const result = await getAccount.mssql.getOneOptional({
-         db: pool.request(),
+
+      const result = await getAccount.postgres.getOneOptional({
+         db: pool,
          params: { id: rootAccount.accountId },
          options: defaultQueryOptions,
       });
-
       expect(result).toMatchObject(rootAccount);
    });
 
@@ -88,35 +88,36 @@ describe.sequential("valnor mssql CRUD - select", async (ctx) => {
       expect(values).toMatchObject([rootAccount.accountId, childAccount.accountId, 10, 10]);
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
-        /* driver: transactsql */
+        /* driver: postgres */
         SELECT
           "a_1"."account_id" AS "accountId",
-          "a_1"."parent_id" AS "parentId",
           "a_1"."status",
           "a_1"."email",
           "a_1"."first_name" AS "firstName",
           "a_1"."last_name" AS "lastName",
           "a_1"."notes",
           "a_1"."created_at" AS "createdAt",
-          "a_1"."modified_at" AS "modifiedAt"
+          "a_1"."modified_at" AS "modifiedAt",
+          "a_1"."parent_id" AS "parentId"
         FROM
           "valnor_test"."account" AS "a_1"
           /* <query_1> */
         WHERE
-          /* <query_2> */ "a_1"."account_id" IN (@param_0, @param_1) /* </query_2> */ /* </query_1> */
+          /* <query_2> */ "a_1"."account_id" IN ($1, $2) /* </query_2> */ /* </query_1> */
           /* <query_3> */
         ORDER BY
           /* <query_4> */ "a_1"."email" ASC /* </query_4> */ /* </query_3> */
           /* <query_5> */
-        OFFSET
-          @param_2 rows /* </query_5> */
+        LIMIT
+          $3 /* </query_5> */
           /* <query_6> */
-        FETCH NEXT
-          @param_3 rows only /* </query_6> */
+        OFFSET
+          $4 /* </query_6> */
           /* </query_0> */"
       `);
-      const results = await query.mssql.getAll({
-         db: pool.request(),
+
+      const results = await query.postgres.getAll({
+         db: pool,
          params: { offset: 0, limit: 1 },
       });
       expect(results).toHaveLength(1);
@@ -137,10 +138,9 @@ describe.sequential("valnor mssql CRUD - select", async (ctx) => {
       expect(values).toMatchObject([rootAccount.accountId]);
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
-        /* driver: transactsql */
+        /* driver: postgres */
         SELECT
           "a_1"."account_id" AS "accountId",
-          "a_1"."parent_id" AS "parentId",
           "a_1"."status",
           "a_1"."email",
           "a_1"."first_name" AS "firstName",
@@ -148,46 +148,45 @@ describe.sequential("valnor mssql CRUD - select", async (ctx) => {
           "a_1"."notes",
           "a_1"."created_at" AS "createdAt",
           "a_1"."modified_at" AS "modifiedAt",
-          "query_1_result"."query_1" AS "children"
+          "a_1"."parent_id" AS "parentId",
+          "query_1_result" AS "children"
         FROM
           "valnor_test"."account" AS "a_1" /* <query_2> */
-          OUTER APPLY (
+          /* inline: true */
+          LEFT JOIN LATERAL (
             SELECT
-              coalesce(
-                (
-                  /* <query_1> */
-                  SELECT
-                    "children"."account_id" AS "accountId",
-                    "children"."parent_id" AS "parentId",
-                    "children"."status",
-                    "children"."email",
-                    "children"."first_name" AS "firstName",
-                    "children"."last_name" AS "lastName",
-                    "children"."notes",
-                    "children"."created_at" AS "createdAt",
-                    "children"."modified_at" AS "modifiedAt"
-                  FROM
-                    "valnor_test"."account" AS "children"
-                  WHERE
-                    "children"."parent_id" = "a_1"."account_id"
-                    /* </query_1> */
-                  FOR JSON
-                    path,
-                    include_null_values
-                ),
-                '[]'
+              coalesce(jsonb_agg("query_1".*), '[]') AS "query_1_result"
+            FROM
+              (
+                /* <query_1> */
+                SELECT
+                  "children"."account_id" AS "accountId",
+                  "children"."status",
+                  "children"."email",
+                  "children"."first_name" AS "firstName",
+                  "children"."last_name" AS "lastName",
+                  "children"."notes",
+                  "children"."created_at" AS "createdAt",
+                  "children"."modified_at" AS "modifiedAt",
+                  "children"."parent_id" AS "parentId"
+                FROM
+                  "valnor_test"."account" AS "children"
+                WHERE
+                  "children"."parent_id" = "a_1"."account_id"
+                  /* </query_1> */
               ) AS "query_1"
-          ) AS "query_1_result" /* </query_2> */
+          ) AS "query_1" ON TRUE
+          /* </query_2> */
           /* <query_3> */
         WHERE
-          /* <query_4> */ "a_1"."account_id" = @param_0 /* </query_4> */ /* </query_3> */
+          /* <query_4> */ "a_1"."account_id" = $1 /* </query_4> */ /* </query_3> */
           /* </query_0> */"
       `);
-      const results = await query.mssql.getAll({ db: pool.request() });
+
+      const results = await query.postgres.getAll({ db: pool });
       expect(results).toHaveLength(1);
-      const parsed = JSON.parse(results[0]!.children as unknown as string) as IAccountSelect[];
-      expect(parsed).toHaveLength(1);
-      expect(parsed[0]!.accountId).toBe(childAccount.accountId);
+      expect(results[0]!.children).toHaveLength(1);
+      expect(results[0]!.children[0]!.accountId).toBe(childAccount.accountId);
    });
 
    test("select: includeOne (firstOrder)", async () => {
@@ -203,10 +202,9 @@ describe.sequential("valnor mssql CRUD - select", async (ctx) => {
       expect(values).toMatchObject([order.orderId, rootAccount.accountId]);
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
-        /* driver: transactsql */
+        /* driver: postgres */
         SELECT
           "a_1"."account_id" AS "accountId",
-          "a_1"."parent_id" AS "parentId",
           "a_1"."status",
           "a_1"."email",
           "a_1"."first_name" AS "firstName",
@@ -214,50 +212,42 @@ describe.sequential("valnor mssql CRUD - select", async (ctx) => {
           "a_1"."notes",
           "a_1"."created_at" AS "createdAt",
           "a_1"."modified_at" AS "modifiedAt",
-          "query_1_result"."query_1" AS "firstOrder"
+          "a_1"."parent_id" AS "parentId",
+          "query_1_result" AS "firstOrder"
         FROM
-          "valnor_test"."account" AS "a_1" /* <query_3> */
-          OUTER APPLY (
+          "valnor_test"."account" AS "a_1" /* <query_2> */
+          /* inline: true */
+          LEFT JOIN LATERAL (
             SELECT
-              coalesce(
-                (
-                  /* <query_1> */
-                  SELECT
-                    TOP 1 "query_2".*
-                  FROM
-                    (
-                      /* <query_2> */
-                      SELECT
-                        "o_2"."order_id" AS "orderId",
-                        "o_2"."status",
-                        "o_2"."created_at" AS "createdAt",
-                        "o_2"."modified_at" AS "modifiedAt",
-                        "o_2"."account_id" AS "accountId"
-                      FROM
-                        "valnor_test"."order" AS "o_2"
-                        /* <query_4> */
-                      WHERE
-                        /* <query_5> */ "o_2"."account_id" = "a_1"."account_id"
-                        AND "o_2"."order_id" = @param_0 /* </query_5> */ /* </query_4> */
-                        /* </query_2> */
-                    ) AS "query_2" /* </query_1> */
-                  FOR JSON
-                    path,
-                    WITHOUT_ARRAY_WRAPPER,
-                    include_null_values
-                ),
-                NULL
+              coalesce(to_jsonb("query_1".*), NULL) AS "query_1_result"
+            FROM
+              (
+                /* <query_1> */
+                SELECT
+                  "o_2"."order_id" AS "orderId",
+                  "o_2"."status",
+                  "o_2"."created_at" AS "createdAt",
+                  "o_2"."modified_at" AS "modifiedAt",
+                  "o_2"."account_id" AS "accountId"
+                FROM
+                  "valnor_test"."order" AS "o_2"
+                  /* <query_3> */
+                WHERE
+                  /* <query_4> */ "o_2"."account_id" = "a_1"."account_id"
+                  AND "o_2"."order_id" = $1 /* </query_4> */ /* </query_3> */
+                  /* </query_1> */
               ) AS "query_1"
-          ) AS "query_1_result" /* </query_3> */
-          /* <query_6> */
+          ) AS "query_1" ON TRUE
+          /* </query_2> */
+          /* <query_5> */
         WHERE
-          /* <query_7> */ "a_1"."account_id" = @param_1 /* </query_7> */ /* </query_6> */
+          /* <query_6> */ "a_1"."account_id" = $2 /* </query_6> */ /* </query_5> */
           /* </query_0> */"
       `);
-      const results = await query.mssql.getAll({ db: pool.request() });
+
+      const results = await query.postgres.getAll({ db: pool });
       expect(results).toHaveLength(1);
-      const parsed = JSON.parse(results[0]!.firstOrder as unknown as string) as IOrderSelect;
-      expect(parsed.orderId).toBe(order.orderId);
+      expect(results[0]!.firstOrder?.orderId).toBe(order.orderId);
    });
 
    test("select: includeOne returns null when no match", async () => {
@@ -270,10 +260,9 @@ describe.sequential("valnor mssql CRUD - select", async (ctx) => {
          },
       });
 
-      const results = await query.mssql.getAll({ db: pool.request() });
+      const results = await query.postgres.getAll({ db: pool });
       expect(results).toHaveLength(1);
-      const parsed = JSON.parse(results[0]!.firstOrder as unknown as string);
-      expect(parsed).toBeNull();
+      expect(results[0]!.firstOrder).toBeNull();
    });
 
    test("select: includeMany returns empty array when no match", async () => {
@@ -288,10 +277,9 @@ describe.sequential("valnor mssql CRUD - select", async (ctx) => {
          includeMany: { children },
       });
 
-      const results = await query.mssql.getAll({ db: pool.request() });
+      const results = await query.postgres.getAll({ db: pool });
       expect(results).toHaveLength(1);
-      const parsed = JSON.parse(results[0]!.children as unknown as string) as IAccountSelect[];
-      expect(parsed).toEqual([]);
+      expect(results[0]!.children).toEqual([]);
    });
 
    test("select: includeOne + includeMany combined", async () => {
@@ -311,12 +299,10 @@ describe.sequential("valnor mssql CRUD - select", async (ctx) => {
          },
       });
 
-      const results = await query.mssql.getAll({ db: pool.request() });
+      const results = await query.postgres.getAll({ db: pool });
       expect(results).toHaveLength(1);
-      const parsedChildren = JSON.parse(results[0]!.children as unknown as string) as IAccountSelect[];
-      expect(parsedChildren).toHaveLength(1);
-      expect(parsedChildren[0]!.accountId).toBe(childAccount.accountId);
-      const parsedOrder = JSON.parse(results[0]!.firstOrder as unknown as string) as IOrderSelect;
-      expect(parsedOrder.orderId).toBe(order.orderId);
+      expect(results[0]!.children).toHaveLength(1);
+      expect(results[0]!.children[0]!.accountId).toBe(childAccount.accountId);
+      expect(results[0]!.firstOrder?.orderId).toBe(order.orderId);
    });
 });

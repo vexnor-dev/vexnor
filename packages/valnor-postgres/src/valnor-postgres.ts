@@ -14,7 +14,7 @@ import { findEnums } from "#/schema/find-enums.js";
 import { findTables } from "#/schema/find-tables.js";
 import { getColumnType } from "#/schema/get-column-type.js";
 import { PostgresQueryHandler } from "#/postgres-query-handler.js";
-import { SqlQueryHandler, SqlQuery } from "valnor";
+import { SqlQueryHandler, SqlQuery, newSqlQueryHandler } from "valnor";
 
 /**
  * Valnor plugin for postgres.
@@ -97,6 +97,7 @@ declare module "valnor" {
 
 Object.defineProperty(SqlQuery.prototype, "postgres", {
    get: function () {
-      return valnorPostgres.newQueryHandler(this);
+      const handler = new PostgresQueryHandler(this);
+      return newSqlQueryHandler(handler);
    },
 });

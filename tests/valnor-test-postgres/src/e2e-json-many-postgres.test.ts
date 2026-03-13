@@ -1,19 +1,21 @@
 import { beforeAll, describe, expect, test } from "vitest";
 import { info, param, row, SqlBuildContext } from "valnor";
-import { Account, AccountStatusUdt, Order } from "./codegen/valnor_test.schema.js";
+import { Account, AccountStatusUdt, IAccountSelect, Order, IOrderSelect } from "./codegen/valnor_test.schema.js";
 import { jsonMany, PostgresTokenizer, sql } from "valnor-postgres";
 import { pool } from "./postgres-pool.js";
 
 describe.sequential("jsonMany() tests", () => {
    const TAG = "json-many-test";
+   let parentAccount!: IAccountSelect;
+   let orders!: IOrderSelect[];
 
    beforeAll(async () => {
-      const parentAccount = await sql`
+      parentAccount = await sql`
          insert into ${Account}
             ${Account.insertColsVals({
                status: AccountStatusUdt.CREATED,
-               firstName: "John-0-json-one",
-               lastName: "Doe-0-json-one",
+               firstName: "John-0-json-many",
+               lastName: "Doe-0-json-many",
                email: `john.doe-${TAG}@example.com`,
             })}
             returning ${row(Account.$$)}
@@ -25,15 +27,15 @@ describe.sequential("jsonMany() tests", () => {
             ${Account.insertColsVals(
                {
                   status: AccountStatusUdt.CREATED,
-                  firstName: "John-1-json-one",
-                  lastName: "Doe-1-json-one",
+                  firstName: "John-1-json-many",
+                  lastName: "Doe-1-json-many",
                   email: `john.doe-1-${TAG}@example.com`,
                   parentId: parentAccount.accountId,
                },
                {
                   status: AccountStatusUdt.CREATED,
-                  firstName: "John-2-json-one",
-                  lastName: "Doe-2-json-one",
+                  firstName: "John-2-json-many",
+                  lastName: "Doe-2-json-many",
                   email: `john.doe-2-${TAG}@example.com`,
                   parentId: parentAccount.accountId,
                },
@@ -42,10 +44,19 @@ describe.sequential("jsonMany() tests", () => {
       `.getAll({ db: pool });
       expect(childrenAccounts).toHaveLength(2);
 
-      console.log("children", childrenAccounts);
+      orders = await sql`
+         insert into ${Order}
+            ${Order.insertColsVals(
+               { accountId: parentAccount.accountId },
+               { accountId: parentAccount.accountId },
+            )}
+            returning ${row(Order.$$)}
+      `.getAll({ db: pool });
+      expect(orders).toHaveLength(2);
    });
 
-   const AccountOrders = sql`
+   // Used for unit/build tests only — no outer alias needed
+   const AccountOrdersUnit = sql`
       ${info({ label: "AccountOrders" })}
       select ${row(Order.$orderId, Order.$status, Order.$createdAt, Order.$modifiedAt)}
       from ${Order}
@@ -53,10 +64,19 @@ describe.sequential("jsonMany() tests", () => {
       order by ${Order.$createdAt} desc
       limit ${param<{ limit: number }>("limit")}`;
 
+   // Used for E2E tests — Account.out resolves to the outer lateral alias
+   const AccountOrders = sql`
+      ${info({ label: "AccountOrders" })}
+      select ${row(Order.$orderId, Order.$status, Order.$createdAt, Order.$modifiedAt)}
+      from ${Order}
+      where ${Order.$accountId} = ${Account.out.$accountId}
+      order by ${Order.$createdAt} desc
+      limit ${param<{ limit: number }>("limit")}`;
+
    test("jsonMany(): select", () => {
       const context = new SqlBuildContext({ tokenizer: new PostgresTokenizer("test") });
       context.next("select");
-      const jsonAccountOrders = jsonMany(AccountOrders);
+      const jsonAccountOrders = jsonMany(AccountOrdersUnit);
       jsonAccountOrders.build(context, {});
       expect(context.tokens[0]).toMatchInlineSnapshot(`
         {
@@ -70,7 +90,7 @@ describe.sequential("jsonMany() tests", () => {
    test.each(INVALID_KEYWORDS_FOR_JSON_AGG)("jsonMany(): %s throws error", (keyword) => {
       const context = new SqlBuildContext({ tokenizer: new PostgresTokenizer("test") });
       context.next(keyword);
-      expect(() => jsonMany(AccountOrders).build(context, {})).toThrow(
+      expect(() => jsonMany(AccountOrdersUnit).build(context, {})).toThrow(
          "Cannot use JsonAggregationPostgres with SQL keyword:",
       );
    });
@@ -78,7 +98,7 @@ describe.sequential("jsonMany() tests", () => {
    test("jsonMany(): from", () => {
       const context = new SqlBuildContext({ tokenizer: new PostgresTokenizer("test") });
       context.next("from");
-      jsonMany(AccountOrders).build(context, {});
+      jsonMany(AccountOrdersUnit).build(context, {});
       expect(context.text).toMatchInlineSnapshot(
          `
         "/* <query_1> */
@@ -146,7 +166,7 @@ describe.sequential("jsonMany() tests", () => {
           /* inline: true */
           LEFT JOIN LATERAL (
             SELECT
-              coalesce(jsonb_agg ("AccountOrders".*), '[]') AS "AccountOrders_result"
+              coalesce(jsonb_agg("AccountOrders".*), '[]') AS "AccountOrders_result"
             FROM
               (
                 /* <AccountOrders> */
@@ -210,7 +230,7 @@ describe.sequential("jsonMany() tests", () => {
           /* inline: true */
           LEFT JOIN LATERAL (
             SELECT
-              coalesce(jsonb_agg ("AccountOrders".*), '[]') AS "AccountOrders_result"
+              coalesce(jsonb_agg("AccountOrders".*), '[]') AS "AccountOrders_result"
             FROM
               (
                 /* <AccountOrders> */
@@ -236,5 +256,43 @@ describe.sequential("jsonMany() tests", () => {
           /* </query_0> */"
       `,
       );
+   });
+
+   test("jsonMany() E2E: returns aggregated orders for account", async () => {
+      const query = sql`
+         select ${row(Account.$$)}, ${jsonMany(AccountOrders).as("orders")}
+         from ${Account} ${jsonMany(AccountOrders)}
+         where ${Account.$accountId} = ${parentAccount.accountId}
+      `;
+
+      const results = await query.getAll({ db: pool, params: { limit: 10 } });
+      expect(results).toHaveLength(1);
+      expect(results[0]!.orders).toHaveLength(2);
+      expect(results[0]!.orders.map((o) => o.orderId)).toEqual(
+         expect.arrayContaining(orders.map((o) => o.orderId)),
+      );
+   });
+
+   test("jsonMany() E2E: returns empty array when no orders", async () => {
+      const accountWithNoOrders = await sql`
+         insert into ${Account}
+            ${Account.insertColsVals({
+               status: AccountStatusUdt.CREATED,
+               firstName: "No-orders",
+               lastName: "Account",
+               email: `no-orders-${TAG}@example.com`,
+            })}
+            returning ${row(Account.$$)}
+      `.getOneRequired({ db: pool });
+
+      const query = sql`
+         select ${row(Account.$$)}, ${jsonMany(AccountOrders).as("orders")}
+         from ${Account} ${jsonMany(AccountOrders)}
+         where ${Account.$accountId} = ${accountWithNoOrders.accountId}
+      `;
+
+      const results = await query.getAll({ db: pool, params: { limit: 10 } });
+      expect(results).toHaveLength(1);
+      expect(results[0]!.orders).toEqual([]);
    });
 });

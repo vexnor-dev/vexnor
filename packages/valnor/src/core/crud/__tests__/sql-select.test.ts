@@ -77,7 +77,6 @@ describe("sqlTableRead()", () => {
       const { text } = query.getSql({ options: { dialect: "sqlite" } });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
-        /* <query_1> */
         SELECT
           "a_1"."account_id" AS "accountId",
           "a_1"."status",
@@ -87,7 +86,7 @@ describe("sqlTableRead()", () => {
           "a_1"."notes",
           "a_1"."created_at" AS "createdAt",
           "a_1"."modified_at" AS "modifiedAt",
-          "a_1"."parent_id" AS "parentId" /* </query_1> */
+          "a_1"."parent_id" AS "parentId"
         FROM
           "main"."account" AS "a_1"
           /* </query_0> */"
@@ -102,7 +101,6 @@ describe("sqlTableRead()", () => {
       const { text } = query.getSql({ params: { id: "test-id" }, options: { dialect: "sqlite" } });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
-        /* <query_1> */
         SELECT
           "a_1"."account_id" AS "accountId",
           "a_1"."status",
@@ -112,12 +110,12 @@ describe("sqlTableRead()", () => {
           "a_1"."notes",
           "a_1"."created_at" AS "createdAt",
           "a_1"."modified_at" AS "modifiedAt",
-          "a_1"."parent_id" AS "parentId" /* </query_1> */
+          "a_1"."parent_id" AS "parentId"
         FROM
           "main"."account" AS "a_1"
-          /* <query_2> */
+          /* <query_1> */
         WHERE
-          /* <query_3> */ "a_1"."account_id" = ? /* </query_3> */ /* </query_2> */
+          /* <query_2> */ "a_1"."account_id" = ? /* </query_2> */ /* </query_1> */
           /* </query_0> */"
       `);
    });

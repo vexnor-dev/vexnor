@@ -10,6 +10,7 @@ export const MAJOR_KEYWORDS: string[] = [
    "where",
    "join",
    "on",
+   "on true",
    "having",
    "limit",
    "offset",

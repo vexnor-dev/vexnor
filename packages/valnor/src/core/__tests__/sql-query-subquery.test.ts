@@ -102,6 +102,7 @@ describe("sql subqueries tests", () => {
               ],
               "rawValues": [
                 SqlQueryInfo {
+                  "driver": null,
                   "id": "SqlQueryInfo#1(label=AccountsWithEmail)",
                   "label": "AccountsWithEmail",
                   "options": {
@@ -771,6 +772,7 @@ describe("sql subqueries tests", () => {
               ],
               "rawValues": [
                 SqlQueryInfo {
+                  "driver": null,
                   "id": "SqlQueryInfo#1(label=AccountsWithEmail)",
                   "label": "AccountsWithEmail",
                   "options": {
@@ -1440,6 +1442,7 @@ describe("sql subqueries tests", () => {
               ],
               "rawValues": [
                 SqlQueryInfo {
+                  "driver": null,
                   "id": "SqlQueryInfo#1(label=AccountsWithEmail)",
                   "label": "AccountsWithEmail",
                   "options": {
@@ -2109,6 +2112,7 @@ describe("sql subqueries tests", () => {
               ],
               "rawValues": [
                 SqlQueryInfo {
+                  "driver": null,
                   "id": "SqlQueryInfo#1(label=AccountsWithEmail)",
                   "label": "AccountsWithEmail",
                   "options": {
@@ -2778,6 +2782,7 @@ describe("sql subqueries tests", () => {
               ],
               "rawValues": [
                 SqlQueryInfo {
+                  "driver": null,
                   "id": "SqlQueryInfo#1(label=AccountsWithEmail)",
                   "label": "AccountsWithEmail",
                   "options": {
@@ -3447,6 +3452,7 @@ describe("sql subqueries tests", () => {
               ],
               "rawValues": [
                 SqlQueryInfo {
+                  "driver": null,
                   "id": "SqlQueryInfo#1(label=AccountsWithEmail)",
                   "label": "AccountsWithEmail",
                   "options": {
@@ -4116,6 +4122,7 @@ describe("sql subqueries tests", () => {
               ],
               "rawValues": [
                 SqlQueryInfo {
+                  "driver": null,
                   "id": "SqlQueryInfo#1(label=AccountsWithEmail)",
                   "label": "AccountsWithEmail",
                   "options": {
@@ -4785,6 +4792,7 @@ describe("sql subqueries tests", () => {
               ],
               "rawValues": [
                 SqlQueryInfo {
+                  "driver": null,
                   "id": "SqlQueryInfo#1(label=AccountsWithEmail)",
                   "label": "AccountsWithEmail",
                   "options": {
@@ -5454,6 +5462,7 @@ describe("sql subqueries tests", () => {
               ],
               "rawValues": [
                 SqlQueryInfo {
+                  "driver": null,
                   "id": "SqlQueryInfo#1(label=AccountsWithEmail)",
                   "label": "AccountsWithEmail",
                   "options": {

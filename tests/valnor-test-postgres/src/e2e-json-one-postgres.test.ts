@@ -143,7 +143,7 @@ describe.sequential("jsonOne() tests", () => {
           /* inline: true */
           LEFT JOIN LATERAL (
             SELECT
-              coalesce(to_jsonb ("query_1".*), NULL) AS "query_1_result"
+              coalesce(to_jsonb("query_1".*), NULL) AS "query_1_result"
             FROM
               (
                 /* <query_1> */

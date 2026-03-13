@@ -20,13 +20,6 @@ export type JsonAggregationPostgresAny = JsonAggregationPostgres<any>;
 
 export type JsonResultType = "one" | "many";
 
-/**
- * SQL class that aggregates of a subquery into a JSON array
- * @example
- * SELECT ${Account.$$all}, ${jsonAgg(UserOrders)} "orders"
- * FROM ${Account} ${jsonAgg(UserOrders)}
- * WHERE ${Account.$accountId} = ${param("accountId")}
- */
 export class JsonAggregationPostgres<
    T extends { Row?: unknown; Params?: unknown; Type?: Array<T["Row"]> | (T["Row"] | null) },
 > extends SqlCharm<Pick<T, "Params" | "Type">> {
@@ -64,6 +57,7 @@ export class JsonAggregationPostgres<
          case "select":
             context.addStrings(`"${queryName}_result"`);
             break;
+         case "on true":
          case "from": {
             const { coalesce, func } = JsonAggregationPostgres.resultTypes[this.type];
             const query = sql`
@@ -77,7 +71,7 @@ export class JsonAggregationPostgres<
             break;
          }
          default:
-            throw new TypeError(`Cannot use ${this.constructor.name} with SQL keyword: ${context.keyword}`);
+            throw new SqlBuildError(`Cannot use ${this.constructor.name} with SQL keyword: ${context.keyword}`);
       }
    }
 
