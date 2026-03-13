@@ -6,5 +6,6 @@ export default mergeConfig(sharedConfig, {
       name: "valnor-test-postgres",
       setupFiles: ["./src/test-setup.ts"],
       globalSetup: ["./src/global-setup.ts"],
+      fileParallelism: false,
    },
 });

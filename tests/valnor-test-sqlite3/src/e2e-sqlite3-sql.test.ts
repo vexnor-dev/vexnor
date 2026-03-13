@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, describe, expect, test } from "vitest";
+import { afterAll, describe, expect, test } from "vitest";
 import { sql } from "valnor-sqlite3";
 import { Account } from "./codegen/main.account-table.js";
 import { randomUUID } from "node:crypto";
@@ -8,14 +8,6 @@ import { row } from "valnor";
 
 describe("valnor postgres sql tests", () => {
    const db = new Database(SQLITE_PATH);
-
-   beforeAll(async () => {
-      await sql`
-         delete
-         from ${Account}
-         where ${Account.$accountId} <> ${randomUUID()}
-      `.run({ db: db });
-   });
 
    afterAll(async () => {
       db.close();

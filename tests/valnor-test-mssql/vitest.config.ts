@@ -6,5 +6,6 @@ export default mergeConfig(sharedConfig, {
       name: "valnor-test-mssql",
       setupFiles: ["./src/test-setup.ts"],
       globalSetup: ["./src/global-setup.ts"],
+      fileParallelism: false,
    },
 });

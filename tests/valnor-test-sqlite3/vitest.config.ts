@@ -6,5 +6,6 @@ export default mergeConfig(sharedConfig, {
    test: {
       name: "valnor-test-sqlite3",
       globalSetup: ["./src/global-setup.ts"],
+      fileParallelism: false,
    },
 });
