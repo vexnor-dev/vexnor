@@ -93,8 +93,8 @@ export class SqlTable<
             break;
          default: {
             const { columns } = args;
-            this._cols = new Lazy(() => this.createCols(columns));
-            this._out = new Lazy(() => this.createOut(columns));
+            this._cols = new Lazy(() => this.initCols(columns));
+            this._out = new Lazy(() => this.initOut(columns));
          }
       }
    }
@@ -246,7 +246,7 @@ export class SqlTable<
       );
    }
 
-   private createCols(columns: Record<keyof T["Select"], string>): InferTable$RowBySelect<T["Select"]> {
+   private initCols(columns: Record<keyof T["Select"], string>): InferTable$RowBySelect<T["Select"]> {
       const { schema, name } = this.tableInfo;
       let cols: Partial<InferTable$RowBySelect<T["Select"]>> = {};
       for (const [key, value] of Object.entries(columns)) {
@@ -262,7 +262,7 @@ export class SqlTable<
       return cols as InferTable$RowBySelect<T["Select"]>;
    }
 
-   private createOut(columns: Record<keyof T["Select"], string>): InferTable$RowBySelect<T["Select"]> {
+   private initOut(columns: Record<keyof T["Select"], string>): InferTable$RowBySelect<T["Select"]> {
       const { schema, name } = this.tableInfo;
       let out: Partial<InferTable$RowBySelect<T["Select"]>> = {};
       for (const [key, value] of Object.entries(columns)) {
