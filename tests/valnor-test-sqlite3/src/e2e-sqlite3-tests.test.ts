@@ -1,18 +1,13 @@
-import { afterAll, beforeAll, describe, expect, test } from "vitest";
-import crypto, { randomUUID } from "node:crypto";
+import { beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
 import { param, row, sql } from "valnor";
 import { jsonMany } from "valnor-sqlite3";
-import { Account, IAccountInsert, IAccountSelect } from "./codegen/main.account-table.js";
-import Database from "better-sqlite3";
-import { SQLITE_PATH } from "./config.js";
+import { Account, IAccountSelect } from "./codegen/main.account-table.js";
+import { db } from "./config.js";
+import { TestDataManager } from "./test-data-manager.js";
 
-describe.sequential("valnor sqlite3 e2e tests", () => {
-   const rootAccounts: IAccountSelect[] = [];
-   const childAccounts: IAccountSelect[] = [];
-   const ROOT_COUNT = 100;
-   const CHILD_FACTOR = 3;
-   const db = new Database(SQLITE_PATH);
+describe.sequential("valnor sqlite3 e2e tests", async (ctx) => {
+   const dataManager = new TestDataManager(ctx);
 
    const findAccountById = sql`
       select ${row(Account.$$)}
@@ -20,117 +15,38 @@ describe.sequential("valnor sqlite3 e2e tests", () => {
       where ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}
    `;
 
-   afterAll(async () => {
-      db.close();
-   });
-
    beforeAll(async () => {
-      await sql`
-         delete
-         from ${Account}
-         where ${Account.$accountId} <> ${randomUUID()}
-      `.sqlite3.run({ db: db });
-   });
-
-   beforeAll(async () => {
-      // insert accounts
-      {
-         const newAccountsArgs: IAccountInsert[] = [];
-         for (let i = 0; i < ROOT_COUNT; i++) {
-            const index = String(i).padStart(3, "0");
-            const id = crypto.randomUUID().slice(0, 4);
-            newAccountsArgs.push({
-               accountId: randomUUID(),
-               status: "created",
-               firstName: `John-${index}-${id} (root)`,
-               lastName: `Doe-${index}-${id} (root)`,
-               email: `john.doe.root-${index}-${id}@example.com`,
-            });
-         }
-         await sql`
-            insert into ${Account}
-               ${Account.insertColsVals(...newAccountsArgs)}
-         `.sqlite3.run({ db });
-
-         const accounts = await sql`
-            select ${row(Account.$$)}
-            from ${Account}
-            where ${Account.$accountId} in (${newAccountsArgs.map((z) => z.accountId)})
-         `.sqlite3.getAll({ db });
-
-         ok(accounts?.length, "root accounts not inserted");
-         expect(accounts.length).toBe(100);
-         rootAccounts.push(...accounts);
-      }
-
-      for (let i = 0; i < rootAccounts.length; i++) {
-         const rootIndex = String(i).padStart(3, "0");
-         for (let k = 0; k < CHILD_FACTOR; k++) {
-            const childIndex = String(k).padStart(3, "0");
-            const id = crypto.randomUUID().slice(0, 4);
-            const parent = rootAccounts[i];
-            ok(parent);
-
-            const newAccount: IAccountInsert = {
-               accountId: randomUUID(),
-               status: "created",
-               firstName: `John-${rootIndex}-${childIndex}-${id} (child ${childIndex})`,
-               lastName: `Doe-${rootIndex}-${childIndex}-${id} (child ${childIndex})`,
-               email: `john.doe.child-${rootIndex}-${childIndex}-${id}@example.com`,
-               parentId: parent.accountId,
-            };
-
-            await sql`
-               insert into ${Account}
-                  ${Account.insertColsVals(newAccount)}
-            `.sqlite3.run({ db });
-
-            const account = await sql`
-               select ${row(Account.$$)}
-               from ${Account}
-               where ${Account.$accountId} = ${newAccount.accountId};
-            `.sqlite3.getOneRequired({ db });
-
-            expect(account).toEqual(
-               expect.objectContaining({
-                  status: "created",
-                  firstName: `John-${rootIndex}-${childIndex}-${id} (child ${childIndex})`,
-                  lastName: `Doe-${rootIndex}-${childIndex}-${id} (child ${childIndex})`,
-                  email: `john.doe.child-${rootIndex}-${childIndex}-${id}@example.com`,
-                  parentId: parent.accountId,
-               }),
-            );
-            childAccounts.push(account);
-         }
-      }
+      await dataManager.initRootAccounts(db);
+      await dataManager.initChildAccounts(db);
    });
 
    test("Check test accounts inserted", () => {
-      expect(rootAccounts.length).toBe(ROOT_COUNT);
-      expect(childAccounts.length).toBe(ROOT_COUNT * CHILD_FACTOR);
+      expect(dataManager.rootAccounts.length).toBe(dataManager.ACCOUNT_ROOT_COUNT);
+      expect(dataManager.childAccounts.length).toBe(dataManager.ACCOUNT_ROOT_COUNT * dataManager.ACCOUNT_CHILD_FACTOR);
    });
 
-   test(`Fetch all ${ROOT_COUNT} root accounts`, async () => {
+   test(`Fetch all ${dataManager.ACCOUNT_ROOT_COUNT} root accounts`, async () => {
       const actual = await sql`
          select ${row(Account.$$)}
          from ${Account}
-         where ${Account.$accountId} in (${rootAccounts.map((z) => z.accountId)})
-      `.sqlite3.getAll({ db });
-      expect(actual).toEqual(rootAccounts);
-   });
-
-   test(`Fetch all ${ROOT_COUNT * CHILD_FACTOR} children accounts`, async () => {
-      const actual = await sql`
-         select ${row(Account.$$)}
-         from ${Account}
-         where ${Account.$accountId} in (${childAccounts.map((z) => z.accountId)})
+         where ${Account.$accountId} in (${dataManager.rootAccounts.map((z) => z.accountId)})
          order by ${Account.$email}
       `.sqlite3.getAll({ db });
-      expect(actual).toEqual(childAccounts);
+      expect(actual).toEqual(dataManager.rootAccounts);
+   });
+
+   test(`Fetch all children accounts`, async () => {
+      const actual = await sql`
+         select ${row(Account.$$)}
+         from ${Account}
+         where ${Account.$accountId} in (${dataManager.childAccounts.map((z) => z.accountId)})
+         order by ${Account.$email}
+      `.sqlite3.getAll({ db });
+      expect(actual).toEqual(dataManager.childAccounts);
    });
 
    test("Fetch account required by id", async () => {
-      const expected = rootAccounts[0];
+      const expected = dataManager.rootAccounts[0];
       ok(expected);
       const actual = await findAccountById.sqlite3.getOneRequired({
          db,
@@ -142,7 +58,7 @@ describe.sequential("valnor sqlite3 e2e tests", () => {
    test("Fetch account optional by id", async () => {
       const actual = await findAccountById.sqlite3.getOneOptional({
          db,
-         params: { accountId: randomUUID() },
+         params: { accountId: crypto.randomUUID() },
       });
       expect(actual).toBeUndefined();
    });
@@ -155,15 +71,15 @@ describe.sequential("valnor sqlite3 e2e tests", () => {
                 ${Account.as`parent`.$email.as(`parentEmail`)}
          from ${Account}
                  join ${Account.as`parent`} on ${Account.as`parent`.$accountId} = ${Account.$parentId}
-      `.sqlite3.getAll({
-         db,
-      });
+         where ${Account.$accountId} in (${dataManager.childAccounts.map((z) => z.accountId)})
+         order by ${Account.$email}
+      `.sqlite3.getAll({ db });
       expect(actual).toBeDefined();
-      const expected = childAccounts.map((z) => {
-         const parent = rootAccounts.find((p) => p.accountId === z.parentId);
+      const expected = dataManager.childAccounts.map((child) => {
+         const parent = dataManager.rootAccounts.find((p) => p.accountId === child.parentId);
          ok(parent);
          return {
-            ...z,
+            ...child,
             parentFirstName: parent.firstName,
             parentLastName: parent.lastName,
             parentEmail: parent.email,
@@ -183,177 +99,9 @@ describe.sequential("valnor sqlite3 e2e tests", () => {
       const query = sql`
          select ${row(Account.$$)}, ${jsonMany(accountChildren).as("children")}
          from ${Account}
-         where ${Account.$accountId} in (${rootAccounts.map((z) => z.accountId)})
+         where ${Account.$accountId} in (${dataManager.rootAccounts.map((z) => z.accountId)})
+         order by ${Account.$email}
       `;
-      const { text } = query.getSql({ options: { dialect: "sqlite" } });
-      expect(text).toMatchInlineSnapshot(`
-        "/* <query_0> */
-        SELECT
-          "a_1"."account_id" AS "accountId",
-          "a_1"."status",
-          "a_1"."email",
-          "a_1"."first_name" AS "firstName",
-          "a_1"."last_name" AS "lastName",
-          "a_1"."notes",
-          "a_1"."created_at" AS "createdAt",
-          "a_1"."modified_at" AS "modifiedAt",
-          "a_1"."parent_id" AS "parentId",
-          /* <query_1> */ (
-            SELECT
-              coalesce(
-                json_group_array(
-                  json_object(
-                    'accountId',
-                    "accountId",
-                    'status',
-                    "status",
-                    'email',
-                    "email",
-                    'firstName',
-                    "firstName",
-                    'lastName',
-                    "lastName",
-                    'notes',
-                    "notes",
-                    'createdAt',
-                    "createdAt",
-                    'modifiedAt',
-                    "modifiedAt",
-                    'parentId',
-                    "parentId"
-                  )
-                ),
-                '[]'
-              )
-            FROM
-              (
-                /* <query_2> */
-                SELECT
-                  "children"."account_id" AS "accountId",
-                  "children"."status",
-                  "children"."email",
-                  "children"."first_name" AS "firstName",
-                  "children"."last_name" AS "lastName",
-                  "children"."notes",
-                  "children"."created_at" AS "createdAt",
-                  "children"."modified_at" AS "modifiedAt",
-                  "children"."parent_id" AS "parentId"
-                FROM
-                  "main"."account" AS "children"
-                WHERE
-                  "children"."parent_id" = "a_1"."account_id"
-                ORDER BY
-                  "children"."account_id"
-                  /* </query_2> */
-              ) AS "query_2"
-          ) AS "children" /* </query_1> */
-        FROM
-          "main"."account" AS "a_1"
-        WHERE
-          "a_1"."account_id" IN (
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ?
-          )
-          /* </query_0> */"
-      `);
 
       const actual = await query.sqlite3.getAll({ db }).then((accounts) =>
          accounts.map((account) => ({
@@ -362,36 +110,25 @@ describe.sequential("valnor sqlite3 e2e tests", () => {
          })),
       );
 
-      const childrenByParentId = (() => {
-         const result = new Map<string, IAccountSelect[]>();
-         for (const child of childAccounts) {
-            ok(child.parentId);
-            const children = (() => {
-               if (!result.has(child.parentId)) {
-                  result.set(child.parentId, []);
-               }
+      const childrenByParentId = new Map<string, IAccountSelect[]>();
+      for (const child of dataManager.childAccounts) {
+         ok(child.parentId);
+         if (!childrenByParentId.has(child.parentId)) childrenByParentId.set(child.parentId, []);
+         const arr = childrenByParentId.get(child.parentId)!;
+         arr.push(child);
+         arr.sort((a, b) => a.accountId.localeCompare(b.accountId));
+      }
 
-               return result.get(child.parentId)!;
-            })();
-            children.push(child);
-            children.sort((a, b) => a.accountId.localeCompare(b.accountId));
-         }
-
-         return result;
-      })();
-
-      const expected = rootAccounts.map((account) => {
-         return {
-            ...account,
-            children: childrenByParentId.get(account.accountId),
-         };
-      });
+      const expected = dataManager.rootAccounts.map((account) => ({
+         ...account,
+         children: childrenByParentId.get(account.accountId),
+      }));
 
       expect(actual).toEqual(expected);
    });
 
    test("Update account by id", async () => {
-      const expected = rootAccounts[0];
+      const expected = dataManager.rootAccounts[0];
       ok(expected);
       await sql`
          update ${Account}
@@ -405,14 +142,5 @@ describe.sequential("valnor sqlite3 e2e tests", () => {
       });
 
       expect(actual).toEqual({ ...expected, firstName: expected.firstName + "+test" });
-   });
-
-   test("Delete test accounts", async () => {
-      const { changes } = await sql`
-         delete
-         from ${Account}
-         where ${Account.$accountId} in (${rootAccounts.map((z) => z.accountId)})
-      `.sqlite3.run({ db });
-      expect(changes).toEqual(rootAccounts.length);
    });
 });

@@ -9,8 +9,6 @@ import { db } from "./config.js";
 
 describe.sequential("valnor sqlite3 CRUD - select", () => {
    const AccountCrud = sqlite3Crud(Account);
-   const OrderCrud = sqlite3Crud(Order);
-
    let rootAccount!: IAccountSelect;
    let childAccount!: IAccountSelect;
    let order!: IOrderSelect;

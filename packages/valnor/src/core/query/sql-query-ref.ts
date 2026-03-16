@@ -3,6 +3,7 @@ import { QUERY, SqlQuery, SqlQueryColumns } from "#/core/query/sql-query.js";
 import { SqlQueryOptions } from "#/core/query/sql-query-types.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
 import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
+import { CACHE } from "#/lib/cache.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlQueryRefAny = SqlQueryRef<any>;
@@ -38,6 +39,12 @@ export function newSqlQueryRef<T extends { Row?: unknown; Params?: unknown }>(
    innerQuery: SqlQuery<T>,
    scope: SqlQueryOptions,
 ): SqlQueryRefExtended<T> {
-   const target = new SqlQueryRef(innerQuery, scope);
+   const cacheKey = [
+      innerQuery.id,
+      `paramKey=${scope.paramKey ?? "?"}`,
+      `queryType=${scope.queryType ?? "?"}`,
+      `queryFormat=${scope.queryFormat ?? "?"}`,
+   ];
+   const target = CACHE.get<SqlQueryRef<T>>(cacheKey, () => new SqlQueryRef(innerQuery, scope));
    return Object.assign(target, innerQuery.row);
 }

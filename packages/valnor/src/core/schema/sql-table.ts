@@ -13,6 +13,7 @@ import { TableInsertCols } from "#/core/charms/table-insert-cols.js";
 import { TableInsertRows } from "#/core/charms/table-insert-rows.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
 import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
+import { CACHE } from "#/lib/cache.js";
 
 export type SqlTableOptions<
    T extends {
@@ -59,7 +60,6 @@ export class SqlTable<
    readonly format: SqlTableFormat | null;
    readonly pk: Array<keyof T["Select"]>;
    readonly dialect: string;
-   readonly tableCache = new Map<string, SqlTableExtended<T>>();
 
    // TODO: ideas for later: onBeforeInsert|onBeforeUpdate|onAfterInsert|onAfterUpdate  ((T) => T) ?
    // readonly onInsert?: T["Insert"] extends Record<string, unknown> ? (value: T["Insert"]) => T["Insert"] : boolean;
@@ -126,28 +126,24 @@ export class SqlTable<
                throw new Error(`Invalid table name: ${tableName}`);
          }
       })();
-      if (!this.tableCache.has(alias)) {
-         this.tableCache.set(
-            alias,
-            newSqlTable({
-               format: this.format,
-               pk: this.pk,
-               dialect: this.dialect,
-               columns: (() => {
-                  const columns: Record<string, string> = {};
-                  for (const { key, columnName } of Object.values(this.cols)) {
-                     columns[key] = columnName;
-                  }
 
-                  return columns as Record<keyof T["Select"], string>;
-               })(),
-               tableInfo: { ...this.tableInfo, alias },
-               crud: this._crudConfig,
-            }),
-         );
-      }
+      return CACHE.get([this.id, `alias=${alias}`], () =>
+         newSqlTable({
+            format: this.format,
+            pk: this.pk,
+            dialect: this.dialect,
+            columns: (() => {
+               const columns: Record<string, string> = {};
+               for (const { key, columnName } of Object.values(this.cols)) {
+                  columns[key] = columnName;
+               }
 
-      return this.tableCache.get(alias)!;
+               return columns as Record<keyof T["Select"], string>;
+            })(),
+            tableInfo: { ...this.tableInfo, alias },
+            crud: this._crudConfig,
+         }),
+      );
    }
 
    column(key: string): SqlTableColumnAny {
@@ -231,21 +227,23 @@ export class SqlTable<
    }
 
    render(format: SqlTableFormat): SqlTableExtended<T> {
-      return newSqlTable({
-         format,
-         tableInfo: this.tableInfo,
-         pk: this.pk,
-         dialect: this.dialect,
-         columns: (() => {
-            const columns: Record<string, string> = {};
-            for (const { key, columnName } of Object.values(this.cols)) {
-               columns[key] = columnName;
-            }
+      return CACHE.get([this.id, `format=${format}`], () =>
+         newSqlTable({
+            format,
+            tableInfo: this.tableInfo,
+            pk: this.pk,
+            dialect: this.dialect,
+            columns: (() => {
+               const columns: Record<string, string> = {};
+               for (const { key, columnName } of Object.values(this.cols)) {
+                  columns[key] = columnName;
+               }
 
-            return columns as Record<keyof T["Select"], string>;
-         })(),
-         crud: this._crudConfig,
-      });
+               return columns as Record<keyof T["Select"], string>;
+            })(),
+            crud: this._crudConfig,
+         }),
+      );
    }
 
    private createCols(columns: Record<keyof T["Select"], string>): InferTable$RowBySelect<T["Select"]> {

@@ -258,7 +258,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
             case rawValue instanceof SqlQueryInfo:
                return rawValue;
             case Array.isArray(rawValue):
-               queue.add(...rawValue);
+               queue.push(...rawValue);
                break;
          }
       }
@@ -306,7 +306,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
       for (const rawValue of q.shift()) {
          switch (true) {
             case Array.isArray(rawValue):
-               q.add(...rawValue);
+               q.push(...rawValue);
                break;
             case rawValue instanceof SqlTable:
                result.add(rawValue.dialect);
@@ -315,13 +315,13 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
                for (const d of rawValue.dialects) result.add(d);
                break;
             case rawValue instanceof SqlSelectRow:
-               for (const item of Object.values(rawValue.getRow({ query: this }))) q.add(item);
+               for (const item of Object.values(rawValue.getRow({ query: this }))) q.push(item);
                break;
             case rawValue instanceof SqlSelectValue:
-               q.add(rawValue.innerQuery);
+               q.push(rawValue.innerQuery);
                break;
             case rawValue instanceof SqlQueryColumn:
-               q.add(rawValue.target);
+               q.push(rawValue.target);
                break;
          }
       }
@@ -334,7 +334,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
       for (const rawValue of q.shift()) {
          switch (true) {
             case Array.isArray(rawValue):
-               q.add(...rawValue);
+               q.push(...rawValue);
                break;
             case rawValue instanceof SqlQuery:
                results.push(rawValue);
@@ -345,11 +345,11 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
                break;
             case rawValue instanceof SqlQueryColumn:
                results.push(rawValue.query);
-               q.add(rawValue.target);
+               q.push(rawValue.target);
                break;
             case rawValue instanceof SqlSelectRow:
                for (const item of Object.values(rawValue.getRow({ query: this }))) {
-                  q.add(item);
+                  q.push(item);
                }
                break;
          }
@@ -364,7 +364,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
       for (const rawValue of q.shift()) {
          switch (true) {
             case Array.isArray(rawValue):
-               q.add(...rawValue);
+               q.push(...rawValue);
                break;
             case rawValue instanceof SqlSelectAll:
                break;
@@ -397,10 +397,13 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
       for (const rawValue of q.shift()) {
          switch (true) {
             case Array.isArray(rawValue):
-               q.add(...rawValue);
+               q.push(...rawValue);
                break;
             case rawValue instanceof SqlParam:
                params = { ...(params ?? {}), [rawValue.name]: rawValue };
+               break;
+            case rawValue instanceof SqlQueryRef:
+               if (rawValue.innerQuery.params) params = { ...(params ?? {}), ...rawValue.innerQuery.params };
                break;
             case rawValue instanceof Sql && hasParams(rawValue):
                params = { ...(params ?? {}), ...rawValue.params };

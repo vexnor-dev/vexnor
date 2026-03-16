@@ -19,7 +19,6 @@ export { raw, quote, SqlRaw } from "./query/sql-raw.js";
 export { DEFAULT } from "./query/sql-default.js";
 export { expand, SqlExpand, type SqlExpandHandler, type SqlExpandHandlerAny } from "./query/sql-expand.js";
 export { input, SqlInput, type SqlInputExtended } from "./query/sql-input.js";
-export { t, SqlType } from "./query/sql-type.js";
 export { info, SqlQueryInfo, type SqlQueryInfoOptions } from "./charms/sql-query-info.js";
 export {
    type SqlQueryFormat,
@@ -72,7 +71,6 @@ export { Void } from "./utils/utility-types.js";
 export { type BuildSqlParams } from "./query/sql-param.js";
 export { type PARAMS, type ROW, type TYPE, type ARGS } from "./sql-base.js";
 export { SqlQueryColumn, newSqlSelectColumn, type SqlQueryColumnAny } from "./query/sql-query-column.js";
-export { rowType, SqlRowType, type SqlRowTypeAny } from "./query/sql-row-type.js";
 
 // crud
 export { expandInsertColumns, expandInsertValues } from "./crud/sql-crud-helper.js";
@@ -93,3 +91,6 @@ export { sqlCrud, newSqlTableCrud, type SqlTableCrudCrudProvider } from "./crud/
 export { isPrimitive, type Primitive } from "#/lib/primitive.js";
 export { isError } from "#/lib/is-error.js";
 export { SqlRunError } from "./sql-run-error.js";
+
+// CACHE
+export { CACHE } from "#/lib/cache.js";

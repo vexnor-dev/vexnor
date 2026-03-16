@@ -665,7 +665,6 @@ describe("sql subqueries tests", () => {
                   "pk": [
                     "accountId",
                   ],
-                  "tableCache": Map {},
                   "tableInfo": {
                     "alias": null,
                     "name": "account",
@@ -1335,7 +1334,6 @@ describe("sql subqueries tests", () => {
                   "pk": [
                     "accountId",
                   ],
-                  "tableCache": Map {},
                   "tableInfo": {
                     "alias": null,
                     "name": "account",
@@ -2005,7 +2003,6 @@ describe("sql subqueries tests", () => {
                   "pk": [
                     "accountId",
                   ],
-                  "tableCache": Map {},
                   "tableInfo": {
                     "alias": null,
                     "name": "account",
@@ -2675,7 +2672,6 @@ describe("sql subqueries tests", () => {
                   "pk": [
                     "accountId",
                   ],
-                  "tableCache": Map {},
                   "tableInfo": {
                     "alias": null,
                     "name": "account",
@@ -3345,7 +3341,6 @@ describe("sql subqueries tests", () => {
                   "pk": [
                     "accountId",
                   ],
-                  "tableCache": Map {},
                   "tableInfo": {
                     "alias": null,
                     "name": "account",
@@ -4015,7 +4010,6 @@ describe("sql subqueries tests", () => {
                   "pk": [
                     "accountId",
                   ],
-                  "tableCache": Map {},
                   "tableInfo": {
                     "alias": null,
                     "name": "account",
@@ -4685,7 +4679,6 @@ describe("sql subqueries tests", () => {
                   "pk": [
                     "accountId",
                   ],
-                  "tableCache": Map {},
                   "tableInfo": {
                     "alias": null,
                     "name": "account",
@@ -5355,7 +5348,6 @@ describe("sql subqueries tests", () => {
                   "pk": [
                     "accountId",
                   ],
-                  "tableCache": Map {},
                   "tableInfo": {
                     "alias": null,
                     "name": "account",
@@ -6025,7 +6017,6 @@ describe("sql subqueries tests", () => {
                   "pk": [
                     "accountId",
                   ],
-                  "tableCache": Map {},
                   "tableInfo": {
                     "alias": null,
                     "name": "account",

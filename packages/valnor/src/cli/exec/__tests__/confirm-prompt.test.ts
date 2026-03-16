@@ -5,6 +5,10 @@ import type { Interface } from "readline";
 
 describe("confirmPrompt", () => {
    let mockStdin: Readable;
+
+   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+   // @ts-expect-error
+   // eslint-disable-next-line unused-imports/no-unused-vars
    let mockStdout: Writable;
    let output: string;
 
@@ -25,7 +29,7 @@ describe("confirmPrompt", () => {
          read() {},
       });
       mockStdout = new Writable({
-         write(chunk, encoding, callback) {
+         write(chunk, _encoding, callback) {
             output += chunk.toString();
             callback();
          },

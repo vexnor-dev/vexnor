@@ -1,5 +1,5 @@
 import { SqlQueryHandler, SqlInputArgs, SqlQuery, SqlRunArgs, SqlRunError } from "valnor";
-import { IResult, Promise, Request } from "mssql";
+import { IResult, Request } from "mssql";
 import { defaultQueryOptions } from "./default-query-options.js";
 
 export class MssqlQueryHandler<T extends { Params?: unknown; Row?: unknown }> extends SqlQueryHandler<{

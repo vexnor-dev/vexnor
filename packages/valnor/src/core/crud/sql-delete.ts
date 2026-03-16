@@ -17,7 +17,8 @@ export type SqlDeleteResult<T extends { Select: Record<string, unknown> }, Args 
 export function sqlDelete<T extends { Select: Record<string, unknown>; Delete: true }, Args extends SqlDeleteArgs>(
    table: SqlTable<T>,
    args: Args,
-   info?: SqlQueryInfo | null,
+   // eslint-disable-next-line unused-imports/no-unused-vars
+   _info?: SqlQueryInfo | null,
 ): SqlDeleteResult<T, Args> {
    if (!isWhere(args)) {
       ok((args as { force?: boolean }).force, "WHERE condition or force required");

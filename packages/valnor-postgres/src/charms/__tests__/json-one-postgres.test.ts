@@ -31,7 +31,7 @@ describe("json-one-postgres tests", () => {
       );
       target.build(context, {});
       expect(context.text).toMatchInlineSnapshot(`
-        "/* <query_1> */
+        "/* <query_2> */
         /* inline: true */
         LEFT JOIN LATERAL (
           SELECT
@@ -40,22 +40,30 @@ describe("json-one-postgres tests", () => {
             (
               /* <query_0> */
               SELECT
-                "parent"."account_id" AS "accountId",
-                "parent"."status",
-                "parent"."email",
-                "parent"."first_name" AS "firstName",
-                "parent"."last_name" AS "lastName",
-                "parent"."notes",
-                "parent"."created_at" AS "createdAt",
-                "parent"."modified_at" AS "modifiedAt",
-                "parent"."parent_id" AS "parentId"
+                "query_1".*
               FROM
-                "main"."account" AS "parent"
-              WHERE
-                "parent"."account_id" = "a_1"."parent_id" /* </query_0> */
+                (
+                  /* <query_1> */
+                  SELECT
+                    "parent"."account_id" AS "accountId",
+                    "parent"."status",
+                    "parent"."email",
+                    "parent"."first_name" AS "firstName",
+                    "parent"."last_name" AS "lastName",
+                    "parent"."notes",
+                    "parent"."created_at" AS "createdAt",
+                    "parent"."modified_at" AS "modifiedAt",
+                    "parent"."parent_id" AS "parentId"
+                  FROM
+                    "main"."account" AS "parent"
+                  WHERE
+                    "parent"."account_id" = "a_1"."parent_id" /* </query_1> */
+                ) AS "query_1"
+              LIMIT
+                1 /* </query_0> */
             ) AS "query_0"
         ) AS "query_0" ON TRUE
-        /* </query_1> */"
+        /* </query_2> */"
       `);
    });
 
@@ -82,7 +90,7 @@ describe("json-one-postgres tests", () => {
          }>
       >(query);
       expect(query.row.$parent).toBeDefined();
-      expect(query.params.limit).toMatchObject({ name: "limit" });
+      expect(query.params).toMatchObject({ limit: { name: "limit" } });
 
       const { text } = query.getSql({ params: { limit: 1 }, options: { dialect: "postgresql" } });
       expect(text).toMatchInlineSnapshot(`
@@ -99,7 +107,7 @@ describe("json-one-postgres tests", () => {
           "a_1"."parent_id" AS "parentId",
           "query_1_result" AS "parent"
         FROM
-          "main"."account" AS "a_1" /* <query_2> */
+          "main"."account" AS "a_1" /* <query_3> */
           /* inline: true */
           LEFT JOIN LATERAL (
             SELECT
@@ -108,25 +116,33 @@ describe("json-one-postgres tests", () => {
               (
                 /* <query_1> */
                 SELECT
-                  "a_2"."account_id" AS "accountId",
-                  "a_2"."status",
-                  "a_2"."email",
-                  "a_2"."first_name" AS "firstName",
-                  "a_2"."last_name" AS "lastName",
-                  "a_2"."notes",
-                  "a_2"."created_at" AS "createdAt",
-                  "a_2"."modified_at" AS "modifiedAt",
-                  "a_2"."parent_id" AS "parentId"
+                  "query_2".*
                 FROM
-                  "main"."account" AS "a_2"
-                WHERE
-                  "a_2"."account_id" = "a_1"."parent_id"
+                  (
+                    /* <query_2> */
+                    SELECT
+                      "a_2"."account_id" AS "accountId",
+                      "a_2"."status",
+                      "a_2"."email",
+                      "a_2"."first_name" AS "firstName",
+                      "a_2"."last_name" AS "lastName",
+                      "a_2"."notes",
+                      "a_2"."created_at" AS "createdAt",
+                      "a_2"."modified_at" AS "modifiedAt",
+                      "a_2"."parent_id" AS "parentId"
+                    FROM
+                      "main"."account" AS "a_2"
+                    WHERE
+                      "a_2"."account_id" = "a_1"."parent_id"
+                    LIMIT
+                      ?
+                      /* </query_2> */
+                  ) AS "query_2"
                 LIMIT
-                  ?
-                  /* </query_1> */
+                  1 /* </query_1> */
               ) AS "query_1"
           ) AS "query_1" ON TRUE
-          /* </query_2> */
+          /* </query_3> */
           /* </query_0> */"
       `);
    });

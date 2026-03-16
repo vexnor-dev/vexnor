@@ -107,7 +107,7 @@ export class SqlBuildContext {
       const stack = this.keywordStack;
       for (let i = stack.length - 1; i >= 0; i--) {
          const keyword = stack[i]!;
-         if (MAJOR_KEYWORDS.includes(keyword)) {
+         if (MAJOR_KEYWORDS.has(keyword)) {
             return keyword;
          }
       }
@@ -131,7 +131,7 @@ export class SqlBuildContext {
       const stack = this.keywordStack;
       for (let i = stack.length - 1; i >= 0; i--) {
          const keyword = stack[i]!;
-         if (MAJOR_KEYWORDS.includes(keyword)) {
+         if (MAJOR_KEYWORDS.has(keyword)) {
             yield keyword;
          }
       }
@@ -195,7 +195,7 @@ export class SqlBuildContext {
             } else if (prevToken && SUBQUERY_STARTERS.includes(prevToken)) {
                this._contextParentDepths.push(this._parentDepth);
                this._keywordStacks.push([prevToken]);
-            } else if (prevToken && /^[a-z_]/.test(prevToken) && !MAJOR_KEYWORDS.includes(prevToken)) {
+            } else if (prevToken && /^[a-z_]/.test(prevToken) && !MAJOR_KEYWORDS.has(prevToken)) {
                this.keywordStack.pop(); // It's a function call, consume the name
                this._contextParentDepths.push(this._parentDepth);
                this._keywordStacks.push(["fn"]);
@@ -298,7 +298,7 @@ export class SqlBuildContext {
                   ...(override ?? {}),
                });
                offset++;
-               queue.add(...innerQuery.innerQueries);
+               queue.push(...innerQuery.innerQueries);
             }
          }
 

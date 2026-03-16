@@ -12,7 +12,10 @@ import {
    SqlBuildError,
    quote,
    SqlSelectColumn,
+   CACHE,
+   row,
 } from "valnor";
+import { ok } from "node:assert";
 
 export type JsonResultType = "one" | "many";
 
@@ -109,8 +112,12 @@ export class JsonAggregationSqlite3<T extends { Params?: unknown; Row?: unknown 
  * WHERE ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}
  */
 export function jsonOne<T extends SqlQueryAny>(query: T): JsonAggregationResult<T> {
-   return new JsonAggregationSqlite3(query, {
-      type: "one",
+   return CACHE.get([query.id, `json=one`, "sqlite3"], () => {
+      ok(query.$$, `'query.$$' is required. check if the query does return a row.`);
+      const findOne = sql`select ${row(query.$$)} from ${query.inline()} limit 1`;
+      return new JsonAggregationSqlite3(findOne, {
+         type: "one",
+      });
    }) as JsonAggregationResult<T>;
 }
 
@@ -124,9 +131,13 @@ export function jsonOne<T extends SqlQueryAny>(query: T): JsonAggregationResult<
  * WHERE ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}
  */
 export function jsonMany<T extends SqlQueryAny>(query: T): JsonAggregationResult<T, []> {
-   return new JsonAggregationSqlite3(query, {
-      type: "many",
-   }) as JsonAggregationResult<T>;
+   return CACHE.get(
+      [query.id, `json=many`, "sqlite3"],
+      () =>
+         new JsonAggregationSqlite3(query, {
+            type: "many",
+         }),
+   ) as JsonAggregationResult<T>;
 }
 
 export type JsonAggregationResult<T, R extends object | [] = object> =

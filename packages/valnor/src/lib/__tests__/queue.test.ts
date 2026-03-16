@@ -17,19 +17,19 @@ describe("Queue", () => {
    describe("add", () => {
       it("should add single item", () => {
          const queue = new Queue<number>();
-         queue.add(1);
+         queue.push(1);
          expect(queue.length).toBe(1);
       });
 
       it("should add multiple items", () => {
          const queue = new Queue<number>();
-         queue.add(1, 2, 3);
+         queue.push(1, 2, 3);
          expect(queue.length).toBe(3);
       });
 
       it("should append to existing items", () => {
          const queue = new Queue([1, 2]);
-         queue.add(3, 4);
+         queue.push(3, 4);
          expect(queue.length).toBe(4);
       });
    });
@@ -43,7 +43,7 @@ describe("Queue", () => {
       it("should update after add", () => {
          const queue = new Queue<number>();
          expect(queue.length).toBe(0);
-         queue.add(1);
+         queue.push(1);
          expect(queue.length).toBe(1);
       });
    });
@@ -90,7 +90,7 @@ describe("Queue", () => {
          const queue = new Queue([1, 2]);
          const iterator = queue.shift();
          expect(iterator.next().value).toBe(1);
-         queue.add(3);
+         queue.push(3);
          expect(iterator.next().value).toBe(2);
          expect(iterator.next().value).toBe(3);
          expect(queue.length).toBe(0);

@@ -1,8 +1,8 @@
 import { SqlBuildContext } from "#/core/core.js";
 import { ARGS, PARAMS, Sql } from "#/core/sql-base.js";
 import { SqlBuildOptions } from "#/core/core.js";
-import { SqlParam, SqlParamAny } from "#/core/query/sql-param.js";
-import { cache } from "#/lib/cache.js";
+import { SqlParam } from "#/core/query/sql-param.js";
+import { Cache } from "#/lib/cache.js";
 
 export class SqlInput<T extends { Params: Record<string, unknown> }> extends Sql {
    declare readonly [PARAMS]: T["Params"];
@@ -24,17 +24,18 @@ export type SqlInputExtended<T> = T extends { Params: Record<string, unknown> }
    : SqlInput<{ Params: {} }>;
 
 export function input<Params extends Record<string, unknown> | void>(): SqlInputExtended<{ Params: Params }> {
-   const map = new Map<string, SqlParamAny>();
+   const cache = new Cache();
 
    return new Proxy(
       {},
       {
-         has(target, prop) {
+         has(_target, prop) {
             return typeof prop === "string";
          },
-         get(target, prop) {
+
+         get(_target, prop) {
             if (typeof prop !== "string") return undefined;
-            return cache(map).get(prop, () => new SqlParam({ name: prop.startsWith("$") ? prop.substring(1) : prop }));
+            return cache.get([prop], () => new SqlParam({ name: prop.startsWith("$") ? prop.substring(1) : prop }));
          },
       },
    ) as SqlInputExtended<{ Params: Params }>;

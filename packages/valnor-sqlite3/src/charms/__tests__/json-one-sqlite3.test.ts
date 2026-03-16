@@ -19,19 +19,27 @@ describe("json-one-sqlite3 tests", () => {
             (
               /* <query_1> */
               SELECT
-                "a_1"."account_id" AS "accountId",
-                "a_1"."status",
-                "a_1"."email",
-                "a_1"."first_name" AS "firstName",
-                "a_1"."last_name" AS "lastName",
-                "a_1"."notes",
-                "a_1"."created_at" AS "createdAt",
-                "a_1"."modified_at" AS "modifiedAt",
-                "a_1"."parent_id" AS "parentId"
+                "query_2".*
               FROM
-                "main"."account" AS "parent"
-              WHERE
-                "parent"."account_id" = "a_1"."parent_id" /* </query_1> */
+                (
+                  /* <query_2> */
+                  SELECT
+                    "a_1"."account_id" AS "accountId",
+                    "a_1"."status",
+                    "a_1"."email",
+                    "a_1"."first_name" AS "firstName",
+                    "a_1"."last_name" AS "lastName",
+                    "a_1"."notes",
+                    "a_1"."created_at" AS "createdAt",
+                    "a_1"."modified_at" AS "modifiedAt",
+                    "a_1"."parent_id" AS "parentId"
+                  FROM
+                    "main"."account" AS "parent"
+                  WHERE
+                    "parent"."account_id" = "a_1"."parent_id" /* </query_2> */
+                ) AS "query_2"
+              LIMIT
+                1 /* </query_1> */
             ) AS "query_1"
           LIMIT
             1 /* </query_0> */
@@ -73,19 +81,27 @@ describe("json-one-sqlite3 tests", () => {
             (
               /* <query_1> */
               SELECT
-                "parent"."account_id" AS "accountId",
-                "parent"."status",
-                "parent"."email",
-                "parent"."first_name" AS "firstName",
-                "parent"."last_name" AS "lastName",
-                "parent"."notes",
-                "parent"."created_at" AS "createdAt",
-                "parent"."modified_at" AS "modifiedAt",
-                "parent"."parent_id" AS "parentId"
+                "query_2".*
               FROM
-                "main"."account" AS "parent"
-              WHERE
-                "parent"."account_id" = "a_1"."parent_id" /* </query_1> */
+                (
+                  /* <query_2> */
+                  SELECT
+                    "parent"."account_id" AS "accountId",
+                    "parent"."status",
+                    "parent"."email",
+                    "parent"."first_name" AS "firstName",
+                    "parent"."last_name" AS "lastName",
+                    "parent"."notes",
+                    "parent"."created_at" AS "createdAt",
+                    "parent"."modified_at" AS "modifiedAt",
+                    "parent"."parent_id" AS "parentId"
+                  FROM
+                    "main"."account" AS "parent"
+                  WHERE
+                    "parent"."account_id" = "a_1"."parent_id" /* </query_2> */
+                ) AS "query_2"
+              LIMIT
+                1 /* </query_1> */
             ) AS "query_1"
           LIMIT
             1
@@ -101,7 +117,7 @@ describe("json-one-sqlite3 tests", () => {
       );
       expect(() => target.build(context, {})).toThrowErrorMatchingInlineSnapshot(
          `
-        [TypeError: Error building 'JsonAggregationSqlite3#3(SqlQuery#5)' in query '-'
+        [TypeError: Error building 'JsonAggregationSqlite3#3(SqlQuery#8)' in query '-'
         Cannot use json aggregation with SQL keyword 'from']
       `,
       );
@@ -165,22 +181,30 @@ describe("json-one-sqlite3 tests", () => {
               (
                 /* <query_2> */
                 SELECT
-                  "a_2"."account_id" AS "accountId",
-                  "a_2"."status",
-                  "a_2"."email",
-                  "a_2"."first_name" AS "firstName",
-                  "a_2"."last_name" AS "lastName",
-                  "a_2"."notes",
-                  "a_2"."created_at" AS "createdAt",
-                  "a_2"."modified_at" AS "modifiedAt",
-                  "a_2"."parent_id" AS "parentId"
+                  "query_3".*
                 FROM
-                  "main"."account" AS "a_2"
-                WHERE
-                  "a_2"."account_id" = "a_1"."parent_id"
+                  (
+                    /* <query_3> */
+                    SELECT
+                      "a_2"."account_id" AS "accountId",
+                      "a_2"."status",
+                      "a_2"."email",
+                      "a_2"."first_name" AS "firstName",
+                      "a_2"."last_name" AS "lastName",
+                      "a_2"."notes",
+                      "a_2"."created_at" AS "createdAt",
+                      "a_2"."modified_at" AS "modifiedAt",
+                      "a_2"."parent_id" AS "parentId"
+                    FROM
+                      "main"."account" AS "a_2"
+                    WHERE
+                      "a_2"."account_id" = "a_1"."parent_id"
+                    LIMIT
+                      ?
+                      /* </query_3> */
+                  ) AS "query_3"
                 LIMIT
-                  ?
-                  /* </query_2> */
+                  1 /* </query_2> */
               ) AS "query_2"
             LIMIT
               1

@@ -1,24 +1,25 @@
-export class Cache<K, V> {
-   private map: Map<K, V>;
+import { ok } from "assert";
+import { Sql } from "#/core/sql-base.js";
 
-   constructor() {
-      this.map = new Map<K, V>();
+export class Cache {
+   private map = new Map<string, Sql>();
+
+   get<Value extends Sql>(keys: string[], callback: () => Value): Value {
+      ok(keys?.length, `Cache keys are required.`);
+      const key = keys.join("\0");
+      if (this.map.has(key)) return this.map.get(key)! as Value;
+      const value = callback();
+      this.map.set(key, value);
+      return value;
    }
 
-   get(key: K, callback: (key: K) => V) {
-      if (this.map.has(key)) return this.map.get(key);
-
-      this.map.set(key, callback(key));
+   reset() {
+      this.map.clear();
    }
 }
 
-export function cache<K, V, T extends Map<K, V>>(map: T) {
-   return {
-      get(key: K, callback: () => V) {
-         if (map.has(key)) return map.get(key);
+export const CACHE = new Cache();
 
-         map.set(key, callback());
-         return map.get(key);
-      },
-   };
+export function resetCache() {
+   CACHE.reset();
 }

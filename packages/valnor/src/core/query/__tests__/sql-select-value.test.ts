@@ -1,6 +1,5 @@
 import { assertType, describe, expect, test } from "vitest";
 import { SqlSelectValue, val } from "#/core/query/sql-select-value.js";
-import { t } from "#/core/query/sql-type.js";
 import { row } from "#/core/query/sql-select-row.js";
 import { sql } from "#/core/sql.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
@@ -152,32 +151,5 @@ describe("SqlValue tests", () => {
          // @ts-expect-error - Testing runtime validation of extra property
          status: "",
       });
-   });
-});
-
-describe("SqlType tests", () => {
-   test("t() creates SqlType instance", () => {
-      const typeMarker = t<string>();
-      expect(typeMarker).toBeDefined();
-   });
-
-   test("SqlType build is no-op", () => {
-      const typeMarker = t<number>();
-      const context = new SqlBuildContext();
-      typeMarker.build(context);
-
-      // Should not add anything to context
-      expect(context.text).toBe("");
-      expect(context.values).toEqual([]);
-   });
-
-   test("multiple type markers", () => {
-      const marker1 = t<string>();
-      const marker2 = t<number>();
-      const marker3 = t<boolean>();
-
-      expect(marker1).toBeDefined();
-      expect(marker2).toBeDefined();
-      expect(marker3).toBeDefined();
    });
 });

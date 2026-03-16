@@ -4,6 +4,7 @@ import { hasParams } from "#/core/query/sql-query-types.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
 import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlCharmAny = SqlCharm<any>;
 
 export type ExtractCharmParams<T> =
@@ -47,7 +48,7 @@ export class SqlSelectCharm<T extends { Key: string; Type: unknown; Params?: unk
    }
 
    // eslint-disable-next-line unused-imports/no-unused-vars
-   protected write<T>(_context: SqlBuildContext, _options?: SqlBuildOptions | null, scope?: T | null): void {
+   protected write<T>(_context: SqlBuildContext, _options?: SqlBuildOptions | null, _scope?: T | null): void {
       throw new Error("Method not implemented.");
    }
 }

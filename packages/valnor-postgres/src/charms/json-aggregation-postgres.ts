@@ -1,10 +1,12 @@
 import {
    BuildSqlParams,
+   CACHE,
    info,
    JsonRow,
    quote,
    quoteText,
    raw,
+   row,
    sql,
    SqlBuildContext,
    SqlBuildError,
@@ -14,6 +16,7 @@ import {
    SqlQueryAny,
    SqlSelectCharm,
 } from "valnor";
+import { ok } from "node:assert";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type JsonAggregationPostgresAny = JsonAggregationPostgres<any>;
@@ -80,12 +83,12 @@ export class JsonAggregationPostgres<
     * @param key
     */
    as<Key extends string>(key: Key): SqlSelectCharm<{ Key: Key; Type: T["Type"]; Params: T["Params"] }> {
-      const _query = this.query;
+      const query = this.query;
       return new SqlSelectCharm<{ Key: Key; Type: T["Type"]; Params: T["Params"] }>({
          key,
          params: this.params as BuildSqlParams<T["Params"]>,
          write(context: SqlBuildContext) {
-            const queryName = context.getQueryName(_query);
+            const queryName = context.getQueryName(query);
             context.addStrings(`"${queryName}_result" as ${quoteText(this.key)}`);
          },
       });
@@ -102,9 +105,13 @@ export class JsonAggregationPostgres<
  * WHERE ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}
  * */
 export function jsonOne<T extends SqlQueryAny>(query: T): JsonAggregationResult<T> {
-   return new JsonAggregationPostgres(query, {
-      type: "one",
-   }) as JsonAggregationResult<T>;
+   return CACHE.get([query.id, `json=one`, "postgres"], () => {
+      ok(query.$$, `'query.$$' is required. check if the query does return a row.`);
+      const findOne = sql`select ${row(query.$$)} from ${query.inline()} limit 1`;
+      return new JsonAggregationPostgres(findOne, {
+         type: "one",
+      }) as JsonAggregationResult<T>;
+   });
 }
 
 /**
@@ -117,9 +124,13 @@ export function jsonOne<T extends SqlQueryAny>(query: T): JsonAggregationResult<
  * WHERE ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}
  * */
 export function jsonMany<T extends SqlQueryAny>(query: T): JsonAggregationResult<T, []> {
-   return new JsonAggregationPostgres(query, {
-      type: "many",
-   }) as JsonAggregationResult<T>;
+   return CACHE.get(
+      [query.id, `json=many`, "postgres"],
+      () =>
+         new JsonAggregationPostgres(query, {
+            type: "many",
+         }),
+   ) as JsonAggregationResult<T>;
 }
 
 export type JsonAggregationResult<T, R extends object | [] = object> =

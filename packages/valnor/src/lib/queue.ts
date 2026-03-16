@@ -3,11 +3,11 @@ export class Queue<T> {
 
    constructor(items?: T[]) {
       if (items?.length) {
-         this.add(...items);
+         this.push(...items);
       }
    }
 
-   add(...items: T[]): void {
+   push(...items: T[]): void {
       let index = this._items.length;
       for (const item of items) {
          this._items.push({ item, index: index++ });

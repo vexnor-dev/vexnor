@@ -1,7 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { Account, Order } from "valnor/testing";
 import { sql, row, param, input } from "valnor";
-import { jsonMany } from "#/charms/json-aggregation-sqlite3.js";
 import { sqlite3Select } from "#/crud/sqlite3-select.js";
 import { defaultQueryOptions } from "#/crud/default-query-options.js";
 
@@ -210,16 +209,24 @@ describe("sqlite3Select()", () => {
               (
                 /* <query_2> */
                 SELECT
-                  "o_2"."order_id" AS "orderId",
-                  "o_2"."status",
-                  "o_2"."created_at" AS "createdAt",
-                  "o_2"."modified_at" AS "modifiedAt",
-                  "o_2"."account_id" AS "accountId"
+                  "query_3".*
                 FROM
-                  "main"."order" AS "o_2"
-                WHERE
-                  "o_2"."account_id" = "a_3"."account_id"
-                  /* </query_2> */
+                  (
+                    /* <query_3> */
+                    SELECT
+                      "o_2"."order_id" AS "orderId",
+                      "o_2"."status",
+                      "o_2"."created_at" AS "createdAt",
+                      "o_2"."modified_at" AS "modifiedAt",
+                      "o_2"."account_id" AS "accountId"
+                    FROM
+                      "main"."order" AS "o_2"
+                    WHERE
+                      "o_2"."account_id" = "a_3"."account_id"
+                      /* </query_3> */
+                  ) AS "query_3"
+                LIMIT
+                  1 /* </query_2> */
               ) AS "query_2"
             LIMIT
               1
@@ -274,21 +281,29 @@ describe("sqlite3Select()", () => {
               (
                 /* <query_2> */
                 SELECT
-                  "o_2"."order_id" AS "orderId",
-                  "o_2"."status",
-                  "o_2"."created_at" AS "createdAt",
-                  "o_2"."modified_at" AS "modifiedAt",
-                  "o_2"."account_id" AS "accountId"
+                  "query_3".*
                 FROM
-                  "main"."order" AS "o_2"
-                WHERE
-                  "o_2"."account_id" = "a_3"."account_id"
-                  /* </query_2> */
+                  (
+                    /* <query_3> */
+                    SELECT
+                      "o_2"."order_id" AS "orderId",
+                      "o_2"."status",
+                      "o_2"."created_at" AS "createdAt",
+                      "o_2"."modified_at" AS "modifiedAt",
+                      "o_2"."account_id" AS "accountId"
+                    FROM
+                      "main"."order" AS "o_2"
+                    WHERE
+                      "o_2"."account_id" = "a_3"."account_id"
+                      /* </query_3> */
+                  ) AS "query_3"
+                LIMIT
+                  1 /* </query_2> */
               ) AS "query_2"
             LIMIT
               1
           ) AS "firstOrder" /* </query_1> */,
-          /* <query_3> */ (
+          /* <query_4> */ (
             SELECT
               coalesce(
                 json_group_array(
@@ -317,7 +332,7 @@ describe("sqlite3Select()", () => {
               )
             FROM
               (
-                /* <query_4> */
+                /* <query_5> */
                 SELECT
                   "children"."account_id" AS "accountId",
                   "children"."status",
@@ -332,9 +347,9 @@ describe("sqlite3Select()", () => {
                   "main"."account" AS "children"
                 WHERE
                   "children"."parent_id" = "a_4"."account_id"
-                  /* </query_4> */
-              ) AS "query_4"
-          ) AS "children" /* </query_3> */
+                  /* </query_5> */
+              ) AS "query_5"
+          ) AS "children" /* </query_4> */
         FROM
           "main"."account" AS "a_1"
           /* </query_0> */"

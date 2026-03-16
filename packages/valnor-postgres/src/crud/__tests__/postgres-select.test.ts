@@ -185,7 +185,7 @@ describe("postgresSelect()", () => {
           "a_1"."parent_id" AS "parentId",
           "query_1_result" AS "firstOrder"
         FROM
-          "main"."account" AS "a_1" /* <query_2> */
+          "main"."account" AS "a_1" /* <query_3> */
           /* inline: true */
           LEFT JOIN LATERAL (
             SELECT
@@ -194,19 +194,27 @@ describe("postgresSelect()", () => {
               (
                 /* <query_1> */
                 SELECT
-                  "o_2"."order_id" AS "orderId",
-                  "o_2"."status",
-                  "o_2"."created_at" AS "createdAt",
-                  "o_2"."modified_at" AS "modifiedAt",
-                  "o_2"."account_id" AS "accountId"
+                  "query_2".*
                 FROM
-                  "main"."order" AS "o_2"
-                WHERE
-                  "o_2"."account_id" = "a_3"."account_id"
-                  /* </query_1> */
+                  (
+                    /* <query_2> */
+                    SELECT
+                      "o_2"."order_id" AS "orderId",
+                      "o_2"."status",
+                      "o_2"."created_at" AS "createdAt",
+                      "o_2"."modified_at" AS "modifiedAt",
+                      "o_2"."account_id" AS "accountId"
+                    FROM
+                      "main"."order" AS "o_2"
+                    WHERE
+                      "o_2"."account_id" = "a_3"."account_id"
+                      /* </query_2> */
+                  ) AS "query_2"
+                LIMIT
+                  1 /* </query_1> */
               ) AS "query_1"
           ) AS "query_1" ON TRUE
-          /* </query_2> */
+          /* </query_3> */
           /* </query_0> */"
       `);
    });
@@ -251,9 +259,9 @@ describe("postgresSelect()", () => {
           "a_1"."modified_at" AS "modifiedAt",
           "a_1"."parent_id" AS "parentId",
           "query_1_result" AS "firstOrder",
-          "query_2_result" AS "children"
+          "query_3_result" AS "children"
         FROM
-          "main"."account" AS "a_1" /* <query_3> */
+          "main"."account" AS "a_1" /* <query_4> */
           /* inline: true */
           LEFT JOIN LATERAL (
             SELECT
@@ -262,27 +270,35 @@ describe("postgresSelect()", () => {
               (
                 /* <query_1> */
                 SELECT
-                  "o_2"."order_id" AS "orderId",
-                  "o_2"."status",
-                  "o_2"."created_at" AS "createdAt",
-                  "o_2"."modified_at" AS "modifiedAt",
-                  "o_2"."account_id" AS "accountId"
+                  "query_2".*
                 FROM
-                  "main"."order" AS "o_2"
-                WHERE
-                  "o_2"."account_id" = "a_3"."account_id"
-                  /* </query_1> */
+                  (
+                    /* <query_2> */
+                    SELECT
+                      "o_2"."order_id" AS "orderId",
+                      "o_2"."status",
+                      "o_2"."created_at" AS "createdAt",
+                      "o_2"."modified_at" AS "modifiedAt",
+                      "o_2"."account_id" AS "accountId"
+                    FROM
+                      "main"."order" AS "o_2"
+                    WHERE
+                      "o_2"."account_id" = "a_3"."account_id"
+                      /* </query_2> */
+                  ) AS "query_2"
+                LIMIT
+                  1 /* </query_1> */
               ) AS "query_1"
           ) AS "query_1" ON TRUE
-          /* </query_3> */
-          /* <query_4> */
+          /* </query_4> */
+          /* <query_5> */
           /* inline: true */
           LEFT JOIN LATERAL (
             SELECT
-              coalesce(jsonb_agg("query_2".*), '[]') AS "query_2_result"
+              coalesce(jsonb_agg("query_3".*), '[]') AS "query_3_result"
             FROM
               (
-                /* <query_2> */
+                /* <query_3> */
                 SELECT
                   "children"."account_id" AS "accountId",
                   "children"."status",
@@ -297,10 +313,10 @@ describe("postgresSelect()", () => {
                   "main"."account" AS "children"
                 WHERE
                   "children"."parent_id" = "a_4"."account_id"
-                  /* </query_2> */
-              ) AS "query_2"
-          ) AS "query_2" ON TRUE
-          /* </query_4> */
+                  /* </query_3> */
+              ) AS "query_3"
+          ) AS "query_3" ON TRUE
+          /* </query_5> */
           /* </query_0> */"
       `);
    });

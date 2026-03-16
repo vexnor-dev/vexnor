@@ -1,14 +1,13 @@
 import { describe, expect, test } from "vitest";
-import { Account, IAccountSelect } from "@test-models/valnor_test.account-table.js";
+import { Account } from "@test-models/valnor_test.account-table.js";
 import { sql } from "#/core/sql.js";
 import { param } from "#/core/query/sql-param.js";
-import { rowType } from "#/core/query/sql-row-type.js";
+import { row } from "#/core/query/sql-select-row.js";
 
 describe("SqlTable.updateSet() tests", () => {
    test("sql() update with $set()", () => {
       const modifiedAt = new Date();
       const query = sql`
-        ${rowType<IAccountSelect>()}
          update ${Account}
          set ${Account.updateSet({
             firstName: "Bob",
@@ -17,7 +16,7 @@ describe("SqlTable.updateSet() tests", () => {
             modifiedAt,
          })}
          where ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}
-         returning ${Account.$$}`;
+         returning ${row(Account.$$)}`;
       const { values, text } = query.getSql({ params: { accountId: "123e4567-e89b-12d3-a456-426614174000" } });
       expect(values).toEqual(["Bob", "Smith", "bob@example.com", modifiedAt, "123e4567-e89b-12d3-a456-426614174000"]);
       expect(text).toMatchInlineSnapshot(`

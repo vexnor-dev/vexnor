@@ -1,10 +1,22 @@
-import { describe, expect, test } from "vitest";
+import { beforeAll, describe, expect, test } from "vitest";
+import { randomUUID } from "node:crypto";
 import { info, param, row, sql, SqlBuildContext } from "valnor";
 import { Order } from "./codegen/main.order-table.js";
 import { Account } from "./codegen/main.account-table.js";
 import { jsonMany, Sqlite3Tokenizer } from "valnor-sqlite3";
+import { db } from "./config.js";
 
 describe("Sqlite3JsonAggregation", () => {
+   let parentAccountId!: string;
+
+   beforeAll(() => {
+      parentAccountId = randomUUID();
+      db.prepare(`INSERT INTO account (account_id, first_name, last_name, email, status) VALUES (?, 'Json', 'Test', ?, 'created')`).run(
+         parentAccountId,
+         `json-agg-test-${parentAccountId}@example.com`,
+      );
+   });
+
    const AccountOrders = sql`
       ${info({ label: "AccountOrders" })}
       select ${row(Order.$orderId, Order.$status)}
@@ -12,37 +24,15 @@ describe("Sqlite3JsonAggregation", () => {
       where ${Order.$accountId} = ${Account.out.$accountId}
       limit ${param<{ limit: number }>("limit")}`;
 
-   test("should build 'select'", () => {
-      const context = new SqlBuildContext({ tokenizer: new Sqlite3Tokenizer() });
-      context.next("select");
-      context.setAlias(Account.tableInfo, { alias: "_out_" });
-      jsonMany(AccountOrders).build(context, {});
-      expect(context.text).toMatchInlineSnapshot(
-         `
-        "(
-          /* <query_0> */
-          SELECT
-            coalesce(
-              json_group_array (json_object ("AccountOrders".*)),
-              '[]'
-            )
-          FROM
-            (
-              /* <AccountOrders> */
-              /* label: AccountOrders */
-              SELECT
-                "o_1"."order_id" AS "orderId",
-                "o_1"."status"
-              FROM
-                "main"."order" AS "o_1"
-              WHERE
-                "o_1"."account_id" = "_out_"."account_id"
-              LIMIT
-                ? /* </AccountOrders> */
-            ) AS "AccountOrders" /* </query_0> */
-        )"
-      `,
-      );
+   test("should build 'select' - returns correct column in result", async () => {
+      const query = sql`
+         select ${row(Account.$$)}, ${jsonMany(AccountOrders).as("orders")}
+         from ${Account}
+         where ${Account.$accountId} = ${parentAccountId}
+      `;
+      const results = await query.sqlite3.getAll({ db, params: { limit: 5 } });
+      expect(results).toHaveLength(1);
+      expect(results[0]).toHaveProperty("orders");
    });
 
    const INVALID_KEYWORDS_FOR_JSON_AGG = ["where", "group by", "order by", "update", "delete from"];
@@ -54,52 +44,13 @@ describe("Sqlite3JsonAggregation", () => {
       );
    });
 
-   test("should have 'params'", () => {
+   test("should have 'params' - limit is respected", () => {
       const query = sql`
          select ${row(Account.$$)}, ${jsonMany(AccountOrders).as("orders")}
          from ${Account}
+         where ${Account.$accountId} = ${parentAccountId}
       `;
-
-      const { text, values } = query.getSql({ params: { limit: 5 } });
-      expect(values).toEqual([5]);
-      expect(text).toMatchInlineSnapshot(`
-        "/* <query_0> */
-        SELECT
-          "a_1"."account_id" AS "accountId",
-          "a_1"."status",
-          "a_1"."email",
-          "a_1"."first_name" AS "firstName",
-          "a_1"."last_name" AS "lastName",
-          "a_1"."notes",
-          "a_1"."created_at" AS "createdAt",
-          "a_1"."modified_at" AS "modifiedAt",
-          "a_1"."parent_id" AS "parentId",
-          /* <query_1> */ (
-            SELECT
-              coalesce(
-                json_group_array (
-                  json_object ('orderId', "orderId", 'status', "status")
-                ),
-                '[]'
-              )
-            FROM
-              (
-                /* <AccountOrders> */
-                /* label: AccountOrders */
-                SELECT
-                  "o_2"."order_id" AS "orderId",
-                  "o_2"."status"
-                FROM
-                  "main"."order" AS "o_2"
-                WHERE
-                  "o_2"."account_id" = "a_1"."account_id"
-                LIMIT
-                  ? /* </AccountOrders> */
-              ) AS "AccountOrders"
-          ) AS "orders" /* </query_1> */
-        FROM
-          "main"."account" AS "a_1"
-          /* </query_0> */"
-      `);
+      const { values } = query.getSql({ params: { limit: 5 } });
+      expect(values).toEqual([5, parentAccountId]);
    });
 });

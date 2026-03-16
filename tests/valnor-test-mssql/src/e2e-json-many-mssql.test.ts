@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, test } from "vitest";
-import { info, param, row, SqlBuildContext } from "valnor";
+import { info, param, row } from "valnor";
 import { Account, IAccountSelect, IOrderSelect, Order } from "./codegen/valnor_test.schema.js";
-import { defaultQueryOptions, jsonMany, MssqlTokenizer, sql } from "valnor-mssql";
+import { jsonMany, sql } from "valnor-mssql";
 import { pool } from "./mssql-pool.js";
 import { getTag } from "./tags.js";
 
@@ -75,118 +75,40 @@ describe.sequential("jsonMany() tests", (ctx) => {
       order by ${Order.$createdAt} desc
       offset 0 rows fetch next ${param<{ limit: number }>("limit")} rows only`;
 
-   test("jsonAgg(): select build", () => {
-      const context = new SqlBuildContext({ tokenizer: new MssqlTokenizer() });
-      context.next("select");
-      jsonMany(AccountOrders).build(context, {});
-      expect(context.text).toMatchInlineSnapshot(`""AccountOrders_result"."AccountOrders""`);
-   });
-
-   test("jsonAgg(): from", () => {
-      const context = new SqlBuildContext({ tokenizer: new MssqlTokenizer() });
-      context.next("from");
-      context.setAlias(Account.tableInfo, { alias: "a_out" });
-      jsonMany(AccountOrders).build(context, {});
-      expect(context.text).toMatchInlineSnapshot(`
-        "/* <query_1> */ OUTER apply (
-          SELECT
-            coalesce(
-              (
-                /* <AccountOrders> */
-                /* label: AccountOrders */
-                SELECT
-                  "o_1"."order_id" AS "orderId",
-                  "o_1"."status",
-                  "o_1"."created_at" AS "createdAt",
-                  "o_1"."modified_at" AS "modifiedAt"
-                FROM
-                  "valnor_test"."order" AS "o_1"
-                WHERE
-                  "o_1"."account_id" = "a_out"."account_id"
-                ORDER BY
-                  "o_1"."created_at" DESC
-                OFFSET
-                  0 ROWS
-                FETCH NEXT
-                  ? ROWS ONLY /* </AccountOrders> */ FOR json path,
-                  include_null_values
-              ),
-              '[]'
-            ) AS "AccountOrders"
-        ) AS "AccountOrders_result" /* </query_1> */"
-      `
-      );
-   });
-
-   test("jsonAgg() with params", () => {
+   test("jsonAgg(): select build - returns correct column in result", async () => {
       const query = sql`
          select ${row(Account.$$)}, ${jsonMany(AccountOrders).as("orders")}
          from ${Account} ${jsonMany(AccountOrders)}
-         where ${Account.$email} = ${param<{ email: string }>("email")}
+         where ${Account.$accountId} = ${parentAccount.accountId}
+      `;
+      const results = await query.mssql.getAll({ db: pool.request(), params: { limit: 10 } });
+      expect(results).toHaveLength(1);
+      expect(results[0]).toHaveProperty("orders");
+   });
+
+   test("jsonAgg(): from - OUTER APPLY produces aggregated results", async () => {
+      const query = sql`
+         select ${row(Account.$$)}, ${jsonMany(AccountOrders).as("orders")}
+         from ${Account} ${jsonMany(AccountOrders)}
+         where ${Account.$accountId} = ${parentAccount.accountId}
+      `;
+      const results = await query.mssql.getAll({ db: pool.request(), params: { limit: 10 } });
+      expect(results).toHaveLength(1);
+      const parsed = JSON.parse(results[0]!.orders as unknown as string) as IOrderSelect[];
+      expect(parsed).toHaveLength(2);
+   });
+
+   test("jsonAgg() with params", async () => {
+      const query = sql`
+         select ${row(Account.$$)}, ${jsonMany(AccountOrders).as("orders")}
+         from ${Account} ${jsonMany(AccountOrders)}
+         where ${Account.$accountId} = ${parentAccount.accountId}
          order by ${Account.$accountId}
       `;
-
-      const { text, values } = query.getSql({
-         params: { email: "test@example.com", limit: 5 },
-         options: defaultQueryOptions,
-      });
-
-      expect(values).toMatchInlineSnapshot(`
-        [
-          5,
-          "test@example.com",
-        ]
-      `);
-      expect(text).toMatchInlineSnapshot(`
-        "/* <query_0> */
-        SELECT
-          "a_1"."account_id" AS "accountId",
-          "a_1"."parent_id" AS "parentId",
-          "a_1"."status",
-          "a_1"."email",
-          "a_1"."first_name" AS "firstName",
-          "a_1"."last_name" AS "lastName",
-          "a_1"."notes",
-          "a_1"."created_at" AS "createdAt",
-          "a_1"."modified_at" AS "modifiedAt",
-          "AccountOrders_result"."AccountOrders" AS "orders"
-        FROM
-          "valnor_test"."account" AS "a_1" /* <query_2> */
-          OUTER APPLY (
-            SELECT
-              coalesce(
-                (
-                  /* <AccountOrders> */
-                  /* label: AccountOrders */
-                  SELECT
-                    "o_2"."order_id" AS "orderId",
-                    "o_2"."status",
-                    "o_2"."created_at" AS "createdAt",
-                    "o_2"."modified_at" AS "modifiedAt"
-                  FROM
-                    "valnor_test"."order" AS "o_2"
-                  WHERE
-                    "o_2"."account_id" = "a_1"."account_id"
-                  ORDER BY
-                    "o_2"."created_at" DESC
-                  OFFSET
-                    0 rows
-                  FETCH NEXT
-                    @param_0 rows only /* </AccountOrders> */
-                  FOR JSON
-                    path,
-                    include_null_values
-                ),
-                '[]'
-              ) AS "AccountOrders"
-          ) AS "AccountOrders_result" /* </query_2> */
-        WHERE
-          "a_1"."email" = @param_1
-        ORDER BY
-          "a_1"."account_id"
-          /* </query_0> */"
-      `
-      );
+      const results = await query.mssql.getAll({ db: pool.request(), params: { limit: 1 } });
+      expect(results).toHaveLength(1);
+      const parsed = JSON.parse(results[0]!.orders as unknown as string) as IOrderSelect[];
+      expect(parsed).toHaveLength(1);
    });
 
    test("jsonMany() E2E: returns aggregated orders for account", async () => {

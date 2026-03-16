@@ -1,5 +1,6 @@
 import {
    BuildSqlParams,
+   CACHE,
    PARAMS,
    quote,
    quoteText,
@@ -106,11 +107,13 @@ export class JsonAggregationMssql<T extends { Row?: unknown; Params?: unknown }>
  * WHERE ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}
  * */
 export function jsonOne<T extends SqlQueryAny>(query: T): JsonAggregationResult<T> {
-   ok(query.$$, `'query.$$' is required. check if the query does return a row.`);
-   const findOne = sql`select top 1 ${row(query.$$)} from ${query.inline()}`;
-   return new JsonAggregationMssql(findOne, {
-      type: "one",
-   }) as JsonAggregationResult<T>;
+   return CACHE.get([query.id, `json=one`, "mssql"], () => {
+      ok(query.$$, `'query.$$' is required. check if the query does return a row.`);
+      const findOne = sql`select top 1 ${row(query.$$)} from ${query.inline()}`;
+      return new JsonAggregationMssql(findOne, {
+         type: "one",
+      }) as JsonAggregationResult<T>;
+   });
 }
 
 /**
@@ -123,9 +126,13 @@ export function jsonOne<T extends SqlQueryAny>(query: T): JsonAggregationResult<
  * WHERE ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}
  * */
 export function jsonMany<T extends SqlQueryAny>(query: T): JsonAggregationResult<T, []> {
-   return new JsonAggregationMssql(query, {
-      type: "many",
-   }) as JsonAggregationResult<T>;
+   return CACHE.get(
+      [query.id, `json=many`, "mssql"],
+      () =>
+         new JsonAggregationMssql(query, {
+            type: "many",
+         }),
+   ) as JsonAggregationResult<T>;
 }
 
 export type JsonAggregationResult<T, R extends object | [] = object> =

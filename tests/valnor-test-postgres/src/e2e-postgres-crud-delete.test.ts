@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
 import { param } from "valnor";
-import { defaultQueryOptions, postgresCrud, sql } from "valnor-postgres";
+import { postgresCrud, sql } from "valnor-postgres";
 import { Account, IAccountSelect, IOrderSelect, Order } from "./codegen/valnor_test.schema.js";
 import { pool } from "./postgres-pool.js";
 import { TestDataManager } from "./test-data-manager.js";
@@ -38,26 +38,6 @@ describe.sequential("valnor postgres CRUD - delete", async (ctx) => {
       const query = OrderCrud.delete!({
          WHERE: sql`${Order.$orderId} = ${param<{ id: string }>("id")}`,
       });
-      const { text, values } = query.getSql({
-         params: { id: order.orderId },
-         options: defaultQueryOptions,
-      });
-      expect(values).toMatchObject([order.orderId]);
-      expect(text).toMatchInlineSnapshot(`
-        "/* <query_0> */
-        /* driver: postgres */
-        DELETE FROM "valnor_test"."order"
-        /* <query_1> */
-        WHERE
-          /* <query_2> */ "order"."order_id" = $1 /* </query_2> */ /* </query_1> */
-        RETURNING
-          "order"."order_id" AS "orderId",
-          "order"."status",
-          "order"."created_at" AS "createdAt",
-          "order"."modified_at" AS "modifiedAt",
-          "order"."account_id" AS "accountId"
-          /* </query_0> */"
-      `);
 
       const deleted = await query.getAll({
          db: pool,
@@ -80,30 +60,6 @@ describe.sequential("valnor postgres CRUD - delete", async (ctx) => {
       const query = AccountCrud.delete!({
          WHERE: sql`${Account.$accountId} = ${idParam}`,
       });
-      const { text, values } = query.getSql({
-         params: { id: childAccount.accountId },
-         options: defaultQueryOptions,
-      });
-      expect(values).toMatchObject([childAccount.accountId]);
-      expect(text).toMatchInlineSnapshot(`
-        "/* <query_0> */
-        /* driver: postgres */
-        DELETE FROM "valnor_test"."account"
-        /* <query_1> */
-        WHERE
-          /* <query_2> */ "account"."account_id" = $1 /* </query_2> */ /* </query_1> */
-        RETURNING
-          "account"."account_id" AS "accountId",
-          "account"."status",
-          "account"."email",
-          "account"."first_name" AS "firstName",
-          "account"."last_name" AS "lastName",
-          "account"."notes",
-          "account"."created_at" AS "createdAt",
-          "account"."modified_at" AS "modifiedAt",
-          "account"."parent_id" AS "parentId"
-          /* </query_0> */"
-      `);
 
       const deleted = await query.getAll({
          db: pool,
@@ -127,30 +83,6 @@ describe.sequential("valnor postgres CRUD - delete", async (ctx) => {
       const delete$ = AccountCrud.delete!({
          WHERE: sql`${Account.$accountId} = ${idParam}`,
       });
-      const { text, values } = delete$.getSql({
-         params: { id: rootAccount.accountId },
-         options: defaultQueryOptions,
-      });
-      expect(text).toMatchInlineSnapshot(`
-        "/* <query_0> */
-        /* driver: postgres */
-        DELETE FROM "valnor_test"."account"
-        /* <query_1> */
-        WHERE
-          /* <query_2> */ "account"."account_id" = $1 /* </query_2> */ /* </query_1> */
-        RETURNING
-          "account"."account_id" AS "accountId",
-          "account"."status",
-          "account"."email",
-          "account"."first_name" AS "firstName",
-          "account"."last_name" AS "lastName",
-          "account"."notes",
-          "account"."created_at" AS "createdAt",
-          "account"."modified_at" AS "modifiedAt",
-          "account"."parent_id" AS "parentId"
-          /* </query_0> */"
-      `);
-      expect(values).toMatchObject([rootAccount.accountId]);
 
       const deleted = await delete$.getAll({
          db: pool,

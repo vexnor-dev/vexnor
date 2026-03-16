@@ -2,19 +2,18 @@ import { describe, expect, test } from "vitest";
 
 import { randomUUID } from "node:crypto";
 import { param } from "#/core/query/sql-param.js";
-import { rowType } from "#/core/query/sql-row-type.js";
 import { row } from "#/core/query/sql-select-row.js";
 import { sql } from "#/core/sql.js";
-import { Account, IAccountSelect } from "@test-models/valnor_test.account-table.js";
-import { IOrderItemSelect, OrderItem } from "@test-models/valnor_test.order_item-table.js";
+import { Account } from "@test-models/valnor_test.account-table.js";
+import { OrderItem } from "@test-models/valnor_test.order_item-table.js";
 import { Order } from "@test-models/valnor_test.order-table.js";
+import { col } from "#/core/query/sql-select-column.js";
 
 describe("sql() tests", () => {
    test("sql() select", () => {
       const names = ["One", "Two", "Three"];
       const query = sql`
-         ${rowType<IAccountSelect>()}
-         select ${Account.$firstName}, min(${Account.$email}), ${Account.$email.as("user_email")}, ${Account.$createdAt}
+         select ${row(Account.$firstName, Account.$createdAt, Account.$email.as("user_email"))}, min(${Account.$email}) as ${col<{ firstEmail: string }>("firstEmail")}
          from ${Account}
          where ${Account.$email} = ${param<{ email: string }>("email")}
            and ${Account.$firstName} in (${param<{ names: string[] }>("names")})
@@ -25,9 +24,9 @@ describe("sql() tests", () => {
         "/* <query_0> */
         SELECT
           "a_1"."first_name" AS "firstName",
-          min("a_1"."email"),
+          "a_1"."created_at" AS "createdAt",
           "a_1"."email" AS "user_email",
-          "a_1"."created_at" AS "createdAt"
+          min("a_1"."email") AS "firstEmail"
         FROM
           "main"."account" AS "a_1"
         WHERE
@@ -61,8 +60,7 @@ describe("sql() tests", () => {
    test("sql() with value as param", () => {
       const email = "bob@example.com";
       const query = sql`
-        ${rowType<IAccountSelect>()}
-         select ${Account.$firstName}
+         select ${row(Account.$firstName)}
          from ${Account}
          where ${Account.$email} = ${email}`;
       const { values, text } = query.getSql({});
@@ -80,14 +78,7 @@ describe("sql() tests", () => {
 
    test("sql query with joins", () => {
       const query = sql`
-        ${rowType<IOrderItemSelect>()}
-         select ${OrderItem.$productId},
-                ${OrderItem.$orderId},
-                ${OrderItem.$productPrice},
-                ${Order.$createdAt},
-                ${Order.$status},
-                ${Account.$firstName},
-                ${Account.$lastName}
+                 select ${row(OrderItem.$productId, OrderItem.$orderId, OrderItem.$productPrice, Order.$createdAt, Order.$status, Account.$firstName, Account.$lastName)}
          from ${OrderItem}
                  join ${Order} on ${OrderItem.$orderId} = ${Order.$orderId}
                  join ${Account} on ${Account.$accountId} = ${Order.$accountId}`;
@@ -112,9 +103,7 @@ describe("sql() tests", () => {
 
    test("sql query with self-join and explicit alias", () => {
       const query = sql`
-        ${rowType<IAccountSelect & { parentEmail: string }>()}
-         select ${Account.$email},
-                ${Account.as`parent`.$email.as("parentEmail")}
+         select ${row(Account.$email, Account.as`parent`.$email.as("parentEmail"))}
          from ${Account}
                  join ${Account.as`parent`} on ${Account.$parentId} = ${Account.as`parent`.$accountId}`;
 
