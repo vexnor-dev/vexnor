@@ -77,6 +77,11 @@ describe("sql subqueries tests", () => {
                 "_value": null,
                 "callback": [Function],
               },
+              "_outLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
               "_paramsLazy": Lazy {
                 "_computed": false,
                 "_value": null,
@@ -742,6 +747,11 @@ describe("sql subqueries tests", () => {
                 "callback": [Function],
               },
               "_labelLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
+              "_outLazy": Lazy {
                 "_computed": false,
                 "_value": null,
                 "callback": [Function],
@@ -1415,6 +1425,11 @@ describe("sql subqueries tests", () => {
                 "_value": null,
                 "callback": [Function],
               },
+              "_outLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
               "_paramsLazy": Lazy {
                 "_computed": false,
                 "_value": null,
@@ -2080,6 +2095,11 @@ describe("sql subqueries tests", () => {
                 "callback": [Function],
               },
               "_labelLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
+              "_outLazy": Lazy {
                 "_computed": false,
                 "_value": null,
                 "callback": [Function],
@@ -2753,6 +2773,11 @@ describe("sql subqueries tests", () => {
                 "_value": null,
                 "callback": [Function],
               },
+              "_outLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
               "_paramsLazy": Lazy {
                 "_computed": false,
                 "_value": null,
@@ -3418,6 +3443,11 @@ describe("sql subqueries tests", () => {
                 "callback": [Function],
               },
               "_labelLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
+              "_outLazy": Lazy {
                 "_computed": false,
                 "_value": null,
                 "callback": [Function],
@@ -4091,6 +4121,11 @@ describe("sql subqueries tests", () => {
                 "_value": null,
                 "callback": [Function],
               },
+              "_outLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
               "_paramsLazy": Lazy {
                 "_computed": false,
                 "_value": null,
@@ -4760,6 +4795,11 @@ describe("sql subqueries tests", () => {
                 "_value": null,
                 "callback": [Function],
               },
+              "_outLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
               "_paramsLazy": Lazy {
                 "_computed": false,
                 "_value": null,
@@ -5425,6 +5465,11 @@ describe("sql subqueries tests", () => {
                 "callback": [Function],
               },
               "_labelLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
+              "_outLazy": Lazy {
                 "_computed": false,
                 "_value": null,
                 "callback": [Function],

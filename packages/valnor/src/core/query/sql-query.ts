@@ -3,7 +3,6 @@ import {
    InferSelectRowByResult,
    SqlInputArgs,
    SqlQueryFormat,
-   SqlQueryScope,
    SqlQueryType,
 } from "#/core/query/sql-query-types.js";
 import { ARGS, PARAMS, Sql, TYPE } from "#/core/sql-base.js";
@@ -35,13 +34,10 @@ export type SqlQueryAny = SqlQuery<any>;
 export type SqlQueryExtendedAny = SqlQueryExtended<any>;
 
 export type SqlQueryColumns<Row> = Row extends Record<string, unknown> ? InferSelectRowByResult<Row> : unknown;
-export type SqlQueryAllRec<Row> = Row extends Record<string, unknown> ? Pick<SqlQuery<{ Row: Row }>, "$$"> : unknown;
 
 export type SqlQueryExtended<T extends { Row?: unknown; Params?: unknown }> = SqlQuery<T> & SqlQueryColumns<T["Row"]>;
 
 export declare const QUERY: unique symbol;
-
-export type QueryOf<S> = S extends { readonly [QUERY]?: infer R } ? R : unknown;
 
 export type SqlQueryArgs = Pick<SqlQueryAny, "rawStrings" | "rawValues"> &
    Partial<Pick<SqlQueryAny, "info" | "tag" | "label">>;
@@ -62,6 +58,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
    private readonly _$$Lazy = new Lazy<SqlQueryAll<T["Row"]>>(this.initSelectAll$$.bind(this));
    private readonly _labelLazy: Lazy<string> = new Lazy(this.initLabel.bind(this));
    private readonly _infoLazy: Lazy<SqlQueryInfo | null> = new Lazy(this.initInfo.bind(this));
+   private readonly _outLazy = new Lazy(this.initOut.bind(this));
 
    constructor({ rawStrings, rawValues, ...args }: SqlQueryArgs) {
       super({
@@ -83,32 +80,32 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
       this.rawValues = rawValues;
    }
 
-   get info() {
+   get info(): SqlQueryInfo | null {
       return this._infoLazy.value;
    }
 
-   get label() {
+   get label(): string {
       return this._labelLazy.value;
    }
 
    /**
     * SQL query parameters
     */
-   get params() {
+   get params(): BuildSqlParams<T["Params"]> {
       return this._paramsLazy.value;
    }
 
    /**
     * SQL query result row
     */
-   get row() {
+   get row(): SqlQueryRow<T> {
       return this._rowLazy.value;
    }
 
    /**
     * SQL query inner queries
     */
-   get innerQueries() {
+   get innerQueries(): SqlQueryAny[] {
       return this._innerQueriesLazy.value;
    }
 
@@ -119,8 +116,12 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
    /**
     * SQL query $$ (SQL *)
     */
-   get $$() {
+   get $$(): SqlQueryAll<T["Row"]> {
       return this._$$Lazy.value;
+   }
+
+   get out(): SqlQueryRefExtended<T> {
+      return this._outLazy.value;
    }
 
    static buildInnerQueryRef(
@@ -128,18 +129,25 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
       context: SqlBuildContext,
       options?: SqlBuildOptions | null,
    ) {
-      let scope: undefined | SqlQueryScope = undefined;
       let query = undefined;
+      let scope = undefined;
       switch (true) {
-         case queryRef instanceof SqlQuery:
-            query = queryRef;
-            break;
          case queryRef instanceof SqlQueryRef:
+            if (queryRef.recursive) {
+               queryRef.build(context, options);
+               return;
+            }
+
             query = queryRef.innerQuery;
             scope = queryRef.scope;
             break;
+         case queryRef instanceof SqlQuery:
+            query = queryRef;
+            break;
          default:
-            throw new SqlBuildError(`Unsupported query ref type: ${queryRef}`);
+            throw new SqlBuildError(
+               `Unsupported query ref type: ${(queryRef as { constructor: { name: string } }).constructor.name}`,
+            );
       }
 
       switch (scope?.queryFormat ?? SqlQueryFormatByKeyword[context.keyword ?? "default"] ?? null) {
@@ -414,6 +422,10 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
       return params as BuildSqlParams<T["Params"]>;
    }
 
+   initOut(): SqlQueryRefExtended<T> {
+      return newSqlQueryRef(this, null, true);
+   }
+
    /**
     * Get the SQL  text with input values and parameters replaced by the ? wildcards
     * @example select * from table where id = ? and name = ?
@@ -535,6 +547,8 @@ export function newSqlQuery<T extends { Params?: unknown; Row?: unknown }, Handl
 }
 
 export const SqlQueryFormatByKeyword: Record<string, SqlQueryFormat> = {
+   "with recursive": "with",
+   recursive: "with",
    with: "with",
    from: "from",
    select: "select",

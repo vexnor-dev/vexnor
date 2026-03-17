@@ -309,6 +309,175 @@ describe("sql CTE (with clause) tests", () => {
       `);
    });
 
+   test("recursive CTE: self-reference renders as CTE name", () => {
+      const anchor = sql`
+         ${info({ label: "Hierarchy" })}
+         select ${row(Account.$$)}, ${val`0`.as<{ depth: number }>("depth")}
+         from ${Account}
+         where ${Account.$parentId} is null
+      `;
+
+      const hierarchy = sql`
+         ${anchor} union all
+         select ${row(Account.as("b").$$)}, ${val`${anchor.$depth} + 1`.as<{ depth: number }>("depth")}
+         from ${Account.as("b")}
+         join ${anchor.out} on ${anchor.out.$accountId} = ${Account.as("b").$parentId}
+      `;
+
+      const query = sql`
+         with recursive ${hierarchy}
+         select ${row(hierarchy.$$)}
+         from ${hierarchy}
+         order by ${hierarchy.$depth}, ${hierarchy.$email}
+      `;
+
+      const { text } = query.getSql({});
+      expect(text).toMatchInlineSnapshot(`
+        "/* <query_0> */
+        WITH RECURSIVE
+          "query_1" AS (
+            /* <query_1> */
+            /* <Hierarchy> */
+            /* label: Hierarchy */
+            SELECT
+              "a_1"."account_id" AS "accountId",
+              "a_1"."status",
+              "a_1"."email",
+              "a_1"."first_name" AS "firstName",
+              "a_1"."last_name" AS "lastName",
+              "a_1"."notes",
+              "a_1"."created_at" AS "createdAt",
+              "a_1"."modified_at" AS "modifiedAt",
+              "a_1"."parent_id" AS "parentId",
+              /* <query_3> */ 0 /* </query_3> */ AS "depth"
+            FROM
+              "main"."account" AS "a_1"
+            WHERE
+              "a_1"."parent_id" IS NULL
+              /* </Hierarchy> */
+            UNION ALL
+            SELECT
+              "b"."account_id" AS "accountId",
+              "b"."status",
+              "b"."email",
+              "b"."first_name" AS "firstName",
+              "b"."last_name" AS "lastName",
+              "b"."notes",
+              "b"."created_at" AS "createdAt",
+              "b"."modified_at" AS "modifiedAt",
+              "b"."parent_id" AS "parentId",
+              /* <query_4> */ "Hierarchy"."depth" + 1 /* </query_4> */ AS "depth"
+            FROM
+              "main"."account" AS "b"
+              JOIN "query_1" ON "Hierarchy"."accountId" = "b"."parent_id"
+              /* </query_1> */
+          )
+        SELECT
+          "query_1".*
+        FROM
+          "query_1"
+        ORDER BY
+          "query_1"."depth",
+          "query_1"."email"
+          /* </query_0> */"
+      `);
+   });
+
+   test("recursive CTE: mixed with non-recursive CTE", () => {
+      const anchor = sql`
+         ${info({ label: "Hierarchy" })}
+         select ${row(Account.$accountId, Account.$parentId, Account.$email)},
+                ${val`0`.as<{ depth: number }>("depth")}
+         from ${Account}
+         where ${Account.$parentId} is null
+      `;
+
+      const hierarchy = sql`
+         ${anchor} union all
+         select ${row(Account.as("b").$accountId, Account.as("b").$parentId, Account.as("b").$email)},
+                ${val`${anchor.$depth} + 1`.as<{ depth: number }>("depth")}
+         from ${Account.as("b")}
+         join ${anchor.out} on ${anchor.out.$accountId} = ${Account.as("b").$parentId}
+      `;
+
+      const ActiveAccounts = sql`
+         ${info({ label: "ActiveAccounts" })}
+         select ${row(Account.$$)}
+         from ${Account}
+         where ${Account.$status} = 'active'
+      `;
+
+      const query = sql`
+         with recursive ${hierarchy}, ${ActiveAccounts}
+         select ${row(hierarchy.$accountId, hierarchy.$depth, ActiveAccounts.$email)}
+         from ${hierarchy}
+         join ${ActiveAccounts} on ${ActiveAccounts.$accountId} = ${hierarchy.$accountId}
+         order by ${hierarchy.$depth}
+      `;
+
+      const { text } = query.getSql({});
+      expect(text).toMatchInlineSnapshot(`
+        "/* <query_0> */
+        WITH RECURSIVE
+          "query_1" AS (
+            /* <query_1> */
+            /* <Hierarchy> */
+            /* label: Hierarchy */
+            SELECT
+              "a_1"."account_id" AS "accountId",
+              "a_1"."parent_id" AS "parentId",
+              "a_1"."email",
+              /* <query_3> */
+              0 /* </query_3> */ AS "depth"
+            FROM
+              "main"."account" AS "a_1"
+            WHERE
+              "a_1"."parent_id" IS NULL
+              /* </Hierarchy> */
+            UNION ALL
+            SELECT
+              "b"."account_id" AS "accountId",
+              "b"."parent_id" AS "parentId",
+              "b"."email",
+              /* <query_4> */
+              "Hierarchy"."depth" + 1 /* </query_4> */ AS "depth"
+            FROM
+              "main"."account" AS "b"
+              JOIN "query_1" ON "Hierarchy"."accountId" = "b"."parent_id"
+              /* </query_1> */
+          ),
+          "ActiveAccounts" AS (
+            /* <ActiveAccounts> */
+            /* label: ActiveAccounts */
+            SELECT
+              "a_2"."account_id" AS "accountId",
+              "a_2"."status",
+              "a_2"."email",
+              "a_2"."first_name" AS "firstName",
+              "a_2"."last_name" AS "lastName",
+              "a_2"."notes",
+              "a_2"."created_at" AS "createdAt",
+              "a_2"."modified_at" AS "modifiedAt",
+              "a_2"."parent_id" AS "parentId"
+            FROM
+              "main"."account" AS "a_2"
+            WHERE
+              "a_2"."status" = 'active'
+              /* </ActiveAccounts> */
+          )
+        SELECT
+          "query_1"."accountId",
+          "query_1"."depth",
+          "ActiveAccounts"."email"
+        FROM
+          "query_1"
+          JOIN "ActiveAccounts" ON "ActiveAccounts"."accountId" = "query_1"."accountId"
+        ORDER BY
+          "query_1"."depth"
+          /* </query_0> */"
+      `);
+   });
+
    test("CTE column reference in val template", () => {
       const Children = sql`
          ${info({ label: "MaxCreatedAt" })}

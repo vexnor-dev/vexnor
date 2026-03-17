@@ -1,6 +1,8 @@
 export const MAJOR_KEYWORDS = new Set(
    [
+      "with recursive",
       "with",
+      "recursive",
       "partition by",
       "order by",
       "group by",

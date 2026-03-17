@@ -65,6 +65,7 @@ describe("SqlQuery tests", () => {
           "_$$Lazy",
           "_labelLazy",
           "_infoLazy",
+          "_outLazy",
           "$accountId",
           "$status",
           "$email",

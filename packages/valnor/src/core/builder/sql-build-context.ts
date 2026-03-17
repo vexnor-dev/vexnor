@@ -17,6 +17,7 @@ import { SqlQueryScope } from "#/core/query/sql-query-types.js";
 import { quoteText } from "#/core/utils/quote-text.js";
 import { trim } from "#/core/utils/trim.js";
 import { ok } from "assert";
+import { SqlQueryRef, SqlQueryRefAny } from "#/core/query/sql-query-ref.js";
 
 export type SqlBuildContextArgs = SqlBuildOptions & Partial<Pick<SqlBuildContext, "query" | "params" | "tag">>;
 
@@ -222,22 +223,30 @@ export class SqlBuildContext {
       }
    }
 
-   getQueryName(token: SqlQueryAny | SqlQueryColumnAny | SqlSelectAllAny) {
+   getQueryName(level: number | SqlQueryAny | SqlQueryColumnAny | SqlSelectAllAny | SqlQueryRefAny) {
       const query = (() => {
          switch (true) {
-            case token instanceof SqlQuery:
-               return token;
-            case token instanceof SqlQueryColumn:
-               return token.query;
-            case token instanceof SqlSelectAll:
-               return token.innerQuery;
+            case typeof level === "number":
+               ok(
+                  level <= 0 && level >= -this._queryStack.length,
+                  `'level' out of range: ${level}. Current query stack is: ${this._queryStack.length} `,
+               );
+               return this._queryStack.at(level)!;
+            case level instanceof SqlQueryRef:
+               return level.innerQuery;
+            case level instanceof SqlQuery:
+               return level;
+            case level instanceof SqlQueryColumn:
+               return level.query;
+            case level instanceof SqlSelectAll:
+               return level.innerQuery;
             default:
-               throw new SqlBuildError(`Unsupported token type: ${token}`);
+               throw new SqlBuildError(`Unsupported token type: ${level}`);
          }
       })();
 
       const { name } = this.addQuery(query);
-      ok(name, `No SqlQuery found for '${token.id}'.`);
+      ok(name, `No SqlQuery found for level '${typeof level === "number" ? level : level.id}'.`);
       return name;
    }
 

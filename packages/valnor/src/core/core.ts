@@ -94,3 +94,5 @@ export { SqlRunError } from "./sql-run-error.js";
 
 // CACHE
 export { CACHE } from "#/lib/cache.js";
+
+export type { SqlQueryColumns } from "#/core/query/sql-query.js";
