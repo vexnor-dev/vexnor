@@ -223,30 +223,42 @@ export class SqlBuildContext {
       }
    }
 
-   getQueryName(level: number | SqlQueryAny | SqlQueryColumnAny | SqlSelectAllAny | SqlQueryRefAny) {
-      const query = (() => {
-         switch (true) {
-            case typeof level === "number":
-               ok(
-                  level <= 0 && level >= -this._queryStack.length,
-                  `'level' out of range: ${level}. Current query stack is: ${this._queryStack.length} `,
-               );
-               return this._queryStack.at(level)!;
-            case level instanceof SqlQueryRef:
-               return level.innerQuery;
-            case level instanceof SqlQuery:
-               return level;
-            case level instanceof SqlQueryColumn:
-               return level.query;
-            case level instanceof SqlSelectAll:
-               return level.innerQuery;
-            default:
-               throw new SqlBuildError(`Unsupported token type: ${level}`);
-         }
-      })();
+   getQueryName(token: SqlQueryAny | SqlQueryColumnAny | SqlSelectAllAny | SqlQueryRefAny) {
+      let query: SqlQueryAny | undefined = undefined;
+      switch (true) {
+         case token instanceof SqlQueryRef:
+            if (token.out) {
+               query = this._queryStack.at(-1)!;
+               break;
+            }
+
+            query = token.innerQuery;
+            break;
+         case token instanceof SqlQuery:
+            query = token;
+            break;
+         case token instanceof SqlQueryColumn:
+            if (token.query instanceof SqlQuery) {
+               query = token.query;
+               break;
+            }
+
+            if (token.query.out) {
+               query = this._queryStack.at(-1)!;
+               break;
+            }
+
+            query = token.query.innerQuery;
+            break;
+         case token instanceof SqlSelectAll:
+            query = token.innerQuery;
+            break;
+         default:
+            throw new SqlBuildError(`Unsupported token type: ${token}`);
+      }
 
       const { name } = this.addQuery(query);
-      ok(name, `No SqlQuery found for level '${typeof level === "number" ? level : level.id}'.`);
+      ok(name, `No SqlQuery found for level '${typeof token === "number" ? token : token.id}'.`);
       return name;
    }
 

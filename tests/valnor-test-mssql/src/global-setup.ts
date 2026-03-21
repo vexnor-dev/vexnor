@@ -12,8 +12,8 @@ export default async function (proj: TestProject) {
       ({ pool } = await import("./mssql-pool.js"));
       await pool.connect();
 
-      const { rowsAffected, timestamp } = await dataManager.cleanAll(pool);
-      proj.vitest.logger.log(`global-setup: Cleaned-up records older than ${timestamp}`, rowsAffected);
+      const rowsAffected = await dataManager.cleanAll(pool);
+      proj.vitest.logger.log(`global-setup: Cleaned-up records`, rowsAffected);
    } finally {
       await pool?.close();
    }

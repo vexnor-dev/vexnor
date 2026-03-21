@@ -150,14 +150,31 @@ export class TestDataManager {
    }
 
    async cleanAll(pool: Pool) {
-      const timestamp = new Date();
+      const queries = [
+         {
+            type: OrderItem.tableInfo.name,
+            query: sql`delete from ${OrderItem}`,
+         },
+         {
+            type: Product.tableInfo.name,
+            query: sql`delete from ${Product}`,
+         },
+         { type: Order.tableInfo.name, query: sql`delete from ${Order}` },
+         {
+            type: `${Account.tableInfo.name} -children-`,
+            query: sql`delete from ${Account} where ${Account.$parentId} is not null`,
+         },
+         {
+            type: `${Account.tableInfo.name} -parents-`,
+            query: sql`delete from ${Account}`,
+         },
+      ];
+      const results = [];
+      for (const query of queries) {
+         const result = await query.query.postgres.run({ db: pool });
+         results.push({ type: query.type, rowsAffected: result.rowCount });
+      }
 
-      await sql`delete from ${OrderItem}`.run({ db: pool });
-      await sql`delete from ${Order}`.run({ db: pool });
-      await sql`delete from ${Product}`.run({ db: pool });
-      await sql`delete from ${Account} where ${Account.$parentId} is not null`.run({ db: pool });
-      await sql`delete from ${Account}`.run({ db: pool });
-
-      return { timestamp };
+      return results;
    }
 }

@@ -2,13 +2,13 @@ import { SqlQueryHandler, SqlInputArgs, SqlQuery, SqlRunArgs, SqlRunError } from
 import { IResult, Request } from "mssql";
 import { defaultQueryOptions } from "./default-query-options.js";
 
-export class MssqlQueryHandler<T extends { Params?: unknown; Row?: unknown }> extends SqlQueryHandler<{
-   Row: T["Row"];
-   Params: T["Params"];
-   QueryResult: IResult<T["Row"]>;
-   Connection: Request;
-}> {
-   constructor(readonly query: SqlQuery<{ Row: T["Row"]; Params: T["Params"] }>) {
+export class MssqlQueryHandler<T extends { Params?: unknown; Row?: unknown }> extends SqlQueryHandler<
+   Pick<T, "Row" | "Params"> & {
+      QueryResult: IResult<T["Row"]>;
+      Connection: Request;
+   }
+> {
+   constructor(readonly query: SqlQuery<Pick<T, "Row" | "Params">>) {
       super(query);
    }
 

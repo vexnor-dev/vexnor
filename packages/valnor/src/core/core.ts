@@ -70,7 +70,7 @@ export { Void } from "./utils/utility-types.js";
 // param internals
 export { type BuildSqlParams } from "./query/sql-param.js";
 export { type PARAMS, type ROW, type TYPE, type ARGS } from "./sql-base.js";
-export { SqlQueryColumn, newSqlSelectColumn, type SqlQueryColumnAny } from "./query/sql-query-column.js";
+export { SqlQueryColumn, newSqlQueryColumn, type SqlQueryColumnAny } from "./query/sql-query-column.js";
 
 // crud
 export { expandInsertColumns, expandInsertValues } from "./crud/sql-crud-helper.js";

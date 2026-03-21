@@ -162,16 +162,14 @@ export class TestDataManager {
    }
 
    async cleanAll(pool: ConnectionPool) {
-      const timestamp = new Date();
-
-      const rowsAffected = await Promise.all([
-         {
-            type: Product.tableInfo.name,
-            query: sql`delete from ${Product}`,
-         },
+      const queries = [
          {
             type: OrderItem.tableInfo.name,
             query: sql`delete from ${OrderItem}`,
+         },
+         {
+            type: Product.tableInfo.name,
+            query: sql`delete from ${Product}`,
          },
          { type: Order.tableInfo.name, query: sql`delete from ${Order}` },
          {
@@ -182,28 +180,13 @@ export class TestDataManager {
             type: `${Account.tableInfo.name} -parents-`,
             query: sql`delete from ${Account}`,
          },
-      ])
-         .then((queries) => {
-            return Promise.all(
-               queries.map(async ({ query, type }) => {
-                  ok(pool, `MSSQL 'pool' is required.`);
+      ];
+      const results = [];
+      for (const query of queries) {
+         const result = await query.query.mssql.run({ db: pool.request() });
+         results.push({ type: query.type, rowsAffected: result.rowsAffected[0] });
+      }
 
-                  return {
-                     type,
-                     result: await query.mssql.run({
-                        db: pool.request(),
-                     }),
-                  };
-               }),
-            );
-         })
-         .then((results) => {
-            return results.map((z) => ({ type: z.type, rowsAffected: results[0]?.result.rowsAffected[0] }));
-         });
-
-      return {
-         rowsAffected,
-         timestamp,
-      };
+      return results;
    }
 }

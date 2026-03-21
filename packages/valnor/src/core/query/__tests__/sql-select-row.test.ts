@@ -5,7 +5,7 @@ import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
 import { sql } from "#/core/sql.js";
 import { param } from "#/core/query/sql-param.js";
 import { AccountStatusUdt } from "@test-models/valnor_test-enums.js";
-import { newSqlSelectColumn, SqlQueryColumn } from "#/core/query/sql-query-column.js";
+import { newSqlQueryColumn, SqlQueryColumn } from "#/core/query/sql-query-column.js";
 import { Order } from "@test-models/valnor_test.order-table.js";
 import { InferSelectRowByResult } from "#/core/query/sql-query-types.js";
 import { IAccountSelect } from "#/test/testing.js";
@@ -29,7 +29,7 @@ describe("SqlSelectRow tests", () => {
          InferResultRowFromColumns<[typeof Account.$accountId, typeof Account.$status, typeof Account.$createdAt]>
       >;
       const row: Row = {
-         $accountId: newSqlSelectColumn({
+         $accountId: newSqlQueryColumn({
             key: "accountId",
             query: query,
             target: newSqlTableColumn<{ Key: "accountId"; Type: string }>({
@@ -38,7 +38,7 @@ describe("SqlSelectRow tests", () => {
                tableInfo,
             }),
          }),
-         $createdAt: newSqlSelectColumn({
+         $createdAt: newSqlQueryColumn({
             key: "createdAt",
             query: query,
             target: newSqlTableColumn<{ Key: "createdAt"; Type: Date }>({
@@ -47,7 +47,7 @@ describe("SqlSelectRow tests", () => {
                tableInfo,
             }),
          }),
-         $status: newSqlSelectColumn({
+         $status: newSqlQueryColumn({
             key: "status",
             query: query,
             target: newSqlTableColumn<{ Key: "status"; Type: AccountStatusUdt }>({
@@ -65,7 +65,7 @@ describe("SqlSelectRow tests", () => {
       type Row = InferSelectRowByResult<InferResultRowFromColumns<[typeof Account.$$, typeof Order.$orderId]>>;
       const query = sql``;
       const row: Row = {
-         $accountId: newSqlSelectColumn({
+         $accountId: newSqlQueryColumn({
             key: "accountId",
             query: query,
             target: newSqlTableColumn<{ Key: "accountId"; Type: string }>({
@@ -74,7 +74,7 @@ describe("SqlSelectRow tests", () => {
                tableInfo,
             }),
          }),
-         $createdAt: newSqlSelectColumn({
+         $createdAt: newSqlQueryColumn({
             key: "createdAt",
             query: query,
             target: newSqlTableColumn<{ Key: "createdAt"; Type: Date }>({
@@ -83,7 +83,7 @@ describe("SqlSelectRow tests", () => {
                tableInfo,
             }),
          }),
-         $email: newSqlSelectColumn({
+         $email: newSqlQueryColumn({
             key: "email",
             query: query,
             target: newSqlTableColumn<{ Key: "email"; Type: string }>({
@@ -92,7 +92,7 @@ describe("SqlSelectRow tests", () => {
                tableInfo,
             }),
          }),
-         $firstName: newSqlSelectColumn({
+         $firstName: newSqlQueryColumn({
             key: "firstName",
             query: query,
             target: newSqlTableColumn<{ Key: "firstName"; Type: string }>({
@@ -101,7 +101,7 @@ describe("SqlSelectRow tests", () => {
                tableInfo,
             }),
          }),
-         $lastName: newSqlSelectColumn({
+         $lastName: newSqlQueryColumn({
             key: "lastName",
             query: query,
             target: newSqlTableColumn<{ Key: "lastName"; Type: string }>({
@@ -110,7 +110,7 @@ describe("SqlSelectRow tests", () => {
                tableInfo,
             }),
          }),
-         $notes: newSqlSelectColumn({
+         $notes: newSqlQueryColumn({
             key: "notes",
             query: query,
             target: newSqlTableColumn<{ Key: "notes"; Type: string }>({
@@ -119,7 +119,7 @@ describe("SqlSelectRow tests", () => {
                tableInfo,
             }),
          }),
-         $status: newSqlSelectColumn({
+         $status: newSqlQueryColumn({
             key: "status",
             query: query,
             target: newSqlTableColumn<{ Key: "status"; Type: AccountStatusUdt }>({
@@ -128,7 +128,7 @@ describe("SqlSelectRow tests", () => {
                tableInfo,
             }),
          }),
-         $parentId: newSqlSelectColumn({
+         $parentId: newSqlQueryColumn({
             key: "parentId",
             query: query,
             target: newSqlTableColumn<{ Key: "parentId"; Type: string }>({
@@ -137,7 +137,7 @@ describe("SqlSelectRow tests", () => {
                tableInfo,
             }),
          }),
-         $modifiedAt: newSqlSelectColumn({
+         $modifiedAt: newSqlQueryColumn({
             key: "modifiedAt",
             query: query,
             target: newSqlTableColumn<{ Key: "modifiedAt"; Type: Date }>({
@@ -146,7 +146,7 @@ describe("SqlSelectRow tests", () => {
                tableInfo,
             }),
          }),
-         $orderId: newSqlSelectColumn({
+         $orderId: newSqlQueryColumn({
             key: "orderId",
             query: query,
             target: newSqlTableColumn<{ Key: "orderId"; Type: string }>({

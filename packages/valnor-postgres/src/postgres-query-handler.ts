@@ -8,13 +8,13 @@ export type PostgresClient = {
 
 type RowOrDefault<T> = T extends object ? T : never;
 
-export class PostgresQueryHandler<T extends { Row?: unknown; Params?: unknown }> extends SqlQueryHandler<{
-   Row: T["Row"];
-   Params: T["Params"];
-   QueryResult: QueryResult<RowOrDefault<T["Row"]>>;
-   Connection: PostgresClient;
-}> {
-   constructor(readonly query: SqlQuery<{ Row: T["Row"]; Params: T["Params"] }>) {
+export class PostgresQueryHandler<T extends { Row?: unknown; Params?: unknown }> extends SqlQueryHandler<
+   Pick<T, "Row" | "Params"> & {
+      QueryResult: QueryResult<RowOrDefault<T["Row"]>>;
+      Connection: PostgresClient;
+   }
+> {
+   constructor(readonly query: SqlQuery<Pick<T, "Row" | "Params">>) {
       super(query);
    }
 

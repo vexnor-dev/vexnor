@@ -3,15 +3,15 @@ import type { Database, RunResult } from "better-sqlite3";
 import { Sqlite3Formatter } from "#/sqlite3-formatter.js";
 import { Sqlite3Tokenizer } from "#/sqlite3-tokenizer.js";
 
-export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unknown }> extends SqlQueryHandler<{
-   Row: T["Row"];
-   Params: T["Params"];
-   QueryResult: RunResult;
-   Connection: Database;
-}> {
+export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unknown }> extends SqlQueryHandler<
+   Pick<T, "Row" | "Params"> & {
+      QueryResult: RunResult;
+      Connection: Database;
+   }
+> {
    static Formatter = new Sqlite3Formatter();
 
-   constructor(readonly query: SqlQuery<{ Row: T["Row"]; Params: T["Params"] }>) {
+   constructor(readonly query: SqlQuery<Pick<T, "Row" | "Params">>) {
       super(query);
    }
 

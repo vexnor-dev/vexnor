@@ -5,6 +5,7 @@ import { param } from "#/core/query/sql-param.js";
 import { row } from "#/core/query/sql-select-row.js";
 import { val } from "#/core/query/sql-select-value.js";
 import { info } from "#/core/charms/sql-query-info.js";
+import { col } from "#/core/query/sql-select-column.js";
 
 describe("sql CTE (with clause) tests", () => {
    test("simple CTE with label naming", () => {
@@ -311,7 +312,6 @@ describe("sql CTE (with clause) tests", () => {
 
    test("recursive CTE: self-reference renders as CTE name", () => {
       const anchor = sql`
-         ${info({ label: "Hierarchy" })}
          select ${row(Account.$$)}, ${val`0`.as<{ depth: number }>("depth")}
          from ${Account}
          where ${Account.$parentId} is null
@@ -337,8 +337,7 @@ describe("sql CTE (with clause) tests", () => {
         WITH RECURSIVE
           "query_1" AS (
             /* <query_1> */
-            /* <Hierarchy> */
-            /* label: Hierarchy */
+            /* <query_2> */
             SELECT
               "a_1"."account_id" AS "accountId",
               "a_1"."status",
@@ -354,7 +353,7 @@ describe("sql CTE (with clause) tests", () => {
               "main"."account" AS "a_1"
             WHERE
               "a_1"."parent_id" IS NULL
-              /* </Hierarchy> */
+              /* </query_2> */
             UNION ALL
             SELECT
               "b"."account_id" AS "accountId",
@@ -366,10 +365,10 @@ describe("sql CTE (with clause) tests", () => {
               "b"."created_at" AS "createdAt",
               "b"."modified_at" AS "modifiedAt",
               "b"."parent_id" AS "parentId",
-              /* <query_4> */ "Hierarchy"."depth" + 1 /* </query_4> */ AS "depth"
+              /* <query_4> */ "query_2"."depth" + 1 /* </query_4> */ AS "depth"
             FROM
               "main"."account" AS "b"
-              JOIN "query_1" ON "Hierarchy"."accountId" = "b"."parent_id"
+              JOIN "query_1" ON "query_1"."accountId" = "b"."parent_id"
               /* </query_1> */
           )
         SELECT
@@ -385,7 +384,6 @@ describe("sql CTE (with clause) tests", () => {
 
    test("recursive CTE: mixed with non-recursive CTE", () => {
       const anchor = sql`
-         ${info({ label: "Hierarchy" })}
          select ${row(Account.$accountId, Account.$parentId, Account.$email)},
                 ${val`0`.as<{ depth: number }>("depth")}
          from ${Account}
@@ -395,7 +393,7 @@ describe("sql CTE (with clause) tests", () => {
       const hierarchy = sql`
          ${anchor} union all
          select ${row(Account.as("b").$accountId, Account.as("b").$parentId, Account.as("b").$email)},
-                ${val`${anchor.$depth} + 1`.as<{ depth: number }>("depth")}
+                ${anchor.out.$depth} + 1 as ${col<{ depth: number }>("depth")}
          from ${Account.as("b")}
          join ${anchor.out} on ${anchor.out.$accountId} = ${Account.as("b").$parentId}
       `;
@@ -421,8 +419,7 @@ describe("sql CTE (with clause) tests", () => {
         WITH RECURSIVE
           "query_1" AS (
             /* <query_1> */
-            /* <Hierarchy> */
-            /* label: Hierarchy */
+            /* <query_2> */
             SELECT
               "a_1"."account_id" AS "accountId",
               "a_1"."parent_id" AS "parentId",
@@ -433,17 +430,16 @@ describe("sql CTE (with clause) tests", () => {
               "main"."account" AS "a_1"
             WHERE
               "a_1"."parent_id" IS NULL
-              /* </Hierarchy> */
+              /* </query_2> */
             UNION ALL
             SELECT
               "b"."account_id" AS "accountId",
               "b"."parent_id" AS "parentId",
               "b"."email",
-              /* <query_4> */
-              "Hierarchy"."depth" + 1 /* </query_4> */ AS "depth"
+              "query_1"."depth" + 1 AS "depth"
             FROM
               "main"."account" AS "b"
-              JOIN "query_1" ON "Hierarchy"."accountId" = "b"."parent_id"
+              JOIN "query_1" ON "query_1"."accountId" = "b"."parent_id"
               /* </query_1> */
           ),
           "ActiveAccounts" AS (

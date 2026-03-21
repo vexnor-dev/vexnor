@@ -4,6 +4,7 @@ import { SqlRowColumnTarget } from "#/core/query/sql-models.js";
 import { SqlQueryAny } from "#/core/query/sql-query.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
 import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
+import { SqlQueryRefAny } from "#/core/query/sql-query-ref.js";
 
 export type SqlQueryColumnArgs<
    T extends {
@@ -27,7 +28,7 @@ export class SqlQueryColumn<
    readonly key: T["Key"];
    readonly format: SqlSelectFormat | null = null;
    readonly target: SqlRowColumnTarget<T>;
-   readonly query: SqlQueryAny;
+   readonly query: SqlQueryAny | SqlQueryRefAny;
 
    constructor({ key, format, target, query }: SqlQueryColumnArgs<T>) {
       super({
@@ -58,7 +59,7 @@ export class SqlQueryColumn<
    }
 
    write(context: SqlBuildContext, options?: SqlBuildOptions) {
-      const tableInfo = (() => {
+      const queryInfo = (() => {
          const queryName = context.getQueryName(this);
          return {
             name: queryName,
@@ -71,34 +72,34 @@ export class SqlQueryColumn<
       switch (format) {
          case "tableName.columnName AS columnAlias": {
             if (this.key === columnName || !this.key) {
-               context.addQuotes(`${tableInfo.name}.${columnName}`);
+               context.addQuotes(`${queryInfo.name}.${columnName}`);
                break;
             }
-            context.addQuotes(`${tableInfo.name}.${columnName} as ${this.key}`);
+            context.addQuotes(`${queryInfo.name}.${columnName} as ${this.key}`);
             break;
          }
          case "tableName.columnName":
-            context.addQuotes(`${tableInfo.name}.${columnName}`);
+            context.addQuotes(`${queryInfo.name}.${columnName}`);
             break;
          case "columnName":
             context.addQuotes(`${columnName}`);
             break;
          case "tableName.columnAlias":
-            context.addQuotes(`${tableInfo.name}.${this.key ?? columnName}`);
+            context.addQuotes(`${queryInfo.name}.${this.key ?? columnName}`);
             break;
          case "columnAlias":
             context.addQuotes(`${this.key ?? columnName}`);
             break;
          case "tableAlias.columnName":
-            context.addQuotes(`${context.getAlias(tableInfo)}.${columnName}`);
+            context.addQuotes(`${context.getAlias(queryInfo)}.${columnName}`);
             break;
          case "tableAlias.columnName AS columnAlias": {
             if (this.key === columnName || !this.key) {
-               context.addQuotes(`${context.getAlias(tableInfo)}.${columnName}`);
+               context.addQuotes(`${context.getAlias(queryInfo)}.${columnName}`);
                break;
             }
 
-            context.addQuotes(`${context.getAlias(tableInfo)}.${columnName} as ${this.key}`);
+            context.addQuotes(`${context.getAlias(queryInfo)}.${columnName} as ${this.key}`);
             break;
          }
          case "(sql) AS columnAlias": {
@@ -110,7 +111,7 @@ export class SqlQueryColumn<
    }
 }
 
-export function newSqlSelectColumn<
+export function newSqlQueryColumn<
    T extends {
       Key: string;
       Type: unknown;

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { SqlSelectAll } from "#/core/query/sql-select-all.js";
-import { newSqlSelectColumn } from "#/core/query/sql-query-column.js";
+import { newSqlQueryColumn } from "#/core/query/sql-query-column.js";
 import { newSqlTableColumn } from "#/core/schema/sql-table-column.js";
 import { sql } from "#/core/sql.js";
 
@@ -11,7 +11,7 @@ describe("SqlSelectAll tests", () => {
       const all = new SqlSelectAll<{ accountId: string; name: string }>({
          innerQuery: query,
          row: {
-            $accountId: newSqlSelectColumn<{ Key: "accountId"; Type: string }>({
+            $accountId: newSqlQueryColumn<{ Key: "accountId"; Type: string }>({
                query: query,
                key: "accountId",
                target: newSqlTableColumn<{ Key: "accountId"; Type: string }>({
@@ -20,7 +20,7 @@ describe("SqlSelectAll tests", () => {
                   tableInfo,
                }),
             }),
-            $name: newSqlSelectColumn<{ Key: "name"; Type: string }>({
+            $name: newSqlQueryColumn<{ Key: "name"; Type: string }>({
                query: query,
                key: "name",
                target: newSqlTableColumn<{ Key: "name"; Type: string }>({ key: "name", columnName: "name", tableInfo }),

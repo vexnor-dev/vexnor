@@ -18,7 +18,7 @@ import { SqlBuildError } from "#/core/sql-build-error.js";
 import { Queue } from "#/lib/queue.js";
 import { SqlSelectAll } from "#/core/query/sql-select-all.js";
 import { SqlSelectValue } from "#/core/query/sql-select-value.js";
-import { newSqlSelectColumn, SqlQueryColumn } from "#/core/query/sql-query-column.js";
+import { newSqlQueryColumn, SqlQueryColumn } from "#/core/query/sql-query-column.js";
 import { SqlSelectRow } from "#/core/query/sql-select-row.js";
 import { SqlSelectColumn } from "#/core/query/sql-select-column.js";
 import { SqlSelectCharm } from "#/core/query/sql-charm.js";
@@ -133,7 +133,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
       let scope = undefined;
       switch (true) {
          case queryRef instanceof SqlQueryRef:
-            if (queryRef.recursive) {
+            if (queryRef.out) {
                queryRef.build(context, options);
                return;
             }
@@ -352,8 +352,13 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
                results.push(rawValue.innerQuery);
                break;
             case rawValue instanceof SqlQueryColumn:
-               results.push(rawValue.query);
                q.push(rawValue.target);
+               if (rawValue.query instanceof SqlQueryRef) {
+                  results.push(rawValue.query.innerQuery);
+                  break;
+               }
+
+               results.push(rawValue.query);
                break;
             case rawValue instanceof SqlSelectRow:
                for (const item of Object.values(rawValue.getRow({ query: this }))) {
@@ -381,7 +386,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
             case rawValue instanceof SqlSelectValue: {
                row = {
                   ...(row ?? {}),
-                  [`$${rawValue.key}`]: newSqlSelectColumn({ target: rawValue, key: rawValue.key, query: this }),
+                  [`$${rawValue.key}`]: newSqlQueryColumn({ target: rawValue, key: rawValue.key, query: this }),
                };
                break;
             }
