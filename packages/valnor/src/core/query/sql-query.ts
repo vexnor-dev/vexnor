@@ -26,6 +26,7 @@ import { format } from "sql-formatter";
 import { SqlTable } from "#/core/schema/sql-table.js";
 import { ok } from "assert";
 import { isSqlLanguage } from "#/core/query/lib/is-sql-language.js";
+import { isPrimitive } from "#/lib/primitive.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlQueryAny = SqlQuery<any>;
@@ -460,8 +461,8 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
                tokens.push(token.value);
                break;
             case "value": {
-               if (Array.isArray(token.value)) {
-                  throw new SqlBuildError(`Unexpected array value token — use param() for array parameters`);
+               if (!isPrimitive(token.value)) {
+                  throw new SqlBuildError(`Unexpected non-primitive value token — only primitives, null, Date, and Buffer are allowed`);
                }
                tokens.push(paramFormat({ index: values.length }));
                values.push(token.value);

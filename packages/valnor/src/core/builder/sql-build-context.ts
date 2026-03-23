@@ -18,6 +18,7 @@ import { quoteText } from "#/core/utils/quote-text.js";
 import { trim } from "#/core/utils/trim.js";
 import { ok } from "assert";
 import { SqlQueryRef, SqlQueryRefAny } from "#/core/query/sql-query-ref.js";
+import { isPrimitive } from "#/lib/primitive.js";
 
 export type SqlBuildContextArgs = SqlBuildOptions & Partial<Pick<SqlBuildContext, "query" | "params" | "tag">>;
 
@@ -73,8 +74,10 @@ export class SqlBuildContext {
                text += "?";
                break;
             case "value":
-               if (Array.isArray(token.value)) {
-                  throw new SqlBuildError(`Unexpected array value token — use param() for array parameters`);
+               if (!isPrimitive(token.value)) {
+                  throw new SqlBuildError(
+                     `Unexpected non-primitive value token — only primitives, null, Date, and Buffer are allowed`,
+                  );
                }
                text += "?";
                break;
@@ -256,7 +259,7 @@ export class SqlBuildContext {
       }
 
       const { name } = this.addQuery(query);
-      ok(name, `No SqlQuery found for level '${typeof token === "number" ? token : token.id}'.`);
+      ok(name, `No SqlQuery found for level '${token.id}'.`);
       return name;
    }
 
