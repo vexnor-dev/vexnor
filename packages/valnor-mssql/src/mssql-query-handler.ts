@@ -36,8 +36,13 @@ export class MssqlQueryHandler<T extends { Params?: unknown; Row?: unknown }> ex
    }
 
    /**
-    * Executes the query and returns the result
-    * @param args
+    * Executes the query and returns the raw `mssql` `IResult`.
+    *
+    * You typically don't call this directly — use `getAll()`, `getOneRequired()`,
+    * or `getOneOptional()` instead. Call `run()` when you need access to the full
+    * `IResult` object (e.g. `recordsets`, `rowsAffected`).
+    *
+    * @param args - Database connection and query parameters.
     */
    async run<Args extends SqlRunArgs<{ Connection: Request; Params: T["Params"] }>>(
       args: Args,

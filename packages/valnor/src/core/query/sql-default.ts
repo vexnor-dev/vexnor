@@ -11,4 +11,13 @@ export class SqlDefault extends Sql {
    }
 }
 
+/**
+ * SQL `DEFAULT` keyword token — use in INSERT or UPDATE statements to explicitly
+ * apply a column's database default value instead of providing a value.
+ *
+ * @example
+ * sql`
+ *   INSERT INTO ${Account} ${Account.insertColsVals({ firstName: "John", createdAt: DEFAULT })}
+ * `
+ */
 export const DEFAULT = new SqlDefault();

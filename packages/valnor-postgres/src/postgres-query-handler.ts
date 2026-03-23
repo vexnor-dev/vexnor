@@ -44,8 +44,13 @@ export class PostgresQueryHandler<T extends { Row?: unknown; Params?: unknown }>
    }
 
    /**
-    * Executes the core and returns the result
-    * @param args
+    * Executes the query and returns the raw `pg` `QueryResult`.
+    *
+    * You typically don't call this directly — use `getAll()`, `getOneRequired()`,
+    * or `getOneOptional()` instead. Call `run()` when you need access to the full
+    * `QueryResult` object (e.g. `rowCount`, `fields`).
+    *
+    * @param args - Database connection and query parameters.
     */
    async run(
       args: SqlRunArgs<{ Connection: PostgresClient; Params: T["Params"] }>,

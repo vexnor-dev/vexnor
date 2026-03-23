@@ -47,8 +47,12 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
    }
 
    /**
-    * Executes the core and returns the result
-    * @param args
+    * Executes a write query (INSERT, UPDATE, DELETE) and returns the raw `better-sqlite3` `RunResult`.
+    *
+    * For SELECT queries use `getAll()`, `getOneRequired()`, or `getOneOptional()` instead.
+    * Call `run()` when you need access to `RunResult` metadata such as `changes` or `lastInsertRowid`.
+    *
+    * @param args - Database connection and query parameters.
     */
    async run(args: SqlRunArgs<{ Connection: Database; Params: T["Params"] }>): Promise<RunResult> {
       const { db, options: { debug } = {} } = args;

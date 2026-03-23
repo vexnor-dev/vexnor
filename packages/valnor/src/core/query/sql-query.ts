@@ -113,6 +113,13 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
       return this._$$Lazy.value;
    }
 
+   /**
+    * A reference to this query's output for use in a parent CTE or subquery.
+    *
+    * When embedded in a parent `sql` template, emits only the query name
+    * (e.g. `"q1"`) rather than re-inlining the full SQL. Use this to reference
+    * a CTE by name after it has already been declared in a `WITH` clause.
+    */
    get out(): SqlQueryRefExtended<T> {
       return this._outLazy.value;
    }

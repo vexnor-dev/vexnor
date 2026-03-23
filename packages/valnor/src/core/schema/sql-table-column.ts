@@ -41,6 +41,18 @@ export class SqlTableColumn<
       this.format = format ?? null;
    }
 
+   /**
+    * Returns a copy of this column reference with a different result key.
+    *
+    * Use this to rename a column in the SELECT output without changing the
+    * underlying column name.
+    *
+    * @param key - The new result key and TypeScript property name.
+    *
+    * @example
+    * sql`SELECT ${row(Account.$firstName.as("name"))} FROM ${Account}`
+    * // result: { name: string }
+    */
    as<Key extends string>(key: Key): SqlTableColumn<{ Key: Key; Type: T["Type"] }> {
       return new SqlTableColumn({
          columnName: this.columnName,
