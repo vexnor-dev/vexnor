@@ -1,6 +1,5 @@
 import path from "node:path";
 import fs from "node:fs/promises";
-import console from "node:console";
 import { loadPlugin } from "#/load-plugin.js";
 import { ok } from "assert";
 import { CodegenCommandOptions } from "#/cli/codegen/types/types.js";
@@ -25,10 +24,9 @@ export async function codegenCommand(options: CodegenCommandOptions) {
       password,
    } = options;
    const outDir = path.resolve(options.outDir);
-   const dirExists = await fs.stat(outDir);
-   if (!dirExists?.isDirectory()) {
-      console.error(`${outDir} is not a valid output directory`);
-      return;
+   const stat = await fs.stat(outDir);
+   if (!stat.isDirectory()) {
+      throw new Error(`${outDir} is not a valid output directory`);
    }
 
    const { plugin } = await loadPlugin(pluginName);
