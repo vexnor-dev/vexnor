@@ -3,7 +3,12 @@ import { fileURLToPath } from "url";
 import { dirname, resolve } from "path";
 import { ValnorPluginAny } from "#/plugin/plugin.js";
 
+const VALID_PACKAGE_NAME = /^valnor-[a-z0-9-]+$/;
+
 export async function loadPlugin(packageName: string): Promise<{ plugin: ValnorPluginAny; path: string }> {
+   if (!VALID_PACKAGE_NAME.test(packageName)) {
+      throw new Error(`Invalid plugin package name: ${packageName}`);
+   }
    let plugin;
    let pluginPath: string;
    try {
