@@ -68,6 +68,8 @@ export class SqlQueryRef<T extends { Row?: unknown; Params?: unknown }> extends 
    }
 }
 
+export function newSqlQueryRef<T extends { Row?: unknown; Params?: unknown }>(innerQuery: SqlQuery<T>, scope: null, recursive: true): SqlQueryRefExtended<T>;
+export function newSqlQueryRef<T extends { Row?: unknown; Params?: unknown }>(innerQuery: SqlQuery<T>, scope: SqlQueryOptions): SqlQueryRefExtended<T>;
 export function newSqlQueryRef<T extends { Row?: unknown; Params?: unknown }>(
    innerQuery: SqlQuery<T>,
    scope: SqlQueryOptions | null,
