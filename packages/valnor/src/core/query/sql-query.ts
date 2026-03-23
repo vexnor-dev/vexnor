@@ -431,6 +431,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
     * call this directly — the plugin's `getAll` / `getOneRequired` /
     * `getOneOptional` methods call it for you.
     *
+    * @param options
     * @param args - Optional params and build options.
     * @returns An object with `text` (the SQL string) and `values` (the bound values array).
     *
@@ -460,18 +461,8 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
                break;
             case "value": {
                if (Array.isArray(token.value)) {
-                  for (let i = 0; i < token.value.length; i++) {
-                     if (i > 0) {
-                        tokens.push(", ");
-                     }
-
-                     tokens.push(paramFormat({ index: values.length }));
-                     tokens.push(",");
-                     values.push(token.value[i]);
-                  }
-                  break;
+                  throw new SqlBuildError(`Unexpected array value token — use param() for array parameters`);
                }
-
                tokens.push(paramFormat({ index: values.length }));
                values.push(token.value);
                break;

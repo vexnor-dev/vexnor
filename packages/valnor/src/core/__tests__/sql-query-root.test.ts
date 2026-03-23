@@ -179,6 +179,36 @@ describe("sql() tests", () => {
       `);
    });
 
+   test("sql() with raw array value", () => {
+      const ids = ["id-1", "id-2", "id-3"];
+      const query = sql`
+         select ${row(Account.$firstName)}
+         from ${Account}
+         where ${Account.$accountId} in (${ids})`;
+      const { values, text } = query.getSql({ options: { format: false } });
+      expect(values).toEqual(["id-1", "id-2", "id-3"]);
+      // Raw array values are split into individual tokens by write() before getSql processes them,
+      // so the array branch in getSql (with the spurious tokens.push(",")) is dead code.
+      expect(text).toContain("?, ?, ?");
+      expect(text).not.toMatch(/\?, \?, \?,/);
+      expect(text).toMatchInlineSnapshot(`
+        " /* <query_0> */ 
+                 select "a_1"."first_name" as "firstName"
+                 from "main"."account" as "a_1"
+                 where "a_1"."account_id" in (?, ?, ?)/* </query_0> */"
+      `);
+      expect(values).toEqual(["id-1", "id-2", "id-3"]);
+      // Verify no spurious trailing comma after the last placeholder
+      expect(text).toContain("?, ?, ?");
+      expect(text).not.toMatch(/\?, \?, \?,/);
+      expect(text).toMatchInlineSnapshot(`
+        " /* <query_0> */ 
+                 select "a_1"."first_name" as "firstName"
+                 from "main"."account" as "a_1"
+                 where "a_1"."account_id" in (?, ?, ?)/* </query_0> */"
+      `);
+   });
+
    test("sql delete from", () => {
       const noid = randomUUID();
       const query = sql`

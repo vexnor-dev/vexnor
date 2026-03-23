@@ -74,10 +74,8 @@ export class SqlBuildContext {
                break;
             case "value":
                if (Array.isArray(token.value)) {
-                  text += Array(token.value.length).fill("?").join(", ");
-                  break;
+                  throw new SqlBuildError(`Unexpected array value token — use param() for array parameters`);
                }
-
                text += "?";
                break;
             default:
@@ -364,12 +362,10 @@ export class SqlBuildContext {
       try {
          return typeof callback === "function" ? callback() : (undefined as Result);
       } finally {
-         switch (args.queryType) {
-            case "main":
-               this._queryStack.pop();
-               this._keywordStacks.pop();
-               this._tableAliasStack.pop();
-               break;
+         if (args.queryType === "main") {
+            this._queryStack.pop();
+            this._keywordStacks.pop();
+            this._tableAliasStack.pop();
          }
       }
    }
