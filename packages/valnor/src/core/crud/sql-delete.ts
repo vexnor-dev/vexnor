@@ -1,6 +1,6 @@
 import { SqlQuery, SqlQueryAny } from "#/core/query/sql-query.js";
 import { SqlTable } from "#/core/schema/sql-table.js";
-import { ok } from "assert";
+import { ok } from "#/lib/assert.js";
 import { sql } from "#/core/sql.js";
 import { raw } from "#/core/query/sql-raw.js";
 import { row } from "#/core/query/sql-select-row.js";

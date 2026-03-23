@@ -1,7 +1,7 @@
 import { InferTable$RowBySelect } from "#/core/types/infer-types.js";
 import { newSqlTableProxy, SqlTable, SqlTableExtended } from "#/core/schema/sql-table.js";
 import { SqlCrudCommands } from "#/core/crud/sql-crud-commands.js";
-import { strictEqual } from "node:assert";
+import { strictEqual } from "#/lib/assert.js";
 import { sqlSelect, SqlSelectArgs } from "#/core/crud/sql-select.js";
 import { sqlInsertRows } from "#/core/crud/sql-insert-rows.js";
 import { sqlUpdate, SqlUpdateArgs } from "#/core/crud/sql-update.js";

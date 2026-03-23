@@ -1,5 +1,5 @@
 import { info, ParamsOfArgs, SqlDeleteArgs, raw, row, SqlTable, sql } from "valnor";
-import { ok } from "assert";
+import { ok } from "valnor/plugin";
 import { BetterSqlite3QueryHandler } from "#/better-sqlite3-query-handler.js";
 import "#/valnor-sqlite3.js";
 

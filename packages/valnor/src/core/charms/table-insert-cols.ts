@@ -2,7 +2,7 @@ import { InferTable$RowBySelect } from "#/core/types/infer-types.js";
 import { Sql } from "#/core/sql-base.js";
 import { getCanonicalInsertKeys } from "#/core/utils/canonical-insert-keys.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { ok } from "assert";
+import { ok } from "#/lib/assert.js";
 
 export class TableInsertCols<
    T extends {

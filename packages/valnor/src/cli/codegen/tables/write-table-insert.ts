@@ -1,5 +1,5 @@
 import CodeBlockWriter from "code-block-writer";
-import { ok } from "node:assert";
+import { ok } from "#/lib/assert.js";
 import to from "to-case";
 import { PrintTableArgs, SqlLiteralType } from "#/plugin/plugin.js";
 import { getCodegenContext } from "#/cli/codegen/codegen-context.js";

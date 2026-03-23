@@ -3,7 +3,7 @@ import { ParamsOfArgs } from "#/core/sql-base.js";
 import { SqlTable } from "#/core/schema/sql-table.js";
 import { expand } from "#/core/query/sql-expand.js";
 import { SqlQueryRefAny } from "#/core/query/sql-query-ref.js";
-import { ok } from "assert";
+import { ok } from "#/lib/assert.js";
 import { isPrimitive } from "#/lib/primitive.js";
 import { sql } from "#/core/sql.js";
 import { raw } from "#/core/query/sql-raw.js";

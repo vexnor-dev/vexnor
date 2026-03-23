@@ -1,6 +1,6 @@
 import { info, ParamsOfArgs, SqlDeleteArgs } from "valnor";
 import { raw, row, SqlTable } from "valnor";
-import { ok } from "assert";
+import { ok } from "valnor/plugin";
 import { sql } from "#/mssql-sql.js";
 import { MssqlQueryHandler } from "#/mssql-query-handler.js";
 

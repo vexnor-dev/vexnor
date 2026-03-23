@@ -1,7 +1,7 @@
 import { InferTable$RowBySelect } from "#/core/types/infer-types.js";
 import { Sql } from "#/core/sql-base.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { ok } from "assert";
+import { ok } from "#/lib/assert.js";
 
 export class TableUpdateSet<T extends { Update: Record<string, unknown> }> extends Sql {
    constructor(

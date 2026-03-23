@@ -16,7 +16,7 @@ import {
    SqlQueryAny,
    SqlSelectCharm,
 } from "valnor";
-import { ok } from "node:assert";
+import { ok } from "valnor/plugin";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type JsonAggregationPostgresAny = JsonAggregationPostgres<any>;

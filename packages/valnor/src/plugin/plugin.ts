@@ -5,3 +5,4 @@ export type { GetSchemaArgs, SqlSchema, ValnorPluginAny } from "./valnor-plugin.
 export * from "./valnor-connection.js";
 export * from "./connection-config.js";
 export { logger } from "../logger.js";
+export { ok, strictEqual } from "../lib/assert.js";

@@ -16,7 +16,7 @@ import { Queue } from "#/lib/queue.js";
 import { SqlQueryScope } from "#/core/query/sql-query-types.js";
 import { quoteText } from "#/core/utils/quote-text.js";
 import { trim } from "#/core/utils/trim.js";
-import { ok } from "assert";
+import { ok } from "#/lib/assert.js";
 import { SqlQueryRef, SqlQueryRefAny } from "#/core/query/sql-query-ref.js";
 import { isPrimitive } from "#/lib/primitive.js";
 

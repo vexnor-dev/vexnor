@@ -1,6 +1,6 @@
 import { SqlTable, row, ParamsOfArgs, SqlQueryExtended, raw, info, sql } from "valnor";
 import type { SqlInsertFromArgs } from "valnor";
-import { ok } from "node:assert";
+import { ok } from "valnor/plugin";
 import { BetterSqlite3QueryHandler } from "#/better-sqlite3-query-handler.js";
 import "#/valnor-sqlite3.js";
 

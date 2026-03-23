@@ -1,7 +1,7 @@
 import { SqlTable, row, ParamsOfArgs, SqlQueryExtended, raw, info } from "valnor";
 import type { SqlInsertFromArgs } from "valnor";
 import { sql } from "#/mssql-sql.js";
-import { ok } from "node:assert";
+import { ok } from "valnor/plugin";
 
 export type MssqlInsertFromResult<
    T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> },

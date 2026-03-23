@@ -1,5 +1,5 @@
 import { info, ParamsOfArgs, SqlDeleteArgs, raw, row, SqlTable } from "valnor";
-import { ok } from "assert";
+import { ok } from "valnor/plugin";
 import { sql } from "#/postgres-sql.js";
 import { PostgresQueryHandler } from "#/postgres-query-handler.js";
 

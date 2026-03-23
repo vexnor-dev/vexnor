@@ -15,7 +15,7 @@ import {
    SqlQueryAny,
    SqlSelectCharm,
 } from "valnor";
-import { ok } from "node:assert";
+import { ok } from "valnor/plugin";
 
 export type JsonResultType = "one" | "many";
 

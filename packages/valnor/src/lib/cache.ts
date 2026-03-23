@@ -1,4 +1,4 @@
-import { ok } from "assert";
+import { ok } from "#/lib/assert.js";
 import { Sql } from "#/core/sql-base.js";
 
 export class Cache {

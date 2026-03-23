@@ -24,7 +24,7 @@ import { SqlSelectColumn } from "#/core/query/sql-select-column.js";
 import { SqlSelectCharm } from "#/core/query/sql-charm.js";
 import { format } from "sql-formatter";
 import { SqlTable } from "#/core/schema/sql-table.js";
-import { ok } from "assert";
+import { ok } from "#/lib/assert.js";
 import { isSqlLanguage } from "#/core/query/lib/is-sql-language.js";
 import { isPrimitive } from "#/lib/primitive.js";
 

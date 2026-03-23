@@ -2,7 +2,7 @@ import { writeFile } from "fs/promises";
 import path from "path";
 import to from "to-case";
 import { groupBy } from "#/cli/codegen/types/group-by.js";
-import { ok } from "assert";
+import { ok } from "#/lib/assert.js";
 import { SqlEnumInfo, SqlOutputFile } from "#/plugin/plugin.js";
 import { getCodegenContext } from "#/cli/codegen/codegen-context.js";
 

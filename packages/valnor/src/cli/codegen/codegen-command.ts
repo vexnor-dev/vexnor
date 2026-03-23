@@ -1,7 +1,7 @@
 import path from "node:path";
 import fs from "node:fs/promises";
 import { loadPlugin } from "#/load-plugin.js";
-import { ok } from "assert";
+import { ok } from "#/lib/assert.js";
 import { CodegenCommandOptions } from "#/cli/codegen/types/types.js";
 import { CodegenContext, CodegenContextModel, getCodegenContext } from "#/cli/codegen/codegen-context.js";
 import { printEnums } from "#/cli/codegen/schemas/print-enums.js";

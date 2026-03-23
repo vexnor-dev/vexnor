@@ -3,7 +3,7 @@ import { expand } from "#/core/query/sql-expand.js";
 import { SqlInsertRowsParams } from "#/core/crud/sql-insert-rows.js";
 import { getCanonicalInsertKeys } from "#/core/utils/canonical-insert-keys.js";
 import { isPrimitive, Primitive } from "#/lib/primitive.js";
-import { ok } from "assert";
+import { ok } from "#/lib/assert.js";
 import { sql } from "#/core/sql.js";
 
 export function expandInsertValues<T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> }>(

@@ -13,7 +13,6 @@ import { findPrimaryKeys, findTableColumns, findTables } from "#/schema/find-tab
 import { getColumnType } from "#/schema/get-column-type.js";
 import { SqlQueryHandler, SqlQuery } from "valnor";
 import { BetterSqlite3QueryHandler } from "#/better-sqlite3-query-handler.js";
-import { resolve } from "node:path";
 
 export type Sqlite3ConnectionConfig = { uri: string };
 
@@ -43,7 +42,7 @@ export class ValnorSqlite3 extends ValnorPlugin<{
 
       let db: BetterSqlite3.Database;
       if ("uri" in args) {
-         logger.info({ URI: resolve(args.uri) }, "Opening Sqlite3 database connection");
+         logger.info({ URI: args.uri }, "Opening Sqlite3 database connection");
          db = new BetterSqlite3(args.uri);
       } else {
          throw new Error("SQLite requires database file path in uri parameter");

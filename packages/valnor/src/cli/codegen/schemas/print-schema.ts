@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { ok } from "assert";
+import { ok } from "#/lib/assert.js";
 import to from "to-case";
 import { groupBy } from "#/cli/codegen/types/group-by.js";
 import { writeSchemaImports } from "#/cli/codegen/schemas/write-schema-imports.js";

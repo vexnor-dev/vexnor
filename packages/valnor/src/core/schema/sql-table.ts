@@ -6,7 +6,7 @@ import { SqlTableFormat } from "#/core/builder/default-formatter.js";
 import { Lazy } from "#/lib/lazy.js";
 import { SqlTableAll } from "#/core/charms/sql-table-all.js";
 import { newSqlTableColumn, SqlTableColumnAny } from "#/core/schema/sql-table-column.js";
-import { ok } from "assert";
+import { ok } from "#/lib/assert.js";
 import { TableUpdateSet } from "#/core/charms/table-update-set.js";
 import { TableInsertValues } from "#/core/charms/table-insert-values.js";
 import { TableInsertCols } from "#/core/charms/table-insert-cols.js";

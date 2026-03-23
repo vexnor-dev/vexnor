@@ -1,5 +1,5 @@
 import { SqlQuery, SqlQueryExtended } from "#/core/query/sql-query.js";
-import { ok } from "assert";
+import { ok } from "#/lib/assert.js";
 import { SqlRunArgs } from "#/core/query/sql-query-types.js";
 import { SqlRunError } from "#/core/sql-run-error.js";
 

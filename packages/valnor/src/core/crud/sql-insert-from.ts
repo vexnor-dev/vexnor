@@ -1,5 +1,5 @@
 import { SqlTable } from "#/core/schema/sql-table.js";
-import { ok } from "assert";
+import { ok } from "#/lib/assert.js";
 import { sql } from "#/core/sql.js";
 import { SqlQuery, SqlQueryExtended } from "#/core/query/sql-query.js";
 import { ParamsOfArgs } from "#/core/sql-base.js";
