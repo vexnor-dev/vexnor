@@ -28,7 +28,7 @@ export function writeTableSelect(writer: CodeBlockWriter.default, { table }: Pri
                   writer.write(`Date`);
                   break;
                case SqlLiteralType.Buffer:
-                  writer.write(`Buffer`);
+                  writer.write(`Uint8Array`);
                   break;
                default:
                   writer.write(`${type}`);

@@ -76,7 +76,7 @@ export class SqlBuildContext {
             case "value":
                if (!isPrimitive(token.value)) {
                   throw new SqlBuildError(
-                     `Unexpected non-primitive value token — only primitives, null, Date, and Buffer are allowed`,
+                     `Unexpected non-primitive value token — only primitives, null, Date, and Uint8Array are allowed`,
                   );
                }
                text += "?";

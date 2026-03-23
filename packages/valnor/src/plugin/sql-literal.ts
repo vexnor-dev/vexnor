@@ -4,7 +4,7 @@ export enum SqlLiteralType {
    Boolean = "boolean",
    Date = "Date",
    BigInt = "BigInt",
-   Buffer = "Buffer",
+   Buffer = "Uint8Array",
    Unknown = "unknown",
    Udt = "Udt",
 }
@@ -15,7 +15,7 @@ export function isSqlType(value: unknown): value is SqlLiteralType {
    return Object.values(SqlLiteralType).includes(value as SqlLiteralType);
 }
 
-export type SqlLiteral = string | number | Date | bigint | boolean | null | Buffer;
+export type SqlLiteral = string | number | Date | bigint | boolean | null | Uint8Array;
 
 export function assertIsSqlLiteral(value: unknown): asserts value is SqlLiteral {
    switch (typeof value) {

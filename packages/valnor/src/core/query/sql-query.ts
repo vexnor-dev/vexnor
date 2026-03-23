@@ -469,7 +469,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
                break;
             case "value": {
                if (!isPrimitive(token.value)) {
-                  throw new SqlBuildError(`Unexpected non-primitive value token — only primitives, null, Date, and Buffer are allowed`);
+                  throw new SqlBuildError(`Unexpected non-primitive value token — only primitives, null, Date, and Uint8Array are allowed`);
                }
                tokens.push(paramFormat({ index: values.length }));
                values.push(token.value);
