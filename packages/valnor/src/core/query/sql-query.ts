@@ -294,7 +294,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
                      case rawValue instanceof Sql:
                         return `${rawString} ${rawValue.id}`;
                      default:
-                        return `${rawString}` + rawValue ? ` ${rawValue}` : "";
+                        return rawValue != null ? `${rawString} ${rawValue}` : rawString;
                   }
                })
                .join(" ")
