@@ -8,8 +8,8 @@ export type PostgresQueryExtended<T extends { Row?: unknown; Params?: unknown }>
  * Template literal tag for building and executing type-safe PostgreSQL queries.
  *
  * Returns a query object with `.getAll()`, `.getOneRequired()`, and
- * `.getOneOptional()` methods that execute against a `pg` or `postgres.js`
- * connection. Result type and required parameters are inferred at compile time.
+ * `.getOneOptional()` methods that execute against a `pg` connection.
+ * Result type and required parameters are inferred at compile time.
  *
  * Use this instead of the core `sql` tag when you want a query that can be
  * executed directly against PostgreSQL.
