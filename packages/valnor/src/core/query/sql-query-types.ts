@@ -19,6 +19,7 @@ export type InferSelectRowByResult<Row> =
         }
       : never;
 
+/** Arguments passed to query execution methods (`getAll`, `getOneRequired`, `getOneOptional`, `run`). Requires `params` only when the query declares named parameters. */
 export type SqlRunArgs<T extends { Connection: unknown; Params?: unknown }> =
    T["Params"] extends Record<string, unknown>
       ? {
@@ -32,6 +33,7 @@ export type SqlRunArgs<T extends { Connection: unknown; Params?: unknown }> =
            options?: SqlBuildOptions;
         };
 
+/** Arguments passed to `getSql()`. Requires `params` only when the query declares named parameters. */
 export type SqlInputArgs<Params> =
    Params extends Record<string, unknown>
       ? { params: Params; options?: SqlBuildOptions }
