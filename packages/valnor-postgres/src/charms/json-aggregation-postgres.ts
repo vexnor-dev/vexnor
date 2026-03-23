@@ -96,14 +96,27 @@ export class JsonAggregationPostgres<
 }
 
 /**
- * Creates a new JsonAggregationPostgres object core block.
- * @param query sql core to aggregate
- * @returns JsonAggregationPostgres object core block
+ * Aggregates a subquery into a single JSON object using `to_jsonb`, or `null` if no row is found.
+ *
+ * Place it twice in the query: once in the SELECT list (to name the result column)
+ * and once in the FROM/JOIN clause (to emit the lateral join). Use `.as(key)` in
+ * the SELECT position to assign the result property name and type.
+ *
+ * @param query - The subquery whose first row will be aggregated into JSON.
+ *
  * @example
- * SELECT ${Account.$$}, ${jsonOne(AccountParent).as("parent")}
- * FROM ${Account} ${jsonOne(AccountParent)}
- * WHERE ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}
- * */
+ * const AccountParent = sql`
+ *   SELECT ${row(Account.as("parent").$$)}
+ *   FROM ${Account.as("parent")}
+ *   WHERE ${Account.as("parent").$accountId} = ${Account.$parentId}
+ * `;
+ *
+ * const result = await sql`
+ *   SELECT ${row(Account.$$)}, ${jsonOne(AccountParent).as("parent")}
+ *   FROM ${Account} ${jsonOne(AccountParent)}
+ * `.getAll({ db: pool });
+ * // result[0].parent: IAccountSelect | null
+ */
 export function jsonOne<T extends SqlQueryAny>(query: T): JsonAggregationResult<T> {
    return CACHE.get([query.id, `json=one`, "postgres"], () => {
       ok(query.$$, `'query.$$' is required. check if the query does return a row.`);
@@ -115,14 +128,27 @@ export function jsonOne<T extends SqlQueryAny>(query: T): JsonAggregationResult<
 }
 
 /**
- * Creates a new JsonAggregationPostgres object core block.
- * @param query sql core to aggregate
- * @returns JsonAggregationPostgres object core block
+ * Aggregates a subquery into a JSON array using `jsonb_agg`, or `[]` if no rows are found.
+ *
+ * Place it twice in the query: once in the SELECT list (to name the result column)
+ * and once in the FROM/JOIN clause (to emit the lateral join). Use `.as(key)` in
+ * the SELECT position to assign the result property name and type.
+ *
+ * @param query - The subquery whose rows will be aggregated into a JSON array.
+ *
  * @example
- * SELECT ${Account.$$}, ${jsonMany(UserOrders).as("orders")}
- * FROM ${Account} ${jsonMany(UserOrders)}
- * WHERE ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}
- * */
+ * const UserOrders = sql`
+ *   SELECT ${row(Order.$$)}
+ *   FROM ${Order}
+ *   WHERE ${Order.$accountId} = ${Account.$accountId}
+ * `;
+ *
+ * const result = await sql`
+ *   SELECT ${row(Account.$$)}, ${jsonMany(UserOrders).as("orders")}
+ *   FROM ${Account} ${jsonMany(UserOrders)}
+ * `.getAll({ db: pool });
+ * // result[0].orders: IOrderSelect[]
+ */
 export function jsonMany<T extends SqlQueryAny>(query: T): JsonAggregationResult<T, []> {
    return CACHE.get(
       [query.id, `json=many`, "postgres"],

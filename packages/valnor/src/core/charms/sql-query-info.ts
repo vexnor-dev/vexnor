@@ -32,6 +32,26 @@ export class SqlQueryInfo extends Sql {
    }
 }
 
+/**
+ * Attaches metadata to a query for debugging and logging purposes.
+ *
+ * The options object is emitted as a SQL comment in the generated query text.
+ * Use `label` to give the query a human-readable name that appears in logs
+ * and error messages. Use `driver` to hint which database driver should
+ * execute this query.
+ *
+ * @param options - Metadata to attach. `label` and `driver` are well-known keys;
+ *   any additional properties are also emitted in the comment.
+ *
+ * @example
+ * const q = sql`
+ *   ${info({ label: "find-active-accounts" })}
+ *   SELECT ${row(Account.$$)}
+ *   FROM ${Account}
+ *   WHERE ${Account.$active} = true
+ * `;
+ * // Emits: /* label: find-active-accounts *\/  before the query
+ */
 export function info(options: SqlQueryInfoOptions) {
    return new SqlQueryInfo(options);
 }

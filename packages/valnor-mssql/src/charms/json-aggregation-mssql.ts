@@ -98,14 +98,28 @@ export class JsonAggregationMssql<T extends { Row?: unknown; Params?: unknown }>
 }
 
 /**
- * Creates a new JsonAggregationPostgres object core block.
- * @param query sql core to aggregate
- * @returns JsonAggregationPostgres object core block
+ * Aggregates a subquery into a single JSON object using `FOR JSON PATH, WITHOUT_ARRAY_WRAPPER`,
+ * or `null` if no row is found.
+ *
+ * Place it twice in the query: once in the SELECT list (to name the result column)
+ * and once in the FROM clause (to emit the OUTER APPLY). Use `.as(key)` in
+ * the SELECT position to assign the result property name.
+ *
+ * @param query - The subquery whose first row will be aggregated into JSON.
+ *
  * @example
- * SELECT ${Account.$$}, ${jsonOne(AccountParent).as("parent")}
- * FROM ${Account} ${jsonOne(AccountParent)}
- * WHERE ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}
- * */
+ * const AccountParent = sql`
+ *   SELECT ${row(Account.as("parent").$$)}
+ *   FROM ${Account.as("parent")}
+ *   WHERE ${Account.as("parent").$accountId} = ${Account.$parentId}
+ * `;
+ *
+ * const result = await sql`
+ *   SELECT ${row(Account.$$)}, ${jsonOne(AccountParent).as("parent")}
+ *   FROM ${Account} ${jsonOne(AccountParent)}
+ * `.getAll({ db: request });
+ * // result[0].parent: string (JSON — parse to IAccountSelect | null)
+ */
 export function jsonOne<T extends SqlQueryAny>(query: T): JsonAggregationResult<T> {
    return CACHE.get([query.id, `json=one`, "mssql"], () => {
       ok(query.$$, `'query.$$' is required. check if the query does return a row.`);
@@ -117,14 +131,27 @@ export function jsonOne<T extends SqlQueryAny>(query: T): JsonAggregationResult<
 }
 
 /**
- * Creates a new JsonAggregationPostgres object core block.
- * @param query sql core to aggregate
- * @returns JsonAggregationPostgres object core block
+ * Aggregates a subquery into a JSON array using `FOR JSON PATH`, or `'[]'` if no rows are found.
+ *
+ * Place it twice in the query: once in the SELECT list (to name the result column)
+ * and once in the FROM clause (to emit the OUTER APPLY). Use `.as(key)` in
+ * the SELECT position to assign the result property name.
+ *
+ * @param query - The subquery whose rows will be aggregated into a JSON array.
+ *
  * @example
- * SELECT ${Account.$$}, ${jsonMany(UserOrders).as("orders")}
- * FROM ${Account} ${jsonMany(UserOrders)}
- * WHERE ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}
- * */
+ * const UserOrders = sql`
+ *   SELECT ${row(Order.$$)}
+ *   FROM ${Order}
+ *   WHERE ${Order.$accountId} = ${Account.$accountId}
+ * `;
+ *
+ * const result = await sql`
+ *   SELECT ${row(Account.$$)}, ${jsonMany(UserOrders).as("orders")}
+ *   FROM ${Account} ${jsonMany(UserOrders)}
+ * `.getAll({ db: request });
+ * // result[0].orders: string (JSON — parse to IOrderSelect[])
+ */
 export function jsonMany<T extends SqlQueryAny>(query: T): JsonAggregationResult<T, []> {
    return CACHE.get(
       [query.id, `json=many`, "mssql"],

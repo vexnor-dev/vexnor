@@ -40,6 +40,26 @@ export class SqlQueryColumn<
       this.query = query;
    }
 
+   /**
+    * Returns a copy of this column reference with a different result key.
+    *
+    * Use this when selecting a subquery column into a parent query under a
+    * different property name.
+    *
+    * @param key - The new result key.
+    *
+    * @example
+    * sql`
+    *   SELECT ${row(
+    *     Account.$$,
+    *     AccountChildren.row.$accountId.as("childId"),
+    *     AccountChildren.row.$email.as("childEmail")
+    *   )}
+    *   FROM ${Account}
+    *   JOIN LATERAL (${AccountChildren}) children ON true
+    * `
+    * // result includes: { ..., childId: string, childEmail: string }
+    */
    as<Key extends string>(key: Key) {
       return new SqlQueryColumn({
          format: this.format,

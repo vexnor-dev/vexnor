@@ -88,23 +88,17 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
       return this._labelLazy.value;
    }
 
-   /**
-    * SQL query parameters
-    */
+   /** Named parameter accessors for this query, keyed as `$paramName`. */
    get params(): BuildSqlParams<T["Params"]> {
       return this._paramsLazy.value;
    }
 
-   /**
-    * SQL query result row
-    */
+   /** Column accessors for the result row of this query, keyed as `$columnName`. Used to reference this query's output columns in a parent query. */
    get row(): SqlQueryRow<T> {
       return this._rowLazy.value;
    }
 
-   /**
-    * SQL query inner queries
-    */
+   /** @internal */
    get innerQueries(): SqlQueryAny[] {
       return this._innerQueriesLazy.value;
    }
@@ -113,9 +107,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
       return this._dialectsLazy.value;
    }
 
-   /**
-    * SQL query $$ (SQL *)
-    */
+   /** Selects all columns from this query's result — use inside `row()` when referencing this query as a subquery. */
    get $$(): SqlQueryAll<T["Row"]> {
       return this._$$Lazy.value;
    }
@@ -432,8 +424,20 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
    }
 
    /**
-    * Get the SQL  text with input values and parameters replaced by the ? wildcards
-    * @example select * from table where id = ? and name = ?
+    * Builds the final SQL text and parameter values array.
+    *
+    * The output format (placeholder style, quoting, keyword casing) is
+    * determined by the plugin's tokenizer and dialect. You typically don't
+    * call this directly — the plugin's `getAll` / `getOneRequired` /
+    * `getOneOptional` methods call it for you.
+    *
+    * @param args - Optional params and build options.
+    * @returns An object with `text` (the SQL string) and `values` (the bound values array).
+    *
+    * @example
+    * const { text, values } = findById.getSql({ params: { id: "123" } });
+    * console.log(text);   // SELECT ... WHERE "account_id" = $1
+    * console.log(values); // ["123"]
     */
    getSql({ options, ...args }: SqlInputArgs<T["Params"]>): { text: string; values: unknown[] } {
       const dialect = options?.dialect ?? this.dialects.values().next().value ?? "sql";
@@ -515,10 +519,28 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
       }
    }
 
+   /**
+    * Returns a reference to this query rendered in a specific SQL format.
+    *
+    * Use this to control how the query is embedded when it appears as a
+    * subquery — for example forcing it to render as a CTE (`"with"`) or
+    * as an inline subquery (`"select"`, `"from"`).
+    *
+    * @param queryFormat - The SQL context in which to render this query.
+    * @param queryType - Whether to render as a `"main"` or `"inline"` query.
+    */
    render(queryFormat: SqlQueryFormat, queryType?: SqlQueryType | null): SqlQueryRefExtended<T> {
       return newSqlQueryRef(this, { queryFormat, queryType });
    }
 
+   /**
+    * Returns a reference to this query forced into inline rendering mode.
+    *
+    * Use this when embedding a subquery inside a function call or expression
+    * where the default rendering context would produce incorrect SQL.
+    *
+    * @param queryFormat - Optional format override for the inline rendering.
+    */
    inline(queryFormat?: SqlQueryFormat | null): SqlQueryRefExtended<T> {
       return newSqlQueryRef(this, { queryType: "inline", queryFormat });
    }

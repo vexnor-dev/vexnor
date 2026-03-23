@@ -43,6 +43,34 @@ export class SqlSelectColumn<T extends { Key: string; Type: unknown; Params?: un
    }
 }
 
+/**
+ * Declares a named SELECT column with an optional custom SQL write handler.
+ *
+ * Use the single-argument form to reference a column by key when the column
+ * name is sufficient (e.g. in a CTE output or a known alias). Use the
+ * three-argument form to provide a custom `onWrite` handler that emits
+ * arbitrary SQL for that column position, while still registering the key
+ * and type for result inference.
+ *
+ * @param key - The result key and TypeScript property name for this column.
+ * @param onWrite - Optional custom handler that writes the SQL for this column.
+ * @param params - Required when `onWrite` is provided and the expression uses params.
+ *
+ * @example
+ * // Simple column reference by key
+ * sql`SELECT ${col<{ status: string }>("status")} FROM ${Account}`
+ * // result: { status: string }
+ *
+ * @example
+ * // Custom expression with a known result type
+ * sql`
+ *   SELECT ${col<{ fullName: string }>("fullName", (ctx) =>
+ *     ctx.addStrings(`first_name || ' ' || last_name`)
+ *   )}
+ *   FROM ${Account}
+ * `
+ * // result: { fullName: string }
+ */
 export function col<T extends Record<string, unknown>>(
    key: Extract<keyof T, string>,
 ): SqlSelectColumn<{ Key: Extract<keyof T, string>; Type: T[typeof key] }>;

@@ -103,13 +103,26 @@ export class JsonAggregationSqlite3<T extends { Params?: unknown; Row?: unknown 
 }
 
 /**
- * Creates a new JsonAggregationSqlite3 object for single row aggregation
- * @param query sql query to aggregate
- * @returns JsonAggregationSqlite3 object
+ * Aggregates a subquery into a single JSON object using `json_object`, or `null` if no row is found.
+ *
+ * Unlike the PostgreSQL and MSSQL variants, this is used only in the SELECT list —
+ * no second placement in the FROM clause is needed. Use `.as(key)` to assign
+ * the result property name.
+ *
+ * @param query - The subquery whose first row will be aggregated into JSON.
+ *
  * @example
- * SELECT ${Account.$$}, ${jsonOne(AccountParent).as("parent")}
- * FROM ${Account}
- * WHERE ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}
+ * const AccountParent = sql`
+ *   SELECT ${row(Account.as("parent").$$)}
+ *   FROM ${Account.as("parent")}
+ *   WHERE ${Account.as("parent").$accountId} = ${Account.$parentId}
+ * `;
+ *
+ * const result = await sql`
+ *   SELECT ${row(Account.$$)}, ${jsonOne(AccountParent).as("parent")}
+ *   FROM ${Account}
+ * `.getAll({ db: database });
+ * // result[0].parent: string (JSON — parse to IAccountSelect | null)
  */
 export function jsonOne<T extends SqlQueryAny>(query: T): JsonAggregationResult<T> {
    return CACHE.get([query.id, `json=one`, "sqlite3"], () => {
@@ -122,13 +135,26 @@ export function jsonOne<T extends SqlQueryAny>(query: T): JsonAggregationResult<
 }
 
 /**
- * Creates a new JsonAggregationSqlite3 object for array aggregation
- * @param query sql query to aggregate
- * @returns JsonAggregationSqlite3 object
+ * Aggregates a subquery into a JSON array using `json_group_array`, or `'[]'` if no rows are found.
+ *
+ * Unlike the PostgreSQL and MSSQL variants, this is used only in the SELECT list —
+ * no second placement in the FROM clause is needed. Use `.as(key)` to assign
+ * the result property name.
+ *
+ * @param query - The subquery whose rows will be aggregated into a JSON array.
+ *
  * @example
- * SELECT ${Account.$$}, ${jsonMany(AccountOrders).as("orders")}
- * FROM ${Account}
- * WHERE ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}
+ * const UserOrders = sql`
+ *   SELECT ${row(Order.$$)}
+ *   FROM ${Order}
+ *   WHERE ${Order.$accountId} = ${Account.$accountId}
+ * `;
+ *
+ * const result = await sql`
+ *   SELECT ${row(Account.$$)}, ${jsonMany(UserOrders).as("orders")}
+ *   FROM ${Account}
+ * `.getAll({ db: database });
+ * // result[0].orders: string (JSON — parse to IOrderSelect[])
  */
 export function jsonMany<T extends SqlQueryAny>(query: T): JsonAggregationResult<T, []> {
    return CACHE.get(

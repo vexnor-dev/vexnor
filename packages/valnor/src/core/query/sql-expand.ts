@@ -51,8 +51,25 @@ export type SqlExpandHandlerAny = SqlExpandHandler<any>;
 export type SqlExpandHandler<T extends { Params: unknown }> = (params: T["Params"]) => Sql[] | Sql | null;
 
 /**
+ * Lazily expands a dynamic list of SQL nodes at query execution time.
  *
- * @param handler
+ * Use this when the columns or values to include in a query depend on runtime
+ * parameters and can't be determined statically. The handler receives the
+ * resolved `params` object and returns one or more `Sql` nodes to inline.
+ *
+ * @param handler - A function that receives the query params and returns the `Sql` node(s) to emit.
+ * @returns A `SqlExpand` node that defers expansion until the query is built with params.
+ *
+ * @example
+ * // Conditionally include a column based on a param flag
+ * type Params = { includeEmail: boolean };
+ *
+ * const q = sql`
+ *   SELECT ${row(Account.$accountId)}, ${expand<Params>((p) =>
+ *     p.includeEmail ? Account.$email : raw.BLANK
+ *   )}
+ *   FROM ${Account}
+ * `;
  */
 export function expand<Params extends unknown[] | Record<string, unknown> | void>(
    handler: SqlExpandHandler<{ Params: Params }>,

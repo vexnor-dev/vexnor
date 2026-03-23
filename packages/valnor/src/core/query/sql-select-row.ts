@@ -148,6 +148,45 @@ export class SqlSelectRow<T extends { Row: Record<string, unknown> }> extends Sq
    }
 }
 
+/**
+ * Declares the columns to SELECT and registers them for result type inference.
+ *
+ * Pass one or more column references — from a table (`Table.$col`, `Table.$$`),
+ * a subquery (`Subquery.row.$col`), or a computed value (`val`...`) — and the
+ * query result type will be inferred as the intersection of all their types.
+ *
+ * Must be used inside a `sql` template literal in the SELECT position.
+ *
+ * @param columns - One or more column or value references to select.
+ * @returns A `SqlSelectRow` node that emits the column list and carries the inferred row type.
+ *
+ * @example
+ * // All columns from a table
+ * sql`SELECT ${row(Account.$$)} FROM ${Account}`
+ * // result: IAccountSelect
+ *
+ * @example
+ * // Specific columns
+ * sql`SELECT ${row(Account.$firstName, Account.$email)} FROM ${Account}`
+ * // result: { firstName: string; email: string }
+ *
+ * @example
+ * // With alias
+ * sql`SELECT ${row(Account.$firstName.as("name"))} FROM ${Account}`
+ * // result: { name: string }
+ *
+ * @example
+ * // Mixing table columns and a computed value
+ * sql`
+ *   SELECT ${row(
+ *     Account.$accountId,
+ *     val`COUNT(*)`.as<{ total: number }>("total")
+ *   )}
+ *   FROM ${Account}
+ *   GROUP BY ${Account.$accountId}
+ * `
+ * // result: { accountId: string; total: number }
+ */
 export function row<Column extends Sql, Columns extends Column[]>(
    ...columns: Columns
 ): SqlSelectRow<{ Row: InferResultRowFromColumns<typeof columns> }> {

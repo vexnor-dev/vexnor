@@ -21,29 +21,32 @@ export class SqlRaw extends Sql {
 }
 
 /**
- * Creates an unquoted raw SQL string.
- * @param value The raw SQL string.
- * @returns The raw SQL string.
+ * Injects an unquoted raw SQL string directly into the query.
+ *
+ * Use sparingly — the value is emitted as-is with no escaping. Prefer
+ * parameterized values or column references wherever possible.
+ *
+ * @param value - The raw SQL fragment to emit.
  */
 export function raw(value: string): Sql {
    return new SqlRaw(value, { quote: false });
 }
 
 /**
- * Creates a quoted raw SQL string.
- * @param value The raw SQL string.
- * @returns The raw SQL string.
+ * Injects a quoted identifier (e.g. a column or table name) into the query.
+ *
+ * The value is wrapped in database-appropriate quotes. Use this when you need
+ * to reference an identifier dynamically rather than through a generated column
+ * or table object.
+ *
+ * @param value - The identifier to quote and emit.
  */
 export function quote(value: string): Sql {
    return new SqlRaw(value, { quote: true });
 }
 
-/**
- * SQL raw blank string
- */
+/** Empty SQL fragment — emits nothing. Useful as a no-op placeholder in `expand()` handlers. */
 raw.BLANK = new SqlRaw("", { quote: false });
 
-/**
- * SQL raw space string
- */
+/** A single space SQL fragment. */
 raw.SPACE = new SqlRaw(" ", { quote: false });

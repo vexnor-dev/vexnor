@@ -107,6 +107,7 @@ export class SqlTable<
       return this._out.value;
    }
 
+   /** Selects all columns from this table — equivalent to `SELECT *` but fully typed. */
    get $$(): SqlTableAll<T["Select"]> {
       return this._$$.value;
    }
@@ -115,6 +116,21 @@ export class SqlTable<
       return this._crudConfig;
    }
 
+   /**
+    * Returns a new aliased version of this table for use in self-joins or
+    * when the same table appears more than once in a query.
+    *
+    * @param tableName - The SQL alias to apply.
+    *
+    * @example
+    * const Parent = Account.as("parent");
+    *
+    * sql`
+    *   SELECT ${row(Account.$$, Parent.$email.as("parentEmail"))}
+    *   FROM ${Account}
+    *   JOIN ${Parent} ON ${Parent.$accountId} = ${Account.$parentId}
+    * `
+    */
    as(tableName: string | TemplateStringsArray): SqlTableExtended<T> {
       const alias = (() => {
          switch (true) {
@@ -154,8 +170,17 @@ export class SqlTable<
    }
 
    /**
-    * Generates the SQL code for UPDATE set values
-    * @param update record with update values
+    * Generates the `SET col1 = ?, col2 = ?` clause for an UPDATE statement.
+    *
+    * @param update - An object containing the columns and values to update.
+    *
+    * @example
+    * sql`
+    *   UPDATE ${Account}
+    *   SET ${Account.updateSet({ firstName: "Jane", email: "jane@example.com" })}
+    *   WHERE ${Account.$accountId} = ${accountId}
+    *   RETURNING ${row(Account.$$)}
+    * `
     */
    updateSet<U extends T["Update"]>(update: U): T["Update"] extends undefined ? never : Sql {
       ok(update, `Update is required`);
@@ -164,8 +189,26 @@ export class SqlTable<
    }
 
    /**
-    * Generates the columns and VALUES clause for an INSERT statement, e.g., ("col1", "col2") VALUES (?, ?), (?, ?).
-    * @param inserts array of records to insert
+    * Generates the `("col1", "col2") VALUES (?, ?), (?, ?)` clause for an INSERT statement.
+    *
+    * Accepts one or more insert objects. All objects must share the same set of keys.
+    *
+    * @param inserts - One or more objects containing the data to insert.
+    *
+    * @example
+    * // Single row
+    * sql`INSERT INTO ${Account} ${Account.insertColsVals({ firstName: "John", email: "john@example.com" })}`
+    *
+    * @example
+    * // Batch insert
+    * sql`
+    *   INSERT INTO ${Account}
+    *   ${Account.insertColsVals(
+    *     { firstName: "John", email: "john@example.com" },
+    *     { firstName: "Jane", email: "jane@example.com" }
+    *   )}
+    *   RETURNING ${row(Account.$$)}
+    * `
     */
    insertColsVals(...inserts: T["Insert"][]): T["Insert"] extends undefined ? never : Sql {
       ok(insertsAreValid(inserts), `Invalid inserts`);
@@ -173,8 +216,12 @@ export class SqlTable<
    }
 
    /**
-    * Generates the column list for an INSERT statement, e.g., ("col1", "col2").
-    * @param inserts - One or more objects containing the data to be inserted.
+    * Generates only the column list `("col1", "col2")` for an INSERT statement.
+    *
+    * Use together with `insertVals()` when you need to separate the column list
+    * from the values clause (e.g. for INSERT ... SELECT patterns).
+    *
+    * @param inserts - One or more objects whose keys determine the column list.
     */
    insertCols(...inserts: T["Insert"][]): T["Insert"] extends undefined ? never : Sql {
       ok(insertsAreValid(inserts), `Invalid inserts`);
@@ -182,8 +229,12 @@ export class SqlTable<
    }
 
    /**
-    * Generates the VALUES clause for an INSERT statement, e.g., VALUES (?, ?), (?, ?).
-    * @param inserts - One or more objects containing the data to be inserted.
+    * Generates only the `VALUES (?, ?), (?, ?)` clause for an INSERT statement.
+    *
+    * Use together with `insertCols()` when you need to separate the column list
+    * from the values clause (e.g. for INSERT ... SELECT patterns).
+    *
+    * @param inserts - One or more objects containing the data to insert.
     */
    insertVals(...inserts: T["Insert"][]): T["Insert"] extends undefined ? never : Sql {
       ok(insertsAreValid(inserts), `Invalid inserts`);
