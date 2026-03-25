@@ -15,6 +15,7 @@ export function getColumnType({ udt_name }: SqlColumnInfo): SqlColumnType {
       case "text":
       case "ntext":
       case "xml":
+      case "json":
          return { type: SqlLiteralType.String };
       case "int":
       case "smallint":
@@ -27,21 +28,23 @@ export function getColumnType({ udt_name }: SqlColumnInfo): SqlColumnType {
       case "smallmoney":
          return { type: SqlLiteralType.Number };
       case "bigint":
-         return { type: SqlLiteralType.BigInt };
-      case "json":
          return { type: SqlLiteralType.String };
+      case "binary":
+      case "varbinary":
+      case "image":
+      case "rowversion":
+      case "timestamp":
+         return { type: SqlLiteralType.Buffer };
+      case "time":
       case "date":
       case "datetime":
       case "datetime2":
       case "smalldatetime":
       case "datetimeoffset":
-      case "timestamp": // rowversion is a synonym for timestamp
          return { type: SqlLiteralType.Date };
       case "bit":
          return { type: SqlLiteralType.Boolean };
       default:
-         // For types like 'binary', 'varbinary', 'image', 'geography', 'geometry', etc.
-         // and user-defined types.
          return { type: SqlLiteralType.Udt, udt: udt_name };
    }
 }

@@ -21,7 +21,7 @@ export class ValnorSqlite3 extends ValnorPlugin<{
    Connection: BetterSqlite3.Database;
 }> {
    driver = "better-sqlite3";
-   dialect = "sqlite3";
+   dialect = "sqlite";
 
    newQueryHandler<T extends { Row?: unknown; Params?: unknown; QueryResult: object; Connection: unknown }>(
       query: SqlQuery<{ Params: T["Params"]; Row: T["Row"] }>,

@@ -2,9 +2,12 @@ export enum SqlLiteralType {
    String = "string",
    Number = "number",
    Boolean = "boolean",
+   Bit = "Bit",
    Date = "Date",
    BigInt = "BigInt",
    Buffer = "Uint8Array",
+   Json = "Json",
+   Custom = "Custom",
    Unknown = "unknown",
    Udt = "Udt",
 }

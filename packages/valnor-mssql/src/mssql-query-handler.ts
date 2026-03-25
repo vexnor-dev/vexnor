@@ -1,5 +1,6 @@
 import { SqlQueryHandler, SqlInputArgs, SqlQuery, SqlRunArgs, SqlRunError } from "valnor";
-import { IResult, Request } from "mssql";
+import mssql, { IResult, Request } from "mssql";
+const { TYPES } = mssql;
 import { defaultQueryOptions } from "./default-query-options.js";
 
 export class MssqlQueryHandler<T extends { Params?: unknown; Row?: unknown }> extends SqlQueryHandler<
@@ -52,7 +53,12 @@ export class MssqlQueryHandler<T extends { Params?: unknown; Row?: unknown }> ex
       if (debug) debug(Object.freeze(queryInput));
       const { values, text } = queryInput;
       for (let i = 0; i < values.length; i++) {
-         (await db).input(`param_${i}`, values[i]);
+         const value = values[i];
+         if (value instanceof Uint8Array) {
+            (await db).input(`param_${i}`, TYPES.VarBinary, Buffer.from(value));
+         } else {
+            (await db).input(`param_${i}`, value);
+         }
       }
 
       try {

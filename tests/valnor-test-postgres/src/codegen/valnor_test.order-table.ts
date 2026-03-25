@@ -4,6 +4,7 @@
 import * as valnor from "valnor";
 import * as udt from "./valnor_test-enums.js";
 
+
 export const Order = valnor.newSqlTable<{ Select: IOrderSelect, Insert: IOrderInsert, Update: IOrderUpdate; Delete: true }>({
    crud:
    {

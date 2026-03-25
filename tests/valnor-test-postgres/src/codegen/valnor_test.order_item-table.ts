@@ -4,6 +4,7 @@
 import * as valnor from "valnor";
 
 
+
 export const OrderItem = valnor.newSqlTable<{ Select: IOrderItemSelect, Insert: IOrderItemInsert, Update: IOrderItemUpdate; Delete: true }>({
    crud:
    {
@@ -72,7 +73,7 @@ export type IOrderItemInsert = {
    productPrice: string;
    discountPrice?: string | null;
    quantity: number;
-   metadata?: string | null;
+   metadata?: unknown | null;
 }
 
 export type IOrderItemUpdate = Partial<IOrderItemInsert>;
@@ -85,7 +86,7 @@ export type IOrderItemSelect = {
    productPrice: string
    discountPrice: string | null
    quantity: number
-   metadata: string | null
+   metadata: unknown | null
 }
 
 export type IOrderItemJson = valnor.JsonRow<IOrderItemSelect>;

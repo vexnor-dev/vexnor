@@ -50,6 +50,9 @@ export interface SqlColumnType {
    type: SqlLiteralType;
    udt?: string;
    isArray?: boolean;
+   tsTypeSelect?: string;
+   tsTypeInsert?: string;
+   tsImport?: string;
 }
 
 export interface SqlEnumValue {

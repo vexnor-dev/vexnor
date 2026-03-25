@@ -3,69 +3,70 @@
 */
 import * as valnor from "valnor";
 
-export const Account = valnor.newSqlTable<{
-   Select: IAccountSelect;
-   Insert: IAccountInsert;
-   Update: IAccountUpdate;
-   Delete: true;
-}>({
-   crud: {
-      insert: true,
-      select: true,
-      update: true,
-      delete: true,
+
+export const Account = valnor.newSqlTable<{ Select: IAccountSelect, Insert: IAccountInsert, Update: IAccountUpdate; Delete: true }>({
+   crud:
+   {
+      select: true, 
+      insert: true, 
+      update: true, 
+      delete: true, 
    },
-   tableInfo: {
+   tableInfo:
+   {
       name: "account",
       schema: "main",
    },
-   pk: ["accountId"],
-   columns: {
+   pk: ["accountId"], 
+   dialect: "sqlite",
+   columns:
+   {
+
       /**
        * account_id TEXT default lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-4' || substr(lower(hex(randomblob(2))),2) || '-' || substr('89ab',abs(random()) % 4 + 1, 1) || substr(lower(hex(randomblob(2))),2) || '-' || lower(hex(randomblob(6)))
-       */
+      */
       accountId: "account_id",
 
       /**
        * status TEXT default 'created'
-       */
+      */
       status: "status",
 
       /**
        * email TEXT
-       */
+      */
       email: "email",
 
       /**
        * first_name TEXT
-       */
+      */
       firstName: "first_name",
 
       /**
        * last_name TEXT
-       */
+      */
       lastName: "last_name",
 
       /**
        * notes TEXT
-       */
+      */
       notes: "notes",
 
       /**
        * created_at TEXT default datetime('now')
-       */
+      */
       createdAt: "created_at",
 
       /**
        * modified_at TEXT default datetime('now')
-       */
+      */
       modifiedAt: "modified_at",
 
       /**
        * parent_id TEXT
-       */
+      */
       parentId: "parent_id",
-   },
+   }
 });
 
 export type IAccountInsert = {
@@ -78,20 +79,20 @@ export type IAccountInsert = {
    createdAt?: string;
    modifiedAt?: string;
    parentId?: string | null;
-};
+}
 
 export type IAccountUpdate = Partial<IAccountInsert>;
 
 export type IAccountSelect = {
-   accountId: string;
-   status: string;
-   email: string;
-   firstName: string;
-   lastName: string;
-   notes: string | null;
-   createdAt: string;
-   modifiedAt: string;
-   parentId: string | null;
-};
+   accountId: string
+   status: string
+   email: string
+   firstName: string
+   lastName: string
+   notes: string | null
+   createdAt: string
+   modifiedAt: string
+   parentId: string | null
+}
 
 export type IAccountJson = valnor.JsonRow<IAccountSelect>;

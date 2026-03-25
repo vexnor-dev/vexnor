@@ -3,64 +3,65 @@
 */
 import * as valnor from "valnor";
 
-export const OrderItem = valnor.newSqlTable<{
-   Select: IOrderItemSelect;
-   Insert: IOrderItemInsert;
-   Update: IOrderItemUpdate;
-   Delete: true;
-}>({
-   crud: {
-      insert: true,
-      select: true,
-      update: true,
-      delete: true,
+
+export const OrderItem = valnor.newSqlTable<{ Select: IOrderItemSelect, Insert: IOrderItemInsert, Update: IOrderItemUpdate; Delete: true }>({
+   crud:
+   {
+      select: true, 
+      insert: true, 
+      update: true, 
+      delete: true, 
    },
-   tableInfo: {
+   tableInfo:
+   {
       name: "order_item",
       schema: "main",
    },
-   pk: ["orderId"],
-   columns: {
+   pk: ["orderId"], 
+   dialect: "sqlite",
+   columns:
+   {
+
       /**
        * order_id TEXT
-       */
+      */
       orderId: "order_id",
 
       /**
        * product_id TEXT
-       */
+      */
       productId: "product_id",
 
       /**
        * created_at TEXT default datetime('now')
-       */
+      */
       createdAt: "created_at",
 
       /**
        * modified_at TEXT default datetime('now')
-       */
+      */
       modifiedAt: "modified_at",
 
       /**
        * product_price REAL
-       */
+      */
       productPrice: "product_price",
 
       /**
        * discount_price REAL
-       */
+      */
       discountPrice: "discount_price",
 
       /**
        * quantity INTEGER
-       */
+      */
       quantity: "quantity",
 
       /**
        * metadata TEXT
-       */
+      */
       metadata: "metadata",
-   },
+   }
 });
 
 export type IOrderItemInsert = {
@@ -72,19 +73,19 @@ export type IOrderItemInsert = {
    discountPrice?: number | null;
    quantity: number;
    metadata?: string | null;
-};
+}
 
 export type IOrderItemUpdate = Partial<IOrderItemInsert>;
 
 export type IOrderItemSelect = {
-   orderId: string;
-   productId: string;
-   createdAt: string;
-   modifiedAt: string;
-   productPrice: number;
-   discountPrice: number | null;
-   quantity: number;
-   metadata: string | null;
-};
+   orderId: string
+   productId: string
+   createdAt: string
+   modifiedAt: string
+   productPrice: number
+   discountPrice: number | null
+   quantity: number
+   metadata: string | null
+}
 
 export type IOrderItemJson = valnor.JsonRow<IOrderItemSelect>;

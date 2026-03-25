@@ -90,6 +90,7 @@ export type { SqlCrudCommands } from "./crud/sql-crud-commands.js";
 export { sqlCrud, newSqlTableCrud, type SqlTableCrudCrudProvider } from "./crud/sql-table-crud.js";
 export { isPrimitive, type Primitive } from "#/lib/primitive.js";
 export { isError } from "#/lib/is-error.js";
+export type { Bit } from "#/lib/bit.js";
 export { SqlRunError } from "./sql-run-error.js";
 
 // CACHE

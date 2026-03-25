@@ -1,6 +1,6 @@
-import { SqlDeleteArgs, SqlInsertFromArgs, SqlInsertRowsResult, SqlSelectArgs, SqlTable, SqlUpdateArgs } from "valnor";
+import { SqlDeleteArgs, SqlInsertFromArgs, SqlSelectArgs, SqlTable, SqlUpdateArgs } from "valnor";
 import { mssqlSelect, MssqlSelectResult } from "./mssql-select.js";
-import { mssqlInsertRows } from "./mssql-insert-rows.js";
+import { mssqlInsertRows, MssqlInsertRowsResult } from "./mssql-insert-rows.js";
 import { MssqlTableUpdateResult, mssqlUpdate } from "./mssql-update.js";
 import { MssqlDeleteResult, mssqlDelete } from "./mssql-delete.js";
 import { mssqlInsertFrom, MssqlInsertFromResult } from "#/crud/mssql-insert-from.js";
@@ -52,7 +52,7 @@ export type MssqlCrudCommands<
         ) => MssqlInsertFromResult<T, Args>
       : null;
    insertRows: T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> }
-      ? () => SqlInsertRowsResult<T>
+      ? () => MssqlInsertRowsResult<T & { Select: Record<string, unknown>; Insert: Record<string, unknown> }>
       : null;
    update: T extends { Select: Record<string, unknown>; Update: Record<string, unknown> }
       ? <Args extends SqlUpdateArgs>(

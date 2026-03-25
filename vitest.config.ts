@@ -9,8 +9,8 @@ export default defineConfig({
          "./packages/valnor-mssql",
          "./packages/valnor-sqlite3",
          "./tests/valnor-test-mssql",
-         // "./tests/valnor-test-postgres",
-         // "./tests/valnor-test-sqlite3",
+         "./tests/valnor-test-postgres",
+         "./tests/valnor-test-sqlite3",
       ],
    },
 });

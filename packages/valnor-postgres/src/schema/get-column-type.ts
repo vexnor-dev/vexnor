@@ -17,16 +17,56 @@ export function getColumnType({
       case "uuid":
       case "text":
       case "varchar":
+      case "bpchar":
+         return { type: SqlLiteralType.String };
+      case "json":
+      case "jsonb":
+         return { type: SqlLiteralType.Json };
+      case "xml":
+      case "inet":
+      case "cidr":
+      case "macaddr":
+      case "macaddr8":
+      case "bit":
+      case "varbit":
+         return { type: SqlLiteralType.String };
+      case "interval":
+         return { type: SqlLiteralType.Custom, tsTypeSelect: "valnorPostgres.Interval", tsTypeInsert: "string", tsImport: `import type * as valnorPostgres from "valnor-postgres";` };
+      case "time":
+      case "timetz":
+      case "money":
          return { type: SqlLiteralType.String };
       case "numeric":
          if (numeric_precision_radix === 10) return { type: SqlLiteralType.String };
          return { type: SqlLiteralType.Number };
+      case "int2":
       case "int4":
+      case "float4":
+      case "float8":
          return { type: SqlLiteralType.Number };
       case "int8":
-         return { type: SqlLiteralType.BigInt };
-      case "jsonb":
          return { type: SqlLiteralType.String };
+      case "oid":
+         return { type: SqlLiteralType.Number };
+      case "xid":
+      case "xid8":
+      case "name":
+      case "pg_lsn":
+      case "tsvector":
+      case "tsquery":
+      case "line":
+      case "lseg":
+      case "box":
+      case "path":
+      case "polygon":
+         return { type: SqlLiteralType.String };
+      case "point":
+         return { type: SqlLiteralType.Custom, tsTypeSelect: "valnorPostgres.Point", tsTypeInsert: "string", tsImport: `import type * as valnorPostgres from "valnor-postgres";` };
+      case "circle":
+         return { type: SqlLiteralType.Custom, tsTypeSelect: "valnorPostgres.Circle", tsTypeInsert: "string", tsImport: `import type * as valnorPostgres from "valnor-postgres";` };
+      case "bytea":
+         return { type: SqlLiteralType.Buffer };
+      case "date":
       case "timestamp":
       case "timestamptz":
          return { type: SqlLiteralType.Date };

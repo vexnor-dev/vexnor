@@ -3,6 +3,7 @@
 */
 import * as valnor from "valnor";
 
+
 export const Product = valnor.newSqlTable<{ Select: IProductSelect, Insert: IProductInsert, Update: IProductUpdate; Delete: true }>({
    crud:
    {

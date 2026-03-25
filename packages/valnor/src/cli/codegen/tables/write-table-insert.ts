@@ -26,7 +26,7 @@ export function writeTableInsert(writer: CodeBlockWriter.default, { table }: Pri
 
             writer.write(" ");
 
-            const { type, udt } = plugin.getColumnType(col);
+            const { type, udt, tsTypeSelect, tsTypeInsert } = plugin.getColumnType(col);
             switch (type) {
                case SqlLiteralType.Udt:
                   ok(udt, `Udt type name is missing for column ${col.column_name}: ${type}`);
@@ -37,6 +37,16 @@ export function writeTableInsert(writer: CodeBlockWriter.default, { table }: Pri
                   break;
                case SqlLiteralType.Buffer:
                   writer.write(`Uint8Array`);
+                  break;
+               case SqlLiteralType.Bit:
+                  writer.write(`valnor.Bit`);
+                  break;
+               case SqlLiteralType.Json:
+                  writer.write(`unknown`);
+                  break;
+               case SqlLiteralType.Custom:
+                  ok(tsTypeSelect, `tsTypeSelect is required for Custom column ${col.column_name}`);
+                  writer.write(tsTypeInsert ?? tsTypeSelect);
                   break;
                default:
                   writer.write(`${type}`);

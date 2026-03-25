@@ -28,11 +28,6 @@
       "build:1-core": "pnpm --filter './packages/*' run build",
       "build:4-install": "pnpm install --frozen-lockfile",
       "build:5-rest": "pnpm -r run build",
-      "codegen": "run-s 'codegen:*' | pino-pretty",
-      "codegen:2-generate-postgres": "env-cmd --no-override -x -r ./env-dev.json -e db node ./packages/valnor/cli.mjs generate --plugin valnor-postgres --schema one_sql --pascalCaseTables --camelCaseColumns --host \\$POSTGRES_HOST --port \\$POSTGRES_PORT --database \\$POSTGRES_DATABASE --user \\$POSTGRES_USER --password \\$POSTGRES_PASSWORD --outDir 'packages/valnor/src/core/__tests__/models' | pino-pretty",
-      "codegen:3-generate-sqlite3": "node ./packages/valnor/cli.mjs generate --plugin valnor-sqlite3 --schema one_sql --pascalCaseTables --camelCaseColumns --uri '@db-sqlite3/valnor-test.sqlite' --outDir 'packages/valnor-sqlite3/src/__tests__/codegen' | pino-pretty",
-      "codegen:4-generate-mssql": "env-cmd --no-override -x -r ./env-dev.json -e db node ./packages/valnor/cli.mjs generate --plugin valnor-mssql --schema one_sql --pascalCaseTables --camelCaseColumns --host \\$MSSQL_HOST --port \\$MSSQL_PORT --database \\$MSSQL_DATABASE --user \\$MSSQL_USER --password \\$MSSQL_PASSWORD --outDir 'packages/valnor-mssql/src/__tests__/codegen' | pino-pretty",
-      "pretest": "run-s 'codegen'",
       "test": "vitest --coverage run"
    },
    "devDependencies": {

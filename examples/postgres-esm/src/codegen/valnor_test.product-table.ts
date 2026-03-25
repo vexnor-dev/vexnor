@@ -4,6 +4,7 @@
 import * as valnor from "valnor";
 
 
+
 export const Product = valnor.newSqlTable<{ Select: IProductSelect, Insert: IProductInsert, Update: IProductUpdate; Delete: true }>({
    crud:
    {
@@ -83,7 +84,7 @@ export type IProductInsert = {
    discount?: string | null;
    isAvailable?: boolean;
    isPublished?: boolean;
-   metadata?: string | null;
+   metadata?: unknown | null;
    tags?: unknown | null;
 }
 
@@ -98,7 +99,7 @@ export type IProductSelect = {
    discount: string | null
    isAvailable: boolean
    isPublished: boolean
-   metadata: string | null
+   metadata: unknown | null
    tags: unknown | null
 }
 

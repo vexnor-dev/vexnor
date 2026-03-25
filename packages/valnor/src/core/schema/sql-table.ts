@@ -337,8 +337,8 @@ export class SqlTable<
 export function newSqlTable<
    T extends {
       Select: Record<string, unknown>;
-      Insert?: Partial<T["Select"]>;
-      Update?: Partial<T["Select"]>;
+      Insert?: { [K in keyof T["Select"]]?: unknown };
+      Update?: { [K in keyof T["Select"]]?: unknown };
       Delete?: boolean;
    },
    Extra extends Record<string, unknown> = Record<string, unknown>,

@@ -3,44 +3,45 @@
 */
 import * as valnor from "valnor";
 
-export const Product = valnor.newSqlTable<{
-   Select: IProductSelect;
-   Insert: IProductInsert;
-   Update: IProductUpdate;
-   Delete: true;
-}>({
-   crud: {
-      insert: true,
-      select: true,
-      update: true,
-      delete: true,
+
+export const Product = valnor.newSqlTable<{ Select: IProductSelect, Insert: IProductInsert, Update: IProductUpdate; Delete: true }>({
+   crud:
+   {
+      select: true, 
+      insert: true, 
+      update: true, 
+      delete: true, 
    },
-   tableInfo: {
+   tableInfo:
+   {
       name: "product",
       schema: "main",
    },
-   pk: ["productId"],
-   columns: {
+   pk: ["productId"], 
+   dialect: "sqlite",
+   columns:
+   {
+
       /**
        * product_id TEXT default lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-4' || substr(lower(hex(randomblob(2))),2) || '-' || substr('89ab',abs(random()) % 4 + 1, 1) || substr(lower(hex(randomblob(2))),2) || '-' || lower(hex(randomblob(6)))
-       */
+      */
       productId: "product_id",
 
       /**
        * name TEXT
-       */
+      */
       name: "name",
 
       /**
        * description TEXT
-       */
+      */
       description: "description",
 
       /**
        * price REAL
-       */
+      */
       price: "price",
-   },
+   }
 });
 
 export type IProductInsert = {
@@ -48,15 +49,15 @@ export type IProductInsert = {
    name: string;
    description?: string | null;
    price: number;
-};
+}
 
 export type IProductUpdate = Partial<IProductInsert>;
 
 export type IProductSelect = {
-   productId: string | null;
-   name: string;
-   description: string | null;
-   price: number;
-};
+   productId: string | null
+   name: string
+   description: string | null
+   price: number
+}
 
 export type IProductJson = valnor.JsonRow<IProductSelect>;

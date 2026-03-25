@@ -3,6 +3,7 @@
 */
 import * as valnor from "valnor";
 
+
 export const Account = valnor.newSqlTable<{ Select: IAccountSelect, Insert: IAccountInsert, Update: IAccountUpdate; Delete: true }>({
    crud:
    {
