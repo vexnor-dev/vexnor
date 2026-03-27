@@ -11,6 +11,12 @@ import { row } from "#/core/query/sql-select-row.js";
 import { Void } from "#/core/utils/utility-types.js";
 import { SqlQueryInfo } from "#/core/charms/sql-query-info.js";
 
+/**
+ * Arguments for the crud `update` command.
+ *
+ * - `WHERE` — filter condition (without the `WHERE` keyword); omit only if the
+ *   plugin implementation allows unfiltered updates
+ */
 export type SqlUpdateArgs = {
    WHERE?: SqlQueryAny;
 };

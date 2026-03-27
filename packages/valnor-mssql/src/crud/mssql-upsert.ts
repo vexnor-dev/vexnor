@@ -14,6 +14,12 @@ import {
 import { sql } from "#/mssql-sql.js";
 import { MssqlQueryHandler } from "#/mssql-query-handler.js";
 
+/**
+ * Arguments for an upsert (MERGE) operation.
+ *
+ * - `MERGE_ON` — the columns used in the `ON` clause to match existing rows (typically the primary key)
+ * - `SET` — optional custom SET clause for the WHEN MATCHED branch; defaults to updating all non-merge columns from the source
+ */
 export type MssqlUpsertArgs = {
    MERGE_ON: SqlTableColumnAny[];
    SET?: SqlQueryAny;

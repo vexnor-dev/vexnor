@@ -9,6 +9,20 @@ import { raw } from "#/core/query/sql-raw.js";
 import { SqlQueryInfo } from "#/core/charms/sql-query-info.js";
 import { row } from "#/core/query/sql-select-row.js";
 
+/**
+ * Arguments for the crud `select` command.
+ *
+ * All clauses are optional — omit any you don't need. Each value is a `SqlQuery`
+ * fragment that gets inlined into the appropriate position in the generated SELECT.
+ *
+ * - `SELECT` — override the default `SELECT *` with a custom column list
+ * - `WHERE` — filter condition (without the `WHERE` keyword)
+ * - `JOIN` — one or more JOIN clauses
+ * - `GROUP_BY` / `HAVING` — grouping and group filter
+ * - `ORDER_BY` — sort order
+ * - `offset` / `limit` — pagination params (plugin-dependent support)
+ * - `includeOne` / `includeMany` — lateral JSON includes (plugin-dependent support)
+ */
 export type SqlSelectArgs = {
    SELECT?: SqlQueryAny;
    WHERE?: SqlQueryAny;

@@ -16,6 +16,12 @@ import { SqlInsertRowsParams } from "valnor";
 import { BetterSqlite3QueryHandler } from "#/better-sqlite3-query-handler.js";
 import "#/valnor-sqlite3.js";
 
+/**
+ * Arguments for an upsert (INSERT ... ON CONFLICT DO UPDATE) operation.
+ *
+ * - `CONFLICT_ON` — the columns that define the conflict target (typically the primary key or a unique index)
+ * - `SET` — optional custom SET clause; defaults to updating all non-conflict columns with their `EXCLUDED` values
+ */
 export type Sqlite3UpsertArgs = {
    CONFLICT_ON: SqlTableColumnAny[];
    SET?: SqlQueryAny;

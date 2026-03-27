@@ -15,6 +15,12 @@ import { sql } from "#/postgres-sql.js";
 import { SqlInsertRowsParams } from "valnor";
 import { PostgresQueryHandler } from "#/postgres-query-handler.js";
 
+/**
+ * Arguments for an upsert (INSERT ... ON CONFLICT DO UPDATE) operation.
+ *
+ * - `CONFLICT_ON` — the columns that define the conflict target (typically the primary key or a unique index)
+ * - `SET` — optional custom SET clause; defaults to updating all non-conflict columns with their `EXCLUDED` values
+ */
 export type PostgresUpsertArgs = {
    CONFLICT_ON: SqlTableColumnAny[];
    SET?: SqlQueryAny;

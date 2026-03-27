@@ -7,6 +7,12 @@ import { row } from "#/core/query/sql-select-row.js";
 import { ParamsOfArgs } from "#/core/sql-base.js";
 import { SqlQueryInfo } from "#/core/charms/sql-query-info.js";
 
+/**
+ * Arguments for the crud `delete` command.
+ *
+ * Requires either a `WHERE` condition to scope the delete, or `{ force: true }`
+ * to explicitly allow a full-table delete. This prevents accidental unfiltered deletes.
+ */
 export type SqlDeleteArgs = { WHERE: SqlQueryAny } | { force: true };
 
 export type SqlDeleteResult<T extends { Select: Record<string, unknown> }, Args extends SqlDeleteArgs> = SqlQuery<{

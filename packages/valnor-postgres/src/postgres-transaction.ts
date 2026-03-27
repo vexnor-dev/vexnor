@@ -16,6 +16,23 @@ const DEFAULTS: Required<PostgresTransactionOptions> = {
    deferrable: "NOT DEFERRABLE",
 };
 
+/**
+ * Executes a callback inside a PostgreSQL transaction.
+ *
+ * Acquires a client from the pool, begins a transaction with the specified
+ * isolation level and access mode, runs the callback, then commits. Rolls back
+ * automatically if the callback throws.
+ *
+ * @param pool - The `pg` connection pool.
+ * @param callback - Async function that receives the dedicated `PoolClient` and runs queries.
+ * @param options - Optional transaction settings (isolation level, access mode, deferrable).
+ *
+ * @example
+ * await transaction(pool, async (client) => {
+ *   await sql`INSERT INTO ${Account} ${Account.insertColsVals(data)}`.getOneRequired({ db: client });
+ *   await sql`UPDATE ${Order} SET ${Order.updateSet({ status: "confirmed" })} WHERE ...`.getOneRequired({ db: client });
+ * });
+ */
 export async function transaction<T>(
    pool: Pool,
    callback: (client: PoolClient) => Promise<T>,
@@ -39,6 +56,16 @@ export async function transaction<T>(
    }
 }
 
+/**
+ * Creates a savepoint within an existing transaction and runs a callback inside it.
+ *
+ * If the callback throws, rolls back to the savepoint and returns `undefined`.
+ * If it succeeds, releases the savepoint and returns the result.
+ *
+ * @param client - The `PoolClient` obtained from `transaction()`.
+ * @param callbackOrName - Either a savepoint name string, or the callback directly (name is auto-generated).
+ * @param callback - The callback to run inside the savepoint (required when `callbackOrName` is a string).
+ */
 export async function savepoint<T>(
    client: PoolClient,
    callbackOrName: ((client: PoolClient) => Promise<T>) | string,

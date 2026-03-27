@@ -79,6 +79,16 @@ export class SqlTableCrud<
    }
 }
 
+/**
+ * Creates a `SqlTableCrud` instance by combining a `SqlTable` with a crud provider.
+ *
+ * Used in generated files to attach database-specific CRUD commands to a table.
+ * The result exposes `.select()`, `.insertRows()`, `.insertFrom()`, `.update()`,
+ * and `.delete()` directly on the table object.
+ *
+ * @param table - The table to attach CRUD commands to.
+ * @param provider - A function that returns the database-specific `SqlCrudCommands` for the table.
+ */
 export function newSqlTableCrud<
    T extends {
       Select: Record<string, unknown>;
@@ -91,6 +101,7 @@ export function newSqlTableCrud<
    return newSqlTableProxy(crud);
 }
 
+/** Default (database-agnostic) crud provider. Used when no plugin-specific provider is needed. */
 export const sqlCrud = <
    T extends {
       Select: Record<string, unknown>;
