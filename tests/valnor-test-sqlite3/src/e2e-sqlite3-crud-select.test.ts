@@ -2,13 +2,13 @@ import { beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
 import { randomUUID } from "node:crypto";
 import { param, row } from "valnor";
-import { sql, sqlite3Crud, sqlite3Select } from "valnor-sqlite3";
+import { sql, sqlite3Select } from "valnor-sqlite3";
+import "valnor-sqlite3";
 import { Account, IAccountInsert, IAccountSelect } from "./codegen/main.account-table.js";
 import { Order, IOrderInsert, IOrderSelect } from "./codegen/main.order-table.js";
 import { db } from "./config.js";
 
 describe.sequential("valnor sqlite3 CRUD - select", () => {
-   const AccountCrud = sqlite3Crud(Account);
    let rootAccount!: IAccountSelect;
    let childAccount!: IAccountSelect;
    let order!: IOrderSelect;
@@ -155,10 +155,9 @@ describe.sequential("valnor sqlite3 CRUD - select", () => {
       expect(parsedOrder?.orderId).toBe(order.orderId);
    });
 
-   test("select via crud factory", async () => {
+   test("select via Account.sqlite3.select", async () => {
       ok(rootAccount);
-      ok(AccountCrud.select);
-      const result = await AccountCrud.select({
+      const result = await Account.sqlite3.select({
          WHERE: sql`${Account.$accountId} = ${param<{ id: string }>("id")}`,
       }).any({ db, params: { id: rootAccount.accountId } });
       expect(result).toEqual(rootAccount);

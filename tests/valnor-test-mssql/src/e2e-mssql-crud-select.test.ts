@@ -1,15 +1,13 @@
 import { beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
 import { param, row } from "valnor";
-import { mssqlCrud, sql } from "valnor-mssql";
+import { sql } from "valnor-mssql";
+import "valnor-mssql";
 import { Account, IAccountSelect, IOrderSelect, Order } from "./codegen/valnor_test.schema.js";
 import { pool } from "./mssql-pool.js";
 import { TestDataManager } from "./test-data-manager.js";
 
 describe.sequential("valnor mssql CRUD - select", async (ctx) => {
-   const AccountCrud = mssqlCrud(Account);
-   const OrderCrud = mssqlCrud(Order);
-
    let rootAccount!: IAccountSelect;
    let childAccount!: IAccountSelect;
    let order!: IOrderSelect;
@@ -37,11 +35,11 @@ describe.sequential("valnor mssql CRUD - select", async (ctx) => {
    test("select: basic select with WHERE", async () => {
       ok(rootAccount, `'rootAccount' is required.`);
       const idParam = param<{ id: string }>("id");
-      const getAccount = AccountCrud.select!({
+      const getAccount = Account.mssql.select({
          WHERE: sql`${Account.$accountId} = ${idParam}`,
       });
 
-      const result = await getAccount.mssql.any({
+      const result = await getAccount.any({
          db: pool.request(),
          params: { id: rootAccount.accountId },
       });
@@ -53,14 +51,14 @@ describe.sequential("valnor mssql CRUD - select", async (ctx) => {
       ok(rootAccount, `'rootAccount' is required.`);
       const offsetParam = param<{ offset: number }>("offset");
       const limitParam = param<{ limit: number }>("limit");
-      const query = AccountCrud.select!({
+      const query = Account.mssql.select({
          WHERE: sql`${Account.$accountId} in (${[rootAccount.accountId, childAccount.accountId]})`,
          ORDER_BY: sql`${Account.$email} asc`,
          offset: offsetParam,
          limit: limitParam,
       });
 
-      const results = await query.mssql.all({
+      const results = await query.all({
          db: pool.request(),
          params: { offset: 0, limit: 1 },
       });
@@ -74,12 +72,12 @@ describe.sequential("valnor mssql CRUD - select", async (ctx) => {
          where ${Account.as("children").$parentId} = ${Account.out.$accountId}
       `;
 
-      const query = AccountCrud.select!({
+      const query = Account.mssql.select({
          WHERE: sql`${Account.$accountId} = ${rootAccount.accountId}`,
          includeMany: { children },
       });
 
-      const results = await query.mssql.all({ db: pool.request() });
+      const results = await query.all({ db: pool.request() });
       expect(results).toHaveLength(1);
       const parsed = JSON.parse(results[0]!.children as unknown as string) as IAccountSelect[];
       expect(parsed).toHaveLength(1);
@@ -87,32 +85,32 @@ describe.sequential("valnor mssql CRUD - select", async (ctx) => {
    });
 
    test("select: includeOne (firstOrder)", async () => {
-      const query = AccountCrud.select!({
+      const query = Account.mssql.select({
          WHERE: sql`${Account.$accountId} = ${rootAccount.accountId}`,
          includeOne: {
-            firstOrder: OrderCrud.select({
+            firstOrder: Order.mssql.select({
                WHERE: sql`${Order.$accountId} = ${Account.out.$accountId} AND ${Order.$orderId} = ${order.orderId}`,
             }),
          },
       });
 
-      const results = await query.mssql.all({ db: pool.request() });
+      const results = await query.all({ db: pool.request() });
       expect(results).toHaveLength(1);
       const parsed = JSON.parse(results[0]!.firstOrder as unknown as string) as IOrderSelect;
       expect(parsed.orderId).toBe(order.orderId);
    });
 
    test("select: includeOne returns null when no match", async () => {
-      const query = AccountCrud.select!({
+      const query = Account.mssql.select({
          WHERE: sql`${Account.$accountId} = ${rootAccount.accountId}`,
          includeOne: {
-            firstOrder: OrderCrud.select({
+            firstOrder: Order.mssql.select({
                WHERE: sql`${Order.$accountId} = ${Account.out.$accountId} AND ${Order.$orderId} = ${crypto.randomUUID()}`,
             }),
          },
       });
 
-      const results = await query.mssql.all({ db: pool.request() });
+      const results = await query.all({ db: pool.request() });
       expect(results).toHaveLength(1);
       const parsed = JSON.parse(results[0]!.firstOrder as unknown as string);
       expect(parsed).toBeNull();
@@ -125,12 +123,12 @@ describe.sequential("valnor mssql CRUD - select", async (ctx) => {
          where ${Account.as("children").$parentId} = ${Account.out.$accountId}
       `;
 
-      const query = AccountCrud.select!({
+      const query = Account.mssql.select({
          WHERE: sql`${Account.$accountId} = ${childAccount.accountId}`,
          includeMany: { children },
       });
 
-      const results = await query.mssql.all({ db: pool.request() });
+      const results = await query.all({ db: pool.request() });
       expect(results).toHaveLength(1);
       const parsed = JSON.parse(results[0]!.children as unknown as string) as IAccountSelect[];
       expect(parsed).toEqual([]);
@@ -143,17 +141,17 @@ describe.sequential("valnor mssql CRUD - select", async (ctx) => {
          where ${Account.as("children").$parentId} = ${Account.out.$accountId}
       `;
 
-      const query = AccountCrud.select!({
+      const query = Account.mssql.select({
          WHERE: sql`${Account.$accountId} = ${rootAccount.accountId}`,
          includeMany: { children },
          includeOne: {
-            firstOrder: OrderCrud.select({
+            firstOrder: Order.mssql.select({
                WHERE: sql`${Order.$accountId} = ${Account.out.$accountId} AND ${Order.$orderId} = ${order.orderId}`,
             }),
          },
       });
 
-      const results = await query.mssql.all({ db: pool.request() });
+      const results = await query.all({ db: pool.request() });
       expect(results).toHaveLength(1);
       const parsedChildren = JSON.parse(results[0]!.children as unknown as string) as IAccountSelect[];
       expect(parsedChildren).toHaveLength(1);

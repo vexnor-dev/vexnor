@@ -1,15 +1,15 @@
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { param } from "valnor";
-import { mssqlCrud, sql } from "valnor-mssql";
+import { sql } from "valnor-mssql";
+import "valnor-mssql";
 import { ITypeCoverageSelect, TypeCoverage } from "./codegen/valnor_test.type_coverage-table.js";
 import { pool } from "./mssql-pool.js";
 
 describe("mssql type coverage", () => {
-   const TypeCoverageCrud = mssqlCrud(TypeCoverage);
    let inserted!: ITypeCoverageSelect;
 
    beforeAll(async () => {
-      inserted = await TypeCoverageCrud.insertRows!().one({
+      inserted = await TypeCoverage.mssql.insertRows().one({
          db: pool.request(),
          params: {
             rows: [
@@ -117,7 +117,7 @@ describe("mssql type coverage", () => {
 
    test("update and select back all types", async () => {
       const idParam = param<{ id: string }>("id");
-      const updated = await TypeCoverageCrud.update!({
+      const updated = await TypeCoverage.mssql.update({
          WHERE: sql`${TypeCoverage.$colUniqueidentifier} = ${idParam}`,
       }).one({
          db: pool.request(),

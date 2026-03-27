@@ -11,8 +11,9 @@ import {
 import BetterSqlite3 from "better-sqlite3";
 import { findPrimaryKeys, findTableColumns, findTables } from "#/schema/find-tables.js";
 import { getColumnType } from "#/schema/get-column-type.js";
-import { SqlQueryHandler, SqlQuery } from "valnor";
+import { SqlQueryHandler, SqlQuery, SqlTable, newSqlQueryHandler } from "valnor";
 import { BetterSqlite3QueryHandler } from "#/better-sqlite3-query-handler.js";
+import { newSqlite3TableHandler, Sqlite3TableHandler } from "#/crud/sqlite3-table-handler.js";
 
 export type Sqlite3ConnectionConfig = { uri: string };
 
@@ -108,10 +109,27 @@ declare module "valnor" {
    interface SqlQuery<T extends { Row?: unknown; Params?: unknown }> {
       readonly sqlite3: BetterSqlite3QueryHandler<T>;
    }
+   interface SqlTable<
+      T extends {
+         Select: Record<string, unknown>;
+         Insert?: Record<string, unknown>;
+         Update?: Record<string, unknown>;
+         Delete?: boolean;
+      },
+   > {
+      readonly sqlite3: Sqlite3TableHandler<T>;
+   }
 }
 
 Object.defineProperty(SqlQuery.prototype, "sqlite3", {
    get: function () {
-      return new BetterSqlite3QueryHandler(this);
+      const handler = new BetterSqlite3QueryHandler(this);
+      return newSqlQueryHandler(handler);
+   },
+});
+
+Object.defineProperty(SqlTable.prototype, "sqlite3", {
+   get: function () {
+      return newSqlite3TableHandler(this);
    },
 });

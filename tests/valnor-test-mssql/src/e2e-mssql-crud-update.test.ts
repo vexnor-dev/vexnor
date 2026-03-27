@@ -1,14 +1,13 @@
 import { beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
 import { param } from "valnor";
-import { mssqlCrud, sql } from "valnor-mssql";
+import { sql } from "valnor-mssql";
+import "valnor-mssql";
 import { Account, IAccountSelect } from "./codegen/valnor_test.schema.js";
 import { pool } from "./mssql-pool.js";
 import { TestDataManager } from "./test-data-manager.js";
 
 describe.sequential("valnor mssql CRUD - update", async (ctx) => {
-   const AccountCrud = mssqlCrud(Account);
-
    let rootAccount!: IAccountSelect;
 
    const dataManager = new TestDataManager(ctx, {
@@ -23,7 +22,7 @@ describe.sequential("valnor mssql CRUD - update", async (ctx) => {
 
    test("update: update account firstName", async () => {
       const idParam = param<{ id: string }>("id");
-      const query = AccountCrud.update!({
+      const query = Account.mssql.update({
          WHERE: sql`${Account.$accountId} = ${idParam}`,
       });
       const result = await query.one({

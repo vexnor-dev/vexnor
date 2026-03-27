@@ -1,15 +1,13 @@
 import { beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
 import { param } from "valnor";
-import { mssqlCrud, sql } from "valnor-mssql";
+import { sql } from "valnor-mssql";
+import "valnor-mssql";
 import { Account, IAccountSelect, IOrderSelect, Order } from "./codegen/valnor_test.schema.js";
 import { pool } from "./mssql-pool.js";
 import { TestDataManager } from "./test-data-manager.js";
 
 describe.sequential("valnor mssql CRUD - delete", async (ctx) => {
-   const AccountCrud = mssqlCrud(Account);
-   const OrderCrud = mssqlCrud(Order);
-
    let rootAccount!: IAccountSelect;
    let childAccount!: IAccountSelect;
    let order!: IOrderSelect;
@@ -35,7 +33,7 @@ describe.sequential("valnor mssql CRUD - delete", async (ctx) => {
    });
 
    test("delete: delete order", async () => {
-      const query = OrderCrud.delete!({
+      const query = Order.mssql.delete({
          WHERE: sql`${Order.$orderId} = ${param<{ id: string }>("id")}`,
       });
       const deleted = await query.all({
@@ -48,15 +46,15 @@ describe.sequential("valnor mssql CRUD - delete", async (ctx) => {
    });
 
    test("delete: delete child account", async () => {
-      await OrderCrud.delete!({
+      await Order.mssql.delete({
          WHERE: sql`${Order.$accountId} = ${param<{ accountId: string }>("accountId")}`,
-      }).mssql.run({
+      }).run({
          db: pool.request(),
          params: { accountId: childAccount.accountId },
       });
 
       const idParam = param<{ id: string }>("id");
-      const query = AccountCrud.delete!({
+      const query = Account.mssql.delete({
          WHERE: sql`${Account.$accountId} = ${idParam}`,
       });
       const deleted = await query.all({
@@ -70,18 +68,18 @@ describe.sequential("valnor mssql CRUD - delete", async (ctx) => {
 
    test("delete: delete root account", async () => {
       ok(rootAccount, `'rootAccount' is required.`);
-      await OrderCrud.delete!({
+      await Order.mssql.delete({
          WHERE: sql`${Order.$accountId} = ${param<{ accountId: string }>("accountId")}`,
-      }).mssql.run({
+      }).run({
          db: pool.request(),
          params: { accountId: rootAccount.accountId },
       });
 
       const idParam = param<{ id: string }>("id");
-      const delete$ = AccountCrud.delete!({
+      const delete$ = Account.mssql.delete({
          WHERE: sql`${Account.$accountId} = ${idParam}`,
       });
-      const { rowsAffected } = await delete$.mssql.run({
+      const { rowsAffected } = await delete$.run({
          db: pool.request(),
          params: { id: rootAccount.accountId },
       });
