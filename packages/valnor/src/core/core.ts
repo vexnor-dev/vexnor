@@ -41,6 +41,7 @@ export {
 export { SqlTableColumn, newSqlTableColumn, type SqlTableColumnAny } from "./schema/sql-table-column.js";
 export { type SqlTableIdentity } from "./schema/sql-table-identity.js";
 export { type ValuesOf, type JsonRow } from "./schema/schema-types.js";
+export { excluded } from "./schema/sql-excluded.js";
 
 // types
 export { type InferTable$RowBySelect } from "./types/infer-types.js";

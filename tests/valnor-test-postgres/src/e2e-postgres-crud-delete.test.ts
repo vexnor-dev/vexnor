@@ -1,15 +1,13 @@
 import { beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
 import { param } from "valnor";
-import { postgresCrud, sql } from "valnor-postgres";
+import { sql } from "valnor-postgres";
+import "valnor-postgres";
 import { Account, IAccountSelect, IOrderSelect, Order } from "./codegen/valnor_test.schema.js";
 import { pool } from "./postgres-pool.js";
 import { TestDataManager } from "./test-data-manager.js";
 
 describe.sequential("valnor postgres CRUD - delete", async (ctx) => {
-   const AccountCrud = postgresCrud(Account);
-   const OrderCrud = postgresCrud(Order);
-
    let rootAccount!: IAccountSelect;
    let childAccount!: IAccountSelect;
    let order!: IOrderSelect;
@@ -35,11 +33,9 @@ describe.sequential("valnor postgres CRUD - delete", async (ctx) => {
    });
 
    test("delete: delete order", async () => {
-      const query = OrderCrud.delete!({
+      const deleted = await Order.postgres.delete({
          WHERE: sql`${Order.$orderId} = ${param<{ id: string }>("id")}`,
-      });
-
-      const deleted = await query.getAll({
+      }).all({
          db: pool,
          params: { id: order.orderId },
       });
@@ -49,19 +45,16 @@ describe.sequential("valnor postgres CRUD - delete", async (ctx) => {
    });
 
    test("delete: delete child account", async () => {
-      await OrderCrud.delete!({
+      await Order.postgres.delete({
          WHERE: sql`${Order.$accountId} = ${param<{ accountId: string }>("accountId")}`,
       }).postgres.run({
          db: pool,
          params: { accountId: childAccount.accountId },
       });
 
-      const idParam = param<{ id: string }>("id");
-      const query = AccountCrud.delete!({
-         WHERE: sql`${Account.$accountId} = ${idParam}`,
-      });
-
-      const deleted = await query.getAll({
+      const deleted = await Account.postgres.delete({
+         WHERE: sql`${Account.$accountId} = ${param<{ id: string }>("id")}`,
+      }).all({
          db: pool,
          params: { id: childAccount.accountId },
       });
@@ -72,19 +65,16 @@ describe.sequential("valnor postgres CRUD - delete", async (ctx) => {
 
    test("delete: delete root account", async () => {
       ok(rootAccount, `'rootAccount' is required.`);
-      await OrderCrud.delete!({
+      await Order.postgres.delete({
          WHERE: sql`${Order.$accountId} = ${param<{ accountId: string }>("accountId")}`,
       }).postgres.run({
          db: pool,
          params: { accountId: rootAccount.accountId },
       });
 
-      const idParam = param<{ id: string }>("id");
-      const delete$ = AccountCrud.delete!({
-         WHERE: sql`${Account.$accountId} = ${idParam}`,
-      });
-
-      const deleted = await delete$.getAll({
+      const deleted = await Account.postgres.delete({
+         WHERE: sql`${Account.$accountId} = ${param<{ id: string }>("id")}`,
+      }).all({
          db: pool,
          params: { id: rootAccount.accountId },
       });

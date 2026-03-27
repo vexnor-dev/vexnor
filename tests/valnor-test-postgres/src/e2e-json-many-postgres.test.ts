@@ -19,7 +19,7 @@ describe.sequential("jsonMany() tests", () => {
                email: `john.doe-${TAG}@example.com`,
             })}
             returning ${row(Account.$$)}
-      `.getOneRequired({ db: pool });
+      `.one({ db: pool });
       expect(parentAccount.accountId).toBeDefined();
 
       const childrenAccounts = await sql`
@@ -41,17 +41,14 @@ describe.sequential("jsonMany() tests", () => {
                },
             )}
             returning ${row(Account.$$)}
-      `.getAll({ db: pool });
+      `.all({ db: pool });
       expect(childrenAccounts).toHaveLength(2);
 
       orders = await sql`
          insert into ${Order}
-            ${Order.insertColsVals(
-               { accountId: parentAccount.accountId },
-               { accountId: parentAccount.accountId },
-            )}
+            ${Order.insertColsVals({ accountId: parentAccount.accountId }, { accountId: parentAccount.accountId })}
             returning ${row(Order.$$)}
-      `.getAll({ db: pool });
+      `.all({ db: pool });
       expect(orders).toHaveLength(2);
    });
 
@@ -70,7 +67,7 @@ describe.sequential("jsonMany() tests", () => {
          from ${Account} ${jsonMany(AccountOrders)}
          where ${Account.$accountId} = ${parentAccount.accountId}
       `;
-      const results = await query.getAll({ db: pool, params: { limit: 10 } });
+      const results = await query.all({ db: pool, params: { limit: 10 } });
       expect(results).toHaveLength(1);
       expect(results[0]).toHaveProperty("orders");
    });
@@ -81,7 +78,7 @@ describe.sequential("jsonMany() tests", () => {
          from ${Account} ${jsonMany(AccountOrders)}
          where ${Account.$accountId} = ${parentAccount.accountId}
       `;
-      const results = await query.getAll({ db: pool, params: { limit: 10 } });
+      const results = await query.all({ db: pool, params: { limit: 10 } });
       expect(results).toHaveLength(1);
       expect(results[0]!.orders).toHaveLength(2);
    });
@@ -93,7 +90,7 @@ describe.sequential("jsonMany() tests", () => {
          where ${Account.$accountId} = ${parentAccount.accountId}
          order by ${Account.$accountId}
       `;
-      const results = await query.getAll({ db: pool, params: { limit: 1 } });
+      const results = await query.all({ db: pool, params: { limit: 1 } });
       expect(results).toHaveLength(1);
       expect(results[0]!.orders).toHaveLength(1);
    });
@@ -105,7 +102,7 @@ describe.sequential("jsonMany() tests", () => {
          where ${Account.$accountId} = ${parentAccount.accountId}
          order by ${Account.$accountId}
       `;
-      const results = await query.getAll({ db: pool, params: { limit: 10 } });
+      const results = await query.all({ db: pool, params: { limit: 10 } });
       expect(results).toHaveLength(1);
       expect(results[0]).toHaveProperty("myOrders");
       expect(results[0]!.myOrders).toHaveLength(2);
@@ -118,12 +115,10 @@ describe.sequential("jsonMany() tests", () => {
          where ${Account.$accountId} = ${parentAccount.accountId}
       `;
 
-      const results = await query.getAll({ db: pool, params: { limit: 10 } });
+      const results = await query.all({ db: pool, params: { limit: 10 } });
       expect(results).toHaveLength(1);
       expect(results[0]!.orders).toHaveLength(2);
-      expect(results[0]!.orders.map((o) => o.orderId)).toEqual(
-         expect.arrayContaining(orders.map((o) => o.orderId)),
-      );
+      expect(results[0]!.orders.map((o) => o.orderId)).toEqual(expect.arrayContaining(orders.map((o) => o.orderId)));
    });
 
    test("jsonMany() E2E: returns empty array when no orders", async () => {
@@ -136,7 +131,7 @@ describe.sequential("jsonMany() tests", () => {
                email: `no-orders-${TAG}@example.com`,
             })}
             returning ${row(Account.$$)}
-      `.getOneRequired({ db: pool });
+      `.one({ db: pool });
 
       const query = sql`
          select ${row(Account.$$)}, ${jsonMany(AccountOrders).as("orders")}
@@ -144,7 +139,7 @@ describe.sequential("jsonMany() tests", () => {
          where ${Account.$accountId} = ${accountWithNoOrders.accountId}
       `;
 
-      const results = await query.getAll({ db: pool, params: { limit: 10 } });
+      const results = await query.all({ db: pool, params: { limit: 10 } });
       expect(results).toHaveLength(1);
       expect(results[0]!.orders).toEqual([]);
    });

@@ -137,7 +137,7 @@ export async function execCommand(queryName: string, options: ExecOptions): Prom
 
       let result: unknown[];
       try {
-         result = (await queryHandler.getAll({ db: connection.db, params })) as unknown[];
+         result = (await queryHandler.all({ db: connection.db, params })) as unknown[];
       } catch (err) {
          const errorMsg = err instanceof Error ? err.message : String(err);
          throw new Error(

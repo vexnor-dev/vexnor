@@ -17,7 +17,7 @@ describe.sequential("valnor sqlite3 CRUD - sqlite3Crud factory", () => {
          lastName: "Factory",
       };
       ok(crud.insertRows);
-      const result = await crud.insertRows().getOneRequired({ db, params: { rows: [insert] } });
+      const result = await crud.insertRows().one({ db, params: { rows: [insert] } });
       expect(result).toEqual(expect.objectContaining({ accountId: insert.accountId, email: insert.email }));
    });
 
@@ -30,12 +30,14 @@ describe.sequential("valnor sqlite3 CRUD - sqlite3Crud factory", () => {
       };
       const inserted = await sql`
          insert into ${Account} ${Account.insertColsVals(insert)} returning ${row(Account.$$)}
-      `.sqlite3.getOneRequired({ db });
+      `.sqlite3.one({ db });
 
       ok(crud.update);
-      const result = await crud.update({
-         WHERE: sql`${Account.$accountId} = ${param<{ accountId: string }>("accountId")}`,
-      }).getOneRequired({ db, params: { set: { firstName: "Updated" }, accountId: inserted.accountId } });
+      const result = await crud
+         .update({
+            WHERE: sql`${Account.$accountId} = ${param<{ accountId: string }>("accountId")}`,
+         })
+         .one({ db, params: { set: { firstName: "Updated" }, accountId: inserted.accountId } });
       expect(result).toEqual({ ...inserted, firstName: "Updated" });
    });
 
@@ -48,12 +50,14 @@ describe.sequential("valnor sqlite3 CRUD - sqlite3Crud factory", () => {
       };
       const inserted = await sql`
          insert into ${Account} ${Account.insertColsVals(insert)} returning ${row(Account.$$)}
-      `.sqlite3.getOneRequired({ db });
+      `.sqlite3.one({ db });
 
       ok(crud.delete);
-      const result = await crud.delete({
-         WHERE: sql`${Account.$accountId} = ${param<{ accountId: string }>("accountId")}`,
-      }).getOneRequired({ db, params: { accountId: inserted.accountId } });
+      const result = await crud
+         .delete({
+            WHERE: sql`${Account.$accountId} = ${param<{ accountId: string }>("accountId")}`,
+         })
+         .one({ db, params: { accountId: inserted.accountId } });
       expect(result.accountId).toBe(inserted.accountId);
    });
 });

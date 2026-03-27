@@ -9,37 +9,39 @@ describe("mssql type coverage", () => {
    let inserted!: ITypeCoverageSelect;
 
    beforeAll(async () => {
-      inserted = await TypeCoverageCrud.insertRows!().getOneRequired({
+      inserted = await TypeCoverageCrud.insertRows!().one({
          db: pool.request(),
          params: {
-            rows: [{
-               colVarchar: "hello",
-               colNvarchar: "world",
-               colChar: "char      ",
-               colNchar: "nchar     ",
-               colText: "text value",
-               colNtext: "ntext value",
-               colXml: "<root><child/></root>",
-               colTime: new Date("1970-01-01T13:45:00Z"),
-               colInt: 2147483647,
-               colSmallint: 32767,
-               colTinyint: 255,
-               colDecimal: 12345.67,
-               colNumeric: 98765.43,
-               colFloat: 3.141592653589793,
-               colReal: 3.14,
-               colMoney: 1234.56,
-               colSmallmoney: 123.45,
-               colBigint: "9223372036854775807",
-               colBit: true,
-               colDate: new Date("2024-01-15"),
-               colDatetime: new Date("2024-01-15T10:30:00Z"),
-               colDatetime2: new Date("2024-01-15T10:30:00Z"),
-               colSmalldatetime: new Date("2024-01-15T10:30:00Z"),
-               colBinary: new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
-               colVarbinary: new Uint8Array([1, 2, 3, 4]),
-               colImage: new Uint8Array([255, 0, 128]),
-            }],
+            rows: [
+               {
+                  colVarchar: "hello",
+                  colNvarchar: "world",
+                  colChar: "char      ",
+                  colNchar: "nchar     ",
+                  colText: "text value",
+                  colNtext: "ntext value",
+                  colXml: "<root><child/></root>",
+                  colTime: new Date("1970-01-01T13:45:00Z"),
+                  colInt: 2147483647,
+                  colSmallint: 32767,
+                  colTinyint: 255,
+                  colDecimal: 12345.67,
+                  colNumeric: 98765.43,
+                  colFloat: 3.141592653589793,
+                  colReal: 3.14,
+                  colMoney: 1234.56,
+                  colSmallmoney: 123.45,
+                  colBigint: "9223372036854775807",
+                  colBit: true,
+                  colDate: new Date("2024-01-15"),
+                  colDatetime: new Date("2024-01-15T10:30:00Z"),
+                  colDatetime2: new Date("2024-01-15T10:30:00Z"),
+                  colSmalldatetime: new Date("2024-01-15T10:30:00Z"),
+                  colBinary: new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
+                  colVarbinary: new Uint8Array([1, 2, 3, 4]),
+                  colImage: new Uint8Array([255, 0, 128]),
+               },
+            ],
          },
       });
    });
@@ -117,7 +119,7 @@ describe("mssql type coverage", () => {
       const idParam = param<{ id: string }>("id");
       const updated = await TypeCoverageCrud.update!({
          WHERE: sql`${TypeCoverage.$colUniqueidentifier} = ${idParam}`,
-      }).getOneRequired({
+      }).one({
          db: pool.request(),
          params: {
             id: inserted.colUniqueidentifier,

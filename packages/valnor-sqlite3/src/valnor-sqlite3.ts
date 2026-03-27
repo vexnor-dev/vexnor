@@ -48,18 +48,18 @@ export class ValnorSqlite3 extends ValnorPlugin<{
          throw new Error("SQLite requires database file path in uri parameter");
       }
 
-      const runArgs: Parameters<typeof findTables.sqlite3.getAll>[0] = {
+      const runArgs: Parameters<typeof findTables.sqlite3.all>[0] = {
          db,
          options: { dialect: "sqlite" },
       };
 
-      const tables = await findTables.sqlite3.getAll({ ...runArgs });
+      const tables = await findTables.sqlite3.all({ ...runArgs });
 
       // Populate columns and primary keys for each table
       const newTables: SqlTableInfo[] = [];
       for (const table of tables) {
-         const columns = await findTableColumns.sqlite3.getAll({ ...runArgs, params: { tableName: table.table_name } });
-         const primaryKeys = await findPrimaryKeys.sqlite3.getAll({
+         const columns = await findTableColumns.sqlite3.all({ ...runArgs, params: { tableName: table.table_name } });
+         const primaryKeys = await findPrimaryKeys.sqlite3.all({
             ...runArgs,
             params: { tableName: table.table_name },
          });

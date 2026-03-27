@@ -27,11 +27,21 @@ export abstract class SqlQueryHandler<
     *
     * @param args - Database connection and query parameters.
     */
-   async getOneRequired(args: SqlRunArgs<Pick<T, "Connection" | "Params">>): Promise<T["Row"]> {
-      const rows = await this.getAll(args);
+   async one(args: SqlRunArgs<Pick<T, "Connection" | "Params">>): Promise<T["Row"]> {
+      const rows = await this.all(args);
       ok(rows.length === 1, `Expected one row, actual is ${rows.length} rows.`);
       ok(rows[0], `The one row in result is not defined: ${rows[0]}`);
       return rows[0];
+   }
+
+   /**
+    * Executes the query and returns the first row.
+    * Throws if the result contains zero rows.
+    * @param args - Database connection and query parameters.
+    */
+   async first(args: SqlRunArgs<Pick<T, "Connection" | "Params">>): Promise<T["Row"] | undefined> {
+      const rows = await this.all(args);
+      return rows.length > 0 ? rows[0] : undefined;
    }
 
    /**
@@ -39,8 +49,8 @@ export abstract class SqlQueryHandler<
     *
     * @param args - Database connection and query parameters.
     */
-   async getOneOptional(args: SqlRunArgs<Pick<T, "Connection" | "Params">>): Promise<T["Row"] | undefined> {
-      const rows = await this.getAll(args);
+   async any(args: SqlRunArgs<Pick<T, "Connection" | "Params">>): Promise<T["Row"] | undefined> {
+      const rows = await this.all(args);
       return rows.length > 0 ? rows[0] : undefined;
    }
 
@@ -49,7 +59,7 @@ export abstract class SqlQueryHandler<
     *
     * @param args - Database connection and query parameters.
     */
-   async getAll(args: SqlRunArgs<Pick<T, "Connection" | "Params">>): Promise<T["Row"][]> {
+   async all(args: SqlRunArgs<Pick<T, "Connection" | "Params">>): Promise<T["Row"][]> {
       try {
          return await this.run(args).then((res) => this.resolveRows(res));
       } catch (err) {

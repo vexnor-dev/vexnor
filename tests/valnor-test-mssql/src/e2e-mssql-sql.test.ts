@@ -26,7 +26,7 @@ describe("valnor postgres sql tests", (ctx) => {
             })}
       `;
 
-      const account = await query.getOneRequired({ db: (await pool).request() });
+      const account = await query.one({ db: (await pool).request() });
       expect(account).toEqual(
          expect.objectContaining({
             status: "CREATED",

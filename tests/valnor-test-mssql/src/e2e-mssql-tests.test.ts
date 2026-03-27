@@ -32,7 +32,7 @@ describe.sequential("valnor mssql e2e tests", async (ctx) => {
          from ${Account}
          where ${Account.$accountId} in (${dataManager.rootAccounts.map((z) => z.accountId)})
          order by ${Account.$email}
-      `.mssql.getAll({ db: pool.request() });
+      `.mssql.all({ db: pool.request() });
 
       expect(actual).toEqual(dataManager.rootAccounts);
    });
@@ -43,14 +43,14 @@ describe.sequential("valnor mssql e2e tests", async (ctx) => {
     from ${Account}
     where ${Account.$accountId} in (${dataManager.childAccounts.map((z) => z.accountId)})
     order by ${Account.$email} asc
-`.mssql.getAll({ db: pool.request() });
+`.mssql.all({ db: pool.request() });
       expect(actual).toEqual(dataManager.childAccounts);
    });
 
    test("Fetch account required by id", async () => {
       const expected = dataManager.rootAccounts[0];
       ok(expected);
-      const actual = await findAccountById.mssql.getOneRequired({
+      const actual = await findAccountById.mssql.one({
          db: pool.request(),
          params: { accountId: expected.accountId },
       });
@@ -58,7 +58,7 @@ describe.sequential("valnor mssql e2e tests", async (ctx) => {
    });
 
    test("Fetch account optional by id", async () => {
-      const actual = await findAccountById.mssql.getOneOptional({
+      const actual = await findAccountById.mssql.any({
          db: pool.request(),
          params: { accountId: randomUUID() },
       });
@@ -72,7 +72,7 @@ describe.sequential("valnor mssql e2e tests", async (ctx) => {
                  join ${Account.as(`parent`)} on ${Account.as(`parent`).$accountId} = ${Account.$parentId}
          where ${Account.$accountId} in (${dataManager.childAccounts.map((z) => z.accountId)})
          order by ${Account.$email}
-      `.mssql.getAll({
+      `.mssql.all({
          db: pool.request(),
       });
       expect(actual).toBeDefined();
@@ -104,7 +104,7 @@ describe.sequential("valnor mssql e2e tests", async (ctx) => {
          order by ${Account.$email}
       `;
 
-      const actual = await query.mssql.getAll({ db: pool.request() }).then((accounts) =>
+      const actual = await query.mssql.all({ db: pool.request() }).then((accounts) =>
          accounts.map((account) => {
             return {
                ...account,
@@ -146,7 +146,7 @@ describe.sequential("valnor mssql e2e tests", async (ctx) => {
          set ${Account.$firstName} = ${expected.firstName + "+test"}
          output ${row(Account.as(`inserted`).$$)}
          where ${Account.$accountId} = ${expected.accountId}
-      `.mssql.getOneRequired({ db: pool.request() });
+      `.mssql.one({ db: pool.request() });
       expect(actual).toEqual({ ...expected, firstName: expected.firstName + "+test" });
    });
 

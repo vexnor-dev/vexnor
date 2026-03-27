@@ -22,7 +22,8 @@ export type SqlColumnFormat =
    | "tableName.columnAlias"
    | "tableName.columnName AS columnAlias"
    | "tableAlias.columnName"
-   | "tableAlias.columnName AS columnAlias";
+   | "tableAlias.columnName AS columnAlias"
+   | "rawAlias.columnName";
 
 export type SqlSelectFormat = SqlColumnFormat | "(sql) AS columnAlias";
 

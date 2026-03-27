@@ -14,7 +14,8 @@ import { findEnums } from "#/schema/find-enums.js";
 import { findTables } from "#/schema/find-tables.js";
 import { getColumnType } from "#/schema/get-column-type.js";
 import { PostgresQueryHandler } from "#/postgres-query-handler.js";
-import { SqlQueryHandler, SqlQuery, newSqlQueryHandler } from "valnor";
+import { SqlQueryHandler, SqlQuery, newSqlQueryHandler, SqlTable } from "valnor";
+import { newPostgresTableHandler, PostgresTableHandler } from "#/crud/postgres-table-handler.js";
 
 /**
  * Valnor plugin for postgres.
@@ -37,7 +38,7 @@ export class ValnorPostgres extends ValnorPlugin<{ Config: ConnectionConfig; Con
       const connection = await this.createConnection(args);
 
       try {
-         const tables = await findTables.postgres.getAll({
+         const tables = await findTables.postgres.all({
             db: connection.db,
             params: { schemas },
             options: {
@@ -46,7 +47,7 @@ export class ValnorPostgres extends ValnorPlugin<{ Config: ConnectionConfig; Con
                },
             },
          });
-         const enums = await findEnums.postgres.getAll({
+         const enums = await findEnums.postgres.all({
             db: connection.db,
             params: { schemas },
          });
@@ -93,11 +94,27 @@ declare module "valnor" {
    interface SqlQuery<T extends { Row?: unknown; Params?: unknown }> {
       readonly postgres: PostgresQueryHandler<T>;
    }
+   interface SqlTable<
+      T extends {
+         Select: Record<string, unknown>;
+         Insert?: Record<string, unknown>;
+         Update?: Record<string, unknown>;
+         Delete?: boolean;
+      },
+   > {
+      readonly postgres: PostgresTableHandler<T>;
+   }
 }
 
 Object.defineProperty(SqlQuery.prototype, "postgres", {
    get: function () {
       const handler = new PostgresQueryHandler(this);
       return newSqlQueryHandler(handler);
+   },
+});
+
+Object.defineProperty(SqlTable.prototype, "postgres", {
+   get: function () {
+      return newPostgresTableHandler(this);
    },
 });

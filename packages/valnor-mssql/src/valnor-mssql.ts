@@ -36,7 +36,7 @@ export class ValnorMssql extends ValnorPlugin<{ Config: ConnectionConfig; Connec
       const connection = await this.createConnection(args);
       try {
          const result = await findTables.mssql
-            .getAll({
+            .all({
                db: connection.db.request(),
                params: { schemas },
             })

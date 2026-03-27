@@ -22,7 +22,7 @@ describe.sequential("valnor sqlite3 CRUD - select", () => {
       };
       rootAccount = await sql`
          insert into ${Account} ${Account.insertColsVals(rootInsert)} returning ${row(Account.$$)}
-      `.sqlite3.getOneRequired({ db });
+      `.sqlite3.one({ db });
 
       const childInsert: IAccountInsert = {
          accountId: randomUUID(),
@@ -33,19 +33,19 @@ describe.sequential("valnor sqlite3 CRUD - select", () => {
       };
       childAccount = await sql`
          insert into ${Account} ${Account.insertColsVals(childInsert)} returning ${row(Account.$$)}
-      `.sqlite3.getOneRequired({ db });
+      `.sqlite3.one({ db });
 
       const orderInsert: IOrderInsert = { accountId: rootAccount.accountId };
       order = await sql`
          insert into ${Order} ${Order.insertColsVals(orderInsert)} returning ${row(Order.$$)}
-      `.sqlite3.getOneRequired({ db });
+      `.sqlite3.one({ db });
    });
 
    test("select: basic select with WHERE", async () => {
       ok(rootAccount);
       const result = await sqlite3Select(Account, {
          WHERE: sql`${Account.$accountId} = ${param<{ id: string }>("id")}`,
-      }).getOneOptional({ db, params: { id: rootAccount.accountId } });
+      }).any({ db, params: { id: rootAccount.accountId } });
       expect(result).toEqual(rootAccount);
    });
 
@@ -55,7 +55,7 @@ describe.sequential("valnor sqlite3 CRUD - select", () => {
          ORDER_BY: sql`${Account.$email} asc`,
          limit: param<{ limit: number }>("limit"),
          offset: param<{ offset: number }>("offset"),
-      }).getAll({ db, params: { limit: 1, offset: 0 } });
+      }).all({ db, params: { limit: 1, offset: 0 } });
       expect(results).toHaveLength(1);
    });
 
@@ -70,7 +70,7 @@ describe.sequential("valnor sqlite3 CRUD - select", () => {
       const results = await sqlite3Select(Account, {
          WHERE: sql`${Account.$accountId} = ${rootAccount.accountId}`,
          includeMany: { children },
-      }).getAll({ db });
+      }).all({ db });
 
       expect(results).toHaveLength(1);
       const parsed = JSON.parse(results[0]!.children as unknown as string) as IAccountSelect[];
@@ -88,7 +88,7 @@ describe.sequential("valnor sqlite3 CRUD - select", () => {
                WHERE: sql`${Order.$accountId} = ${Account.out.$accountId} and ${Order.$orderId} = ${order.orderId}`,
             }),
          },
-      }).getAll({ db });
+      }).all({ db });
 
       expect(results).toHaveLength(1);
       const parsed = JSON.parse(results[0]!.firstOrder as unknown as string) as IOrderSelect;
@@ -104,7 +104,7 @@ describe.sequential("valnor sqlite3 CRUD - select", () => {
                WHERE: sql`${Order.$accountId} = ${Account.out.$accountId} and ${Order.$orderId} = ${randomUUID()}`,
             }),
          },
-      }).getAll({ db });
+      }).all({ db });
 
       expect(results).toHaveLength(1);
       expect(results[0]!.firstOrder).toBeNull();
@@ -121,7 +121,7 @@ describe.sequential("valnor sqlite3 CRUD - select", () => {
       const results = await sqlite3Select(Account, {
          WHERE: sql`${Account.$accountId} = ${childAccount.accountId}`,
          includeMany: { children },
-      }).getAll({ db });
+      }).all({ db });
 
       expect(results).toHaveLength(1);
       const parsed = JSON.parse(results[0]!.children as unknown as string) as IAccountSelect[];
@@ -145,7 +145,7 @@ describe.sequential("valnor sqlite3 CRUD - select", () => {
                WHERE: sql`${Order.$accountId} = ${Account.out.$accountId} and ${Order.$orderId} = ${order.orderId}`,
             }),
          },
-      }).getAll({ db });
+      }).all({ db });
 
       expect(results).toHaveLength(1);
       const parsedChildren = JSON.parse(results[0]!.children as unknown as string) as IAccountSelect[];
@@ -160,7 +160,7 @@ describe.sequential("valnor sqlite3 CRUD - select", () => {
       ok(AccountCrud.select);
       const result = await AccountCrud.select({
          WHERE: sql`${Account.$accountId} = ${param<{ id: string }>("id")}`,
-      }).getOneOptional({ db, params: { id: rootAccount.accountId } });
+      }).any({ db, params: { id: rootAccount.accountId } });
       expect(result).toEqual(rootAccount);
    });
 });

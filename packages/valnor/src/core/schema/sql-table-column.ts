@@ -98,6 +98,9 @@ export class SqlTableColumn<
             context.addQuotes(`${context.getAlias(this.tableInfo)}.${this.columnName} as ${this.key}`);
             break;
          }
+         case "rawAlias.columnName":
+            context.addStrings(`${this.tableInfo.alias}.${this.columnName}`);
+            break;
       }
    }
 }

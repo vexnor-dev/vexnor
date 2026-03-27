@@ -14,7 +14,7 @@ describe.sequential("jsonOne() tests", (ctx) => {
             (${Account.$firstName}, ${Account.$lastName}, ${Account.$email}, ${Account.$status})
             values ('John-Parent', 'Doe-Parent', ${`john.parent-${TAG}@example.com`}, 'created')
             returning ${row(Account.$$)}
-      `.getOneRequired({ db });
+      `.one({ db });
       expect(parentAccount.accountId).toBeDefined();
 
       const childrenInserts: IAccountInsert[] = [
@@ -40,7 +40,7 @@ describe.sequential("jsonOne() tests", (ctx) => {
                (${Account.$firstName}, ${Account.$lastName}, ${Account.$email}, ${Account.$status}, ${Account.$parentId})
                values (${child.firstName}, ${child.lastName}, ${child.email}, ${child.status}, ${child.parentId})
             returning ${row(Account.$$)}
-         `.getOneRequired({ db });
+         `.one({ db });
          expect(inserted.accountId).toBeDefined();
       }
    });
@@ -58,7 +58,7 @@ describe.sequential("jsonOne() tests", (ctx) => {
          where ${Account.$parentId} is not null
          limit 1
       `;
-      const result = await query.getOneOptional({ db });
+      const result = await query.any({ db });
       expect(result).toHaveProperty("parent");
    });
 
@@ -80,7 +80,7 @@ describe.sequential("jsonOne() tests", (ctx) => {
          limit 1
       `;
 
-      const result = await query.getOneOptional({ db }).then((z) => {
+      const result = await query.any({ db }).then((z) => {
          if (!z) return undefined;
          return {
             ...z,
@@ -114,7 +114,7 @@ describe.sequential("jsonOne() tests", (ctx) => {
          limit 1
       `;
 
-      const result = await query.getOneOptional({ db });
+      const result = await query.any({ db });
       expect(result).toBeDefined();
    });
 });

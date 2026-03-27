@@ -68,7 +68,7 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
       }
    }
 
-   async getAll(args: SqlRunArgs<{ Connection: Database; Params: T["Params"] }>): Promise<T["Row"][]> {
+   async all(args: SqlRunArgs<{ Connection: Database; Params: T["Params"] }>): Promise<T["Row"][]> {
       let queryConfig = undefined;
       const { db, options: { debug } = {} } = args;
       try {

@@ -7,8 +7,8 @@ export type PostgresQueryExtended<T extends { Row?: unknown; Params?: unknown }>
 /**
  * Template literal tag for building and executing type-safe PostgreSQL queries.
  *
- * Returns a query object with `.getAll()`, `.getOneRequired()`, and
- * `.getOneOptional()` methods that execute against a `pg` connection.
+ * Returns a query object with `.all()`, `.one()`, and
+ * `.any()` methods that execute against a `pg` connection.
  * Result type and required parameters are inferred at compile time.
  *
  * Use this instead of the core `sql` tag when you want a query that can be
@@ -21,7 +21,7 @@ export type PostgresQueryExtended<T extends { Row?: unknown; Params?: unknown }>
  *   SELECT ${row(Account.$$)}
  *   FROM ${Account}
  *   WHERE ${Account.$active} = true
- * `.getAll({ db: pool });
+ * `.all({ db: pool });
  * // accounts: IAccountSelect[]
  *
  * @example
@@ -30,7 +30,7 @@ export type PostgresQueryExtended<T extends { Row?: unknown; Params?: unknown }>
  *   SELECT ${row(Account.$$)}
  *   FROM ${Account}
  *   WHERE ${Account.$accountId} = ${param<{ id: string }>("id")}
- * `.getOneRequired({ db: pool, params: { id: "123" } });
+ * `.one({ db: pool, params: { id: "123" } });
  * // account: IAccountSelect
  */
 export function sql<Token extends SqlQueryToken = SqlQueryToken, Tokens extends Token[] = Token[]>(

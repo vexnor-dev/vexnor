@@ -26,7 +26,7 @@ describe.sequential("valnor mssql CRUD - update", async (ctx) => {
       const query = AccountCrud.update!({
          WHERE: sql`${Account.$accountId} = ${idParam}`,
       });
-      const result = await query.getOneRequired({
+      const result = await query.one({
          db: pool.request(),
          params: { set: { firstName: "UpdatedRoot" }, id: rootAccount.accountId },
       });

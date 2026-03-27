@@ -1,11 +1,10 @@
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { param, row, sql } from "valnor";
-import { postgresCrud } from "valnor-postgres";
+import "valnor-postgres";
 import { ITypeCoverageSelect, TypeCoverage } from "./codegen/valnor_test.type_coverage-table.js";
 import { pool } from "./postgres-pool.js";
 
 describe("postgres type coverage", () => {
-   const TypeCoverageCrud = postgresCrud(TypeCoverage);
    let inserted!: ITypeCoverageSelect;
 
    beforeAll(async () => {
@@ -51,7 +50,7 @@ describe("postgres type coverage", () => {
             colCircle: "<(1,1),5>",
          })}
          returning ${row(TypeCoverage.$$)}
-      `.postgres.getOneRequired({ db: pool });
+      `.postgres.one({ db: pool });
    });
 
    afterAll(async () => {
@@ -132,9 +131,9 @@ describe("postgres type coverage", () => {
 
    test("update and select back all types", async () => {
       const idParam = param<{ id: string }>("id");
-      const updated = await TypeCoverageCrud.update!({
+      const updated = await TypeCoverage.postgres.update({
          WHERE: sql`${TypeCoverage.$colUuid} = ${idParam}`,
-      }).getOneRequired({
+      }).one({
          db: pool,
          params: {
             id: inserted.colUuid,

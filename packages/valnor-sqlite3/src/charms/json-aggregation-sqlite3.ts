@@ -121,7 +121,7 @@ export class JsonAggregationSqlite3<T extends { Params?: unknown; Row?: unknown 
  * const result = await sql`
  *   SELECT ${row(Account.$$)}, ${jsonOne(AccountParent).as("parent")}
  *   FROM ${Account}
- * `.getAll({ db: database });
+ * `.all({ db: database });
  * // result[0].parent: string (JSON — parse to IAccountSelect | null)
  */
 export function jsonOne<T extends SqlQueryAny>(query: T): JsonAggregationResult<T> {
@@ -153,7 +153,7 @@ export function jsonOne<T extends SqlQueryAny>(query: T): JsonAggregationResult<
  * const result = await sql`
  *   SELECT ${row(Account.$$)}, ${jsonMany(UserOrders).as("orders")}
  *   FROM ${Account}
- * `.getAll({ db: database });
+ * `.all({ db: database });
  * // result[0].orders: string (JSON — parse to IOrderSelect[])
  */
 export function jsonMany<T extends SqlQueryAny>(query: T): JsonAggregationResult<T, []> {

@@ -24,7 +24,7 @@ async function main() {
             status: AccountStatusUdt.CREATED,
          })}
          returning ${row(Account.$$)}
-   `.postgres.getOneRequired({ db: pool });
+   `.postgres.one({ db: pool });
    console.log("new account:", newAccount);
    ok(newAccount?.accountId, "accountId is required");
 
@@ -45,7 +45,7 @@ async function main() {
             },
          )}
          returning ${row(Order.$$)}
-   `.postgres.getAll({ db: pool });
+   `.postgres.all({ db: pool });
    ok(newOrders?.length);
 
    const accountUpdated = await sql`
@@ -55,7 +55,7 @@ async function main() {
       })}
       where ${Account.$accountId} = ${newAccount.accountId}
       returning ${row(Account.$$)}
-   `.postgres.getOneRequired({ db: pool });
+   `.postgres.one({ db: pool });
    console.log("account updated:", accountUpdated);
 
    const accountWithLimitedOrders = await sql`
@@ -73,7 +73,7 @@ async function main() {
          LIMIT 5 -- Get only the 5 most recent orders
          ) orders ON true
       WHERE ${Account.$accountId} = ${newAccount.accountId}
-      GROUP BY ${Account.$accountId}`.postgres.getAll({ db: pool });
+      GROUP BY ${Account.$accountId}`.postgres.all({ db: pool });
 
    console.log("account with orders:\n", accountWithLimitedOrders);
 }

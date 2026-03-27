@@ -117,7 +117,7 @@ export class JsonAggregationMssql<T extends { Row?: unknown; Params?: unknown }>
  * const result = await sql`
  *   SELECT ${row(Account.$$)}, ${jsonOne(AccountParent).as("parent")}
  *   FROM ${Account} ${jsonOne(AccountParent)}
- * `.getAll({ db: request });
+ * `.all({ db: request });
  * // result[0].parent: string (JSON — parse to IAccountSelect | null)
  */
 export function jsonOne<T extends SqlQueryAny>(query: T): JsonAggregationResult<T> {
@@ -149,7 +149,7 @@ export function jsonOne<T extends SqlQueryAny>(query: T): JsonAggregationResult<
  * const result = await sql`
  *   SELECT ${row(Account.$$)}, ${jsonMany(UserOrders).as("orders")}
  *   FROM ${Account} ${jsonMany(UserOrders)}
- * `.getAll({ db: request });
+ * `.all({ db: request });
  * // result[0].orders: string (JSON — parse to IOrderSelect[])
  */
 export function jsonMany<T extends SqlQueryAny>(query: T): JsonAggregationResult<T, []> {

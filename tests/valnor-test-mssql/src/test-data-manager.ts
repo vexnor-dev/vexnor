@@ -55,7 +55,7 @@ export class TestDataManager {
                ${Account.insertCols(...accountInserts)}
                output ${row(Account.as(`inserted`).$$)}
                ${Account.insertVals(...accountInserts)}
-         `.mssql.getAll({
+         `.mssql.all({
          db: pool.request(),
          options: {
             debug: (data) => {
@@ -93,7 +93,7 @@ export class TestDataManager {
                   ${Account.insertCols(accountInsert)}
                   output ${row(Account.as(`inserted`).$$)}
                   ${Account.insertVals(accountInsert)}
-            `.mssql.getOneRequired({ db: pool.request() });
+            `.mssql.one({ db: pool.request() });
             expect(account).toEqual(
                expect.objectContaining({
                   status: "CREATED",
@@ -118,7 +118,7 @@ export class TestDataManager {
             ${Product.insertCols(...inserts)}
             output ${row(Product.as(`inserted`).$$)}
             ${Product.insertVals(...inserts)}
-      `.mssql.getAll({ db: pool.request() });
+      `.mssql.all({ db: pool.request() });
       ok(inserted?.length, "products not inserted");
       this.products.push(...inserted);
    }
@@ -136,7 +136,7 @@ export class TestDataManager {
                ${Order.insertCols(...inserts)}
                output ${row(Order.as(`inserted`).$$)}
                ${Order.insertVals(...inserts)}
-         `.mssql.getAll({ db: pool.request() });
+         `.mssql.all({ db: pool.request() });
          ok(inserted?.length, "orders not inserted");
          this.orders.push(...inserted);
       }
@@ -155,7 +155,7 @@ export class TestDataManager {
                ${OrderItem.insertCols(...inserts)}
                output ${row(OrderItem.as(`inserted`).$$)}
                ${OrderItem.insertVals(...inserts)}
-         `.mssql.getAll({ db: pool.request() });
+         `.mssql.all({ db: pool.request() });
          ok(inserted?.length, "order items not inserted");
          this.orderItems.push(...inserted);
       }

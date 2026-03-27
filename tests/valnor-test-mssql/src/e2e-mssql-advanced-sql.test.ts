@@ -50,7 +50,7 @@ describe.sequential("advanced SQL - mssql", async (ctx) => {
          order by ${hierarchy.$depth}, ${hierarchy.$email}
       `;
 
-      const result = await query.mssql.getAll({ db: pool.request() });
+      const result = await query.mssql.all({ db: pool.request() });
 
       expect(result).toHaveLength(1 + dataManager.ACCOUNT_CHILD_FACTOR);
       expect(result[0]).toMatchObject({ accountId: root.accountId, parentId: null, depth: 0 });
@@ -88,7 +88,7 @@ describe.sequential("advanced SQL - mssql", async (ctx) => {
          with ${descendants}
          select string_agg(cast(${descendants.$accountId} as nvarchar(100)), ',') as ${col<{ ids: string }>("ids")}
          from ${descendants}
-      `.mssql.getOneRequired({ db: pool.request() });
+      `.mssql.one({ db: pool.request() });
 
       const expectedChildIds = dataManager.childAccounts
          .filter((c) => c.parentId === root.accountId)
@@ -122,7 +122,7 @@ describe.sequential("advanced SQL - mssql", async (ctx) => {
          group by ${Account.$accountId}, ${Account.$email}
          having count(distinct ${Order.$orderId}) > 0
          order by ${Account.$email}
-      `.mssql.getAll({ db: pool.request() });
+      `.mssql.all({ db: pool.request() });
 
       const spendByAccount = new Map<string, number>();
       for (const account of dataManager.rootAccounts) {
@@ -161,7 +161,7 @@ describe.sequential("advanced SQL - mssql", async (ctx) => {
          where ${Account.$accountId} in (${accountIds})
          group by ${Account.$accountId}
          having count(distinct ${OrderItem.$productId}) > 1
-      `.mssql.getAll({ db: pool.request() });
+      `.mssql.all({ db: pool.request() });
 
       expect(result).toHaveLength(dataManager.ACCOUNT_ROOT_COUNT);
       for (const row_ of result) {
@@ -201,7 +201,7 @@ describe.sequential("advanced SQL - mssql", async (ctx) => {
                 ${jsonMany(AccountOrders).as("orders")}
          from ${Account} ${jsonMany(AccountOrders)}
          where ${Account.$accountId} = ${root.accountId}
-      `.mssql.getOneRequired({ db: pool.request() });
+      `.mssql.one({ db: pool.request() });
 
       expect(result).toMatchObject({ accountId: root.accountId, email: root.email });
       const orders = JSON.parse(result.orders as unknown as string) as Array<{
@@ -259,7 +259,7 @@ describe.sequential("advanced SQL - mssql", async (ctx) => {
          from ${Account} ${jsonMany(AccountOrders)}
          where ${Account.$accountId} in (${accountIds})
          order by ${Account.$email}
-      `.mssql.getAll({ db: pool.request() });
+      `.mssql.all({ db: pool.request() });
 
       expect(results).toHaveLength(3);
       for (const account of results) {
@@ -303,7 +303,7 @@ describe.sequential("advanced SQL - mssql", async (ctx) => {
               select ${Order.$accountId} from ${Order}
            )
          order by ${Account.$email}
-      `.mssql.getAll({ db: pool.request() });
+      `.mssql.all({ db: pool.request() });
 
       expect(result).toHaveLength(dataManager.ACCOUNT_ROOT_COUNT);
       const expectedRootAccounts = dataManager.rootAccounts.slice().sort((a, b) => a.email.localeCompare(b.email));
@@ -329,7 +329,7 @@ describe.sequential("advanced SQL - mssql", async (ctx) => {
                firstName: "Orphan",
                lastName: dataManager.TAG,
             })}
-      `.mssql.getOneRequired({ db: pool.request() });
+      `.mssql.one({ db: pool.request() });
 
       const result = await sql`
          select ${row(Account.$$)}
@@ -338,7 +338,7 @@ describe.sequential("advanced SQL - mssql", async (ctx) => {
            and ${Account.$accountId} not in (
               select ${Order.$accountId} from ${Order}
            )
-      `.mssql.getAll({ db: pool.request() });
+      `.mssql.all({ db: pool.request() });
 
       expect(result.some((a) => a.accountId === orphan.accountId)).toBe(true);
       const orphanRow = result.find((a) => a.accountId === orphan.accountId);
@@ -368,7 +368,7 @@ describe.sequential("advanced SQL - mssql", async (ctx) => {
               and ${Order.$status} = 'paid'
          )
          order by ${Account.$email}
-      `.mssql.getAll({ db: pool.request() });
+      `.mssql.all({ db: pool.request() });
 
       const paidAccount = dataManager.rootAccounts.find((a) => a.accountId === order.accountId)!;
       ok(paidAccount);
@@ -398,7 +398,7 @@ describe.sequential("advanced SQL - mssql", async (ctx) => {
               where ca.account_id in (select ${Order.$accountId} from ${Order})
            )
          order by ${Account.$email}
-      `.mssql.getAll({ db: pool.request() });
+      `.mssql.all({ db: pool.request() });
 
       expect(result).toHaveLength(dataManager.ACCOUNT_ROOT_COUNT);
       const expectedRoots = dataManager.rootAccounts.slice().sort((a, b) => a.email.localeCompare(b.email));
@@ -429,7 +429,7 @@ describe.sequential("advanced SQL - mssql", async (ctx) => {
          from ${Order}
          where ${Order.$accountId} in (${accountIds})
          order by ${Order.$accountId}, rn
-      `.mssql.getAll({ db: pool.request() });
+      `.mssql.all({ db: pool.request() });
 
       const byAccount = Map.groupBy(result, (r) => r.accountId);
       expect(byAccount.size).toBe(3);
@@ -471,7 +471,7 @@ describe.sequential("advanced SQL - mssql", async (ctx) => {
          from ${Account}
          join order_counts oc on oc.account_id = ${Account.$accountId}
          order by rnk, ${Account.$email}
-      `.mssql.getAll({ db: pool.request() });
+      `.mssql.all({ db: pool.request() });
 
       expect(result).toHaveLength(dataManager.ACCOUNT_ROOT_COUNT);
       const expectedRootsSorted = dataManager.rootAccounts.slice().sort((a, b) => a.email.localeCompare(b.email));
@@ -503,7 +503,7 @@ describe.sequential("advanced SQL - mssql", async (ctx) => {
          join ${Order} on ${Order.$orderId} = ${OrderItem.$orderId}
          where ${Order.$accountId} = ${account.accountId}
          order by ${OrderItem.$productId}
-      `.mssql.getAll({ db: pool.request() });
+      `.mssql.all({ db: pool.request() });
 
       const expectedOrderIds = dataManager.orders
          .filter((o) => o.accountId === account.accountId)
@@ -539,7 +539,7 @@ describe.sequential("advanced SQL - mssql", async (ctx) => {
          from ${Order}
          where ${Order.$accountId} = ${account.accountId}
          order by ${Order.$createdAt}, ${Order.$orderId}
-      `.mssql.getAll({ db: pool.request() });
+      `.mssql.all({ db: pool.request() });
 
       const expectedOrders = dataManager.orders
          .filter((o) => o.accountId === account.accountId)
@@ -570,7 +570,7 @@ describe.sequential("advanced SQL - mssql", async (ctx) => {
          join ${Order} on ${Order.$orderId} = ${OrderItem.$orderId}
          where ${Order.$accountId} in (${accountIds})
          order by ${OrderItem.$productPrice}
-      `.mssql.getAll({ db: pool.request() });
+      `.mssql.all({ db: pool.request() });
 
       expect(result.length).toBeGreaterThan(0);
       for (const row_ of result) {

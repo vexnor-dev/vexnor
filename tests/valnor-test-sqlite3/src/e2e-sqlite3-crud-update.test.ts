@@ -11,14 +11,24 @@ describe.sequential("valnor sqlite3 CRUD - update", () => {
 
    beforeAll(async () => {
       const inserts: IAccountInsert[] = [
-         { accountId: randomUUID(), email: `update-test-1-${randomUUID()}@example.com`, firstName: "Update", lastName: "One" },
-         { accountId: randomUUID(), email: `update-test-2-${randomUUID()}@example.com`, firstName: "Update", lastName: "Two" },
+         {
+            accountId: randomUUID(),
+            email: `update-test-1-${randomUUID()}@example.com`,
+            firstName: "Update",
+            lastName: "One",
+         },
+         {
+            accountId: randomUUID(),
+            email: `update-test-2-${randomUUID()}@example.com`,
+            firstName: "Update",
+            lastName: "Two",
+         },
       ];
       const rows = await sql`
          insert into ${Account}
             ${Account.insertColsVals(...inserts)}
          returning ${row(Account.$$)}
-      `.sqlite3.getAll({ db });
+      `.sqlite3.all({ db });
       inserted.push(...rows);
    });
 
@@ -28,7 +38,7 @@ describe.sequential("valnor sqlite3 CRUD - update", () => {
 
       const result = await sqlite3Update(Account, {
          WHERE: sql`${Account.$accountId} = ${param<{ accountId: string }>("accountId")}`,
-      }).getOneRequired({
+      }).one({
          db,
          params: { set: { firstName: "Updated" }, accountId: target.accountId },
       });
@@ -42,7 +52,7 @@ describe.sequential("valnor sqlite3 CRUD - update", () => {
 
       const result = await sqlite3Update(Account, {
          WHERE: sql`${Account.$accountId} = ${param<{ accountId: string }>("accountId")}`,
-      }).getOneRequired({
+      }).one({
          db,
          params: { set: { firstName: "Multi", lastName: "Updated", notes: "note" }, accountId: target.accountId },
       });
@@ -51,7 +61,7 @@ describe.sequential("valnor sqlite3 CRUD - update", () => {
    });
 
    test("update: no WHERE (force) updates all rows and returns all", async () => {
-      const results = await sqlite3Update(Account, {}).getAll({
+      const results = await sqlite3Update(Account, {}).all({
          db,
          params: { set: { status: "confirmed" } },
       });

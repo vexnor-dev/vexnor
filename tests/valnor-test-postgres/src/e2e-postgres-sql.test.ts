@@ -18,7 +18,7 @@ describe("valnor postgres sql tests", () => {
                email: `john.doe-${TEST_MARKER}@example.com`,
             })}
             returning ${row(Account.$$)}
-      `.getOneRequired({ db: pool });
+      `.one({ db: pool });
 
       expect(account).toMatchObject({
          status: AccountStatusUdt.CREATED,

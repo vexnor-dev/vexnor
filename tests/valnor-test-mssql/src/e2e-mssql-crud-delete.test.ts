@@ -38,7 +38,7 @@ describe.sequential("valnor mssql CRUD - delete", async (ctx) => {
       const query = OrderCrud.delete!({
          WHERE: sql`${Order.$orderId} = ${param<{ id: string }>("id")}`,
       });
-      const deleted = await query.getAll({
+      const deleted = await query.all({
          db: pool.request(),
          params: { id: order.orderId },
       });
@@ -59,7 +59,7 @@ describe.sequential("valnor mssql CRUD - delete", async (ctx) => {
       const query = AccountCrud.delete!({
          WHERE: sql`${Account.$accountId} = ${idParam}`,
       });
-      const deleted = await query.getAll({
+      const deleted = await query.all({
          db: pool.request(),
          params: { id: childAccount.accountId },
       });

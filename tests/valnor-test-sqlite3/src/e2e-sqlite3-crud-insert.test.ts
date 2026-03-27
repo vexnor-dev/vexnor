@@ -15,7 +15,7 @@ describe.sequential("valnor sqlite3 CRUD - insert", () => {
          lastName: "Single",
       };
 
-      const result = await sqlite3InsertRows(Account).getOneRequired({ db, params: { rows: [insert] } });
+      const result = await sqlite3InsertRows(Account).one({ db, params: { rows: [insert] } });
 
       expect(result).toEqual(
          expect.objectContaining({
@@ -30,16 +30,33 @@ describe.sequential("valnor sqlite3 CRUD - insert", () => {
 
    test("insertRows: multiple rows returns all", async () => {
       const inserts: IAccountInsert[] = [
-         { accountId: randomUUID(), email: `insert-rows-multi-1-${randomUUID()}@example.com`, firstName: "Multi", lastName: "One" },
-         { accountId: randomUUID(), email: `insert-rows-multi-2-${randomUUID()}@example.com`, firstName: "Multi", lastName: "Two" },
-         { accountId: randomUUID(), email: `insert-rows-multi-3-${randomUUID()}@example.com`, firstName: "Multi", lastName: "Three" },
+         {
+            accountId: randomUUID(),
+            email: `insert-rows-multi-1-${randomUUID()}@example.com`,
+            firstName: "Multi",
+            lastName: "One",
+         },
+         {
+            accountId: randomUUID(),
+            email: `insert-rows-multi-2-${randomUUID()}@example.com`,
+            firstName: "Multi",
+            lastName: "Two",
+         },
+         {
+            accountId: randomUUID(),
+            email: `insert-rows-multi-3-${randomUUID()}@example.com`,
+            firstName: "Multi",
+            lastName: "Three",
+         },
       ];
 
-      const results = await sqlite3InsertRows(Account).getAll({ db, params: { rows: inserts } });
+      const results = await sqlite3InsertRows(Account).all({ db, params: { rows: inserts } });
 
       expect(results).toHaveLength(3);
       for (let i = 0; i < inserts.length; i++) {
-         expect(results[i]).toEqual(expect.objectContaining({ accountId: inserts[i]!.accountId, email: inserts[i]!.email }));
+         expect(results[i]).toEqual(
+            expect.objectContaining({ accountId: inserts[i]!.accountId, email: inserts[i]!.email }),
+         );
       }
    });
 
@@ -54,7 +71,7 @@ describe.sequential("valnor sqlite3 CRUD - insert", () => {
          insert into ${Account}
             ${Account.insertColsVals(parentInsert)}
          returning ${row(Account.$$)}
-      `.sqlite3.getOneRequired({ db });
+      `.sqlite3.one({ db });
 
       const childId = randomUUID();
 
@@ -74,7 +91,7 @@ describe.sequential("valnor sqlite3 CRUD - insert", () => {
             from ${Account.as("src")}
             where ${Account.as("src").$accountId} = ${parent.accountId}
          `,
-      }).getOneRequired({ db });
+      }).one({ db });
 
       ok(result);
       expect(result).toEqual(

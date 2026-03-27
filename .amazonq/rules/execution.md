@@ -28,3 +28,11 @@ This is a serious, high-quality codebase. No shortcuts. No lazy work. Ever.
 - If a fix touches a type mapping, regenerate all affected codegen immediately.
 - If a test covers type coverage, it must cover ALL columns, not a representative sample.
 - If a snapshot contains a dynamic value, it will fail on the next run — catch it before committing.
+
+## Tests are not optional
+
+- Every new feature or function must have unit tests. No exceptions.
+- Write the test file before declaring the work done.
+- Unit tests go in `__tests__/` alongside the implementation.
+- Use `toMatchInlineSnapshot()` for all SQL text and values output — write empty calls first, then populate by running with `-u`.
+- Do not ship code without running the full test suite and confirming it passes.

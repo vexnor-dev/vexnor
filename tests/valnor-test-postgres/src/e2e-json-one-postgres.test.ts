@@ -17,7 +17,7 @@ describe.sequential("jsonOne() tests", () => {
                email: `john.doe-${TAG}@example.com`,
             })}
             returning ${row(Account.$$)}
-      `.getOneRequired({ db: pool });
+      `.one({ db: pool });
       expect(parentAccount.parentId).toBeDefined();
 
       const childrenAccounts = await sql`
@@ -39,7 +39,7 @@ describe.sequential("jsonOne() tests", () => {
                },
             )}
             returning ${row(Account.$$)}
-      `.getAll({ db: pool });
+      `.all({ db: pool });
       expect(childrenAccounts).toHaveLength(2);
    });
 
@@ -57,7 +57,7 @@ describe.sequential("jsonOne() tests", () => {
          where ${Account.$parentId} is not null
          limit 1
       `;
-      const result = await query.getOneOptional({ db: pool });
+      const result = await query.any({ db: pool });
       expect(result).toHaveProperty("parent");
    });
 
@@ -84,7 +84,7 @@ describe.sequential("jsonOne() tests", () => {
          limit 1
       `;
 
-      const result = await query.getOneOptional({ db: pool });
+      const result = await query.any({ db: pool });
       if (result) {
          expect(result.parent).toBeDefined();
          expect(result.parent?.accountId).toBe(result.parentId);
@@ -111,7 +111,7 @@ describe.sequential("jsonOne() tests", () => {
          limit 1
       `;
 
-      const result = await query.getOneOptional({ db: pool })!;
+      const result = await query.any({ db: pool })!;
       expect(result).toBeDefined();
    });
 });

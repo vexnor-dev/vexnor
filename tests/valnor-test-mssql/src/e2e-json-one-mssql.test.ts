@@ -29,7 +29,7 @@ describe.sequential("jsonOne() tests", (ctx) => {
          from ${Account} ${parentJsonOne}
          where ${Account.$parentId} is not null
       `;
-      const result = await query.getOneOptional({ db: pool.request() });
+      const result = await query.any({ db: pool.request() });
       expect(result).toHaveProperty("parent");
    });
 
@@ -49,7 +49,7 @@ describe.sequential("jsonOne() tests", (ctx) => {
          where ${Account.$parentId} is not null
       `;
 
-      const result = await query.getOneOptional({ db: pool.request() }).then((z) => {
+      const result = await query.any({ db: pool.request() }).then((z) => {
          return {
             ...z,
             parent: z?.parent ? JSON.parse(z?.parent) : null,
@@ -81,7 +81,7 @@ describe.sequential("jsonOne() tests", (ctx) => {
          where children.children_count > 1
       `;
 
-      const result = await query.getOneOptional({ db: pool.request() })!;
+      const result = await query.any({ db: pool.request() })!;
       expect(result).toBeDefined();
    });
 });

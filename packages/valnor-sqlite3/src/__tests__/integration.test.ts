@@ -59,7 +59,7 @@ describe("integration tests", () => {
 
    test("should handle SELECT operation", async () => {
       const query = sql`SELECT ${Account.$$} FROM ${Account}`;
-      const rows = await query.sqlite3.getAll({ db });
+      const rows = await query.sqlite3.all({ db });
       expect(Array.isArray(rows)).toBe(true);
       expect(rows.length).toBeGreaterThan(0);
    });
@@ -117,7 +117,7 @@ describe("integration tests", () => {
          WHERE ${Account.$accountId} = ${param<{ id: number | bigint }>("id")}
       `;
 
-      const result = await query.sqlite3.getOneOptional({ db, params: { id: parentId } });
+      const result = await query.sqlite3.any({ db, params: { id: parentId } });
       expect(result).toBeDefined();
       expect(result?.children).toBeDefined();
       const children = JSON.parse(result!.children as unknown as string);
@@ -139,7 +139,7 @@ describe("integration tests", () => {
          LIMIT 1
       `;
 
-      const result = await query.sqlite3.getOneOptional({ db });
+      const result = await query.sqlite3.any({ db });
       if (result) {
          expect(result.parent).toBeDefined();
          const parent = JSON.parse(result.parent as unknown as string);

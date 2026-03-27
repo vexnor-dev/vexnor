@@ -54,7 +54,7 @@ export class TestDataManager {
          insert into ${Account}
             ${Account.insertColsVals(...accountInserts)}
             returning ${row(Account.$$)}
-      `.sqlite3.getAll({ db });
+      `.sqlite3.all({ db });
 
       ok(accounts?.length, "root accounts not inserted");
       assert.deepEqual(accounts.length, this.ACCOUNT_ROOT_COUNT);
@@ -83,7 +83,7 @@ export class TestDataManager {
                insert into ${Account}
                   ${Account.insertColsVals(accountInsert)}
                   returning ${row(Account.$$)}
-            `.sqlite3.getOneRequired({ db });
+            `.sqlite3.one({ db });
             expect(account).toEqual(
                expect.objectContaining({
                   status: "created",
@@ -107,7 +107,7 @@ export class TestDataManager {
          insert into ${Product}
             ${Product.insertColsVals(...inserts)}
             returning ${row(Product.$$)}
-      `.sqlite3.getAll({ db });
+      `.sqlite3.all({ db });
       ok(inserted?.length, "products not inserted");
       this.products.push(...inserted);
    }
@@ -124,7 +124,7 @@ export class TestDataManager {
             insert into ${Order}
                ${Order.insertColsVals(...inserts)}
                returning ${row(Order.$$)}
-         `.sqlite3.getAll({ db });
+         `.sqlite3.all({ db });
          ok(inserted?.length, "orders not inserted");
          this.orders.push(...inserted);
       }
@@ -142,7 +142,7 @@ export class TestDataManager {
             insert into ${OrderItem}
                ${OrderItem.insertColsVals(...inserts)}
                returning ${row(OrderItem.$$)}
-         `.sqlite3.getAll({ db });
+         `.sqlite3.all({ db });
          ok(inserted?.length, "order items not inserted");
          this.orderItems.push(...inserted);
       }

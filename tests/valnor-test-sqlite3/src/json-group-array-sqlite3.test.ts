@@ -11,10 +11,9 @@ describe("Sqlite3JsonAggregation", () => {
 
    beforeAll(() => {
       parentAccountId = randomUUID();
-      db.prepare(`INSERT INTO account (account_id, first_name, last_name, email, status) VALUES (?, 'Json', 'Test', ?, 'created')`).run(
-         parentAccountId,
-         `json-agg-test-${parentAccountId}@example.com`,
-      );
+      db.prepare(
+         `INSERT INTO account (account_id, first_name, last_name, email, status) VALUES (?, 'Json', 'Test', ?, 'created')`,
+      ).run(parentAccountId, `json-agg-test-${parentAccountId}@example.com`);
    });
 
    const AccountOrders = sql`
@@ -30,7 +29,7 @@ describe("Sqlite3JsonAggregation", () => {
          from ${Account}
          where ${Account.$accountId} = ${parentAccountId}
       `;
-      const results = await query.sqlite3.getAll({ db, params: { limit: 5 } });
+      const results = await query.sqlite3.all({ db, params: { limit: 5 } });
       expect(results).toHaveLength(1);
       expect(results[0]).toHaveProperty("orders");
    });

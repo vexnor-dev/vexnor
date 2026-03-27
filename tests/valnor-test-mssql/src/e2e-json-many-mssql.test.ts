@@ -26,7 +26,7 @@ describe.sequential("jsonMany() tests", (ctx) => {
                lastName: `Doe-0-${TAG}`,
                email: `john.doe-${TAG}@example.com`,
             })}
-      `.getOneRequired({ db: pool.request() });
+      `.one({ db: pool.request() });
       expect(parentAccount.accountId).toBeDefined();
 
       const childrenInserts = [
@@ -51,19 +51,16 @@ describe.sequential("jsonMany() tests", (ctx) => {
             ${Account.insertCols(...childrenInserts)}
             output ${row(Account.as(`inserted`).$$)}
             ${Account.insertVals(...childrenInserts)}
-      `.getAll({ db: pool.request() });
+      `.all({ db: pool.request() });
       expect(childrenAccounts).toHaveLength(2);
 
-      const orderInserts = [
-         { accountId: parentAccount.accountId },
-         { accountId: parentAccount.accountId },
-      ];
+      const orderInserts = [{ accountId: parentAccount.accountId }, { accountId: parentAccount.accountId }];
       orders = await sql`
          insert into ${Order}
             ${Order.insertCols(...orderInserts)}
             output ${row(Order.as(`inserted`).$$)}
             ${Order.insertVals(...orderInserts)}
-      `.mssql.getAll({ db: pool.request() });
+      `.mssql.all({ db: pool.request() });
       expect(orders).toHaveLength(2);
    });
 
@@ -81,7 +78,7 @@ describe.sequential("jsonMany() tests", (ctx) => {
          from ${Account} ${jsonMany(AccountOrders)}
          where ${Account.$accountId} = ${parentAccount.accountId}
       `;
-      const results = await query.mssql.getAll({ db: pool.request(), params: { limit: 10 } });
+      const results = await query.mssql.all({ db: pool.request(), params: { limit: 10 } });
       expect(results).toHaveLength(1);
       expect(results[0]).toHaveProperty("orders");
    });
@@ -92,7 +89,7 @@ describe.sequential("jsonMany() tests", (ctx) => {
          from ${Account} ${jsonMany(AccountOrders)}
          where ${Account.$accountId} = ${parentAccount.accountId}
       `;
-      const results = await query.mssql.getAll({ db: pool.request(), params: { limit: 10 } });
+      const results = await query.mssql.all({ db: pool.request(), params: { limit: 10 } });
       expect(results).toHaveLength(1);
       const parsed = JSON.parse(results[0]!.orders as unknown as string) as IOrderSelect[];
       expect(parsed).toHaveLength(2);
@@ -105,7 +102,7 @@ describe.sequential("jsonMany() tests", (ctx) => {
          where ${Account.$accountId} = ${parentAccount.accountId}
          order by ${Account.$accountId}
       `;
-      const results = await query.mssql.getAll({ db: pool.request(), params: { limit: 1 } });
+      const results = await query.mssql.all({ db: pool.request(), params: { limit: 1 } });
       expect(results).toHaveLength(1);
       const parsed = JSON.parse(results[0]!.orders as unknown as string) as IOrderSelect[];
       expect(parsed).toHaveLength(1);
@@ -118,13 +115,11 @@ describe.sequential("jsonMany() tests", (ctx) => {
          where ${Account.$accountId} = ${parentAccount.accountId}
       `;
 
-      const results = await query.mssql.getAll({ db: pool.request(), params: { limit: 10 } });
+      const results = await query.mssql.all({ db: pool.request(), params: { limit: 10 } });
       expect(results).toHaveLength(1);
       const parsedOrders = JSON.parse(results[0]!.orders as unknown as string) as IOrderSelect[];
       expect(parsedOrders).toHaveLength(2);
-      expect(parsedOrders.map((o) => o.orderId)).toEqual(
-         expect.arrayContaining(orders.map((o) => o.orderId)),
-      );
+      expect(parsedOrders.map((o) => o.orderId)).toEqual(expect.arrayContaining(orders.map((o) => o.orderId)));
    });
 
    test("jsonMany() E2E: returns empty array when no orders", async () => {
@@ -133,7 +128,7 @@ describe.sequential("jsonMany() tests", (ctx) => {
             ${Account.insertCols({ status: "created", firstName: "No-orders", lastName: "Account", email: `no-orders-${TAG}@example.com` })}
             output ${row(Account.as(`inserted`).$$)}
             ${Account.insertVals({ status: "created", firstName: "No-orders", lastName: "Account", email: `no-orders-${TAG}@example.com` })}
-      `.getOneRequired({ db: pool.request() });
+      `.one({ db: pool.request() });
 
       const query = sql`
          select ${row(Account.$$)}, ${jsonMany(AccountOrders).as("orders")}
@@ -141,7 +136,7 @@ describe.sequential("jsonMany() tests", (ctx) => {
          where ${Account.$accountId} = ${accountWithNoOrders.accountId}
       `;
 
-      const results = await query.mssql.getAll({ db: pool.request(), params: { limit: 10 } });
+      const results = await query.mssql.all({ db: pool.request(), params: { limit: 10 } });
       expect(results).toHaveLength(1);
       const parsedOrders = JSON.parse(results[0]!.orders as unknown as string) as IOrderSelect[];
       expect(parsedOrders).toEqual([]);

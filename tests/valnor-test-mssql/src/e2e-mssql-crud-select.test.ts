@@ -41,7 +41,7 @@ describe.sequential("valnor mssql CRUD - select", async (ctx) => {
          WHERE: sql`${Account.$accountId} = ${idParam}`,
       });
 
-      const result = await getAccount.mssql.getOneOptional({
+      const result = await getAccount.mssql.any({
          db: pool.request(),
          params: { id: rootAccount.accountId },
       });
@@ -60,7 +60,7 @@ describe.sequential("valnor mssql CRUD - select", async (ctx) => {
          limit: limitParam,
       });
 
-      const results = await query.mssql.getAll({
+      const results = await query.mssql.all({
          db: pool.request(),
          params: { offset: 0, limit: 1 },
       });
@@ -79,7 +79,7 @@ describe.sequential("valnor mssql CRUD - select", async (ctx) => {
          includeMany: { children },
       });
 
-      const results = await query.mssql.getAll({ db: pool.request() });
+      const results = await query.mssql.all({ db: pool.request() });
       expect(results).toHaveLength(1);
       const parsed = JSON.parse(results[0]!.children as unknown as string) as IAccountSelect[];
       expect(parsed).toHaveLength(1);
@@ -96,7 +96,7 @@ describe.sequential("valnor mssql CRUD - select", async (ctx) => {
          },
       });
 
-      const results = await query.mssql.getAll({ db: pool.request() });
+      const results = await query.mssql.all({ db: pool.request() });
       expect(results).toHaveLength(1);
       const parsed = JSON.parse(results[0]!.firstOrder as unknown as string) as IOrderSelect;
       expect(parsed.orderId).toBe(order.orderId);
@@ -112,7 +112,7 @@ describe.sequential("valnor mssql CRUD - select", async (ctx) => {
          },
       });
 
-      const results = await query.mssql.getAll({ db: pool.request() });
+      const results = await query.mssql.all({ db: pool.request() });
       expect(results).toHaveLength(1);
       const parsed = JSON.parse(results[0]!.firstOrder as unknown as string);
       expect(parsed).toBeNull();
@@ -130,7 +130,7 @@ describe.sequential("valnor mssql CRUD - select", async (ctx) => {
          includeMany: { children },
       });
 
-      const results = await query.mssql.getAll({ db: pool.request() });
+      const results = await query.mssql.all({ db: pool.request() });
       expect(results).toHaveLength(1);
       const parsed = JSON.parse(results[0]!.children as unknown as string) as IAccountSelect[];
       expect(parsed).toEqual([]);
@@ -153,7 +153,7 @@ describe.sequential("valnor mssql CRUD - select", async (ctx) => {
          },
       });
 
-      const results = await query.mssql.getAll({ db: pool.request() });
+      const results = await query.mssql.all({ db: pool.request() });
       expect(results).toHaveLength(1);
       const parsedChildren = JSON.parse(results[0]!.children as unknown as string) as IAccountSelect[];
       expect(parsedChildren).toHaveLength(1);

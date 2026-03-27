@@ -30,7 +30,7 @@ describe("sqlite3 type coverage", () => {
             colBlob: new Uint8Array([1, 2, 3, 4]),
          })}
          returning ${row(TypeCoverage.$$)}
-      `.sqlite3.getOneRequired({ db });
+      `.sqlite3.one({ db });
    });
 
    afterAll(async () => {
@@ -73,7 +73,7 @@ describe("sqlite3 type coverage", () => {
    test("update and select back all types", async () => {
       const result = await sqlite3Update(TypeCoverage, {
          WHERE: sql`${TypeCoverage.$colText} = ${param<{ key: string }>("key")}`,
-      }).getOneRequired({
+      }).one({
          db,
          params: {
             key: inserted.colText,

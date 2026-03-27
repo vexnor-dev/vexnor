@@ -22,7 +22,7 @@ const newAccount = await sql`
          email: `john.doe_${id}@example.com`,
       })}
       returning ${row(Account.$$)}
-`.postgres.getOneRequired({ db: pool });
+`.postgres.one({ db: pool });
 console.log("new account:", newAccount);
 ok(newAccount?.accountId, "accountId is required");
 
@@ -31,7 +31,7 @@ const findAccountById = sql`
    from ${Account}
    where ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}
 `;
-const account = await findAccountById.postgres.getOneRequired({
+const account = await findAccountById.postgres.one({
    db: pool,
    params: {
       accountId: newAccount.accountId,
@@ -56,7 +56,7 @@ const newOrders = await sql`
          },
       )}
       RETURNING ${row(Order.$$)}
-`.postgres.getAll({ db: pool });
+`.postgres.all({ db: pool });
 ok(newOrders?.length);
 
 const accountUpdated = await sql`
@@ -66,7 +66,7 @@ const accountUpdated = await sql`
    })}
    where ${Account.$accountId} = ${newAccount.accountId}
    returning ${row(Account.$$)}
-`.postgres.getOneRequired({ db: pool });
+`.postgres.one({ db: pool });
 console.log("account updated:", accountUpdated);
 
 const UserOrders = sql`
@@ -82,7 +82,7 @@ const findAccountsWithOrders = sql`
    FROM ${Account} ${jsonMany(UserOrders)}
    WHERE ${Account.$accountId} = ${newAccount.accountId}`;
 
-const accountWithLimitedOrders = await findAccountsWithOrders.postgres.getOneRequired({
+const accountWithLimitedOrders = await findAccountsWithOrders.postgres.one({
    db: pool,
    params: {
       limit: 1,

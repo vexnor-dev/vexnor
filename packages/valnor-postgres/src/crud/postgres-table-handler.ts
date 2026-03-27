@@ -1,0 +1,168 @@
+import {
+   SqlTable,
+   SqlSelectArgs,
+   SqlUpdateArgs,
+   SqlDeleteArgs,
+   SqlInsertFromArgs,
+   Sql,
+   expand,
+   sql,
+   raw,
+   row,
+   info,
+} from "valnor";
+import { ok } from "valnor/plugin";
+import { postgresSelect, PostgresSelectResult } from "./postgres-select.js";
+import { postgresInsertRows, PostgresInsertRowsResult } from "./postgres-insert-rows.js";
+import { postgresInsertFrom, PostgresInsertFromResult } from "./postgres-insert-from.js";
+import { postgresUpdate, PostgresTableUpdateResult } from "./postgres-update.js";
+import { postgresDelete, PostgresDeleteResult } from "./postgres-delete.js";
+import { postgresUpsert, PostgresUpsertArgs, PostgresUpsertResult } from "./postgres-upsert.js";
+import { PostgresQueryHandler } from "#/postgres-query-handler.js";
+import { sql as postgresSql } from "#/postgres-sql.js";
+
+type PkFields<T extends { Select: Record<string, unknown> }> = Pick<
+   T["Select"],
+   Extract<keyof T["Select"], T extends { pk: ReadonlyArray<infer K> } ? K : never>
+>;
+
+export type PostgresTableHandler<
+   T extends {
+      Select: Record<string, unknown>;
+      Insert?: Record<string, unknown>;
+      Update?: Record<string, unknown>;
+      Delete?: boolean;
+   },
+> = (T extends { Select: Record<string, unknown> }
+   ? {
+        findById: () => PostgresQueryHandler<{ Params: PkFields<T> & Partial<T["Select"]>; Row: T["Select"] }>;
+        findBy: () => PostgresQueryHandler<{ Params: Partial<T["Select"]>; Row: T["Select"] }>;
+        select: <Args extends SqlSelectArgs>(
+           args: Args,
+        ) => PostgresSelectResult<T & { Select: Record<string, unknown> }, Args>;
+     }
+   : unknown) &
+   (T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> }
+      ? {
+           insertRows: () => PostgresInsertRowsResult<
+              T & { Select: Record<string, unknown>; Insert: Record<string, unknown> }
+           >;
+           insertFrom: <
+              Args extends SqlInsertFromArgs<T & { Select: Record<string, unknown>; Insert: Record<string, unknown> }>,
+           >(
+              args: Args,
+           ) => PostgresInsertFromResult<
+              T & { Select: Record<string, unknown>; Insert: Record<string, unknown> },
+              Args
+           >;
+        }
+      : unknown) &
+   (T extends { Select: Record<string, unknown>; Update: Record<string, unknown> }
+      ? {
+           update: <Args extends SqlUpdateArgs>(
+              args: Args,
+           ) => PostgresTableUpdateResult<
+              T & { Select: Record<string, unknown>; Update: Record<string, unknown> },
+              Args
+           >;
+        }
+      : unknown) &
+   (T extends { Select: Record<string, unknown>; Delete: true }
+      ? {
+           delete: <Args extends SqlDeleteArgs>(
+              args: Args,
+           ) => PostgresDeleteResult<T & { Select: Record<string, unknown>; Delete: true }, Args>;
+        }
+      : unknown) &
+   (T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> }
+      ? {
+           upsert: (
+              args: PostgresUpsertArgs,
+           ) => PostgresUpsertResult<T & { Select: Record<string, unknown>; Insert: Record<string, unknown> }>;
+        }
+      : unknown);
+
+function buildFindByExpand<T extends { Select: Record<string, unknown> }>(
+   table: SqlTable<T>,
+   fields: Partial<T["Select"]>,
+) {
+   const cols = table.cols;
+   const pairs: Sql[] = [];
+   for (const [key, value] of Object.entries(fields)) {
+      if (value === undefined) continue;
+      const col = cols[`$${key}` as `$${string}`];
+      ok(col, `Column not found: ${key}`);
+      pairs.push(sql`${col} = ${value}`.inline());
+   }
+   if (!pairs.length) return raw.BLANK;
+   return pairs.slice(1).reduce((acc, pair) => sql`${acc} and ${pair}`.inline(), pairs[0]!);
+}
+
+function postgresFind<T extends { Select: Record<string, unknown> }, Params extends Partial<T["Select"]>>(
+   table: SqlTable<T>,
+): PostgresQueryHandler<{ Params: Params; Row: T["Select"] }> {
+   const whereExpand = expand<Params>((params) => {
+      if (!params) return null;
+      return buildFindByExpand(table, params as Partial<T["Select"]>) as ReturnType<typeof buildFindByExpand>;
+   });
+
+   return postgresSql`
+      ${info({ driver: "postgres" }) ?? raw.BLANK}
+      select ${row(table.$$)}
+      from ${table}
+      ${sql`where ${whereExpand}`.inline("default")}
+   ` as unknown as PostgresQueryHandler<{ Params: Params; Row: T["Select"] }>;
+}
+
+export function newPostgresTableHandler<
+   T extends {
+      Select: Record<string, unknown>;
+      Insert?: Record<string, unknown>;
+      Update?: Record<string, unknown>;
+      Delete?: boolean;
+   },
+>(table: SqlTable<T>): PostgresTableHandler<T> {
+   const { select, insert, update, delete: delete$ } = table.crud;
+   const handler: Record<string, unknown> = {};
+
+   handler.findById = () => postgresFind<T, PkFields<T> & Partial<T["Select"]>>(table);
+   handler.findBy = () => postgresFind<T, Partial<T["Select"]>>(table);
+
+   if (select) {
+      handler.select = <Args extends SqlSelectArgs>(args: Args) =>
+         postgresSelect(table as SqlTable<T & { Select: Record<string, unknown> }>, args);
+   }
+   if (insert) {
+      handler.upsert = (args: PostgresUpsertArgs) =>
+         postgresUpsert(
+            table as SqlTable<T & { Select: Record<string, unknown>; Insert: Record<string, unknown> }>,
+            args,
+         );
+      handler.insertRows = () =>
+         postgresInsertRows(
+            table as SqlTable<T & { Select: Record<string, unknown>; Insert: Record<string, unknown> }>,
+         );
+      handler.insertFrom = <
+         Args extends SqlInsertFromArgs<T & { Select: Record<string, unknown>; Insert: Record<string, unknown> }>,
+      >(
+         args: Args,
+      ) =>
+         postgresInsertFrom(
+            table as SqlTable<T & { Select: Record<string, unknown>; Insert: Record<string, unknown> }>,
+            args,
+         );
+   }
+   if (update) {
+      handler.update = <Args extends SqlUpdateArgs>(args: Args) =>
+         postgresUpdate(
+            table as SqlTable<T & { Select: Record<string, unknown>; Update: Record<string, unknown> }>,
+            args,
+         );
+   }
+   if (delete$) {
+      handler.delete = <Args extends SqlDeleteArgs>(args: Args) =>
+         postgresDelete(table as SqlTable<T & { Select: Record<string, unknown>; Delete: true }>, args);
+   }
+
+   return handler as PostgresTableHandler<T>;
+}

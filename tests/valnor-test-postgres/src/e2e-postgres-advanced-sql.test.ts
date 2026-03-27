@@ -99,7 +99,7 @@ describe.sequential("advanced SQL - postgres", async (ctx) => {
           "query_1"."email"
           /* </query_0> */"
       `);
-      const result = await query.postgres.getAll({ db: pool });
+      const result = await query.postgres.all({ db: pool });
 
       expect(result).toHaveLength(1 + dataManager.ACCOUNT_CHILD_FACTOR);
       expect(result[0]).toMatchObject({ accountId: root.accountId, parentId: null, depth: 0 });
@@ -137,7 +137,7 @@ describe.sequential("advanced SQL - postgres", async (ctx) => {
          with recursive ${descendants}
          select array_agg(${descendants.$accountId}) as ${col<{ ids: string[] }>("ids")}
          from ${descendants}
-      `.postgres.getOneRequired({ db: pool });
+      `.postgres.one({ db: pool });
 
       const expectedChildIds = dataManager.childAccounts
          .filter((c) => c.parentId === root.accountId)
@@ -168,7 +168,7 @@ describe.sequential("advanced SQL - postgres", async (ctx) => {
          group by ${Account.$accountId}, ${Account.$email}
          having count(distinct ${Order.$orderId}) > 0
          order by ${Account.$email}
-      `.getAll({ db: pool });
+      `.all({ db: pool });
 
       const spendByAccount = new Map<string, number>();
       for (const account of dataManager.rootAccounts) {
@@ -205,7 +205,7 @@ describe.sequential("advanced SQL - postgres", async (ctx) => {
          where ${Account.$accountId} in (${accountIds})
          group by ${Account.$accountId}
          having count(distinct ${OrderItem.$productId}) > 1
-      `.getAll({ db: pool });
+      `.all({ db: pool });
 
       // ORDER_ITEM_FACTOR=2 with 2 different products per order → always > 1
       expect(result).toHaveLength(dataManager.ACCOUNT_ROOT_COUNT);
@@ -244,7 +244,7 @@ describe.sequential("advanced SQL - postgres", async (ctx) => {
                 ${jsonMany(AccountOrders).as("orders")}
          from ${Account} ${jsonMany(AccountOrders)}
          where ${Account.$accountId} = ${root.accountId}
-      `.getOneRequired({ db: pool });
+      `.one({ db: pool });
 
       expect(result).toMatchObject({ accountId: root.accountId, email: root.email });
       expect(result.orders).toHaveLength(dataManager.ACCOUNT_ORDER_FACTOR);
@@ -291,7 +291,7 @@ describe.sequential("advanced SQL - postgres", async (ctx) => {
          from ${Account} ${jsonMany(AccountOrders)}
          where ${Account.$accountId} in (${accountIds})
          order by ${Account.$email}
-      `.getAll({ db: pool });
+      `.all({ db: pool });
 
       expect(results).toHaveLength(3);
       for (const account of results) {
@@ -331,7 +331,7 @@ describe.sequential("advanced SQL - postgres", async (ctx) => {
               select ${Order.$accountId} from ${Order}
            )
          order by ${Account.$email}
-      `.getAll({ db: pool });
+      `.all({ db: pool });
 
       expect(result).toHaveLength(dataManager.ACCOUNT_ROOT_COUNT);
       const expectedRootAccounts = dataManager.rootAccounts.slice().sort((a, b) => a.email.localeCompare(b.email));
@@ -353,7 +353,7 @@ describe.sequential("advanced SQL - postgres", async (ctx) => {
                lastName: dataManager.TAG,
             })}
             returning ${row(Account.$$)}
-      `.getOneRequired({ db: pool });
+      `.one({ db: pool });
 
       const result = await sql`
          select ${row(Account.$$)}
@@ -362,7 +362,7 @@ describe.sequential("advanced SQL - postgres", async (ctx) => {
            and ${Account.$accountId} not in (
               select ${Order.$accountId} from ${Order}
            )
-      `.getAll({ db: pool });
+      `.all({ db: pool });
 
       expect(result.some((a) => a.accountId === orphan.accountId)).toBe(true);
       const orphanRow = result.find((a) => a.accountId === orphan.accountId);
@@ -393,7 +393,7 @@ describe.sequential("advanced SQL - postgres", async (ctx) => {
               and ${Order.$status} = 'paid'
          )
          order by ${Account.$email}
-      `.getAll({ db: pool });
+      `.all({ db: pool });
 
       const paidAccount = dataManager.rootAccounts.find((a) => a.accountId === order.accountId)!;
       ok(paidAccount);
@@ -423,7 +423,7 @@ describe.sequential("advanced SQL - postgres", async (ctx) => {
               where ca.account_id in (select ${Order.$accountId} from ${Order})
            )
          order by ${Account.$email}
-      `.getAll({ db: pool });
+      `.all({ db: pool });
 
       // all root accounts have children, and all children have orders
       expect(result).toHaveLength(dataManager.ACCOUNT_ROOT_COUNT);
@@ -449,7 +449,7 @@ describe.sequential("advanced SQL - postgres", async (ctx) => {
          from ${Order}
          where ${Order.$accountId} in (${accountIds})
          order by ${Order.$accountId}, rn
-      `.getAll({ db: pool });
+      `.all({ db: pool });
 
       // each account has ACCOUNT_ORDER_FACTOR orders → rn goes 1..ACCOUNT_ORDER_FACTOR
       const byAccount = Map.groupBy(result, (r) => r.accountId);
@@ -488,7 +488,7 @@ describe.sequential("advanced SQL - postgres", async (ctx) => {
          from ${Account}
          join order_counts oc on oc.account_id = ${Account.$accountId}
          order by ${col<{ rnk: number }>("rnk")}, ${Account.$email}
-      `.getAll({ db: pool });
+      `.all({ db: pool });
 
       expect(result).toHaveLength(dataManager.ACCOUNT_ROOT_COUNT);
       const expectedRootsSorted = dataManager.rootAccounts.slice().sort((a, b) => a.email.localeCompare(b.email));
@@ -515,7 +515,7 @@ describe.sequential("advanced SQL - postgres", async (ctx) => {
          join ${Order} on ${Order.$orderId} = ${OrderItem.$orderId}
          where ${Order.$accountId} = ${account.accountId}
          order by ${OrderItem.$productId}
-      `.getAll({ db: pool });
+      `.all({ db: pool });
 
       const expectedOrderIds = dataManager.orders
          .filter((o) => o.accountId === account.accountId)
@@ -550,7 +550,7 @@ describe.sequential("advanced SQL - postgres", async (ctx) => {
          from ${Order}
          where ${Order.$accountId} = ${account.accountId}
          order by ${Order.$createdAt}, ${Order.$orderId}
-      `.getAll({ db: pool });
+      `.all({ db: pool });
 
       expect(result).toHaveLength(dataManager.ACCOUNT_ORDER_FACTOR);
       // first row has no previous
@@ -575,7 +575,7 @@ describe.sequential("advanced SQL - postgres", async (ctx) => {
          join ${Order} on ${Order.$orderId} = ${OrderItem.$orderId}
          where ${Order.$accountId} in (${accountIds})
          order by ${OrderItem.$productPrice}::numeric
-      `.getAll({ db: pool });
+      `.all({ db: pool });
 
       expect(result.length).toBeGreaterThan(0);
       for (const row_ of result) {

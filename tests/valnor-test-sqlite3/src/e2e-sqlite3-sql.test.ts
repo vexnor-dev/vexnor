@@ -29,7 +29,7 @@ describe("valnor postgres sql tests", () => {
       const account = await sql`
         select ${row(Account.$$)}
         from ${Account}
-        where ${Account.$accountId} = ${accountId}`.getOneRequired({ db });
+        where ${Account.$accountId} = ${accountId}`.one({ db });
 
       expect(account).toMatchObject({
          accountId,

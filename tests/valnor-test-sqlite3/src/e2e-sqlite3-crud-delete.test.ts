@@ -20,7 +20,7 @@ describe.sequential("valnor sqlite3 CRUD - delete", () => {
          insert into ${Account}
             ${Account.insertColsVals(...inserts)}
          returning ${row(Account.$$)}
-      `.sqlite3.getAll({ db });
+      `.sqlite3.all({ db });
       inserted.push(...rows);
    });
 
@@ -30,14 +30,14 @@ describe.sequential("valnor sqlite3 CRUD - delete", () => {
 
       const result = await sqlite3Delete(Account, {
          WHERE: sql`${Account.$accountId} = ${param<{ accountId: string }>("accountId")}`,
-      }).getOneRequired({ db, params: { accountId: target.accountId } });
+      }).one({ db, params: { accountId: target.accountId } });
 
       expect(result).toEqual(target);
 
       const gone = await sql`
          select ${row(Account.$$)} from ${Account}
          where ${Account.$accountId} = ${target.accountId}
-      `.sqlite3.getOneOptional({ db });
+      `.sqlite3.any({ db });
       expect(gone).toBeUndefined();
    });
 
@@ -47,7 +47,7 @@ describe.sequential("valnor sqlite3 CRUD - delete", () => {
 
       const results = await sqlite3Delete(Account, {
          WHERE: sql`${Account.$accountId} in (${ids})`,
-      }).getAll({ db });
+      }).all({ db });
 
       expect(results).toHaveLength(2);
       expect(results.map((r) => r.accountId).sort()).toEqual(ids.sort());
@@ -59,7 +59,7 @@ describe.sequential("valnor sqlite3 CRUD - delete", () => {
 
       const results = await sqlite3Delete(Account, {
          WHERE: sql`${Account.$accountId} in (${remaining.map((a) => a.accountId)})`,
-      }).getAll({ db });
+      }).all({ db });
 
       expect(results).toHaveLength(remaining.length);
       expect(results[0]!.accountId).toBe(remaining[0].accountId);

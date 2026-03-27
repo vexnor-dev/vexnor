@@ -33,7 +33,7 @@ describe.sequential("jsonMany() tests", async (ctx) => {
          from ${Account}
          where ${Account.$accountId} = ${parentAccount.accountId}
       `;
-      const results = await query.sqlite3.getAll({ db, params: { limit: 10 } });
+      const results = await query.sqlite3.all({ db, params: { limit: 10 } });
       expect(results).toHaveLength(1);
       expect(results[0]).toHaveProperty("orders");
    });
@@ -53,7 +53,7 @@ describe.sequential("jsonMany() tests", async (ctx) => {
          from ${Account}
          where ${Account.$accountId} = ${parentAccount.accountId}
       `;
-      const results = await query.sqlite3.getAll({ db, params: { limit: 1 } });
+      const results = await query.sqlite3.all({ db, params: { limit: 1 } });
       expect(results).toHaveLength(1);
       const parsed = JSON.parse(results[0]!.orders as unknown as string) as IOrderSelect[];
       expect(parsed).toHaveLength(1);

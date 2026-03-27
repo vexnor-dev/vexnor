@@ -36,7 +36,7 @@ describe.sequential("valnor postgres e2e tests", { concurrent: false }, () => {
             insert into ${Account}
                ${Account.insertColsVals(...newAccountsArgs)}
                returning ${row(Account.$$)}
-         `.getAll({ db: pool });
+         `.all({ db: pool });
 
       ok(accounts?.length, "root accounts not inserted");
       expect(accounts.length).toBe(100);
@@ -65,7 +65,7 @@ describe.sequential("valnor postgres e2e tests", { concurrent: false }, () => {
          insert into ${Account}
             ${Account.insertColsVals(...childAccountsArgs)}
             returning ${row(Account.$$)}
-      `.getAll({ db: pool });
+      `.all({ db: pool });
 
       ok(children?.length, "child accounts not inserted");
       expect(children.length).toBe(ROOT_COUNT * CHILD_FACTOR);
@@ -83,7 +83,7 @@ describe.sequential("valnor postgres e2e tests", { concurrent: false }, () => {
          from ${Account}
          where ${Account.$accountId} in (${rootAccounts.map((z) => z.accountId)})
          order by ${Account.$email}
-      `.getAll({ db: pool });
+      `.all({ db: pool });
       expect(actual).toEqual(rootAccounts);
    });
 
@@ -93,14 +93,14 @@ describe.sequential("valnor postgres e2e tests", { concurrent: false }, () => {
          from ${Account}
          where ${Account.$accountId} in (${childAccounts.map((z) => z.accountId)})
          order by ${Account.$email}
-      `.getAll({ db: pool });
+      `.all({ db: pool });
       expect(actual).toEqual(childAccounts);
    });
 
    test("Fetch account required by id", async () => {
       const expected = rootAccounts[0];
       ok(expected);
-      const actual = await findAccountById.getOneRequired({
+      const actual = await findAccountById.one({
          db: pool,
          params: { accountId: expected.accountId },
       });
@@ -108,7 +108,7 @@ describe.sequential("valnor postgres e2e tests", { concurrent: false }, () => {
    });
 
    test("Fetch account optional by id", async () => {
-      const actual = await findAccountById.getOneOptional({
+      const actual = await findAccountById.any({
          db: pool,
          params: { accountId: randomUUID() },
       });
@@ -127,7 +127,7 @@ describe.sequential("valnor postgres e2e tests", { concurrent: false }, () => {
                  join ${Account.as`parent`} on ${Account.as`parent`.$accountId} = ${Account.$parentId}
          where ${Account.$accountId} in (${childAccounts.map((z) => z.accountId)})
          order by ${Account.$email}
-      `.getAll({
+      `.all({
          db: pool,
       });
       expect(actual).toBeDefined();
@@ -161,7 +161,7 @@ describe.sequential("valnor postgres e2e tests", { concurrent: false }, () => {
          order by ${Account.$email}
       `;
 
-      const actual = await query.getAll({ db: pool }).then((accounts) =>
+      const actual = await query.all({ db: pool }).then((accounts) =>
          accounts.map((account) => ({
             ...account,
             children: account.children.map((child) => ({
@@ -201,7 +201,7 @@ describe.sequential("valnor postgres e2e tests", { concurrent: false }, () => {
          set ${Account.$firstName} = ${expected.firstName + "+test"}
          where ${Account.$accountId} = ${expected.accountId}
          returning ${row(Account.$$)}
-      `.getOneRequired({ db: pool });
+      `.one({ db: pool });
       expect(actual).toEqual({ ...expected, firstName: expected.firstName + "+test" });
    });
 

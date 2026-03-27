@@ -1,14 +1,13 @@
 import { beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
 import { param } from "valnor";
-import { postgresCrud, sql } from "valnor-postgres";
+import { sql } from "valnor-postgres";
+import "valnor-postgres";
 import { Account, IAccountSelect } from "./codegen/valnor_test.schema.js";
 import { pool } from "./postgres-pool.js";
 import { TestDataManager } from "./test-data-manager.js";
 
 describe.sequential("valnor postgres CRUD - update", async (ctx) => {
-   const AccountCrud = postgresCrud(Account);
-
    let rootAccount!: IAccountSelect;
 
    const dataManager = new TestDataManager(ctx, {
@@ -23,11 +22,9 @@ describe.sequential("valnor postgres CRUD - update", async (ctx) => {
 
    test("update: update account firstName", async () => {
       const idParam = param<{ id: string }>("id");
-      const query = AccountCrud.update!({
+      const result = await Account.postgres.update({
          WHERE: sql`${Account.$accountId} = ${idParam}`,
-      });
-
-      const result = await query.getOneRequired({
+      }).one({
          db: pool,
          params: { set: { firstName: "UpdatedRoot" }, id: rootAccount.accountId },
       });

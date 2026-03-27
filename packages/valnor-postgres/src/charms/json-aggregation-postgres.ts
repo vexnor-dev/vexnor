@@ -114,7 +114,7 @@ export class JsonAggregationPostgres<
  * const result = await sql`
  *   SELECT ${row(Account.$$)}, ${jsonOne(AccountParent).as("parent")}
  *   FROM ${Account} ${jsonOne(AccountParent)}
- * `.getAll({ db: pool });
+ * `.all({ db: pool });
  * // result[0].parent: IAccountSelect | null
  */
 export function jsonOne<T extends SqlQueryAny>(query: T): JsonAggregationResult<T> {
@@ -146,7 +146,7 @@ export function jsonOne<T extends SqlQueryAny>(query: T): JsonAggregationResult<
  * const result = await sql`
  *   SELECT ${row(Account.$$)}, ${jsonMany(UserOrders).as("orders")}
  *   FROM ${Account} ${jsonMany(UserOrders)}
- * `.getAll({ db: pool });
+ * `.all({ db: pool });
  * // result[0].orders: IOrderSelect[]
  */
 export function jsonMany<T extends SqlQueryAny>(query: T): JsonAggregationResult<T, []> {
