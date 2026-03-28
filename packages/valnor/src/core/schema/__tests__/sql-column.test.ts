@@ -21,37 +21,59 @@ describe("SqlColumn tests", () => {
    });
 
    test("SqlColumn to match definition", () => {
-      expect({ ...Account.$accountId }).toMatchObject({
-         columnName: "account_id",
-         key: "accountId",
-         tableInfo: {
-            name: "account",
-            schema: "main",
-         },
-      });
+      expect(Account.$accountId).toMatchInlineSnapshot(`
+        SqlTableColumn {
+          "columnName": "account_id",
+          "format": null,
+          "id": "SqlTableColumn#1(account.account_id as accountId)",
+          "key": "accountId",
+          "tableInfo": {
+            "alias": null,
+            "name": "account",
+            "out": false,
+            "schema": "main",
+          },
+          "tag": null,
+          "type": "SqlTableColumn",
+        }
+      `);
    });
 
    test("SqlColumn alias should return new SqlColumn instance", () => {
-      expect(Account.$firstName.key).toEqual("firstName");
-      expect({ ...Account.$firstName.as("parentFirstName") }).toMatchObject({
-         columnName: "first_name",
-         key: "parentFirstName",
-         tableInfo: {
-            schema: "main",
-            name: "account",
-         },
-      });
+      expect(Account.$firstName.as("parentFirstName")).toMatchInlineSnapshot(`
+        SqlTableColumn {
+          "columnName": "first_name",
+          "format": null,
+          "id": "SqlTableColumn#1(account.first_name as parentFirstName)",
+          "key": "parentFirstName",
+          "tableInfo": {
+            "alias": null,
+            "name": "account",
+            "out": false,
+            "schema": "main",
+          },
+          "tag": null,
+          "type": "SqlTableColumn",
+        }
+      `);
    });
 
    test("SqlColumn alias from SqlTable alias should return new SqlColumn instance", () => {
-      expect({ ...Account.as`parent`.$firstName.as("parentFirstName") }).toMatchObject({
-         columnName: "first_name",
-         key: "parentFirstName",
-         tableInfo: {
-            schema: "main",
-            name: "account",
-            alias: "parent",
-         },
-      });
+      expect(Account.as`parent`.$firstName.as("parentFirstName")).toMatchInlineSnapshot(`
+        SqlTableColumn {
+          "columnName": "first_name",
+          "format": null,
+          "id": "SqlTableColumn#10(parent.first_name as parentFirstName)",
+          "key": "parentFirstName",
+          "tableInfo": {
+            "alias": "parent",
+            "name": "account",
+            "out": false,
+            "schema": "main",
+          },
+          "tag": null,
+          "type": "SqlTableColumn",
+        }
+      `);
    });
 });
