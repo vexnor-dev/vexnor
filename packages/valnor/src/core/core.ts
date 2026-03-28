@@ -68,6 +68,7 @@ export { MAJOR_KEYWORDS, SUBQUERY_STARTERS } from "./sql-constants.js";
 export { quoteText } from "./utils/quote-text.js";
 export { Void } from "./utils/utility-types.js";
 
+export { getDefaultParamFormat } from "./query/default-param-format.js";
 // param internals
 export { type BuildSqlParams } from "./query/sql-param.js";
 export { type PARAMS, type ROW, type TYPE, type ARGS } from "./sql-base.js";

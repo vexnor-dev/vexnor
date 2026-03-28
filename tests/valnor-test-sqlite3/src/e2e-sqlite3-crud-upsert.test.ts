@@ -14,9 +14,9 @@ describe.sequential("valnor sqlite3 CRUD - upsert", () => {
          lastName: "Upsert",
       };
 
-      const inserted = await Account.sqlite3.insertRows().one({ db, params: { rows: [insert] } });
+      const inserted = await Account.sqlite.insertRows().one({ db, params: { rows: [insert] } });
 
-      const upserted = await Account.sqlite3.upsert({ CONFLICT_ON: [Account.$accountId] }).one({
+      const upserted = await Account.sqlite.upsert({ CONFLICT_ON: [Account.$accountId] }).one({
          db,
          params: {
             rows: [{ accountId: inserted.accountId, email: inserted.email, firstName: "After", lastName: "Upsert" }],
@@ -35,9 +35,9 @@ describe.sequential("valnor sqlite3 CRUD - upsert", () => {
          lastName: "Custom",
       };
 
-      const inserted = await Account.sqlite3.insertRows().one({ db, params: { rows: [insert] } });
+      const inserted = await Account.sqlite.insertRows().one({ db, params: { rows: [insert] } });
 
-      const upserted = await Account.sqlite3
+      const upserted = await Account.sqlite
          .upsert({
             CONFLICT_ON: [Account.$accountId],
             SET: sql`${Account.$firstName} = ${excluded(Account).$firstName}`,

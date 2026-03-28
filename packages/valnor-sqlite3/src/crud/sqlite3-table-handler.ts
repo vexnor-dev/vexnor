@@ -125,7 +125,7 @@ function sqlite3Find<T extends { Select: Record<string, unknown> }, Params exten
       select ${row(table.$$)}
       from ${table}
       ${sql`where ${whereExpand}`.inline("default")}
-   `.sqlite3 as unknown as BetterSqlite3QueryHandler<{ Params: Params; Row: T["Select"] }>;
+   `.sqlite as unknown as BetterSqlite3QueryHandler<{ Params: Params; Row: T["Select"] }>;
 }
 
 /**

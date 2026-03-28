@@ -178,6 +178,34 @@ importers:
         specifier: ^4.0.18
         version: 4.0.18(@types/node@24.9.1)(tsx@4.20.6)(yaml@2.8.1)
 
+  packages/valnor-drizzle:
+    dependencies:
+      valnor:
+        specifier: workspace:^
+        version: link:../valnor
+    devDependencies:
+      '@vitest/coverage-v8':
+        specifier: ^4.0.18
+        version: 4.0.18(vitest@4.0.18(@types/node@24.9.1)(tsx@4.20.6)(yaml@2.8.1))
+      drizzle-orm:
+        specifier: ^1.0.0-beta.20
+        version: 1.0.0-beta.9-e89174b(@types/better-sqlite3@7.6.13)(@types/mssql@9.1.8)(@types/pg@8.15.5)(better-sqlite3@12.4.1)(mssql@11.0.1)(pg@8.16.3)(sqlite3@5.1.7)
+      npm-run-all:
+        specifier: ^4.1.5
+        version: 4.1.5
+      tsc-alias:
+        specifier: ^1.8.16
+        version: 1.8.16
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vite-tsconfig-paths:
+        specifier: ^6.1.1
+        version: 6.1.1(typescript@5.9.3)(vite@7.3.1(@types/node@24.9.1)(tsx@4.20.6)(yaml@2.8.1))
+      vitest:
+        specifier: ^4.0.18
+        version: 4.0.18(@types/node@24.9.1)(tsx@4.20.6)(yaml@2.8.1)
+
   packages/valnor-mssql:
     dependencies:
       mssql:
@@ -282,6 +310,9 @@ importers:
       valnor:
         specifier: workspace:*
         version: link:../../packages/valnor
+      valnor-drizzle:
+        specifier: workspace:*
+        version: link:../../packages/valnor-drizzle
       valnor-mssql:
         specifier: workspace:*
         version: link:../../packages/valnor-mssql
@@ -292,6 +323,9 @@ importers:
       '@vitest/coverage-v8':
         specifier: ^4.0.18
         version: 4.0.18(vitest@4.0.18(@types/node@24.9.1)(tsx@4.20.6)(yaml@2.8.1))
+      drizzle-orm:
+        specifier: ^1.0.0-beta.20
+        version: 1.0.0-beta.9-e89174b(@types/better-sqlite3@7.6.13)(@types/mssql@9.1.8)(@types/pg@8.15.5)(better-sqlite3@12.4.1)(mssql@11.0.1)(pg@8.16.3)(sqlite3@5.1.7)
       vite-tsconfig-paths:
         specifier: ^6.1.1
         version: 6.1.1(typescript@5.9.3)(vite@7.3.1(@types/node@24.9.1)(tsx@4.20.6)(yaml@2.8.1))
@@ -310,6 +344,9 @@ importers:
       valnor:
         specifier: workspace:*
         version: link:../../packages/valnor
+      valnor-drizzle:
+        specifier: workspace:*
+        version: link:../../packages/valnor-drizzle
       valnor-postgres:
         specifier: workspace:*
         version: link:../../packages/valnor-postgres
@@ -320,6 +357,9 @@ importers:
       '@vitest/coverage-v8':
         specifier: ^4.0.18
         version: 4.0.18(vitest@4.0.18(@types/node@24.9.1)(tsx@4.20.6)(yaml@2.8.1))
+      drizzle-orm:
+        specifier: ^1.0.0-beta.20
+        version: 1.0.0-beta.9-e89174b(@types/better-sqlite3@7.6.13)(@types/mssql@9.1.8)(@types/pg@8.15.5)(better-sqlite3@12.4.1)(mssql@11.0.1)(pg@8.16.3)(sqlite3@5.1.7)
       env-cmd:
         specifier: ^10.1.0
         version: 10.1.0
@@ -344,6 +384,9 @@ importers:
       valnor:
         specifier: workspace:*
         version: link:../../packages/valnor
+      valnor-drizzle:
+        specifier: workspace:*
+        version: link:../../packages/valnor-drizzle
       valnor-sqlite3:
         specifier: workspace:*
         version: link:../../packages/valnor-sqlite3
@@ -354,6 +397,9 @@ importers:
       '@vitest/coverage-v8':
         specifier: ^4.0.18
         version: 4.0.18(vitest@4.0.18(@types/node@24.9.1)(tsx@4.20.6)(yaml@2.8.1))
+      drizzle-orm:
+        specifier: ^1.0.0-beta.20
+        version: 1.0.0-beta.9-e89174b(@types/better-sqlite3@7.6.13)(@types/mssql@9.1.8)(@types/pg@8.15.5)(better-sqlite3@12.4.1)(mssql@11.0.1)(pg@8.16.3)(sqlite3@5.1.7)
       vite-tsconfig-paths:
         specifier: ^6.1.1
         version: 6.1.1(typescript@5.9.3)(vite@7.3.1(@types/node@24.9.1)(tsx@4.20.6)(yaml@2.8.1))
@@ -1382,6 +1428,112 @@ packages:
   doctrine@2.1.0:
     resolution: {integrity: sha512-35mSku4ZXK0vfCuHEDAwt55dg2jNajHZ1odvF+8SSr82EsZY4QmXfuWso8oEd8zRhVObSN18aM0CjSdoBX7zIw==}
     engines: {node: '>=0.10.0'}
+
+  drizzle-orm@1.0.0-beta.9-e89174b:
+    resolution: {integrity: sha512-B5KR/qYMZ0JMOurK+0xi1ObpOQcgrjaC9wHUiU2eTJjLemuh2CoQIw6yur68NxZG6Xcd0b9qghUNC/78/bEfbg==}
+    peerDependencies:
+      '@aws-sdk/client-rds-data': '>=3'
+      '@cloudflare/workers-types': '>=4'
+      '@effect/sql': ^0.48.5
+      '@effect/sql-pg': ^0.49.7
+      '@electric-sql/pglite': '>=0.2.0'
+      '@libsql/client': '>=0.10.0'
+      '@libsql/client-wasm': '>=0.10.0'
+      '@neondatabase/serverless': '>=0.10.0'
+      '@op-engineering/op-sqlite': '>=2'
+      '@opentelemetry/api': ^1.4.1
+      '@planetscale/database': '>=1.13'
+      '@prisma/client': '*'
+      '@sqlitecloud/drivers': '>=1.0.653'
+      '@tidbcloud/serverless': '*'
+      '@tursodatabase/database': '>=0.2.1'
+      '@tursodatabase/database-common': '>=0.2.1'
+      '@tursodatabase/database-wasm': '>=0.2.1'
+      '@types/better-sqlite3': '*'
+      '@types/mssql': ^9.1.4
+      '@types/pg': '*'
+      '@types/sql.js': '*'
+      '@upstash/redis': '>=1.34.7'
+      '@vercel/postgres': '>=0.8.0'
+      '@xata.io/client': '*'
+      better-sqlite3: '>=9.3.0'
+      bun-types: '*'
+      expo-sqlite: '>=14.0.0'
+      gel: '>=2'
+      mssql: ^11.0.1
+      mysql2: '>=2'
+      pg: '>=8'
+      postgres: '>=3'
+      prisma: '*'
+      sql.js: '>=1'
+      sqlite3: '>=5'
+    peerDependenciesMeta:
+      '@aws-sdk/client-rds-data':
+        optional: true
+      '@cloudflare/workers-types':
+        optional: true
+      '@effect/sql':
+        optional: true
+      '@effect/sql-pg':
+        optional: true
+      '@electric-sql/pglite':
+        optional: true
+      '@libsql/client':
+        optional: true
+      '@libsql/client-wasm':
+        optional: true
+      '@neondatabase/serverless':
+        optional: true
+      '@op-engineering/op-sqlite':
+        optional: true
+      '@opentelemetry/api':
+        optional: true
+      '@planetscale/database':
+        optional: true
+      '@prisma/client':
+        optional: true
+      '@sqlitecloud/drivers':
+        optional: true
+      '@tidbcloud/serverless':
+        optional: true
+      '@tursodatabase/database':
+        optional: true
+      '@tursodatabase/database-common':
+        optional: true
+      '@tursodatabase/database-wasm':
+        optional: true
+      '@types/better-sqlite3':
+        optional: true
+      '@types/pg':
+        optional: true
+      '@types/sql.js':
+        optional: true
+      '@upstash/redis':
+        optional: true
+      '@vercel/postgres':
+        optional: true
+      '@xata.io/client':
+        optional: true
+      better-sqlite3:
+        optional: true
+      bun-types:
+        optional: true
+      expo-sqlite:
+        optional: true
+      gel:
+        optional: true
+      mysql2:
+        optional: true
+      pg:
+        optional: true
+      postgres:
+        optional: true
+      prisma:
+        optional: true
+      sql.js:
+        optional: true
+      sqlite3:
+        optional: true
 
   dunder-proto@1.0.1:
     resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
@@ -4464,6 +4616,17 @@ snapshots:
   doctrine@2.1.0:
     dependencies:
       esutils: 2.0.3
+
+  drizzle-orm@1.0.0-beta.9-e89174b(@types/better-sqlite3@7.6.13)(@types/mssql@9.1.8)(@types/pg@8.15.5)(better-sqlite3@12.4.1)(mssql@11.0.1)(pg@8.16.3)(sqlite3@5.1.7):
+    dependencies:
+      '@types/mssql': 9.1.8
+      mssql: 11.0.1
+    optionalDependencies:
+      '@types/better-sqlite3': 7.6.13
+      '@types/pg': 8.15.5
+      better-sqlite3: 12.4.1
+      pg: 8.16.3
+      sqlite3: 5.1.7
 
   dunder-proto@1.0.1:
     dependencies:

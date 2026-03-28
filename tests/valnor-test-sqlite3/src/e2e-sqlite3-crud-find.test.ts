@@ -15,23 +15,23 @@ describe.sequential("valnor sqlite3 CRUD - find", () => {
          firstName: "Find",
          lastName: "Test",
       };
-      account = await Account.sqlite3.insertRows().one({ db, params: { rows: [insert] } });
+      account = await Account.sqlite.insertRows().one({ db, params: { rows: [insert] } });
       ok(account, "account not inserted");
    });
 
    test("findById: fetch account by PK", async () => {
-      const result = await Account.sqlite3.findById().any({ db, params: { accountId: account.accountId } });
+      const result = await Account.sqlite.findById().any({ db, params: { accountId: account.accountId } });
       expect(result?.accountId).toBe(account.accountId);
       expect(result?.email).toBe(account.email);
    });
 
    test("findBy: fetch account by email", async () => {
-      const result = await Account.sqlite3.findBy().any({ db, params: { email: account.email } });
+      const result = await Account.sqlite.findBy().any({ db, params: { email: account.email } });
       expect(result?.accountId).toBe(account.accountId);
    });
 
    test("findBy: fetch account by multiple fields", async () => {
-      const result = await Account.sqlite3
+      const result = await Account.sqlite
          .findBy()
          .any({ db, params: { email: account.email, lastName: account.lastName } });
       expect(result?.accountId).toBe(account.accountId);

@@ -27,5 +27,5 @@ export function sqlite3InsertFrom<
       insert into ${table}
             ${args.FROM}
             returning ${row(table.$$)}
-   `.sqlite3 as unknown as Sqlite3InsertFromResult<T, Args>;
+   `.sqlite as unknown as Sqlite3InsertFromResult<T, Args>;
 }

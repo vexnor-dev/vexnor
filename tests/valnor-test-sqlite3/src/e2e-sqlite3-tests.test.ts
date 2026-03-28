@@ -31,7 +31,7 @@ describe.sequential("valnor sqlite3 e2e tests", async (ctx) => {
          from ${Account}
          where ${Account.$accountId} in (${dataManager.rootAccounts.map((z) => z.accountId)})
          order by ${Account.$email}
-      `.sqlite3.all({ db });
+      `.sqlite.all({ db });
       expect(actual).toEqual(dataManager.rootAccounts);
    });
 
@@ -41,14 +41,14 @@ describe.sequential("valnor sqlite3 e2e tests", async (ctx) => {
          from ${Account}
          where ${Account.$accountId} in (${dataManager.childAccounts.map((z) => z.accountId)})
          order by ${Account.$email}
-      `.sqlite3.all({ db });
+      `.sqlite.all({ db });
       expect(actual).toEqual(dataManager.childAccounts);
    });
 
    test("Fetch account required by id", async () => {
       const expected = dataManager.rootAccounts[0];
       ok(expected);
-      const actual = await findAccountById.sqlite3.one({
+      const actual = await findAccountById.sqlite.one({
          db,
          params: { accountId: expected.accountId },
       });
@@ -56,7 +56,7 @@ describe.sequential("valnor sqlite3 e2e tests", async (ctx) => {
    });
 
    test("Fetch account optional by id", async () => {
-      const actual = await findAccountById.sqlite3.any({
+      const actual = await findAccountById.sqlite.any({
          db,
          params: { accountId: crypto.randomUUID() },
       });
@@ -73,7 +73,7 @@ describe.sequential("valnor sqlite3 e2e tests", async (ctx) => {
                  join ${Account.as`parent`} on ${Account.as`parent`.$accountId} = ${Account.$parentId}
          where ${Account.$accountId} in (${dataManager.childAccounts.map((z) => z.accountId)})
          order by ${Account.$email}
-      `.sqlite3.all({ db });
+      `.sqlite.all({ db });
       expect(actual).toBeDefined();
       const expected = dataManager.childAccounts.map((child) => {
          const parent = dataManager.rootAccounts.find((p) => p.accountId === child.parentId);
@@ -103,7 +103,7 @@ describe.sequential("valnor sqlite3 e2e tests", async (ctx) => {
          order by ${Account.$email}
       `;
 
-      const actual = await query.sqlite3.all({ db }).then((accounts) =>
+      const actual = await query.sqlite.all({ db }).then((accounts) =>
          accounts.map((account) => ({
             ...account,
             children: JSON.parse(account.children as any) as IAccountSelect[],
@@ -134,9 +134,9 @@ describe.sequential("valnor sqlite3 e2e tests", async (ctx) => {
          update ${Account}
          set ${Account.$firstName} = ${expected.firstName + "+test"}
          where ${Account.$accountId} = ${expected.accountId}
-      `.sqlite3.run({ db });
+      `.sqlite.run({ db });
 
-      const actual = await findAccountById.sqlite3.one({
+      const actual = await findAccountById.sqlite.one({
          db,
          params: { accountId: expected.accountId },
       });

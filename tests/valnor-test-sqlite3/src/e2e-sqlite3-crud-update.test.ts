@@ -28,7 +28,7 @@ describe.sequential("valnor sqlite3 CRUD - update", () => {
          insert into ${Account}
             ${Account.insertColsVals(...inserts)}
          returning ${row(Account.$$)}
-      `.sqlite3.all({ db });
+      `.sqlite.all({ db });
       inserted.push(...rows);
    });
 

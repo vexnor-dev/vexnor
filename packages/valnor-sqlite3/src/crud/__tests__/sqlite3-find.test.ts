@@ -3,9 +3,9 @@ import { Account } from "valnor/testing";
 import "valnor-sqlite3";
 import { defaultQueryOptions } from "#/crud/default-query-options.js";
 
-describe("Account.sqlite3.findBy()", () => {
+describe("Account.sqlite.findBy()", () => {
    test("single field", () => {
-      const query = Account.sqlite3.findBy();
+      const query = Account.sqlite.findBy();
       const { text, values } = query.getSql({
          params: { email: "a@b.com" },
          options: defaultQueryOptions,
@@ -38,7 +38,7 @@ describe("Account.sqlite3.findBy()", () => {
    });
 
    test("multiple fields", () => {
-      const query = Account.sqlite3.findBy();
+      const query = Account.sqlite.findBy();
       const { text, values } = query.getSql({
          params: { email: "a@b.com", lastName: "Doe" },
          options: defaultQueryOptions,
@@ -73,9 +73,9 @@ describe("Account.sqlite3.findBy()", () => {
    });
 });
 
-describe("Account.sqlite3.findById()", () => {
+describe("Account.sqlite.findById()", () => {
    test("by PK", () => {
-      const query = Account.sqlite3.findById();
+      const query = Account.sqlite.findById();
       const { text, values } = query.getSql({
          params: { accountId: "id-1" },
          options: defaultQueryOptions,

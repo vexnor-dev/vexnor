@@ -30,7 +30,7 @@ export function sqlite3Select<T extends { Select: Record<string, unknown> }, Arg
    const { offset, limit, includeOne, includeMany, ...baseArgs } = args;
 
    if (!includeOne && !includeMany && !offset && !limit) {
-      return sqlSelect(table, baseArgs as Args).sqlite3 as Sqlite3SelectResult<T, Args>;
+      return sqlSelect(table, baseArgs as Args).sqlite as Sqlite3SelectResult<T, Args>;
    }
 
    if (offset || limit) {
@@ -53,5 +53,5 @@ export function sqlite3Select<T extends { Select: Record<string, unknown> }, Arg
          ${baseArgs.ORDER_BY ? sql`order by ${baseArgs.ORDER_BY.inline()}`.inline("default") : raw.BLANK}
          ${limit ? sql`limit ${limit}`.inline("default") : raw.BLANK}
          ${offset ? sql`offset ${offset}`.inline("default") : raw.BLANK}
-   `.sqlite3 as Sqlite3SelectResult<T, Args>;
+   `.sqlite as Sqlite3SelectResult<T, Args>;
 }

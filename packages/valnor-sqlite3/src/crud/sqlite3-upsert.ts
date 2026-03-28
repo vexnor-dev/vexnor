@@ -57,7 +57,7 @@ export function sqlite3Upsert<T extends { Select: Record<string, unknown>; Inser
       on conflict (${conflictCols})
       do update set ${sql`${setClause}`.inline()}
       returning ${row(table.$$)}
-   `.sqlite3 as unknown as Sqlite3UpsertResult<T>;
+   `.sqlite as unknown as Sqlite3UpsertResult<T>;
 }
 
 function buildExcludedSet<T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> }>(

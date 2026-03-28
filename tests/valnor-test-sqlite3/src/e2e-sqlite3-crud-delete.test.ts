@@ -20,7 +20,7 @@ describe.sequential("valnor sqlite3 CRUD - delete", () => {
          insert into ${Account}
             ${Account.insertColsVals(...inserts)}
          returning ${row(Account.$$)}
-      `.sqlite3.all({ db });
+      `.sqlite.all({ db });
       inserted.push(...rows);
    });
 
@@ -37,7 +37,7 @@ describe.sequential("valnor sqlite3 CRUD - delete", () => {
       const gone = await sql`
          select ${row(Account.$$)} from ${Account}
          where ${Account.$accountId} = ${target.accountId}
-      `.sqlite3.any({ db });
+      `.sqlite.any({ db });
       expect(gone).toBeUndefined();
    });
 

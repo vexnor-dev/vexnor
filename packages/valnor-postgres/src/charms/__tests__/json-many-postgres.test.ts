@@ -196,7 +196,7 @@ describe("json-many-postgres tests", () => {
                 ORDER BY
                   "a_2"."created_at" DESC
                 LIMIT
-                  ?
+                  $1
                   /* </query_1> */
               ) AS "query_1"
           ) AS "query_1" ON TRUE

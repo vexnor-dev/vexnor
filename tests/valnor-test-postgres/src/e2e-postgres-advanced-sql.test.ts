@@ -71,7 +71,7 @@ describe.sequential("advanced SQL - postgres", async (ctx) => {
             FROM
               "valnor_test"."account" AS "a_1"
             WHERE
-              "a_1"."account_id" = ?
+              "a_1"."account_id" = $1
               /* </query_2> */
             UNION ALL
             SELECT

@@ -22,7 +22,7 @@ describe.sequential("valnor sqlite3 CRUD - select", () => {
       };
       rootAccount = await sql`
          insert into ${Account} ${Account.insertColsVals(rootInsert)} returning ${row(Account.$$)}
-      `.sqlite3.one({ db });
+      `.sqlite.one({ db });
 
       const childInsert: IAccountInsert = {
          accountId: randomUUID(),
@@ -33,12 +33,12 @@ describe.sequential("valnor sqlite3 CRUD - select", () => {
       };
       childAccount = await sql`
          insert into ${Account} ${Account.insertColsVals(childInsert)} returning ${row(Account.$$)}
-      `.sqlite3.one({ db });
+      `.sqlite.one({ db });
 
       const orderInsert: IOrderInsert = { accountId: rootAccount.accountId };
       order = await sql`
          insert into ${Order} ${Order.insertColsVals(orderInsert)} returning ${row(Order.$$)}
-      `.sqlite3.one({ db });
+      `.sqlite.one({ db });
    });
 
    test("select: basic select with WHERE", async () => {
@@ -155,9 +155,9 @@ describe.sequential("valnor sqlite3 CRUD - select", () => {
       expect(parsedOrder?.orderId).toBe(order.orderId);
    });
 
-   test("select via Account.sqlite3.select", async () => {
+   test("select via Account.sqlite.select", async () => {
       ok(rootAccount);
-      const result = await Account.sqlite3.select({
+      const result = await Account.sqlite.select({
          WHERE: sql`${Account.$accountId} = ${param<{ id: string }>("id")}`,
       }).any({ db, params: { id: rootAccount.accountId } });
       expect(result).toEqual(rootAccount);

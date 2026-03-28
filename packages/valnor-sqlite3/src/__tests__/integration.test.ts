@@ -50,7 +50,7 @@ describe("integration tests", () => {
          INSERT INTO ${Account} (${Account.$firstName}, ${Account.$lastName}, ${Account.$email})
          VALUES (${param<{ firstName: string }>("firstName")}, ${param<{ lastName: string }>("lastName")}, ${param<{ email: string }>("email")})
       `;
-      const result = await query.sqlite3.run({
+      const result = await query.sqlite.run({
          db,
          params: { firstName: "Jane", lastName: "Doe", email: "jane@example.com" },
       });
@@ -59,7 +59,7 @@ describe("integration tests", () => {
 
    test("should handle SELECT operation", async () => {
       const query = sql`SELECT ${Account.$$} FROM ${Account}`;
-      const rows = await query.sqlite3.all({ db });
+      const rows = await query.sqlite.all({ db });
       expect(Array.isArray(rows)).toBe(true);
       expect(rows.length).toBeGreaterThan(0);
    });
@@ -70,7 +70,7 @@ describe("integration tests", () => {
          SET ${Account.$firstName} = ${param<{ firstName: string }>("firstName")}
          WHERE ${Account.$accountId} = ${param<{ id: number }>("id")}
       `;
-      const result = await query.sqlite3.run({ db, params: { firstName: "Janet", id: 1 } });
+      const result = await query.sqlite.run({ db, params: { firstName: "Janet", id: 1 } });
       expect(result.changes).toBeGreaterThanOrEqual(0);
    });
 
@@ -79,11 +79,11 @@ describe("integration tests", () => {
          INSERT INTO ${Account} (${Account.$firstName}, ${Account.$email})
          VALUES ('ToDelete', 'delete@example.com')
       `;
-      const insertResult = await insertQuery.sqlite3.run({ db });
+      const insertResult = await insertQuery.sqlite.run({ db });
       const deleteId = insertResult.lastInsertRowid;
 
       const deleteQuery = sql`DELETE FROM ${Account} WHERE ${Account.$accountId} = ${param<{ id: number | bigint }>("id")}`;
-      const result = await deleteQuery.sqlite3.run({ db, params: { id: deleteId } });
+      const result = await deleteQuery.sqlite.run({ db, params: { id: deleteId } });
       expect(result.changes).toBe(1);
    });
 
@@ -92,18 +92,18 @@ describe("integration tests", () => {
          INSERT INTO ${Account} (${Account.$firstName}, ${Account.$lastName}, ${Account.$email})
          VALUES ('Parent', 'Account', 'parent@example.com')
       `;
-      const parentResult = await parentQuery.sqlite3.run({ db });
+      const parentResult = await parentQuery.sqlite.run({ db });
       const parentId = parentResult.lastInsertRowid;
 
       await sql`
          INSERT INTO ${Account} (${Account.$firstName}, ${Account.$lastName}, ${Account.$email}, ${Account.$parentId})
          VALUES ('Child1', 'Account', 'child1@example.com', ${param<{ parentId: number | bigint }>("parentId")})
-      `.sqlite3.run({ db, params: { parentId } });
+      `.sqlite.run({ db, params: { parentId } });
 
       await sql`
          INSERT INTO ${Account} (${Account.$firstName}, ${Account.$lastName}, ${Account.$email}, ${Account.$parentId})
          VALUES ('Child2', 'Account', 'child2@example.com', ${param<{ parentId: number | bigint }>("parentId")})
-      `.sqlite3.run({ db, params: { parentId } });
+      `.sqlite.run({ db, params: { parentId } });
 
       const AccountChildren = sql`
          SELECT ${row(Account.$$)}
@@ -117,7 +117,7 @@ describe("integration tests", () => {
          WHERE ${Account.$accountId} = ${param<{ id: number | bigint }>("id")}
       `;
 
-      const result = await query.sqlite3.any({ db, params: { id: parentId } });
+      const result = await query.sqlite.any({ db, params: { id: parentId } });
       expect(result).toBeDefined();
       expect(result?.children).toBeDefined();
       const children = JSON.parse(result!.children as unknown as string);
@@ -139,7 +139,7 @@ describe("integration tests", () => {
          LIMIT 1
       `;
 
-      const result = await query.sqlite3.any({ db });
+      const result = await query.sqlite.any({ db });
       if (result) {
          expect(result.parent).toBeDefined();
          const parent = JSON.parse(result.parent as unknown as string);

@@ -666,7 +666,7 @@ describe("sql subqueries tests", () => {
                   },
                   "dialect": "sql",
                   "format": null,
-                  "id": "SqlTable#1(SqlTable(main.account))",
+                  "id": "SqlTable#1(main.account)",
                   "pk": [
                     "accountId",
                   ],
@@ -1340,7 +1340,7 @@ describe("sql subqueries tests", () => {
                   },
                   "dialect": "sql",
                   "format": null,
-                  "id": "SqlTable#1(SqlTable(main.account))",
+                  "id": "SqlTable#1(main.account)",
                   "pk": [
                     "accountId",
                   ],
@@ -2014,7 +2014,7 @@ describe("sql subqueries tests", () => {
                   },
                   "dialect": "sql",
                   "format": null,
-                  "id": "SqlTable#1(SqlTable(main.account))",
+                  "id": "SqlTable#1(main.account)",
                   "pk": [
                     "accountId",
                   ],
@@ -2688,7 +2688,7 @@ describe("sql subqueries tests", () => {
                   },
                   "dialect": "sql",
                   "format": null,
-                  "id": "SqlTable#1(SqlTable(main.account))",
+                  "id": "SqlTable#1(main.account)",
                   "pk": [
                     "accountId",
                   ],
@@ -3362,7 +3362,7 @@ describe("sql subqueries tests", () => {
                   },
                   "dialect": "sql",
                   "format": null,
-                  "id": "SqlTable#1(SqlTable(main.account))",
+                  "id": "SqlTable#1(main.account)",
                   "pk": [
                     "accountId",
                   ],
@@ -4036,7 +4036,7 @@ describe("sql subqueries tests", () => {
                   },
                   "dialect": "sql",
                   "format": null,
-                  "id": "SqlTable#1(SqlTable(main.account))",
+                  "id": "SqlTable#1(main.account)",
                   "pk": [
                     "accountId",
                   ],
@@ -4710,7 +4710,7 @@ describe("sql subqueries tests", () => {
                   },
                   "dialect": "sql",
                   "format": null,
-                  "id": "SqlTable#1(SqlTable(main.account))",
+                  "id": "SqlTable#1(main.account)",
                   "pk": [
                     "accountId",
                   ],
@@ -5384,7 +5384,7 @@ describe("sql subqueries tests", () => {
                   },
                   "dialect": "sql",
                   "format": null,
-                  "id": "SqlTable#1(SqlTable(main.account))",
+                  "id": "SqlTable#1(main.account)",
                   "pk": [
                     "accountId",
                   ],
@@ -6058,7 +6058,7 @@ describe("sql subqueries tests", () => {
                   },
                   "dialect": "sql",
                   "format": null,
-                  "id": "SqlTable#1(SqlTable(main.account))",
+                  "id": "SqlTable#1(main.account)",
                   "pk": [
                     "accountId",
                   ],

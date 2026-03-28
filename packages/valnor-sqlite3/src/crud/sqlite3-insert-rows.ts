@@ -19,5 +19,5 @@ export function sqlite3InsertRows<T extends { Select: Record<string, unknown>; I
       values
       ${expandInsertValues(table)}
       returning ${row(table.$$)}
-   `.sqlite3 as unknown as Sqlite3InsertRowsResult<T>;
+   `.sqlite as unknown as Sqlite3InsertRowsResult<T>;
 }

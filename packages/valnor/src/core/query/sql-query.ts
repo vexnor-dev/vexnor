@@ -27,6 +27,7 @@ import { SqlTable } from "#/core/schema/sql-table.js";
 import { ok } from "#/lib/assert.js";
 import { isSqlLanguage } from "#/core/query/lib/is-sql-language.js";
 import { isPrimitive } from "#/lib/primitive.js";
+import { getDefaultParamFormat } from "#/core/query/default-param-format.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlQueryAny = SqlQuery<any>;
@@ -458,7 +459,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
          params: hasParams(args) ? Object.freeze(args.params) : {},
       });
       this.build(context, options ?? null, { queryType: "main" });
-      const paramFormat = options?.paramFormat ?? (() => "?");
+      const paramFormat = options?.paramFormat ?? getDefaultParamFormat(dialect);
       const tokens: string[] = [];
       const values = [];
 

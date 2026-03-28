@@ -17,11 +17,13 @@
       "@sinclair/typebox": "^0.34.41",
       "better-sqlite3": "^12.4.1",
       "valnor": "workspace:*",
+      "valnor-drizzle": "workspace:*",
       "valnor-sqlite3": "workspace:*"
    },
    "devDependencies": {
       "@types/better-sqlite3": "^7.6.13",
       "@vitest/coverage-v8": "^4.0.18",
+      "drizzle-orm": "^1.0.0-beta.20",
       "vite-tsconfig-paths": "^6.1.1",
       "vitest": "^4.0.18"
    }

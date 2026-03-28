@@ -30,51 +30,51 @@ describe("better-sqlite3 query handler tests", () => {
 
    test("should execute run() and return RunResult", async () => {
       const query = sql`INSERT INTO ${Account} (${Account.$firstName}, ${Account.$email}) VALUES ('John', 'john@example.com')`;
-      const result = await query.sqlite3.run({ db });
+      const result = await query.sqlite.run({ db });
       expect(result.changes).toBe(1);
    });
 
    test("should execute getAll() and return rows", async () => {
       const query = sql`SELECT ${Account.$$} FROM ${Account}`;
-      const rows = await query.sqlite3.all({ db });
+      const rows = await query.sqlite.all({ db });
       expect(Array.isArray(rows)).toBe(true);
       expect(rows.length).toBeGreaterThan(0);
    });
 
    test("should execute getOneRequired() and return single row", async () => {
       const query = sql`SELECT ${row(Account.$$)} FROM ${Account} WHERE ${Account.$accountId} = ${param<{ id: number }>("id")}`;
-      const one = await query.sqlite3.one({ db, params: { id: 1 } });
+      const one = await query.sqlite.one({ db, params: { id: 1 } });
       expect(one).toBeDefined();
       expect(one.accountId).toBe(1);
    });
 
    test("should execute getOneOptional() and return row or undefined", async () => {
       const query = sql`SELECT ${row(Account.$$)} FROM ${Account} WHERE ${Account.$accountId} = ${param<{ id: number }>("id")}`;
-      const one = await query.sqlite3.any({ db, params: { id: 999 } });
+      const one = await query.sqlite.any({ db, params: { id: 999 } });
       expect(one).toBeUndefined();
    });
 
    test("should throw error when getOneRequired() finds 0 rows", async () => {
       const query = sql`SELECT ${row(Account.$$)} FROM ${Account} WHERE ${Account.$accountId} = ${param<{ id: number }>("id")}`;
-      await expect(query.sqlite3.one({ db, params: { id: 999 } })).rejects.toThrow();
+      await expect(query.sqlite.one({ db, params: { id: 999 } })).rejects.toThrow();
    });
 
    test("should handle queries with parameters", async () => {
       const query = sql`SELECT ${row(Account.$$)} FROM ${Account} WHERE ${Account.$firstName} = ${param<{ name: string }>("name")}`;
-      const rows = await query.sqlite3.all({ db, params: { name: "John" } });
+      const rows = await query.sqlite.all({ db, params: { name: "John" } });
       expect(Array.isArray(rows)).toBe(true);
    });
 
    test("should handle queries without parameters", async () => {
       const query = sql`SELECT ${row(Account.$$)} FROM ${Account}`;
-      const rows = await query.sqlite3.all({ db });
+      const rows = await query.sqlite.all({ db });
       expect(Array.isArray(rows)).toBe(true);
    });
 
    test("should apply debug callback when provided", async () => {
       let debugCalled = false;
       const query = sql`SELECT ${Account.$$} FROM ${Account}`;
-      await query.sqlite3.all({
+      await query.sqlite.all({
          db,
          options: {
             debug: () => {

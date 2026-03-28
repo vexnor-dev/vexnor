@@ -49,18 +49,18 @@ export class ValnorSqlite3 extends ValnorPlugin<{
          throw new Error("SQLite requires database file path in uri parameter");
       }
 
-      const runArgs: Parameters<typeof findTables.sqlite3.all>[0] = {
+      const runArgs: Parameters<typeof findTables.sqlite.all>[0] = {
          db,
          options: { dialect: "sqlite" },
       };
 
-      const tables = await findTables.sqlite3.all({ ...runArgs });
+      const tables = await findTables.sqlite.all({ ...runArgs });
 
       // Populate columns and primary keys for each table
       const newTables: SqlTableInfo[] = [];
       for (const table of tables) {
-         const columns = await findTableColumns.sqlite3.all({ ...runArgs, params: { tableName: table.table_name } });
-         const primaryKeys = await findPrimaryKeys.sqlite3.all({
+         const columns = await findTableColumns.sqlite.all({ ...runArgs, params: { tableName: table.table_name } });
+         const primaryKeys = await findPrimaryKeys.sqlite.all({
             ...runArgs,
             params: { tableName: table.table_name },
          });
@@ -107,7 +107,7 @@ export class ValnorSqlite3 extends ValnorPlugin<{
 // Extend the class type (in scope)
 declare module "valnor" {
    interface SqlQuery<T extends { Row?: unknown; Params?: unknown }> {
-      readonly sqlite3: BetterSqlite3QueryHandler<T>;
+      readonly sqlite: BetterSqlite3QueryHandler<T>;
    }
    interface SqlTable<
       T extends {
@@ -117,18 +117,18 @@ declare module "valnor" {
          Delete?: boolean;
       },
    > {
-      readonly sqlite3: Sqlite3TableHandler<T>;
+      readonly sqlite: Sqlite3TableHandler<T>;
    }
 }
 
-Object.defineProperty(SqlQuery.prototype, "sqlite3", {
+Object.defineProperty(SqlQuery.prototype, "sqlite", {
    get: function () {
       const handler = new BetterSqlite3QueryHandler(this);
       return newSqlQueryHandler(handler);
    },
 });
 
-Object.defineProperty(SqlTable.prototype, "sqlite3", {
+Object.defineProperty(SqlTable.prototype, "sqlite", {
    get: function () {
       return newSqlite3TableHandler(this);
    },

@@ -30,11 +30,11 @@ describe("sqlite3 type coverage", () => {
             colBlob: new Uint8Array([1, 2, 3, 4]),
          })}
          returning ${row(TypeCoverage.$$)}
-      `.sqlite3.one({ db });
+      `.sqlite.one({ db });
    });
 
    afterAll(async () => {
-      await sql`delete from ${TypeCoverage}`.sqlite3.run({ db });
+      await sql`delete from ${TypeCoverage}`.sqlite.run({ db });
    });
 
    test("insert and select back all types", () => {

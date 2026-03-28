@@ -26,5 +26,5 @@ export function sqlite3Delete<T extends { Select: Record<string, unknown>; Delet
       from ${table}
       ${where ? sql`where ${where.inline()}`.inline("default") : raw.BLANK}
       returning ${row(table.$$)}
-   `.sqlite3 as unknown as Sqlite3DeleteResult<T, Args>;
+   `.sqlite as unknown as Sqlite3DeleteResult<T, Args>;
 }

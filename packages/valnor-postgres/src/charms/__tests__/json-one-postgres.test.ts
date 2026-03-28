@@ -135,7 +135,7 @@ describe("json-one-postgres tests", () => {
                     WHERE
                       "a_2"."account_id" = "a_1"."parent_id"
                     LIMIT
-                      ?
+                      $1
                       /* </query_2> */
                   ) AS "query_2"
                 LIMIT

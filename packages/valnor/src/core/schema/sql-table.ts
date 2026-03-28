@@ -76,7 +76,7 @@ export class SqlTable<
          id: (() => {
             const schema = tableInfo.schema ? `${tableInfo.schema}.` : "";
             const alias = tableInfo.alias ? ` as ${tableInfo.alias}` : "";
-            return `SqlTable(${schema}${tableInfo.name}${alias})`;
+            return `${schema}${tableInfo.name}${alias}`;
          })(),
       });
       this.tableInfo = tableInfo;

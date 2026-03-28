@@ -23,7 +23,7 @@ describe("Find Tables tests", () => {
             FROM
               "information_schema"."columns" AS "c_1"
             WHERE
-              "c_1"."table_schema" IN (?)
+              "c_1"."table_schema" IN ($1)
             GROUP BY
               "c_1"."table_name",
               "c_1"."table_schema" /* </query_1> */
@@ -44,7 +44,7 @@ describe("Find Tables tests", () => {
               AND "kcu_2"."table_schema" = "tc_3"."table_schema"
             WHERE
               "tc_3"."constraint_type" = 'PRIMARY KEY'
-              AND "tc_3"."table_schema" IN (?)
+              AND "tc_3"."table_schema" IN ($2)
             GROUP BY
               "kcu_2"."table_name",
               "kcu_2"."table_schema" /* </query_2> */

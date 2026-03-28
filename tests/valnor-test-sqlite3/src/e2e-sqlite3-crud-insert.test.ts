@@ -71,7 +71,7 @@ describe.sequential("valnor sqlite3 CRUD - insert", () => {
          insert into ${Account}
             ${Account.insertColsVals(parentInsert)}
          returning ${row(Account.$$)}
-      `.sqlite3.one({ db });
+      `.sqlite.one({ db });
 
       const childId = randomUUID();
 

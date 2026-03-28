@@ -21,5 +21,5 @@ export function sqlite3Update<
          ${buildUpdateSetExpand(table)}
          ${args.WHERE ? sql`where ${args.WHERE.inline()}`.inline() : raw.BLANK}
       returning ${row(table.$$)}
-   `.sqlite3 as unknown as Sqlite3TableUpdateResult<T, Args>;
+   `.sqlite as unknown as Sqlite3TableUpdateResult<T, Args>;
 }
