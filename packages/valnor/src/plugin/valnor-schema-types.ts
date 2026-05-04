@@ -31,6 +31,7 @@ export interface SqlPrimaryKeyInfo {
 
 export type SqlTableInfo = {
    table_name: string;
+   table_type: "table" | "view";
    columns: SqlColumnInfo[];
    table_schema: string;
    primary_keys: SqlPrimaryKeyInfo[];

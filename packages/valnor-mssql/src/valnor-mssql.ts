@@ -14,7 +14,7 @@ import { MssqlQueryHandler } from "./mssql-query-handler.js";
 import { SqlQueryHandler, SqlQuery, newSqlQueryHandler, SqlTable } from "valnor";
 import { newMssqlTableHandler, MssqlTableHandler } from "./crud/mssql-table-handler.js";
 import { getColumnType } from "./get-column-type.js";
-import { findTables } from "./schema/find-tables.js";
+import { findTables, findViews } from "./schema/find-tables.js";
 import mssql from "mssql";
 
 /**
@@ -45,28 +45,47 @@ export class ValnorMssql extends ValnorPlugin<{ Config: ConnectionConfig; Connec
                console.error(err);
                throw err;
             });
-         const tables: SqlTableInfo[] = result.map((row) => ({
-            table_name: row.table_name,
-            table_schema: row.table_schema,
-            columns: typeof row.table_columns === "string" ? JSON.parse(row.table_columns || "[]") : row.table_columns,
-            primary_keys: row.primary_key
-               ? [
-                    {
-                       constraint_name: "PK_" + row.table_name,
-                       table_schema: row.table_schema,
-                       table_name: row.table_name,
-                       column_name: row.primary_key,
-                    },
-                 ]
-               : [],
-         }));
+         const viewResult = await findViews.mssql
+            .all({
+               db: connection.db.request(),
+               params: { schemas },
+            })
+            .catch((err) => {
+               console.error(err);
+               throw err;
+            });
+         const tables: SqlTableInfo[] = [
+            ...result.map((row) => ({
+               table_type: "table" as const,
+               table_name: row.table_name,
+               table_schema: row.table_schema,
+               columns: typeof row.table_columns === "string" ? JSON.parse(row.table_columns || "[]") : row.table_columns,
+               primary_keys: row.primary_key
+                  ? [
+                       {
+                          constraint_name: "PK_" + row.table_name,
+                          table_schema: row.table_schema,
+                          table_name: row.table_name,
+                          column_name: row.primary_key,
+                       },
+                    ]
+                  : [],
+            })),
+            ...viewResult.map((row) => ({
+               table_type: "view" as const,
+               table_name: row.table_name,
+               table_schema: row.table_schema,
+               columns: typeof row.table_columns === "string" ? JSON.parse(row.table_columns || "[]") : row.table_columns,
+               primary_keys: [],
+            })),
+         ];
          logger.info(
             {
                mssql: (() => {
                   return { driver: connection.db.driver };
                })(),
                schemas,
-               tables: tables.map(({ table_name, table_schema }) => ({ table_schema, table_name })),
+               tables: tables.map(({ table_name, table_schema, table_type }) => ({ table_schema, table_name, table_type })),
             },
             `Generating mapping code for ${schemas.join(", ")}`,
          );

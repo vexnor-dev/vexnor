@@ -7,6 +7,11 @@ export const findTableColumns = sql`
           json_agg(${Columns} order by ${Columns.$ordinal_position}) as ${col<{ columns: SqlColumnInfo[] }>("columns")}
    from ${Columns}
    where ${Columns.$table_schema} in (${param<{ schemas: string[] }>("schemas")})
+     and ${Columns.$table_name} in (
+        select table_name from information_schema.tables
+        where table_schema in (${param<{ schemas: string[] }>("schemas")})
+          and table_type = 'BASE TABLE'
+     )
    group by ${Columns.$table_name}, ${Columns.$table_schema}`;
 
 export const findPrimaryKeys = sql`
@@ -33,3 +38,18 @@ export const findTables = sql`
    from ${findTableColumns} left join ${findPrimaryKeys}
    on ${findTableColumns.$table_schema} = ${findPrimaryKeys.$table_schema}
       and ${findTableColumns.$table_name} = ${findPrimaryKeys.$table_name}`;
+
+export const findViewColumns = sql`
+   select ${row(Columns.$table_name, Columns.$table_schema)},
+          json_agg(${Columns} order by ${Columns.$ordinal_position}) as ${col<{ columns: SqlColumnInfo[] }>("columns")}
+   from ${Columns}
+   where ${Columns.$table_schema} in (${param<{ schemas: string[] }>("schemas")})
+     and ${Columns.$table_name} in (
+        select table_name from information_schema.views
+        where table_schema in (${param<{ schemas: string[] }>("schemas")})
+     )
+   group by ${Columns.$table_name}, ${Columns.$table_schema}`;
+
+export const findViews = sql`
+   select ${row(findViewColumns.$$)}
+   from ${findViewColumns}`;

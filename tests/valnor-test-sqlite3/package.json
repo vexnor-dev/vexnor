@@ -7,7 +7,7 @@
    "license": "Apache-2.0",
    "scripts": {
       "precodegen": "pnpm run -r --filter='valnor' --filter='valnor-sqlite3' build",
-      "codegen": "env-cmd --no-override -x -r ../../env-dev.json -e sqlite3 node ../../packages/valnor/cli.mjs codegen --plugin valnor-sqlite3 --schema main --pascalCaseTables --camelCaseColumns --uri \\$SQLITE_PATH --outDir './src/codegen' | pino-pretty",
+      "codegen": "env-cmd --no-override -x -r ../../env-dev.json -e sqlite3 node ../../packages/valnor/cli.mjs codegen --plugin valnor-sqlite3 --schema main --pascalCaseTables --camelCaseColumns --uri \\$SQLITE_PATH --omit migration_valnor --outDir './src/codegen' | pino-pretty",
       "test": "vitest --coverage run",
       "test:watch": "vitest --watch",
       "test:run": "vitest run",
@@ -18,12 +18,15 @@
       "better-sqlite3": "^12.4.1",
       "valnor": "workspace:*",
       "valnor-drizzle": "workspace:*",
-      "valnor-sqlite3": "workspace:*"
+      "valnor-sqlite3": "workspace:*",
+      "valnor-typeorm": "workspace:*"
    },
    "devDependencies": {
       "@types/better-sqlite3": "^7.6.13",
       "@vitest/coverage-v8": "^4.0.18",
       "drizzle-orm": "^1.0.0-beta.20",
+      "reflect-metadata": "^0.2.2",
+      "typeorm": "^0.3.24",
       "vite-tsconfig-paths": "^6.1.1",
       "vitest": "^4.0.18"
    }

@@ -11,7 +11,7 @@ import {
 } from "valnor/plugin";
 import { Pool } from "pg";
 import { findEnums } from "#/schema/find-enums.js";
-import { findTables } from "#/schema/find-tables.js";
+import { findTables, findViews } from "#/schema/find-tables.js";
 import { getColumnType } from "#/schema/get-column-type.js";
 import { PostgresQueryHandler } from "#/postgres-query-handler.js";
 import { SqlQueryHandler, SqlQuery, newSqlQueryHandler, SqlTable } from "valnor";
@@ -47,10 +47,18 @@ export class ValnorPostgres extends ValnorPlugin<{ Config: ConnectionConfig; Con
                },
             },
          });
+         const views = await findViews.postgres.all({
+            db: connection.db,
+            params: { schemas },
+         });
          const enums = await findEnums.postgres.all({
             db: connection.db,
             params: { schemas },
          });
+         const allTables = [
+            ...tables.map((t) => ({ ...t, table_type: "table" as const, primary_keys: t.primary_keys ?? [] })),
+            ...views.map((v) => ({ ...v, table_type: "view" as const, primary_keys: [] })),
+         ];
          logger.info(
             {
                postgres: (() => {
@@ -59,14 +67,14 @@ export class ValnorPostgres extends ValnorPlugin<{ Config: ConnectionConfig; Con
                   return { host, port, database, user, password: password ? "*****" : null };
                })(),
                schemas,
-               tables: tables.map(({ table_name, table_schema }) => ({ table_schema, table_name })),
+               tables: allTables.map(({ table_name, table_schema, table_type }) => ({ table_schema, table_name, table_type })),
                enums: enums.map(({ enum_name, enum_schema }) => ({ enum_schema, enum_name })),
             },
             `Generating mapping code for ${schemas.join(", ")}`,
          );
 
          return {
-            tables,
+            tables: allTables,
             enums,
          };
       } finally {

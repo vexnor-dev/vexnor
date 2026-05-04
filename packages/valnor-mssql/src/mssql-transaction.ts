@@ -1,4 +1,5 @@
-import mssql, { ConnectionPool, Request, Transaction } from "mssql";
+import mssql, { ConnectionPool, Request } from "mssql";
+const { Transaction } = mssql;
 
 export type MssqlIsolationLevel =
    | "READ_UNCOMMITTED"
@@ -33,7 +34,7 @@ const DEFAULTS: Required<MssqlTransactionOptions> = {
  */
 export async function transaction<T>(
    pool: ConnectionPool,
-   callback: (tx: Transaction) => Promise<T>,
+   callback: (tx: InstanceType<typeof Transaction>) => Promise<T>,
    options?: MssqlTransactionOptions,
 ): Promise<T> {
    const { isolationLevel } = { ...DEFAULTS, ...options };
@@ -61,7 +62,7 @@ export async function transaction<T>(
  * @param callback - The callback to run inside the savepoint (required when `callbackOrName` is a string).
  */
 export async function savepoint<T>(
-   tx: Transaction,
+   tx: InstanceType<typeof Transaction>,
    callbackOrName: ((request: Request) => Promise<T>) | string,
    callback?: (request: Request) => Promise<T>,
 ): Promise<T | undefined> {

@@ -9,7 +9,7 @@ import {
    ValnorPlugin,
 } from "valnor/plugin";
 import BetterSqlite3 from "better-sqlite3";
-import { findPrimaryKeys, findTableColumns, findTables } from "#/schema/find-tables.js";
+import { findPrimaryKeys, findTableColumns, findTables, findViews } from "#/schema/find-tables.js";
 import { getColumnType } from "#/schema/get-column-type.js";
 import { SqlQueryHandler, SqlQuery, SqlTable, newSqlQueryHandler } from "valnor";
 import { BetterSqlite3QueryHandler } from "#/better-sqlite3-query-handler.js";
@@ -55,6 +55,7 @@ export class ValnorSqlite3 extends ValnorPlugin<{
       };
 
       const tables = await findTables.sqlite.all({ ...runArgs });
+      const views = await findViews.sqlite.all({ ...runArgs });
 
       // Populate columns and primary keys for each table
       const newTables: SqlTableInfo[] = [];
@@ -66,6 +67,7 @@ export class ValnorSqlite3 extends ValnorPlugin<{
          });
 
          newTables.push({
+            table_type: "table",
             primary_keys: primaryKeys.map((z) => ({
                ...z,
                table_schema: table.table_schema,
@@ -73,6 +75,17 @@ export class ValnorSqlite3 extends ValnorPlugin<{
             })),
             ...table,
             columns: columns.map((z) => ({ ...z, table_name: table.table_name, table_schema: table.table_schema })),
+         });
+      }
+
+      for (const view of views) {
+         const columns = await findTableColumns.sqlite.all({ ...runArgs, params: { tableName: view.table_name } });
+         newTables.push({
+            table_type: "view",
+            table_name: view.table_name,
+            table_schema: view.table_schema,
+            primary_keys: [],
+            columns: columns.map((z) => ({ ...z, table_name: view.table_name, table_schema: view.table_schema })),
          });
       }
 

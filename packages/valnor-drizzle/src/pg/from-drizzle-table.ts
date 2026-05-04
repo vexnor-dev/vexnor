@@ -1,7 +1,7 @@
-import { AnySQLiteTable, getTableConfig } from "drizzle-orm/sqlite-core";
-import { newSqlTable, SqlTableExtended } from "valnor";
+import { getTableConfig, type AnyPgTable } from "drizzle-orm/pg-core";
+import { newSqlTable, type SqlTableExtended } from "valnor";
 
-type FromDrizzleResult<T extends AnySQLiteTable> = T extends {
+type FromDrizzleResult<T extends AnyPgTable> = T extends {
    $inferSelect: Record<string, unknown>;
    $inferInsert: Record<string, unknown>;
 }
@@ -14,14 +14,14 @@ type FromDrizzleResult<T extends AnySQLiteTable> = T extends {
    : never;
 
 /**
- * Converts a drizzle-orm SQLite table definition into a valnor runtime table.
+ * Converts a drizzle-orm PostgreSQL table definition into a valnor runtime table.
  *
  * @example
- * import { fromDrizzle } from 'valnor-drizzle/sqlite';
+ * import { fromDrizzleTable } from 'valnor-drizzle/pg';
  *
- * export const Account = fromDrizzle(accountDrizzle);
+ * export const Account = fromDrizzleTable(accountDrizzle);
  */
-export function fromDrizzle<T extends AnySQLiteTable>(table: T, schema?: string): FromDrizzleResult<T> {
+export function fromDrizzleTable<T extends AnyPgTable>(table: T, schema?: string): FromDrizzleResult<T> {
    const config = getTableConfig(table);
 
    const jsKeyBySqlName = new Map<string, string>();
@@ -48,10 +48,10 @@ export function fromDrizzle<T extends AnySQLiteTable>(table: T, schema?: string)
    }
 
    return newSqlTable({
-      tableInfo: { name: config.name, schema: schema ?? null },
+      tableInfo: { name: config.name, schema: schema ?? config.schema ?? null },
       pk,
       columns,
-      dialect: "sqlite",
+      dialect: "postgresql",
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       crud: { select: true, insert: true, update: true, delete: true } as any,
    }) as FromDrizzleResult<T>;

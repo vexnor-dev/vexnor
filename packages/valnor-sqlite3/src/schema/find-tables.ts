@@ -12,6 +12,15 @@ export const findTables = sql`
    AND ${SqliteMaster.$name} NOT LIKE 'sqlite_%'
 `;
 
+export const findViews = sql`
+   SELECT 
+      ${row(SqliteMaster.$name.as("table_name"))},
+      'main' as ${col<{ table_schema: string }>("table_schema")}
+   FROM ${SqliteMaster}
+   WHERE ${SqliteMaster.$type} = 'view'
+   AND ${SqliteMaster.$name} NOT LIKE 'sqlite_%'
+`;
+
 export const findTableColumns = sql`
    SELECT ${row(PragmaTableInfo.$name.as("column_name"), PragmaTableInfo.$dflt_value.as("column_default"), PragmaTableInfo.$type.as("udt_name"))},
           ${val`CASE WHEN "notnull" = 0 THEN 'YES' ELSE 'NO' END`.as<{ is_nullable: "YES" | "NO" }>("is_nullable")},

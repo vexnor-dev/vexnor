@@ -27,7 +27,7 @@
       "access": "public"
    },
    "scripts": {
-      "codegen": "valnor generate --plugin valnor-sqlite3 --schema one_sql --pascalCaseTables --camelCaseColumns --uri '../../@db-sqlite3/valnor-test.sqlite' --outDir 'src/__tests__/codegen' | pino-pretty",
+      "codegen": "valnor generate --plugin valnor-sqlite3 --schema one_sql --pascalCaseTables --camelCaseColumns --uri '../../@db-sqlite3/valnor-test.sqlite' --omit migration_valnor --outDir 'src/__tests__/codegen' | pino-pretty",
       "build": "run-s 'build:*'",
       "build:1-tsc": "tsc -b",
       "build:2-alias": "tsc-alias",

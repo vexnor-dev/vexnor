@@ -16,7 +16,7 @@ export async function printTables({ tables }: WriteTablesArgs): Promise<SqlOutpu
    for (const table of tables) {
       const { table_name, table_schema } = table;
       const output = writeTable({ table });
-      const fileName = `${to.snake(table_schema)}.${to.snake(table_name)}-table`;
+      const fileName = `${to.snake(table_schema)}.${to.snake(table_name)}-${table.table_type === "view" ? "view" : "table"}`;
       const filePath = path.join(outDir, `${fileName}.ts`);
       files.push({
          moduleName: table_name,

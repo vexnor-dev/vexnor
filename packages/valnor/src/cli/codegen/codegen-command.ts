@@ -14,6 +14,7 @@ export async function codegenCommand(options: CodegenCommandOptions) {
    const {
       uri,
       schema: schemas,
+      omit,
       pascalCaseTables,
       camelCaseColumns,
       plugin: pluginName,
@@ -30,7 +31,7 @@ export async function codegenCommand(options: CodegenCommandOptions) {
    }
 
    const { plugin } = await loadPlugin(pluginName);
-   const { enums, tables } = await (() => {
+   const { enums, tables: allTables } = await (() => {
       if (uri) {
          return plugin.getSchema({ uri, schemas });
       }
@@ -45,6 +46,15 @@ export async function codegenCommand(options: CodegenCommandOptions) {
          password,
       });
    })();
+
+   const tables = omit?.length
+      ? allTables.filter(({ table_name, table_schema }) => {
+           return !omit.some((entry) => {
+              const [a, b] = entry.split(".");
+              return b ? a === table_schema && b === table_name : a === table_name;
+           });
+        })
+      : allTables;
 
    const context = new CodegenContextModel({
       outDir,

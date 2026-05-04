@@ -5,6 +5,7 @@ import { PrintTableArgs, SqlLiteralType } from "#/plugin/plugin.js";
 import { getCodegenContext } from "#/cli/codegen/codegen-context.js";
 
 export function writeTableInsert(writer: CodeBlockWriter.default, { table }: PrintTableArgs) {
+   if (table.table_type === "view") return;
    const { getTableName, getColumnName, plugin } = getCodegenContext();
    const { columns } = table;
    const tableTypeName = getTableName(table.table_name);

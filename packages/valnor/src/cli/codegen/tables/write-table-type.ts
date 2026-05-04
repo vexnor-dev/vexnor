@@ -4,24 +4,27 @@ import { getCodegenContext } from "#/cli/codegen/codegen-context.js";
 
 export function writeTableType(writer: CodeBlockWriter.default, { table }: PrintTableArgs) {
    const { getTableName, getColumnName } = getCodegenContext();
-   const { table_name, columns, table_schema, primary_keys } = table;
+   const { table_name, columns, table_schema, primary_keys, table_type } = table;
+   const isView = table_type === "view";
    const tableTypeName = getTableName(table_name);
    const tableTypeSelect = `I${tableTypeName}Select`;
    const tableTypeInsert = `I${tableTypeName}Insert`;
    const tableTypeUpdate = `I${tableTypeName}Update`;
 
+   const typeParams = isView
+      ? `{ Select: ${tableTypeSelect} }`
+      : `{ Select: ${tableTypeSelect}, Insert: ${tableTypeInsert}, Update: ${tableTypeUpdate}; Delete: true }`;
+
    writer
-      .write(
-         `export const ${tableTypeName} = valnor.newSqlTable<{ Select: ${tableTypeSelect}, Insert: ${tableTypeInsert}, Update: ${tableTypeUpdate}; Delete: true }>(`,
-      )
+      .write(`export const ${tableTypeName} = valnor.newSqlTable<${typeParams}>(`)
       .inlineBlock(() => {
          writer
             .writeLine(`crud:`)
             .inlineBlock(() => {
                writer.writeLine(`select: true, `);
-               writer.writeLine(`insert: true, `);
-               writer.writeLine(`update: true, `);
-               writer.writeLine(`delete: true, `);
+               writer.writeLine(`insert: ${!isView}, `);
+               writer.writeLine(`update: ${!isView}, `);
+               writer.writeLine(`delete: ${!isView}, `);
             })
             .write(",")
             .writeLine("tableInfo:")
@@ -30,7 +33,7 @@ export function writeTableType(writer: CodeBlockWriter.default, { table }: Print
                writer.writeLine(`schema: "${table_schema}",`);
             })
             .write(",");
-         writer.writeLine(`pk: ["${primary_keys.map((pk) => getColumnName(pk.column_name)).join('","')}"], `);
+         writer.writeLine(`pk: [${primary_keys.length ? `"${primary_keys.map((pk) => getColumnName(pk.column_name)).join('","')}"` : ""}], `);
          writer.writeLine(`dialect: "${getCodegenContext().plugin.dialect}",`);
          writer.writeLine(`columns:`).inlineBlock(() => {
             columns.forEach((col) => {

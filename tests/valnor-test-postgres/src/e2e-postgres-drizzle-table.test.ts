@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
 import { pgSchema, uuid, varchar, text, timestamp } from "drizzle-orm/pg-core";
-import { fromDrizzle } from "valnor-drizzle/pg";
+import { fromDrizzleTable } from "valnor-drizzle/pg";
 import { row, sql, param } from "valnor";
 import "valnor-postgres";
 import { pool } from "./postgres-pool.js";
@@ -20,9 +20,9 @@ const accountDrizzle = schema.table("account", {
    parentId: uuid("parent_id"),
 });
 
-const Account = fromDrizzle(accountDrizzle);
+const Account = fromDrizzleTable(accountDrizzle);
 
-describe.sequential("e2e drizzle/pg — fromDrizzle table works against real DB", () => {
+describe.sequential("e2e drizzle/pg — fromDrizzleTable works against real DB", () => {
    const TAG = "drizzle-pg-e2e";
    let account!: typeof accountDrizzle.$inferSelect;
 

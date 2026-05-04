@@ -19,12 +19,15 @@
       "mssql": "^11.0.1",
       "valnor": "workspace:*",
       "valnor-drizzle": "workspace:*",
-      "valnor-mssql": "workspace:*"
+      "valnor-mssql": "workspace:*",
+      "valnor-typeorm": "workspace:*"
    },
    "devDependencies": {
       "@types/mssql": "^9.1.8",
       "@vitest/coverage-v8": "^4.0.18",
       "drizzle-orm": "^1.0.0-beta.20",
+      "reflect-metadata": "^0.2.2",
+      "typeorm": "^0.3.24",
       "vite-tsconfig-paths": "^6.1.1",
       "vitest": "^4.0.18"
    }

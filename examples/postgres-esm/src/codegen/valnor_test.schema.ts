@@ -3,5 +3,6 @@ export * from "./valnor_test.order-table.js";
 export * from "./valnor_test.order_item-table.js";
 export * from "./valnor_test.product-table.js";
 export * from "./valnor_test.type_coverage-table.js";
+export * from "./valnor_test.account_order_summary-view.js";
 export * from "./valnor_test-enums.js";
 

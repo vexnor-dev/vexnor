@@ -29,6 +29,12 @@ This is a serious, high-quality codebase. No shortcuts. No lazy work. Ever.
 - If a test covers type coverage, it must cover ALL columns, not a representative sample.
 - If a snapshot contains a dynamic value, it will fail on the next run — catch it before committing.
 
+## No unsafe casting
+
+- Never use `as any` or `(x as any).prop` to work around a type error. Find the correct type instead.
+- If a third-party type is wrong or missing, use a proper type guard, a narrowing function, or a minimal local type that accurately describes the shape.
+- `as any` is only acceptable in the implementation signature of a function overload where TypeScript cannot resolve the return type — and only there.
+
 ## Tests are not optional
 
 - Every new feature or function must have unit tests. No exceptions.

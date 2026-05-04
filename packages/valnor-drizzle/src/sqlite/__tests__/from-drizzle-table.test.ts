@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { sqliteTable, text, integer, real, primaryKey } from "drizzle-orm/sqlite-core";
 import { sql, row, val, param, SqlTable } from "valnor";
-import { fromDrizzle } from "../index.js";
+import { fromDrizzleTable } from "../index.js";
 
 const accountDrizzle = sqliteTable("account", {
    accountId: text("account_id").primaryKey(),
@@ -19,13 +19,13 @@ const orderDrizzle = sqliteTable("order", {
    total: integer("total"),
 });
 
-describe("fromDrizzle (sqlite) — metadata", () => {
+describe("fromDrizzleTable (sqlite) — metadata", () => {
    test("returns SqlTable instance", () => {
-      expect(fromDrizzle(accountDrizzle)).toBeInstanceOf(SqlTable);
+      expect(fromDrizzleTable(accountDrizzle)).toBeInstanceOf(SqlTable);
    });
 
-   test("fromDrizzle — no schema", () => {
-      expect(fromDrizzle(accountDrizzle)).toMatchInlineSnapshot(`
+   test("fromDrizzleTable — no schema", () => {
+      expect(fromDrizzleTable(accountDrizzle)).toMatchInlineSnapshot(`
         SqlTable {
           "$accountId": SqlTableColumn {
             "columnName": "account_id",
@@ -233,19 +233,23 @@ describe("fromDrizzle (sqlite) — metadata", () => {
       `);
    });
 
-   test("fromDrizzle — schema override", () => {
-      const Account = fromDrizzle(accountDrizzle, "main");
+   test("fromDrizzleTable — schema override", () => {
+      const Account = fromDrizzleTable(accountDrizzle, "main");
       expect(Account.tableInfo.schema).toMatchInlineSnapshot(`"main"`);
    });
 
    test("pk — composite via primaryKey() constraint", () => {
-      const orderItem = sqliteTable("order_item", {
-         orderId: text("order_id").notNull(),
-         productId: text("product_id").notNull(),
-         quantity: integer("quantity").notNull(),
-      }, (t) => [primaryKey({ columns: [t.orderId, t.productId] })]);
+      const orderItem = sqliteTable(
+         "order_item",
+         {
+            orderId: text("order_id").notNull(),
+            productId: text("product_id").notNull(),
+            quantity: integer("quantity").notNull(),
+         },
+         (t) => [primaryKey({ columns: [t.orderId, t.productId] })],
+      );
 
-      expect(fromDrizzle(orderItem).pk).toMatchInlineSnapshot(`
+      expect(fromDrizzleTable(orderItem).pk).toMatchInlineSnapshot(`
         [
           "orderId",
           "productId",
@@ -254,14 +258,12 @@ describe("fromDrizzle (sqlite) — metadata", () => {
    });
 });
 
-describe("fromDrizzle (sqlite) — SQL generation", () => {
-   const Account = fromDrizzle(accountDrizzle, "main");
-   const Order = fromDrizzle(orderDrizzle, "main");
+describe("fromDrizzleTable (sqlite) — SQL generation", () => {
+   const Account = fromDrizzleTable(accountDrizzle, "main");
+   const Order = fromDrizzleTable(orderDrizzle, "main");
 
    test("SELECT all columns", () => {
-      expect(
-         sql`SELECT ${row(Account.$$)} FROM ${Account}`.getSql({}).text,
-      ).toMatchInlineSnapshot(`
+      expect(sql`SELECT ${row(Account.$$)} FROM ${Account}`.getSql({}).text).toMatchInlineSnapshot(`
         "/* <query_0> */
         SELECT
           "a_1"."account_id" AS "accountId",
@@ -277,9 +279,8 @@ describe("fromDrizzle (sqlite) — SQL generation", () => {
    });
 
    test("SELECT specific columns", () => {
-      expect(
-         sql`SELECT ${row(Account.$accountId, Account.$email)} FROM ${Account}`.getSql({}).text,
-      ).toMatchInlineSnapshot(`
+      expect(sql`SELECT ${row(Account.$accountId, Account.$email)} FROM ${Account}`.getSql({}).text)
+         .toMatchInlineSnapshot(`
         "/* <query_0> */
         SELECT
           "a_1"."account_id" AS "accountId",
@@ -292,7 +293,9 @@ describe("fromDrizzle (sqlite) — SQL generation", () => {
    test("SELECT with WHERE param", () => {
       const idParam = param<{ id: string }>("id");
       expect(
-         sql`SELECT ${row(Account.$$)} FROM ${Account} WHERE ${Account.$accountId} = ${idParam}`.getSql({ params: { id: "123" } }).text,
+         sql`SELECT ${row(Account.$$)} FROM ${Account} WHERE ${Account.$accountId} = ${idParam}`.getSql({
+            params: { id: "123" },
+         }).text,
       ).toMatchInlineSnapshot(`
         "/* <query_0> */
         SELECT
@@ -311,9 +314,7 @@ describe("fromDrizzle (sqlite) — SQL generation", () => {
    });
 
    test("SELECT with column alias", () => {
-      expect(
-         sql`SELECT ${row(Account.$firstName.as("name"))} FROM ${Account}`.getSql({}).text,
-      ).toMatchInlineSnapshot(`
+      expect(sql`SELECT ${row(Account.$firstName.as("name"))} FROM ${Account}`.getSql({}).text).toMatchInlineSnapshot(`
         "/* <query_0> */
         SELECT
           "a_1"."first_name" AS "name"
@@ -324,7 +325,9 @@ describe("fromDrizzle (sqlite) — SQL generation", () => {
 
    test("SELECT with aggregate val()", () => {
       expect(
-         sql`SELECT ${row(Account.$accountId, val`COUNT(*)`.as<{ total: number }>("total"))} FROM ${Account} GROUP BY ${Account.$accountId}`.getSql({}).text,
+         sql`SELECT ${row(Account.$accountId, val`COUNT(*)`.as<{ total: number }>("total"))} FROM ${Account} GROUP BY ${Account.$accountId}`.getSql(
+            {},
+         ).text,
       ).toMatchInlineSnapshot(`
         "/* <query_0> */
         SELECT
@@ -340,7 +343,9 @@ describe("fromDrizzle (sqlite) — SQL generation", () => {
    test("SELECT with table alias (.as())", () => {
       const Parent = Account.as("parent");
       expect(
-         sql`SELECT ${row(Account.$$, Parent.$email.as("parentEmail"))} FROM ${Account} JOIN ${Parent} ON ${Parent.$accountId} = ${Account.$parentId}`.getSql({}).text,
+         sql`SELECT ${row(Account.$$, Parent.$email.as("parentEmail"))} FROM ${Account} JOIN ${Parent} ON ${Parent.$accountId} = ${Account.$parentId}`.getSql(
+            {},
+         ).text,
       ).toMatchInlineSnapshot(`
         "/* <query_0> */
         SELECT
@@ -360,7 +365,9 @@ describe("fromDrizzle (sqlite) — SQL generation", () => {
 
    test("SELECT with JOIN", () => {
       expect(
-         sql`SELECT ${row(Account.$accountId, Order.$orderId)} FROM ${Account} JOIN ${Order} ON ${Order.$accountId} = ${Account.$accountId}`.getSql({}).text,
+         sql`SELECT ${row(Account.$accountId, Order.$orderId)} FROM ${Account} JOIN ${Order} ON ${Order.$accountId} = ${Account.$accountId}`.getSql(
+            {},
+         ).text,
       ).toMatchInlineSnapshot(`
         "/* <query_0> */
         SELECT
@@ -374,7 +381,9 @@ describe("fromDrizzle (sqlite) — SQL generation", () => {
 
    test("INSERT insertColsVals", () => {
       expect(
-         sql`INSERT INTO ${Account} ${Account.insertColsVals({ accountId: "some-id", email: "a@b.com", firstName: "John" })} RETURNING ${row(Account.$$)}`.getSql({}).text,
+         sql`INSERT INTO ${Account} ${Account.insertColsVals({ accountId: "some-id", email: "a@b.com", firstName: "John" })} RETURNING ${row(Account.$$)}`.getSql(
+            {},
+         ).text,
       ).toMatchInlineSnapshot(`
         "/* <query_0> */
         INSERT INTO
@@ -394,7 +403,9 @@ describe("fromDrizzle (sqlite) — SQL generation", () => {
 
    test("UPDATE updateSet", () => {
       expect(
-         sql`UPDATE ${Account} SET ${Account.updateSet({ email: "new@b.com" })} WHERE ${Account.$accountId} = ${"some-id"}`.getSql({}).text,
+         sql`UPDATE ${Account} SET ${Account.updateSet({ email: "new@b.com" })} WHERE ${Account.$accountId} = ${"some-id"}`.getSql(
+            {},
+         ).text,
       ).toMatchInlineSnapshot(`
         "/* <query_0> */
         UPDATE "main"."account"
@@ -406,9 +417,8 @@ describe("fromDrizzle (sqlite) — SQL generation", () => {
    });
 
    test("DELETE", () => {
-      expect(
-         sql`DELETE FROM ${Account} WHERE ${Account.$accountId} = ${"some-id"}`.getSql({}).text,
-      ).toMatchInlineSnapshot(`
+      expect(sql`DELETE FROM ${Account} WHERE ${Account.$accountId} = ${"some-id"}`.getSql({}).text)
+         .toMatchInlineSnapshot(`
         "/* <query_0> */
         DELETE FROM "main"."account"
         WHERE

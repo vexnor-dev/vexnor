@@ -1,40 +1,39 @@
 import { describe, expect, test } from "vitest";
-import { pgTable, pgSchema, uuid, varchar, text, timestamp, integer, boolean, primaryKey } from "drizzle-orm/pg-core";
+import { mssqlTable, mssqlSchema, varchar, nvarchar, int, bit, primaryKey } from "drizzle-orm/mssql-core";
 import { sql, row, val, param, SqlTable } from "valnor";
-import { fromDrizzle } from "../index.js";
+import { fromDrizzleTable } from "../index.js";
 
-const accountDrizzle = pgTable("account", {
-   accountId: uuid("account_id").primaryKey().defaultRandom(),
-   email: varchar("email").notNull(),
-   firstName: varchar("first_name").notNull(),
-   notes: text("notes"),
-   createdAt: timestamp("created_at").defaultNow(),
-   age: integer("age"),
-   active: boolean("active"),
-   parentId: uuid("parent_id"),
+const accountDrizzle = mssqlTable("account", {
+   accountId: varchar("account_id", { length: 36 }).primaryKey(),
+   email: varchar("email", { length: 255 }).notNull(),
+   firstName: nvarchar("first_name", { length: 100 }).notNull(),
+   notes: nvarchar("notes", { length: "max" }),
+   age: int("age"),
+   active: bit("active"),
+   parentId: varchar("parent_id", { length: 36 }),
 });
 
-const orderDrizzle = pgTable("order", {
-   orderId: uuid("order_id").primaryKey().defaultRandom(),
-   accountId: uuid("account_id").notNull(),
-   total: integer("total"),
+const orderDrizzle = mssqlTable("order", {
+   orderId: varchar("order_id", { length: 36 }).primaryKey(),
+   accountId: varchar("account_id", { length: 36 }).notNull(),
+   total: int("total"),
 });
 
-const mySchema = pgSchema("valnor_test");
+const mySchema = mssqlSchema("valnor_test");
 const accountSchemaDrizzle = mySchema.table("account", {
-   accountId: uuid("account_id").primaryKey().defaultRandom(),
-   email: varchar("email").notNull(),
-   firstName: varchar("first_name").notNull(),
-   parentId: uuid("parent_id"),
+   accountId: varchar("account_id", { length: 36 }).primaryKey(),
+   email: varchar("email", { length: 255 }).notNull(),
+   firstName: nvarchar("first_name", { length: 100 }).notNull(),
+   parentId: varchar("parent_id", { length: 36 }),
 });
 
-describe("fromDrizzle (pg) — metadata", () => {
+describe("fromDrizzleTable (mssql) — metadata", () => {
    test("returns SqlTable instance", () => {
-      expect(fromDrizzle(accountDrizzle)).toBeInstanceOf(SqlTable);
+      expect(fromDrizzleTable(accountDrizzle)).toBeInstanceOf(SqlTable);
    });
 
-   test("fromDrizzle — no schema", () => {
-      expect(fromDrizzle(accountDrizzle)).toMatchInlineSnapshot(`
+   test("fromDrizzleTable — no schema", () => {
+      expect(fromDrizzleTable(accountDrizzle)).toMatchInlineSnapshot(`
         SqlTable {
           "$accountId": SqlTableColumn {
             "columnName": "account_id",
@@ -51,7 +50,7 @@ describe("fromDrizzle (pg) — metadata", () => {
           "$active": SqlTableColumn {
             "columnName": "active",
             "format": null,
-            "id": "SqlTableColumn#7(account.active)",
+            "id": "SqlTableColumn#6(account.active)",
             "key": "active",
             "tableInfo": {
               "name": "account",
@@ -63,20 +62,8 @@ describe("fromDrizzle (pg) — metadata", () => {
           "$age": SqlTableColumn {
             "columnName": "age",
             "format": null,
-            "id": "SqlTableColumn#6(account.age)",
+            "id": "SqlTableColumn#5(account.age)",
             "key": "age",
-            "tableInfo": {
-              "name": "account",
-              "schema": null,
-            },
-            "tag": null,
-            "type": "SqlTableColumn",
-          },
-          "$createdAt": SqlTableColumn {
-            "columnName": "created_at",
-            "format": null,
-            "id": "SqlTableColumn#5(account.created_at as createdAt)",
-            "key": "createdAt",
             "tableInfo": {
               "name": "account",
               "schema": null,
@@ -123,7 +110,7 @@ describe("fromDrizzle (pg) — metadata", () => {
           "$parentId": SqlTableColumn {
             "columnName": "parent_id",
             "format": null,
-            "id": "SqlTableColumn#8(account.parent_id as parentId)",
+            "id": "SqlTableColumn#7(account.parent_id as parentId)",
             "key": "parentId",
             "tableInfo": {
               "name": "account",
@@ -155,7 +142,7 @@ describe("fromDrizzle (pg) — metadata", () => {
               "$active": SqlTableColumn {
                 "columnName": "active",
                 "format": null,
-                "id": "SqlTableColumn#7(account.active)",
+                "id": "SqlTableColumn#6(account.active)",
                 "key": "active",
                 "tableInfo": {
                   "name": "account",
@@ -167,20 +154,8 @@ describe("fromDrizzle (pg) — metadata", () => {
               "$age": SqlTableColumn {
                 "columnName": "age",
                 "format": null,
-                "id": "SqlTableColumn#6(account.age)",
+                "id": "SqlTableColumn#5(account.age)",
                 "key": "age",
-                "tableInfo": {
-                  "name": "account",
-                  "schema": null,
-                },
-                "tag": null,
-                "type": "SqlTableColumn",
-              },
-              "$createdAt": SqlTableColumn {
-                "columnName": "created_at",
-                "format": null,
-                "id": "SqlTableColumn#5(account.created_at as createdAt)",
-                "key": "createdAt",
                 "tableInfo": {
                   "name": "account",
                   "schema": null,
@@ -227,7 +202,7 @@ describe("fromDrizzle (pg) — metadata", () => {
               "$parentId": SqlTableColumn {
                 "columnName": "parent_id",
                 "format": null,
-                "id": "SqlTableColumn#8(account.parent_id as parentId)",
+                "id": "SqlTableColumn#7(account.parent_id as parentId)",
                 "key": "parentId",
                 "tableInfo": {
                   "name": "account",
@@ -250,7 +225,7 @@ describe("fromDrizzle (pg) — metadata", () => {
             "_value": null,
             "callback": [Function],
           },
-          "dialect": "postgresql",
+          "dialect": "tsql",
           "format": null,
           "id": "SqlTable#4(account)",
           "pk": [
@@ -266,13 +241,13 @@ describe("fromDrizzle (pg) — metadata", () => {
       `);
    });
 
-   test("fromDrizzle — schema from pgSchema", () => {
-      expect(fromDrizzle(accountSchemaDrizzle)).toMatchInlineSnapshot(`
+   test("fromDrizzleTable — schema from mssqlSchema", () => {
+      expect(fromDrizzleTable(accountSchemaDrizzle)).toMatchInlineSnapshot(`
         SqlTable {
           "$accountId": SqlTableColumn {
             "columnName": "account_id",
             "format": null,
-            "id": "SqlTableColumn#9(account.account_id as accountId)",
+            "id": "SqlTableColumn#8(account.account_id as accountId)",
             "key": "accountId",
             "tableInfo": {
               "name": "account",
@@ -284,7 +259,7 @@ describe("fromDrizzle (pg) — metadata", () => {
           "$email": SqlTableColumn {
             "columnName": "email",
             "format": null,
-            "id": "SqlTableColumn#10(account.email)",
+            "id": "SqlTableColumn#9(account.email)",
             "key": "email",
             "tableInfo": {
               "name": "account",
@@ -296,7 +271,7 @@ describe("fromDrizzle (pg) — metadata", () => {
           "$firstName": SqlTableColumn {
             "columnName": "first_name",
             "format": null,
-            "id": "SqlTableColumn#11(account.first_name as firstName)",
+            "id": "SqlTableColumn#10(account.first_name as firstName)",
             "key": "firstName",
             "tableInfo": {
               "name": "account",
@@ -308,7 +283,7 @@ describe("fromDrizzle (pg) — metadata", () => {
           "$parentId": SqlTableColumn {
             "columnName": "parent_id",
             "format": null,
-            "id": "SqlTableColumn#12(account.parent_id as parentId)",
+            "id": "SqlTableColumn#11(account.parent_id as parentId)",
             "key": "parentId",
             "tableInfo": {
               "name": "account",
@@ -328,7 +303,7 @@ describe("fromDrizzle (pg) — metadata", () => {
               "$accountId": SqlTableColumn {
                 "columnName": "account_id",
                 "format": null,
-                "id": "SqlTableColumn#9(account.account_id as accountId)",
+                "id": "SqlTableColumn#8(account.account_id as accountId)",
                 "key": "accountId",
                 "tableInfo": {
                   "name": "account",
@@ -340,7 +315,7 @@ describe("fromDrizzle (pg) — metadata", () => {
               "$email": SqlTableColumn {
                 "columnName": "email",
                 "format": null,
-                "id": "SqlTableColumn#10(account.email)",
+                "id": "SqlTableColumn#9(account.email)",
                 "key": "email",
                 "tableInfo": {
                   "name": "account",
@@ -352,7 +327,7 @@ describe("fromDrizzle (pg) — metadata", () => {
               "$firstName": SqlTableColumn {
                 "columnName": "first_name",
                 "format": null,
-                "id": "SqlTableColumn#11(account.first_name as firstName)",
+                "id": "SqlTableColumn#10(account.first_name as firstName)",
                 "key": "firstName",
                 "tableInfo": {
                   "name": "account",
@@ -364,7 +339,7 @@ describe("fromDrizzle (pg) — metadata", () => {
               "$parentId": SqlTableColumn {
                 "columnName": "parent_id",
                 "format": null,
-                "id": "SqlTableColumn#12(account.parent_id as parentId)",
+                "id": "SqlTableColumn#11(account.parent_id as parentId)",
                 "key": "parentId",
                 "tableInfo": {
                   "name": "account",
@@ -387,7 +362,7 @@ describe("fromDrizzle (pg) — metadata", () => {
             "_value": null,
             "callback": [Function],
           },
-          "dialect": "postgresql",
+          "dialect": "tsql",
           "format": null,
           "id": "SqlTable#5(valnor_test.account)",
           "pk": [
@@ -403,19 +378,23 @@ describe("fromDrizzle (pg) — metadata", () => {
       `);
    });
 
-   test("fromDrizzle — schema override", () => {
-      const Account = fromDrizzle(accountDrizzle, "public");
-      expect(Account.tableInfo.schema).toMatchInlineSnapshot(`"public"`);
+   test("fromDrizzleTable — schema override", () => {
+      const Account = fromDrizzleTable(accountDrizzle, "dbo");
+      expect(Account.tableInfo.schema).toMatchInlineSnapshot(`"dbo"`);
    });
 
    test("pk — composite via primaryKey() constraint", () => {
-      const orderItem = pgTable("order_item", {
-         orderId: uuid("order_id").notNull(),
-         productId: uuid("product_id").notNull(),
-         quantity: integer("quantity").notNull(),
-      }, (t) => [primaryKey({ columns: [t.orderId, t.productId] })]);
+      const orderItem = mssqlTable(
+         "order_item",
+         {
+            orderId: varchar("order_id", { length: 36 }).notNull(),
+            productId: varchar("product_id", { length: 36 }).notNull(),
+            quantity: int("quantity").notNull(),
+         },
+         (t) => [primaryKey({ columns: [t.orderId, t.productId] })],
+      );
 
-      expect(fromDrizzle(orderItem).pk).toMatchInlineSnapshot(`
+      expect(fromDrizzleTable(orderItem).pk).toMatchInlineSnapshot(`
         [
           "orderId",
           "productId",
@@ -424,14 +403,12 @@ describe("fromDrizzle (pg) — metadata", () => {
    });
 });
 
-describe("fromDrizzle (pg) — SQL generation", () => {
-   const Account = fromDrizzle(accountSchemaDrizzle);
-   const Order = fromDrizzle(orderDrizzle, "valnor_test");
+describe("fromDrizzleTable (mssql) — SQL generation", () => {
+   const Account = fromDrizzleTable(accountSchemaDrizzle);
+   const Order = fromDrizzleTable(orderDrizzle, "valnor_test");
 
    test("SELECT all columns", () => {
-      expect(
-         sql`SELECT ${row(Account.$$)} FROM ${Account}`.getSql({}).text,
-      ).toMatchInlineSnapshot(`
+      expect(sql`SELECT ${row(Account.$$)} FROM ${Account}`.getSql({}).text).toMatchInlineSnapshot(`
         "/* <query_0> */
         SELECT
           "a_1"."account_id" AS "accountId",
@@ -444,9 +421,8 @@ describe("fromDrizzle (pg) — SQL generation", () => {
    });
 
    test("SELECT specific columns", () => {
-      expect(
-         sql`SELECT ${row(Account.$accountId, Account.$email)} FROM ${Account}`.getSql({}).text,
-      ).toMatchInlineSnapshot(`
+      expect(sql`SELECT ${row(Account.$accountId, Account.$email)} FROM ${Account}`.getSql({}).text)
+         .toMatchInlineSnapshot(`
         "/* <query_0> */
         SELECT
           "a_1"."account_id" AS "accountId",
@@ -459,7 +435,9 @@ describe("fromDrizzle (pg) — SQL generation", () => {
    test("SELECT with WHERE param", () => {
       const idParam = param<{ id: string }>("id");
       expect(
-         sql`SELECT ${row(Account.$$)} FROM ${Account} WHERE ${Account.$accountId} = ${idParam}`.getSql({ params: { id: "123" } }).text,
+         sql`SELECT ${row(Account.$$)} FROM ${Account} WHERE ${Account.$accountId} = ${idParam}`.getSql({
+            params: { id: "123" },
+         }).text,
       ).toMatchInlineSnapshot(`
         "/* <query_0> */
         SELECT
@@ -470,14 +448,12 @@ describe("fromDrizzle (pg) — SQL generation", () => {
         FROM
           "valnor_test"."account" AS "a_1"
         WHERE
-          "a_1"."account_id" = $1 /* </query_0> */"
+          "a_1"."account_id" = @param_0 /* </query_0> */"
       `);
    });
 
    test("SELECT with column alias", () => {
-      expect(
-         sql`SELECT ${row(Account.$firstName.as("name"))} FROM ${Account}`.getSql({}).text,
-      ).toMatchInlineSnapshot(`
+      expect(sql`SELECT ${row(Account.$firstName.as("name"))} FROM ${Account}`.getSql({}).text).toMatchInlineSnapshot(`
         "/* <query_0> */
         SELECT
           "a_1"."first_name" AS "name"
@@ -488,7 +464,9 @@ describe("fromDrizzle (pg) — SQL generation", () => {
 
    test("SELECT with aggregate val()", () => {
       expect(
-         sql`SELECT ${row(Account.$accountId, val`COUNT(*)`.as<{ total: number }>("total"))} FROM ${Account} GROUP BY ${Account.$accountId}`.getSql({}).text,
+         sql`SELECT ${row(Account.$accountId, val`COUNT(*)`.as<{ total: number }>("total"))} FROM ${Account} GROUP BY ${Account.$accountId}`.getSql(
+            {},
+         ).text,
       ).toMatchInlineSnapshot(`
         "/* <query_0> */
         SELECT
@@ -504,7 +482,9 @@ describe("fromDrizzle (pg) — SQL generation", () => {
    test("SELECT with table alias (.as())", () => {
       const Parent = Account.as("parent");
       expect(
-         sql`SELECT ${row(Account.$$, Parent.$email.as("parentEmail"))} FROM ${Account} JOIN ${Parent} ON ${Parent.$accountId} = ${Account.$parentId}`.getSql({}).text,
+         sql`SELECT ${row(Account.$$, Parent.$email.as("parentEmail"))} FROM ${Account} JOIN ${Parent} ON ${Parent.$accountId} = ${Account.$parentId}`.getSql(
+            {},
+         ).text,
       ).toMatchInlineSnapshot(`
         "/* <query_0> */
         SELECT
@@ -521,7 +501,9 @@ describe("fromDrizzle (pg) — SQL generation", () => {
 
    test("SELECT with JOIN", () => {
       expect(
-         sql`SELECT ${row(Account.$accountId, Order.$orderId)} FROM ${Account} JOIN ${Order} ON ${Order.$accountId} = ${Account.$accountId}`.getSql({}).text,
+         sql`SELECT ${row(Account.$accountId, Order.$orderId)} FROM ${Account} JOIN ${Order} ON ${Order.$accountId} = ${Account.$accountId}`.getSql(
+            {},
+         ).text,
       ).toMatchInlineSnapshot(`
         "/* <query_0> */
         SELECT
@@ -535,15 +517,15 @@ describe("fromDrizzle (pg) — SQL generation", () => {
 
    test("INSERT insertColsVals", () => {
       expect(
-         sql`INSERT INTO ${Account} ${Account.insertColsVals({ email: "a@b.com", firstName: "John" })} RETURNING ${row(Account.$$)}`.getSql({}).text,
+         sql`INSERT INTO ${Account} ${Account.insertColsVals({ accountId: "some-id", email: "a@b.com", firstName: "John" })} RETURNING ${row(Account.$$)}`.getSql(
+            {},
+         ).text,
       ).toMatchInlineSnapshot(`
         "/* <query_0> */
         INSERT INTO
-          "valnor_test"."account" ("email", "first_name")
+          "valnor_test"."account" ("account_id", "email", "first_name")
         VALUES
-          ($1, $2)
-        RETURNING
-          "account"."account_id" AS "accountId",
+          (@param_0, @param_1, @param_2) RETURNING "account"."account_id" AS "accountId",
           "account"."email",
           "account"."first_name" AS "firstName",
           "account"."parent_id" AS "parentId" /* </query_0> */"
@@ -552,25 +534,26 @@ describe("fromDrizzle (pg) — SQL generation", () => {
 
    test("UPDATE updateSet", () => {
       expect(
-         sql`UPDATE ${Account} SET ${Account.updateSet({ email: "new@b.com" })} WHERE ${Account.$accountId} = ${"some-id"}`.getSql({}).text,
+         sql`UPDATE ${Account} SET ${Account.updateSet({ email: "new@b.com" })} WHERE ${Account.$accountId} = ${"some-id"}`.getSql(
+            {},
+         ).text,
       ).toMatchInlineSnapshot(`
         "/* <query_0> */
         UPDATE "valnor_test"."account"
         SET
-          "email" = $1
+          "email" = @param_0
         WHERE
-          "account"."account_id" = $2 /* </query_0> */"
+          "account"."account_id" = @param_1 /* </query_0> */"
       `);
    });
 
    test("DELETE", () => {
-      expect(
-         sql`DELETE FROM ${Account} WHERE ${Account.$accountId} = ${"some-id"}`.getSql({}).text,
-      ).toMatchInlineSnapshot(`
+      expect(sql`DELETE FROM ${Account} WHERE ${Account.$accountId} = ${"some-id"}`.getSql({}).text)
+         .toMatchInlineSnapshot(`
         "/* <query_0> */
         DELETE FROM "valnor_test"."account"
         WHERE
-          "account"."account_id" = $1 /* </query_0> */"
+          "account"."account_id" = @param_0 /* </query_0> */"
       `);
    });
 });

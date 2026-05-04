@@ -24,6 +24,15 @@ describe("Find Tables tests", () => {
               "information_schema"."columns" AS "c_1"
             WHERE
               "c_1"."table_schema" IN ($1)
+              AND "c_1"."table_name" IN (
+                SELECT
+                  table_name
+                FROM
+                  information_schema.tables
+                WHERE
+                  table_schema IN ($2)
+                  AND table_type = 'BASE TABLE'
+              )
             GROUP BY
               "c_1"."table_name",
               "c_1"."table_schema" /* </query_1> */
@@ -44,7 +53,7 @@ describe("Find Tables tests", () => {
               AND "kcu_2"."table_schema" = "tc_3"."table_schema"
             WHERE
               "tc_3"."constraint_type" = 'PRIMARY KEY'
-              AND "tc_3"."table_schema" IN ($2)
+              AND "tc_3"."table_schema" IN ($3)
             GROUP BY
               "kcu_2"."table_name",
               "kcu_2"."table_schema" /* </query_2> */
@@ -60,6 +69,7 @@ describe("Find Tables tests", () => {
 
       expect(values).toMatchInlineSnapshot(`
         [
+          "public",
           "public",
           "public",
         ]

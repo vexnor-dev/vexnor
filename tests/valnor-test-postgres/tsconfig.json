@@ -5,16 +5,16 @@
       "rootDir": "./src",
       "declaration": true,
       "declarationMap": true,
-      "composite": true
+      "composite": true,
+      "experimentalDecorators": true,
+      "emitDecoratorMetadata": true
    },
    "include": ["src/**/*"],
    "exclude": ["dist", "node_modules"],
    "references": [
-      {
-         "path": "../../packages/valnor"
-      },
-      {
-         "path": "../../packages/valnor-postgres"
-      }
+      { "path": "../../packages/valnor" },
+      { "path": "../../packages/valnor-postgres" },
+      { "path": "../../packages/valnor-drizzle" },
+      { "path": "../../packages/valnor-typeorm" }
    ]
 }

@@ -36,3 +36,16 @@ export const findTables = sql`
    WHERE ${Tables.$table_schema} IN (${param<{ schemas: string[] }>("schemas")})
      AND ${Tables.$table_type} = 'BASE TABLE'
    ORDER BY ${Tables.$table_schema}, ${Tables.$table_name}`;
+
+/**
+ * Query all views in the given schemas
+ */
+export const findViews = sql`
+   SELECT ${row(Tables.$table_name, Tables.$table_schema)},
+          "table_columns_result"."table_columns" as ${col<{ table_columns: string }>("table_columns")}
+   FROM ${Tables}
+           OUTER APPLY (SELECT coalesce((${TableColumns.render("default")} for json path, include_null_values), '[]')
+                                  AS "table_columns") AS "table_columns_result"
+   WHERE ${Tables.$table_schema} IN (${param<{ schemas: string[] }>("schemas")})
+     AND ${Tables.$table_type} = 'VIEW'
+   ORDER BY ${Tables.$table_schema}, ${Tables.$table_name}`;

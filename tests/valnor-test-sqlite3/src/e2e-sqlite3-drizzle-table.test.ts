@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
 import { randomUUID } from "node:crypto";
 import { sqliteTable, text } from "drizzle-orm/sqlite-core";
-import { fromDrizzle } from "valnor-drizzle/sqlite";
+import { fromDrizzleTable } from "valnor-drizzle/sqlite";
 import { row, sql, param, excluded } from "valnor";
 import "valnor-sqlite3";
 import { db } from "./config.js";
@@ -19,9 +19,9 @@ const accountDrizzle = sqliteTable("account", {
    parentId: text("parent_id"),
 });
 
-const Account = fromDrizzle(accountDrizzle, "main");
+const Account = fromDrizzleTable(accountDrizzle, "main");
 
-describe.sequential("e2e drizzle/sqlite — fromDrizzle table works against real DB", () => {
+describe.sequential("e2e drizzle/sqlite — fromDrizzleTable works against real DB", () => {
    const TAG = "drizzle-sqlite-e2e";
    let account!: typeof accountDrizzle.$inferSelect;
 

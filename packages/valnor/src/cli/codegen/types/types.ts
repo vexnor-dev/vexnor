@@ -2,6 +2,7 @@ export interface CodegenCommandOptions {
    outDir: string;
    uri?: string;
    schema: string[];
+   omit?: string[];
    pascalCaseTables?: boolean;
    camelCaseColumns?: boolean;
    plugin: string;

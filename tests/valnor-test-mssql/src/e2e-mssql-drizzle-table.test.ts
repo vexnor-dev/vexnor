@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
 import { mssqlSchema, varchar, nvarchar } from "drizzle-orm/mssql-core";
-import { fromDrizzle } from "valnor-drizzle/mssql";
+import { fromDrizzleTable } from "valnor-drizzle/mssql";
 import { row, sql, param } from "valnor";
 import "valnor-mssql";
 import { pool } from "./mssql-pool.js";
@@ -19,9 +19,9 @@ const accountDrizzle = schema.table("account", {
    notes: nvarchar("notes", { length: "max" }),
 });
 
-const Account = fromDrizzle(accountDrizzle);
+const Account = fromDrizzleTable(accountDrizzle);
 
-describe.sequential("e2e drizzle/mssql — fromDrizzle table works against real DB", (ctx) => {
+describe.sequential("e2e drizzle/mssql — fromDrizzleTable works against real DB", (ctx) => {
    const TAG = getTag(ctx);
    let account!: typeof accountDrizzle.$inferSelect;
 
