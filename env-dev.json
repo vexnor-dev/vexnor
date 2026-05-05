@@ -24,5 +24,8 @@
       "MSSQL_DATABASE": "valnor",
       "MSSQL_USER": "valnor_dev",
       "MSSQL_PASSWORD": "P@ssw0rd!"
+   },
+   "sqlite3": {
+      "SQLITE_PATH": "../../@db-sqlite3/valnor-test.sqlite"
    }
 }

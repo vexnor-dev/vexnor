@@ -9,99 +9,47 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
     - name: Setup Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
-        node-version-file: 'package.json'  # This will read from engines.node
+        node-version: '22'
 
     - name: Install pnpm
-      uses: pnpm/action-setup@v2
+      uses: pnpm/action-setup@v4
       with:
         run_install: false
-        package_json_file: 'package.json'  # This will read from packageManager
 
     - name: Setup pnpm cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
-        path: |
-          ~/.pnpm-store
+        path: ~/.pnpm-store
         key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
         restore-keys: |
           ${{ runner.os }}-pnpm-
 
     - name: Install dependencies
-      run: pnpm install --frozen-lockfile
       shell: bash
+      run: pnpm install --frozen-lockfile
 
     - name: Wait for Postgres
       uses: ./.github/actions/wait-for-postgres
 
-    - name: Migrate database
-      shell: bash
-      run: pnpm -w run db-migrate
-
-    - name: Run models
-      id: models
+    - name: Migrate databases
       shell: bash
       run: |
-        pnpm --filter='./packages/testing-e2e' run codegen || pino
-
-    - name: List generated files
-      shell: bash
-      run: |
-        tree ./packages/testing-e2e/src
+        pnpm db-migrate:postgres
+        pnpm db-migrate:sqlite3
 
     - name: Build
-      id: build
-      run: pnpm run build
       shell: bash
+      run: pnpm build
+
+    - name: Run codegen
+      shell: bash
+      run: |
+        pnpm --filter @valnor/valnor-test-postgres codegen
+        pnpm --filter @valnor/valnor-test-sqlite3 codegen
 
     - name: Run tests
-      id: tests
       shell: bash
-      run: |
-        pnpm test
-#        set -e
-#        OUTPUT=$(pnpm -r run test)
-#        echo "$OUTPUT"
-#        REPORT_URL=$(echo "$OUTPUT" | grep -oE 'https://reports.cucumber.io/reports/[a-zA-Z0-9-]+')
-#        if [ -n "$GITHUB_ENV" ]; then
-#          echo "REPORT_URL=$REPORT_URL" >> "$GITHUB_ENV"
-#        fi
-#
-#        if [ -n "$REPORT_URL" ]; then
-#          if [ -n "$GITHUB_STEP_SUMMARY" ]; then
-#            echo "🧪 Cucumber Report: [$REPORT_URL]($REPORT_URL)" >> "$GITHUB_STEP_SUMMARY"
-#          else
-#            echo "🧪 Cucumber Report: $REPORT_URL"
-#          fi
-#        else
-#          if [ -n "$GITHUB_STEP_SUMMARY" ]; then
-#            echo "❌ Cucumber report URL not found" >> "$GITHUB_STEP_SUMMARY"
-#          else
-#            echo "❌ Cucumber report URL not found"
-#          fi
-#        fi
-
-    - name: 💬 Comment report URL on PR
-      shell: bash
-      if: ${{ github.event_name == 'pull_request' && env.REPORT_URL != '' }}
-      run: |
-        gh pr comment ${{ github.event.pull_request.number }} --body "🧪 Cucumber Report: [${{ env.REPORT_URL }}](${{ env.REPORT_URL }})"
-      env:
-        GH_TOKEN: ${{ inputs.GITHUB_TOKEN }}
-
-    - name: Upload test results
-      uses: actions/upload-artifact@v4
-      with:
-        name: cucumber-report.html
-        path: ./packages/testing-e2e/test-results/cucumber-report.html
-
-    - name: Publish test results to GitHub
-      uses: mikepenz/action-junit-report@v4
-      with:
-        check_name: 'Cucumber Tests'
-        report_paths: './packages/testing-e2e/test-results/cucumber-junit.xml'
+      run: pnpm test
