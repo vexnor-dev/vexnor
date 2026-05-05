@@ -58,9 +58,12 @@ describe("postgres type coverage", () => {
    });
 
    test("insert and select back all types", () => {
-      const { colUuid, colTimestamptz, ...result } = inserted;
+      const { colUuid, colTimestamptz, colDate, ...result } = inserted;
       expect(typeof colUuid).toMatchInlineSnapshot(`"string"`);
       expect(colTimestamptz).toBeInstanceOf(Date);
+      expect(colDate.getFullYear()).toBe(2024);
+      expect(colDate.getMonth()).toBe(0);
+      expect(colDate.getDate()).toBe(15);
       expect(result).toMatchInlineSnapshot(`
         {
           "colBit": "10101010",
@@ -82,7 +85,6 @@ describe("postgres type coverage", () => {
             "x": 1,
             "y": 1,
           },
-          "colDate": 2024-01-14T23:00:00.000Z,
           "colFloat4": 3.14,
           "colFloat8": 3.141592653589793,
           "colInet": "192.168.1.1",
@@ -131,57 +133,62 @@ describe("postgres type coverage", () => {
 
    test("update and select back all types", async () => {
       const idParam = param<{ id: string }>("id");
-      const updated = await TypeCoverage.postgres.update({
-         WHERE: sql`${TypeCoverage.$colUuid} = ${idParam}`,
-      }).one({
-         db: pool,
-         params: {
-            id: inserted.colUuid,
-            set: {
-               colText: "updated text",
-               colVarchar: "updated world",
-               colBpchar: "upd       ",
-               colJson: JSON.stringify({ key: "updated" }) as unknown,
-               colJsonb: JSON.stringify({ nested: { num: 2 } }) as unknown,
-               colXml: "<updated/>",
-               colInet: "10.0.0.1",
-               colCidr: "10.0.0.0/8",
-               colMacaddr: "ff:ff:ff:ff:ff:ff",
-               colBit: "11111111",
-               colVarbit: "1111",
-               colInterval: "2 years 3 months",
-               colTime: "14:00:00",
-               colTimetz: "14:00:00+02",
-               colMoney: "$9,999.99",
-               colInt2: 100,
-               colInt4: 42,
-               colFloat4: 2.72,
-               colFloat8: 2.718281828459045,
-               colInt8: "9223372036854775806",
-               colNumeric: "99999.99",
-               colBool: false,
-               colDate: new Date("2025-06-01"),
-               colTimestamp: new Date("2025-06-01T08:00:00Z"),
-               colTimestamptz: new Date("2025-06-01T08:00:00Z"),
-               colBytea: new Uint8Array([5, 6, 7, 8]),
-               colOid: 99999,
-               colXid: "456",
-               colName: "public",
-               colPgLsn: "0/7654321",
-               colTsvector: "'updated' 'text'",
-               colTsquery: "'updated' & 'text'",
-               colPoint: "(3.0,4.0)",
-               colLine: "{3,4,5}",
-               colLseg: "[(1,1),(2,2)]",
-               colBox: "(2,2),(1,1)",
-               colPath: "[(1,1),(2,2),(3,1)]",
-               colPolygon: "((1,1),(2,2),(3,1))",
-               colCircle: "<(2,2),10>",
+      const updated = await TypeCoverage.postgres
+         .update({
+            WHERE: sql`${TypeCoverage.$colUuid} = ${idParam}`,
+         })
+         .one({
+            db: pool,
+            params: {
+               id: inserted.colUuid,
+               set: {
+                  colText: "updated text",
+                  colVarchar: "updated world",
+                  colBpchar: "upd       ",
+                  colJson: JSON.stringify({ key: "updated" }) as unknown,
+                  colJsonb: JSON.stringify({ nested: { num: 2 } }) as unknown,
+                  colXml: "<updated/>",
+                  colInet: "10.0.0.1",
+                  colCidr: "10.0.0.0/8",
+                  colMacaddr: "ff:ff:ff:ff:ff:ff",
+                  colBit: "11111111",
+                  colVarbit: "1111",
+                  colInterval: "2 years 3 months",
+                  colTime: "14:00:00",
+                  colTimetz: "14:00:00+02",
+                  colMoney: "$9,999.99",
+                  colInt2: 100,
+                  colInt4: 42,
+                  colFloat4: 2.72,
+                  colFloat8: 2.718281828459045,
+                  colInt8: "9223372036854775806",
+                  colNumeric: "99999.99",
+                  colBool: false,
+            colDate: new Date("2025-06-01"),
+                  colTimestamp: new Date("2025-06-01T08:00:00Z"),
+                  colTimestamptz: new Date("2025-06-01T08:00:00Z"),
+                  colBytea: new Uint8Array([5, 6, 7, 8]),
+                  colOid: 99999,
+                  colXid: "456",
+                  colName: "public",
+                  colPgLsn: "0/7654321",
+                  colTsvector: "'updated' 'text'",
+                  colTsquery: "'updated' & 'text'",
+                  colPoint: "(3.0,4.0)",
+                  colLine: "{3,4,5}",
+                  colLseg: "[(1,1),(2,2)]",
+                  colBox: "(2,2),(1,1)",
+                  colPath: "[(1,1),(2,2),(3,1)]",
+                  colPolygon: "((1,1),(2,2),(3,1))",
+                  colCircle: "<(2,2),10>",
+               },
             },
-         },
-      });
+         });
       expect(updated.colTimestamptz).toBeInstanceOf(Date);
-      const { colTimestamptz, colUuid, ...result } = updated;
+      const { colTimestamptz, colUuid, colDate, ...result } = updated;
+      expect(colDate.getFullYear()).toBe(2025);
+      expect(colDate.getMonth()).toBe(5);
+      expect(colDate.getDate()).toBe(1);
       expect(result).toMatchInlineSnapshot(`
         {
           "colBit": "11111111",
@@ -203,7 +210,6 @@ describe("postgres type coverage", () => {
             "x": 2,
             "y": 2,
           },
-          "colDate": 2025-05-31T22:00:00.000Z,
           "colFloat4": 2.72,
           "colFloat8": 2.718281828459045,
           "colInet": "10.0.0.1",
