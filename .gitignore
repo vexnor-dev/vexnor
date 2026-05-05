@@ -24,3 +24,4 @@ mailmap.txt
 coverage*
 *.sqlite-journal
 @ignore
+.amazonq/agents/default.json
