@@ -4,6 +4,9 @@ description: Creates the valnor database and valnor_dev login/user in SQL Server
 runs:
   using: "composite"
   steps:
+    - name: Wait for MSSQL to be ready
+      uses: ./.github/actions/wait-for-mssql
+
     - name: Create database and user
       shell: bash
       run: |

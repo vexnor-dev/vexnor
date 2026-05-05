@@ -34,9 +34,6 @@ runs:
     - name: Wait for Postgres
       uses: ./.github/actions/wait-for-postgres
 
-    - name: Wait for MSSQL
-      uses: ./.github/actions/wait-for-mssql
-
     - name: Migrate databases
       shell: bash
       run: |
