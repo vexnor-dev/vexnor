@@ -84,9 +84,9 @@
    },
    "devDependencies": {
       "@types/pg": "^8.15.5",
-      "@vitest/coverage-v8": "^4.0.18",
+      "@vitest/coverage-v8": "^4.1.5",
       "tsc-alias": "^1.8.16",
       "vite-tsconfig-paths": "^6.1.1",
-      "vitest": "^4.0.18"
+      "vitest": "^4.1.5"
    }
 }
