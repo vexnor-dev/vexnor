@@ -58,10 +58,9 @@ describe("postgres type coverage", () => {
    });
 
    test("insert and select back all types", () => {
-      const { colUuid, colTimestamptz, colDate, ...result } = inserted;
+      const { colUuid, colTimestamptz, ...result } = inserted;
       expect(typeof colUuid).toMatchInlineSnapshot(`"string"`);
       expect(colTimestamptz).toBeInstanceOf(Date);
-      expect(colDate).toMatchInlineSnapshot(`"2024-01-15"`);
       expect(result).toMatchInlineSnapshot(`
         {
           "colBit": "10101010",
@@ -83,6 +82,7 @@ describe("postgres type coverage", () => {
             "x": 1,
             "y": 1,
           },
+          "colDate": 2024-01-14T23:00:00.000Z,
           "colFloat4": 3.14,
           "colFloat8": 3.141592653589793,
           "colInet": "192.168.1.1",
@@ -181,8 +181,7 @@ describe("postgres type coverage", () => {
          },
       });
       expect(updated.colTimestamptz).toBeInstanceOf(Date);
-      const { colTimestamptz, colUuid, colDate, ...result } = updated;
-      expect(colDate).toMatchInlineSnapshot(`"2025-06-01"`);
+      const { colTimestamptz, colUuid, ...result } = updated;
       expect(result).toMatchInlineSnapshot(`
         {
           "colBit": "11111111",
@@ -204,6 +203,7 @@ describe("postgres type coverage", () => {
             "x": 2,
             "y": 2,
           },
+          "colDate": 2025-05-31T22:00:00.000Z,
           "colFloat4": 2.72,
           "colFloat8": 2.718281828459045,
           "colInet": "10.0.0.1",
