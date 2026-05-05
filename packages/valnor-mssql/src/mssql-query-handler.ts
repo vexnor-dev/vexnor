@@ -27,8 +27,7 @@ export class MssqlQueryHandler<T extends { Params?: unknown; Row?: unknown }> ex
          queryInput = this.query.getSql(newArgs);
          return queryInput;
       } catch (err) {
-         console.error(err, "\n", queryInput?.text ?? "error building query");
-         throw err;
+         throw new SqlRunError(`Error building mssql query '${this.query.id}'`, this.query, { cause: err });
       }
    }
 

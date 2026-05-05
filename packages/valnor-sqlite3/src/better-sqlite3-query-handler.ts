@@ -1,4 +1,4 @@
-import { SqlRunArgs, SqlQueryHandler, SqlQuery } from "valnor";
+import { SqlRunArgs, SqlQueryHandler, SqlQuery, SqlRunError } from "valnor";
 import type { Database, RunResult } from "better-sqlite3";
 import { Sqlite3Formatter } from "#/sqlite3-formatter.js";
 import { Sqlite3Tokenizer } from "#/sqlite3-tokenizer.js";
@@ -41,8 +41,7 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
          };
          return queryInput;
       } catch (err) {
-         console.error(err, "\n", queryInput?.sql ?? "error building core");
-         throw err;
+         throw new SqlRunError(`Error building sqlite query '${this.query.id}'`, this.query, { cause: err });
       }
    }
 
@@ -63,8 +62,7 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
          const result = (await db).prepare(queryConfig.sql).run(queryConfig.values);
          return Promise.resolve(result);
       } catch (err) {
-         console.error(err, "\n", queryConfig?.sql);
-         throw err;
+         throw new SqlRunError(`Error running sqlite query '${this.query.id}'`, this.query, { cause: err }, queryConfig?.sql);
       }
    }
 
@@ -77,8 +75,7 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
          const result = (await db).prepare<unknown[] | object, T["Row"]>(queryConfig.sql).all(queryConfig.values);
          return Promise.resolve(result);
       } catch (err) {
-         console.error(err, "\n", queryConfig?.sql ?? "error building core");
-         throw err;
+         throw new SqlRunError(`Error running sqlite query '${this.query.id}'`, this.query, { cause: err }, queryConfig?.sql);
       }
    }
 }

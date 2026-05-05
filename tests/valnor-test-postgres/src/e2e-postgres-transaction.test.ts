@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { row } from "valnor";
+import { row, SqlRunError } from "valnor";
 import { sql } from "valnor-postgres";
 import { transaction, savepoint } from "valnor-postgres";
 import { Account } from "./codegen/valnor_test.account-table.js";
@@ -51,13 +51,24 @@ describe.sequential("transaction() - postgres", () => {
    });
 
    test("respects READ ONLY access mode", async () => {
-      await expect(
-         transaction(pool, async (tx) => {
-            await sql`
-               INSERT INTO ${Account} ${Account.insertColsVals({ email: "tx-readonly@test.com", firstName: "Tx", lastName: "ReadOnly" })}
-            `.postgres.run({ db: tx });
-         }, { accessMode: "READ ONLY" }),
-      ).rejects.toThrow();
+      const error = await transaction(pool, async (tx) => {
+         await sql`
+            INSERT INTO ${Account} ${Account.insertColsVals({ email: "tx-readonly@test.com", firstName: "Tx", lastName: "ReadOnly" })}
+         `.postgres.run({ db: tx });
+      }, { accessMode: "READ ONLY" }).catch((err) => err);
+
+      expect(error).toBeInstanceOf(SqlRunError);
+      expect(error.cause).toMatchInlineSnapshot(`
+        [error: cannot execute INSERT in a read-only transaction]
+      `);
+      expect(error.sql).toMatchInlineSnapshot(`
+        "/* <query_0> */
+        INSERT INTO
+          "valnor_test"."account" ("email", "first_name", "last_name")
+        VALUES
+          ($1, $2, $3)
+          /* </query_0> */"
+      `);
    });
 });
 

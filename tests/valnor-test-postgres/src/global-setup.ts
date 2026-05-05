@@ -5,13 +5,6 @@ export default async function (proj: TestProject) {
    Object.assign(process.env, proj.config.env ?? proj.globalConfig.env);
    const dataManager = new TestDataManager(proj);
    const { pool } = await import("./postgres-pool.js");
-   let client = undefined;
-   try {
-      client = await pool.connect();
-      const rowsAffected = await dataManager.cleanAll(pool);
-      proj.vitest.logger.log(`global-setup: Cleaned-up records`, rowsAffected);
-   } finally {
-      client?.release(true);
-      await pool.end();
-   }
+   const rowsAffected = await dataManager.cleanAll(pool);
+   proj.vitest.logger.log(`global-setup: Cleaned-up records`, rowsAffected);
 }

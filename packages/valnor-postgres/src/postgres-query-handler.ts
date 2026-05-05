@@ -1,4 +1,4 @@
-import { SqlQueryHandler, SqlQuery, SqlRunArgs } from "valnor";
+import { SqlQueryHandler, SqlQuery, SqlRunArgs, SqlRunError } from "valnor";
 import type { QueryResult } from "pg";
 import { PostgresTokenizer } from "#/postgres-tokenizer.js";
 
@@ -34,8 +34,7 @@ export class PostgresQueryHandler<T extends { Row?: unknown; Params?: unknown }>
          queryInput = this.query.getSql(newArgs);
          return queryInput;
       } catch (err) {
-         console.error(err, "\n", queryInput?.text ?? "error building core");
-         throw err;
+         throw new SqlRunError(`Error building postgres query '${this.query.id}'`, this.query, { cause: err });
       }
    }
 
@@ -63,8 +62,7 @@ export class PostgresQueryHandler<T extends { Row?: unknown; Params?: unknown }>
          const { text, values } = queryInput;
          return await (await db).query({ text, values });
       } catch (err) {
-         console.error(err, "\n", queryInput?.text ?? "error building core");
-         throw err;
+         throw new SqlRunError(`Error running postgres query '${this.query.id}'`, this.query, { cause: err }, queryInput?.text);
       }
    }
 }
