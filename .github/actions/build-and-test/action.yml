@@ -34,11 +34,15 @@ runs:
     - name: Wait for Postgres
       uses: ./.github/actions/wait-for-postgres
 
+    - name: Wait for MSSQL
+      uses: ./.github/actions/wait-for-mssql
+
     - name: Migrate databases
       shell: bash
       run: |
         pnpm db-migrate:postgres
         pnpm db-migrate:sqlite3
+        pnpm db-migrate:mssql
 
     - name: Build
       shell: bash
@@ -49,6 +53,7 @@ runs:
       run: |
         pnpm --filter @valnor/valnor-test-postgres codegen
         pnpm --filter @valnor/valnor-test-sqlite3 codegen
+        pnpm --filter @valnor/valnor-test-mssql codegen
 
     - name: Run tests
       shell: bash

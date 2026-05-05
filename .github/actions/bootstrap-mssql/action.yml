@@ -1,0 +1,22 @@
+name: Bootstrap MSSQL
+description: Creates the valnor database and valnor_dev login/user in SQL Server
+
+runs:
+  using: "composite"
+  steps:
+    - name: Create database and user
+      shell: bash
+      run: |
+        /opt/mssql-tools18/bin/sqlcmd -S localhost,1433 -U sa -P 'P@ssw0rd!' -C -Q "
+          IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = 'valnor')
+            CREATE DATABASE valnor;
+          IF NOT EXISTS (SELECT name FROM sys.server_principals WHERE name = 'valnor_dev')
+            CREATE LOGIN valnor_dev WITH PASSWORD = 'P@ssw0rd!';
+        "
+        /opt/mssql-tools18/bin/sqlcmd -S localhost,1433 -U sa -P 'P@ssw0rd!' -C -d valnor -Q "
+          IF NOT EXISTS (SELECT name FROM sys.database_principals WHERE name = 'valnor_dev')
+          BEGIN
+            CREATE USER valnor_dev FOR LOGIN valnor_dev;
+            ALTER ROLE db_owner ADD MEMBER valnor_dev;
+          END
+        "
