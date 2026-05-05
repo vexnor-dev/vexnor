@@ -57,7 +57,7 @@
       "valnor": "workspace:^",
       "vite": "^8.0.10",
       "vite-node": "^2.1.8",
-      "vitest": "^4.0.18"
+      "vitest": "^4.1.5"
    },
    "pnpm": {
       "overrides": {
