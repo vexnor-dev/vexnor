@@ -25,3 +25,4 @@ coverage*
 *.sqlite-journal
 @ignore
 .amazonq/agents/default.json
+.ai/mcp/mcp.json
