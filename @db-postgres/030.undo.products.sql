@@ -1,5 +1,5 @@
 begin;
 
-drop table valnor_test.product;
+drop table vexnor_dev.product;
 
 commit;

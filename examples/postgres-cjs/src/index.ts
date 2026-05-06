@@ -1,10 +1,10 @@
 import * as console from "node:console";
 import * as crypto from "node:crypto";
 import { ok } from "node:assert";
-import { Account, AccountStatusUdt, Order, OrderStatusUdt } from "./codegen/valnor_test.schema.js";
-import { row, sql } from "valnor";
+import { Account, AccountStatusUdt, Order, OrderStatusUdt } from "./codegen/vexnor_dev.schema.js";
+import { row, sql } from "vexnor";
 import { Pool } from "pg";
-import "valnor-postgres";
+import "vexnor-postgres";
 
 const pool = new Pool({
    host: "localhost",

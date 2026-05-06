@@ -1,6 +1,6 @@
 BEGIN TRANSACTION;
 
-CREATE TABLE valnor_test.type_coverage
+CREATE TABLE vexnor_dev.type_coverage
 (
     -- string types
     col_uniqueidentifier    uniqueidentifier    NOT NULL DEFAULT NEWID(),

@@ -88,9 +88,9 @@ importers:
       typescript-eslint:
         specifier: ^8.18.2
         version: 8.46.2(eslint@9.38.0)(typescript@5.9.3)
-      valnor:
+      vexnor:
         specifier: workspace:^
-        version: link:packages/valnor
+        version: link:packages/vexnor
       vite:
         specifier: ^8.0.10
         version: 8.0.10(@types/node@20.19.0)(esbuild@0.25.11)(tsx@4.20.6)(yaml@2.8.4)
@@ -106,12 +106,12 @@ importers:
       pg:
         specifier: ^8.16.3
         version: 8.16.3
-      valnor:
+      vexnor:
         specifier: workspace:^
-        version: link:../../packages/valnor
-      valnor-postgres:
+        version: link:../../packages/vexnor
+      vexnor-postgres:
         specifier: workspace:^
-        version: link:../../packages/valnor-postgres
+        version: link:../../packages/vexnor-postgres
     devDependencies:
       '@types/pg':
         specifier: ^8.15.5
@@ -128,12 +128,12 @@ importers:
       pg:
         specifier: ^8.16.3
         version: 8.16.3
-      valnor:
+      vexnor:
         specifier: workspace:^1.0.0
-        version: link:../../packages/valnor
-      valnor-postgres:
+        version: link:../../packages/vexnor
+      vexnor-postgres:
         specifier: workspace:^1.0.0
-        version: link:../../packages/valnor-postgres
+        version: link:../../packages/vexnor-postgres
     devDependencies:
       '@types/pg':
         specifier: ^8.15.5
@@ -145,7 +145,7 @@ importers:
         specifier: ^4.0.18
         version: 4.0.18(@types/node@24.9.1)(lightningcss@1.32.0)(tsx@4.20.6)(yaml@2.8.4)
 
-  packages/valnor:
+  packages/vexnor:
     dependencies:
       code-block-writer:
         specifier: ^11.0.3
@@ -185,11 +185,11 @@ importers:
         specifier: ^4.1.5
         version: 4.1.5(@types/node@24.9.1)(@vitest/coverage-v8@4.1.5)(vite@8.0.10(@types/node@24.9.1)(esbuild@0.25.11)(tsx@4.20.6)(yaml@2.8.4))
 
-  packages/valnor-drizzle:
+  packages/vexnor-drizzle:
     dependencies:
-      valnor:
+      vexnor:
         specifier: workspace:^
-        version: link:../valnor
+        version: link:../vexnor
     devDependencies:
       '@vitest/coverage-v8':
         specifier: ^4.1.5
@@ -213,14 +213,14 @@ importers:
         specifier: ^4.1.5
         version: 4.1.5(@types/node@24.9.1)(@vitest/coverage-v8@4.1.5)(vite@8.0.10(@types/node@24.9.1)(esbuild@0.25.11)(tsx@4.20.6)(yaml@2.8.4))
 
-  packages/valnor-mssql:
+  packages/vexnor-mssql:
     dependencies:
       mssql:
         specifier: ^12.5.2
         version: 12.5.2
-      valnor:
+      vexnor:
         specifier: workspace:^
-        version: link:../valnor
+        version: link:../vexnor
     devDependencies:
       '@types/mssql':
         specifier: ^12.3.0
@@ -244,14 +244,14 @@ importers:
         specifier: ^4.1.5
         version: 4.1.5(@types/node@24.9.1)(@vitest/coverage-v8@4.1.5)(vite@8.0.10(@types/node@24.9.1)(esbuild@0.25.11)(tsx@4.20.6)(yaml@2.8.4))
 
-  packages/valnor-postgres:
+  packages/vexnor-postgres:
     dependencies:
       pg:
         specifier: ^8.16.3
         version: 8.16.3
-      valnor:
+      vexnor:
         specifier: workspace:^
-        version: link:../valnor
+        version: link:../vexnor
     devDependencies:
       '@types/pg':
         specifier: ^8.15.5
@@ -275,14 +275,14 @@ importers:
         specifier: ^4.1.5
         version: 4.1.5(@types/node@24.9.1)(@vitest/coverage-v8@4.1.5)(vite@8.0.10(@types/node@24.9.1)(esbuild@0.25.11)(tsx@4.20.6)(yaml@2.8.4))
 
-  packages/valnor-sqlite3:
+  packages/vexnor-sqlite3:
     dependencies:
       better-sqlite3:
         specifier: ^12.2.0
         version: 12.4.1
-      valnor:
+      vexnor:
         specifier: workspace:*
-        version: link:../valnor
+        version: link:../vexnor
     devDependencies:
       '@types/better-sqlite3':
         specifier: ^7.6.13
@@ -306,11 +306,11 @@ importers:
         specifier: ^4.1.5
         version: 4.1.5(@types/node@24.9.1)(@vitest/coverage-v8@4.1.5)(vite@8.0.10(@types/node@24.9.1)(esbuild@0.25.11)(tsx@4.20.6)(yaml@2.8.4))
 
-  packages/valnor-typeorm:
+  packages/vexnor-typeorm:
     dependencies:
-      valnor:
+      vexnor:
         specifier: workspace:^
-        version: link:../valnor
+        version: link:../vexnor
     devDependencies:
       '@types/better-sqlite3':
         specifier: ^7.6.13
@@ -343,7 +343,7 @@ importers:
         specifier: ^4.1.5
         version: 4.1.5(@types/node@24.9.1)(@vitest/coverage-v8@4.1.5)(vite@8.0.10(@types/node@24.9.1)(esbuild@0.25.11)(tsx@4.20.6)(yaml@2.8.4))
 
-  tests/valnor-test-mssql:
+  tests/vexnor-test-mssql:
     dependencies:
       '@sinclair/typebox':
         specifier: ^0.34.41
@@ -351,18 +351,18 @@ importers:
       mssql:
         specifier: ^12.5.2
         version: 12.5.2
-      valnor:
+      vexnor:
         specifier: workspace:*
-        version: link:../../packages/valnor
-      valnor-drizzle:
+        version: link:../../packages/vexnor
+      vexnor-drizzle:
         specifier: workspace:*
-        version: link:../../packages/valnor-drizzle
-      valnor-mssql:
+        version: link:../../packages/vexnor-drizzle
+      vexnor-mssql:
         specifier: workspace:*
-        version: link:../../packages/valnor-mssql
-      valnor-typeorm:
+        version: link:../../packages/vexnor-mssql
+      vexnor-typeorm:
         specifier: workspace:*
-        version: link:../../packages/valnor-typeorm
+        version: link:../../packages/vexnor-typeorm
     devDependencies:
       '@types/mssql':
         specifier: ^12.3.0
@@ -386,7 +386,7 @@ importers:
         specifier: ^4.1.5
         version: 4.1.5(@types/node@24.9.1)(@vitest/coverage-v8@4.1.5)(vite@8.0.10(@types/node@24.9.1)(esbuild@0.25.11)(tsx@4.20.6)(yaml@2.8.4))
 
-  tests/valnor-test-postgres:
+  tests/vexnor-test-postgres:
     dependencies:
       '@sinclair/typebox':
         specifier: ^0.34.41
@@ -394,18 +394,18 @@ importers:
       pg:
         specifier: ^8.16.3
         version: 8.16.3
-      valnor:
+      vexnor:
         specifier: workspace:*
-        version: link:../../packages/valnor
-      valnor-drizzle:
+        version: link:../../packages/vexnor
+      vexnor-drizzle:
         specifier: workspace:*
-        version: link:../../packages/valnor-drizzle
-      valnor-postgres:
+        version: link:../../packages/vexnor-drizzle
+      vexnor-postgres:
         specifier: workspace:*
-        version: link:../../packages/valnor-postgres
-      valnor-typeorm:
+        version: link:../../packages/vexnor-postgres
+      vexnor-typeorm:
         specifier: workspace:*
-        version: link:../../packages/valnor-typeorm
+        version: link:../../packages/vexnor-typeorm
     devDependencies:
       '@types/pg':
         specifier: ^8.15.5
@@ -435,7 +435,7 @@ importers:
         specifier: ^4.1.5
         version: 4.1.5(@types/node@24.9.1)(@vitest/coverage-v8@4.1.5)(vite@8.0.10(@types/node@24.9.1)(esbuild@0.25.11)(tsx@4.20.6)(yaml@2.8.4))
 
-  tests/valnor-test-sqlite3:
+  tests/vexnor-test-sqlite3:
     dependencies:
       '@sinclair/typebox':
         specifier: ^0.34.41
@@ -443,18 +443,18 @@ importers:
       better-sqlite3:
         specifier: ^12.4.1
         version: 12.4.1
-      valnor:
+      vexnor:
         specifier: workspace:*
-        version: link:../../packages/valnor
-      valnor-drizzle:
+        version: link:../../packages/vexnor
+      vexnor-drizzle:
         specifier: workspace:*
-        version: link:../../packages/valnor-drizzle
-      valnor-sqlite3:
+        version: link:../../packages/vexnor-drizzle
+      vexnor-sqlite3:
         specifier: workspace:*
-        version: link:../../packages/valnor-sqlite3
-      valnor-typeorm:
+        version: link:../../packages/vexnor-sqlite3
+      vexnor-typeorm:
         specifier: workspace:*
-        version: link:../../packages/valnor-typeorm
+        version: link:../../packages/vexnor-typeorm
     devDependencies:
       '@types/better-sqlite3':
         specifier: ^7.6.13
@@ -4554,7 +4554,7 @@ snapshots:
     dependencies:
       '@types/node': 20.19.0
       tarn: 3.0.2
-      tedious: 18.6.1
+      tedious: 19.2.1
     transitivePeerDependencies:
       - supports-color
 
@@ -5805,6 +5805,7 @@ snapshots:
   iconv-lite@0.6.3:
     dependencies:
       safer-buffer: 2.1.2
+    optional: true
 
   iconv-lite@0.7.2:
     dependencies:
@@ -7157,6 +7158,7 @@ snapshots:
       sprintf-js: 1.1.3
     transitivePeerDependencies:
       - supports-color
+    optional: true
 
   tedious@19.2.1:
     dependencies:

@@ -48,9 +48,9 @@ runs:
     - name: Run codegen
       shell: bash
       run: |
-        pnpm --filter @valnor/valnor-test-postgres codegen
-        pnpm --filter @valnor/valnor-test-sqlite3 codegen
-        pnpm --filter @valnor/valnor-test-mssql codegen
+        pnpm --filter @vexnor/vexnor-test-postgres codegen
+        pnpm --filter @vexnor/vexnor-test-sqlite3 codegen
+        pnpm --filter @vexnor/vexnor-test-mssql codegen
 
     - name: Run tests
       shell: bash

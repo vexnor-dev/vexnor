@@ -1,12 +1,12 @@
 {
-   "name": "@valnor/example-postgres-cjs",
+   "name": "@vexnor/example-postgres-cjs",
    "version": "1.0.0",
    "description": "",
    "type": "commonjs",
    "main": "./dist/index.js",
    "scripts": {
-      "precodegen": "pnpm run -r --filter='valnor' --filter='valnor-postgres' build",
-      "codegen": "env-cmd --no-override -x -r ../../env-dev.json -e postgres node ../../packages/valnor/cli.mjs codegen --plugin valnor-postgres --schema valnor_test --pascalCaseTables --camelCaseColumns --host \\$POSTGRES_HOST --port \\$POSTGRES_PORT --database \\$POSTGRES_DATABASE --user \\$POSTGRES_USER --password \\$POSTGRES_PASSWORD --outDir './src/codegen' | pino-pretty",
+      "precodegen": "pnpm run -r --filter='vexnor' --filter='vexnor-postgres' build",
+      "codegen": "env-cmd --no-override -x -r ../../env-dev.json -e postgres node ../../packages/vexnor/cli.mjs codegen --plugin vexnor-postgres --schema vexnor_dev --pascalCaseTables --camelCaseColumns --host \\$POSTGRES_HOST --port \\$POSTGRES_PORT --database \\$POSTGRES_DATABASE --user \\$POSTGRES_USER --password \\$POSTGRES_PASSWORD --outDir './src/codegen' | pino-pretty",
       "prebuild": "run-s 'codegen'",
       "build": "tsc -b",
       "predev": "run-s 'build'",
@@ -18,8 +18,8 @@
    "license": "ISC",
    "dependencies": {
       "pg": "^8.16.3",
-      "valnor": "workspace:^",
-      "valnor-postgres": "workspace:^"
+      "vexnor": "workspace:^",
+      "vexnor-postgres": "workspace:^"
    },
    "devDependencies": {
       "@types/pg": "^8.15.5",

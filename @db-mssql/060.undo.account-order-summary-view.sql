@@ -1,1 +1,1 @@
-DROP VIEW IF EXISTS valnor_test.account_order_summary;
+DROP VIEW IF EXISTS vexnor_dev.account_order_summary;

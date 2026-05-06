@@ -1,9 +1,9 @@
 begin;
 
-drop table valnor_test.order_item;
+drop table vexnor_dev.order_item;
 
-drop table valnor_test.order;
+drop table vexnor_dev.order;
 
-drop type valnor_test.order_status;
+drop type vexnor_dev.order_status;
 
 commit;

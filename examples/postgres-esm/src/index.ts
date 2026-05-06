@@ -2,9 +2,9 @@ import * as console from "node:console";
 import * as crypto from "node:crypto";
 import { ok } from "node:assert";
 import { Pool } from "pg";
-import { Account, AccountStatusUdt, Order, OrderStatusUdt } from "./codegen/valnor_test.schema.js";
-import { param, row, sql } from "valnor";
-import { jsonMany } from "valnor-postgres";
+import { Account, AccountStatusUdt, Order, OrderStatusUdt } from "./codegen/vexnor_dev.schema.js";
+import { param, row, sql } from "vexnor";
+import { jsonMany } from "vexnor-postgres";
 
 const pool = new Pool({
    host: "localhost",

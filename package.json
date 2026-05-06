@@ -6,7 +6,7 @@
    "type": "module",
    "author": "Adrian Topala",
    "license": "Apache-2.0",
-   "repository": "https://github.com/atopala/valnor",
+   "repository": "https://github.com/vexnor-dev/vexnor",
    "engines": {
       "node": ">=22.21.1",
       "pnpm": ">=10.17.0"
@@ -54,7 +54,7 @@
       "sqlite3": "^5.1.7",
       "typescript": "5.9.3",
       "typescript-eslint": "^8.18.2",
-      "valnor": "workspace:^",
+      "vexnor": "workspace:^",
       "vite": "^8.0.10",
       "vite-node": "^2.1.8",
       "vitest": "^4.1.5"

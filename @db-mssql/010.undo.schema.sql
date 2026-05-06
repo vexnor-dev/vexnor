@@ -1,8 +1,8 @@
 BEGIN TRANSACTION;
 
-IF EXISTS (SELECT * FROM sys.schemas WHERE name = 'valnor_test')
+IF EXISTS (SELECT * FROM sys.schemas WHERE name = 'vexnor_dev')
 BEGIN
-    DROP SCHEMA valnor_test;
+    DROP SCHEMA vexnor_dev;
 END
 
 COMMIT;

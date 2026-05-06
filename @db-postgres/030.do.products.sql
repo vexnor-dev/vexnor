@@ -1,6 +1,6 @@
 begin;
 
-create table valnor_test.product
+create table vexnor_dev.product
 (
     product_id   uuid         not null default gen_random_uuid(),
     created_at   timestamptz  not null default now(),

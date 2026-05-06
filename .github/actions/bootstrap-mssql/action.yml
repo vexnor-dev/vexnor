@@ -1,5 +1,5 @@
 name: Bootstrap MSSQL
-description: Creates the valnor database and valnor_dev login/user in SQL Server
+description: Creates the vexnor database and vexnor_dev login/user in SQL Server
 
 runs:
   using: "composite"

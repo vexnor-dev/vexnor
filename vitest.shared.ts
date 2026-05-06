@@ -7,8 +7,8 @@ import { GetEnvVars } from "env-cmd";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const paths = {
-   VALNOR_ENV_PATH: path.resolve(__dirname, "./env-dev.json"),
-   VALNOR_SQLITE_PATH: path.resolve(__dirname, "./@db-sqlite3/valnor-test.sqlite"),
+   VEXNOR_ENV_PATH: path.resolve(__dirname, "./env-dev.json"),
+   VEXNOR_SQLITE_PATH: path.resolve(__dirname, "./@db-sqlite3/vexnor-dev.sqlite"),
 };
 
 console.log("Test environment", paths);
@@ -25,7 +25,7 @@ for (const [key, value] of Object.entries(paths)) {
 const env = await GetEnvVars({
    rc: {
       environments: ["db"],
-      filePath: paths.VALNOR_ENV_PATH,
+      filePath: paths.VEXNOR_ENV_PATH,
    },
    verbose: true,
 });

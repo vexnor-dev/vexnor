@@ -1,1 +1,1 @@
-export * as valnor_test from "./valnor_test.schema.js";
+export * as vexnor_dev from "./vexnor_dev.schema.js";

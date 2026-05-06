@@ -1,6 +1,6 @@
 begin;
 
-create table valnor_test.type_coverage
+create table vexnor_dev.type_coverage
 (
     -- string types
     col_uuid        uuid            not null default gen_random_uuid(),

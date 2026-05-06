@@ -1,3 +1,3 @@
 begin;
-drop table valnor_test.type_coverage;
+drop table vexnor_dev.type_coverage;
 commit;

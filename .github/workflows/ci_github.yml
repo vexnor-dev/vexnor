@@ -27,8 +27,8 @@ jobs:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
       MSSQL_SA_PASSWORD: P@ssw0rd!
-      MSSQL_DATABASE: valnor
-      MSSQL_USER: valnor_dev
+      MSSQL_DATABASE: vexnor
+      MSSQL_USER: vexnor_dev
       MSSQL_PASSWORD: P@ssw0rd!
 
     services:

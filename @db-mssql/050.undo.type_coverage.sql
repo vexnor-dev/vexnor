@@ -1,3 +1,3 @@
 BEGIN TRANSACTION;
-DROP TABLE valnor_test.type_coverage;
+DROP TABLE vexnor_dev.type_coverage;
 COMMIT;
