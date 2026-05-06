@@ -252,4 +252,60 @@ describe("SqlQuery.params", () => {
       assertType<Simplify<void & { name: string }>>({ name: "a" });
       assertType<Void<void & { name: string }>>({ name: "a" });
    });
+
+   test("normalizes missing optional param to null", () => {
+      const query = sql`
+         select ${row(Account.$$)}
+         from ${Account}
+         where ${Account.$email} = ${param<{ email?: string }>("email")}
+      `;
+
+      const { values: missingValues } = query.getSql({ params: {} });
+      const { values: undefinedValues } = query.getSql({ params: { email: undefined } });
+
+      expect(missingValues).toEqual([null]);
+      expect(undefinedValues).toEqual([null]);
+   });
+
+   test("applies param validation rules", () => {
+      const query = sql`
+         select ${row(Account.$$)}
+         from ${Account}
+         where ${Account.$email} = ${param<{ email: string }>("email", {
+            minLength: 5,
+            pattern: /@/,
+         })}
+      `;
+
+      expect(() => query.getSql({ params: { email: "x" } })).toThrow("Invalid param 'email'");
+      expect(() => query.getSql({ params: { email: "a@b.c" } })).not.toThrow();
+   });
+
+   test("uses custom validation message", () => {
+      const query = sql`
+         select ${row(Account.$$)}
+         from ${Account}
+         where ${Account.$accountId} = ${param<{ accountId: string }>("accountId", {
+            validate: (value) => (typeof value === "string" && value.startsWith("acc_") ? true : "must start with acc_"),
+         })}
+      `;
+
+      expect(() => query.getSql({ params: { accountId: "123" } })).toThrow("must start with acc_");
+   });
+
+   test("enforces validation rule typing at compile time", () => {
+      // @ts-expect-error number params must not accept string-only rules
+      param<{ n: number }>("n", { pattern: /x/ });
+
+      // @ts-expect-error string params must not accept number/date range rules
+      param<{ s: string }>("s", { min: 1 });
+
+      // @ts-expect-error date params must use Date ranges
+      param<{ d: Date }>("d", { min: 1 });
+
+      // valid examples
+      param<{ n: number }>("n", { min: 1, max: 10 });
+      param<{ s: string }>("s", { minLength: 1, pattern: /x/ });
+      param<{ d: Date }>("d", { min: new Date(0), max: new Date() });
+   });
 });

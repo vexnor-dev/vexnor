@@ -8,6 +8,7 @@ import {
 import { ARGS, PARAMS, Sql, TYPE } from "#/core/sql-base.js";
 import { Lazy } from "#/lib/lazy.js";
 import { BuildSqlParams, SqlParam } from "#/core/query/sql-param.js";
+import { validateParamValue } from "#/core/query/sql-param-validation.js";
 import { SqlQueryAll, SqlQueryRow } from "#/core/query/sql-models.js";
 import { SqlQueryInfo } from "#/core/charms/sql-query-info.js";
 import { findQueryComment } from "#/core/utils/find-query-comment.js";
@@ -481,7 +482,13 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
                   throw new SqlBuildError(`Param value not provided for param: ${token.name}`);
                }
 
-               const value = args.params[token.name];
+               const paramToken = this.params?.[token.name as keyof NonNullable<typeof this.params>] as
+                  | SqlParam<{ Name: string; Type: unknown }>
+                  | undefined;
+               const rawValue = args.params[token.name];
+               const value = rawValue === undefined ? null : rawValue;
+               validateParamValue(token.name, value, paramToken?.validation ?? null);
+
                if (Array.isArray(value)) {
                   for (let i = 0; i < value.length; i++) {
                      if (i > 0) {

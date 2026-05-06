@@ -25,6 +25,9 @@ type PkFields<T extends { Select: Record<string, unknown> }> = Pick<
    T["Select"],
    Extract<keyof T["Select"], T extends { pk: ReadonlyArray<infer K> } ? K : never>
 >;
+type SelectInsertTable<T> = Extract<T, { Select: Record<string, unknown>; Insert: Record<string, unknown> }>;
+type SelectUpdateTable<T> = Extract<T, { Select: Record<string, unknown>; Update: Record<string, unknown> }>;
+type SelectDeleteTable<T> = Extract<T, { Select: Record<string, unknown>; Delete: true }>;
 
 /**
  * The set of typed query factories available on a PostgreSQL table handler.
@@ -59,41 +62,25 @@ export type PostgresTableHandler<
    : unknown) &
    (T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> }
       ? {
-           insertRows: () => PostgresInsertRowsResult<
-              T & { Select: Record<string, unknown>; Insert: Record<string, unknown> }
-           >;
-           insertFrom: <
-              Args extends SqlInsertFromArgs<T & { Select: Record<string, unknown>; Insert: Record<string, unknown> }>,
-           >(
+           insertRows: () => PostgresInsertRowsResult<SelectInsertTable<T>>;
+           insertFrom: <Args extends SqlInsertFromArgs<SelectInsertTable<T>>>(
               args: Args,
-           ) => PostgresInsertFromResult<
-              T & { Select: Record<string, unknown>; Insert: Record<string, unknown> },
-              Args
-           >;
+           ) => PostgresInsertFromResult<SelectInsertTable<T>, Args>;
         }
       : unknown) &
    (T extends { Select: Record<string, unknown>; Update: Record<string, unknown> }
       ? {
-           update: <Args extends SqlUpdateArgs>(
-              args: Args,
-           ) => PostgresTableUpdateResult<
-              T & { Select: Record<string, unknown>; Update: Record<string, unknown> },
-              Args
-           >;
+           update: <Args extends SqlUpdateArgs>(args: Args) => PostgresTableUpdateResult<SelectUpdateTable<T>, Args>;
         }
       : unknown) &
    (T extends { Select: Record<string, unknown>; Delete: true }
       ? {
-           delete: <Args extends SqlDeleteArgs>(
-              args: Args,
-           ) => PostgresDeleteResult<T & { Select: Record<string, unknown>; Delete: true }, Args>;
+           delete: <Args extends SqlDeleteArgs>(args: Args) => PostgresDeleteResult<SelectDeleteTable<T>, Args>;
         }
       : unknown) &
    (T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> }
       ? {
-           upsert: (
-              args: PostgresUpsertArgs,
-           ) => PostgresUpsertResult<T & { Select: Record<string, unknown>; Insert: Record<string, unknown> }>;
+           upsert: (args: PostgresUpsertArgs) => PostgresUpsertResult<SelectInsertTable<T>>;
         }
       : unknown);
 

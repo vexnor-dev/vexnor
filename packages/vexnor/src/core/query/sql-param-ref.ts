@@ -1,8 +1,8 @@
-import { SqlParam } from "./sql-param.js";
+import { SqlParam, SqlParamShape } from "./sql-param.js";
 import { ARGS, PARAMS } from "#/core/sql-base.js";
 
 export class SqlParamRef<T extends { Name: string; Type: unknown }> extends SqlParam<T> {
-   declare readonly [PARAMS]: Record<T["Name"], T["Type"]>;
+   declare readonly [PARAMS]: SqlParamShape<T["Name"], T["Type"]>;
    declare readonly [ARGS]?: T["Type"];
 
    readonly getValue: (<Params, Value>(params: Params) => Value) | null;
