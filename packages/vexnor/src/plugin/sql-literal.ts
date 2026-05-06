@@ -1,0 +1,36 @@
+export enum SqlLiteralType {
+   String = "string",
+   Number = "number",
+   Boolean = "boolean",
+   Bit = "Bit",
+   Date = "Date",
+   BigInt = "BigInt",
+   Buffer = "Uint8Array",
+   Json = "Json",
+   Custom = "Custom",
+   Unknown = "unknown",
+   Udt = "Udt",
+}
+
+export function isSqlType(value: unknown): value is SqlLiteralType {
+   if (!value) return false;
+   if (typeof value !== "string") return false;
+   return Object.values(SqlLiteralType).includes(value as SqlLiteralType);
+}
+
+export type SqlLiteral = string | number | Date | bigint | boolean | null | Uint8Array;
+
+export function assertIsSqlLiteral(value: unknown): asserts value is SqlLiteral {
+   switch (typeof value) {
+      case "undefined":
+      case "string":
+      case "boolean":
+      case "bigint":
+      case "number":
+         return;
+      case "object":
+         if (value === null) return;
+         if (value instanceof Date) return;
+         throw new TypeError(`Unknown SQL type: ${value}`);
+   }
+}

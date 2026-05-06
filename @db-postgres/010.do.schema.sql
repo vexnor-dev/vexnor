@@ -1,5 +1,5 @@
 begin;
 
-create schema if not exists valnor_test;
+create schema if not exists vexnor_dev;
 
 commit;

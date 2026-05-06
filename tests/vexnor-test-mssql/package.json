@@ -1,0 +1,34 @@
+{
+   "name": "@vexnor/vexnor-test-mssql",
+   "version": "1.0.0-beta.1",
+   "description": "Integration tests for vexnor",
+   "type": "module",
+   "author": "Adrian Topala",
+   "license": "Apache-2.0",
+   "scripts": {
+      "precodegen": "pnpm run -r --filter='vexnor' --filter='vexnor-mssql' build",
+      "codegen": "env-cmd --no-override -x -r ../../env-dev.json -e mssql node ../../packages/vexnor/cli.mjs codegen --plugin vexnor-mssql --schema vexnor_dev --pascalCaseTables --camelCaseColumns --host \\$MSSQL_HOST --port \\$MSSQL_PORT --database \\$MSSQL_DATABASE --user \\$MSSQL_USER --password \\$MSSQL_PASSWORD --outDir './src/codegen' | pino-pretty",
+      "pretest": "run-s 'codegen'",
+      "test": "vitest --coverage run",
+      "test:watch": "vitest --watch",
+      "test:run": "vitest run",
+      "build": "tsc -b"
+   },
+   "dependencies": {
+      "@sinclair/typebox": "^0.34.41",
+      "mssql": "^12.5.2",
+      "vexnor": "workspace:*",
+      "vexnor-drizzle": "workspace:*",
+      "vexnor-mssql": "workspace:*",
+      "vexnor-typeorm": "workspace:*"
+   },
+   "devDependencies": {
+      "@types/mssql": "^12.3.0",
+      "@vitest/coverage-v8": "^4.1.5",
+      "drizzle-orm": "^1.0.0-beta.20",
+      "reflect-metadata": "^0.2.2",
+      "typeorm": "^0.3.24",
+      "vite-tsconfig-paths": "^6.1.1",
+      "vitest": "^4.1.5"
+   }
+}

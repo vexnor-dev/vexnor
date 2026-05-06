@@ -1,0 +1,118 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`execCommand > applies limit to results 1`] = `
+"SQL:/* <query_0> */
+SELECT
+  "a_1"."account_id" AS "accountId",
+  "a_1"."status",
+  "a_1"."email",
+  "a_1"."first_name" AS "firstName",
+  "a_1"."last_name" AS "lastName",
+  "a_1"."notes",
+  "a_1"."created_at" AS "createdAt",
+  "a_1"."modified_at" AS "modifiedAt",
+  "a_1"."parent_id" AS "parentId"
+FROM
+  "main"."account" AS "a_1"
+WHERE
+  "a_1"."account_id" = ?
+  AND "a_1"."email" = ?
+  /* </query_0> */
+
+Results:
+[
+  {
+    "id": 1,
+    "name": "Alice"
+  },
+  {
+    "id": 2,
+    "name": "Bob"
+  }
+]"
+`;
+
+exports[`execCommand > outputs CSV format when specified 1`] = `
+"SQL:/* <query_0> */
+SELECT
+  "a_1"."account_id" AS "accountId",
+  "a_1"."status",
+  "a_1"."email",
+  "a_1"."first_name" AS "firstName",
+  "a_1"."last_name" AS "lastName",
+  "a_1"."notes",
+  "a_1"."created_at" AS "createdAt",
+  "a_1"."modified_at" AS "modifiedAt",
+  "a_1"."parent_id" AS "parentId"
+FROM
+  "main"."account" AS "a_1"
+WHERE
+  "a_1"."account_id" = ?
+  AND "a_1"."email" = ?
+  /* </query_0> */
+
+Results:
+id,name,email
+1,Alice,alice@example.com
+2,Bob,bob@example.com"
+`;
+
+exports[`execCommand > outputs JSON format by default 1`] = `
+"SQL:/* <query_0> */
+SELECT
+  "a_1"."account_id" AS "accountId",
+  "a_1"."status",
+  "a_1"."email",
+  "a_1"."first_name" AS "firstName",
+  "a_1"."last_name" AS "lastName",
+  "a_1"."notes",
+  "a_1"."created_at" AS "createdAt",
+  "a_1"."modified_at" AS "modifiedAt",
+  "a_1"."parent_id" AS "parentId"
+FROM
+  "main"."account" AS "a_1"
+WHERE
+  "a_1"."account_id" = ?
+  AND "a_1"."email" = ?
+  /* </query_0> */
+
+Results:
+[
+  {
+    "id": 1,
+    "name": "Alice",
+    "email": "alice@example.com"
+  },
+  {
+    "id": 2,
+    "name": "Bob",
+    "email": "bob@example.com"
+  }
+]"
+`;
+
+exports[`execCommand > outputs table format when specified 1`] = `
+"SQL:/* <query_0> */
+SELECT
+  "a_1"."account_id" AS "accountId",
+  "a_1"."status",
+  "a_1"."email",
+  "a_1"."first_name" AS "firstName",
+  "a_1"."last_name" AS "lastName",
+  "a_1"."notes",
+  "a_1"."created_at" AS "createdAt",
+  "a_1"."modified_at" AS "modifiedAt",
+  "a_1"."parent_id" AS "parentId"
+FROM
+  "main"."account" AS "a_1"
+WHERE
+  "a_1"."account_id" = ?
+  AND "a_1"."email" = ?
+  /* </query_0> */
+
+Results:
+id | name  | email            
+---+-------+------------------
+1  | Alice | alice@example.com
+2  | Bob   | bob@example.com  "
+`;

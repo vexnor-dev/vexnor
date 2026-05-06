@@ -1,7 +1,7 @@
 begin;
 
-drop table valnor_test.account;
+drop table vexnor_dev.account;
 
-drop type valnor_test.account_status;
+drop type vexnor_dev.account_status;
 
 commit;

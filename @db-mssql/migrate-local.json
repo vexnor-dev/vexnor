@@ -3,6 +3,6 @@
   "migrationPattern": "@db-mssql/**",
   "driver": "mssql",
   "host": "localhost",
-  "database": "valnor",
-  "schemaTable": "migration_valnor"
+  "database": "vexnor",
+  "schemaTable": "migration_vexnor"
 }

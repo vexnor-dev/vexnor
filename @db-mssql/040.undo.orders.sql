@@ -1,13 +1,13 @@
 BEGIN TRANSACTION;
 
-IF OBJECT_ID('valnor_test.order_item', 'U') IS NOT NULL
+IF OBJECT_ID('vexnor_dev.order_item', 'U') IS NOT NULL
 BEGIN
-    DROP TABLE valnor_test.order_item;
+    DROP TABLE vexnor_dev.order_item;
 END
 
-IF OBJECT_ID('valnor_test.[order]', 'U') IS NOT NULL
+IF OBJECT_ID('vexnor_dev.[order]', 'U') IS NOT NULL
 BEGIN
-    DROP TABLE valnor_test.[order];
+    DROP TABLE vexnor_dev.[order];
 END
 
 COMMIT;

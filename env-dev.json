@@ -1,19 +1,31 @@
 {
-  "postgres": {
-    "POSTGRES_HOST": "localhost",
-    "POSTGRES_PORT": 5432,
-    "POSTGRES_USER": "postgres",
-    "POSTGRES_PASSWORD": "postgres",
-    "POSTGRES_DATABASE": "postgres"
-  },
-  "mssql": {
-    "MSSQL_HOST": "localhost",
-    "MSSQL_PORT": 1433,
-    "MSSQL_DATABASE": "valnor",
-    "MSSQL_USER": "valnor_dev",
-    "MSSQL_PASSWORD": "P@ssw0rd!"
-  },
-  "sqlite3": {
-    "SQLITE_PATH": "../../@db-sqlite3/valnor-test.sqlite"
-  }
+   "db": {
+      "POSTGRES_HOST": "localhost",
+      "POSTGRES_PORT": 5432,
+      "POSTGRES_USER": "postgres",
+      "POSTGRES_PASSWORD": "postgres",
+      "POSTGRES_DATABASE": "postgres",
+      "MSSQL_HOST": "localhost",
+      "MSSQL_PORT": 1433,
+      "MSSQL_DATABASE": "vexnor",
+      "MSSQL_USER": "vexnor_dev",
+      "MSSQL_PASSWORD": "P@ssw0rd!"
+   },
+   "postgres": {
+      "POSTGRES_HOST": "localhost",
+      "POSTGRES_PORT": 5432,
+      "POSTGRES_USER": "postgres",
+      "POSTGRES_PASSWORD": "postgres",
+      "POSTGRES_DATABASE": "postgres"
+   },
+   "mssql": {
+      "MSSQL_HOST": "localhost",
+      "MSSQL_PORT": 1433,
+      "MSSQL_DATABASE": "vexnor",
+      "MSSQL_USER": "vexnor_dev",
+      "MSSQL_PASSWORD": "P@ssw0rd!"
+   },
+   "sqlite3": {
+      "SQLITE_PATH": "../../@db-sqlite3/vexnor-dev.sqlite"
+   }
 }

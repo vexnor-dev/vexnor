@@ -1,6 +1,6 @@
 BEGIN TRANSACTION;
 
-CREATE TABLE valnor_test.account
+CREATE TABLE vexnor_dev.account
 (
     account_id  uniqueidentifier NOT NULL DEFAULT NEWID(),
     parent_id   uniqueidentifier,
@@ -13,7 +13,7 @@ CREATE TABLE valnor_test.account
     modified_at datetimeoffset   NOT NULL DEFAULT SYSDATETIMEOFFSET(),
 
     CONSTRAINT account_pk PRIMARY KEY (account_id),
-    CONSTRAINT account_parent_fk FOREIGN KEY (parent_id) REFERENCES valnor_test.account (account_id),
+    CONSTRAINT account_parent_fk FOREIGN KEY (parent_id) REFERENCES vexnor_dev.account (account_id),
     CONSTRAINT account_status_check CHECK (status IN ('created', 'confirmed', 'deleted'))
 );
 

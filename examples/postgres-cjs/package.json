@@ -1,28 +1,29 @@
 {
-  "name": "@valnor/example-postgres-cjs",
-  "version": "1.0.0",
-  "description": "",
-  "type": "commonjs",
-  "main": "./dist/index.js",
-  "scripts": {
-    "codegen": "run-s 'codegen:*'",
-    "codegen:1-generate": "env-cmd --no-override -x -r ../../env-dev.json -e db valnor generate --plugin valnor-postgres --schema one_sql --pascalCaseTables --camelCaseColumns --host \\$POSTGRES_HOST --port \\$POSTGRES_PORT --database \\$POSTGRES_DATABASE --user \\$POSTGRES_USER --password \\$POSTGRES_PASSWORD --outDir 'src/codegen'",
-    "postcodegen": "pnpx eslint --config ../../eslint.config.mjs ./src/codegen/**/*.ts --fix",
-    "prebuild": "run-s 'codegen'",
-    "build": "tsc -b",
-    "predev": "run-s 'build'",
-    "dev": "run-s 'dev:*'",
-    "dev:1-start": "env-cmd --no-override -x -r ../../env-dev.json -e db vite-node src/index.ts | pino-pretty"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "pg": "^8.16.3",
-    "valnor": "workspace:^",
-    "valnor-postgres": "workspace:^"
-  },
-  "devDependencies": {
-    "@types/pg": "^8.15.5"
-  }
+   "name": "@vexnor/example-postgres-cjs",
+   "version": "1.0.0",
+   "description": "",
+   "type": "commonjs",
+   "main": "./dist/index.js",
+   "scripts": {
+      "precodegen": "pnpm run -r --filter='vexnor' --filter='vexnor-postgres' build",
+      "codegen": "env-cmd --no-override -x -r ../../env-dev.json -e postgres node ../../packages/vexnor/cli.mjs codegen --plugin vexnor-postgres --schema vexnor_dev --pascalCaseTables --camelCaseColumns --host \\$POSTGRES_HOST --port \\$POSTGRES_PORT --database \\$POSTGRES_DATABASE --user \\$POSTGRES_USER --password \\$POSTGRES_PASSWORD --outDir './src/codegen' | pino-pretty",
+      "prebuild": "run-s 'codegen'",
+      "build": "tsc -b",
+      "predev": "run-s 'build'",
+      "dev": "run-s 'dev:*'",
+      "dev:1-start": "env-cmd --no-override -x -r ../../env-dev.json -e postgres vite-node src/index.ts | pino-pretty"
+   },
+   "keywords": [],
+   "author": "",
+   "license": "ISC",
+   "dependencies": {
+      "pg": "^8.16.3",
+      "vexnor": "workspace:^",
+      "vexnor-postgres": "workspace:^"
+   },
+   "devDependencies": {
+      "@types/pg": "^8.15.5",
+      "vite-tsconfig-paths": "^6.1.1",
+      "vitest": "^4.0.18"
+   }
 }

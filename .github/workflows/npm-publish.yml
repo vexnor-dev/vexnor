@@ -54,8 +54,8 @@ jobs:
       - name: Upload build output
         uses: actions/upload-artifact@v4
         with:
-          name: valnor-dist
-          path: ./packages/valnor/dist/
+          name: vexnor-dist
+          path: ./packages/vexnor/dist/
 
   publish:
     needs: build-and-test
@@ -67,8 +67,8 @@ jobs:
       - name: Download build output
         uses: actions/download-artifact@v4
         with:
-          name: valnor-dist
-          path: ./packages/valnor/dist/
+          name: vexnor-dist
+          path: ./packages/vexnor/dist/
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -89,14 +89,14 @@ jobs:
         run: echo '//registry.npmjs.org/:_authToken=${NPM_ACCESS_TOKEN}' >> .npmrc
 
       - name: Set package.json version to match release tag
-        working-directory: packages/valnor
+        working-directory: packages/vexnor
         run: |
           VERSION=${GITHUB_REF#refs/tags/v}
           echo "Setting version to $VERSION"
           pnpm pkg set version="$VERSION"
 
       - name: Publish to NPM
-        working-directory: ./packages/valnor
+        working-directory: ./packages/vexnor
         run: pnpm publish --access public --no-git-checks --report-summary
         env:
           NPM_ACCESS_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}

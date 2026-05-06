@@ -1,6 +1,6 @@
 BEGIN TRANSACTION;
 
-CREATE TABLE valnor_test.product
+CREATE TABLE vexnor_dev.product
 (
     product_id   uniqueidentifier NOT NULL DEFAULT NEWID(),
     created_at   datetimeoffset   NOT NULL DEFAULT SYSDATETIMEOFFSET(),

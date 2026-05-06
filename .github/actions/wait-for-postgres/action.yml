@@ -1,5 +1,5 @@
-name: wait-for-postgres
-description: wait-for-postgres
+name: Wait for Postgres
+description: Waits until PostgreSQL is ready to accept connections
 
 runs:
   using: "composite"
@@ -7,11 +7,8 @@ runs:
     - name: Wait for Postgres to be ready
       shell: bash
       run: |
-        for i in {1..10}; do
-          if pg_isready -h localhost -p 5432; then
-            echo "Postgres is ready";
-            break;
-          fi
-          echo "Waiting for Postgres...";
-          sleep 3
+        until pg_isready -h localhost -p 5432 -U postgres; do
+          echo "Waiting for postgres..."
+          sleep 2
         done
+        echo "Postgres is ready"

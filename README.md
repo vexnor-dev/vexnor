@@ -1,120 +1,182 @@
-# valnor
+# vexnor
 
-A powerful SQL query generator that creates type-safe mappings from database schemas to TypeScript,
-enabling type-safe SQL queries.
+A type-safe SQL query generator for TypeScript that gives you typed SQL without an ORM abstraction layer.
 
-[![CI](https://github.com/atopala/valnor/actions/workflows/ci_github.yml/badge.svg)](https://github.com/atopala/valnor/actions/workflows/ci_github.yml)
+[![CI](https://github.com/vexnor-dev/vexnor/actions/workflows/ci_github.yml/badge.svg)](https://github.com/vexnor-dev/vexnor/actions/workflows/ci_github.yml)
+[![npm version](https://img.shields.io/npm/v/vexnor.svg)](https://www.npmjs.com/package/vexnor)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-## Quick Links
+## What Is Vexnor?
 
-📖 **[Complete Documentation Wiki](wiki/Home.md)**
+Vexnor generates TypeScript types from your database schema, so you can write real SQL with full type safety and auto-completion. It is not an ORM abstraction layer.
 
-- [Installation](wiki/Installation.md) | [Usage](wiki/Usage.md) | [Examples](wiki/Type-Safe-Query-Examples.md)
-- [Subqueries](wiki/Subqueries.md) | [Features](wiki/Features.md) | [postgres.js Setup](wiki/postgres.js.md) | [CI/CD Integration](wiki/CI-CD-Integration.md)
+**Key benefits:**
+- Write SQL you already know, with compile-time safety
+- Generate types once, then reuse them across queries
+- No repository-layer boilerplate required
+- Works with existing drivers and databases
+- Zero runtime overhead from type generation
+- Includes Drizzle and TypeORM adaptors
 
-## Quickstart
+### Why vs ORMs/Query Builders?
 
-**1. Generate TypeScript types from your database:**
+- No DSL abstraction between you and SQL
+- No forced repository pattern
+- Full SQL support (CTEs, windows, complex joins)
+- Strong type inference for params and result shapes
+
+## Start Here
+
+If you want to adopt Vexnor quickly:
+
+1. Install packages for your database.
+2. Generate types from your schema.
+3. Write SQL with typed columns/results.
+
 ```bash
-npx valnor generate --cli your_schema --uri $POSTGRES_URI --outDir 'src/models'
-```
+# PostgreSQL
+npm install vexnor vexnor-postgres pg
 
-**2. Write type-safe SQL queries:**
+# Generate types
+npx vexnor codegen \
+  --plugin vexnor-postgres \
+  --schema public \
+  --uri $DATABASE_URL \
+  --outDir src/models \
+  --pascalCaseTables \
+  --camelCaseColumns
+```
 
 ```typescript
-import {OneSqlSchema} from "./models/one_sql.cli.ts";
-import {IAccountSelect} from "./one_sql.account-table";
-import {AccountStatusUdt} from "./one_sql-enums";
-import {sql, param} from "one-sql";
+import { sql, row, param } from 'vexnor';
+import 'vexnor-postgres';
+import { Account } from './models/public.account-table.js';
+import { Pool } from 'pg';
 
-// postgres
-const db = new Pool({
-    host: "localhost",
-    user: "postgres",
-    database: "postgres",
+const pool = new Pool({ /* connection config */ });
+const activeStatus = 'ACTIVE';
+
+// column convention: DB account_id -> Account.$accountId in Vexnor
+// row(Account.$accountId, Account.$email) selects only these two columns
+const ActiveAccounts = sql`
+  SELECT ${row(Account.$accountId, Account.$email)}
+  FROM ${Account}
+  WHERE ${Account.$status} = ${activeStatus}
+`;
+
+const findActiveById = sql`
+  SELECT ${row(ActiveAccounts.$$)}
+  FROM ${ActiveAccounts}
+  WHERE ${ActiveAccounts.$accountId} = ${param<{ accountId: string }>('accountId', {
+    minLength: 1,
+  })}
+`;
+
+const account = await findActiveById.postgres.one({
+  db: pool,
+  params: { accountId: '00000000-0000-0000-0000-000000000001' },
 });
-
-// Type-safe insert with auto-completion
-const newAccount = await sql<IAccountSelect>`
-    INSERT INTO ${Account}
-        ${Account.$values({
-    firstName: "John",
-    lastName: "Doe",
-    email: "john@example.com"
-})}
-    RETURNING ${Account.$$all}
-`.one(db);
-
-// build a function that finds an account by 'accountId'.
-// this improves performance since the sql query gets re-used by following calls to db
-const findAccountById = sql<IAccountSelect, { accountId: number }>`
-    SELECT ${Account.$$all}
-    FROM ${Account}
-    WHERE ${Account.accountId} = ${param("accountId")}
-`
-const account = await findAccountById.one(db, { accountId: newAccount.accountId });
+// expected row structure: only accountId and email
+const accountRow: { accountId: string; email: string } = account;
+// @ts-expect-error property should not exist in this query result
+account.firstName;
 ```
 
-> 📖 **[See complete examples in the wiki](wiki/Quickstart.md)**
-
-## Key Features
-
-✅ **Type-safe SQL queries** - Full TypeScript support & code generation for SQL tables, views, columns and sub-queries with auto-completion  
-✅ **Multiple drivers** - Works with `pg` and `postgres.js`  
-✅ **Smart naming** - Automatic snake_case ↔ camelCase conversion  
-✅ **Multiple schemas** - Generate from multiple database schemas  
-✅ **CI/CD ready** - Integrate into your build pipeline
-
-Next releases planned to support `mssql`, `mysql`, sqlite, etc.
-
-> 📖 **[View all features](wiki/Features.md)** 
-
-## Installation
-
-```bash
-# Install as dev dependency
-npm install valnor --save-dev
-
-# Or use directly with npx
-npx valnor generate --cli your_schema --uri $POSTGRES_URI --outDir 'src/models'
+```typescript
+// CRUD helper path (common usage): typed findBy query factory
+const byEmail = await Account.postgres.findBy().any({
+  db: pool,
+  params: { email: 'john@example.com' },
+});
+// byEmail type: IAccountSelect | null
 ```
 
-> 📖 **[Installation guide with all options](wiki/Installation.md)**
+### Value Injection vs `param()`
 
-## Usage
+Both styles are safe: values are bound as SQL parameters at execution time.
 
-```bash
-valnor generate --cli your_schema --uri $POSTGRES_URI --outDir 'src/models'
+- Inline value injection (`${value}`) is best for local query composition.
+- Named params (`param()`) define a reusable, typed query input contract (`params`) and support runtime validation.
+
+```typescript
+const status = "ACTIVE"; // inline value injection
+
+const query = sql`
+  SELECT ${row(Account.$$)}
+  FROM ${Account}
+  WHERE ${Account.$status} = ${status}
+    AND ${Account.$accountId} = ${param<{ accountId: string }>("accountId", { minLength: 1 })}
+`;
+
+// repository-like reusable query API, no wrapper repository method needed
+const row1 = await query.postgres.one({
+  db: pool,
+  params: { accountId: "00000000-0000-0000-0000-000000000001" },
+});
 ```
 
-**Common options:**
-- `--schema` - db schema name. Possible to include multiple schemas: `--schema schema1 --schema schema2 ...` 
-- `--driver` - db driver: `pg`, `postgres.js`
-- `--pascalCaseTables` - PascalCase table names
-- `--camelCaseColumns` - camelCase column names
+## Choose Your Path
 
-Next releases planned to support `mssql`, `mysql`, sqlite, etc.
+- App adoption (core flow): this README + [Examples](examples/)
+- Drizzle users: [Drizzle adaptor](docs/plugins.md#drizzle-adaptor)
+- TypeORM users: [TypeORM adaptor](docs/plugins.md#typeorm-adaptor)
+- CLI usage and query execution: [CLI docs](docs/cli.md)
+- CRUD query factories: [CRUD docs](docs/crud.md)
+- CTE/recursive patterns: [CTE docs](docs/ctes.md)
+- Monorepo/dev workflow: [Monorepo docs](docs/monorepo.md)
 
-> 📖 **[Complete usage guide](wiki/Usage.md)**
+## Why Vexnor
 
+- Write real SQL, not a query DSL
+- Compile-time safety for columns/params/results
+- Zero runtime overhead from type machinery
+- Works with your existing DB drivers
+- Supports PostgreSQL, MS SQL Server, and SQLite
 
-## Documentation
+## Param Validation
 
-📖 **[Complete Wiki Documentation](wiki/Home.md)**
+You can attach runtime validation directly to `param(...)`.
 
-- **[Quickstart Guide](wiki/Quickstart.md)** - Get up and running quickly
-- **[Type-Safe Query Examples](wiki/Type-Safe-Query-Examples.md)** - Insert, select, update examples
-- **[Subqueries](wiki/Subqueries.md)** - Build reusable, type-safe query components
-- **[postgres.js Setup](wiki/postgres.js.md)** - Using postgres.js driver
-- **[CI/CD Integration](wiki/CI-CD-Integration.md)** - Automate type generation
+```typescript
+const findByEmail = sql`
+  SELECT ${row(Account.$$)}
+  FROM ${Account}
+  WHERE ${Account.$email} = ${param<{ email: string }>('email', {
+    minLength: 5,
+    pattern: /@/,
+  })}
+`;
+```
 
+Supported rule families are type-aware:
+
+- `string`: `minLength`, `maxLength`, `pattern`
+- `number` / `Date`: `min`, `max`
+- `array`: `minLength`, `maxLength`
+- any type: `enum`, `validate(value) => boolean | string`
+
+At runtime, missing or `undefined` param values are normalized to `null` before binding.
+
+## Supported Databases
+
+- PostgreSQL: `vexnor-postgres` + `pg` (or postgres.js)
+- MS SQL Server: `vexnor-mssql` + `mssql`
+- SQLite: `vexnor-sqlite3` + `better-sqlite3`
+
+## Examples
+
+- [examples/postgres-esm](examples/postgres-esm/)
+- [examples/postgres-cjs](examples/postgres-cjs/)
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributor setup and repository layout are documented in [docs/monorepo.md](docs/monorepo.md).
 
-> 📖 **[Contributing Guidelines](wiki/Contributing.md)**
+## Requirements
+
+- Node.js `>=22.21.1`
+- pnpm `>=10.17.0` (for repo development)
 
 ## License
 
-MIT
+Apache-2.0. See [LICENSE](LICENSE).

@@ -1,20 +1,20 @@
 begin;
 
-create type valnor_test.order_status as enum ('created', 'paid', 'delivered', 'received');
+create type vexnor_dev.order_status as enum ('created', 'paid', 'delivered', 'received');
 
-create table valnor_test.order
+create table vexnor_dev.order
 (
     order_id    uuid                 not null default gen_random_uuid(),
-    status      valnor_test.order_status not null default 'created',
+    status      vexnor_dev.order_status not null default 'created',
     created_at  timestamptz          not null default now(),
     modified_at timestamptz          not null default now(),
     account_id  uuid                 not null,
 
     constraint order_pk primary key (order_id),
-    constraint order_account_fk foreign key (account_id) references valnor_test.account (account_id)
+    constraint order_account_fk foreign key (account_id) references vexnor_dev.account (account_id)
 );
 
-create table valnor_test.order_item
+create table vexnor_dev.order_item
 (
     order_id       uuid        not null,
     product_id     uuid        not null,
@@ -26,8 +26,8 @@ create table valnor_test.order_item
     metadata       jsonb,
 
     constraint order_item_pk primary key (order_id, product_id),
-    constraint order_item_order_fk foreign key (order_id) references valnor_test.order (order_id),
-    constraint order_item_product_fk foreign key (product_id) references valnor_test.product (product_id),
+    constraint order_item_order_fk foreign key (order_id) references vexnor_dev.order (order_id),
+    constraint order_item_product_fk foreign key (product_id) references vexnor_dev.product (product_id),
     constraint metadata_order_item_json_structure CHECK (
         metadata IS NULL OR (
             jsonb_typeof(metadata -> 'brand') = 'string' AND

@@ -1,5 +1,5 @@
 begin;
 
-drop schema if exists valnor_test;
+drop schema if exists vexnor_dev;
 
 commit;

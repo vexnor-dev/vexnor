@@ -5,16 +5,16 @@
       "outDir": "./dist",
       "composite": false,
       "target": "es2016",
-      "module": "commonjs",
-      "moduleResolution": "node",
+      "module": "preserve",
+      "moduleResolution": "bundler",
       "esModuleInterop": true
    },
    "references": [
       {
-         "path": "../../packages/valnor"
+         "path": "../../packages/vexnor"
       },
       {
-         "path": "../../packages/valnor-postgres"
+         "path": "../../packages/vexnor-postgres"
       }
    ]
 }
