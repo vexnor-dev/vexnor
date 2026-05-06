@@ -1,0 +1,102 @@
+name: Publish Package to NPM
+
+on:
+  release:
+    types: [created]
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpassword
+          POSTGRES_DB: testdb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      POSTGRES_HOST: localhost
+      POSTGRES_USER: testuser
+      POSTGRES_PASSWORD: testpassword
+      POSTGRES_DATABASE: postgres
+      POSTGRES_PORT: 5432
+      NODE_ENV: test
+      LOG_LEVEL: debug
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Build and test
+        uses: ./.github/actions/build-and-test
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload build output
+        uses: actions/upload-artifact@v4
+        with:
+          name: vexnor-dist
+          path: ./packages/vexnor/dist/
+
+  publish:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Download build output
+        uses: actions/download-artifact@v4
+        with:
+          name: vexnor-dist
+          path: ./packages/vexnor/dist/
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: 'package.json'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          run_install: false
+          package_json_file: 'package.json'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Setup .npmrc
+        #don't write actual token into .npmrc
+        run: echo '//registry.npmjs.org/:_authToken=${NPM_ACCESS_TOKEN}' >> .npmrc
+
+      - name: Set package.json version to match release tag
+        working-directory: packages/vexnor
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "Setting version to $VERSION"
+          pnpm pkg set version="$VERSION"
+
+      - name: Publish to NPM
+        working-directory: ./packages/vexnor
+        run: pnpm publish --access public --no-git-checks --report-summary
+        env:
+          NPM_ACCESS_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}

@@ -1,0 +1,1 @@
+CREATE INDEX idx_account_parent_id ON account (parent_id);

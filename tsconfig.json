@@ -1,0 +1,21 @@
+{
+   "compilerOptions": {
+      "strict": true,
+      "strictPropertyInitialization": true,
+      "skipLibCheck": true,
+      "outDir": "dist",
+      "sourceMap": true,
+      "forceConsistentCasingInFileNames": true,
+      "resolveJsonModule": true,
+      "noUncheckedIndexedAccess": true,
+      "target": "es2022",
+      "module": "nodenext",
+      "moduleResolution": "nodenext",
+      "moduleDetection": "force",
+      "types": ["node"],
+      "noEmitOnError": true,
+      "noUnusedLocals": true,
+      "noUnusedParameters": true,
+      "lib": ["esnext"]
+   }
+}

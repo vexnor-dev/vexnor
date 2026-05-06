@@ -1,0 +1,33 @@
+{
+   "name": "@vexnor/vexnor-test-sqlite3",
+   "version": "1.0.0-beta.1",
+   "description": "Integration tests for vexnor",
+   "type": "module",
+   "author": "Adrian Topala",
+   "license": "Apache-2.0",
+   "scripts": {
+      "precodegen": "pnpm run -r --filter='vexnor' --filter='vexnor-sqlite3' build",
+      "codegen": "env-cmd --no-override -x -r ../../env-dev.json -e sqlite3 node ../../packages/vexnor/cli.mjs codegen --plugin vexnor-sqlite3 --schema main --pascalCaseTables --camelCaseColumns --uri \\$SQLITE_PATH --omit migration_vexnor --outDir './src/codegen' | pino-pretty",
+      "test": "vitest --coverage run",
+      "test:watch": "vitest --watch",
+      "test:run": "vitest run",
+      "build": "tsc -b"
+   },
+   "dependencies": {
+      "@sinclair/typebox": "^0.34.41",
+      "better-sqlite3": "^12.4.1",
+      "vexnor": "workspace:*",
+      "vexnor-drizzle": "workspace:*",
+      "vexnor-sqlite3": "workspace:*",
+      "vexnor-typeorm": "workspace:*"
+   },
+   "devDependencies": {
+      "@types/better-sqlite3": "^7.6.13",
+      "@vitest/coverage-v8": "^4.1.5",
+      "drizzle-orm": "^1.0.0-beta.20",
+      "reflect-metadata": "^0.2.2",
+      "typeorm": "^0.3.24",
+      "vite-tsconfig-paths": "^6.1.1",
+      "vitest": "^4.1.5"
+   }
+}

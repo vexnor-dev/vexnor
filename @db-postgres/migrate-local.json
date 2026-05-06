@@ -1,0 +1,8 @@
+{
+  "migrationDirectory": "@db-postgres",
+  "migrationPattern": "@db-postgres/**",
+  "driver": "pg",
+  "host": "localhost",
+  "database": "postgres",
+  "schemaTable": "migration_vexnor"
+}

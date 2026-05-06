@@ -1,0 +1,8 @@
+{
+  "migrationDirectory": "@db-mssql",
+  "migrationPattern": "@db-mssql/**",
+  "driver": "mssql",
+  "host": "localhost",
+  "database": "vexnor",
+  "schemaTable": "migration_vexnor"
+}

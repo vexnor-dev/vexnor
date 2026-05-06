@@ -1,0 +1,23 @@
+name: Wait for MSSQL
+description: Waits until SQL Server is ready to accept connections
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install sqlcmd
+      shell: bash
+      run: sudo ACCEPT_EULA=Y apt-get install -yq mssql-tools18 unixodbc-dev
+
+    - name: Wait for MSSQL to be ready
+      shell: bash
+      run: |
+        for i in $(seq 1 30); do
+          if /opt/mssql-tools18/bin/sqlcmd -S localhost,1433 -U sa -P "$MSSQL_SA_PASSWORD" -C -Q "SELECT 1" &>/dev/null; then
+            echo "MSSQL is ready"
+            exit 0
+          fi
+          echo "Waiting for MSSQL... ($i)"
+          sleep 3
+        done
+        echo "MSSQL did not become ready in time"
+        exit 1

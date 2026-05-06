@@ -1,0 +1,16 @@
+{
+   "extends": "../../tsconfig.json",
+   "compilerOptions": {
+      "rootDir": "./src",
+      "outDir": "./dist",
+      "composite": false
+   },
+   "references": [
+      {
+         "path": "../../packages/vexnor"
+      },
+      {
+         "path": "../../packages/vexnor-postgres"
+      }
+   ]
+}

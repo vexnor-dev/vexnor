@@ -1,0 +1,57 @@
+name: Build and Test (Composite)
+description: Common steps for build, test, and reporting in CI and release flows
+
+inputs:
+  GITHUB_TOKEN:
+    description: GitHub token
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        run_install: false
+
+    - name: Setup pnpm cache
+      uses: actions/cache@v4
+      with:
+        path: ~/.pnpm-store
+        key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-
+
+    - name: Install dependencies
+      shell: bash
+      run: pnpm install --frozen-lockfile
+
+    - name: Wait for Postgres
+      uses: ./.github/actions/wait-for-postgres
+
+    - name: Migrate databases
+      shell: bash
+      run: |
+        pnpm db-migrate:postgres
+        pnpm db-migrate:sqlite3
+        pnpm db-migrate:mssql
+
+    - name: Build
+      shell: bash
+      run: pnpm build
+
+    - name: Run codegen
+      shell: bash
+      run: |
+        pnpm --filter @vexnor/vexnor-test-postgres codegen
+        pnpm --filter @vexnor/vexnor-test-sqlite3 codegen
+        pnpm --filter @vexnor/vexnor-test-mssql codegen
+
+    - name: Run tests
+      shell: bash
+      run: pnpm test
