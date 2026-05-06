@@ -1,14 +1,14 @@
-# valnor
+# vexnor
 
 A type-safe SQL query generator for TypeScript that creates precise type mappings from your database schema, enabling fully type-safe SQL queries without an ORM.
 
 [![CI](https://github.com/vexnor-dev/vexnor/actions/workflows/ci_github.yml/badge.svg)](https://github.com/vexnor-dev/vexnor/actions/workflows/ci_github.yml)
-[![npm version](https://img.shields.io/npm/v/valnor.svg)](https://www.npmjs.com/package/valnor)
+[![npm version](https://img.shields.io/npm/v/vexnor.svg)](https://www.npmjs.com/package/vexnor)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-## What is Valnor?
+## What is Vexnor?
 
-Valnor generates TypeScript types from your database schema, allowing you to write real SQL with full type safety and auto-completion. It's not an ORM - just TypeScript types that make your SQL queries type-safe.
+Vexnor generates TypeScript types from your database schema, allowing you to write real SQL with full type safety and auto-completion. It's not an ORM - just TypeScript types that make your SQL queries type-safe.
 
 **Key Benefits:**
 - ✅ Write SQL you already know, get TypeScript safety for free
@@ -16,10 +16,10 @@ Valnor generates TypeScript types from your database schema, allowing you to wri
 - ✅ **No repository layer needed** - queries are self-documenting and type-safe
 - ✅ Works with your existing database and drivers
 - ✅ Zero runtime overhead
-- ✅ **Drizzle ORM adaptor** - convert Drizzle table/view definitions to valnor tables
-- ✅ **TypeORM adaptor** - convert TypeORM entities and views to valnor tables
+- ✅ **Drizzle ORM adaptor** - convert Drizzle table/view definitions to vexnor tables
+- ✅ **TypeORM adaptor** - convert TypeORM entities and views to vexnor tables
 
-### Why Valnor vs ORMs/Query Builders?
+### Why Vexnor vs ORMs/Query Builders?
 
 - **No abstraction layer** - Write actual SQL, not a DSL
 - **No repository boilerplate** - Queries define their own types
@@ -33,22 +33,22 @@ Valnor generates TypeScript types from your database schema, allowing you to wri
 
 ```bash
 # PostgreSQL
-npm install valnor vexnor-postgres pg
+npm install vexnor vexnor-postgres pg
 
 # MS SQL Server
-npm install valnor vexnor-mssql mssql
+npm install vexnor vexnor-mssql mssql
 
 # SQLite
-npm install valnor vexnor-sqlite3 better-sqlite3
+npm install vexnor vexnor-sqlite3 better-sqlite3
 ```
 
-> **Note**: Install `valnor` as a regular dependency. The CLI is used for code generation during development, but the runtime library is needed in production.
+> **Note**: Install `vexnor` as a regular dependency. The CLI is used for code generation during development, but the runtime library is needed in production.
 
 ### Step 2: Generate Types from Your Database
 
 ```bash
 # PostgreSQL (with connection string)
-npx valnor generate \
+npx vexnor generate \
   --plugin vexnor-postgres \
   --schema public \
   --uri $DATABASE_URL \
@@ -57,7 +57,7 @@ npx valnor generate \
   --camelCaseColumns
 
 # PostgreSQL (with individual params)
-npx valnor generate \
+npx vexnor generate \
   --plugin vexnor-postgres \
   --schema public \
   --host localhost \
@@ -70,7 +70,7 @@ npx valnor generate \
   --camelCaseColumns
 
 # MS SQL Server
-npx valnor generate \
+npx vexnor generate \
   --plugin vexnor-mssql \
   --schema dbo \
   --host localhost \
@@ -83,11 +83,11 @@ npx valnor generate \
   --camelCaseColumns
 
 # SQLite (omit migration tracking table)
-npx valnor generate \
+npx vexnor generate \
   --plugin vexnor-sqlite3 \
   --schema main \
   --uri ./database.sqlite \
-  --omit migration_valnor \
+  --omit migration_vexnor \
   --outDir src/models \
   --pascalCaseTables \
   --camelCaseColumns
@@ -140,7 +140,7 @@ const account = await findById.postgres.one({
 
 ## How Type Inference Works
 
-Valnor tracks which columns you select and infers the exact result type:
+Vexnor tracks which columns you select and infers the exact result type:
 
 ### Using `row()` for multiple columns
 
@@ -295,12 +295,12 @@ const query = sql`
 - **Plugin**: `vexnor-postgres`
 - **Drivers**: `pg` (node-postgres) and `postgres.js`
 - **Features**: Enums, arrays, JSON aggregation, CTEs, views
-- **Installation**: `npm install valnor vexnor-postgres pg`
+- **Installation**: `npm install vexnor vexnor-postgres pg`
 - **Version**: 1.0.0-beta.1
 
 **Generate types:**
 ```bash
-npx valnor generate \
+npx vexnor generate \
   --plugin vexnor-postgres \
   --schema public \
   --host localhost \
@@ -318,12 +318,12 @@ npx valnor generate \
 - **Plugin**: `vexnor-mssql`
 - **Driver**: `mssql` (tedious)
 - **Features**: OUTPUT clause, table-valued parameters, views
-- **Installation**: `npm install valnor vexnor-mssql mssql`
+- **Installation**: `npm install vexnor vexnor-mssql mssql`
 - **Version**: 1.0.0-beta.1
 
 **Generate types:**
 ```bash
-npx valnor generate \
+npx vexnor generate \
   --plugin vexnor-mssql \
   --schema dbo \
   --host localhost \
@@ -341,16 +341,16 @@ npx valnor generate \
 - **Plugin**: `vexnor-sqlite3`
 - **Driver**: `better-sqlite3`
 - **Features**: Lightweight, file-based, perfect for testing and embedded databases, views
-- **Installation**: `npm install valnor vexnor-sqlite3 better-sqlite3`
+- **Installation**: `npm install vexnor vexnor-sqlite3 better-sqlite3`
 - **Version**: 1.0.0-beta.1
 
 **Generate types:**
 ```bash
-npx valnor generate \
+npx vexnor generate \
   --plugin vexnor-sqlite3 \
   --schema main \
   --uri ./database.sqlite \
-  --omit migration_valnor \
+  --omit migration_vexnor \
   --outDir src/models \
   --pascalCaseTables \
   --camelCaseColumns
@@ -389,7 +389,7 @@ npx valnor generate \
 - **Easy to extend** - Add support for any database by implementing the plugin interface
 
 **How it works:**
-1. Core library (`valnor`) provides SQL builder and type system
+1. Core library (`vexnor`) provides SQL builder and type system
 2. Plugin packages (`vexnor-postgres`, `vexnor-mssql`, etc.) handle:
    - Schema introspection (reading table/column/view metadata)
    - Type mapping (database types → TypeScript types)
@@ -418,7 +418,7 @@ npx valnor generate \
 
 ## Drizzle ORM Adaptor
 
-If you already have Drizzle ORM table or view definitions, you can convert them directly to valnor tables without running codegen.
+If you already have Drizzle ORM table or view definitions, you can convert them directly to vexnor tables without running codegen.
 
 ### Installation
 
@@ -468,7 +468,7 @@ export const AccountOrderSummary = fromDrizzleView(accountSummaryDrizzle);
 
 ## TypeORM Adaptor
 
-If you already have TypeORM entities, you can convert them directly to valnor tables without running codegen.
+If you already have TypeORM entities, you can convert them directly to vexnor tables without running codegen.
 
 ### Installation
 
@@ -484,15 +484,15 @@ Pass a typed `Repository` — the entity type, table name, schema, and dialect a
 import { fromTypeORM } from 'vexnor-typeorm';
 
 // Decorator entity — T inferred from class
-const Account = fromTypeORM(dataSource.getRepository(AccountEntity));
+const Account1 = fromTypeORM(dataSource.getRepository(AccountEntity));
 
 // EntitySchema — T inferred from EntitySchema<T>
-const Account = fromTypeORM(dataSource.getRepository(AccountSchema));
+const Account2 = fromTypeORM(dataSource.getRepository(AccountSchema));
 ```
 
 ### Views
 
-TypeORM views (both `@ViewEntity` decorator and `EntitySchema` with `type: 'view'`) are automatically detected and produce select-only valnor tables:
+TypeORM views (both `@ViewEntity` decorator and `EntitySchema` with `type: 'view'`) are automatically detected and produce select-only vexnor tables:
 
 ```typescript
 @ViewEntity({ name: 'account_order_summary', schema: 'public' })
@@ -508,11 +508,11 @@ const AccountOrderSummary = fromTypeORM(dataSource.getRepository(AccountOrderSum
 
 ## View Support
 
-Valnor supports database views as first-class citizens. Views are generated as `-view.ts` files with select-only crud — `insertColsVals`, `updateSet`, and delete operations are disabled at the TypeScript level.
+Vexnor supports database views as first-class citizens. Views are generated as `-view.ts` files with select-only crud — `insertColsVals`, `updateSet`, and delete operations are disabled at the TypeScript level.
 
 ```typescript
 // Generated: src/models/public.account_order_summary-view.ts
-export const AccountOrderSummary = valnor.newSqlTable<{ Select: IAccountOrderSummarySelect }>({
+export const AccountOrderSummary = vexnor.newSqlTable<{ Select: IAccountOrderSummarySelect }>({
   crud: { select: true, insert: false, update: false, delete: false },
   // ...
 });
@@ -533,20 +533,20 @@ Every generated table exposes a typed CRUD handler via the plugin property (`.po
 
 ```typescript
 // Find by primary key
-const account = await Account.postgres.findById().any({
+const account1 = await Account.postgres.findById().any({
   db: pool,
   params: { accountId: "123" },
 });
 // Returns IAccountSelect | null
 
 // Find by any column(s)
-const account = await Account.postgres.findBy().any({
+const account2 = await Account.postgres.findBy().any({
   db: pool,
   params: { email: "john@example.com" },
 });
 
 // Find by multiple fields
-const account = await Account.postgres.findBy().any({
+const account3 = await Account.postgres.findBy().any({
   db: pool,
   params: { email: "john@example.com", status: "active" },
 });
@@ -567,7 +567,7 @@ const results = await Account.postgres.select({
 
 ```typescript
 // Single row
-const inserted = await Account.postgres.insertRows().one({
+const inserted1 = await Account.postgres.insertRows().one({
   db: pool,
   params: {
     rows: [{ email: "john@example.com", firstName: "John", lastName: "Doe" }],
@@ -575,7 +575,7 @@ const inserted = await Account.postgres.insertRows().one({
 });
 
 // Multiple rows
-const inserted = await Account.postgres.insertRows().all({
+const inserted2 = await Account.postgres.insertRows().all({
   db: pool,
   params: {
     rows: [
@@ -615,7 +615,7 @@ PostgreSQL uses `INSERT ... ON CONFLICT DO UPDATE`, MS SQL Server uses `MERGE`:
 
 ```typescript
 // PostgreSQL — CONFLICT_ON defines the conflict target
-const upserted = await Account.postgres.upsert({
+const upserted1 = await Account.postgres.upsert({
   CONFLICT_ON: [Account.$accountId],
 }).one({
   db: pool,
@@ -627,7 +627,7 @@ const upserted = await Account.postgres.upsert({
 // With custom SET clause using excluded()
 import { excluded } from 'vexnor';
 
-const upserted = await Account.postgres.upsert({
+const upserted2 = await Account.postgres.upsert({
   CONFLICT_ON: [Account.$accountId],
   SET: sql`${Account.$firstName} = ${excluded(Account).$firstName}`,
 }).one({
@@ -638,7 +638,7 @@ const upserted = await Account.postgres.upsert({
 });
 
 // MS SQL Server — MERGE_ON defines the match condition
-const upserted = await Account.mssql.upsert({
+const upserted3 = await Account.mssql.upsert({
   MERGE_ON: [Account.$accountId],
 }).one({
   db: pool.request(),
@@ -739,7 +739,7 @@ const accountsWithChildren = await sql`
 
 ### CTEs (Common Table Expressions)
 
-CTEs are first-class citizens in valnor. Define a subquery and embed it in a `WITH` clause — the CTE name and output columns are fully typed.
+CTEs are first-class citizens in vexnor. Define a subquery and embed it in a `WITH` clause — the CTE name and output columns are fully typed.
 
 ```typescript
 import { info } from 'vexnor';
@@ -850,7 +850,7 @@ const query = await sql`
 ### Generate Command
 
 ```bash
-npx valnor generate [options]
+npx vexnor codegen [options]
 
 Options:
   --plugin <name>          Plugin package name (required)
@@ -866,8 +866,112 @@ Options:
   --camelCaseColumns       Use camelCase for column names
   --omit <tables...>       Table/view names to exclude from codegen
                            Accepts plain name or schema.name format
-                           Example: --omit migration_valnor
+                           Example: --omit migration_vexnor
                            Example: --omit public.internal_table
+```
+
+### Exec Command
+
+Run queries defined in your TypeScript files directly from the CLI — useful for ad-hoc queries, debugging, and scripting.
+
+#### Setup
+
+```bash
+npx vexnor exec init
+```
+
+This creates two files:
+- `vexnor.config.ts` — connection profiles and exec settings
+- `queries.vexnor.ts` — query definitions with per-query params and environments
+
+#### vexnor.config.ts
+
+```typescript
+import { defineConfig } from 'vexnor';
+
+export default defineConfig({
+  profiles: {
+    dev: {
+      connection: {
+        host: 'localhost',
+        port: 5432,
+        database: 'mydb',
+        user: 'postgres',
+        password: '<password>',
+      },
+    },
+  },
+  defaultProfile: 'dev',
+  exec: {
+    format: 'table',          // 'table' | 'json' | 'csv'
+    confirmMutations: true,   // prompt before INSERT/UPDATE/DELETE
+    confirmDestructive: true, // prompt before DROP/TRUNCATE/ALTER
+  },
+});
+```
+
+#### queries.vexnor.ts
+
+```typescript
+import { defineQueryConfig } from 'vexnor';
+import vexnorPostgres from 'vexnor-postgres';
+import { Account } from './src/models/vexnor_dev.account-table.js';
+import { sql, row, param } from 'vexnor';
+
+const findAccountById = sql`
+  SELECT ${row(Account.$$)}
+  FROM ${Account}
+  WHERE ${Account.$accountId} = ${param<{ accountId: string }>('accountId')}
+`;
+
+export default defineQueryConfig({ findAccountById })({
+  queries: {
+    findAccountById: {
+      profile: 'dev',
+      plugin: vexnorPostgres,
+      params: { accountId: '00000000-0000-0000-0000-000000000001' },
+      environments: {
+        dev:  { accountId: '00000000-0000-0000-0000-000000000001' },
+        prod: { accountId: '00000000-0000-0000-0000-000000000002' },
+      },
+    },
+  },
+});
+```
+
+#### Running queries
+
+```bash
+# Run with default params
+npx vexnor exec run findAccountById --query-config queries.vexnor.ts
+
+# Use a specific environment
+npx vexnor exec run findAccountById --query-config queries.vexnor.ts --env prod
+
+# Override output format
+npx vexnor exec run findAccountById --query-config queries.vexnor.ts --format json
+
+# Limit results
+npx vexnor exec run findAccountById --query-config queries.vexnor.ts --limit 10
+
+# Dry run — show SQL without executing
+npx vexnor exec run findAccountById --query-config queries.vexnor.ts --dry-run
+
+# Skip mutation confirmation
+npx vexnor exec run deleteAccount --query-config queries.vexnor.ts --no-confirm
+```
+
+```bash
+npx vexnor exec run <query> [options]
+
+Options:
+  -c, --config <path>        Path to vexnor.config.ts (default: vexnor.config.ts)
+  -q, --query-config <path>  Path to query config file (required)
+  -e, --env <name>           Environment to use for params
+  -f, --format <format>      Output format: table | json | csv
+  -l, --limit <number>       Limit number of results
+      --dry-run              Show SQL without executing
+      --no-confirm           Skip confirmation for mutations
 ```
 
 ## Configuration (Optional)
@@ -875,7 +979,7 @@ Options:
 Create a `vexnor.config.ts` file to store connection profiles and generation settings:
 
 ```typescript
-import { defineConfig } from 'valnor/config';
+import { defineConfig } from 'vexnor/config';
 
 export default defineConfig({
   profiles: {
@@ -903,7 +1007,7 @@ export default defineConfig({
 Want to add support for a new database? Implement the `VexnorPlugin` interface:
 
 ```typescript
-import { VexnorPlugin } from 'valnor/plugin';
+import { VexnorPlugin } from 'vexnor/plugin';
 
 export class MyDatabasePlugin extends VexnorPlugin<{
   Connection: MyDbConnection;
@@ -928,7 +1032,7 @@ export class MyDatabasePlugin extends VexnorPlugin<{
 
 **Distribution:**
 - Publish as separate npm package
-- Name convention: `valnor-{database}`
+- Name convention: `vexnor-{database}`
 - Include peer dependencies for database driver
 - Provide README with usage examples
 
@@ -937,9 +1041,9 @@ export class MyDatabasePlugin extends VexnorPlugin<{
 This repository is organized as a monorepo with multiple packages:
 
 ```
-valnor-root/
+vexnor-root/
 ├── packages/
-│   ├── valnor/              # Core library & CLI
+│   ├── vexnor/              # Core library & CLI
 │   ├── vexnor-postgres/     # PostgreSQL plugin
 │   ├── vexnor-mssql/        # MS SQL Server plugin
 │   ├── vexnor-sqlite3/      # SQLite3 plugin
@@ -991,31 +1095,14 @@ pnpm format
 
 ### Current Status: v1.0.0-beta.1
 
-Valnor is currently in beta. The core functionality is stable and ready for use, but we're gathering feedback before the 1.0.0 release.
+Vexnor is currently in beta. The core functionality is stable and ready for use, but we're gathering feedback before the 1.0.0 release.
 
-### Upcoming Features (v1.0.0)
+### Upcoming Features
 
-- **Query Execution CLI** (`valnor exec`) - [Spec available](EXEC_FEATURE_SPECS.md)
-  - Execute queries from TypeScript files
-  - Interactive parameter collection
-  - Multiple output formats (table, JSON, CSV)
-  - Profile-based configuration
-  - Environment support (dev, staging, prod)
-  - Dry-run and SQL-only modes
-  
 - **Additional Database Support**
   - MySQL/MariaDB plugin
   - Oracle plugin
   - CockroachDB support
-
-### Planned Improvements (v1.1+)
-
-- Schema migration tracking
-- Query performance analysis and EXPLAIN support
-- Visual query builder
-- Database comparison tools
-- Watch mode for development
-- Transaction support for multiple queries
 
 ## Contributing
 
@@ -1047,8 +1134,8 @@ Contributions are welcome! Here's how you can help:
 - Add JSDoc comments for public APIs
 
 **Project Structure:**
-- `packages/valnor/` - Core library and CLI
-- `packages/valnor-*/` - Database plugins and adaptors
+- `packages/vexnor/` - Core library and CLI
+- `packages/vexnor-*/` - Database plugins and adaptors
 - `tests/` - Integration test suites
 - `examples/` - Example projects
 - `@db-*/` - Test database schemas and migrations
@@ -1068,7 +1155,7 @@ Apache-2.0 - See [LICENSE](LICENSE) file for details.
 **Author**: Adrian Topala  
 **Repository**: https://github.com/vexnor-dev/vexnor  
 **Issues**: https://github.com/vexnor-dev/vexnor/issues  
-**NPM**: https://www.npmjs.com/package/valnor
+**NPM**: https://www.npmjs.com/package/vexnor
 
 ## Support
 
@@ -1078,7 +1165,7 @@ Apache-2.0 - See [LICENSE](LICENSE) file for details.
 
 ## Acknowledgments
 
-Valnor is inspired by the need for type-safe SQL in TypeScript without the overhead of ORMs. Special thanks to the TypeScript and database driver communities for their excellent tools and libraries.
+Vexnor is inspired by the need for type-safe SQL in TypeScript without the overhead of ORMs. Special thanks to the TypeScript and database driver communities for their excellent tools and libraries.
 
 ## Status
 

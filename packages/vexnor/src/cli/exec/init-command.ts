@@ -5,7 +5,7 @@ export interface InitOptions {
    force?: boolean;
 }
 
-const VALNOR_CONFIG_TEMPLATE = `import { defineConfig } from "vexnor";
+const VEXNOR_CONFIG_TEMPLATE = `import { defineConfig } from "vexnor";
 
 export default defineConfig({
    profiles: {
@@ -73,7 +73,7 @@ export async function initCommand(options: InitOptions): Promise<void> {
       throw new Error(`queries.vexnor.ts already exists. Use --force to overwrite.`);
    }
 
-   await fs.writeFile(configPath, VALNOR_CONFIG_TEMPLATE, "utf-8");
+   await fs.writeFile(configPath, VEXNOR_CONFIG_TEMPLATE, "utf-8");
    console.log(`✓ Created vexnor.config.ts`);
 
    await fs.writeFile(queryConfigPath, QUERY_CONFIG_TEMPLATE, "utf-8");
