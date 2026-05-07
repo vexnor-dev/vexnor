@@ -16,7 +16,7 @@ Vexnor generates TypeScript types from your database schema, so you can write re
 - No repository-layer boilerplate required
 - Works with existing drivers and databases
 - Zero runtime overhead from type generation
-- Includes Drizzle and TypeORM adaptors
+- Includes Drizzle, TypeORM, and Sequelize adaptors
 
 ### Why vs ORMs/Query Builders?
 
@@ -120,6 +120,7 @@ const row1 = await query.postgres.one({
 - App adoption (core flow): this README + [Examples](examples/)
 - Drizzle users: [Drizzle adaptor](docs/plugins.md#drizzle-adaptor)
 - TypeORM users: [TypeORM adaptor](docs/plugins.md#typeorm-adaptor)
+- Sequelize users: [Sequelize adaptor](docs/plugins.md#sequelize-adaptor)
 - CLI usage and query execution: [CLI docs](docs/cli.md)
 - CRUD query factories: [CRUD docs](docs/crud.md)
 - CTE/recursive patterns: [CTE docs](docs/ctes.md)

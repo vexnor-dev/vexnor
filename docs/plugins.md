@@ -98,6 +98,43 @@ const one = await findById.postgres.any({
 const rows = await listSummaries.postgres.all({ db: pool });
 ```
 
+## Sequelize Adaptor
+
+Package: `vexnor-sequelize`
+
+Use `fromSequelizeTable(model)` for table models and `fromSequelizeView(model)` for view models.
+
+```typescript
+import { sql, row, param } from "vexnor";
+import { fromSequelizeTable, fromSequelizeView } from "vexnor-sequelize";
+import { AccountModel, AccountOrderSummaryViewModel } from "./sequelize-models.js";
+import "vexnor-postgres";
+import { pool } from "./postgres-pool.js";
+
+const Account = fromSequelizeTable(AccountModel);
+const AccountOrderSummary = fromSequelizeView(AccountOrderSummaryViewModel);
+
+const findById = sql`
+  SELECT ${row(Account.$$)}
+  FROM ${Account}
+  WHERE ${Account.$accountId} = ${param<{ accountId: string }>("accountId", {
+    minLength: 1,
+  })}
+`;
+
+const listSummaries = sql`
+  SELECT ${row(AccountOrderSummary.$$)}
+  FROM ${AccountOrderSummary}
+`;
+
+const one = await findById.postgres.any({
+  db: pool,
+  params: { accountId: "00000000-0000-0000-0000-000000000001" },
+});
+
+const rows = await listSummaries.postgres.all({ db: pool });
+```
+
 ## Building a New Plugin
 
 Implement the `VexnorPlugin` interface from `vexnor/plugin`:
