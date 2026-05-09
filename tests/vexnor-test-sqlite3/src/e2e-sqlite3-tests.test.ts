@@ -106,7 +106,7 @@ describe.sequential("vexnor sqlite3 e2e tests", async (ctx) => {
       const actual = await query.sqlite.all({ db }).then((accounts) =>
          accounts.map((account) => ({
             ...account,
-            children: JSON.parse(account.children as any) as IAccountSelect[],
+            children: JSON.parse(account.children as string) as IAccountSelect[],
          })),
       );
 

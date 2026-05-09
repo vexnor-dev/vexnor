@@ -10,6 +10,7 @@ export default defineConfig({
          "./packages/vexnor-sqlite3",
          "./packages/vexnor-drizzle",
          "./packages/vexnor-typeorm",
+         "./packages/vexnor-prisma",
          "./tests/vexnor-test-mssql",
          "./tests/vexnor-test-postgres",
          "./tests/vexnor-test-sqlite3",

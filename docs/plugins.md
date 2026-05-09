@@ -98,6 +98,34 @@ const one = await findById.postgres.any({
 const rows = await listSummaries.postgres.all({ db: pool });
 ```
 
+## Sequelize Adaptor
+
+Package: `vexnor-sequelize`
+
+Use `fromSequelizeTable(model)` for table models and `fromSequelizeView(model)` for view models.
+
+```typescript
+import { fromSequelizeTable, fromSequelizeView } from "vexnor-sequelize";
+```
+
+## Prisma Adaptor
+
+Package: `vexnor-prisma`
+
+Use Prisma DMMF metadata as input and convert Prisma models into Vexnor tables.
+
+```typescript
+import { Prisma } from "@prisma/client";
+import { fromPrismaModelTable } from "vexnor-prisma";
+
+const accountModel = Prisma.dmmf.datamodel.models.find((m) => m.name === "Account");
+if (!accountModel) throw new Error("Account model not found");
+
+const Account = fromPrismaModelTable(accountModel, {
+  provider: "postgresql",
+});
+```
+
 ## Building a New Plugin
 
 Implement the `VexnorPlugin` interface from `vexnor/plugin`:

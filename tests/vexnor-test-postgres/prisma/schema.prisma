@@ -1,0 +1,23 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  accountId String  @id @default(uuid()) @map("account_id") @db.Uuid
+  status    String? @default("created") @map("status")
+  email     String  @map("email")
+  firstName String  @map("first_name")
+  lastName  String  @map("last_name")
+  notes     String? @map("notes")
+  createdAt DateTime? @map("created_at")
+  modifiedAt DateTime? @map("modified_at")
+  parentId  String? @map("parent_id") @db.Uuid
+
+  @@map("account")
+}

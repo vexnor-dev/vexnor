@@ -1,0 +1,64 @@
+{
+   "name": "vexnor-prisma",
+   "version": "1.0.0-beta.1",
+   "description": "Prisma adaptor for vexnor — convert Prisma DMMF models to vexnor runtime tables",
+   "type": "module",
+   "module": "dist/index.js",
+   "main": "dist/index.js",
+   "types": "dist/index.d.ts",
+   "exports": {
+      ".": {
+         "types": "./dist/index.d.ts",
+         "import": "./dist/index.js",
+         "require": "./dist/index.js"
+      }
+   },
+   "keywords": [
+      "vexnor",
+      "prisma",
+      "adaptor",
+      "sql"
+   ],
+   "author": "Adrian Topala",
+   "license": "Apache-2.0",
+   "repository": "https://github.com/vexnor-dev/vexnor",
+   "publishConfig": {
+      "access": "public"
+   },
+   "scripts": {
+      "codegen:prisma": "pnpm exec prisma generate --schema src/__tests__/fixtures/schema.prisma",
+      "prebuild": "run-s 'codegen:*'",
+      "build": "run-s 'build:*'",
+      "build:1-tsc": "tsc -b",
+      "build:2-alias": "tsc-alias",
+      "pretest": "run-s 'build'",
+      "test": "vitest --coverage run",
+      "test:watch": "vitest --watch",
+      "test:run": "vitest run"
+   },
+   "files": [
+      "dist",
+      "package.json",
+      "README.md"
+   ],
+   "dependencies": {
+      "@prisma/internals": "^6.9.0",
+      "vexnor": "workspace:^"
+   },
+   "devDependencies": {
+      "@vitest/coverage-v8": "^4.1.5",
+      "npm-run-all": "^4.1.5",
+      "tsc-alias": "^1.8.16",
+      "typescript": "^5.9.3",
+      "vite-tsconfig-paths": "^6.1.1",
+      "vitest": "^4.1.5"
+   },
+   "peerDependencies": {
+      "@prisma/client": ">=5.0.0"
+   },
+   "peerDependenciesMeta": {
+      "@prisma/client": {
+         "optional": true
+      }
+   }
+}

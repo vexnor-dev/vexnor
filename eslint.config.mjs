@@ -28,4 +28,10 @@ export default config(
          "unused-imports/no-unused-vars": "error",
       },
    },
+   {
+      files: ["tests/vexnor-test-*/src/**/*.ts"],
+      rules: {
+         "@typescript-eslint/no-explicit-any": "error",
+      },
+   },
 );

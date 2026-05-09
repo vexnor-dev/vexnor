@@ -6,13 +6,15 @@
    "author": "Adrian Topala",
    "license": "Apache-2.0",
    "scripts": {
-      "precodegen": "pnpm run -r --filter='vexnor' --filter='vexnor-mssql' build",
-      "codegen": "env-cmd --no-override -x -r ../../env-dev.json -e mssql node ../../packages/vexnor/cli.mjs codegen --plugin vexnor-mssql --schema vexnor_dev --pascalCaseTables --camelCaseColumns --host \\$MSSQL_HOST --port \\$MSSQL_PORT --database \\$MSSQL_DATABASE --user \\$MSSQL_USER --password \\$MSSQL_PASSWORD --outDir './src/codegen' | pino-pretty",
-      "pretest": "run-s 'codegen'",
+      "precodegen": "pnpm run -r --filter='vexnor' --filter='vexnor-mssql' --filter='vexnor-drizzle' --filter='vexnor-prisma' --filter='vexnor-typeorm' build",
+      "codegen:vexnor": "env-cmd --no-override -x -r ../../env-dev.json -e mssql node ../../packages/vexnor/cli.mjs codegen --plugin vexnor-mssql --schema vexnor_dev --pascalCaseTables --camelCaseColumns --host \\$MSSQL_HOST --port \\$MSSQL_PORT --database \\$MSSQL_DATABASE --user \\$MSSQL_USER --password \\$MSSQL_PASSWORD --outDir './src/codegen' | pino-pretty",
+      "codegen:prisma": "pnpm exec prisma generate --schema prisma/schema.prisma",
+      "prebuild": "run-s 'codegen:*'",
+      "build": "tsc -b",
+      "pretest": "run-s 'codegen:*'",
       "test": "vitest --coverage run",
       "test:watch": "vitest --watch",
-      "test:run": "vitest run",
-      "build": "tsc -b"
+      "test:run": "vitest run"
    },
    "dependencies": {
       "@sinclair/typebox": "^0.34.41",
@@ -20,12 +22,16 @@
       "vexnor": "workspace:*",
       "vexnor-drizzle": "workspace:*",
       "vexnor-mssql": "workspace:*",
+      "vexnor-prisma": "workspace:*",
       "vexnor-typeorm": "workspace:*"
    },
    "devDependencies": {
+      "@prisma/client": "^6.19.3",
+      "@prisma/internals": "^6.9.0",
       "@types/mssql": "^12.3.0",
       "@vitest/coverage-v8": "^4.1.5",
       "drizzle-orm": "^1.0.0-beta.20",
+      "prisma": "^6.19.3",
       "reflect-metadata": "^0.2.2",
       "typeorm": "^0.3.24",
       "vite-tsconfig-paths": "^6.1.1",

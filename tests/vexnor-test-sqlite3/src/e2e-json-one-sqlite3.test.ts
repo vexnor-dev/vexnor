@@ -84,7 +84,7 @@ describe.sequential("jsonOne() tests", (ctx) => {
          if (!z) return undefined;
          return {
             ...z,
-            parent: z.parent ? JSON.parse(z.parent as any) : null,
+            parent: z.parent ? JSON.parse(z.parent as string) : null,
          };
       });
 
