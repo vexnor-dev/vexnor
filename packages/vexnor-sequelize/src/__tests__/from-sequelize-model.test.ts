@@ -5,8 +5,14 @@ import { fromSequelizeTable, fromSequelizeView } from "../index.js";
 
 class AccountModel extends Model<InferAttributes<AccountModel>, InferCreationAttributes<AccountModel>> {
    declare accountId: string;
+   declare status: string | null;
    declare email: string;
    declare firstName: string;
+   declare lastName: string;
+   declare notes: string | null;
+   declare createdAt: Date | null;
+   declare modifiedAt: Date | null;
+   declare parentId: string | null;
 }
 
 class AccountOrderSummaryViewModel extends Model<
@@ -25,8 +31,14 @@ beforeAll(async () => {
    AccountModel.init(
       {
          accountId: { type: DataTypes.STRING, allowNull: false, primaryKey: true, field: "account_id" },
+         status: { type: DataTypes.STRING, allowNull: true, field: "status" },
          email: { type: DataTypes.STRING, allowNull: false, field: "email" },
          firstName: { type: DataTypes.STRING, allowNull: false, field: "first_name" },
+         lastName: { type: DataTypes.STRING, allowNull: false, field: "last_name" },
+         notes: { type: DataTypes.TEXT, allowNull: true, field: "notes" },
+         createdAt: { type: DataTypes.DATE, allowNull: true, field: "created_at" },
+         modifiedAt: { type: DataTypes.DATE, allowNull: true, field: "modified_at" },
+         parentId: { type: DataTypes.STRING, allowNull: true, field: "parent_id" },
       },
       {
          sequelize,
@@ -62,7 +74,9 @@ describe("fromSequelizeTable", () => {
       const Account = fromSequelizeTable(AccountModel);
       expect(Account.pk).toEqual(["accountId"]);
       expect(Account.tableInfo).toEqual({ name: "account", schema: null });
+      expect(Account.$accountId.columnName).toBe("account_id");
       expect(Account.$firstName.columnName).toBe("first_name");
+      expect(Account.$email.columnName).toBe("email");
    });
 
    test("emits SELECT sql", () => {

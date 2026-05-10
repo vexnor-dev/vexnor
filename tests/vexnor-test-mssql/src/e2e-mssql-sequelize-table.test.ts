@@ -15,6 +15,8 @@ class AccountModel extends Model<InferAttributes<AccountModel>, InferCreationAtt
    declare firstName: string;
    declare lastName: string;
    declare notes: string | null;
+   declare createdAt: Date | null;
+   declare modifiedAt: Date | null;
 }
 
 let sequelize: Sequelize;
@@ -44,6 +46,8 @@ describe.sequential("e2e sequelize/mssql — fromSequelizeTable works against re
             firstName: { type: DataTypes.STRING(100), allowNull: false, field: "first_name" },
             lastName: { type: DataTypes.STRING(100), allowNull: false, field: "last_name" },
             notes: { type: DataTypes.TEXT, allowNull: true, field: "notes" },
+            createdAt: { type: DataTypes.DATE, allowNull: true, field: "created_at" },
+            modifiedAt: { type: DataTypes.DATE, allowNull: true, field: "modified_at" },
          },
          {
             sequelize,
