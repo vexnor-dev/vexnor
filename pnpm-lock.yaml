@@ -275,6 +275,37 @@ importers:
         specifier: ^4.1.5
         version: 4.1.5(@types/node@20.19.0)(@vitest/coverage-v8@4.1.5)(vite@8.0.10(@types/node@20.19.0)(esbuild@0.28.0)(tsx@4.21.0)(yaml@2.8.4))
 
+  packages/vexnor-sequelize:
+    dependencies:
+      vexnor:
+        specifier: workspace:^
+        version: link:../vexnor
+    devDependencies:
+      '@vitest/coverage-v8':
+        specifier: ^4.1.5
+        version: 4.1.5(vitest@4.1.5)
+      npm-run-all:
+        specifier: ^4.1.5
+        version: 4.1.5
+      sequelize:
+        specifier: ^6.37.7
+        version: 6.37.8(pg@8.20.0)(sqlite3@5.1.7)
+      sqlite3:
+        specifier: ^5.1.7
+        version: 5.1.7
+      tsc-alias:
+        specifier: ^1.8.16
+        version: 1.8.17
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vite-tsconfig-paths:
+        specifier: ^6.1.1
+        version: 6.1.1(typescript@5.9.3)(vite@8.0.10(@types/node@20.19.0)(esbuild@0.28.0)(tsx@4.21.0)(yaml@2.8.4))
+      vitest:
+        specifier: ^4.1.5
+        version: 4.1.5(@types/node@20.19.0)(@vitest/coverage-v8@4.1.5)(vite@8.0.10(@types/node@20.19.0)(esbuild@0.28.0)(tsx@4.21.0)(yaml@2.8.4))
+
   packages/vexnor-sqlite3:
     dependencies:
       better-sqlite3:
@@ -360,6 +391,9 @@ importers:
       vexnor-mssql:
         specifier: workspace:*
         version: link:../../packages/vexnor-mssql
+      vexnor-sequelize:
+        specifier: workspace:*
+        version: link:../../packages/vexnor-sequelize
       vexnor-typeorm:
         specifier: workspace:*
         version: link:../../packages/vexnor-typeorm
@@ -376,6 +410,9 @@ importers:
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
+      sequelize:
+        specifier: ^6.37.7
+        version: 6.37.8(pg@8.20.0)(sqlite3@5.1.7)
       typeorm:
         specifier: ^0.3.24
         version: 0.3.28(better-sqlite3@12.9.0)(mssql@12.5.2(@azure/core-client@1.10.1))(pg@8.20.0)(sqlite3@5.1.7)
@@ -385,6 +422,8 @@ importers:
       vitest:
         specifier: ^4.1.5
         version: 4.1.5(@types/node@20.19.0)(@vitest/coverage-v8@4.1.5)(vite@8.0.10(@types/node@20.19.0)(esbuild@0.28.0)(tsx@4.21.0)(yaml@2.8.4))
+
+  tests/vexnor-test-mssql/prisma/generated: {}
 
   tests/vexnor-test-postgres:
     dependencies:
@@ -403,6 +442,9 @@ importers:
       vexnor-postgres:
         specifier: workspace:*
         version: link:../../packages/vexnor-postgres
+      vexnor-sequelize:
+        specifier: workspace:*
+        version: link:../../packages/vexnor-sequelize
       vexnor-typeorm:
         specifier: workspace:*
         version: link:../../packages/vexnor-typeorm
@@ -422,6 +464,9 @@ importers:
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
+      sequelize:
+        specifier: ^6.37.7
+        version: 6.37.8(pg@8.20.0)(sqlite3@5.1.7)
       typeorm:
         specifier: ^0.3.24
         version: 0.3.28(better-sqlite3@12.9.0)(mssql@12.5.2(@azure/core-client@1.10.1))(pg@8.20.0)(sqlite3@5.1.7)
@@ -434,6 +479,8 @@ importers:
       vitest:
         specifier: ^4.1.5
         version: 4.1.5(@types/node@20.19.0)(@vitest/coverage-v8@4.1.5)(vite@8.0.10(@types/node@20.19.0)(esbuild@0.28.0)(tsx@4.21.0)(yaml@2.8.4))
+
+  tests/vexnor-test-postgres/prisma/generated: {}
 
   tests/vexnor-test-sqlite3:
     dependencies:
@@ -449,6 +496,9 @@ importers:
       vexnor-drizzle:
         specifier: workspace:*
         version: link:../../packages/vexnor-drizzle
+      vexnor-sequelize:
+        specifier: workspace:*
+        version: link:../../packages/vexnor-sequelize
       vexnor-sqlite3:
         specifier: workspace:*
         version: link:../../packages/vexnor-sqlite3
@@ -468,6 +518,9 @@ importers:
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
+      sequelize:
+        specifier: ^6.37.7
+        version: 6.37.8(pg@8.20.0)(sqlite3@5.1.7)
       typeorm:
         specifier: ^0.3.24
         version: 0.3.28(better-sqlite3@12.9.0)(mssql@12.5.2(@azure/core-client@1.10.1))(pg@8.20.0)(sqlite3@5.1.7)
@@ -477,6 +530,8 @@ importers:
       vitest:
         specifier: ^4.1.5
         version: 4.1.5(@types/node@20.19.0)(@vitest/coverage-v8@4.1.5)(vite@8.0.10(@types/node@20.19.0)(esbuild@0.28.0)(tsx@4.21.0)(yaml@2.8.4))
+
+  tests/vexnor-test-sqlite3/prisma/generated: {}
 
 packages:
 
@@ -1112,6 +1167,9 @@ packages:
   '@types/chai@5.2.3':
     resolution: {integrity: sha512-Mw558oeA9fFbv65/y4mHtXDs9bPnFMZAL/jxdPFUpOHHIXX91mcgEHbS5Lahr+pwZFR8A7GQleRWeI6cGFC2UA==}
 
+  '@types/debug@4.1.13':
+    resolution: {integrity: sha512-KSVgmQmzMwPlmtljOomayoR89W4FynCAi3E8PPs7vmDVPe84hT+vGPKkJfThkmXs0x0jAaa9U8uW8bbfyS2fWw==}
+
   '@types/deep-eql@4.0.2':
     resolution: {integrity: sha512-c9h9dVVMigMPc4bwTvC5dxqtqJZwQPePsWjPlpSOnojbor6pGqdk541lfA7AqFQr5pB1BRdq0juY9db81BwyFw==}
 
@@ -1124,6 +1182,9 @@ packages:
   '@types/json5@0.0.29':
     resolution: {integrity: sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ==}
 
+  '@types/ms@2.1.0':
+    resolution: {integrity: sha512-GsCCIZDE/p3i96vtEqx+7dBUGXrc7zeSK3wwPHIaRThS+9OhWIXRqzs4d6k1SVU8g91DrNRWxWUGhp5KXQb2VA==}
+
   '@types/mssql@12.3.0':
     resolution: {integrity: sha512-+jy+AJtfuTDI5+nhh0hDNcir1p8P+pf+qsHXpUpYvg7EikxUUePBe+a+Kr6j/Xs89o4EbHlVzrh0HOxbqWM31Q==}
 
@@ -1135,6 +1196,9 @@ packages:
 
   '@types/readable-stream@4.0.23':
     resolution: {integrity: sha512-wwXrtQvbMHxCbBgjHaMGEmImFTQxxpfMOR/ZoQnXxB1woqkUbdLGFDgauo00Py9IudiaqSeiBiulSV9i6XIPig==}
+
+  '@types/validator@13.15.10':
+    resolution: {integrity: sha512-T8L6i7wCuyoK8A/ZeLYt1+q0ty3Zb9+qbSSvrIVitzT3YjZqkTZ40IbRsPanlB4h1QB3JVL1SYCdR6ngtFYcuA==}
 
   '@typescript-eslint/eslint-plugin@8.59.2':
     resolution: {integrity: sha512-j/bwmkBvHUtPNxzuWe5z6BEk3q54YRyGlBXkSsmfoih7zNrBvl5A9A98anlp/7JbyZcWIJ8KXo/3Tq/DjFLtuQ==}
@@ -1660,6 +1724,10 @@ packages:
   dotenv@16.6.1:
     resolution: {integrity: sha512-uBq4egWHTcTt33a72vpSG0z3HnPuIl6NqYcTrKEg2azoEyl2hpW0zqlxysq2pK9HlDIHyHyakeYaYnSAwd8bow==}
     engines: {node: '>=12'}
+
+  dottie@2.0.7:
+    resolution: {integrity: sha512-7lAK2A0b3zZr3UC5aE69CPdCFR4RHW1o2Dr74TqFykxkUCBXSRJum/yPc7g8zRHJqWKomPLHwFLLoUnn8PXXRg==}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
 
   drizzle-orm@1.0.0-rc.2-e38a2ba:
     resolution: {integrity: sha512-m+S4nvYsgBhUPPjRWEPb9dybO2WcZXs+L6h2ziWOmFnjIgQ2jiDIKVQUuaCMGyKBFISxS6kjfMAJ1zzeQqWSFw==}
@@ -2264,6 +2332,10 @@ packages:
   infer-owner@1.0.4:
     resolution: {integrity: sha512-IClj+Xz94+d7irH5qRyfJonOdfTzuDaifE6ZPWfx0N0+/ATZCbuTPq2prFl526urkQd90WyUKIh1DfBQ2hMz9A==}
 
+  inflection@1.13.4:
+    resolution: {integrity: sha512-6I/HUDeYFfuNCVS3td055BaXBwKYuzw7K3ExVMStBowKo9oOAMJIXIHvdyR3iboTCp1b+1i5DSkIZTcwIktuDw==}
+    engines: {'0': node >= 0.4.0}
+
   inherits@2.0.4:
     resolution: {integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==}
 
@@ -2590,6 +2662,9 @@ packages:
   lodash.once@4.1.1:
     resolution: {integrity: sha512-Sb487aTOCr9drQVL8pIxOzVhafOjZN9UU54hiN8PU3uAiSV7lx1yYNpbNmex2PK6dSJoNTSJUUswT651yww3Mg==}
 
+  lodash@4.18.1:
+    resolution: {integrity: sha512-dMInicTPVE8d1e5otfwmmjlxkZoUpiVLwyeTdUsi/Caj/gfzzblBcCE5sRHV/AsjuCmxWrte2TNGSYuCeCq+0Q==}
+
   lru-cache@11.3.6:
     resolution: {integrity: sha512-Gf/KoL3C/MlI7Bt0PGI9I+TeTC/I6r/csU58N4BSNc4lppLBeKsOdFYkK+dX0ABDUMJNfCHTyPpzwwO21Awd3A==}
     engines: {node: 20 || >=22}
@@ -2682,6 +2757,12 @@ packages:
     resolution: {integrity: sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==}
     engines: {node: '>=10'}
     hasBin: true
+
+  moment-timezone@0.5.48:
+    resolution: {integrity: sha512-f22b8LV1gbTO2ms2j2z13MuPogNoh5UzxL3nzNAYKGraILnbGc9NEE6dyiiiLv46DGRb8A4kg8UKWLjPthxBHw==}
+
+  moment@2.30.1:
+    resolution: {integrity: sha512-uEmtNhbDOrWPFS+hdjFCBfy9f2YoyzRpwcl+DqpC6taX21FzsTLQVbMV/W7PzNSX6x/bhC1zA3c2UQ5NzH6how==}
 
   moo@0.5.3:
     resolution: {integrity: sha512-m2fmM2dDm7GZQsY7KK2cme8agi+AAljILjQnof7p1ZMDe6dQ4bdnSMx0cPppudoeNv5hEFQirN6u+O4fDE0IWA==}
@@ -3131,6 +3212,9 @@ packages:
     resolution: {integrity: sha512-TTlYpa+OL+vMMNG24xSlQGEJ3B/RzEfUlLct7b5G/ytav+wPrplCpVMFuwzXbkecJrb6IYo1iFb0S9v37754mg==}
     engines: {node: '>=0.12'}
 
+  retry-as-promised@7.1.1:
+    resolution: {integrity: sha512-hMD7odLOt3LkTjcif8aRZqi/hybjpLNgSk5oF5FCowfCjok6LukpN2bDX7R5wDmbgBQFn7YoBxSagmtXHaJYJw==}
+
   retry@0.12.0:
     resolution: {integrity: sha512-9LkiTwjUh6rT555DtE9rTX+BKByPfrMzEAtnlEtdEwr3Nkffwiihqe2bWADg+OQRjt9gl6ICdmB/ZFDCGAtSow==}
     engines: {node: '>= 4'}
@@ -3198,6 +3282,43 @@ packages:
     resolution: {integrity: sha512-vFKC2IEtQnVhpT78h1Yp8wzwrf8CM+MzKMHGJZfBtzhZNycRFnXsHk6E5TxIkkMsgNS7mdX3AGB7x2QM2di4lA==}
     engines: {node: '>=10'}
     hasBin: true
+
+  sequelize-pool@7.1.0:
+    resolution: {integrity: sha512-G9c0qlIWQSK29pR/5U2JF5dDQeqqHRragoyahj/Nx4KOOQ3CPPfzxnfqFPCSB7x5UgjOgnZ61nSxz+fjDpRlJg==}
+    engines: {node: '>= 10.0.0'}
+
+  sequelize@6.37.8:
+    resolution: {integrity: sha512-HJ0IQFqcTsTiqbEgiuioYFMSD00TP6Cz7zoTti+zVVBwVe9fEhev9cH6WnM3XU31+ABS356durAb99ZuOthnKw==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      ibm_db: '*'
+      mariadb: '*'
+      mysql2: '*'
+      oracledb: '*'
+      pg: '*'
+      pg-hstore: '*'
+      snowflake-sdk: '*'
+      sqlite3: '*'
+      tedious: '*'
+    peerDependenciesMeta:
+      ibm_db:
+        optional: true
+      mariadb:
+        optional: true
+      mysql2:
+        optional: true
+      oracledb:
+        optional: true
+      pg:
+        optional: true
+      pg-hstore:
+        optional: true
+      snowflake-sdk:
+        optional: true
+      sqlite3:
+        optional: true
+      tedious:
+        optional: true
 
   set-blocking@2.0.0:
     resolution: {integrity: sha512-KiKBS8AnWGEyLzofFfmvKwpdPzqiy16LvQfK3yv/fVH7Bj13/wl3JSR1J+rfgRE9q7xUJK4qvgS8raSOeLUehw==}
@@ -3504,6 +3625,9 @@ packages:
   to-title-case@1.0.0:
     resolution: {integrity: sha512-zy39Lh3pLnDIvS7PEoPNIo7Jbm7IK4NCruhQDEsHmVmvqn4v+WlwgQZtHESbYxnwhU0YCdTJJ4IQshR2XWYVFw==}
 
+  toposort-class@1.0.1:
+    resolution: {integrity: sha512-OsLcGGbYF3rMjPUf8oKktyvCiUxSbqMMS39m33MAjLTC1DVIH6x3WSt63/M77ihI09+Sdfk1AXvfhCEeUmC7mg==}
+
   ts-api-utils@2.5.0:
     resolution: {integrity: sha512-OJ/ibxhPlqrMM0UiNHJ/0CKQkoKF243/AEmplt3qpRgkW8VG7IfOS41h7V8TjITqdByHzrjcS/2si+y4lIh8NA==}
     engines: {node: '>=18.12'}
@@ -3657,8 +3781,17 @@ packages:
     resolution: {integrity: sha512-vIYxrBCC/N/K+Js3qSN88go7kIfNPssr/hHCesKCQNAjmgvYS2oqr69kIufEG+O4+PfezOH4EbIeHCfFov8ZgQ==}
     hasBin: true
 
+  uuid@8.3.2:
+    resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
+    hasBin: true
+
   validate-npm-package-license@3.0.4:
     resolution: {integrity: sha512-DpKm2Ui/xN7/HQKCtpZxoRWBhZ9Z0kqtygG8XCgNQ8ZlDnxuQmWhj566j8fN4Cu3/JmbhsDo7fcAJq4s9h27Ew==}
+
+  validator@13.15.35:
+    resolution: {integrity: sha512-TQ5pAGhd5whStmqWvYF4OjQROlmv9SMFVt37qoCBdqRffuuklWYQlCNnEs2ZaIBD1kZRNnikiZOS1eqgkar0iw==}
+    engines: {node: '>= 0.10'}
 
   vite-node@2.1.9:
     resolution: {integrity: sha512-AM9aQ/IPrW/6ENLQg3AGY4K1N2TGZdR5e4gu/MmmR2xR3Ll1+dib+nook92g4TV3PXVyeyxdWwtaCAiUL0hMxA==}
@@ -3817,6 +3950,9 @@ packages:
 
   wide-align@1.1.5:
     resolution: {integrity: sha512-eDMORYaPNZ4sQIuuYPDHdQvf4gyCF9rEEV/yPxGfwPkRodwEgiMUUXTx/dex+Me0wxx53S+NgUHaP7y3MGlDmg==}
+
+  wkx@0.5.0:
+    resolution: {integrity: sha512-Xng/d4Ichh8uN4l0FToV/258EjMGU9MGcA0HV2d9B/ZpZB3lqQm7nkOdZdm5GhKtLLhAE7PiVQwN4eN+2YJJUg==}
 
   word-wrap@1.2.5:
     resolution: {integrity: sha512-BN22B5eaMMI9UMtjrGd5g5eCYPpCPDUy0FJXbYsaT5zYxjFOckS53SQDE3pWkVoWpHXVb3BrYcEN4Twa55B5cA==}
@@ -4411,6 +4547,10 @@ snapshots:
       '@types/deep-eql': 4.0.2
       assertion-error: 2.0.1
 
+  '@types/debug@4.1.13':
+    dependencies:
+      '@types/ms': 2.1.0
+
   '@types/deep-eql@4.0.2': {}
 
   '@types/estree@1.0.8': {}
@@ -4418,6 +4558,8 @@ snapshots:
   '@types/json-schema@7.0.15': {}
 
   '@types/json5@0.0.29': {}
+
+  '@types/ms@2.1.0': {}
 
   '@types/mssql@12.3.0(@azure/core-client@1.10.1)':
     dependencies:
@@ -4441,6 +4583,8 @@ snapshots:
   '@types/readable-stream@4.0.23':
     dependencies:
       '@types/node': 20.19.0
+
+  '@types/validator@13.15.10': {}
 
   '@typescript-eslint/eslint-plugin@8.59.2(@typescript-eslint/parser@8.59.2(eslint@9.39.4)(typescript@5.9.3))(eslint@9.39.4)(typescript@5.9.3)':
     dependencies:
@@ -5050,6 +5194,8 @@ snapshots:
 
   dotenv@16.6.1: {}
 
+  dottie@2.0.7: {}
+
   drizzle-orm@1.0.0-rc.2-e38a2ba(@sinclair/typebox@0.34.49)(@types/better-sqlite3@7.6.13)(@types/mssql@12.3.0(@azure/core-client@1.10.1))(@types/pg@8.20.0)(better-sqlite3@12.9.0)(mssql@12.5.2(@azure/core-client@1.10.1))(pg@8.20.0)(sqlite3@5.1.7):
     optionalDependencies:
       '@sinclair/typebox': 0.34.49
@@ -5644,6 +5790,8 @@ snapshots:
   infer-owner@1.0.4:
     optional: true
 
+  inflection@1.13.4: {}
+
   inherits@2.0.4: {}
 
   ini@1.3.8: {}
@@ -5942,6 +6090,8 @@ snapshots:
 
   lodash.once@4.1.1: {}
 
+  lodash@4.18.1: {}
+
   lru-cache@11.3.6: {}
 
   lru-cache@6.0.0:
@@ -6054,6 +6204,12 @@ snapshots:
   mkdirp-classic@0.5.3: {}
 
   mkdirp@1.0.4: {}
+
+  moment-timezone@0.5.48:
+    dependencies:
+      moment: 2.30.1
+
+  moment@2.30.1: {}
 
   moo@0.5.3: {}
 
@@ -6566,6 +6722,8 @@ snapshots:
 
   ret@0.1.15: {}
 
+  retry-as-promised@7.1.1: {}
+
   retry@0.12.0:
     optional: true
 
@@ -6669,6 +6827,32 @@ snapshots:
   secure-json-parse@4.1.0: {}
 
   semver@7.7.4: {}
+
+  sequelize-pool@7.1.0: {}
+
+  sequelize@6.37.8(pg@8.20.0)(sqlite3@5.1.7):
+    dependencies:
+      '@types/debug': 4.1.13
+      '@types/validator': 13.15.10
+      debug: 4.4.3
+      dottie: 2.0.7
+      inflection: 1.13.4
+      lodash: 4.18.1
+      moment: 2.30.1
+      moment-timezone: 0.5.48
+      pg-connection-string: 2.12.0
+      retry-as-promised: 7.1.1
+      semver: 7.7.4
+      sequelize-pool: 7.1.0
+      toposort-class: 1.0.1
+      uuid: 8.3.2
+      validator: 13.15.35
+      wkx: 0.5.0
+    optionalDependencies:
+      pg: 8.20.0
+      sqlite3: 5.1.7
+    transitivePeerDependencies:
+      - supports-color
 
   set-blocking@2.0.0:
     optional: true
@@ -7058,6 +7242,8 @@ snapshots:
       to-capital-case: 1.0.0
       to-sentence-case: 1.0.0
 
+  toposort-class@1.0.1: {}
+
   ts-api-utils@2.5.0(typescript@5.9.3):
     dependencies:
       typescript: 5.9.3
@@ -7203,10 +7389,14 @@ snapshots:
 
   uuid@11.1.1: {}
 
+  uuid@8.3.2: {}
+
   validate-npm-package-license@3.0.4:
     dependencies:
       spdx-correct: 3.2.0
       spdx-expression-parse: 3.0.1
+
+  validator@13.15.35: {}
 
   vite-node@2.1.9(@types/node@20.19.0)(lightningcss@1.32.0):
     dependencies:
@@ -7346,6 +7536,10 @@ snapshots:
     dependencies:
       string-width: 4.2.3
     optional: true
+
+  wkx@0.5.0:
+    dependencies:
+      '@types/node': 20.19.0
 
   word-wrap@1.2.5: {}
 
