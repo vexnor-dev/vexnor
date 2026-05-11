@@ -1,0 +1,68 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://postgres:postgres@localhost:5432/postgres"
+}
+
+model Account {
+  accountId  String   @id @default(uuid()) @map("account_id")
+  status     String?  @default("created") @map("status")
+  email      String   @unique @map("email")
+  firstName  String   @map("first_name")
+  lastName   String   @map("last_name")
+  notes      String?  @map("notes")
+  createdAt  DateTime @default(now()) @map("created_at")
+  modifiedAt DateTime @default(now()) @map("modified_at")
+  parentId   String?  @map("parent_id")
+  orders     Order[]
+
+  @@map("account")
+}
+
+model Order {
+  orderId    String      @id @default(uuid()) @map("order_id")
+  status     String?     @default("created") @map("status")
+  createdAt  DateTime    @default(now()) @map("created_at")
+  modifiedAt DateTime    @default(now()) @map("modified_at")
+  accountId  String      @map("account_id")
+  account    Account     @relation(fields: [accountId], references: [accountId])
+  items      OrderItem[]
+
+  @@map("order")
+}
+
+model Product {
+  productId   String    @id @default(uuid()) @map("product_id")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  modifiedAt  DateTime  @default(now()) @map("modified_at")
+  label       String    @map("label")
+  price       Decimal   @map("price")
+  discount    Decimal?  @map("discount")
+  isAvailable Boolean   @default(true) @map("is_available")
+  isPublished Boolean   @default(false) @map("is_published")
+  metadata    Json?     @map("metadata")
+  tags        String[]  @map("tags")
+  orderItems  OrderItem[]
+
+  @@map("product")
+}
+
+model OrderItem {
+  orderId       String    @map("order_id")
+  productId     String    @map("product_id")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  modifiedAt    DateTime  @default(now()) @map("modified_at")
+  productPrice  Decimal   @map("product_price")
+  discountPrice Decimal?  @map("discount_price")
+  quantity      Int       @map("quantity")
+  metadata      Json?     @map("metadata")
+  order         Order     @relation(fields: [orderId], references: [orderId])
+  product       Product   @relation(fields: [productId], references: [productId])
+
+  @@id([orderId, productId])
+  @@map("order_item")
+}

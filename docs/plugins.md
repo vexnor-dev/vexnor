@@ -1,5 +1,16 @@
 # Plugins and Adaptors
 
+## Recommended Approach
+
+For all ORM adaptors (`vexnor-drizzle`, `vexnor-typeorm`, `vexnor-sequelize`, `vexnor-prisma`):
+
+1. Preferred: use Vexnor CLI code generation for database mapping as the long-term stable path.
+2. Alternative: start from existing ORM setup via adaptor APIs for incremental adoption.
+
+Why this split:
+- CLI-generated mappings are decoupled from ORM runtime metadata APIs.
+- ORM-based adaptors depend on third-party ORM contracts, which can change and require adaptor updates.
+
 ## Database Plugins
 
 - `vexnor-postgres`: PostgreSQL support
@@ -19,6 +30,9 @@ Subpath imports:
 - `vexnor-drizzle/mssql`
 
 Use it to convert Drizzle table/view definitions into Vexnor tables without codegen.
+
+Recommended for production stability: generate mappings via Vexnor CLI.
+Use this adaptor path primarily as a migration/onramp from existing Drizzle schemas.
 
 ```typescript
 import { sql, row, param } from "vexnor";
@@ -59,6 +73,9 @@ const rows = await listSummaries.postgres.all({ db: pool });
 Package: `vexnor-typeorm`
 
 Use `fromTypeORM(repository)` to convert TypeORM entities/views into Vexnor tables.
+
+Recommended for production stability: generate mappings via Vexnor CLI.
+Use this adaptor path primarily as a migration/onramp from existing TypeORM setups.
 
 ```typescript
 import { sql, row, param } from "vexnor";
@@ -104,6 +121,9 @@ Package: `vexnor-sequelize`
 
 Use `fromSequelizeTable(model)` for table models and `fromSequelizeView(model)` for view models.
 
+Recommended for production stability: generate mappings via Vexnor CLI.
+Use this adaptor path primarily as a migration/onramp from existing Sequelize setups.
+
 ```typescript
 import { fromSequelizeTable, fromSequelizeView } from "vexnor-sequelize";
 ```
@@ -113,6 +133,9 @@ import { fromSequelizeTable, fromSequelizeView } from "vexnor-sequelize";
 Package: `vexnor-prisma`
 
 Use Prisma DMMF metadata as input and convert Prisma models into Vexnor tables.
+
+Recommended for production stability: generate mappings via Vexnor CLI.
+Use this adaptor path primarily as a migration/onramp from existing Prisma setups.
 
 ```typescript
 import { Prisma } from "@prisma/client";
@@ -124,6 +147,23 @@ if (!accountModel) throw new Error("Account model not found");
 const Account = fromPrismaModelTable(accountModel, {
   provider: "postgresql",
 });
+```
+
+Recommended onboarding flow from an existing Prisma project:
+
+1. Generate Prisma client (`pnpm exec prisma generate`).
+2. Resolve target model from `Prisma.dmmf.datamodel.models`.
+3. Build typed Vexnor table/view with `fromPrismaModelTable` / `fromPrismaModelView`.
+4. Use resulting Vexnor table in queries/CRUD flows.
+
+Example typing pattern:
+
+```typescript
+import type { Account, Prisma as PrismaTypes } from "@prisma/client";
+
+type AccountSelect = Account;
+type AccountInsert = PrismaTypes.AccountUncheckedCreateInput;
+type AccountUpdate = PrismaTypes.AccountUncheckedUpdateInput;
 ```
 
 ## Building a New Plugin

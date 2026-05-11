@@ -115,20 +115,54 @@ Prisma.NullTypes = {
  */
 
 exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
+  ReadUncommitted: 'ReadUncommitted',
+  ReadCommitted: 'ReadCommitted',
+  RepeatableRead: 'RepeatableRead',
   Serializable: 'Serializable'
 });
 
 exports.Prisma.AccountScalarFieldEnum = {
   accountId: 'accountId',
+  status: 'status',
   email: 'email',
   firstName: 'firstName',
-  lastName: 'lastName'
+  lastName: 'lastName',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  modifiedAt: 'modifiedAt',
+  parentId: 'parentId'
+};
+
+exports.Prisma.OrderScalarFieldEnum = {
+  orderId: 'orderId',
+  status: 'status',
+  createdAt: 'createdAt',
+  modifiedAt: 'modifiedAt',
+  accountId: 'accountId'
+};
+
+exports.Prisma.ProductScalarFieldEnum = {
+  productId: 'productId',
+  createdAt: 'createdAt',
+  modifiedAt: 'modifiedAt',
+  label: 'label',
+  price: 'price',
+  discount: 'discount',
+  isAvailable: 'isAvailable',
+  isPublished: 'isPublished',
+  metadata: 'metadata',
+  tags: 'tags'
 };
 
 exports.Prisma.OrderItemScalarFieldEnum = {
-  accountId: 'accountId',
+  orderId: 'orderId',
   productId: 'productId',
-  quantity: 'quantity'
+  createdAt: 'createdAt',
+  modifiedAt: 'modifiedAt',
+  productPrice: 'productPrice',
+  discountPrice: 'discountPrice',
+  quantity: 'quantity',
+  metadata: 'metadata'
 };
 
 exports.Prisma.SortOrder = {
@@ -136,14 +170,32 @@ exports.Prisma.SortOrder = {
   desc: 'desc'
 };
 
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
+};
+
+exports.Prisma.QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
+};
+
 exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
 
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
+};
+
 
 exports.Prisma.ModelName = {
   Account: 'Account',
+  Order: 'Order',
+  Product: 'Product',
   OrderItem: 'OrderItem'
 };
 

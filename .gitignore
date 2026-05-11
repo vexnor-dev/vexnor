@@ -30,3 +30,4 @@ coverage*
 /tests/vexnor-test-postgres/prisma/generated/
 /tests/vexnor-test-sqlite3/prisma/generated/
 /packages/vexnor-prisma/src/__tests__/fixtures/generated/
+/packages/vexnor-prisma/src/__tests__/fixtures-v7/generated/
