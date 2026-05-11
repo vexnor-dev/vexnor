@@ -1,5 +1,13 @@
 # Plugins and Adaptors
 
+## Database Plugins
+
+- `vexnor-postgres`: PostgreSQL support
+- `vexnor-mssql`: MS SQL Server support
+- `vexnor-sqlite3`: SQLite support
+
+Each plugin provides schema introspection, type mapping, and query execution handlers.
+
 ## Recommended Approach
 
 For all ORM adaptors (`vexnor-drizzle`, `vexnor-typeorm`, `vexnor-sequelize`, `vexnor-prisma`):
@@ -10,14 +18,6 @@ For all ORM adaptors (`vexnor-drizzle`, `vexnor-typeorm`, `vexnor-sequelize`, `v
 Why this split:
 - CLI-generated mappings are decoupled from ORM runtime metadata APIs.
 - ORM-based adaptors depend on third-party ORM contracts, which can change and require adaptor updates.
-
-## Database Plugins
-
-- `vexnor-postgres`: PostgreSQL support
-- `vexnor-mssql`: MS SQL Server support
-- `vexnor-sqlite3`: SQLite support
-
-Each plugin provides schema introspection, type mapping, and query execution handlers.
 
 ## Drizzle Adaptor
 
@@ -132,10 +132,23 @@ import { fromSequelizeTable, fromSequelizeView } from "vexnor-sequelize";
 
 Package: `vexnor-prisma`
 
-Use Prisma DMMF metadata as input and convert Prisma models into Vexnor tables.
+Use Prisma model metadata as input and convert Prisma models into Vexnor tables.
 
 Recommended for production stability: generate mappings via Vexnor CLI.
 Use this adaptor path primarily as a migration/onramp from existing Prisma setups.
+
+```typescript
+import { fromPrismaModelTable } from "vexnor-prisma";
+```
+
+Recommended onboarding flow from an existing Prisma project:
+
+1. Generate Prisma client (`pnpm exec prisma generate`).
+2. Resolve target model metadata from your Prisma generated output.
+3. Build typed Vexnor table/view with `fromPrismaModelTable` / `fromPrismaModelView`.
+4. Use resulting Vexnor table in queries/CRUD flows.
+
+Prisma v6-style metadata example:
 
 ```typescript
 import { Prisma } from "@prisma/client";
@@ -149,12 +162,9 @@ const Account = fromPrismaModelTable(accountModel, {
 });
 ```
 
-Recommended onboarding flow from an existing Prisma project:
-
-1. Generate Prisma client (`pnpm exec prisma generate`).
-2. Resolve target model from `Prisma.dmmf.datamodel.models`.
-3. Build typed Vexnor table/view with `fromPrismaModelTable` / `fromPrismaModelView`.
-4. Use resulting Vexnor table in queries/CRUD flows.
+Prisma v7 note:
+- The new generator shape differs from v6 and does not expose the same `Prisma.dmmf` surface by default.
+- In `vexnor-prisma`, treat v7 metadata loading as generator-version specific and keep tests for both versions.
 
 Example typing pattern:
 

@@ -22,6 +22,7 @@
       "vexnor": "workspace:*",
       "vexnor-drizzle": "workspace:*",
       "vexnor-postgres": "workspace:*",
+      "vexnor-sequelize": "workspace:*",
       "vexnor-prisma": "workspace:*",
       "vexnor-typeorm": "workspace:*"
    },
@@ -32,6 +33,7 @@
       "@vitest/coverage-v8": "^4.1.5",
       "drizzle-orm": "^1.0.0-beta.20",
       "reflect-metadata": "^0.2.2",
+      "sequelize": "^6.37.7",
       "typeorm": "^0.3.24",
       "env-cmd": "^10.1.0",
       "prisma": "^6.19.3",
