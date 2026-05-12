@@ -1,13 +1,16 @@
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
-import { fromPrismaModelTable } from "vexnor-prisma";
+import { fileURLToPath } from "node:url";
+import { findPrismaModel, fromPrismaModelTable } from "vexnor-prisma";
 import type { FromPrismaModelResult } from "vexnor-prisma";
 import { row, sql, param } from "vexnor";
 import "vexnor-postgres";
 import { pool } from "./postgres-pool.js";
 import { POSTGRES_HOST, POSTGRES_PORT, POSTGRES_DATABASE, POSTGRES_USER, POSTGRES_PASSWORD } from "./config.js";
 import { getTag } from "./tags.js";
-import { PrismaClient, PrismaGenerated } from "./prisma-client.js";
+import { PrismaClient } from "../prisma/generated/client.js";
+import * as PrismaGenerated from "../prisma/generated/client.js";
+import { PrismaPg } from "@prisma/adapter-pg";
 
 describe.sequential("e2e prisma/pg — fromPrismaModelTable works against real DB", (ctx) => {
    const TAG = getTag(ctx);
@@ -20,24 +23,14 @@ describe.sequential("e2e prisma/pg — fromPrismaModelTable works against real D
       PrismaGenerated.Prisma.AccountUncheckedUpdateInput,
       "accountId" | "email" | "firstName" | "lastName"
    >;
-   const accountModel = PrismaGenerated.Prisma.dmmf.datamodel.models.find((model) => model.name === "Account");
    let account!: AccountRow;
    let Account!: FromPrismaModelResult<AccountRow, AccountInsert, AccountUpdate>;
    let prisma: PrismaClient | undefined;
    beforeAll(async () => {
-      process.env.DATABASE_URL =
-         `postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}` +
-         `@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DATABASE}?schema=vexnor_dev`;
+      const connectionString =
+         `postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}` + `@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DATABASE}`;
 
-      prisma = new PrismaClient({
-         datasources: {
-            db: {
-               url:
-                  `postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}` +
-                  `@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DATABASE}?schema=vexnor_dev`,
-            },
-         },
-      });
+      prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString }) });
 
       const prismaInserted = await prisma.account.create({
          data: { email: `${TAG}-prisma@example.com`, firstName: "PrismaClient", lastName: "Test" },
@@ -49,10 +42,10 @@ describe.sequential("e2e prisma/pg — fromPrismaModelTable works against real D
       });
       expect(prismaFetched?.email).toBe(`${TAG}-prisma@example.com`);
 
-      expect(accountModel).toBeDefined();
-      Account = fromPrismaModelTable<AccountRow, AccountInsert, AccountUpdate>(accountModel!, {
+      const schemaPath = fileURLToPath(new URL("../prisma/schema.prisma", import.meta.url));
+      const accountModel = await findPrismaModel("Account", { schemaPath });
+      Account = fromPrismaModelTable<AccountRow, AccountInsert, AccountUpdate>(accountModel, {
          provider: "postgresql",
-         schema: "vexnor_dev",
       });
 
       account = await Account.postgres.insertRows().one({

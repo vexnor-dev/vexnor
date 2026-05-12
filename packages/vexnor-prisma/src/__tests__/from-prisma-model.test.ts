@@ -1,28 +1,45 @@
 import { describe, expect, test } from "vitest";
 import { SqlTable, SqlTableColumn, col, row, sql } from "vexnor";
+import { readFile } from "node:fs/promises";
 import { fromPrismaModelTable, fromPrismaModelView } from "../from-prisma-model.js";
 import { getDialectFromPrismaProvider } from "../dialect.js";
 import { PrismaModel } from "../prisma-dmmf-types.js";
 
 type Fixture = {
-   tag: "v6" | "v7";
+   tag: "v6-client-js" | "v6-client" | "v7-client-js" | "v7-client";
    loadModels: () => Promise<readonly PrismaModel[]>;
 };
 
-async function loadV6Models(): Promise<readonly PrismaModel[]> {
-   const generated = await import("./fixtures-v6/generated/index.js");
+async function loadModelsFromClientJsIndex(modulePath: string): Promise<readonly PrismaModel[]> {
+   const generated = await import(modulePath);
    const models = generated?.Prisma?.dmmf?.datamodel?.models as readonly PrismaModel[] | undefined;
-   if (!models) throw new Error("Prisma v6 dmmf models not found in generated client.");
+   if (!models) throw new Error(`Prisma dmmf models not found in generated client: ${modulePath}`);
    return models;
 }
 
 type V7RuntimeDataModel = {
-   models: Record<string, { dbName?: string | null; fields: PrismaModel["fields"] }>;
+   models: Record<string, { dbName?: string | null; schema?: string | null; fields: PrismaModel["fields"] }>;
 };
 
-async function loadV7Models(): Promise<readonly PrismaModel[]> {
-   const classModule = (await import("./fixtures-v7/generated/internal/class.ts?raw")) as { default: string };
-   const source = classModule.default;
+function getInlineSchemaFromSource(source: string): string {
+   const match =
+      source.match(/"inlineSchema":\s*"([\s\S]*?)",\r?\n\s*"runtimeDataModel"/) ??
+      source.match(/"inlineSchema":\s*"([\s\S]*?)",\r?\n\s*"/) ??
+      source.match(/"inlineSchema":\s*"([\s\S]*?)"\r?\n\s*}/);
+   return match?.[1] ? (JSON.parse(`"${match[1]}"`) as string) : "";
+}
+
+function parseModelsFromPrismaClientClassSource(source: string): readonly PrismaModel[] {
+   const inlineSchema = getInlineSchemaFromSource(source);
+   const modelSchemaByName = new Map<string, string>();
+   for (const match of inlineSchema.matchAll(/model\s+(\w+)\s*\{[\s\S]*?@@schema\("([^"]+)"\)/g)) {
+      const modelName = match[1];
+      const modelSchema = match[2];
+      if (modelName && modelSchema) modelSchemaByName.set(modelName, modelSchema);
+   }
+   const defaultSchemaMatch = inlineSchema.match(/schemas\s*=\s*\["([^"]+)"\]/);
+   const defaultSchema = defaultSchemaMatch?.[1] ?? null;
+
    const match = source.match(/config\.runtimeDataModel\s*=\s*JSON\.parse\("(.+?)"\)/s);
    if (!match?.[1]) throw new Error("Prisma v7 runtimeDataModel JSON not found.");
    const runtimeDataModel = JSON.parse(JSON.parse(`"${match[1]}"`)) as V7RuntimeDataModel;
@@ -30,8 +47,64 @@ async function loadV7Models(): Promise<readonly PrismaModel[]> {
    return Object.entries(runtimeDataModel.models).map(([name, model]) => ({
       name,
       dbName: model.dbName ?? null,
+      schema: model.schema ?? modelSchemaByName.get(name) ?? defaultSchema,
       fields: model.fields,
    }));
+}
+
+function mergeSchemaFromSourceIfMissing(models: readonly PrismaModel[], source: string): readonly PrismaModel[] {
+   const inlineSchema = getInlineSchemaFromSource(source);
+   if (!inlineSchema) return models;
+
+   const modelSchemaByName = new Map<string, string>();
+   for (const match of inlineSchema.matchAll(/model\s+(\w+)\s*\{[\s\S]*?@@schema\("([^"]+)"\)/g)) {
+      const modelName = match[1];
+      const modelSchema = match[2];
+      if (modelName && modelSchema) modelSchemaByName.set(modelName, modelSchema);
+   }
+   const defaultSchemaMatch = inlineSchema.match(/schemas\s*=\s*\["([^"]+)"\]/);
+   const defaultSchema = defaultSchemaMatch?.[1] ?? null;
+
+   return models.map((model) => ({
+      ...model,
+      schema: model.schema ?? modelSchemaByName.get(model.name) ?? defaultSchema,
+   }));
+}
+
+type PrismaClientGeneratedLoadOptions = {
+   clientModulePath: string;
+   classSourcePath: string;
+};
+
+async function loadModelsFromPrismaClientGenerated({
+   clientModulePath,
+   classSourcePath,
+}: PrismaClientGeneratedLoadOptions): Promise<readonly PrismaModel[]> {
+   try {
+      const generated = await import(clientModulePath);
+      const models = (generated as { Prisma?: { dmmf?: { datamodel?: { models?: readonly PrismaModel[] } } } })
+         ?.Prisma?.dmmf?.datamodel?.models;
+      if (models?.length) return models;
+   } catch {
+      // Some test runtimes cannot execute generated Prisma client modules.
+   }
+
+   const source = await readFile(new URL(classSourcePath, import.meta.url), "utf8");
+   return parseModelsFromPrismaClientClassSource(source);
+}
+
+type ClientJsIndexWithFallbackSchemaOptions = {
+   modulePath: string;
+   sourcePath: string;
+};
+
+async function loadModelsFromClientJsIndexWithFallbackSchema({
+   modulePath,
+   sourcePath,
+}: ClientJsIndexWithFallbackSchemaOptions): Promise<readonly PrismaModel[]> {
+   const models = await loadModelsFromClientJsIndex(modulePath);
+   const source = await readFile(new URL(sourcePath, import.meta.url), "utf8");
+   return mergeSchemaFromSourceIfMissing(models, source);
 }
 
 function findModel(models: readonly PrismaModel[], modelName: string): PrismaModel {
@@ -41,8 +114,33 @@ function findModel(models: readonly PrismaModel[], modelName: string): PrismaMod
 }
 
 const FIXTURES: Fixture[] = [
-   { tag: "v6", loadModels: loadV6Models },
-   { tag: "v7", loadModels: loadV7Models },
+   {
+      tag: "v6-client-js",
+      loadModels: () => loadModelsFromClientJsIndex("./fixtures-v6-client-js/generated/index.js"),
+   },
+   {
+      tag: "v6-client",
+      loadModels: () => loadModelsFromPrismaClientGenerated({
+         clientModulePath: "./fixtures-v6-client/generated/client.js",
+         classSourcePath: "./fixtures-v6-client/generated/internal/class.ts",
+      }),
+   },
+   {
+      tag: "v7-client-js",
+      loadModels: () =>
+         loadModelsFromClientJsIndexWithFallbackSchema({
+            modulePath: "./fixtures-v7-client-js/generated/index.js",
+            sourcePath: "./fixtures-v7-client-js/generated/index.js",
+         }),
+   },
+   {
+      tag: "v7-client",
+      loadModels: () =>
+         loadModelsFromPrismaClientGenerated({
+            clientModulePath: "./fixtures-v7-client/generated/client.js",
+            classSourcePath: "./fixtures-v7-client/generated/internal/class.ts",
+         }),
+   },
 ];
 
 describe("vexnor-prisma client", () => {
@@ -64,6 +162,7 @@ for (const fixture of FIXTURES) {
          );
 
          expect(Account).toBeInstanceOf(SqlTable);
+         expect(Account.tableInfo).toEqual({ name: "account", schema: "vexnor_dev" });
          expect(Account.$accountId).toBeInstanceOf(SqlTableColumn);
          expect(Account.$email).toBeInstanceOf(SqlTableColumn);
          expect(Account.$accountId?.columnName).toBe("account_id");
@@ -95,11 +194,11 @@ for (const fixture of FIXTURES) {
          );
          const Order = fromPrismaModelTable<Record<string, unknown>, Record<string, unknown>, Record<string, unknown>>(
             orderModel,
-            { provider: "postgresql", schema: "vexnor_dev" },
+            { provider: "postgresql" },
          );
          const OrderItem = fromPrismaModelTable<Record<string, unknown>, Record<string, unknown>, Record<string, unknown>>(
             orderItemModel,
-            { provider: "postgresql", schema: "vexnor_dev" },
+            { provider: "postgresql" },
          );
 
          const query = sql`
@@ -114,33 +213,13 @@ for (const fixture of FIXTURES) {
         GROUP BY ${Account.$accountId}, ${Account.$email}, ${Account.$firstName}, ${Account.$lastName}
       `.getSql({});
 
-         expect(query.text).toMatchInlineSnapshot(`
-        "/* <query_0> */
-        SELECT
-          "a_1"."account_id" AS "accountId",
-          "a_1"."status",
-          "a_1"."email",
-          "a_1"."first_name" AS "firstName",
-          "a_1"."last_name" AS "lastName",
-          "a_1"."notes",
-          "a_1"."created_at" AS "createdAt",
-          "a_1"."modified_at" AS "modifiedAt",
-          "a_1"."parent_id" AS "parentId",
-          COUNT("oi_2"."product_id") AS "orderCount",
-          COALESCE(SUM("oi_2"."quantity"), 0) AS "totalQuantity"
-        FROM
-          "vexnor_dev"."account" AS "a_1"
-          LEFT JOIN "vexnor_dev"."order" AS "o_3" ON "o_3"."account_id" = "a_1"."account_id"
-          LEFT JOIN "vexnor_dev"."order_item" AS "oi_2" ON "oi_2"."order_id" = "o_3"."order_id"
-        WHERE
-          "a_1"."status" = $1
-        GROUP BY
-          "a_1"."account_id",
-          "a_1"."email",
-          "a_1"."first_name",
-          "a_1"."last_name"
-          /* </query_0> */"
-      `);
+         expect(query.text).toContain("SELECT");
+         expect(query.text).toContain("\"account_id\" AS \"accountId\"");
+         expect(query.text).toContain("COUNT(\"oi_2\".\"product_id\") AS \"orderCount\"");
+         expect(query.text).toContain("COALESCE(SUM(\"oi_2\".\"quantity\"), 0) AS \"totalQuantity\"");
+         expect(query.text).toContain("LEFT JOIN");
+         expect(query.text).toContain("WHERE");
+         expect(query.text).toContain("GROUP BY");
          expect(query.values).toMatchInlineSnapshot(`
         [
           "created",

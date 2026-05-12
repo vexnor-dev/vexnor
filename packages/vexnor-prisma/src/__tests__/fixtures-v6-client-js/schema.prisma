@@ -1,10 +1,12 @@
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "./generated"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = "postgresql://postgres:postgres@localhost:5432/postgres"
+  schemas  = ["vexnor_dev"]
 }
 
 model Account {
@@ -20,6 +22,7 @@ model Account {
   orders     Order[]
 
   @@map("account")
+  @@schema("vexnor_dev")
 }
 
 model Order {
@@ -32,6 +35,7 @@ model Order {
   items      OrderItem[]
 
   @@map("order")
+  @@schema("vexnor_dev")
 }
 
 model Product {
@@ -48,20 +52,22 @@ model Product {
   orderItems  OrderItem[]
 
   @@map("product")
+  @@schema("vexnor_dev")
 }
 
 model OrderItem {
-  orderId       String   @map("order_id")
-  productId     String   @map("product_id")
-  createdAt     DateTime @default(now()) @map("created_at")
-  modifiedAt    DateTime @default(now()) @map("modified_at")
-  productPrice  Decimal  @map("product_price")
-  discountPrice Decimal? @map("discount_price")
-  quantity      Int      @map("quantity")
-  metadata      Json?    @map("metadata")
-  order         Order    @relation(fields: [orderId], references: [orderId])
-  product       Product  @relation(fields: [productId], references: [productId])
+  orderId       String    @map("order_id")
+  productId     String    @map("product_id")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  modifiedAt    DateTime  @default(now()) @map("modified_at")
+  productPrice  Decimal   @map("product_price")
+  discountPrice Decimal?  @map("discount_price")
+  quantity      Int       @map("quantity")
+  metadata      Json?     @map("metadata")
+  order         Order     @relation(fields: [orderId], references: [orderId])
+  product       Product   @relation(fields: [productId], references: [productId])
 
   @@id([orderId, productId])
   @@map("order_item")
+  @@schema("vexnor_dev")
 }

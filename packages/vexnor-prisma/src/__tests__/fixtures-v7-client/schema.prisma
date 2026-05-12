@@ -1,11 +1,11 @@
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
   output   = "./generated"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://postgres:postgres@localhost:5432/postgres"
+  schemas  = ["vexnor_dev"]
 }
 
 model Account {
@@ -21,6 +21,7 @@ model Account {
   orders     Order[]
 
   @@map("account")
+  @@schema("vexnor_dev")
 }
 
 model Order {
@@ -33,22 +34,24 @@ model Order {
   items      OrderItem[]
 
   @@map("order")
+  @@schema("vexnor_dev")
 }
 
 model Product {
-  productId   String      @id @default(uuid()) @map("product_id")
-  createdAt   DateTime    @default(now()) @map("created_at")
-  modifiedAt  DateTime    @default(now()) @map("modified_at")
-  label       String      @map("label")
-  price       Decimal     @map("price")
-  discount    Decimal?    @map("discount")
-  isAvailable Boolean     @default(true) @map("is_available")
-  isPublished Boolean     @default(false) @map("is_published")
-  metadata    Json?       @map("metadata")
-  tags        String[]    @map("tags")
+  productId   String    @id @default(uuid()) @map("product_id")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  modifiedAt  DateTime  @default(now()) @map("modified_at")
+  label       String    @map("label")
+  price       Decimal   @map("price")
+  discount    Decimal?  @map("discount")
+  isAvailable Boolean   @default(true) @map("is_available")
+  isPublished Boolean   @default(false) @map("is_published")
+  metadata    Json?     @map("metadata")
+  tags        String[]  @map("tags")
   orderItems  OrderItem[]
 
   @@map("product")
+  @@schema("vexnor_dev")
 }
 
 model OrderItem {
@@ -65,4 +68,5 @@ model OrderItem {
 
   @@id([orderId, productId])
   @@map("order_item")
+  @@schema("vexnor_dev")
 }

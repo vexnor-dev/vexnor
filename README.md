@@ -119,6 +119,7 @@ const row1 = await query.postgres.one({
 
 - App adoption (core flow): this README + [Examples](examples/)
 - Drizzle users: [Drizzle adaptor](docs/plugins.md#drizzle-adaptor)
+- Prisma users: [Prisma adaptor](docs/plugins.md#prisma-adaptor)
 - TypeORM users: [TypeORM adaptor](docs/plugins.md#typeorm-adaptor)
 - Sequelize users: [Sequelize adaptor](docs/plugins.md#sequelize-adaptor)
 - CLI usage and query execution: [CLI docs](docs/cli.md)

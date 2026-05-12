@@ -132,39 +132,60 @@ import { fromSequelizeTable, fromSequelizeView } from "vexnor-sequelize";
 
 Package: `vexnor-prisma`
 
-Use Prisma model metadata as input and convert Prisma models into Vexnor tables.
+Use Prisma model metadata as input and convert Prisma models into Vexnor tables/views.
 
 Recommended for production stability: generate mappings via Vexnor CLI.
 Use this adaptor path primarily as a migration/onramp from existing Prisma setups.
 
 ```typescript
-import { fromPrismaModelTable } from "vexnor-prisma";
+import { findPrismaModel, fromPrismaModelTable, fromPrismaModelView } from "vexnor-prisma";
 ```
 
 Recommended onboarding flow from an existing Prisma project:
 
 1. Generate Prisma client (`pnpm exec prisma generate`).
-2. Resolve target model metadata from your Prisma generated output.
+2. Resolve target model metadata via `findPrismaModel(...)`.
 3. Build typed Vexnor table/view with `fromPrismaModelTable` / `fromPrismaModelView`.
 4. Use resulting Vexnor table in queries/CRUD flows.
 
-Prisma v6-style metadata example:
+`findPrismaModel` accepts one of:
+
+- `{ dmmf }` from generated Prisma code
+- `{ schemaPath }`
+- `{ schema }`
+
+Prisma v6 + `prisma-client-js` example:
 
 ```typescript
 import { Prisma } from "@prisma/client";
-import { fromPrismaModelTable } from "vexnor-prisma";
+import { findPrismaModel, fromPrismaModelTable } from "vexnor-prisma";
 
-const accountModel = Prisma.dmmf.datamodel.models.find((m) => m.name === "Account");
-if (!accountModel) throw new Error("Account model not found");
+const accountModel = await findPrismaModel("Account", { dmmf: Prisma.dmmf });
 
 const Account = fromPrismaModelTable(accountModel, {
   provider: "postgresql",
 });
 ```
 
-Prisma v7 note:
-- The new generator shape differs from v6 and does not expose the same `Prisma.dmmf` surface by default.
-- In `vexnor-prisma`, treat v7 metadata loading as generator-version specific and keep tests for both versions.
+Prisma v7 + `prisma-client` example:
+
+```typescript
+import { findPrismaModel, fromPrismaModelTable } from "vexnor-prisma";
+
+const accountModel = await findPrismaModel("Account", {
+  schemaPath: "./prisma/schema.prisma",
+});
+
+const Account = fromPrismaModelTable(accountModel, {
+  provider: "postgresql",
+});
+```
+
+Prisma version/generator guidance:
+
+- v6 + `prisma-client-js`: use `{ dmmf: Prisma.dmmf }` when available.
+- v7 + `prisma-client`: use `{ schemaPath }` or `{ schema }`.
+- v7 + `prisma-client-js`: either approach can work; keep one approach consistent.
 
 Example typing pattern:
 
@@ -175,6 +196,9 @@ type AccountSelect = Account;
 type AccountInsert = PrismaTypes.AccountUncheckedCreateInput;
 type AccountUpdate = PrismaTypes.AccountUncheckedUpdateInput;
 ```
+
+For full Prisma adaptor details and more examples, see:
+`packages/vexnor-prisma/README.md`
 
 ## Building a New Plugin
 

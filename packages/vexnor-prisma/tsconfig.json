@@ -11,7 +11,9 @@
       }
    },
    "include": ["src/**/*"],
-   "exclude": ["dist", "node_modules", "src/__tests__/fixtures-v7/prisma.config.ts"],
+   "exclude": ["dist", "node_modules",
+      "src/__tests__/prisma.config.ts"
+   ],
    "references": [
       {
          "path": "../vexnor"

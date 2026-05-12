@@ -1,13 +1,16 @@
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
 import { randomUUID } from "node:crypto";
-import { fromPrismaModelTable } from "vexnor-prisma";
+import { fileURLToPath } from "node:url";
+import { findPrismaModel, fromPrismaModelTable } from "vexnor-prisma";
 import type { FromPrismaModelResult } from "vexnor-prisma";
 import { row, sql, param, excluded } from "vexnor";
 import "vexnor-sqlite3";
 import { db, SQLITE_PATH } from "./config.js";
 import { getTag } from "./tags.js";
-import { PrismaClient, PrismaGenerated } from "./prisma-client.js";
+import { PrismaClient } from "../prisma/generated/client.js";
+import * as PrismaGenerated from "../prisma/generated/client.js";
+import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 
 describe.sequential("e2e prisma/sqlite — fromPrismaModelTable works against real DB", (ctx) => {
    const TAG = getTag(ctx);
@@ -20,20 +23,14 @@ describe.sequential("e2e prisma/sqlite — fromPrismaModelTable works against re
       PrismaGenerated.Prisma.AccountUncheckedUpdateInput,
       "accountId" | "email" | "firstName" | "lastName"
    >;
-   const accountModel = PrismaGenerated.Prisma.dmmf.datamodel.models.find((model) => model.name === "Account");
    let account!: AccountRow;
    let Account!: FromPrismaModelResult<AccountRow, AccountInsert, AccountUpdate>;
    let prisma: PrismaClient | undefined;
    beforeAll(async () => {
-      process.env.DATABASE_URL = `file:${SQLITE_PATH}`;
+      const url = `file:${SQLITE_PATH}`;
+      process.env.DATABASE_URL = url;
 
-      prisma = new PrismaClient({
-         datasources: {
-            db: {
-               url: `file:${SQLITE_PATH}`,
-            },
-         },
-      });
+      prisma = new PrismaClient({ adapter: new PrismaBetterSqlite3({ url }) });
 
       const prismaId = randomUUID();
       const prismaInserted = await prisma.account.create({
@@ -46,8 +43,9 @@ describe.sequential("e2e prisma/sqlite — fromPrismaModelTable works against re
       });
       expect(prismaFetched?.email).toBe(`${TAG}-prisma@example.com`);
 
-      expect(accountModel).toBeDefined();
-      Account = fromPrismaModelTable<AccountRow, AccountInsert, AccountUpdate>(accountModel!, {
+      const schemaPath = fileURLToPath(new URL("../prisma/schema.prisma", import.meta.url));
+      const accountModel = await findPrismaModel("Account", { schemaPath });
+      Account = fromPrismaModelTable<AccountRow, AccountInsert, AccountUpdate>(accountModel, {
          provider: "sqlite",
          schema: "main",
       });

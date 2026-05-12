@@ -1,44 +1,35 @@
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
-import { fromPrismaModelTable } from "vexnor-prisma";
+import { fileURLToPath } from "node:url";
 import type { FromPrismaModelResult } from "vexnor-prisma";
-import { row, sql, param } from "vexnor";
+import { findPrismaModel, fromPrismaModelTable } from "vexnor-prisma";
+import { param, row, sql } from "vexnor";
 import "vexnor-mssql";
 import { pool } from "./mssql-pool.js";
 import { getTag } from "./tags.js";
-import { MSSQL_HOST, MSSQL_PORT, MSSQL_DATABASE, MSSQL_USER, MSSQL_PASSWORD } from "./config.js";
-import { PrismaClient, PrismaGenerated } from "./prisma-client.js";
+import { MSSQL_DATABASE, MSSQL_HOST, MSSQL_PASSWORD, MSSQL_PORT, MSSQL_USER } from "./config.js";
+import { PrismaMssql } from "@prisma/adapter-mssql";
+import { Prisma, PrismaClient } from "../prisma/generated/client.js";
 
 describe.sequential("e2e prisma/mssql — fromPrismaModelTable works against real DB", (ctx) => {
    const TAG = getTag(ctx);
-   type AccountRow = PrismaGenerated.Account;
-   type AccountInsert = Pick<
-      PrismaGenerated.Prisma.AccountUncheckedCreateInput,
+   type AccountRow = Prisma.AccountSelect;
+   type AccountInsert = Pick<Prisma.AccountUncheckedCreateInput,
       "accountId" | "email" | "firstName" | "lastName"
    >;
-   type AccountUpdate = Pick<
-      PrismaGenerated.Prisma.AccountUncheckedUpdateInput,
+   type AccountUpdate = Pick<Prisma.AccountUncheckedUpdateInput,
       "accountId" | "email" | "firstName" | "lastName"
    >;
-   const accountModel = PrismaGenerated.Prisma.dmmf.datamodel.models.find((model) => model.name === "Account");
    let account!: AccountRow;
    let Account!: FromPrismaModelResult<AccountRow, AccountInsert, AccountUpdate>;
    let prisma: PrismaClient | undefined;
 
    beforeAll(async () => {
-      process.env.DATABASE_URL =
+      const connectionString =
          `sqlserver://${MSSQL_HOST}:${MSSQL_PORT};database=${MSSQL_DATABASE};` +
-         `user=${MSSQL_USER};password=${MSSQL_PASSWORD};schema=vexnor_dev;trustServerCertificate=true`;
+         `user=${MSSQL_USER};password=${MSSQL_PASSWORD};trustServerCertificate=true`;
 
-      prisma = new PrismaClient({
-         datasources: {
-            db: {
-               url:
-                  `sqlserver://${MSSQL_HOST}:${MSSQL_PORT};database=${MSSQL_DATABASE};` +
-                  `user=${MSSQL_USER};password=${MSSQL_PASSWORD};schema=vexnor_dev;trustServerCertificate=true`,
-            },
-         },
-      });
+      prisma = new PrismaClient({ adapter: new PrismaMssql(connectionString) });
 
       const prismaInserted = await prisma.account.create({
          data: { email: `${TAG}-prisma@example.com`, firstName: "PrismaClient", lastName: "Test" },
@@ -50,10 +41,10 @@ describe.sequential("e2e prisma/mssql — fromPrismaModelTable works against rea
       });
       expect(prismaFetched?.email).toBe(`${TAG}-prisma@example.com`);
 
-      expect(accountModel).toBeDefined();
-      Account = fromPrismaModelTable<AccountRow, AccountInsert, AccountUpdate>(accountModel!, {
+      const schemaPath = fileURLToPath(new URL("../prisma/schema.prisma", import.meta.url));
+      const accountModel = await findPrismaModel("Account", { schemaPath });
+      Account = fromPrismaModelTable<AccountRow, AccountInsert, AccountUpdate>(accountModel, {
          provider: "sqlserver",
-         schema: "vexnor_dev",
       });
 
       account = await Account.mssql.insertRows().one({
@@ -89,19 +80,19 @@ describe.sequential("e2e prisma/mssql — fromPrismaModelTable works against rea
 
       const selected = await Account.mssql
          .select({ WHERE: sql`${Account.$accountId} = ${param<{ id: string }>("id")}` })
-         .all({ db: pool.request(), params: { id: account.accountId } });
+         .all({ db: pool.request(), params: { id: String(account.accountId) } });
       expect(selected).toHaveLength(1);
 
       const updated = await Account.mssql
          .update({ WHERE: sql`${Account.$accountId} = ${param<{ id: string }>("id")}` })
-         .one({ db: pool.request(), params: { set: { firstName: "Updated" }, id: account.accountId } });
+         .one({ db: pool.request(), params: { set: { firstName: "Updated" }, id: String(account.accountId) } });
       expect(updated.firstName).toBe("Updated");
       account = updated;
 
       const upserted = await Account.mssql.upsert({ MERGE_ON: [Account.$accountId!] }).one({
          db: pool.request(),
          params: {
-            rows: [{ accountId: account.accountId, email: account.email, firstName: "Upserted", lastName: "Test" }],
+            rows: [{ accountId: String(account.accountId), email: String(account.email), firstName: "Upserted", lastName: "Test" }],
          },
       });
       expect(upserted.firstName).toBe("Upserted");
@@ -109,7 +100,7 @@ describe.sequential("e2e prisma/mssql — fromPrismaModelTable works against rea
 
       const deleted = await Account.mssql
          .delete({ WHERE: sql`${Account.$accountId} = ${param<{ id: string }>("id")}` })
-         .all({ db: pool.request(), params: { id: account.accountId } });
+         .all({ db: pool.request(), params: { id: String(account.accountId) } });
       expect(deleted).toHaveLength(1);
    });
 

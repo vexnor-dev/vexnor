@@ -2,7 +2,7 @@
 
 Prisma adaptor for Vexnor.
 
-Converts Prisma DMMF `PrismaModel` objects into Vexnor runtime tables/views.
+It converts Prisma model metadata (`PrismaModel`) into Vexnor runtime tables/views.
 
 ## Install
 
@@ -10,44 +10,65 @@ Converts Prisma DMMF `PrismaModel` objects into Vexnor runtime tables/views.
 pnpm add vexnor vexnor-prisma @prisma/client
 ```
 
-## Recommended Usage Strategy
+## When to Use
 
-1. Preferred: generate DB mapping code with Vexnor CLI.
-2. Alternative: use `vexnor-prisma` to start from an existing Prisma setup and migrate incrementally.
+Recommended path for long-term production stability:
+1. Generate DB mappings with Vexnor CLI.
+2. Keep adaptor-based ORM integration as migration/onramp.
 
-Using Prisma metadata directly is convenient for adoption, but Prisma contracts can evolve across versions.
-For long-term stability, treat CLI-generated mappings as the primary production path.
+Use `vexnor-prisma` when you already have Prisma models and want to adopt Vexnor incrementally.
 
-## Start from Existing Prisma Setup
+## Core Flow
 
-This adaptor assumes you already have:
-- a working `schema.prisma`
-- generated Prisma client code
-- Prisma model names you want to map to Vexnor
+1. Resolve a Prisma model into `PrismaModel` using `findPrismaModel(...)`.
+2. Build table/view with `fromPrismaModelTable(...)` / `fromPrismaModelView(...)`.
+3. Use resulting Vexnor table in SQL/CRUD.
 
-### 1) Generate Prisma client
+## Resolve Prisma Models
 
-```bash
-pnpm exec prisma generate
-```
-
-For this package test fixtures:
-
-```bash
-pnpm --filter vexnor-prisma run codegen:prisma:v6
-pnpm --filter vexnor-prisma run codegen:prisma:v7
-```
-
-### 2) Resolve a Prisma model from generated metadata
+`findPrismaModel` supports three explicit inputs:
 
 ```ts
-import { Prisma } from "@prisma/client";
-
-const accountModel = Prisma.dmmf.datamodel.models.find((m) => m.name === "Account");
-if (!accountModel) throw new Error("Account model not found");
+type FindPrismaModelOptions =
+  | { dmmf: { datamodel?: { models?: readonly PrismaModel[] } } }
+  | { schemaPath: string }
+  | { schema: string };
 ```
 
-### 3) Build Vexnor table/view with strong types
+### Option A: Use `dmmf` from generated Prisma code
+
+Best when your generated client exposes `Prisma.dmmf` (common with `prisma-client-js`):
+
+```ts
+import { findPrismaModel } from "vexnor-prisma";
+import { Prisma } from "@prisma/client";
+
+const accountModel = await findPrismaModel("Account", { dmmf: Prisma.dmmf });
+```
+
+### Option B: Use `schemaPath`
+
+Best for Prisma v7 + `prisma-client` setups:
+
+```ts
+import { findPrismaModel } from "vexnor-prisma";
+
+const accountModel = await findPrismaModel("Account", {
+  schemaPath: "./prisma/schema.prisma",
+});
+```
+
+### Option C: Use in-memory `schema` string
+
+```ts
+import { readFile } from "node:fs/promises";
+import { findPrismaModel } from "vexnor-prisma";
+
+const schema = await readFile("./prisma/schema.prisma", "utf8");
+const accountModel = await findPrismaModel("Account", { schema });
+```
+
+## Build Vexnor Table/View
 
 ```ts
 import { fromPrismaModelTable, fromPrismaModelView } from "vexnor-prisma";
@@ -63,7 +84,7 @@ type AccountUpdate = Pick<
   "accountId" | "email" | "firstName" | "lastName"
 >;
 
-const Account = fromPrismaModelTable<AccountSelect, AccountInsert, AccountUpdate>(accountModel, {
+const AccountTable = fromPrismaModelTable<AccountSelect, AccountInsert, AccountUpdate>(accountModel, {
   provider: "postgresql",
   schema: "vexnor_dev",
 });
@@ -74,36 +95,36 @@ const AccountView = fromPrismaModelView<AccountSelect>(accountModel, {
 });
 ```
 
-### 4) Use resulting tables in complex Vexnor queries
+## End-to-End Example (Existing Prisma Setup)
 
 ```ts
-import { sql, row, val, col } from "vexnor";
+import { findPrismaModel, fromPrismaModelTable } from "vexnor-prisma";
+import type { Prisma as PrismaTypes } from "@prisma/client";
+import { sql, row, col, val } from "vexnor";
 
-const orderItemModel = Prisma.dmmf.datamodel.models.find((m) => m.name === "OrderItem");
-const orderModel = Prisma.dmmf.datamodel.models.find((m) => m.name === "Order");
-if (!orderItemModel) throw new Error("OrderItem model not found");
-if (!orderModel) throw new Error("Order model not found");
+const accountModel = await findPrismaModel("Account", { schemaPath: "./prisma/schema.prisma" });
+const orderModel = await findPrismaModel("Order", { schemaPath: "./prisma/schema.prisma" });
+const orderItemModel = await findPrismaModel("OrderItem", { schemaPath: "./prisma/schema.prisma" });
 
-type OrderItemSelect = PrismaTypes.OrderItemUncheckedCreateInput & {
-  quantity: number;
-};
-type OrderItemInsert = PrismaTypes.OrderItemUncheckedCreateInput;
-type OrderItemUpdate = PrismaTypes.OrderItemUncheckedUpdateInput;
+const Account = fromPrismaModelTable<
+  PrismaTypes.Account,
+  PrismaTypes.AccountUncheckedCreateInput,
+  PrismaTypes.AccountUncheckedUpdateInput
+>(accountModel, { provider: "postgresql", schema: "vexnor_dev" });
 
-const OrderItem = fromPrismaModelTable<OrderItemSelect, OrderItemInsert, OrderItemUpdate>(orderItemModel, {
-  provider: "postgresql",
-  schema: "vexnor_dev",
-});
 const Order = fromPrismaModelTable<
   PrismaTypes.Order,
-  PrismaTypes.Prisma.OrderUncheckedCreateInput,
-  PrismaTypes.Prisma.OrderUncheckedUpdateInput
->(orderModel, {
-  provider: "postgresql",
-  schema: "vexnor_dev",
-});
+  PrismaTypes.OrderUncheckedCreateInput,
+  PrismaTypes.OrderUncheckedUpdateInput
+>(orderModel, { provider: "postgresql", schema: "vexnor_dev" });
 
-const listAccountsWithOrderStats = sql`
+const OrderItem = fromPrismaModelTable<
+  PrismaTypes.OrderItem,
+  PrismaTypes.OrderItemUncheckedCreateInput,
+  PrismaTypes.OrderItemUncheckedUpdateInput
+>(orderItemModel, { provider: "postgresql", schema: "vexnor_dev" });
+
+const query = sql`
   SELECT
     ${row(Account.$$)},
     COUNT(${OrderItem.$productId}) AS ${col<{ orderCount: number }>("orderCount")},
@@ -113,23 +134,27 @@ const listAccountsWithOrderStats = sql`
   LEFT JOIN ${OrderItem} ON ${OrderItem.$orderId} = ${Order.$orderId}
   WHERE ${Account.$status} = ${val("created")}
   GROUP BY ${Account.$accountId}, ${Account.$email}, ${Account.$firstName}, ${Account.$lastName}
-  ORDER BY ${Account.$email}
 `;
-
-const rows = await listAccountsWithOrderStats.postgres.all({ db: pool });
 ```
 
 ## API
 
+- `findPrismaModel(modelName, options)`
 - `fromPrismaModelTable<TSelect, TInsert, TUpdate>(model, options?)`
 - `fromPrismaModelView<TSelect>(model, options?)`
 
-Options:
+`fromPrismaModel*` options:
 - `provider`: Prisma provider name (`postgresql`, `sqlserver`, `sqlite`, ...)
 - `dialect`: explicit Vexnor dialect override
-- `schema`: SQL schema override for tableInfo
+- `schema`: SQL schema override for `tableInfo`
+
+## Version/Generator Guidance
+
+- Prisma v6 + `prisma-client-js`: usually easiest via `{ dmmf: Prisma.dmmf }`.
+- Prisma v7 + `prisma-client`: usually easiest via `{ schemaPath }`.
+- Prisma v7 + `prisma-client-js`: both approaches can work; prefer one stable approach per codebase.
 
 ## Notes
 
-- This package is model-metadata based and does not parse schema files at runtime.
-- Keep Prisma code generated before build/test so `Prisma.dmmf` is available.
+- `findPrismaModel` uses `@prisma/internals` for schema-based resolution (`schemaPath` / `schema`).
+- Keep Prisma schema and generated code in sync before build/test.

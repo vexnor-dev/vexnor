@@ -8,7 +8,7 @@
    "scripts": {
       "precodegen": "pnpm run -r --filter='vexnor' --filter='vexnor-sqlite3' --filter='vexnor-drizzle' --filter='vexnor-prisma' --filter='vexnor-typeorm'  build",
       "codegen:vexnor": "env-cmd --no-override -x -r ../../env-dev.json -e sqlite3 node ../../packages/vexnor/cli.mjs codegen --plugin vexnor-sqlite3 --schema main --pascalCaseTables --camelCaseColumns --uri \\$SQLITE_PATH --omit migration_vexnor --outDir './src/codegen' | pino-pretty",
-      "codegen:prisma": "pnpm exec prisma generate --schema prisma/schema.prisma",
+      "codegen:prisma": "pnpm exec prisma generate --schema prisma/schema.prisma --config prisma/prisma.config.ts",
       "prebuild": "run-s 'codegen:*'",
       "pretest": "run-s 'codegen:*'",
       "test": "vitest --coverage run",
@@ -27,12 +27,12 @@
       "vexnor-typeorm": "workspace:*"
    },
    "devDependencies": {
-      "@prisma/client": "^6.19.3",
-      "@prisma/internals": "^6.9.0",
+      "@prisma/client": "^7.8.0",
+      "@prisma/adapter-better-sqlite3": "^7.8.0",
       "@types/better-sqlite3": "^7.6.13",
       "@vitest/coverage-v8": "^4.1.5",
       "drizzle-orm": "^1.0.0-beta.20",
-      "prisma": "^6.19.3",
+      "prisma": "^7.8.0",
       "reflect-metadata": "^0.2.2",
       "sequelize": "^6.37.7",
       "typeorm": "^0.3.24",

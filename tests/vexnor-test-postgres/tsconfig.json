@@ -2,14 +2,14 @@
    "extends": "../../tsconfig.json",
    "compilerOptions": {
       "outDir": "./dist",
-      "rootDir": "./src",
+      "rootDir": ".",
       "declaration": true,
       "declarationMap": true,
       "composite": true,
       "experimentalDecorators": true,
       "emitDecoratorMetadata": true
    },
-   "include": ["src/**/*"],
+   "include": ["src/**/*", "prisma/generated/**/*"],
    "exclude": ["dist", "node_modules"],
    "references": [
       { "path": "../../packages/vexnor" },

@@ -1,11 +1,11 @@
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
   output   = "./generated"
 }
 
 datasource db {
   provider = "sqlserver"
-  url      = env("DATABASE_URL")
+  schemas  = ["vexnor_dev"]
 }
 
 model Account {
@@ -18,4 +18,5 @@ model Account {
   notes     String? @map("notes")
 
   @@map("account")
+  @@schema("vexnor_dev")
 }
