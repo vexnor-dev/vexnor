@@ -1,43 +1,29 @@
 # vexnor
 
-A type-safe SQL query generator for TypeScript that gives you typed SQL without an ORM abstraction layer.
+Write real SQL. Get typed results. No ORM, no DSL, no repository boilerplate.
+
+Vexnor generates TypeScript types from your database schema and makes queries first-class objects — composable, reusable, and executable directly. The query is the repository.
 
 [![CI](https://github.com/vexnor-dev/vexnor/actions/workflows/ci_github.yml/badge.svg)](https://github.com/vexnor-dev/vexnor/actions/workflows/ci_github.yml)
 [![npm version](https://img.shields.io/npm/v/vexnor.svg)](https://www.npmjs.com/package/vexnor)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-## What Is Vexnor?
-
-Vexnor generates TypeScript types from your database schema, so you can write real SQL with full type safety and auto-completion. It is not an ORM abstraction layer.
-
-**Key benefits:**
-- Write SQL you already know, with compile-time safety
-- Generate types once, then reuse them across queries
-- No repository-layer boilerplate required
-- Works with existing drivers and databases
-- Zero runtime overhead from type generation
-- Includes Drizzle, TypeORM, and Sequelize adaptors
-
-### Why vs ORMs/Query Builders?
-
-- No DSL abstraction between you and SQL
-- No forced repository pattern
-- Full SQL support (CTEs, windows, complex joins)
-- Strong type inference for params and result shapes
-
-## Start Here
-
-If you want to adopt Vexnor quickly:
-
-1. Install packages for your database.
-2. Generate types from your schema.
-3. Write SQL with typed columns/results.
+## Install
 
 ```bash
 # PostgreSQL
 npm install vexnor vexnor-postgres pg
 
-# Generate types
+# MS SQL Server
+npm install vexnor vexnor-mssql mssql
+
+# SQLite
+npm install vexnor vexnor-sqlite3 better-sqlite3
+```
+
+Generate types from your schema:
+
+```bash
 npx vexnor codegen \
   --plugin vexnor-postgres \
   --schema public \
@@ -47,132 +33,96 @@ npx vexnor codegen \
   --camelCaseColumns
 ```
 
+## What It Looks Like
+
+### Queries
+
 ```typescript
-import { sql, row, param } from 'vexnor';
+import { Account, Order, OrderItem } from './models/vexnor_dev.schema.js';
+import { sql, row, param, col } from 'vexnor';
+import { jsonMany } from 'vexnor-postgres';
 import 'vexnor-postgres';
-import { Account } from './models/public.account-table.js';
-import { Pool } from 'pg';
 
-const pool = new Pool({ /* connection config */ });
-const activeStatus = 'ACTIVE';
-
-// column convention: DB account_id -> Account.$accountId in Vexnor
-// row(Account.$accountId, Account.$email) selects only these two columns
-const ActiveAccounts = sql`
-  SELECT ${row(Account.$accountId, Account.$email)}
-  FROM ${Account}
-  WHERE ${Account.$status} = ${activeStatus}
+// A typed, reusable subquery
+const AccountOrders = sql`
+  SELECT ${row(Order.$orderId, Order.$status, Order.$createdAt)},
+         ${jsonMany(OrderItem).as('items')}
+  FROM ${Order} ${jsonMany(OrderItem)}
+  WHERE ${Order.$accountId} = ${Account.out.$accountId}
+  ORDER BY ${Order.$createdAt} DESC
+  LIMIT ${param<{ limit: number }>('limit')}
 `;
 
-const findActiveById = sql`
-  SELECT ${row(ActiveAccounts.$$)}
-  FROM ${ActiveAccounts}
-  WHERE ${ActiveAccounts.$accountId} = ${param<{ accountId: string }>('accountId', {
-    minLength: 1,
-  })}
+// Compose into a parent query — this IS your repository
+const findActiveAccountsWithOrders = sql`
+  SELECT ${row(Account.$accountId, Account.$email)},
+         count(distinct ${Order.$orderId}) as ${col<{ orderCount: number }>('orderCount')},
+         ${jsonMany(AccountOrders).as('orders')}
+  FROM ${Account} ${jsonMany(AccountOrders)}
+  WHERE ${Account.$status} = ${'ACTIVE'}
+  GROUP BY ${Account.$accountId}, ${Account.$email}
 `;
 
-const account = await findActiveById.postgres.one({
+// Execute directly — no wrapper needed
+const accounts = await findActiveAccountsWithOrders.postgres.all({
   db: pool,
-  params: { accountId: '00000000-0000-0000-0000-000000000001' },
+  params: { limit: 5 },
 });
-// expected row structure: only accountId and email
-const accountRow: { accountId: string; email: string } = account;
-// @ts-expect-error property should not exist in this query result
-account.firstName;
+
+// Result type is inferred from exactly what you selected
+const typed: {
+  accountId: string;
+  email: string;
+  orderCount: number;
+  orders: { orderId: string; status: string; createdAt: Date; items: IOrderItemSelect[] }[];
+} = accounts[0]!;
+
+// @ts-expect-error — lastName was not selected
+accounts[0]!.lastName;
 ```
+
+### CRUD
+
+The same `AccountOrders` subquery, reused with the CRUD `select()` factory:
 
 ```typescript
-// CRUD helper path (common usage): typed findBy query factory
-const byEmail = await Account.postgres.findBy().any({
+// No SQL needed for the common case
+const accounts = await Account.postgres.select({
+  WHERE: sql`${Account.$status} = ${'ACTIVE'}`,
+  GROUP_BY: sql`${Account.$accountId}, ${Account.$email}`,
+  includeMany: { orders: AccountOrders },
+}).all({
   db: pool,
-  params: { email: 'john@example.com' },
+  params: { limit: 5 },
 });
-// byEmail type: IAccountSelect | null
-```
+// (IAccountSelect & { orders: IOrderSelect[] })[]
 
-### Value Injection vs `param()`
-
-Both styles are safe: values are bound as SQL parameters at execution time.
-
-- Inline value injection (`${value}`) is best for local query composition.
-- Named params (`param()`) define a reusable, typed query input contract (`params`) and support runtime validation.
-
-```typescript
-const status = "ACTIVE"; // inline value injection
-
-const query = sql`
-  SELECT ${row(Account.$$)}
-  FROM ${Account}
-  WHERE ${Account.$status} = ${status}
-    AND ${Account.$accountId} = ${param<{ accountId: string }>("accountId", { minLength: 1 })}
-`;
-
-// repository-like reusable query API, no wrapper repository method needed
-const row1 = await query.postgres.one({
+// INSERT
+const inserted = await Account.postgres.insertRows().all({
   db: pool,
-  params: { accountId: "00000000-0000-0000-0000-000000000001" },
+  params: {
+    rows: [{ email: 'jane@example.com', firstName: 'Jane', lastName: 'Doe' }],
+  },
 });
+// inserted: IAccountSelect[]
+
+// Find by any column subset
+const found = await Account.postgres.findBy().any({
+  db: pool,
+  params: { email: 'jane@example.com' },
+});
+// found: IAccountSelect | null
 ```
 
-## Choose Your Path
+## Documentation
 
-- App adoption (core flow): this README + [Examples](examples/)
-- Drizzle users: [Drizzle adaptor](docs/plugins.md#drizzle-adaptor)
-- Prisma users: [Prisma adaptor](docs/plugins.md#prisma-adaptor)
-- TypeORM users: [TypeORM adaptor](docs/plugins.md#typeorm-adaptor)
-- Sequelize users: [Sequelize adaptor](docs/plugins.md#sequelize-adaptor)
-- CLI usage and query execution: [CLI docs](docs/cli.md)
-- CRUD query factories: [CRUD docs](docs/crud.md)
-- CTE/recursive patterns: [CTE docs](docs/ctes.md)
-- Monorepo/dev workflow: [Monorepo docs](docs/monorepo.md)
-
-## Why Vexnor
-
-- Write real SQL, not a query DSL
-- Compile-time safety for columns/params/results
-- Zero runtime overhead from type machinery
-- Works with your existing DB drivers
-- Supports PostgreSQL, MS SQL Server, and SQLite
-
-## Param Validation
-
-You can attach runtime validation directly to `param(...)`.
-
-```typescript
-const findByEmail = sql`
-  SELECT ${row(Account.$$)}
-  FROM ${Account}
-  WHERE ${Account.$email} = ${param<{ email: string }>('email', {
-    minLength: 5,
-    pattern: /@/,
-  })}
-`;
-```
-
-Supported rule families are type-aware:
-
-- `string`: `minLength`, `maxLength`, `pattern`
-- `number` / `Date`: `min`, `max`
-- `array`: `minLength`, `maxLength`
-- any type: `enum`, `validate(value) => boolean | string`
-
-At runtime, missing or `undefined` param values are normalized to `null` before binding.
-
-## Supported Databases
-
-- PostgreSQL: `vexnor-postgres` + `pg` (or postgres.js)
-- MS SQL Server: `vexnor-mssql` + `mssql`
-- SQLite: `vexnor-sqlite3` + `better-sqlite3`
-
-## Examples
-
-- [examples/postgres-esm](examples/postgres-esm/)
-- [examples/postgres-cjs](examples/postgres-cjs/)
-
-## Contributing
-
-Contributor setup and repository layout are documented in [docs/monorepo.md](docs/monorepo.md).
+- [Quickstart](docs/quickstart.md) — full onboarding, all core APIs
+- [Queries](docs/queries.md) — subqueries, CTEs, recursive CTEs, window functions
+- [Params](docs/params.md) — inline injection, `param()`, runtime validation
+- [CRUD](docs/crud.md) — typed query factories, execution methods
+- [CLI](docs/cli.md) — `codegen`, `exec run`, `exec init`, config reference
+- [Databases](docs/databases.md) — PostgreSQL, MS SQL Server, SQLite — driver setup and dialect notes
+- [Plugins & Adaptors](docs/plugins.md) — Drizzle, Prisma, TypeORM, Sequelize adaptors, building your own plugin
 
 ## Requirements
 
