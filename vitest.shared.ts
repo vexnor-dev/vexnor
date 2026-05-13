@@ -50,7 +50,7 @@ export const sharedConfig: Config = {
       coverage: {
          provider: "v8",
          reportsDirectory: "./coverage",
-         reporter: ["text", "html", "json"],
+         reporter: ["text", "html", "json", "json-summary", "clover"],
          include: ["src/**/*"],
          exclude: ["**/__tests__/**", "**/test/**"],
       },
