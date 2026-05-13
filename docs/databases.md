@@ -61,7 +61,7 @@ const pool = await mssql.connect(process.env.MSSQL_CONNECTION_STRING!);
 const result = await query.mssql.all({ db: pool });
 ```
 
-Params use named `@paramName` format internally — this is handled automatically by Vexnor.
+Params use named `@paramName` format internally, handled automatically by Vexnor.
 
 ### JSON Aggregation
 
@@ -98,7 +98,7 @@ const db = new Database('mydb.sqlite');
 const result = await query.sqlite.all({ db });
 ```
 
-The driver is synchronous — Vexnor wraps calls in `Promise.resolve()` so the async API is consistent.
+`better-sqlite3` is synchronous — Vexnor wraps calls in `Promise.resolve()` so the async API stays consistent.
 
 ### JSON Aggregation
 

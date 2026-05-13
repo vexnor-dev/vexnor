@@ -80,7 +80,7 @@ Pass individual column references to `row()` to narrow the result type:
 const query = sql`
   SELECT ${row(Account.$accountId, Account.$email)}
   FROM ${Account}
-  WHERE ${Account.$status} = ${'ACTIVE'}
+  WHERE ${Account.$status} = 'ACTIVE'
 `;
 
 const account = await query.postgres.one({ db: pool });
@@ -90,7 +90,7 @@ const account = await query.postgres.one({ db: pool });
 
 ## Computed Columns
 
-Use `val` for raw SQL expressions and `col` for typed column references:
+Use `col` to give a raw SQL expression a name and a TypeScript type:
 
 ```typescript
 import { sql, row, col } from 'vexnor';

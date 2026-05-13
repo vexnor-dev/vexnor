@@ -1,13 +1,13 @@
 # CRUD Query Factories
 
-Generated tables expose typed query factories on the plugin property (`.postgres`, `.mssql`, `.sqlite`). Each factory returns a typed `SqlQuery` object — executed via the same execution methods as any other query.
+Generated tables expose typed query factories on the plugin property (`.postgres`, `.mssql`, `.sqlite`). Each factory returns a typed `SqlQuery` — executed via the same execution methods as any other query.
 
 ## Execution Methods
 
 All queries share four execution methods:
 
 | Method | Returns | Throws if empty |
-|--------|---------|-----------------|
+|--------|---------|-----------------|\
 | `.one({ db, params? })` | `T` | yes |
 | `.any({ db, params? })` | `T \| null` | no |
 | `.all({ db, params? })` | `T[]` | no |
@@ -39,11 +39,11 @@ const account = await Account.postgres.findBy().any({
 
 ## `select()`
 
-Full SELECT with optional clauses. All clauses are optional.
+Full SELECT with optional clauses.
 
 ```typescript
 const accounts = await Account.postgres.select({
-  WHERE: sql`${Account.$status} = ${'ACTIVE'}`,
+  WHERE: sql`${Account.$status} = 'ACTIVE'`,
   ORDER_BY: sql`${Account.$createdAt} DESC`,
   limit: param<{ limit: number }>('limit'),
   offset: param<{ offset: number }>('offset'),
@@ -69,7 +69,7 @@ const AccountOrders = sql`
 `;
 
 const accounts = await Account.postgres.select({
-  WHERE: sql`${Account.$status} = ${'ACTIVE'}`,
+  WHERE: sql`${Account.$status} = 'ACTIVE'`,
   includeMany: { orders: AccountOrders },
   includeOne: { lastOrder: AccountOrders },
 }).all({
@@ -82,7 +82,7 @@ const accounts = await Account.postgres.select({
 // })[]
 ```
 
-`includeMany` → `T[]`, `includeOne` → `T | null`. Both use the same subquery — the key name becomes the result property.
+`includeMany` → `T[]`, `includeOne` → `T | null`. The key name becomes the result property.
 
 ## `insertRows()`
 
@@ -107,7 +107,7 @@ INSERT from a SELECT subquery with optional WHERE/JOIN clauses.
 
 ```typescript
 const result = await Account.postgres.insertFrom({
-  WHERE: sql`${Account.$status} = ${'PENDING'}`,
+  WHERE: sql`${Account.$status} = 'PENDING'`,
 }).all({ db: pool });
 ```
 
@@ -131,7 +131,7 @@ Typed DELETE with WHERE clause.
 
 ```typescript
 await Account.postgres.delete({
-  WHERE: sql`${Account.$status} = ${'INACTIVE'}`,
+  WHERE: sql`${Account.$status} = 'INACTIVE'`,
 }).run({ db: pool });
 ```
 
@@ -152,7 +152,7 @@ const result = await Account.postgres.upsert({
 
 ## Raw SQL with `insertColsVals` and `updateSet`
 
-For full control, use the table helpers directly inside a `sql` tag:
+For full control, use the table helpers directly in a `sql` tag:
 
 ```typescript
 // INSERT

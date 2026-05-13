@@ -16,11 +16,11 @@ See [Databases](databases.md) for setup and dialect details.
 
 ## ORM Adaptors
 
-ORM adaptors let you convert existing ORM model definitions into Vexnor tables — without running codegen against a live database.
+ORM adaptors convert existing ORM model definitions into Vexnor tables — no codegen against a live database required.
 
-**Recommended path for long-term stability:** use `vexnor codegen` to generate mappings from your live schema. ORM-based adaptors depend on third-party ORM contracts that can change.
+**Recommended for long-term stability:** use `vexnor codegen` to generate mappings from your live schema. ORM-based adaptors depend on third-party contracts that can change.
 
-**Use adaptors for:** incremental adoption from an existing ORM codebase, or when you can't run codegen against a live DB.
+**Use adaptors for** incremental adoption from an existing ORM codebase, or when running codegen against a live DB isn't an option.
 
 ---
 
@@ -179,4 +179,4 @@ class MyPlugin extends VexnorPlugin<{ Connection: MyConnection; Config: MyConfig
 }
 ```
 
-Plugins attach themselves to `SqlQuery.prototype` at import time via module augmentation, which is how `.postgres` / `.mssql` / `.sqlite` are added to every query.
+Plugins attach to `SqlQuery.prototype` at import time via module augmentation — that's how `.postgres` / `.mssql` / `.sqlite` are added to every query.

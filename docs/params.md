@@ -37,7 +37,7 @@ await findByStatus.postgres.all({
 });
 ```
 
-The type argument to `param<T>` is the full params record for the query. The key picks one property from it. TypeScript enforces the correct `params` object at execution time.
+The type argument `T` is the full params record for the query — the key picks one property from it. TypeScript enforces the correct `params` object at execution time.
 
 ### Multiple Params
 
@@ -128,4 +128,4 @@ param<{ email: string }>('email', {
 
 ## Null Normalization
 
-At runtime, missing or `undefined` param values are normalized to `null` before SQL binding. This means omitting an optional param is safe — it will bind as `NULL` rather than throwing.
+Missing or `undefined` param values are normalized to `null` before SQL binding — omitting an optional param binds as `NULL` rather than throwing.

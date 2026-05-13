@@ -10,13 +10,13 @@ A `sql` query is a first-class object — it can be embedded in another `sql` ta
 const ActiveAccounts = sql`
   SELECT ${row(Account.$$)}
   FROM ${Account}
-  WHERE ${Account.$status} = ${'ACTIVE'}
+  WHERE ${Account.$status} = 'ACTIVE'
 `;
 
 const result = await sql`
   SELECT ${row(ActiveAccounts.$accountId, ActiveAccounts.$email)}
   FROM ${ActiveAccounts}
-  WHERE ${ActiveAccounts.$email} LIKE ${'%@example.com'}
+  WHERE ${ActiveAccounts.$email} LIKE '%@example.com'
 `.postgres.all({ db: pool });
 // result: { accountId: string; email: string }[]
 ```
@@ -52,20 +52,20 @@ const query = sql`
 
 ## CTEs
 
-Place a subquery after `WITH` — Vexnor renders it as `name AS (...)`. Reference it again in `FROM` and it renders as just the name.
+Place a subquery after `WITH` — Vexnor renders it as `name AS (...)`. Reference it in `FROM` and it renders as just the name.
 
 ```typescript
 const ActiveAccounts = sql`
   SELECT ${row(Account.$$)}
   FROM ${Account}
-  WHERE ${Account.$status} = ${'ACTIVE'}
+  WHERE ${Account.$status} = 'ACTIVE'
 `;
 
 const result = await sql`
   WITH ${ActiveAccounts}
   SELECT ${row(ActiveAccounts.$$)}
   FROM ${ActiveAccounts}
-  WHERE ${ActiveAccounts.$email} LIKE ${'%@example.com'}
+  WHERE ${ActiveAccounts.$email} LIKE '%@example.com'
 `.postgres.all({ db: pool });
 ```
 
@@ -87,7 +87,7 @@ const result = await sql`
 
 ## Recursive CTEs
 
-Use `anchor.out` inside the recursive branch so the reference renders as the CTE name rather than a subquery.
+Use `anchor.out` inside the recursive branch to reference the CTE by name rather than re-expanding it as a subquery.
 
 ```typescript
 const anchor = sql`
@@ -131,7 +131,7 @@ const result = await sql`
 
 ## Window Functions
 
-`col<T>` is used to type the result of window function expressions:
+Use `col<T>` to type the result of window function expressions:
 
 ```typescript
 const result = await sql`
@@ -158,7 +158,7 @@ const ActiveAccounts = sql`
   ${info({ label: 'ActiveAccounts' })}
   SELECT ${row(Account.$$)}
   FROM ${Account}
-  WHERE ${Account.$status} = ${'ACTIVE'}
+  WHERE ${Account.$status} = 'ACTIVE'
 `;
 ```
 

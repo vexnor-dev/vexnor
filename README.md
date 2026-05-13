@@ -38,7 +38,7 @@ npx vexnor codegen \
 ### Queries
 
 ```typescript
-import { Account, Order, OrderItem } from './models/vexnor_dev.schema.js';
+import { Account, AccountStatusUdt, Order, OrderItem } from './models/vexnor_dev.schema.js';
 import { sql, row, param, col } from 'vexnor';
 import { jsonMany } from 'vexnor-postgres';
 import 'vexnor-postgres';
@@ -59,7 +59,7 @@ const findActiveAccountsWithOrders = sql`
          count(distinct ${Order.$orderId}) as ${col<{ orderCount: number }>('orderCount')},
          ${jsonMany(AccountOrders).as('orders')}
   FROM ${Account} ${jsonMany(AccountOrders)}
-  WHERE ${Account.$status} = ${'ACTIVE'}
+  WHERE ${Account.$status} = ${AccountStatusUdt.ACTIVE}
   GROUP BY ${Account.$accountId}, ${Account.$email}
 `;
 
@@ -88,7 +88,7 @@ The same `AccountOrders` subquery, reused with the CRUD `select()` factory:
 ```typescript
 // No SQL needed for the common case
 const accounts = await Account.postgres.select({
-  WHERE: sql`${Account.$status} = ${'ACTIVE'}`,
+  WHERE: sql`${Account.$status} = ${AccountStatusUdt.ACTIVE}`,
   GROUP_BY: sql`${Account.$accountId}, ${Account.$email}`,
   includeMany: { orders: AccountOrders },
 }).all({
