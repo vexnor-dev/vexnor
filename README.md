@@ -21,7 +21,7 @@ npm install vexnor vexnor-mssql mssql
 npm install vexnor vexnor-sqlite3 better-sqlite3
 ```
 
-Generate types from your schema:
+Generate types from your database schema:
 
 ```bash
 npx vexnor codegen \
@@ -44,10 +44,16 @@ import { jsonMany } from 'vexnor-postgres';
 import 'vexnor-postgres';
 
 // A typed, reusable subquery
+const OrderItems = sql`
+  SELECT ${row(OrderItem.$$)}
+  FROM ${OrderItem}
+  WHERE ${OrderItem.$orderId} = ${Order.out.$orderId}
+`;
+
 const AccountOrders = sql`
   SELECT ${row(Order.$orderId, Order.$status, Order.$createdAt)},
-         ${jsonMany(OrderItem).as('items')}
-  FROM ${Order} ${jsonMany(OrderItem)}
+         ${jsonMany(OrderItems).as('items')}
+  FROM ${Order} ${jsonMany(OrderItems)}
   WHERE ${Order.$accountId} = ${Account.out.$accountId}
   ORDER BY ${Order.$createdAt} DESC
   LIMIT ${param<{ limit: number }>('limit')}

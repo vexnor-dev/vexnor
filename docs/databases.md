@@ -75,7 +75,7 @@ import { jsonMany, jsonOne } from 'vexnor-mssql';
 ### Notes
 
 - No native enum type in MSSQL — enum columns are generated as `string`
-- `upsert()` is supported via `MERGE`
+- `upsert()` uses `MERGE`
 
 ---
 
@@ -111,5 +111,4 @@ import { jsonMany, jsonOne } from 'vexnor-sqlite3';
 
 ### Notes
 
-- No `upsert()` support
 - Schema introspection uses `PRAGMA table_list`, `PRAGMA table_info`, and `PRAGMA index_list`

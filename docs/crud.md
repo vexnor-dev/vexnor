@@ -7,8 +7,7 @@ Generated tables expose typed query factories on the plugin property (`.postgres
 All queries share four execution methods:
 
 | Method | Returns | Throws if empty |
-|--------|---------|-----------------|\
-| `.one({ db, params? })` | `T` | yes |
+|--------|---------|-----------------|| `.one({ db, params? })` | `T` | yes |
 | `.any({ db, params? })` | `T \| null` | no |
 | `.all({ db, params? })` | `T[]` | no |
 | `.run({ db, params? })` | void | no |
@@ -103,50 +102,86 @@ const inserted = await Account.postgres.insertRows().all({
 
 ## `insertFrom()`
 
-INSERT from a SELECT subquery with optional WHERE/JOIN clauses.
+INSERT from a SELECT subquery. The subquery's row type must match the table's `Insert` type.
 
 ```typescript
-const result = await Account.postgres.insertFrom({
-  WHERE: sql`${Account.$status} = 'PENDING'`,
-}).all({ db: pool });
+const sourceQuery = sql`
+  SELECT ${row(StagingAccount.$email, StagingAccount.$firstName, StagingAccount.$lastName)}
+  FROM ${StagingAccount}
+  WHERE ${StagingAccount.$status} = 'READY'
+`;
+
+const result = await Account.postgres.insertFrom({ FROM: sourceQuery }).all({ db: pool });
 ```
 
 ## `update()`
 
-Typed UPDATE with WHERE and optional JOIN clauses.
+Typed UPDATE. The columns to update are passed as `set` in `params` at execution time.
 
 ```typescript
 const updated = await Account.postgres.update({
   WHERE: sql`${Account.$accountId} = ${param<{ accountId: string }>('accountId')}`,
 }).all({
   db: pool,
-  params: { accountId: '00000000-0000-0000-0000-000000000001' },
+  params: {
+    set: { status: 'CONFIRMED' },
+    accountId: '00000000-0000-0000-0000-000000000001',
+  },
 });
 // updated: IAccountSelect[]
 ```
 
 ## `delete()`
 
-Typed DELETE with WHERE clause.
+Typed DELETE. Requires either a `WHERE` clause or `{ force: true }` for a full-table delete.
 
 ```typescript
+// Filtered delete
 await Account.postgres.delete({
   WHERE: sql`${Account.$status} = 'INACTIVE'`,
 }).run({ db: pool });
+
+// Full-table delete — force: true required to prevent accidents
+await Account.postgres.delete({ force: true }).run({ db: pool });
 ```
 
-## `upsert()` (PostgreSQL / MS SQL Server)
+## `upsert()` (PostgreSQL / MS SQL Server / SQLite)
 
-INSERT with conflict resolution.
+INSERT with conflict resolution. The API differs per database.
+
+**PostgreSQL** — uses `ON CONFLICT DO UPDATE`:
 
 ```typescript
 const result = await Account.postgres.upsert({
-  onConflict: sql`(${Account.$email}) DO UPDATE SET ${Account.updateSet({ status: 'ACTIVE' })}`,
+  CONFLICT_ON: [Account.$email],
+  // SET is optional — defaults to updating all non-conflict columns with EXCLUDED values
 }).all({
   db: pool,
-  params: {
-    rows: [{ email: 'jane@example.com', firstName: 'Jane', lastName: 'Doe' }],
-  },
+  params: { rows: [{ email: 'jane@example.com', firstName: 'Jane', lastName: 'Doe' }] },
+});
+```
+
+**MS SQL Server** — uses `MERGE`:
+
+```typescript
+const result = await Account.mssql.upsert({
+  MERGE_ON: [Account.$email],
+  // SET is optional — defaults to updating all non-merge columns from the source
+}).all({
+  db: pool,
+  params: { rows: [{ email: 'jane@example.com', firstName: 'Jane', lastName: 'Doe' }] },
+});
+```
+
+**SQLite** — uses `ON CONFLICT DO UPDATE`:
+
+```typescript
+const result = await Account.sqlite.upsert({
+  CONFLICT_ON: [Account.$email],
+  // SET is optional — defaults to updating all non-conflict columns with EXCLUDED values
+}).all({
+  db,
+  params: { rows: [{ email: 'jane@example.com', firstName: 'Jane', lastName: 'Doe' }] },
 });
 ```
 

@@ -122,8 +122,8 @@ const Parent = Account.as('parent');
 const Child = Account.as('child');
 
 const result = await sql`
-  SELECT ${row(Parent.$accountId, Parent.$email)},
-         ${row(Child.$accountId.as('childId'), Child.$email.as('childEmail'))}
+  SELECT ${row(Parent.$accountId, Parent.$email,
+               Child.$accountId.as('childId'), Child.$email.as('childEmail'))}
   FROM ${Parent}
   JOIN ${Child} ON ${Child.$parentId} = ${Parent.$accountId}
 `.postgres.all({ db: pool });
