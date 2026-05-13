@@ -1,12 +1,12 @@
 /tmp
 /out-tsc
+/.pnp
+.pnp.js
 
 node_modules
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-/.pnp
-.pnp.js
 
 .vscode/*
 .idea
@@ -18,15 +18,14 @@ deploy*
 *.tsbuildinfo
 
 test-results
+coverage*
 .env
 mailmap.txt
 @db-sqlite3/*.sqlite
-coverage*
 *.sqlite-journal
 @ignore
 .amazonq/agents/default.json
 .ai/mcp/mcp.json
 
-/tests/*/prisma/generated/
-
-/packages/vexnor-prisma/src/__tests__/fixtures-*/generated/
+**/prisma/generated/
+**/__tests__/fixtures-*/generated/
