@@ -1,0 +1,22 @@
+generator client {
+  provider = "prisma-client"
+  output   = "./generated"
+}
+
+datasource db {
+  provider = "sqlserver"
+  schemas  = ["vexnor_dev"]
+}
+
+model Account {
+  accountId String  @id @default(uuid()) @map("account_id") @db.UniqueIdentifier
+  parentId  String? @map("parent_id") @db.UniqueIdentifier
+  status    String? @default("created") @map("status") @db.VarChar(50)
+  email     String  @map("email") @db.VarChar(255)
+  firstName String  @map("first_name") @db.NVarChar(100)
+  lastName  String  @map("last_name") @db.NVarChar(100)
+  notes     String? @map("notes")
+
+  @@map("account")
+  @@schema("vexnor_dev")
+}

@@ -1,0 +1,69 @@
+{
+   "name": "vexnor-prisma",
+   "version": "1.0.0-beta.1",
+   "description": "Prisma adaptor for vexnor — convert Prisma DMMF models to vexnor runtime tables",
+   "type": "module",
+   "module": "dist/index.js",
+   "main": "dist/index.js",
+   "types": "dist/index.d.ts",
+   "exports": {
+      ".": {
+         "types": "./dist/index.d.ts",
+         "import": "./dist/index.js",
+         "require": "./dist/index.js"
+      }
+   },
+   "keywords": [
+      "vexnor",
+      "prisma",
+      "adaptor",
+      "sql"
+   ],
+   "author": "Adrian Topala",
+   "license": "Apache-2.0",
+   "repository": "https://github.com/vexnor-dev/vexnor",
+   "publishConfig": {
+      "access": "public"
+   },
+   "scripts": {
+      "codegen:prisma:v6-client": "node ./scripts/codegen-prisma-v6-isolated.mjs --schema src/__tests__/fixtures-v6-client/schema.prisma --config src/__tests__/prisma.config.ts",
+      "codegen:prisma:v6-client-js": "node ./scripts/codegen-prisma-v6-isolated.mjs --schema src/__tests__/fixtures-v6-client-js/schema.prisma",
+      "codegen:prisma:v7-client": "pnpm --package=prisma@7 --package=@prisma/client@7 prisma generate --schema src/__tests__/fixtures-v7-client/schema.prisma --config src/__tests__/prisma.config.ts",
+      "codegen:prisma:v7-client-js": "pnpm --package=prisma@7 --package=@prisma/client@7 prisma generate --schema src/__tests__/fixtures-v7-client-js/schema.prisma",
+      "prebuild": "run-s 'codegen:prisma:*'",
+      "build": "run-s 'build:*'",
+      "build:1-tsc": "tsc -b",
+      "build:2-alias": "tsc-alias",
+      "pretest": "run-s 'build'",
+      "test": "vitest --coverage run",
+      "test:watch": "vitest --watch",
+      "test:run": "vitest run"
+   },
+   "files": [
+      "dist",
+      "package.json",
+      "README.md"
+   ],
+   "dependencies": {
+      "@prisma/internals": "^7.8.0",
+      "vexnor": "workspace:^"
+   },
+   "devDependencies": {
+      "@prisma/client": "7.8.0",
+      "@vitest/coverage-v8": "^4.1.5",
+      "npm-run-all": "^4.1.5",
+      "prisma": "^7.8.0",
+      "tsc-alias": "^1.8.16",
+      "typescript": "^5.9.3",
+      "vite-tsconfig-paths": "^6.1.1",
+      "vitest": "^4.1.5"
+   },
+   "peerDependencies": {
+      "@prisma/client": ">=5.0.0"
+   },
+   "peerDependenciesMeta": {
+      "@prisma/client": {
+         "optional": true
+      }
+   }
+}

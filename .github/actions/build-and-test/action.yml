@@ -45,13 +45,6 @@ runs:
       shell: bash
       run: pnpm build
 
-    - name: Run codegen
-      shell: bash
-      run: |
-        pnpm --filter @vexnor/vexnor-test-postgres codegen
-        pnpm --filter @vexnor/vexnor-test-sqlite3 codegen
-        pnpm --filter @vexnor/vexnor-test-mssql codegen
-
     - name: Run tests
       shell: bash
       run: pnpm test

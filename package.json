@@ -73,7 +73,13 @@
          "picomatch": ">=4.0.4",
          "yaml": ">=2.8.3",
          "rollup": ">=4.59.0"
-      }
+      },
+      "ignoredBuiltDependencies": [
+         "@prisma/client",
+         "@prisma/engines",
+         "esbuild",
+         "prisma"
+      ]
    },
    "private": true
 }
