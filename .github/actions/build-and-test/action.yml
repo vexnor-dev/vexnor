@@ -60,7 +60,7 @@ runs:
         fail_ci_if_error: false
 
     - name: Test summary
-      uses: vitest-coverage-report-action@v2
+      uses: davelosert/vitest-coverage-report-action@v2
       with:
         json-summary-path: ./coverage/coverage-summary.json
         github-token: ${{ inputs.GITHUB_TOKEN }}
