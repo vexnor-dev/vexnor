@@ -7,7 +7,7 @@ settings:
 overrides:
   semver: '>=7.5.2'
   esbuild: '>=0.25.0'
-  glob: '>=11.1.0'
+  glob: '>=13.0.0'
   minimatch: '>=10.2.3'
   tar: '>=7.5.10'
   flatted: '>=3.4.2'
@@ -154,7 +154,7 @@ importers:
         specifier: ^9.1.0
         version: 9.5.0
       glob:
-        specifier: '>=11.1.0'
+        specifier: '>=13.0.0'
         version: 13.0.6
       pino:
         specifier: ^7.10.0

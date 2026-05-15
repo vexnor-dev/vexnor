@@ -1,6 +1,6 @@
 import { DefaultFormatter } from "#/core/builder/default-formatter.js";
 import { DefaultTokenizer } from "#/core/builder/default-tokenizer.js";
-import { SqlLanguage } from "sql-formatter";
+import { type SqlLanguage } from "#/format/sql-language.js";
 import { SqlParamFormat } from "#/core/query/sql-models.js";
 
 /**
@@ -9,7 +9,7 @@ import { SqlParamFormat } from "#/core/query/sql-models.js";
  * Pass via the `options` field on any execution method or `getSql()`.
  *
  * - `debug` — called with the final `{ text, values }` before execution; useful for logging
- * - `format` — set to `false` to skip SQL pretty-printing (defaults to `true` outside production)
+ * - `format` — `true`: always format (throws if no formatter registered), `false`: never format, `'auto'` (default): format if formatter registered
  * - `dialect` — override the SQL dialect used for formatting (inferred from the plugin by default)
  * - `paramFormat` — override how parameter placeholders are rendered (e.g. `$1`, `?`)
  */
@@ -20,5 +20,5 @@ export interface SqlBuildOptions {
    debug?: (args: Readonly<Record<string, unknown>>) => void;
    dialect?: SqlLanguage;
    paramFormat?: SqlParamFormat;
-   format?: boolean;
+   format?: boolean | "auto";
 }
