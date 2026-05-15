@@ -1,210 +1,182 @@
-# Plugins and Adaptors
+# Plugins & Adaptors
 
 ## Database Plugins
 
-- `vexnor-postgres`: PostgreSQL support
-- `vexnor-mssql`: MS SQL Server support
-- `vexnor-sqlite3`: SQLite support
+Each database plugin provides schema introspection, type mapping, and query execution.
 
-Each plugin provides schema introspection, type mapping, and query execution handlers.
+| Plugin | Database | Driver |
+|--------|----------|--------|
+| `vexnor-postgres` | PostgreSQL | `pg` |
+| `vexnor-mssql` | MS SQL Server | `mssql` |
+| `vexnor-sqlite3` | SQLite | `better-sqlite3` |
 
-## Recommended Approach
+See [Databases](databases.md) for setup and dialect details.
 
-For all ORM adaptors (`vexnor-drizzle`, `vexnor-typeorm`, `vexnor-sequelize`, `vexnor-prisma`):
+---
 
-1. Preferred: use Vexnor CLI code generation for database mapping as the long-term stable path.
-2. Alternative: start from existing ORM setup via adaptor APIs for incremental adoption.
+## ORM Adaptors
 
-Why this split:
-- CLI-generated mappings are decoupled from ORM runtime metadata APIs.
-- ORM-based adaptors depend on third-party ORM contracts, which can change and require adaptor updates.
+ORM adaptors convert existing ORM model definitions into Vexnor tables — no codegen against a live database required.
+
+**Recommended for long-term stability:** use `vexnor codegen` to generate mappings from your live schema. ORM-based adaptors depend on third-party contracts that can change.
+
+**Use adaptors for** incremental adoption from an existing ORM codebase, or when running codegen against a live DB isn't an option.
+
+---
 
 ## Drizzle Adaptor
 
-Package: `vexnor-drizzle`
+**Package:** `vexnor-drizzle`
 
-Subpath imports:
-
+Subpath imports by database:
 - `vexnor-drizzle/pg`
 - `vexnor-drizzle/sqlite`
 - `vexnor-drizzle/mssql`
 
-Use it to convert Drizzle table/view definitions into Vexnor tables without codegen.
-
-Recommended for production stability: generate mappings via Vexnor CLI.
-Use this adaptor path primarily as a migration/onramp from existing Drizzle schemas.
-
 ```typescript
-import { sql, row, param } from "vexnor";
-import { fromDrizzleTable, fromDrizzleView } from "vexnor-drizzle/pg";
-import { account, accountOrderSummary } from "./drizzle-schema.js";
-import "vexnor-postgres";
-import { pool } from "./postgres-pool.js";
+import { fromDrizzleTable, fromDrizzleView } from 'vexnor-drizzle/pg';
+import { account, accountOrderSummary } from './drizzle-schema.js';
+import { sql, row, param } from 'vexnor';
+import 'vexnor-postgres';
 
-// table
 const Account = fromDrizzleTable(account);
-// view
 const AccountOrderSummary = fromDrizzleView(accountOrderSummary);
 
 const findByEmail = sql`
   SELECT ${row(Account.$$)}
   FROM ${Account}
-  WHERE ${Account.$email} = ${param<{ email: string }>("email", {
+  WHERE ${Account.$email} = ${param<{ email: string }>('email', {
     minLength: 5,
     pattern: /@/,
   })}
 `;
 
-const listSummaries = sql`
-  SELECT ${row(AccountOrderSummary.$$)}
-  FROM ${AccountOrderSummary}
-`;
-
-const one = await findByEmail.postgres.any({
+const account = await findByEmail.postgres.any({
   db: pool,
-  params: { email: "john@example.com" },
+  params: { email: 'john@example.com' },
 });
-
-const rows = await listSummaries.postgres.all({ db: pool });
 ```
+
+---
 
 ## TypeORM Adaptor
 
-Package: `vexnor-typeorm`
-
-Use `fromTypeORM(repository)` to convert TypeORM entities/views into Vexnor tables.
-
-Recommended for production stability: generate mappings via Vexnor CLI.
-Use this adaptor path primarily as a migration/onramp from existing TypeORM setups.
+**Package:** `vexnor-typeorm`
 
 ```typescript
-import { sql, row, param } from "vexnor";
-import { fromTypeORM } from "vexnor-typeorm";
-import { dataSource } from "./typeorm-data-source.js";
-import { AccountEntity } from "./account.entity.js";
-import { AccountOrderSummaryView } from "./account-order-summary.view.js";
-import "vexnor-postgres";
-import { pool } from "./postgres-pool.js";
+import { fromTypeORM } from 'vexnor-typeorm';
+import { dataSource } from './typeorm-data-source.js';
+import { AccountEntity } from './account.entity.js';
+import { sql, row, param } from 'vexnor';
+import 'vexnor-postgres';
 
-// initialize first so getRepository(...) has loaded entity/view metadata
 await dataSource.initialize();
 
-// table entity repository
 const Account = fromTypeORM(dataSource.getRepository(AccountEntity));
-// view entity repository
-const AccountOrderSummary = fromTypeORM(dataSource.getRepository(AccountOrderSummaryView));
 
 const findById = sql`
   SELECT ${row(Account.$$)}
   FROM ${Account}
-  WHERE ${Account.$accountId} = ${param<{ accountId: string }>("accountId", {
-    minLength: 1,
-  })}
+  WHERE ${Account.$accountId} = ${param<{ accountId: string }>('accountId')}
 `;
 
-const listSummaries = sql`
-  SELECT ${row(AccountOrderSummary.$$)}
-  FROM ${AccountOrderSummary}
-`;
-
-const one = await findById.postgres.any({
+const account = await findById.postgres.any({
   db: pool,
-  params: { accountId: "00000000-0000-0000-0000-000000000001" },
+  params: { accountId: '00000000-0000-0000-0000-000000000001' },
 });
-
-const rows = await listSummaries.postgres.all({ db: pool });
 ```
+
+---
 
 ## Sequelize Adaptor
 
-Package: `vexnor-sequelize`
-
-Use `fromSequelizeTable(model)` for table models and `fromSequelizeView(model)` for view models.
-
-Recommended for production stability: generate mappings via Vexnor CLI.
-Use this adaptor path primarily as a migration/onramp from existing Sequelize setups.
+**Package:** `vexnor-sequelize`
 
 ```typescript
-import { fromSequelizeTable, fromSequelizeView } from "vexnor-sequelize";
+import { fromSequelizeTable, fromSequelizeView } from 'vexnor-sequelize';
+
+const Account = fromSequelizeTable(AccountModel);
+const AccountOrderSummary = fromSequelizeView(AccountOrderSummaryModel);
 ```
+
+---
 
 ## Prisma Adaptor
 
-Package: `vexnor-prisma`
+**Package:** `vexnor-prisma`
 
-Use Prisma model metadata as input and convert Prisma models into Vexnor tables/views.
+Supports Prisma v6 and v7, both `prisma-client-js` and `prisma-client` generators.
 
-Recommended for production stability: generate mappings via Vexnor CLI.
-Use this adaptor path primarily as a migration/onramp from existing Prisma setups.
+### Resolve a Prisma Model
 
-```typescript
-import { findPrismaModel, fromPrismaModelTable, fromPrismaModelView } from "vexnor-prisma";
-```
-
-Recommended onboarding flow from an existing Prisma project:
-
-1. Generate Prisma client (`pnpm exec prisma generate`).
-2. Resolve target model metadata via `findPrismaModel(...)`.
-3. Build typed Vexnor table/view with `fromPrismaModelTable` / `fromPrismaModelView`.
-4. Use resulting Vexnor table in queries/CRUD flows.
-
-`findPrismaModel` accepts one of:
-
-- `{ dmmf }` from generated Prisma code
-- `{ schemaPath }`
-- `{ schema }`
-
-Prisma v6 + `prisma-client-js` example:
+`findPrismaModel` accepts three input forms:
 
 ```typescript
-import { Prisma } from "@prisma/client";
-import { findPrismaModel, fromPrismaModelTable } from "vexnor-prisma";
+import { findPrismaModel } from 'vexnor-prisma';
 
-const accountModel = await findPrismaModel("Account", { dmmf: Prisma.dmmf });
+// Option A: dmmf — best for Prisma v6 + prisma-client-js
+import { Prisma } from '@prisma/client';
+const model = await findPrismaModel('Account', { dmmf: Prisma.dmmf });
 
-const Account = fromPrismaModelTable(accountModel, {
-  provider: "postgresql",
-});
+// Option B: schemaPath — best for Prisma v7 + prisma-client
+const model = await findPrismaModel('Account', { schemaPath: './prisma/schema.prisma' });
+
+// Option C: in-memory schema string
+const schema = await readFile('./prisma/schema.prisma', 'utf8');
+const model = await findPrismaModel('Account', { schema });
 ```
 
-Prisma v7 + `prisma-client` example:
+### Build a Vexnor Table
 
 ```typescript
-import { findPrismaModel, fromPrismaModelTable } from "vexnor-prisma";
+import { fromPrismaModelTable, fromPrismaModelView } from 'vexnor-prisma';
+import type { Account, Prisma as PrismaTypes } from '@prisma/client';
 
-const accountModel = await findPrismaModel("Account", {
-  schemaPath: "./prisma/schema.prisma",
-});
-
-const Account = fromPrismaModelTable(accountModel, {
-  provider: "postgresql",
-});
+const Account = fromPrismaModelTable<
+  Account,
+  PrismaTypes.AccountUncheckedCreateInput,
+  PrismaTypes.AccountUncheckedUpdateInput
+>(accountModel, { provider: 'postgresql', schema: 'public' });
 ```
 
-Prisma version/generator guidance:
+### Version Guidance
 
-- v6 + `prisma-client-js`: use `{ dmmf: Prisma.dmmf }` when available.
-- v7 + `prisma-client`: use `{ schemaPath }` or `{ schema }`.
-- v7 + `prisma-client-js`: either approach can work; keep one approach consistent.
+| Prisma version | Generator | Recommended input |
+|----------------|-----------|-------------------|
+| v6 | `prisma-client-js` | `{ dmmf: Prisma.dmmf }` |
+| v7 | `prisma-client` | `{ schemaPath }` |
+| v7 | `prisma-client-js` | either — pick one and stay consistent |
 
-Example typing pattern:
+For full Prisma adaptor details see `packages/vexnor-prisma/README.md`.
 
-```typescript
-import type { Account, Prisma as PrismaTypes } from "@prisma/client";
+---
 
-type AccountSelect = Account;
-type AccountInsert = PrismaTypes.AccountUncheckedCreateInput;
-type AccountUpdate = PrismaTypes.AccountUncheckedUpdateInput;
-```
-
-For full Prisma adaptor details and more examples, see:
-`packages/vexnor-prisma/README.md`
-
-## Building a New Plugin
+## Building a Custom Plugin
 
 Implement the `VexnorPlugin` interface from `vexnor/plugin`:
 
-- schema introspection
-- DB type -> TypeScript type mapping
-- connection creation
-- query handler execution
+```typescript
+import { VexnorPlugin } from 'vexnor/plugin';
+
+class MyPlugin extends VexnorPlugin<{ Connection: MyConnection; Config: MyConfig }> {
+  dialect = 'postgresql';
+  driver = 'my-driver';
+
+  // Schema introspection — used by CLI codegen
+  async getSchema(args): Promise<SqlSchema> { ... }
+
+  // DB column type → TypeScript type mapping
+  getColumnType(col: SqlColumnInfo): SqlColumnType { ... }
+
+  // Optional library files to emit alongside generated table files
+  getLibrary(): LibraryOutputFile[] { return []; }
+
+  // Connection factory
+  async createConnection(config: MyConfig): Promise<VexnorConnection<MyConnection>> { ... }
+
+  // Query handler factory — called per query at runtime
+  newQueryHandler<T>(query: SqlQuery<T>): SqlQueryHandler<T> { ... }
+}
+```
+
+Plugins attach to `SqlQuery.prototype` at import time via module augmentation — that's how `.postgres` / `.mssql` / `.sqlite` are added to every query.

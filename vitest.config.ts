@@ -16,5 +16,12 @@ export default defineConfig({
          "./tests/vexnor-test-postgres",
          "./tests/vexnor-test-sqlite3",
       ],
+      coverage: {
+         provider: "v8",
+         reportsDirectory: "./coverage",
+         reporter: ["text", "html", "json", "json-summary", "clover"],
+         include: ["**/src/**/*"],
+         exclude: ["**/__tests__/**", "**/test/**"],
+      },
    },
 });

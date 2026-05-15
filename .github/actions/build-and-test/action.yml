@@ -5,6 +5,9 @@ inputs:
   GITHUB_TOKEN:
     description: GitHub token
     required: true
+  CODECOV_TOKEN:
+    description: Codecov token
+    required: false
 
 runs:
   using: "composite"
@@ -48,3 +51,16 @@ runs:
     - name: Run tests
       shell: bash
       run: pnpm test
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ inputs.CODECOV_TOKEN }}
+        files: ./coverage/clover.xml
+        fail_ci_if_error: false
+
+    - name: Test summary
+      uses: davelosert/vitest-coverage-report-action@v2
+      with:
+        json-summary-path: ./coverage/coverage-summary.json
+        github-token: ${{ inputs.GITHUB_TOKEN }}

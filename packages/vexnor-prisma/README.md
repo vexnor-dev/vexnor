@@ -100,7 +100,7 @@ const AccountView = fromPrismaModelView<AccountSelect>(accountModel, {
 ```ts
 import { findPrismaModel, fromPrismaModelTable } from "vexnor-prisma";
 import type { Prisma as PrismaTypes } from "@prisma/client";
-import { sql, row, col, val } from "vexnor";
+import { sql, row, col } from "vexnor";
 
 const accountModel = await findPrismaModel("Account", { schemaPath: "./prisma/schema.prisma" });
 const orderModel = await findPrismaModel("Order", { schemaPath: "./prisma/schema.prisma" });
@@ -128,11 +128,11 @@ const query = sql`
   SELECT
     ${row(Account.$$)},
     COUNT(${OrderItem.$productId}) AS ${col<{ orderCount: number }>("orderCount")},
-    COALESCE(SUM(${OrderItem.$quantity}), ${val(0)}) AS ${col<{ totalQuantity: number }>("totalQuantity")}
+    COALESCE(SUM(${OrderItem.$quantity}), 0) AS ${col<{ totalQuantity: number }>("totalQuantity")}
   FROM ${Account}
   LEFT JOIN ${Order} ON ${Order.$accountId} = ${Account.$accountId}
   LEFT JOIN ${OrderItem} ON ${OrderItem.$orderId} = ${Order.$orderId}
-  WHERE ${Account.$status} = ${val("created")}
+  WHERE ${Account.$status} = 'created'
   GROUP BY ${Account.$accountId}, ${Account.$email}, ${Account.$firstName}, ${Account.$lastName}
 `;
 ```
