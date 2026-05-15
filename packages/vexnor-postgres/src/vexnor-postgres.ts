@@ -18,7 +18,7 @@ import { SqlQueryHandler, SqlQuery, newSqlQueryHandler, SqlTable } from "vexnor"
 import { newPostgresTableHandler, PostgresTableHandler } from "#/crud/postgres-table-handler.js";
 
 /**
- * Valnor plugin for postgres.
+ * Vexnor plugin for postgres.
  * It can handle
  */
 export class VexnorPostgres extends VexnorPlugin<{ Config: ConnectionConfig; Connection: Pool }> {

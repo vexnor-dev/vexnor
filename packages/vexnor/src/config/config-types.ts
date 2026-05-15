@@ -5,7 +5,7 @@ import { ConnectionConfig, VexnorPluginAny } from "#/plugin/plugin.js";
 
 export type QueryOrHandler = SqlQueryAny | SqlQueryHandlerAny;
 
-export interface ValnorConfig {
+export interface VexnorConfig {
    profiles: Record<string, ProfileConfig>;
    defaultProfile?: string;
    exec?: ExecConfig;

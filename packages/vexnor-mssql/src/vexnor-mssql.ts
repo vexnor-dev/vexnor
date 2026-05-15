@@ -18,7 +18,7 @@ import { findTables, findViews } from "./schema/find-tables.js";
 import mssql from "mssql";
 
 /**
- * Valnor plugin for MS SQL Server.
+ * Vexnor plugin for MS SQL Server.
  */
 export class VexnorMssql extends VexnorPlugin<{ Config: ConnectionConfig; Connection: mssql.ConnectionPool }> {
    driver = "mssql";

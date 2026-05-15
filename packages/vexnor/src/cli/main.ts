@@ -14,7 +14,7 @@ main
    .command("codegen")
    //.argument('<tableName>')
    .description("Generates SQL mapping for specified database")
-   .addOption(new Option("--plugin <plugin>", "Valnor plugin"))
+   .addOption(new Option("--plugin <plugin>", "Vexnor plugin"))
    .addOption(
       new Option("--uri <uri>", "Database URI")
          .conflicts(["host", "port", "user", "password", "database"])

@@ -1,8 +1,8 @@
 import { pathToFileURL } from "url";
-import { ValnorConfig } from "#/config/config-types.js";
+import { VexnorConfig } from "#/config/config-types.js";
 import { access } from "fs/promises";
 
-export async function loadConfig(configPath: string): Promise<ValnorConfig> {
+export async function loadConfig(configPath: string): Promise<VexnorConfig> {
    try {
       await access(configPath);
    } catch {
