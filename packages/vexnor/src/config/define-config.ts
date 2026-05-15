@@ -1,6 +1,6 @@
-import { ValnorConfig } from "#/config/config-types.js";
+import { VexnorConfig } from "#/config/config-types.js";
 
-export function defineConfig<T extends ValnorConfig>(config: T): T {
+export function defineConfig<T extends VexnorConfig>(config: T): T {
    if (!config.profiles || Object.keys(config.profiles).length === 0) {
       throw new Error("Config must have at least one profile");
    }

@@ -1,6 +1,6 @@
-import { ProfileConfig, ValnorConfig } from "#/config/config-types.js";
+import { ProfileConfig, VexnorConfig } from "#/config/config-types.js";
 
-export function resolveProfile(profile: ProfileConfig | string | undefined, config: ValnorConfig): string | undefined {
+export function resolveProfile(profile: ProfileConfig | string | undefined, config: VexnorConfig): string | undefined {
    if (!profile) return undefined;
    if (typeof profile === "string") return profile;
 

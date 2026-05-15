@@ -1,9 +1,9 @@
 import { describe, expect, test } from "vitest";
 import { resolveProfile } from "#/config/resolve-profile.js";
-import { ValnorConfig } from "#/config/config-types.js";
+import { VexnorConfig } from "#/config/config-types.js";
 
 describe("resolveProfile", () => {
-   const config: ValnorConfig = {
+   const config: VexnorConfig = {
       profiles: {
          postgres: {
             connection: { uri: "postgres://localhost" },
