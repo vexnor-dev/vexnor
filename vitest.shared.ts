@@ -52,7 +52,7 @@ export const sharedConfig: Config = {
          provider: "v8",
          reportsDirectory: "./coverage",
          reporter: ["text", "html", "json", "json-summary", "clover"],
-         include: ["src/**/*"],
+         include: ["**/src/**/*"],
          exclude: ["**/__tests__/**", "**/test/**"],
       },
    },

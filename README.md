@@ -134,7 +134,7 @@ const found = await Account.postgres.findBy().any({
 ## Requirements
 
 - Node.js `>=22.21.1`
-- pnpm `>=10.17.0` (for repo development)
+- pnpm `>=11.0.0` (for repo development)
 
 ## License
 

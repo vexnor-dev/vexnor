@@ -2,14 +2,14 @@
    "name": "pg-typescraft-root",
    "version": "1.0.0",
    "description": "",
-   "packageManager": "pnpm@10.33.0+sha512.10568bb4a6afb58c9eb3630da90cc9516417abebd3fabbe6739f0ae795728da1491e9db5a544c76ad8eb7570f5c4bb3d6c637b2cb41bfdcdb47fa823c8649319",
+   "packageManager": "pnpm@11.3.0+sha512.2c403d6594527287672b1f7056343a1f7c3634036a67ffabfcc2b3d7595d843768f8787148d1b57cf7956c90606bbd192857c363af19e96d2d0ec9ec5741d215",
    "type": "module",
    "author": "Adrian Topala",
    "license": "Apache-2.0",
    "repository": "https://github.com/vexnor-dev/vexnor",
    "engines": {
       "node": ">=22.21.1",
-      "pnpm": ">=10.17.0"
+      "pnpm": ">=11.0.0"
    },
    "scripts": {
       "preinstall": "npx only-allow pnpm",
@@ -61,25 +61,6 @@
       "vite": "^8.0.10",
       "vite-node": "^2.1.8",
       "vitest": "^4.1.5"
-   },
-   "pnpm": {
-      "overrides": {
-         "semver": ">=7.5.2",
-         "esbuild": ">=0.25.0",
-         "glob": ">=13.0.0",
-         "minimatch": ">=10.2.3",
-         "tar": ">=7.5.10",
-         "flatted": ">=3.4.2",
-         "picomatch": ">=4.0.4",
-         "yaml": ">=2.8.3",
-         "rollup": ">=4.59.0"
-      },
-      "ignoredBuiltDependencies": [
-         "@prisma/client",
-         "@prisma/engines",
-         "esbuild",
-         "prisma"
-      ]
    },
    "private": true
 }
