@@ -81,7 +81,7 @@ const prismaArgs = normalizedArgs.map((arg, index, all) => {
 
 try {
    run("pnpm", ["init"], { cwd: tempDir, stdio: "inherit", env: process.env });
-   run("pnpm", ["add", "-D", "prisma@6", "@prisma/client@6"], { cwd: tempDir, stdio: "inherit", env: process.env });
+   run("pnpm", ["add", "-D", "prisma@6", "@prisma/client@6", "--allow-build=prisma", "--allow-build=@prisma/client", "--allow-build=@prisma/engines"], { cwd: tempDir, stdio: "inherit", env: process.env });
 
    run("pnpm", ["prisma", "generate", ...prismaArgs], { cwd: tempDir, stdio: "inherit", env: process.env });
 
