@@ -23,7 +23,7 @@ import { newSqlQueryColumn, SqlQueryColumn } from "#/core/query/sql-query-column
 import { SqlSelectRow } from "#/core/query/sql-select-row.js";
 import { SqlSelectColumn } from "#/core/query/sql-select-column.js";
 import { SqlSelectCharm } from "#/core/query/sql-charm.js";
-import { format } from "sql-formatter";
+import { getFormatter } from "#/format/formatter-registry.js";
 import { SqlTable } from "#/core/schema/sql-table.js";
 import { ok } from "#/lib/assert.js";
 import { isSqlLanguage } from "#/core/query/lib/is-sql-language.js";
@@ -471,7 +471,9 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
                break;
             case "value": {
                if (!isPrimitive(token.value)) {
-                  throw new SqlBuildError(`Unexpected non-primitive value token — only primitives, null, Date, and Uint8Array are allowed`);
+                  throw new SqlBuildError(
+                     `Unexpected non-primitive value token — only primitives, null, Date, and Uint8Array are allowed`,
+                  );
                }
                tokens.push(paramFormat({ index: values.length }));
                values.push(token.value);
@@ -511,11 +513,22 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
       }
 
       const text = tokens.join("");
-      const shouldFormat = options?.format ?? process.env.NODE_ENV !== "production";
-      if (!shouldFormat) return { text, values };
+      const formatOption = options?.format ?? "auto";
+      const formatter = getFormatter();
+      if (formatOption === true && !formatter) {
+         throw new SqlBuildError(
+            `format: true was set but no formatter is registered. Call setupFormatter() from 'vexnor/format' first.`,
+         );
+      }
+
+      const shouldFormat = formatOption === true || (formatOption === "auto" && formatter !== null);
+      if (!shouldFormat || !formatter) {
+         return { text, values };
+      }
+
       try {
          return {
-            text: format(text, {
+            text: formatter(text, {
                language: context.dialect,
                keywordCase: "upper",
             }),

@@ -6,10 +6,10 @@ packages:
   - '!**/build/**'
   - '!**/deploy/**'
 
-ignoredBuiltDependencies:
-  - esbuild
-
-onlyBuiltDependencies:
-  - better-sqlite3
-  - core-js
-  - sqlite3
+allowBuilds:
+  '@prisma/client': true
+  '@prisma/engines': true
+  better-sqlite3: true
+  esbuild: true
+  prisma: true
+  sqlite3: true

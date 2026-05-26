@@ -16,6 +16,10 @@ export default defineConfig({
          "./tests/vexnor-test-postgres",
          "./tests/vexnor-test-sqlite3",
       ],
+      typecheck: {
+         enabled: true,
+         checker: "tsc",
+      },
       coverage: {
          provider: "v8",
          reportsDirectory: "./coverage",

@@ -37,6 +37,7 @@ type Config = Exclude<Awaited<Parameters<typeof vitest.defineConfig>[0]>, Functi
 
 export const sharedConfig: Config = {
    test: {
+      setupFiles: [path.resolve(__dirname, "vitest.setup.ts")],
       include: ["./**/*.{test,spec}.{ts,js}"],
       exclude: ["**/node_modules/**", "**/dist/**"],
       env: {
@@ -51,7 +52,7 @@ export const sharedConfig: Config = {
          provider: "v8",
          reportsDirectory: "./coverage",
          reporter: ["text", "html", "json", "json-summary", "clover"],
-         include: ["src/**/*"],
+         include: ["**/src/**/*"],
          exclude: ["**/__tests__/**", "**/test/**"],
       },
    },

@@ -1,3 +1,7 @@
+// format
+export { type SqlLanguage, SQL_LANGUAGES } from "#/format/sql-language.js";
+export { type SqlFormatterFn, type RegisterFormatterOptions, getFormatter } from "#/format/formatter-registry.js";
+
 // logger
 export { logger } from "#/logger.js";
 

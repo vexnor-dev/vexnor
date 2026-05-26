@@ -12,6 +12,11 @@
          "types": "./dist/core/core.d.ts",
          "require": "./dist/core/core.js"
       },
+      "./format": {
+         "import": "./dist/format/index.js",
+         "types": "./dist/format/index.d.ts",
+         "require": "./dist/format/index.js"
+      },
       "./plugin": {
          "import": "./dist/plugin/plugin.js",
          "types": "./dist/plugin/plugin.d.ts",
@@ -43,6 +48,7 @@
    "author": "Adrian Topala",
    "license": "Apache-2.0",
    "repository": "https://github.com/vexnor-dev/vexnor",
+   "sideEffects": false,
    "publishConfig": {
       "access": "public"
    },
@@ -76,11 +82,18 @@
    "dependencies": {
       "code-block-writer": "^11.0.3",
       "commander": "^9.1.0",
-      "glob": "11.1.0",
+      "glob": "^13.0.0",
       "pino": "^7.10.0",
-      "sql-formatter": "^15.7.0",
       "to-case": "^2.0.0",
       "tsx": "^4.20.6"
+   },
+   "peerDependencies": {
+      "sql-formatter": "^15.7.0"
+   },
+   "peerDependenciesMeta": {
+      "sql-formatter": {
+         "optional": true
+      }
    },
    "devDependencies": {
       "@types/pg": "^8.15.5",

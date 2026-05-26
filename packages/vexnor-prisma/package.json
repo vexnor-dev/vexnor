@@ -22,14 +22,15 @@
    "author": "Adrian Topala",
    "license": "Apache-2.0",
    "repository": "https://github.com/vexnor-dev/vexnor",
+   "sideEffects": false,
    "publishConfig": {
       "access": "public"
    },
    "scripts": {
       "codegen:prisma:v6-client": "node ./scripts/codegen-prisma-v6-isolated.mjs --schema src/__tests__/fixtures-v6-client/schema.prisma --config src/__tests__/prisma.config.ts",
       "codegen:prisma:v6-client-js": "node ./scripts/codegen-prisma-v6-isolated.mjs --schema src/__tests__/fixtures-v6-client-js/schema.prisma",
-      "codegen:prisma:v7-client": "pnpm --package=prisma@7 --package=@prisma/client@7 prisma generate --schema src/__tests__/fixtures-v7-client/schema.prisma --config src/__tests__/prisma.config.ts",
-      "codegen:prisma:v7-client-js": "pnpm --package=prisma@7 --package=@prisma/client@7 prisma generate --schema src/__tests__/fixtures-v7-client-js/schema.prisma",
+      "codegen:prisma:v7-client": "pnpm dlx --package=prisma@7 --package=@prisma/client@7 prisma generate --schema src/__tests__/fixtures-v7-client/schema.prisma --config src/__tests__/prisma.config.ts",
+      "codegen:prisma:v7-client-js": "pnpm dlx --package=prisma@7 --package=@prisma/client@7 prisma generate --schema src/__tests__/fixtures-v7-client-js/schema.prisma",
       "prebuild": "run-s 'codegen:prisma:*'",
       "build": "run-s 'build:*'",
       "build:1-tsc": "tsc -b",

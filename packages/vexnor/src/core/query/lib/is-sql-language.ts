@@ -1,5 +1,5 @@
-import { SqlLanguage, supportedDialects } from "sql-formatter";
+import { SQL_LANGUAGES, type SqlLanguage } from "#/format/sql-language.js";
 
 export function isSqlLanguage(value: string): value is SqlLanguage {
-   return supportedDialects.includes(value);
+   return SQL_LANGUAGES.has(value);
 }

@@ -1,5 +1,6 @@
 import { DefaultFormatter } from "#/core/builder/default-formatter.js";
-import { format, SqlLanguage } from "sql-formatter";
+import { type SqlLanguage } from "#/format/sql-language.js";
+import { getFormatter } from "#/format/formatter-registry.js";
 import { DefaultTokenizer } from "#/core/builder/default-tokenizer.js";
 import { SqlQuery, SqlQueryAny } from "#/core/query/sql-query.js";
 import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
@@ -86,8 +87,10 @@ export class SqlBuildContext {
          }
       }
 
+      const formatter = getFormatter();
+      if (!formatter) return text + "\n";
       try {
-         return format(text + "\n", {
+         return formatter(text + "\n", {
             language: this.dialect,
             keywordCase: "upper",
          });

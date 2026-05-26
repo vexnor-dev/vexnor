@@ -24,6 +24,9 @@
       "sql",
       "plugin"
    ],
+   "sideEffects": [
+      "./dist/vexnor-mssql.js"
+   ],
    "publishConfig": {
       "access": "public"
    },
