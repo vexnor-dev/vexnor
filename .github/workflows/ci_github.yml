@@ -3,7 +3,7 @@ name: CI (GitHub)
 on:
   push:
     branches:
-      - '**'
+      - main
   pull_request:
     branches:
       - '**'
