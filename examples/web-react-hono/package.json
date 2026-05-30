@@ -20,6 +20,8 @@
    "dependencies": {
       "@hono/node-server": "1.19.13",
       "@tanstack/react-router": "^1.170.8",
+      "@types/better-sqlite3": "^7.6.13",
+      "better-sqlite3": "^12.10.0",
       "hono": "^4.7.11",
       "mssql": "^12.5.4",
       "pg": "^8.16.3",
@@ -28,7 +30,8 @@
       "react-error-boundary": "^6.1.2",
       "vexnor": "workspace:*",
       "vexnor-mssql": "workspace:*",
-      "vexnor-postgres": "workspace:*"
+      "vexnor-postgres": "workspace:*",
+      "vexnor-sqlite3": "workspace:*"
    },
    "devDependencies": {
       "@testing-library/react": "^16.3.2",

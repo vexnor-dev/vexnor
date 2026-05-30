@@ -19,6 +19,9 @@
       },
       {
          "path": "../../packages/vexnor-postgres"
+      },
+      {
+         "path": "../../packages/vexnor-sqlite3"
       }
    ]
 }

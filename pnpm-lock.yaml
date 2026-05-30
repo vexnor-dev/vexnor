@@ -142,6 +142,12 @@ importers:
       '@tanstack/react-router':
         specifier: ^1.170.8
         version: 1.170.9(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+      '@types/better-sqlite3':
+        specifier: ^7.6.13
+        version: 7.6.13
+      better-sqlite3:
+        specifier: ^12.10.0
+        version: 12.10.0
       hono:
         specifier: ^4.7.11
         version: 4.12.23
@@ -169,6 +175,9 @@ importers:
       vexnor-postgres:
         specifier: workspace:*
         version: link:../../packages/vexnor-postgres
+      vexnor-sqlite3:
+        specifier: workspace:*
+        version: link:../../packages/vexnor-sqlite3
     devDependencies:
       '@testing-library/react':
         specifier: ^16.3.2

@@ -1,4 +1,4 @@
-import { SqlRunArgs, SqlQueryHandler, SqlQuery, SqlRunError, isRemoteClient, RemoteClient } from "vexnor";
+import { SqlRunArgs, SqlQueryHandler, SqlQuery, SqlRunError, isRemoteClient, type RemoteClient } from "vexnor";
 import type { Database, RunResult } from "better-sqlite3";
 import { Sqlite3Formatter } from "#/sqlite3-formatter.js";
 import { Sqlite3Tokenizer } from "#/sqlite3-tokenizer.js";
@@ -62,14 +62,26 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
     * Call `run()` when you need access to `RunResult` metadata such as `changes` or `lastInsertRowid`.
     *
     * @param args - Database connection and query parameters.
+    * @param mode
     */
-   async execute(args: SqlRunArgs<{ Connection: Sqlite3Client; Params: T["Params"] }>): Promise<RunResult> {
+   async execute(
+      args: SqlRunArgs<{ Connection: Sqlite3Client; Params: T["Params"] }>,
+      mode: "run" | "all" = "run",
+   ): Promise<RunResult> {
       const { db, options: { debug } = {} } = args;
       const resolvedDb = await db;
 
       if (isRemoteClient(resolvedDb)) {
          const hash = await this.query.hash;
          const params = (args as { params?: Record<string, unknown> }).params ?? {};
+         if (mode === "all") {
+            return resolvedDb.remoteExecute<{ rows: T["Row"][] }>({
+               plugin: PLUGIN_NAME,
+               hash,
+               params,
+            }) as unknown as Promise<RunResult>;
+         }
+
          return resolvedDb.remoteExecute<RunResult>({ plugin: PLUGIN_NAME, hash, params });
       }
 
@@ -77,8 +89,13 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
       try {
          queryConfig = this.getOptions(args);
          if (debug) debug(Object.freeze(queryConfig));
-         const result = (resolvedDb as Database).prepare(queryConfig.sql).run(queryConfig.values);
-         return Promise.resolve(result);
+         const statement = (resolvedDb as Database).prepare<unknown[] | object, T["Row"]>(queryConfig.sql);
+         if (mode === "all" || statement.reader) {
+            const rows = statement.all(queryConfig.values);
+            return Promise.resolve({ rows } as unknown as RunResult);
+         }
+
+         return Promise.resolve(statement.run(queryConfig.values));
       } catch (err) {
          throw new SqlRunError(
             `Error running sqlite query '${this.query.id}'`,
@@ -90,36 +107,12 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
    }
 
    async all(args: SqlRunArgs<{ Connection: Sqlite3Client; Params: T["Params"] }>): Promise<T["Row"][]> {
-      const { db, options: { debug } = {} } = args;
-      const resolvedDb = await db;
-      const remote = isRemoteClient(resolvedDb);
-
-      if (remote) {
-         const hash = await this.query.hash;
-         const params = (args as { params?: Record<string, unknown> }).params ?? {};
-         const result = await (resolvedDb as RemoteClient).remoteExecute<{ rows: T["Row"][] }>({
-            plugin: PLUGIN_NAME,
-            hash,
-            params,
-         });
-         return this.deserializeRows(result.rows, true);
-      }
-
-      let queryConfig = undefined;
       try {
-         queryConfig = this.getOptions(args);
-         if (debug) debug(Object.freeze(queryConfig));
-         const result = (resolvedDb as Database)
-            .prepare<unknown[] | object, T["Row"]>(queryConfig.sql)
-            .all(queryConfig.values);
-         return this.deserializeRows(result, false);
+         const result = (await this.execute(args, "all")) as unknown as { rows: T["Row"][] };
+         const remote = isRemoteClient(await args.db);
+         return this.deserializeRows(result.rows, remote);
       } catch (err) {
-         throw new SqlRunError(
-            `Error running sqlite query '${this.query.id}'`,
-            this.query,
-            { cause: err },
-            queryConfig?.sql,
-         );
+         throw new SqlRunError(`Error running sqlite query '${this.query.id}'`, this.query, { cause: err });
       }
    }
 }

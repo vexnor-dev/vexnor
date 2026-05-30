@@ -2,11 +2,12 @@ import { SqlQuery, SqlQueryExtended } from "#/core/query/sql-query.js";
 import { ok } from "#/lib/assert.js";
 import { SqlRunArgs, isRemoteClient } from "#/core/query/sql-query-types.js";
 import { SqlRunError } from "#/core/sql-run-error.js";
-import { deserialize as deserializeSchema } from "#/core/utils/sql-json-schema.js";
+import { deserialize } from "#/core/utils/sql-json-schema.js";
 import type { SqlJsonSchema } from "#/core/utils/sql-json-schema.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlQueryHandlerAny = SqlQueryHandler<any>;
+export type SqlExecuteMode = "run" | "all";
 
 /**
  * Base query handler for async database operations
@@ -23,7 +24,7 @@ export abstract class SqlQueryHandler<
    /**
     * Executes the query and returns the raw QueryResult without deserialized rows.
     */
-   abstract execute(args: SqlRunArgs<Pick<T, "Connection" | "Params">>): Promise<T["QueryResult"]>;
+   abstract execute(args: SqlRunArgs<Pick<T, "Connection" | "Params">>, mode?: SqlExecuteMode): Promise<T["QueryResult"]>;
 
    /**
     * Deserializes rows based on local vs remote execution context.
@@ -32,12 +33,15 @@ export abstract class SqlQueryHandler<
     */
    deserializeRows(rows: T["Row"][], remote: boolean): T["Row"][] {
       const schema = this.jsonSchema;
-      if (!Object.keys(schema).length) return rows;
+      if (!Object.keys(schema).length) {
+         return rows;
+      }
+
       const filteredSchema: SqlJsonSchema = remote
          ? schema
          : Object.fromEntries(Object.entries(schema).filter(([, v]) => typeof v !== "string"));
       if (!Object.keys(filteredSchema).length) return rows;
-      return rows.map((row) => deserializeSchema(row, filteredSchema) as T["Row"]);
+      return rows.map((row) => deserialize(row, filteredSchema));
    }
 
    /**
@@ -50,7 +54,7 @@ export abstract class SqlQueryHandler<
     */
    async run(args: SqlRunArgs<Pick<T, "Connection" | "Params">>): Promise<T["QueryResult"]> {
       try {
-         const result = await this.execute(args);
+         const result = await this.execute(args, "run");
          const remote = isRemoteClient(await args.db);
          return this.deserialize(result, remote);
       } catch (err) {
@@ -100,7 +104,9 @@ export abstract class SqlQueryHandler<
     */
    async all(args: SqlRunArgs<Pick<T, "Connection" | "Params">>): Promise<T["Row"][]> {
       try {
-         return await this.run(args).then((res) => this.resolveRows(res));
+         const result = await this.execute(args, "all");
+         const remote = isRemoteClient(await args.db);
+         return this.resolveRows(this.deserialize(result, remote));
       } catch (err) {
          throw new SqlRunError(`Error executing sql query '${this.id}'`, this, { cause: err });
       }
