@@ -72,6 +72,11 @@ export const Product = vexnor.newSqlTable<{ Select: IProductSelect, Insert: IPro
        * tags _text
       */
       tags: "tags",
+   },
+   jsonSchema:
+   {
+      createdAt: "Date",
+      modifiedAt: "Date",
    }
 });
 

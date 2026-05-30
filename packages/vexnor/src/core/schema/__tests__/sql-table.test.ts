@@ -22,7 +22,13 @@ describe("SqlTable tests", () => {
           "$accountId": SqlTableColumn {
             "columnName": "account_id",
             "format": null,
+            "hashIdLazy": Lazy {
+              "_computed": false,
+              "_value": null,
+              "callback": [Function],
+            },
             "id": "SqlTableColumn#1(account.account_id as accountId)",
+            "jsonType": null,
             "key": "accountId",
             "tableInfo": {
               "alias": null,
@@ -36,7 +42,13 @@ describe("SqlTable tests", () => {
           "$createdAt": SqlTableColumn {
             "columnName": "created_at",
             "format": null,
+            "hashIdLazy": Lazy {
+              "_computed": false,
+              "_value": null,
+              "callback": [Function],
+            },
             "id": "SqlTableColumn#7(account.created_at as createdAt)",
+            "jsonType": "Date",
             "key": "createdAt",
             "tableInfo": {
               "alias": null,
@@ -50,7 +62,13 @@ describe("SqlTable tests", () => {
           "$email": SqlTableColumn {
             "columnName": "email",
             "format": null,
+            "hashIdLazy": Lazy {
+              "_computed": false,
+              "_value": null,
+              "callback": [Function],
+            },
             "id": "SqlTableColumn#3(account.email)",
+            "jsonType": null,
             "key": "email",
             "tableInfo": {
               "alias": null,
@@ -64,7 +82,13 @@ describe("SqlTable tests", () => {
           "$firstName": SqlTableColumn {
             "columnName": "first_name",
             "format": null,
+            "hashIdLazy": Lazy {
+              "_computed": false,
+              "_value": null,
+              "callback": [Function],
+            },
             "id": "SqlTableColumn#4(account.first_name as firstName)",
+            "jsonType": null,
             "key": "firstName",
             "tableInfo": {
               "alias": null,
@@ -78,7 +102,13 @@ describe("SqlTable tests", () => {
           "$lastName": SqlTableColumn {
             "columnName": "last_name",
             "format": null,
+            "hashIdLazy": Lazy {
+              "_computed": false,
+              "_value": null,
+              "callback": [Function],
+            },
             "id": "SqlTableColumn#5(account.last_name as lastName)",
+            "jsonType": null,
             "key": "lastName",
             "tableInfo": {
               "alias": null,
@@ -92,7 +122,13 @@ describe("SqlTable tests", () => {
           "$modifiedAt": SqlTableColumn {
             "columnName": "modified_at",
             "format": null,
+            "hashIdLazy": Lazy {
+              "_computed": false,
+              "_value": null,
+              "callback": [Function],
+            },
             "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
+            "jsonType": "Date",
             "key": "modifiedAt",
             "tableInfo": {
               "alias": null,
@@ -106,7 +142,13 @@ describe("SqlTable tests", () => {
           "$notes": SqlTableColumn {
             "columnName": "notes",
             "format": null,
+            "hashIdLazy": Lazy {
+              "_computed": false,
+              "_value": null,
+              "callback": [Function],
+            },
             "id": "SqlTableColumn#6(account.notes)",
+            "jsonType": null,
             "key": "notes",
             "tableInfo": {
               "alias": null,
@@ -120,7 +162,13 @@ describe("SqlTable tests", () => {
           "$parentId": SqlTableColumn {
             "columnName": "parent_id",
             "format": null,
+            "hashIdLazy": Lazy {
+              "_computed": false,
+              "_value": null,
+              "callback": [Function],
+            },
             "id": "SqlTableColumn#9(account.parent_id as parentId)",
+            "jsonType": null,
             "key": "parentId",
             "tableInfo": {
               "alias": null,
@@ -134,7 +182,13 @@ describe("SqlTable tests", () => {
           "$status": SqlTableColumn {
             "columnName": "status",
             "format": null,
+            "hashIdLazy": Lazy {
+              "_computed": false,
+              "_value": null,
+              "callback": [Function],
+            },
             "id": "SqlTableColumn#2(account.status)",
+            "jsonType": null,
             "key": "status",
             "tableInfo": {
               "alias": null,
@@ -156,7 +210,13 @@ describe("SqlTable tests", () => {
               "$accountId": SqlTableColumn {
                 "columnName": "account_id",
                 "format": null,
+                "hashIdLazy": Lazy {
+                  "_computed": false,
+                  "_value": null,
+                  "callback": [Function],
+                },
                 "id": "SqlTableColumn#1(account.account_id as accountId)",
+                "jsonType": null,
                 "key": "accountId",
                 "tableInfo": {
                   "alias": null,
@@ -170,7 +230,13 @@ describe("SqlTable tests", () => {
               "$createdAt": SqlTableColumn {
                 "columnName": "created_at",
                 "format": null,
+                "hashIdLazy": Lazy {
+                  "_computed": false,
+                  "_value": null,
+                  "callback": [Function],
+                },
                 "id": "SqlTableColumn#7(account.created_at as createdAt)",
+                "jsonType": "Date",
                 "key": "createdAt",
                 "tableInfo": {
                   "alias": null,
@@ -184,7 +250,13 @@ describe("SqlTable tests", () => {
               "$email": SqlTableColumn {
                 "columnName": "email",
                 "format": null,
+                "hashIdLazy": Lazy {
+                  "_computed": false,
+                  "_value": null,
+                  "callback": [Function],
+                },
                 "id": "SqlTableColumn#3(account.email)",
+                "jsonType": null,
                 "key": "email",
                 "tableInfo": {
                   "alias": null,
@@ -198,7 +270,13 @@ describe("SqlTable tests", () => {
               "$firstName": SqlTableColumn {
                 "columnName": "first_name",
                 "format": null,
+                "hashIdLazy": Lazy {
+                  "_computed": false,
+                  "_value": null,
+                  "callback": [Function],
+                },
                 "id": "SqlTableColumn#4(account.first_name as firstName)",
+                "jsonType": null,
                 "key": "firstName",
                 "tableInfo": {
                   "alias": null,
@@ -212,7 +290,13 @@ describe("SqlTable tests", () => {
               "$lastName": SqlTableColumn {
                 "columnName": "last_name",
                 "format": null,
+                "hashIdLazy": Lazy {
+                  "_computed": false,
+                  "_value": null,
+                  "callback": [Function],
+                },
                 "id": "SqlTableColumn#5(account.last_name as lastName)",
+                "jsonType": null,
                 "key": "lastName",
                 "tableInfo": {
                   "alias": null,
@@ -226,7 +310,13 @@ describe("SqlTable tests", () => {
               "$modifiedAt": SqlTableColumn {
                 "columnName": "modified_at",
                 "format": null,
+                "hashIdLazy": Lazy {
+                  "_computed": false,
+                  "_value": null,
+                  "callback": [Function],
+                },
                 "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
+                "jsonType": "Date",
                 "key": "modifiedAt",
                 "tableInfo": {
                   "alias": null,
@@ -240,7 +330,13 @@ describe("SqlTable tests", () => {
               "$notes": SqlTableColumn {
                 "columnName": "notes",
                 "format": null,
+                "hashIdLazy": Lazy {
+                  "_computed": false,
+                  "_value": null,
+                  "callback": [Function],
+                },
                 "id": "SqlTableColumn#6(account.notes)",
+                "jsonType": null,
                 "key": "notes",
                 "tableInfo": {
                   "alias": null,
@@ -254,7 +350,13 @@ describe("SqlTable tests", () => {
               "$parentId": SqlTableColumn {
                 "columnName": "parent_id",
                 "format": null,
+                "hashIdLazy": Lazy {
+                  "_computed": false,
+                  "_value": null,
+                  "callback": [Function],
+                },
                 "id": "SqlTableColumn#9(account.parent_id as parentId)",
+                "jsonType": null,
                 "key": "parentId",
                 "tableInfo": {
                   "alias": null,
@@ -268,7 +370,13 @@ describe("SqlTable tests", () => {
               "$status": SqlTableColumn {
                 "columnName": "status",
                 "format": null,
+                "hashIdLazy": Lazy {
+                  "_computed": false,
+                  "_value": null,
+                  "callback": [Function],
+                },
                 "id": "SqlTableColumn#2(account.status)",
+                "jsonType": null,
                 "key": "status",
                 "tableInfo": {
                   "alias": null,
@@ -293,8 +401,17 @@ describe("SqlTable tests", () => {
             "_value": null,
             "callback": [Function],
           },
+          "columnTypes": {
+            "createdAt": "Date",
+            "modifiedAt": "Date",
+          },
           "dialect": "sql",
           "format": null,
+          "hashIdLazy": Lazy {
+            "_computed": false,
+            "_value": null,
+            "callback": [Function],
+          },
           "id": "SqlTable#1(main.account)",
           "pk": [
             "accountId",
@@ -317,7 +434,13 @@ describe("SqlTable tests", () => {
           "$accountId": SqlTableColumn {
             "columnName": "account_id",
             "format": null,
+            "hashIdLazy": Lazy {
+              "_computed": false,
+              "_value": null,
+              "callback": [Function],
+            },
             "id": "SqlTableColumn#1(parent.account_id as accountId)",
+            "jsonType": null,
             "key": "accountId",
             "tableInfo": {
               "alias": "parent",
@@ -331,7 +454,13 @@ describe("SqlTable tests", () => {
           "$createdAt": SqlTableColumn {
             "columnName": "created_at",
             "format": null,
+            "hashIdLazy": Lazy {
+              "_computed": false,
+              "_value": null,
+              "callback": [Function],
+            },
             "id": "SqlTableColumn#7(parent.created_at as createdAt)",
+            "jsonType": "Date",
             "key": "createdAt",
             "tableInfo": {
               "alias": "parent",
@@ -345,7 +474,13 @@ describe("SqlTable tests", () => {
           "$email": SqlTableColumn {
             "columnName": "email",
             "format": null,
+            "hashIdLazy": Lazy {
+              "_computed": false,
+              "_value": null,
+              "callback": [Function],
+            },
             "id": "SqlTableColumn#3(parent.email)",
+            "jsonType": null,
             "key": "email",
             "tableInfo": {
               "alias": "parent",
@@ -359,7 +494,13 @@ describe("SqlTable tests", () => {
           "$firstName": SqlTableColumn {
             "columnName": "first_name",
             "format": null,
+            "hashIdLazy": Lazy {
+              "_computed": false,
+              "_value": null,
+              "callback": [Function],
+            },
             "id": "SqlTableColumn#4(parent.first_name as firstName)",
+            "jsonType": null,
             "key": "firstName",
             "tableInfo": {
               "alias": "parent",
@@ -373,7 +514,13 @@ describe("SqlTable tests", () => {
           "$lastName": SqlTableColumn {
             "columnName": "last_name",
             "format": null,
+            "hashIdLazy": Lazy {
+              "_computed": false,
+              "_value": null,
+              "callback": [Function],
+            },
             "id": "SqlTableColumn#5(parent.last_name as lastName)",
+            "jsonType": null,
             "key": "lastName",
             "tableInfo": {
               "alias": "parent",
@@ -387,7 +534,13 @@ describe("SqlTable tests", () => {
           "$modifiedAt": SqlTableColumn {
             "columnName": "modified_at",
             "format": null,
+            "hashIdLazy": Lazy {
+              "_computed": false,
+              "_value": null,
+              "callback": [Function],
+            },
             "id": "SqlTableColumn#8(parent.modified_at as modifiedAt)",
+            "jsonType": "Date",
             "key": "modifiedAt",
             "tableInfo": {
               "alias": "parent",
@@ -401,7 +554,13 @@ describe("SqlTable tests", () => {
           "$notes": SqlTableColumn {
             "columnName": "notes",
             "format": null,
+            "hashIdLazy": Lazy {
+              "_computed": false,
+              "_value": null,
+              "callback": [Function],
+            },
             "id": "SqlTableColumn#6(parent.notes)",
+            "jsonType": null,
             "key": "notes",
             "tableInfo": {
               "alias": "parent",
@@ -415,7 +574,13 @@ describe("SqlTable tests", () => {
           "$parentId": SqlTableColumn {
             "columnName": "parent_id",
             "format": null,
+            "hashIdLazy": Lazy {
+              "_computed": false,
+              "_value": null,
+              "callback": [Function],
+            },
             "id": "SqlTableColumn#9(parent.parent_id as parentId)",
+            "jsonType": null,
             "key": "parentId",
             "tableInfo": {
               "alias": "parent",
@@ -429,7 +594,13 @@ describe("SqlTable tests", () => {
           "$status": SqlTableColumn {
             "columnName": "status",
             "format": null,
+            "hashIdLazy": Lazy {
+              "_computed": false,
+              "_value": null,
+              "callback": [Function],
+            },
             "id": "SqlTableColumn#2(parent.status)",
+            "jsonType": null,
             "key": "status",
             "tableInfo": {
               "alias": "parent",
@@ -451,7 +622,13 @@ describe("SqlTable tests", () => {
               "$accountId": SqlTableColumn {
                 "columnName": "account_id",
                 "format": null,
+                "hashIdLazy": Lazy {
+                  "_computed": false,
+                  "_value": null,
+                  "callback": [Function],
+                },
                 "id": "SqlTableColumn#1(parent.account_id as accountId)",
+                "jsonType": null,
                 "key": "accountId",
                 "tableInfo": {
                   "alias": "parent",
@@ -465,7 +642,13 @@ describe("SqlTable tests", () => {
               "$createdAt": SqlTableColumn {
                 "columnName": "created_at",
                 "format": null,
+                "hashIdLazy": Lazy {
+                  "_computed": false,
+                  "_value": null,
+                  "callback": [Function],
+                },
                 "id": "SqlTableColumn#7(parent.created_at as createdAt)",
+                "jsonType": "Date",
                 "key": "createdAt",
                 "tableInfo": {
                   "alias": "parent",
@@ -479,7 +662,13 @@ describe("SqlTable tests", () => {
               "$email": SqlTableColumn {
                 "columnName": "email",
                 "format": null,
+                "hashIdLazy": Lazy {
+                  "_computed": false,
+                  "_value": null,
+                  "callback": [Function],
+                },
                 "id": "SqlTableColumn#3(parent.email)",
+                "jsonType": null,
                 "key": "email",
                 "tableInfo": {
                   "alias": "parent",
@@ -493,7 +682,13 @@ describe("SqlTable tests", () => {
               "$firstName": SqlTableColumn {
                 "columnName": "first_name",
                 "format": null,
+                "hashIdLazy": Lazy {
+                  "_computed": false,
+                  "_value": null,
+                  "callback": [Function],
+                },
                 "id": "SqlTableColumn#4(parent.first_name as firstName)",
+                "jsonType": null,
                 "key": "firstName",
                 "tableInfo": {
                   "alias": "parent",
@@ -507,7 +702,13 @@ describe("SqlTable tests", () => {
               "$lastName": SqlTableColumn {
                 "columnName": "last_name",
                 "format": null,
+                "hashIdLazy": Lazy {
+                  "_computed": false,
+                  "_value": null,
+                  "callback": [Function],
+                },
                 "id": "SqlTableColumn#5(parent.last_name as lastName)",
+                "jsonType": null,
                 "key": "lastName",
                 "tableInfo": {
                   "alias": "parent",
@@ -521,7 +722,13 @@ describe("SqlTable tests", () => {
               "$modifiedAt": SqlTableColumn {
                 "columnName": "modified_at",
                 "format": null,
+                "hashIdLazy": Lazy {
+                  "_computed": false,
+                  "_value": null,
+                  "callback": [Function],
+                },
                 "id": "SqlTableColumn#8(parent.modified_at as modifiedAt)",
+                "jsonType": "Date",
                 "key": "modifiedAt",
                 "tableInfo": {
                   "alias": "parent",
@@ -535,7 +742,13 @@ describe("SqlTable tests", () => {
               "$notes": SqlTableColumn {
                 "columnName": "notes",
                 "format": null,
+                "hashIdLazy": Lazy {
+                  "_computed": false,
+                  "_value": null,
+                  "callback": [Function],
+                },
                 "id": "SqlTableColumn#6(parent.notes)",
+                "jsonType": null,
                 "key": "notes",
                 "tableInfo": {
                   "alias": "parent",
@@ -549,7 +762,13 @@ describe("SqlTable tests", () => {
               "$parentId": SqlTableColumn {
                 "columnName": "parent_id",
                 "format": null,
+                "hashIdLazy": Lazy {
+                  "_computed": false,
+                  "_value": null,
+                  "callback": [Function],
+                },
                 "id": "SqlTableColumn#9(parent.parent_id as parentId)",
+                "jsonType": null,
                 "key": "parentId",
                 "tableInfo": {
                   "alias": "parent",
@@ -563,7 +782,13 @@ describe("SqlTable tests", () => {
               "$status": SqlTableColumn {
                 "columnName": "status",
                 "format": null,
+                "hashIdLazy": Lazy {
+                  "_computed": false,
+                  "_value": null,
+                  "callback": [Function],
+                },
                 "id": "SqlTableColumn#2(parent.status)",
+                "jsonType": null,
                 "key": "status",
                 "tableInfo": {
                   "alias": "parent",
@@ -588,8 +813,17 @@ describe("SqlTable tests", () => {
             "_value": null,
             "callback": [Function],
           },
+          "columnTypes": {
+            "createdAt": "Date",
+            "modifiedAt": "Date",
+          },
           "dialect": "sql",
           "format": null,
+          "hashIdLazy": Lazy {
+            "_computed": false,
+            "_value": null,
+            "callback": [Function],
+          },
           "id": "SqlTable#1(main.account as parent)",
           "pk": [
             "accountId",
@@ -611,7 +845,13 @@ describe("SqlTable tests", () => {
         SqlTableColumn {
           "columnName": "account_id",
           "format": null,
+          "hashIdLazy": Lazy {
+            "_computed": false,
+            "_value": null,
+            "callback": [Function],
+          },
           "id": "SqlTableColumn#1(parent.account_id as accountId)",
+          "jsonType": null,
           "key": "accountId",
           "tableInfo": {
             "alias": "parent",
@@ -628,12 +868,23 @@ describe("SqlTable tests", () => {
    test("SqlTable alias should return new SqlTable instance with respective $$ columns", () => {
       expect(Account.as`inserted`.$$).toMatchInlineSnapshot(`
         SqlTableAll {
+          "hashIdLazy": Lazy {
+            "_computed": false,
+            "_value": null,
+            "callback": [Function],
+          },
           "id": "SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId)",
           "row": {
             "$accountId": SqlTableColumn {
               "columnName": "account_id",
               "format": null,
+              "hashIdLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
               "id": "SqlTableColumn#1(inserted.account_id as accountId)",
+              "jsonType": null,
               "key": "accountId",
               "tableInfo": {
                 "alias": "inserted",
@@ -647,7 +898,13 @@ describe("SqlTable tests", () => {
             "$createdAt": SqlTableColumn {
               "columnName": "created_at",
               "format": null,
+              "hashIdLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
               "id": "SqlTableColumn#7(inserted.created_at as createdAt)",
+              "jsonType": "Date",
               "key": "createdAt",
               "tableInfo": {
                 "alias": "inserted",
@@ -661,7 +918,13 @@ describe("SqlTable tests", () => {
             "$email": SqlTableColumn {
               "columnName": "email",
               "format": null,
+              "hashIdLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
               "id": "SqlTableColumn#3(inserted.email)",
+              "jsonType": null,
               "key": "email",
               "tableInfo": {
                 "alias": "inserted",
@@ -675,7 +938,13 @@ describe("SqlTable tests", () => {
             "$firstName": SqlTableColumn {
               "columnName": "first_name",
               "format": null,
+              "hashIdLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
               "id": "SqlTableColumn#4(inserted.first_name as firstName)",
+              "jsonType": null,
               "key": "firstName",
               "tableInfo": {
                 "alias": "inserted",
@@ -689,7 +958,13 @@ describe("SqlTable tests", () => {
             "$lastName": SqlTableColumn {
               "columnName": "last_name",
               "format": null,
+              "hashIdLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
               "id": "SqlTableColumn#5(inserted.last_name as lastName)",
+              "jsonType": null,
               "key": "lastName",
               "tableInfo": {
                 "alias": "inserted",
@@ -703,7 +978,13 @@ describe("SqlTable tests", () => {
             "$modifiedAt": SqlTableColumn {
               "columnName": "modified_at",
               "format": null,
+              "hashIdLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
               "id": "SqlTableColumn#8(inserted.modified_at as modifiedAt)",
+              "jsonType": "Date",
               "key": "modifiedAt",
               "tableInfo": {
                 "alias": "inserted",
@@ -717,7 +998,13 @@ describe("SqlTable tests", () => {
             "$notes": SqlTableColumn {
               "columnName": "notes",
               "format": null,
+              "hashIdLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
               "id": "SqlTableColumn#6(inserted.notes)",
+              "jsonType": null,
               "key": "notes",
               "tableInfo": {
                 "alias": "inserted",
@@ -731,7 +1018,13 @@ describe("SqlTable tests", () => {
             "$parentId": SqlTableColumn {
               "columnName": "parent_id",
               "format": null,
+              "hashIdLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
               "id": "SqlTableColumn#9(inserted.parent_id as parentId)",
+              "jsonType": null,
               "key": "parentId",
               "tableInfo": {
                 "alias": "inserted",
@@ -745,7 +1038,13 @@ describe("SqlTable tests", () => {
             "$status": SqlTableColumn {
               "columnName": "status",
               "format": null,
+              "hashIdLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
               "id": "SqlTableColumn#2(inserted.status)",
+              "jsonType": null,
               "key": "status",
               "tableInfo": {
                 "alias": "inserted",

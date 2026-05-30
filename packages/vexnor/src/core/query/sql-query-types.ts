@@ -58,3 +58,15 @@ export type SqlQueryOptions = {
 };
 
 export type SqlQueryScope = { cte?: boolean } & SqlQueryOptions;
+
+export type RemoteClient = {
+   remoteExecute: <TResult>(config: {
+      plugin: string;
+      hash: string;
+      params: Record<string, unknown>;
+   }) => Promise<TResult>;
+};
+
+export function isRemoteClient(db: unknown): db is RemoteClient {
+   return typeof db === "object" && db !== null && "remoteExecute" in db;
+}

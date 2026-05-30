@@ -1,0 +1,280 @@
+import { describe, expect, test, vi } from "vitest";
+import { QueryRegistry } from "#/registry/query-registry.js";
+import { sql } from "#/core/sql.js";
+import { row } from "#/core/query/sql-select-row.js";
+import { param } from "#/core/query/sql-param.js";
+import { SqlQueryHandler, newSqlQueryHandler } from "#/core/query/sql-query-handler.js";
+import { SqlQuery } from "#/core/query/sql-query.js";
+import { VexnorPlugin } from "#/plugin/vexnor-plugin.js";
+import { SqlRunArgs } from "#/core/query/sql-query-types.js";
+import { Account } from "@test-models/vexnor_dev.account-table.js";
+import { Order } from "@test-models/vexnor_dev.order-table.js";
+
+// ── minimal mock infrastructure ──────────────────────────────────────────────
+
+type MockResult = { rows: unknown[] };
+type MockConnection = { query: (sql: string, params: unknown[]) => Promise<MockResult> };
+
+class MockQueryHandler<T extends { Row?: unknown; Params?: unknown }> extends SqlQueryHandler<
+   Pick<T, "Row" | "Params"> & { QueryResult: MockResult; Connection: MockConnection }
+> {
+   constructor(private readonly q: SqlQuery<Pick<T, "Row" | "Params">>) {
+      super(q);
+   }
+   resolveRows(result: MockResult): T["Row"][] {
+      return result.rows as T["Row"][];
+   }
+   deserialize(result: MockResult, remote: boolean): MockResult {
+      return { ...result, rows: this.deserializeRows(result.rows as T["Row"][], remote) };
+   }
+   async execute(args: SqlRunArgs<{ Connection: MockConnection; Params: T["Params"] }>): Promise<MockResult> {
+      const db = await args.db;
+      const { text, values } = this.q.getSql(args);
+      return db.query(text, values);
+   }
+}
+
+class MockPlugin extends VexnorPlugin<{ Connection: MockConnection; Config: never }> {
+   constructor(readonly name: string) {
+      super();
+   }
+   readonly dialect = "sql";
+   readonly driver = "mock";
+   getColumnType = vi.fn();
+   getSchema = vi.fn();
+   getLibrary = vi.fn(() => []);
+   createConnection = vi.fn();
+   newQueryHandler<T extends { Row?: unknown; Params?: unknown; QueryResult: object; Connection: unknown }>(
+      query: SqlQuery<Pick<T, "Row" | "Params">>,
+   ) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return newSqlQueryHandler(new MockQueryHandler(query as any) as any) as any;
+   }
+}
+
+// Two distinct plugins
+const pluginA = new MockPlugin("pluginA");
+const pluginB = new MockPlugin("pluginB");
+
+// One query per plugin
+const findAccounts = sql`
+   select ${row(Account.$accountId, Account.$email)}
+   from ${Account}
+   where ${Account.$email} = ${param<{ email: string }>("email")}
+`;
+
+const findOrders = sql`
+   select ${row(Order.$orderId, Order.$status)}
+   from ${Order}
+`;
+
+function makeDb(rows: unknown[] = []): MockConnection {
+   return { query: async () => ({ rows }) };
+}
+
+// ── tests ────────────────────────────────────────────────────────────────────
+
+describe("QueryRegistry", () => {
+   test("register stores queries for two plugins and execute runs each independently", async () => {
+      const registry = new QueryRegistry();
+      await registry.register(pluginA, findAccounts);
+      await registry.register(pluginB, findOrders);
+
+      const hashA = await findAccounts.hash;
+      const hashB = await findOrders.hash;
+
+      const resultA = await registry.execute("pluginA", hashA, { email: "a@b.com" }, async () =>
+         makeDb([{ accountId: "1", email: "a@b.com" }]),
+      );
+      const resultB = await registry.execute("pluginB", hashB, {}, async () =>
+         makeDb([{ orderId: "o1", status: "pending" }]),
+      );
+
+      expect(resultA).toMatchInlineSnapshot(`
+        {
+          "rows": [
+            {
+              "accountId": "1",
+              "email": "a@b.com",
+            },
+          ],
+        }
+      `);
+      expect(resultB).toMatchInlineSnapshot(`
+        {
+          "rows": [
+            {
+              "orderId": "o1",
+              "status": "pending",
+            },
+          ],
+        }
+      `);
+   });
+
+   test("queries are scoped per plugin — pluginA hash not found under pluginB", async () => {
+      const registry = new QueryRegistry();
+      await registry.register(pluginA, findAccounts);
+      await registry.register(pluginB, findOrders);
+
+      const hashA = await findAccounts.hash;
+
+      await expect(
+         registry.execute("pluginB", hashA, { email: "a@b.com" }, async () => makeDb()),
+      ).rejects.toMatchInlineSnapshot(`[Error: Unknown query hash: ${hashA} for plugin: pluginB]`);
+   });
+
+   test("register is idempotent — re-registering same plugin/query is safe", async () => {
+      const registry = new QueryRegistry();
+      await registry.register(pluginA, findAccounts);
+      await registry.register(pluginA, findAccounts); // second call must not throw
+      await registry.register(pluginB, findOrders);
+      await registry.register(pluginB, findOrders);
+
+      const hashA = await findAccounts.hash;
+      const hashB = await findOrders.hash;
+
+      expect(await registry.execute("pluginA", hashA, { email: "x@y.com" }, async () => makeDb([])))
+         .toMatchInlineSnapshot(`
+           {
+             "rows": [],
+           }
+         `);
+      expect(await registry.execute("pluginB", hashB, {}, async () => makeDb([]))).toMatchInlineSnapshot(`
+        {
+          "rows": [],
+        }
+      `);
+   });
+
+   test("register with a different plugin instance for the same name keeps the first", async () => {
+      const registry = new QueryRegistry();
+      await registry.register(pluginA, findAccounts);
+
+      const pluginA2 = new MockPlugin("pluginA");
+      await registry.register(pluginA2, findAccounts);
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect((registry as any).plugins.get("pluginA")).toBe(pluginA);
+   });
+
+   test("register with zero queries is a no-op", async () => {
+      const registry = new QueryRegistry();
+      await registry.register(pluginA);
+      await registry.register(pluginB);
+
+      const hashA = await findAccounts.hash;
+      await expect(registry.execute("pluginA", hashA, {}, async () => makeDb())).rejects.toMatchInlineSnapshot(
+         `[Error: Unknown query hash: ${hashA} for plugin: pluginA]`,
+      );
+   });
+
+   test("register accepts multiple queries in one call", async () => {
+      const q2 = sql`select ${row(Account.$accountId)} from ${Account}`;
+      const registry = new QueryRegistry();
+      await registry.register(pluginA, findAccounts, q2);
+      await registry.register(pluginB, findOrders);
+
+      const h1 = await findAccounts.hash;
+      const h2 = await q2.hash;
+      const hB = await findOrders.hash;
+
+      expect(h1).not.toBe(h2);
+
+      const r1 = await registry.execute("pluginA", h1, { email: "a@b.com" }, async () => makeDb([{ accountId: "1" }]));
+      const r2 = await registry.execute("pluginA", h2, {}, async () => makeDb([{ accountId: "2" }]));
+      const rB = await registry.execute("pluginB", hB, {}, async () => makeDb([{ orderId: "o1" }]));
+
+      expect(r1).toMatchInlineSnapshot(`
+        {
+          "rows": [
+            {
+              "accountId": "1",
+            },
+          ],
+        }
+      `);
+      expect(r2).toMatchInlineSnapshot(`
+        {
+          "rows": [
+            {
+              "accountId": "2",
+            },
+          ],
+        }
+      `);
+      expect(rB).toMatchInlineSnapshot(`
+        {
+          "rows": [
+            {
+              "orderId": "o1",
+            },
+          ],
+        }
+      `);
+   });
+
+   test("execute throws for unknown query hash", async () => {
+      const registry = new QueryRegistry();
+      await registry.register(pluginA, findAccounts);
+      await registry.register(pluginB, findOrders);
+
+      await expect(registry.execute("pluginA", "deadbeef", {}, async () => makeDb())).rejects.toMatchInlineSnapshot(
+         `[Error: Unknown query hash: deadbeef for plugin: pluginA]`,
+      );
+
+      await expect(registry.execute("pluginB", "deadbeef", {}, async () => makeDb())).rejects.toMatchInlineSnapshot(
+         `[Error: Unknown query hash: deadbeef for plugin: pluginB]`,
+      );
+   });
+
+   test("execute throws for unknown plugin name", async () => {
+      const registry = new QueryRegistry();
+
+      await expect(registry.execute("ghost", "deadbeef", {}, async () => makeDb())).rejects.toMatchInlineSnapshot(
+         `[Error: Unknown query hash: deadbeef for plugin: ghost]`,
+      );
+   });
+
+   test("execute throws assertion error when plugin missing after map entry exists", async () => {
+      const registry = new QueryRegistry();
+      await registry.register(pluginA, findAccounts);
+      await registry.register(pluginB, findOrders);
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (registry as any).plugins.delete("pluginA");
+
+      const hash = await findAccounts.hash;
+      await expect(
+         registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb()),
+      ).rejects.toMatchInlineSnapshot(`[Error: Unknown plugin: pluginA]`);
+
+      // pluginB must still work
+      const hashB = await findOrders.hash;
+      await expect(registry.execute("pluginB", hashB, {}, async () => makeDb([]))).resolves.toMatchInlineSnapshot(`
+        {
+          "rows": [],
+        }
+      `);
+   });
+
+   test("resolver is called with the correct plugin name for each plugin", async () => {
+      const registry = new QueryRegistry();
+      await registry.register(pluginA, findAccounts);
+      await registry.register(pluginB, findOrders);
+
+      const resolverA = vi.fn(async () => makeDb([{ accountId: "1", email: "z@z.com" }]));
+      const resolverB = vi.fn(async () => makeDb([{ orderId: "o1", status: "done" }]));
+
+      const hashA = await findAccounts.hash;
+      const hashB = await findOrders.hash;
+
+      await registry.execute("pluginA", hashA, { email: "z@z.com" }, resolverA);
+      await registry.execute("pluginB", hashB, {}, resolverB);
+
+      expect(resolverA).toHaveBeenCalledOnce();
+      expect(resolverA).toHaveBeenCalledWith("pluginA");
+      expect(resolverB).toHaveBeenCalledOnce();
+      expect(resolverB).toHaveBeenCalledWith("pluginB");
+   });
+});

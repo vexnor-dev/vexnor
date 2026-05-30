@@ -61,7 +61,7 @@ export const OrderItem = vexnor.newSqlTable<{ Select: IOrderItemSelect, Insert: 
        * metadata TEXT
       */
       metadata: "metadata",
-   }
+   },
 });
 
 export type IOrderItemInsert = {

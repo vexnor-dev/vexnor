@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, test } from "vitest";
 import { info, param, row, SqlBuildContext } from "vexnor";
-import { Account, IOrderSelect, Order } from "./codegen/main.schema.js";
+import { Account, Order } from "./codegen/main.schema.js";
 import { jsonMany, Sqlite3Tokenizer, sql } from "vexnor-sqlite3";
 import { db } from "./config.js";
 import { TestDataManager } from "./test-data-manager.js";
@@ -55,7 +55,7 @@ describe.sequential("jsonMany() tests", async (ctx) => {
       `;
       const results = await query.sqlite.all({ db, params: { limit: 1 } });
       expect(results).toHaveLength(1);
-      const parsed = JSON.parse(results[0]!.orders as unknown as string) as IOrderSelect[];
+      const parsed = results[0]!.orders;
       expect(parsed).toHaveLength(1);
    });
 });

@@ -3,13 +3,15 @@ import { TYPE, Sql } from "#/core/sql-base.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
 import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
 import { SqlTableIdentity } from "#/core/schema/sql-table-identity.js";
+import { SqlJsonSchema, SqlJsonType } from "#/core/utils/sql-json-schema.js";
 
 export type SqlTableColumnOptions<
    T extends {
       Key: string;
       Type: unknown;
    },
-> = Pick<SqlTableColumn<T>, "columnName" | "key" | "tableInfo"> & Partial<Pick<SqlTableColumn<T>, "format">>;
+> = Pick<SqlTableColumn<T>, "columnName" | "key" | "tableInfo"> &
+   Partial<Pick<SqlTableColumn<T>, "format" | "jsonType">>;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlTableColumnAny = SqlTableColumn<any>;
@@ -26,8 +28,9 @@ export class SqlTableColumn<
    readonly columnName: string;
    readonly tableInfo: SqlTableIdentity;
    readonly format: SqlColumnFormat | null;
+   readonly jsonType: SqlJsonType | null;
 
-   constructor({ columnName, key, tableInfo, format }: SqlTableColumnOptions<T>) {
+   constructor({ columnName, key, tableInfo, format, jsonType }: SqlTableColumnOptions<T>) {
       super({
          id: (() => {
             const table = tableInfo.alias || tableInfo.name;
@@ -39,6 +42,15 @@ export class SqlTableColumn<
       this.key = key;
       this.tableInfo = tableInfo;
       this.format = format ?? null;
+      this.jsonType = jsonType ?? null;
+   }
+
+   get jsonSchema(): SqlJsonSchema {
+      if (!this.jsonType) {
+         return {};
+      }
+
+      return { [this.key]: this.jsonType };
    }
 
    /**
@@ -59,6 +71,7 @@ export class SqlTableColumn<
          key,
          tableInfo: this.tableInfo,
          format: this.format,
+         jsonType: this.jsonType,
       });
    }
 

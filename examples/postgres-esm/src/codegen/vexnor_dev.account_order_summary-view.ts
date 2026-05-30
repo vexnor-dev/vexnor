@@ -57,6 +57,10 @@ export const AccountOrderSummary = vexnor.newSqlTable<{ Select: IAccountOrderSum
        * latest_order_at timestamptz
       */
       latestOrderAt: "latest_order_at",
+   },
+   jsonSchema:
+   {
+      latestOrderAt: "Date",
    }
 });
 

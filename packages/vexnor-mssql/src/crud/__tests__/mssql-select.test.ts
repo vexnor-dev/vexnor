@@ -1,4 +1,5 @@
 import { describe, expect, test } from "vitest";
+import "vexnor-mssql";
 import { Account, Order, OrderItem } from "vexnor/testing";
 import { sql, row, param, input } from "vexnor";
 import { jsonMany } from "#/charms/json-aggregation-mssql.js";

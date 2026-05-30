@@ -79,7 +79,7 @@ describe.sequential("vexnor mssql CRUD - select", async (ctx) => {
 
       const results = await query.all({ db: pool.request() });
       expect(results).toHaveLength(1);
-      const parsed = JSON.parse(results[0]!.children as unknown as string) as IAccountSelect[];
+      const parsed = results[0]!.children;
       expect(parsed).toHaveLength(1);
       expect(parsed[0]!.accountId).toBe(childAccount.accountId);
    });
@@ -96,7 +96,7 @@ describe.sequential("vexnor mssql CRUD - select", async (ctx) => {
 
       const results = await query.all({ db: pool.request() });
       expect(results).toHaveLength(1);
-      const parsed = JSON.parse(results[0]!.firstOrder as unknown as string) as IOrderSelect;
+      const parsed = results[0]!.firstOrder;
       expect(parsed.orderId).toBe(order.orderId);
    });
 
@@ -112,7 +112,7 @@ describe.sequential("vexnor mssql CRUD - select", async (ctx) => {
 
       const results = await query.all({ db: pool.request() });
       expect(results).toHaveLength(1);
-      const parsed = JSON.parse(results[0]!.firstOrder as unknown as string);
+      const parsed = results[0]!.firstOrder;
       expect(parsed).toBeNull();
    });
 
@@ -130,7 +130,7 @@ describe.sequential("vexnor mssql CRUD - select", async (ctx) => {
 
       const results = await query.all({ db: pool.request() });
       expect(results).toHaveLength(1);
-      const parsed = JSON.parse(results[0]!.children as unknown as string) as IAccountSelect[];
+      const parsed = results[0]!.children;
       expect(parsed).toEqual([]);
    });
 
@@ -153,10 +153,10 @@ describe.sequential("vexnor mssql CRUD - select", async (ctx) => {
 
       const results = await query.all({ db: pool.request() });
       expect(results).toHaveLength(1);
-      const parsedChildren = JSON.parse(results[0]!.children as unknown as string) as IAccountSelect[];
+      const parsedChildren = results[0]!.children;
       expect(parsedChildren).toHaveLength(1);
       expect(parsedChildren[0]!.accountId).toBe(childAccount.accountId);
-      const parsedOrder = JSON.parse(results[0]!.firstOrder as unknown as string) as IOrderSelect;
+      const parsedOrder = results[0]!.firstOrder;
       expect(parsedOrder.orderId).toBe(order.orderId);
    });
 });

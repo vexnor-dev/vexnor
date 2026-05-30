@@ -1,0 +1,1 @@
+export { QueryRegistry } from "./query-registry.js";

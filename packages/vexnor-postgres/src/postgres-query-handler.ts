@@ -1,10 +1,13 @@
-import { SqlQueryHandler, SqlQuery, SqlRunArgs, SqlRunError } from "vexnor";
+import { SqlQueryHandler, SqlQuery, SqlRunArgs, SqlRunError, isRemoteClient, RemoteClient } from "vexnor";
 import type { QueryResult } from "pg";
 import { PostgresTokenizer } from "#/postgres-tokenizer.js";
+import pkg from "../package.json" with { type: "json" };
 
-export type PostgresClient = {
-   query: (queryConfig: { text: string; values: unknown[] }) => Promise<QueryResult>;
-};
+export const PLUGIN_NAME = pkg.name;
+
+export type PostgresClient =
+   | { query: (queryConfig: { text: string; values: unknown[] }) => Promise<QueryResult> }
+   | RemoteClient;
 
 type RowOrDefault<T> = T extends object ? T : never;
 
@@ -30,7 +33,6 @@ export class PostgresQueryHandler<T extends { Row?: unknown; Params?: unknown }>
                paramFormat: (args: { index: number }) => `$${args.index + 1}`,
             },
          };
-
          queryInput = this.query.getSql(newArgs);
          return queryInput;
       } catch (err) {
@@ -42,27 +44,47 @@ export class PostgresQueryHandler<T extends { Row?: unknown; Params?: unknown }>
       return result.rows;
    }
 
+   deserialize(result: QueryResult<RowOrDefault<T["Row"]>>, remote: boolean): QueryResult<RowOrDefault<T["Row"]>> {
+      const rows = this.deserializeRows(this.resolveRows(result), remote) as RowOrDefault<T["Row"]>[];
+      return { ...result, rows };
+   }
+
    /**
     * Executes the query and returns the raw `pg` `QueryResult`.
     *
     * You typically don't call this directly — use `getAll()`, `getOneRequired()`,
-    * or `getOneOptional()` instead. Call `run()` when you need access to the full
+    * or `getOneOptional()` instead. Call `execute()` when you need access to the full
     * `QueryResult` object (e.g. `rowCount`, `fields`).
     *
     * @param args - Database connection and query parameters.
     */
-   async run(
+   async execute(
       args: SqlRunArgs<{ Connection: PostgresClient; Params: T["Params"] }>,
    ): Promise<QueryResult<RowOrDefault<T["Row"]>>> {
       const { db, options: { debug } = {} } = args;
+      const resolvedDb = await db;
+
+      if (isRemoteClient(resolvedDb)) {
+         const hash = await this.query.hash;
+         const params = (args as { params?: Record<string, unknown> }).params ?? {};
+         return resolvedDb.remoteExecute<QueryResult<RowOrDefault<T["Row"]>>>({ plugin: PLUGIN_NAME, hash, params });
+      }
+
       let queryInput = undefined;
       try {
          queryInput = this.getOptions(args);
          if (debug) debug(Object.freeze(queryInput));
          const { text, values } = queryInput;
-         return await (await db).query({ text, values });
+         return await (resolvedDb as { query: (c: { text: string; values: unknown[] }) => Promise<QueryResult> }).query(
+            { text, values },
+         );
       } catch (err) {
-         throw new SqlRunError(`Error running postgres query '${this.query.id}'`, this.query, { cause: err }, queryInput?.text);
+         throw new SqlRunError(
+            `Error running postgres query '${this.query.id}'`,
+            this.query,
+            { cause: err },
+            queryInput?.text,
+         );
       }
    }
 }

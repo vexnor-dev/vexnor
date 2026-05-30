@@ -9,3 +9,4 @@ export type { PostgresTransactionOptions, PostgresIsolationLevel, PostgresAccess
 
 import { vexnorPostgres } from "#/vexnor-postgres.js";
 export default vexnorPostgres;
+export { vexnorPostgres };

@@ -1,6 +1,6 @@
 import { info, ParamsOfArgs, SqlDeleteArgs } from "vexnor";
 import { raw, row, SqlTable } from "vexnor";
-import { ok } from "vexnor/plugin";
+import { ok } from "vexnor";
 import { sql } from "#/mssql-sql.js";
 import { MssqlQueryHandler } from "#/mssql-query-handler.js";
 

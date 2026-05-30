@@ -17,9 +17,8 @@ export class SqlSelectAll<Row extends Record<string, unknown>> extends Sql {
 
    constructor({ row, innerQuery }: { row: InferSelectRowByResult<Row>; innerQuery: SqlQueryAny }) {
       super({
-         id: `${Object.keys(row)
-            .map((z) => z.toString())
-            .join(", ")}`,
+         id: `${Object.keys(row).map((z) => z.toString()).join(", ")}`,
+         hashId: () => innerQuery.hashId,
       });
       this.row = row;
       this.innerQuery = innerQuery;

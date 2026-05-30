@@ -41,7 +41,7 @@ export const MigrationValnor = vexnor.newSqlTable<{ Select: IMigrationValnorSele
        * run_at TIMESTAMP WITH TIME ZONE
       */
       runAt: "run_at",
-   }
+   },
 });
 
 export type IMigrationValnorInsert = {

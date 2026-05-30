@@ -196,31 +196,36 @@ describe.sequential("advanced SQL - mssql", async (ctx) => {
          offset 0 rows fetch next 1000 rows only
       `;
 
-      const result = await sql`
+      const query = sql`
          select ${row(Account.$accountId, Account.$email)},
                 ${jsonMany(AccountOrders).as("orders")}
          from ${Account} ${jsonMany(AccountOrders)}
          where ${Account.$accountId} = ${root.accountId}
-      `.mssql.one({ db: pool.request() });
+      `;
+
+      const result = await query.mssql.one({ db: pool.request() });
+
+      expect(query.jsonSchema).toMatchInlineSnapshot(`
+        {
+          "orders": [
+            {
+              "createdAt": "Date",
+              "items": [
+                {},
+              ],
+            },
+          ],
+        }
+      `);
 
       expect(result).toMatchObject({ accountId: root.accountId, email: root.email });
-      const orders = JSON.parse(result.orders as unknown as string) as Array<{
-         orderId: string;
-         status: string;
-         createdAt: Date;
-         items: string;
-      }>;
+      const orders = result.orders;
       expect(orders).toHaveLength(dataManager.ACCOUNT_ORDER_FACTOR);
       const expectedOrderIds = dataManager.orders.filter((o) => o.accountId === root.accountId).map((o) => o.orderId);
       for (const order of orders) {
          expect(expectedOrderIds).toContain(order.orderId);
          expect(order).toMatchObject({ orderId: expect.any(String), status: expect.any(String) });
-         const items = JSON.parse(order.items as unknown as string) as Array<{
-            orderId: string;
-            productId: string;
-            quantity: number;
-            productPrice: number;
-         }>;
+         const items = order.items;
          expect(items).toHaveLength(dataManager.ORDER_ITEM_FACTOR);
          for (const item of items) {
             expect(item).toMatchObject({
@@ -264,19 +269,11 @@ describe.sequential("advanced SQL - mssql", async (ctx) => {
       expect(results).toHaveLength(3);
       for (const account of results) {
          expect(accountIds).toContain(account.accountId);
-         const orders = JSON.parse(account.orders as unknown as string) as Array<{
-            orderId: string;
-            accountId: string;
-            items: string;
-         }>;
+         const orders = account.orders;
          expect(orders).toHaveLength(dataManager.ACCOUNT_ORDER_FACTOR);
          for (const order of orders) {
             expect(order).toMatchObject({ orderId: expect.any(String), accountId: account.accountId });
-            const items = JSON.parse(order.items as unknown as string) as Array<{
-               orderId: string;
-               productId: string;
-               quantity: number;
-            }>;
+            const items = order.items;
             expect(items).toHaveLength(dataManager.ORDER_ITEM_FACTOR);
             for (const item of items) {
                expect(item).toMatchObject({

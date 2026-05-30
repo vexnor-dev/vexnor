@@ -80,13 +80,7 @@ describe.sequential("jsonOne() tests", (ctx) => {
          limit 1
       `;
 
-      const result = await query.any({ db }).then((z) => {
-         if (!z) return undefined;
-         return {
-            ...z,
-            parent: z.parent ? JSON.parse(z.parent as string) : null,
-         };
-      });
+      const result = await query.any({ db });
 
       if (result) {
          expect(result.parent).toBeDefined();

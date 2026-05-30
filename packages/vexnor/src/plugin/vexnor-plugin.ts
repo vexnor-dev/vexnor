@@ -13,6 +13,8 @@ import { SqlQuery } from "#/core/query/sql-query.js";
 export type VexnorPluginAny = VexnorPlugin<any>;
 
 export abstract class VexnorPlugin<T extends { Connection: unknown; Config: unknown }> {
+   abstract readonly name: string;
+
    abstract dialect: string;
 
    abstract readonly driver: string;

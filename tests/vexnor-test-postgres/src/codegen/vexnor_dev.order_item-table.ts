@@ -62,6 +62,11 @@ export const OrderItem = vexnor.newSqlTable<{ Select: IOrderItemSelect, Insert: 
        * metadata jsonb
       */
       metadata: "metadata",
+   },
+   jsonSchema:
+   {
+      createdAt: "Date",
+      modifiedAt: "Date",
    }
 });
 

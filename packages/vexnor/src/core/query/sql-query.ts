@@ -29,6 +29,7 @@ import { ok } from "#/lib/assert.js";
 import { isSqlLanguage } from "#/core/query/lib/is-sql-language.js";
 import { isPrimitive } from "#/lib/primitive.js";
 import { getDefaultParamFormat } from "#/core/query/default-param-format.js";
+import { SqlJsonSchema } from "#/core/utils/sql-json-schema.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlQueryAny = SqlQuery<any>;
@@ -62,6 +63,8 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
    private readonly _labelLazy: Lazy<string> = new Lazy(this.initLabel.bind(this));
    private readonly _infoLazy: Lazy<SqlQueryInfo | null> = new Lazy(this.initInfo.bind(this));
    private readonly _outLazy = new Lazy(this.initOut.bind(this));
+   private readonly _hashLazy = new Lazy<Promise<string>>(this.initHash.bind(this));
+   private readonly _jsonSchemaLazy = new Lazy<SqlJsonSchema>(this.initJsonSchema.bind(this));
 
    constructor({ rawStrings, rawValues, ...args }: SqlQueryArgs) {
       super({
@@ -76,6 +79,10 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
                .map(([k, v]) => `${k}=${v}`)
                .join(", ");
          })(),
+         hashId: () =>
+            JSON.stringify(Array.from(rawStrings)) +
+            "|" +
+            rawValues.map((v) => (v instanceof Sql ? v.hashId : String(v))).join("|"),
          tag: args.tag,
       });
 
@@ -124,6 +131,36 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
     */
    get out(): SqlQueryRefExtended<T> {
       return this._outLazy.value;
+   }
+
+   /** Stable SHA-256 hash of this query's template strings — used to identify the query for remote execution. */
+   get hash(): Promise<string> {
+      return this._hashLazy.value;
+   }
+
+   /** JSON schema describing the type structure of this query's result row — used for deserialization. */
+   get jsonSchema(): SqlJsonSchema {
+      return this._jsonSchemaLazy.value;
+   }
+
+   initJsonSchema(): SqlJsonSchema {
+      const row = this.row as Record<string, Sql> | null;
+      if (!row) return {};
+      const schema: SqlJsonSchema = {};
+      for (const col of Object.values(row)) {
+         Object.assign(schema, col.jsonSchema);
+      }
+      return schema;
+   }
+
+   async initHash(): Promise<string> {
+      const paramNames = this.params ? Object.keys(this.params).sort().join(",") : "";
+      const input = this.hashId + "|" + paramNames;
+      const encoded = new TextEncoder().encode(input);
+      const buf = await crypto.subtle.digest("SHA-256", encoded);
+      return Array.from(new Uint8Array(buf))
+         .map((b) => b.toString(16).padStart(2, "0"))
+         .join("");
    }
 
    static buildInnerQueryRef(
@@ -447,7 +484,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
     *
     * @example
     * const { text, values } = findById.getSql({ params: { id: "123" } });
-    * console.log(text);   // SELECT ... WHERE "account_id" = $1
+    * console.log(text); // SELECT ... WHERE "account_id" = $1
     * console.log(values); // ["123"]
     */
    getSql({ options, ...args }: SqlInputArgs<T["Params"]>): { text: string; values: unknown[] } {

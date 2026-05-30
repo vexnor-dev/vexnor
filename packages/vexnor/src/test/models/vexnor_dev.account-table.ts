@@ -21,6 +21,10 @@ export const Account = newSqlTable<{
       alias: null,
    },
    pk: ["accountId"],
+   jsonSchema: {
+      createdAt: "Date",
+      modifiedAt: "Date",
+   },
    columns: {
       /**
        * account_id uuid default gen_random_uuid()

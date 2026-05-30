@@ -56,7 +56,7 @@ export const AccountOrderSummary = vexnor.newSqlTable<{ Select: IAccountOrderSum
        * latest_order_at 
       */
       latestOrderAt: "latest_order_at",
-   }
+   },
 });
 
 export type IAccountOrderSummarySelect = {

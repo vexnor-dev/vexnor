@@ -1,12 +1,17 @@
-import { SqlRunArgs, SqlQueryHandler, SqlQuery, SqlRunError } from "vexnor";
+import { SqlRunArgs, SqlQueryHandler, SqlQuery, SqlRunError, isRemoteClient, RemoteClient } from "vexnor";
 import type { Database, RunResult } from "better-sqlite3";
 import { Sqlite3Formatter } from "#/sqlite3-formatter.js";
 import { Sqlite3Tokenizer } from "#/sqlite3-tokenizer.js";
+import pkg from "../package.json" with { type: "json" };
+
+export const PLUGIN_NAME = pkg.name;
+
+export type Sqlite3Client = Database | RemoteClient;
 
 export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unknown }> extends SqlQueryHandler<
    Pick<T, "Row" | "Params"> & {
       QueryResult: RunResult;
-      Connection: Database;
+      Connection: Sqlite3Client;
    }
 > {
    static Formatter = new Sqlite3Formatter();
@@ -20,11 +25,16 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
       throw new Error("Method not supported: better-sqlite3 result doesn't include any rows");
    }
 
-   getOptions(args: SqlRunArgs<{ Connection: Database; Params: T["Params"] }>) {
+   // RunResult has no rows — deserialization is handled in all() directly
+   deserialize(result: RunResult): RunResult {
+      return result;
+   }
+
+   getOptions(args: SqlRunArgs<{ Connection: Sqlite3Client; Params: T["Params"] }>) {
       let queryInput = undefined;
       try {
          // Create a new options object to inject the tokenizer
-         const newArgs: SqlRunArgs<{ Connection: Database; Params: T["Params"] }> = {
+         const newArgs: SqlRunArgs<{ Connection: Sqlite3Client; Params: T["Params"] }> = {
             ...args,
             options: {
                ...args.options,
@@ -53,29 +63,63 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
     *
     * @param args - Database connection and query parameters.
     */
-   async run(args: SqlRunArgs<{ Connection: Database; Params: T["Params"] }>): Promise<RunResult> {
+   async execute(args: SqlRunArgs<{ Connection: Sqlite3Client; Params: T["Params"] }>): Promise<RunResult> {
       const { db, options: { debug } = {} } = args;
+      const resolvedDb = await db;
+
+      if (isRemoteClient(resolvedDb)) {
+         const hash = await this.query.hash;
+         const params = (args as { params?: Record<string, unknown> }).params ?? {};
+         return resolvedDb.remoteExecute<RunResult>({ plugin: PLUGIN_NAME, hash, params });
+      }
+
       let queryConfig = undefined;
       try {
          queryConfig = this.getOptions(args);
          if (debug) debug(Object.freeze(queryConfig));
-         const result = (await db).prepare(queryConfig.sql).run(queryConfig.values);
+         const result = (resolvedDb as Database).prepare(queryConfig.sql).run(queryConfig.values);
          return Promise.resolve(result);
       } catch (err) {
-         throw new SqlRunError(`Error running sqlite query '${this.query.id}'`, this.query, { cause: err }, queryConfig?.sql);
+         throw new SqlRunError(
+            `Error running sqlite query '${this.query.id}'`,
+            this.query,
+            { cause: err },
+            queryConfig?.sql,
+         );
       }
    }
 
-   async all(args: SqlRunArgs<{ Connection: Database; Params: T["Params"] }>): Promise<T["Row"][]> {
-      let queryConfig = undefined;
+   async all(args: SqlRunArgs<{ Connection: Sqlite3Client; Params: T["Params"] }>): Promise<T["Row"][]> {
       const { db, options: { debug } = {} } = args;
+      const resolvedDb = await db;
+      const remote = isRemoteClient(resolvedDb);
+
+      if (remote) {
+         const hash = await this.query.hash;
+         const params = (args as { params?: Record<string, unknown> }).params ?? {};
+         const result = await (resolvedDb as RemoteClient).remoteExecute<{ rows: T["Row"][] }>({
+            plugin: PLUGIN_NAME,
+            hash,
+            params,
+         });
+         return this.deserializeRows(result.rows, true);
+      }
+
+      let queryConfig = undefined;
       try {
          queryConfig = this.getOptions(args);
          if (debug) debug(Object.freeze(queryConfig));
-         const result = (await db).prepare<unknown[] | object, T["Row"]>(queryConfig.sql).all(queryConfig.values);
-         return Promise.resolve(result);
+         const result = (resolvedDb as Database)
+            .prepare<unknown[] | object, T["Row"]>(queryConfig.sql)
+            .all(queryConfig.values);
+         return this.deserializeRows(result, false);
       } catch (err) {
-         throw new SqlRunError(`Error running sqlite query '${this.query.id}'`, this.query, { cause: err }, queryConfig?.sql);
+         throw new SqlRunError(
+            `Error running sqlite query '${this.query.id}'`,
+            this.query,
+            { cause: err },
+            queryConfig?.sql,
+         );
       }
    }
 }

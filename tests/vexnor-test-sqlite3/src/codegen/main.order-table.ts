@@ -46,7 +46,7 @@ export const Order = vexnor.newSqlTable<{ Select: IOrderSelect, Insert: IOrderIn
        * account_id TEXT
       */
       accountId: "account_id",
-   }
+   },
 });
 
 export type IOrderInsert = {

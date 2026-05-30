@@ -11,7 +11,7 @@ import {
    row,
    info,
 } from "vexnor";
-import { ok } from "vexnor/plugin";
+import { ok } from "vexnor";
 import { sqlite3Select, Sqlite3SelectResult } from "./sqlite3-select.js";
 import { sqlite3InsertRows, Sqlite3InsertRowsResult } from "./sqlite3-insert-rows.js";
 import { sqlite3InsertFrom, Sqlite3InsertFromResult } from "./sqlite3-insert-from.js";

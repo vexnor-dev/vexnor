@@ -73,7 +73,7 @@ describe.sequential("vexnor sqlite3 CRUD - select", () => {
       }).all({ db });
 
       expect(results).toHaveLength(1);
-      const parsed = JSON.parse(results[0]!.children as unknown as string) as IAccountSelect[];
+      const parsed = results[0]!.children;
       expect(parsed).toHaveLength(1);
       expect(parsed[0]!.accountId).toBe(childAccount.accountId);
    });
@@ -91,7 +91,7 @@ describe.sequential("vexnor sqlite3 CRUD - select", () => {
       }).all({ db });
 
       expect(results).toHaveLength(1);
-      const parsed = JSON.parse(results[0]!.firstOrder as unknown as string) as IOrderSelect;
+      const parsed = results[0]!.firstOrder;
       expect(parsed?.orderId).toBe(order.orderId);
    });
 
@@ -124,7 +124,7 @@ describe.sequential("vexnor sqlite3 CRUD - select", () => {
       }).all({ db });
 
       expect(results).toHaveLength(1);
-      const parsed = JSON.parse(results[0]!.children as unknown as string) as IAccountSelect[];
+      const parsed = results[0]!.children;
       expect(parsed).toEqual([]);
    });
 
@@ -148,18 +148,20 @@ describe.sequential("vexnor sqlite3 CRUD - select", () => {
       }).all({ db });
 
       expect(results).toHaveLength(1);
-      const parsedChildren = JSON.parse(results[0]!.children as unknown as string) as IAccountSelect[];
+      const parsedChildren = results[0]!.children;
       expect(parsedChildren).toHaveLength(1);
       expect(parsedChildren[0]!.accountId).toBe(childAccount.accountId);
-      const parsedOrder = JSON.parse(results[0]!.firstOrder as unknown as string) as IOrderSelect;
+      const parsedOrder = results[0]!.firstOrder;
       expect(parsedOrder?.orderId).toBe(order.orderId);
    });
 
    test("select via Account.sqlite.select", async () => {
       ok(rootAccount);
-      const result = await Account.sqlite.select({
-         WHERE: sql`${Account.$accountId} = ${param<{ id: string }>("id")}`,
-      }).any({ db, params: { id: rootAccount.accountId } });
+      const result = await Account.sqlite
+         .select({
+            WHERE: sql`${Account.$accountId} = ${param<{ id: string }>("id")}`,
+         })
+         .any({ db, params: { id: rootAccount.accountId } });
       expect(result).toEqual(rootAccount);
    });
 });

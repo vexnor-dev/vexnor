@@ -10,6 +10,7 @@ export class TableUpdateSet<T extends { Update: Record<string, unknown> }> exten
    ) {
       super({
          id: `${Object.keys(update).join(", ")}`,
+         hashId: () => Object.keys(update).map((k) => `${cols[`$${k}`]?.hashId ?? k}=${JSON.stringify(update[k])}`).join(","),
       });
    }
 

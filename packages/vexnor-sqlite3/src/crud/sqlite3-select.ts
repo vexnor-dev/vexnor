@@ -12,7 +12,6 @@ import {
 } from "vexnor";
 import { jsonMany, jsonOne } from "#/charms/json-aggregation-sqlite3.js";
 import { BetterSqlite3QueryHandler } from "#/better-sqlite3-query-handler.js";
-import "#/vexnor-sqlite3.js";
 
 export type Sqlite3SelectResult<
    T extends { Select: Record<string, unknown> },

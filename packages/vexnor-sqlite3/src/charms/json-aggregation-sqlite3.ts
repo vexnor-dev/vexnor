@@ -11,11 +11,12 @@ import {
    JsonRow,
    SqlBuildError,
    quote,
-   SqlSelectColumn,
    CACHE,
    row,
+   SqlSelectCharm,
+   SqlJsonSchema,
 } from "vexnor";
-import { ok } from "vexnor/plugin";
+import { ok } from "vexnor";
 
 export type JsonResultType = "one" | "many";
 
@@ -53,6 +54,7 @@ export class JsonAggregationSqlite3<T extends { Params?: unknown; Row?: unknown 
       super({
          id: query.id,
          params: query.params,
+         hashId: () => `JsonAggregationSqlite3#(${type}:${query.hashId})`,
       });
       this.type = type;
    }
@@ -81,7 +83,7 @@ export class JsonAggregationSqlite3<T extends { Params?: unknown; Row?: unknown 
       }
    }
 
-   as<Key extends string>(key: Key): SqlSelectColumn<{ Key: Key; Type: string; Params: T["Params"] }> {
+   as<Key extends string>(key: Key): SqlSelectCharm<{ Key: Key; Type: T["Row"]; Params: T["Params"] }> {
       const fields = Object.values(this.query.row ?? {}).flatMap((value) => {
          if (value instanceof SqlSelectValue || value instanceof SqlQueryColumn) {
             return [raw(`'${value.key}'`), quote(value.key)];
@@ -94,10 +96,16 @@ export class JsonAggregationSqlite3<T extends { Params?: unknown; Row?: unknown 
             ? sql`(select json_object(${fields}) from ${this.query} limit 1) as ${quote(key)}`
             : sql`(select coalesce(json_group_array(json_object(${fields})), ${raw(coalesce)}) from ${this.query}) as ${quote(key)}`;
 
-      return new SqlSelectColumn<{ Key: Key; Type: string; Params: T["Params"] }>({
+      const innerSchema = this.query.jsonSchema;
+      const jsonSchema: SqlJsonSchema = { [key]: this.type === "one" ? innerSchema : [innerSchema] };
+
+      return new SqlSelectCharm<{ Key: Key; Type: string; Params: T["Params"] }>({
          key,
-         onWrite: (context, options) => innerQuery.build(context, options),
          params: this.params,
+         jsonSchema,
+         write(context, options) {
+            innerQuery.build(context, options);
+         },
       });
    }
 }

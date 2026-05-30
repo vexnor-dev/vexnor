@@ -8,8 +8,9 @@
    "module": "./dist/core/index.js",
    "exports": {
       ".": {
-         "import": "./dist/core/core.js",
          "types": "./dist/core/core.d.ts",
+         "browser": "./dist/core/core.browser.js",
+         "import": "./dist/core/core.js",
          "require": "./dist/core/core.js"
       },
       "./format": {
@@ -26,6 +27,11 @@
          "import": "./dist/config/config.js",
          "types": "./dist/config/config.d.ts",
          "require": "./dist/config/config.js"
+      },
+      "./registry": {
+         "import": "./dist/registry/registry.js",
+         "types": "./dist/registry/registry.d.ts",
+         "require": "./dist/registry/registry.js"
       },
       "./testing": {
          "import": "./dist/test/testing.js",

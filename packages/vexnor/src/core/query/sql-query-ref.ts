@@ -30,6 +30,7 @@ export class SqlQueryRef<T extends { Row?: unknown; Params?: unknown }> extends 
    ) {
       super({
          id: innerQuery.id,
+         hashId: () => innerQuery.hashId,
       });
    }
 

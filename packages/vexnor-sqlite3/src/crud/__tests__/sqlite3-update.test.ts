@@ -1,3 +1,4 @@
+import "vexnor-sqlite3";
 import { describe, expect, test } from "vitest";
 import { Account } from "vexnor/testing";
 import { sql, input } from "vexnor";

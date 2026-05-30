@@ -41,7 +41,7 @@ export const Product = vexnor.newSqlTable<{ Select: IProductSelect, Insert: IPro
        * price REAL
       */
       price: "price",
-   }
+   },
 });
 
 export type IProductInsert = {

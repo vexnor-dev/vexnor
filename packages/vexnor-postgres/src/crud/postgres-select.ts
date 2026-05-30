@@ -12,7 +12,7 @@ import {
 } from "vexnor";
 import { jsonMany, jsonOne } from "#/charms/json-aggregation-postgres.js";
 import { PostgresQueryHandler } from "#/postgres-query-handler.js";
-import "#/vexnor-postgres.js";
+import "#/postgres-augment.js";
 
 export type PostgresSelectResult<
    T extends { Select: Record<string, unknown> },

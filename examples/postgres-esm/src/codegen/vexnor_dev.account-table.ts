@@ -67,6 +67,11 @@ export const Account = vexnor.newSqlTable<{ Select: IAccountSelect, Insert: IAcc
        * parent_id uuid
       */
       parentId: "parent_id",
+   },
+   jsonSchema:
+   {
+      createdAt: "Date",
+      modifiedAt: "Date",
    }
 });
 

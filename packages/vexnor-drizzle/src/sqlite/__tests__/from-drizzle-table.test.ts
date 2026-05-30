@@ -29,7 +29,13 @@ describe("fromDrizzleTable (sqlite) — metadata", () => {
         SqlTable {
           "$accountId": SqlTableColumn {
             "columnName": "account_id",
+            "columnType": null,
             "format": null,
+            "hashIdLazy": Lazy {
+              "_computed": false,
+              "_value": null,
+              "callback": [Function],
+            },
             "id": "SqlTableColumn#1(account.account_id as accountId)",
             "key": "accountId",
             "tableInfo": {
@@ -41,7 +47,13 @@ describe("fromDrizzleTable (sqlite) — metadata", () => {
           },
           "$age": SqlTableColumn {
             "columnName": "age",
+            "columnType": null,
             "format": null,
+            "hashIdLazy": Lazy {
+              "_computed": false,
+              "_value": null,
+              "callback": [Function],
+            },
             "id": "SqlTableColumn#5(account.age)",
             "key": "age",
             "tableInfo": {
@@ -53,7 +65,13 @@ describe("fromDrizzleTable (sqlite) — metadata", () => {
           },
           "$balance": SqlTableColumn {
             "columnName": "balance",
+            "columnType": null,
             "format": null,
+            "hashIdLazy": Lazy {
+              "_computed": false,
+              "_value": null,
+              "callback": [Function],
+            },
             "id": "SqlTableColumn#6(account.balance)",
             "key": "balance",
             "tableInfo": {
@@ -65,7 +83,13 @@ describe("fromDrizzleTable (sqlite) — metadata", () => {
           },
           "$email": SqlTableColumn {
             "columnName": "email",
+            "columnType": null,
             "format": null,
+            "hashIdLazy": Lazy {
+              "_computed": false,
+              "_value": null,
+              "callback": [Function],
+            },
             "id": "SqlTableColumn#2(account.email)",
             "key": "email",
             "tableInfo": {
@@ -77,7 +101,13 @@ describe("fromDrizzleTable (sqlite) — metadata", () => {
           },
           "$firstName": SqlTableColumn {
             "columnName": "first_name",
+            "columnType": null,
             "format": null,
+            "hashIdLazy": Lazy {
+              "_computed": false,
+              "_value": null,
+              "callback": [Function],
+            },
             "id": "SqlTableColumn#3(account.first_name as firstName)",
             "key": "firstName",
             "tableInfo": {
@@ -89,7 +119,13 @@ describe("fromDrizzleTable (sqlite) — metadata", () => {
           },
           "$notes": SqlTableColumn {
             "columnName": "notes",
+            "columnType": null,
             "format": null,
+            "hashIdLazy": Lazy {
+              "_computed": false,
+              "_value": null,
+              "callback": [Function],
+            },
             "id": "SqlTableColumn#4(account.notes)",
             "key": "notes",
             "tableInfo": {
@@ -101,7 +137,13 @@ describe("fromDrizzleTable (sqlite) — metadata", () => {
           },
           "$parentId": SqlTableColumn {
             "columnName": "parent_id",
+            "columnType": null,
             "format": null,
+            "hashIdLazy": Lazy {
+              "_computed": false,
+              "_value": null,
+              "callback": [Function],
+            },
             "id": "SqlTableColumn#7(account.parent_id as parentId)",
             "key": "parentId",
             "tableInfo": {
@@ -121,7 +163,13 @@ describe("fromDrizzleTable (sqlite) — metadata", () => {
             "_value": {
               "$accountId": SqlTableColumn {
                 "columnName": "account_id",
+                "columnType": null,
                 "format": null,
+                "hashIdLazy": Lazy {
+                  "_computed": false,
+                  "_value": null,
+                  "callback": [Function],
+                },
                 "id": "SqlTableColumn#1(account.account_id as accountId)",
                 "key": "accountId",
                 "tableInfo": {
@@ -133,7 +181,13 @@ describe("fromDrizzleTable (sqlite) — metadata", () => {
               },
               "$age": SqlTableColumn {
                 "columnName": "age",
+                "columnType": null,
                 "format": null,
+                "hashIdLazy": Lazy {
+                  "_computed": false,
+                  "_value": null,
+                  "callback": [Function],
+                },
                 "id": "SqlTableColumn#5(account.age)",
                 "key": "age",
                 "tableInfo": {
@@ -145,7 +199,13 @@ describe("fromDrizzleTable (sqlite) — metadata", () => {
               },
               "$balance": SqlTableColumn {
                 "columnName": "balance",
+                "columnType": null,
                 "format": null,
+                "hashIdLazy": Lazy {
+                  "_computed": false,
+                  "_value": null,
+                  "callback": [Function],
+                },
                 "id": "SqlTableColumn#6(account.balance)",
                 "key": "balance",
                 "tableInfo": {
@@ -157,7 +217,13 @@ describe("fromDrizzleTable (sqlite) — metadata", () => {
               },
               "$email": SqlTableColumn {
                 "columnName": "email",
+                "columnType": null,
                 "format": null,
+                "hashIdLazy": Lazy {
+                  "_computed": false,
+                  "_value": null,
+                  "callback": [Function],
+                },
                 "id": "SqlTableColumn#2(account.email)",
                 "key": "email",
                 "tableInfo": {
@@ -169,7 +235,13 @@ describe("fromDrizzleTable (sqlite) — metadata", () => {
               },
               "$firstName": SqlTableColumn {
                 "columnName": "first_name",
+                "columnType": null,
                 "format": null,
+                "hashIdLazy": Lazy {
+                  "_computed": false,
+                  "_value": null,
+                  "callback": [Function],
+                },
                 "id": "SqlTableColumn#3(account.first_name as firstName)",
                 "key": "firstName",
                 "tableInfo": {
@@ -181,7 +253,13 @@ describe("fromDrizzleTable (sqlite) — metadata", () => {
               },
               "$notes": SqlTableColumn {
                 "columnName": "notes",
+                "columnType": null,
                 "format": null,
+                "hashIdLazy": Lazy {
+                  "_computed": false,
+                  "_value": null,
+                  "callback": [Function],
+                },
                 "id": "SqlTableColumn#4(account.notes)",
                 "key": "notes",
                 "tableInfo": {
@@ -193,7 +271,13 @@ describe("fromDrizzleTable (sqlite) — metadata", () => {
               },
               "$parentId": SqlTableColumn {
                 "columnName": "parent_id",
+                "columnType": null,
                 "format": null,
+                "hashIdLazy": Lazy {
+                  "_computed": false,
+                  "_value": null,
+                  "callback": [Function],
+                },
                 "id": "SqlTableColumn#7(account.parent_id as parentId)",
                 "key": "parentId",
                 "tableInfo": {
@@ -217,8 +301,14 @@ describe("fromDrizzleTable (sqlite) — metadata", () => {
             "_value": null,
             "callback": [Function],
           },
+          "columnTypes": {},
           "dialect": "sqlite",
           "format": null,
+          "hashIdLazy": Lazy {
+            "_computed": false,
+            "_value": null,
+            "callback": [Function],
+          },
           "id": "SqlTable#4(account)",
           "pk": [
             "accountId",

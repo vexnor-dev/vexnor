@@ -1,7 +1,6 @@
 import { SqlTable, sql, raw, buildUpdateSetExpand, row, SqlUpdateParameters, Void, ParamsOfArgs, info } from "vexnor";
 import type { SqlUpdateArgs } from "vexnor";
 import { MssqlQueryHandler } from "#/mssql-query-handler.js";
-import "#/vexnor-mssql.js";
 
 export type MssqlTableUpdateResult<
    T extends { Select: Record<string, unknown>; Update: Record<string, unknown> },

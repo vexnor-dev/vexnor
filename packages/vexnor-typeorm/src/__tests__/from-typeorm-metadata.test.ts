@@ -74,7 +74,13 @@ describe("fromTypeORM — EntitySchema metadata", () => {
         SqlTable {
           "$accountId": SqlTableColumn {
             "columnName": "account_id",
+            "columnType": null,
             "format": null,
+            "hashIdLazy": Lazy {
+              "_computed": false,
+              "_value": null,
+              "callback": [Function],
+            },
             "id": "SqlTableColumn#1(account.account_id as accountId)",
             "key": "accountId",
             "tableInfo": {
@@ -86,7 +92,13 @@ describe("fromTypeORM — EntitySchema metadata", () => {
           },
           "$email": SqlTableColumn {
             "columnName": "email",
+            "columnType": null,
             "format": null,
+            "hashIdLazy": Lazy {
+              "_computed": false,
+              "_value": null,
+              "callback": [Function],
+            },
             "id": "SqlTableColumn#2(account.email)",
             "key": "email",
             "tableInfo": {
@@ -98,7 +110,13 @@ describe("fromTypeORM — EntitySchema metadata", () => {
           },
           "$firstName": SqlTableColumn {
             "columnName": "first_name",
+            "columnType": null,
             "format": null,
+            "hashIdLazy": Lazy {
+              "_computed": false,
+              "_value": null,
+              "callback": [Function],
+            },
             "id": "SqlTableColumn#3(account.first_name as firstName)",
             "key": "firstName",
             "tableInfo": {
@@ -110,7 +128,13 @@ describe("fromTypeORM — EntitySchema metadata", () => {
           },
           "$notes": SqlTableColumn {
             "columnName": "notes",
+            "columnType": null,
             "format": null,
+            "hashIdLazy": Lazy {
+              "_computed": false,
+              "_value": null,
+              "callback": [Function],
+            },
             "id": "SqlTableColumn#4(account.notes)",
             "key": "notes",
             "tableInfo": {
@@ -122,7 +146,13 @@ describe("fromTypeORM — EntitySchema metadata", () => {
           },
           "$parentId": SqlTableColumn {
             "columnName": "parent_id",
+            "columnType": null,
             "format": null,
+            "hashIdLazy": Lazy {
+              "_computed": false,
+              "_value": null,
+              "callback": [Function],
+            },
             "id": "SqlTableColumn#5(account.parent_id as parentId)",
             "key": "parentId",
             "tableInfo": {
@@ -142,7 +172,13 @@ describe("fromTypeORM — EntitySchema metadata", () => {
             "_value": {
               "$accountId": SqlTableColumn {
                 "columnName": "account_id",
+                "columnType": null,
                 "format": null,
+                "hashIdLazy": Lazy {
+                  "_computed": false,
+                  "_value": null,
+                  "callback": [Function],
+                },
                 "id": "SqlTableColumn#1(account.account_id as accountId)",
                 "key": "accountId",
                 "tableInfo": {
@@ -154,7 +190,13 @@ describe("fromTypeORM — EntitySchema metadata", () => {
               },
               "$email": SqlTableColumn {
                 "columnName": "email",
+                "columnType": null,
                 "format": null,
+                "hashIdLazy": Lazy {
+                  "_computed": false,
+                  "_value": null,
+                  "callback": [Function],
+                },
                 "id": "SqlTableColumn#2(account.email)",
                 "key": "email",
                 "tableInfo": {
@@ -166,7 +208,13 @@ describe("fromTypeORM — EntitySchema metadata", () => {
               },
               "$firstName": SqlTableColumn {
                 "columnName": "first_name",
+                "columnType": null,
                 "format": null,
+                "hashIdLazy": Lazy {
+                  "_computed": false,
+                  "_value": null,
+                  "callback": [Function],
+                },
                 "id": "SqlTableColumn#3(account.first_name as firstName)",
                 "key": "firstName",
                 "tableInfo": {
@@ -178,7 +226,13 @@ describe("fromTypeORM — EntitySchema metadata", () => {
               },
               "$notes": SqlTableColumn {
                 "columnName": "notes",
+                "columnType": null,
                 "format": null,
+                "hashIdLazy": Lazy {
+                  "_computed": false,
+                  "_value": null,
+                  "callback": [Function],
+                },
                 "id": "SqlTableColumn#4(account.notes)",
                 "key": "notes",
                 "tableInfo": {
@@ -190,7 +244,13 @@ describe("fromTypeORM — EntitySchema metadata", () => {
               },
               "$parentId": SqlTableColumn {
                 "columnName": "parent_id",
+                "columnType": null,
                 "format": null,
+                "hashIdLazy": Lazy {
+                  "_computed": false,
+                  "_value": null,
+                  "callback": [Function],
+                },
                 "id": "SqlTableColumn#5(account.parent_id as parentId)",
                 "key": "parentId",
                 "tableInfo": {
@@ -214,8 +274,14 @@ describe("fromTypeORM — EntitySchema metadata", () => {
             "_value": null,
             "callback": [Function],
           },
+          "columnTypes": {},
           "dialect": "sqlite",
           "format": null,
+          "hashIdLazy": Lazy {
+            "_computed": false,
+            "_value": null,
+            "callback": [Function],
+          },
           "id": "SqlTable#2(main.account)",
           "pk": [
             "accountId",

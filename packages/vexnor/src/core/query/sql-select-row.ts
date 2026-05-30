@@ -22,11 +22,8 @@ export class SqlSelectRow<T extends { Row: Record<string, unknown> }> extends Sq
 
    constructor(public readonly columns: Array<Sql>) {
       super({
-         id: `${columns
-            .map((col) => {
-               return col.toString();
-            })
-            .join(", ")}`,
+         id: `${columns.map((col) => col.toString()).join(", ")}`,
+         hashId: () => columns.map((col) => col.hashId).join(","),
       });
    }
 

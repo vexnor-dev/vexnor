@@ -66,7 +66,7 @@ export const Account = vexnor.newSqlTable<{ Select: IAccountSelect, Insert: IAcc
        * parent_id TEXT
       */
       parentId: "parent_id",
-   }
+   },
 });
 
 export type IAccountInsert = {

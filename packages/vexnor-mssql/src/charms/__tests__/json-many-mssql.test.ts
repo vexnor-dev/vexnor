@@ -1,5 +1,5 @@
 import { assertType, describe, expect, test } from "vitest";
-import { param, row, sql, SqlBuildContext, SqlQuery } from "vexnor";
+import { param, row, sql, SqlBuildContext, SqlQuery, JsonRow } from "vexnor";
 import { jsonMany } from "#/charms/json-aggregation-mssql.js";
 import { Account, IAccountSelect } from "vexnor/testing";
 import { defaultQueryOptions } from "#/default-query-options.js";
@@ -79,7 +79,7 @@ describe("json-agg-mssql tests", () => {
          from ${Account} ${jsonMany(AccountChildren)}
       `;
 
-      assertType<SqlQuery<{ Row: IAccountSelect & { children: string }; Params: { limit: number } }>>(query);
+      assertType<SqlQuery<{ Row: IAccountSelect & { children: JsonRow<IAccountSelect>[] }; Params: { limit: number } }>>(query);
       expect(query.row.$children).toBeDefined();
       expect(query.params).toMatchObject({
          limit: { name: "limit" },
@@ -154,5 +154,32 @@ describe("json-agg-mssql tests", () => {
       expect(target.params).toMatchObject({
          limit: { name: "limit" },
       });
+   });
+
+   test("jsonMany.as() — jsonSchema includes inner Date columns as array", () => {
+      const AccountChildren = sql`
+         select ${row(Account.$$)}
+         from ${Account}
+         where ${Account.$parentId} = ${Account.out.$accountId}
+      `;
+
+      const query = sql`
+         select ${row(Account.$$)},
+                ${jsonMany(AccountChildren).as("children")}
+         from ${Account} ${jsonMany(AccountChildren)}
+      `;
+
+      expect(query.jsonSchema).toMatchInlineSnapshot(`
+        {
+          "children": [
+            {
+              "createdAt": "Date",
+              "modifiedAt": "Date",
+            },
+          ],
+          "createdAt": "Date",
+          "modifiedAt": "Date",
+        }
+      `);
    });
 });

@@ -19,8 +19,12 @@ export class TestDriverQueryHandler<T extends { Row?: unknown; Params?: unknown 
       return result.rows;
    }
 
+   deserialize(result: { rows: T["Row"][] }, remote: boolean): { rows: T["Row"][] } {
+      return { rows: this.deserializeRows(result.rows, remote) };
+   }
+
    // eslint-disable-next-line unused-imports/no-unused-vars
-   async run(_args: SqlRunArgs<{ Connection: unknown; Params: T["Params"] }>): Promise<{ rows: T["Row"][] }> {
+   async execute(_args: SqlRunArgs<{ Connection: unknown; Params: T["Params"] }>): Promise<{ rows: T["Row"][] }> {
       return { rows: mockData as T["Row"][] };
    }
 }

@@ -13,15 +13,16 @@ import { Pool } from "pg";
 import { findEnums } from "#/schema/find-enums.js";
 import { findTables, findViews } from "#/schema/find-tables.js";
 import { getColumnType } from "#/schema/get-column-type.js";
-import { PostgresQueryHandler } from "#/postgres-query-handler.js";
-import { SqlQueryHandler, SqlQuery, newSqlQueryHandler, SqlTable } from "vexnor";
-import { newPostgresTableHandler, PostgresTableHandler } from "#/crud/postgres-table-handler.js";
+import { PostgresQueryHandler, PLUGIN_NAME } from "#/postgres-query-handler.js";
+import { SqlQueryHandler, SqlQuery } from "vexnor";
+import "#/postgres-augment.js";
 
 /**
  * Vexnor plugin for postgres.
  * It can handle
  */
 export class VexnorPostgres extends VexnorPlugin<{ Config: ConnectionConfig; Connection: Pool }> {
+   readonly name = PLUGIN_NAME;
    driver = "postgres";
    dialect = "postgresql";
 
@@ -97,32 +98,3 @@ export class VexnorPostgres extends VexnorPlugin<{ Config: ConnectionConfig; Con
 
 export const vexnorPostgres = new VexnorPostgres();
 
-// Extend the class type (in scope)
-declare module "vexnor" {
-   interface SqlQuery<T extends { Row?: unknown; Params?: unknown }> {
-      readonly postgres: PostgresQueryHandler<T>;
-   }
-   interface SqlTable<
-      T extends {
-         Select: Record<string, unknown>;
-         Insert?: Record<string, unknown>;
-         Update?: Record<string, unknown>;
-         Delete?: boolean;
-      },
-   > {
-      readonly postgres: PostgresTableHandler<T>;
-   }
-}
-
-Object.defineProperty(SqlQuery.prototype, "postgres", {
-   get: function () {
-      const handler = new PostgresQueryHandler(this);
-      return newSqlQueryHandler(handler);
-   },
-});
-
-Object.defineProperty(SqlTable.prototype, "postgres", {
-   get: function () {
-      return newPostgresTableHandler(this);
-   },
-});

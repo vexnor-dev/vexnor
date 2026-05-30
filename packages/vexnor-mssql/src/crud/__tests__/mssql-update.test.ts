@@ -1,4 +1,5 @@
 import { describe, expect, test } from "vitest";
+import "vexnor-mssql";
 import { Account } from "vexnor/testing";
 import { sql, input } from "vexnor";
 import { mssqlUpdate } from "#/crud/mssql-update.js";

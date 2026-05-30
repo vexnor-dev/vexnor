@@ -10,9 +10,9 @@ import {
    VexnorConnection,
    VexnorPlugin,
 } from "vexnor/plugin";
-import { MssqlQueryHandler } from "./mssql-query-handler.js";
-import { SqlQueryHandler, SqlQuery, newSqlQueryHandler, SqlTable } from "vexnor";
-import { newMssqlTableHandler, MssqlTableHandler } from "./crud/mssql-table-handler.js";
+import { MssqlQueryHandler, PLUGIN_NAME } from "./mssql-query-handler.js";
+import { SqlQueryHandler, SqlQuery } from "vexnor";
+import "#/mssql-augment.js";
 import { getColumnType } from "./get-column-type.js";
 import { findTables, findViews } from "./schema/find-tables.js";
 import mssql from "mssql";
@@ -21,6 +21,7 @@ import mssql from "mssql";
  * Vexnor plugin for MS SQL Server.
  */
 export class VexnorMssql extends VexnorPlugin<{ Config: ConnectionConfig; Connection: mssql.ConnectionPool }> {
+   readonly name = PLUGIN_NAME;
    driver = "mssql";
    dialect = "tsql";
 
@@ -138,32 +139,3 @@ export class VexnorMssql extends VexnorPlugin<{ Config: ConnectionConfig; Connec
 
 export const vexnorMssql = new VexnorMssql();
 
-// Extend the class type (in scope)
-declare module "vexnor" {
-   interface SqlQuery<T extends { Row?: unknown; Params?: unknown }> {
-      readonly mssql: MssqlQueryHandler<T>;
-   }
-   interface SqlTable<
-      T extends {
-         Select: Record<string, unknown>;
-         Insert?: Record<string, unknown>;
-         Update?: Record<string, unknown>;
-         Delete?: boolean;
-      },
-   > {
-      readonly mssql: MssqlTableHandler<T>;
-   }
-}
-
-Object.defineProperty(SqlQuery.prototype, "mssql", {
-   get: function () {
-      const handler = new MssqlQueryHandler(this);
-      return newSqlQueryHandler(handler);
-   },
-});
-
-Object.defineProperty(SqlTable.prototype, "mssql", {
-   get: function () {
-      return newMssqlTableHandler(this);
-   },
-});

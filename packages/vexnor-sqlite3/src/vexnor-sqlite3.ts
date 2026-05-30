@@ -11,9 +11,12 @@ import {
 import BetterSqlite3 from "better-sqlite3";
 import { findPrimaryKeys, findTableColumns, findTables, findViews } from "#/schema/find-tables.js";
 import { getColumnType } from "#/schema/get-column-type.js";
-import { SqlQueryHandler, SqlQuery, SqlTable, newSqlQueryHandler } from "vexnor";
+import { SqlQueryHandler, SqlQuery } from "vexnor";
 import { BetterSqlite3QueryHandler } from "#/better-sqlite3-query-handler.js";
-import { newSqlite3TableHandler, Sqlite3TableHandler } from "#/crud/sqlite3-table-handler.js";
+import pkg from "../package.json" with { type: "json" };
+import "#/sqlite3-augment.js";
+
+export const PLUGIN_NAME = pkg.name;
 
 export type Sqlite3ConnectionConfig = { uri: string };
 
@@ -21,6 +24,7 @@ export class VexnorSqlite3 extends VexnorPlugin<{
    Config: Sqlite3ConnectionConfig;
    Connection: BetterSqlite3.Database;
 }> {
+   readonly name = PLUGIN_NAME;
    driver = "better-sqlite3";
    dialect = "sqlite";
 
@@ -116,33 +120,3 @@ export class VexnorSqlite3 extends VexnorPlugin<{
       });
    }
 }
-
-// Extend the class type (in scope)
-declare module "vexnor" {
-   interface SqlQuery<T extends { Row?: unknown; Params?: unknown }> {
-      readonly sqlite: BetterSqlite3QueryHandler<T>;
-   }
-   interface SqlTable<
-      T extends {
-         Select: Record<string, unknown>;
-         Insert?: Record<string, unknown>;
-         Update?: Record<string, unknown>;
-         Delete?: boolean;
-      },
-   > {
-      readonly sqlite: Sqlite3TableHandler<T>;
-   }
-}
-
-Object.defineProperty(SqlQuery.prototype, "sqlite", {
-   get: function () {
-      const handler = new BetterSqlite3QueryHandler(this);
-      return newSqlQueryHandler(handler);
-   },
-});
-
-Object.defineProperty(SqlTable.prototype, "sqlite", {
-   get: function () {
-      return newSqlite3TableHandler(this);
-   },
-});

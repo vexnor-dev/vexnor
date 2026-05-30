@@ -12,11 +12,12 @@ import {
    SqlBuildError,
    SqlBuildOptions,
    SqlCharm,
+   SqlJsonSchema,
    SqlQuery,
    SqlQueryAny,
    SqlSelectCharm,
 } from "vexnor";
-import { ok } from "vexnor/plugin";
+import { ok } from "vexnor";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type JsonAggregationPostgresAny = JsonAggregationPostgres<any>;
@@ -46,6 +47,7 @@ export class JsonAggregationPostgres<
       super({
          id: query.id,
          params: query.params,
+         hashId: () => `JsonAggregationPostgres#(${type}:${query.hashId})`,
       });
       this.type = type;
    }
@@ -84,9 +86,12 @@ export class JsonAggregationPostgres<
     */
    as<Key extends string>(key: Key): SqlSelectCharm<{ Key: Key; Type: T["Type"]; Params: T["Params"] }> {
       const query = this.query;
+      const innerSchema = query.jsonSchema;
+      const jsonSchema: SqlJsonSchema = { [key]: this.type === "one" ? innerSchema : [innerSchema] } as SqlJsonSchema;
       return new SqlSelectCharm<{ Key: Key; Type: T["Type"]; Params: T["Params"] }>({
          key,
          params: this.params as BuildSqlParams<T["Params"]>,
+         jsonSchema,
          write(context: SqlBuildContext) {
             const queryName = context.getQueryName(query);
             context.addStrings(`"${queryName}_result" as ${quoteText(this.key)}`);

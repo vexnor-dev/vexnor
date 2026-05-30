@@ -20,8 +20,29 @@ This is a serious, high-quality codebase. No shortcuts. No lazy work. Ever.
 ## Correctness before speed
 
 - Read the relevant files before making changes. Do not assume.
+- Always read the **full current file state** before editing — not just the sections that seem relevant.
 - When fixing a bug, identify the exact root cause before touching code.
 - After making changes, always verify with a full build and test run.
+
+## Do not remove existing code
+
+- Never remove comments, JSDoc, or documentation unless explicitly asked.
+- Never remove code structure, exports, or logic unless explicitly asked.
+- When editing a file, preserve everything that is not directly related to the change.
+
+## Know when to stop and ask
+
+- If a fix attempt fails twice, stop. Explain the root cause clearly before trying again.
+- If the root cause is unclear, say so explicitly and ask for direction — never guess.
+- Never make speculative changes to recover from a failed fix.
+- If a task involves unfamiliar interactions between components, ask for clarification until the full picture is clear before writing any code.
+- It is always better to ask one more question than to make one wrong change.
+
+## No speculative fixes
+
+- Do not touch things that have not been confirmed broken.
+- Do not make "while I'm here" changes.
+- If something looks wrong but wasn't mentioned, flag it — do not silently fix it.
 
 ## No half-measures
 

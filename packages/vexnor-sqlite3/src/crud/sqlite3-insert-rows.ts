@@ -1,7 +1,6 @@
 import { SqlTable, expandInsertColumns, expandInsertValues, row, raw, info, sql } from "vexnor";
 import { SqlInsertRowsParams } from "vexnor";
 import { BetterSqlite3QueryHandler } from "#/better-sqlite3-query-handler.js";
-import "#/vexnor-sqlite3.js";
 
 export type Sqlite3InsertRowsResult<T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> }> =
    BetterSqlite3QueryHandler<{

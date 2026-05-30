@@ -1,6 +1,7 @@
 import {
    BuildSqlParams,
    CACHE,
+   JsonRow,
    PARAMS,
    quote,
    quoteText,
@@ -11,11 +12,12 @@ import {
    SqlBuildError,
    SqlBuildOptions,
    SqlCharm,
+   SqlJsonSchema,
    SqlQuery,
    SqlQueryAny,
    SqlSelectCharm,
 } from "vexnor";
-import { ok } from "vexnor/plugin";
+import { ok } from "vexnor";
 
 export type JsonResultType = "one" | "many";
 
@@ -26,19 +28,12 @@ export type JsonResultType = "one" | "many";
  * FROM ${Account} ${jsonAgg(UserOrders)}
  * WHERE ${Account.$accountId} = ${param("accountId")}
  */
-export class JsonAggregationMssql<T extends { Row?: unknown; Params?: unknown }> extends SqlCharm<Pick<T, "Params">> {
-   static readonly CONFIG: Record<
-      JsonResultType,
-      {
-         FOR_JSON: string;
-      }
-   > = {
-      one: {
-         FOR_JSON: "for json path, WITHOUT_ARRAY_WRAPPER, include_null_values",
-      },
-      many: {
-         FOR_JSON: "for json path, include_null_values",
-      },
+export class JsonAggregationMssql<
+   T extends { Row?: unknown; Params?: unknown; Type?: Array<T["Row"]> | (T["Row"] | null) },
+> extends SqlCharm<Pick<T, "Params" | "Type">> {
+   static readonly CONFIG: Record<JsonResultType, { FOR_JSON: string }> = {
+      one: { FOR_JSON: "for json path, WITHOUT_ARRAY_WRAPPER, include_null_values" },
+      many: { FOR_JSON: "for json path, include_null_values" },
    };
    declare readonly [PARAMS]: T["Params"];
    readonly type: JsonResultType;
@@ -50,6 +45,7 @@ export class JsonAggregationMssql<T extends { Row?: unknown; Params?: unknown }>
       super({
          id: query.id,
          params: query.params,
+         hashId: () => `JsonAggregationMssql#(${type}:${query.hashId})`,
       });
       this.type = type;
    }
@@ -84,11 +80,18 @@ export class JsonAggregationMssql<T extends { Row?: unknown; Params?: unknown }>
     * Returns a SqlSelectValue with the specified key.
     * @param key
     */
-   as<Key extends string>(key: Key): SqlSelectCharm<{ Key: Key; Type: string; Params: T["Params"] }> {
+   /**
+    * Returns a SqlSelectValue with the specified key.
+    * @param key
+    */
+   as<Key extends string>(key: Key): SqlSelectCharm<{ Key: Key; Type: T["Type"]; Params: T["Params"] }> {
       const query = this.query;
-      return new SqlSelectCharm<{ Key: Key; Type: string; Params: T["Params"] }>({
+      const innerSchema = query.jsonSchema;
+      const jsonSchema: SqlJsonSchema = { [key]: this.type === "many" ? [innerSchema] : innerSchema };
+      return new SqlSelectCharm<{ Key: Key; Type: T["Type"]; Params: T["Params"] }>({
          key,
          params: this.params as BuildSqlParams<T["Params"]>,
+         jsonSchema,
          write(context: SqlBuildContext) {
             const queryName = context.getQueryName(query);
             context.addStrings(`"${queryName}_result"."${queryName}" as ${quoteText(this.key)}`);
@@ -118,7 +121,7 @@ export class JsonAggregationMssql<T extends { Row?: unknown; Params?: unknown }>
  *   SELECT ${row(Account.$$)}, ${jsonOne(AccountParent).as("parent")}
  *   FROM ${Account} ${jsonOne(AccountParent)}
  * `.all({ db: request });
- * // result[0].parent: string (JSON — parse to IAccountSelect | null)
+ * // result[0].parent: IAccountSelect | null
  */
 export function jsonOne<T extends SqlQueryAny>(query: T): JsonAggregationResult<T> {
    return CACHE.get([query.id, `json=one`, "mssql"], () => {
@@ -150,7 +153,7 @@ export function jsonOne<T extends SqlQueryAny>(query: T): JsonAggregationResult<
  *   SELECT ${row(Account.$$)}, ${jsonMany(UserOrders).as("orders")}
  *   FROM ${Account} ${jsonMany(UserOrders)}
  * `.all({ db: request });
- * // result[0].orders: string (JSON — parse to IOrderSelect[])
+ * // result[0].orders: IOrderSelect[]
  */
 export function jsonMany<T extends SqlQueryAny>(query: T): JsonAggregationResult<T, []> {
    return CACHE.get(
@@ -165,6 +168,6 @@ export function jsonMany<T extends SqlQueryAny>(query: T): JsonAggregationResult
 export type JsonAggregationResult<T, R extends object | [] = object> =
    T extends SqlQuery<infer O extends { Row?: unknown; Params?: unknown }>
       ? R extends []
-         ? JsonAggregationMssql<O & { Type: string }>
-         : JsonAggregationMssql<O & { Type: string }>
+         ? JsonAggregationMssql<O & { Type: JsonRow<O["Row"]>[] }>
+         : JsonAggregationMssql<O & { Type: JsonRow<O["Row"]> | null }>
       : never;

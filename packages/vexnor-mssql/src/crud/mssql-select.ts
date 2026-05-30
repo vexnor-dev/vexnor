@@ -12,7 +12,6 @@ import {
 } from "vexnor";
 import { jsonMany, jsonOne } from "#/charms/json-aggregation-mssql.js";
 import { MssqlQueryHandler } from "#/mssql-query-handler.js";
-import "#/vexnor-mssql.js";
 
 export type MssqlSelectResult<
    T extends { Select: Record<string, unknown> },

@@ -47,6 +47,11 @@ export const Order = vexnor.newSqlTable<{ Select: IOrderSelect, Insert: IOrderIn
        * account_id uuid
       */
       accountId: "account_id",
+   },
+   jsonSchema:
+   {
+      createdAt: "Date",
+      modifiedAt: "Date",
    }
 });
 

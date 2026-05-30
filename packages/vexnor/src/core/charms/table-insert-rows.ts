@@ -17,6 +17,7 @@ export class TableInsertRows<
    ) {
       super({
          id: `rows: ${inserts.length}`,
+         hashId: () => `[${Object.values(cols).map((c) => c.hashId).join(",")}]|${JSON.stringify(inserts)}`,
       });
       this.keys = getCanonicalInsertKeys(cols, inserts);
    }

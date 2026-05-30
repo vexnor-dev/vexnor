@@ -1,7 +1,7 @@
 import { SqlTable, row, ParamsOfArgs, SqlQueryExtended, raw, info } from "vexnor";
 import type { SqlInsertFromArgs } from "vexnor";
 import { sql } from "#/mssql-sql.js";
-import { ok } from "vexnor/plugin";
+import { ok } from "vexnor";
 
 export type MssqlInsertFromResult<
    T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> },

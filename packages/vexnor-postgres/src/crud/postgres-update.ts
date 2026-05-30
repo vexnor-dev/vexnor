@@ -1,7 +1,7 @@
 import { SqlTable, sql, raw, buildUpdateSetExpand, row, SqlUpdateParameters, Void, ParamsOfArgs, info } from "vexnor";
 import type { SqlUpdateArgs } from "vexnor";
 import { PostgresQueryHandler } from "#/postgres-query-handler.js";
-import "#/vexnor-postgres.js";
+import "#/postgres-augment.js";
 
 export type PostgresTableUpdateResult<
    T extends { Select: Record<string, unknown>; Update: Record<string, unknown> },

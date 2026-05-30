@@ -14,7 +14,6 @@ import {
 } from "vexnor";
 import { SqlInsertRowsParams } from "vexnor";
 import { BetterSqlite3QueryHandler } from "#/better-sqlite3-query-handler.js";
-import "#/vexnor-sqlite3.js";
 
 /**
  * Arguments for an upsert (INSERT ... ON CONFLICT DO UPDATE) operation.

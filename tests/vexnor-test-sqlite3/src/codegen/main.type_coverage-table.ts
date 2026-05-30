@@ -111,7 +111,7 @@ export const TypeCoverage = vexnor.newSqlTable<{ Select: ITypeCoverageSelect, In
        * col_blob BLOB
       */
       colBlob: "col_blob",
-   }
+   },
 });
 
 export type ITypeCoverageInsert = {

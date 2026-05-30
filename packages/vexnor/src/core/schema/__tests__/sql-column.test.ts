@@ -25,7 +25,13 @@ describe("SqlColumn tests", () => {
         SqlTableColumn {
           "columnName": "account_id",
           "format": null,
+          "hashIdLazy": Lazy {
+            "_computed": false,
+            "_value": null,
+            "callback": [Function],
+          },
           "id": "SqlTableColumn#1(account.account_id as accountId)",
+          "jsonType": null,
           "key": "accountId",
           "tableInfo": {
             "alias": null,
@@ -44,7 +50,13 @@ describe("SqlColumn tests", () => {
         SqlTableColumn {
           "columnName": "first_name",
           "format": null,
+          "hashIdLazy": Lazy {
+            "_computed": false,
+            "_value": null,
+            "callback": [Function],
+          },
           "id": "SqlTableColumn#1(account.first_name as parentFirstName)",
+          "jsonType": null,
           "key": "parentFirstName",
           "tableInfo": {
             "alias": null,
@@ -63,7 +75,13 @@ describe("SqlColumn tests", () => {
         SqlTableColumn {
           "columnName": "first_name",
           "format": null,
+          "hashIdLazy": Lazy {
+            "_computed": false,
+            "_value": null,
+            "callback": [Function],
+          },
           "id": "SqlTableColumn#10(parent.first_name as parentFirstName)",
+          "jsonType": null,
           "key": "parentFirstName",
           "tableInfo": {
             "alias": "parent",

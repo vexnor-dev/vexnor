@@ -103,12 +103,7 @@ describe.sequential("vexnor sqlite3 e2e tests", async (ctx) => {
          order by ${Account.$email}
       `;
 
-      const actual = await query.sqlite.all({ db }).then((accounts) =>
-         accounts.map((account) => ({
-            ...account,
-            children: JSON.parse(account.children as string) as IAccountSelect[],
-         })),
-      );
+      const actual = await query.sqlite.all({ db });
 
       const childrenByParentId = new Map<string, IAccountSelect[]>();
       for (const child of dataManager.childAccounts) {

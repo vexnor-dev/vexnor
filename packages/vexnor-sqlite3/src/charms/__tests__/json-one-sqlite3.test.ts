@@ -116,10 +116,7 @@ describe("json-one-sqlite3 tests", () => {
          sql`select ${row(Account.as("parent").$$)} from ${Account.as("parent")} where ${Account.as("parent").$accountId} = ${Account.$parentId}`,
       );
       expect(() => target.build(context, {})).toThrowErrorMatchingInlineSnapshot(
-         `
-        [TypeError: Error building 'JsonAggregationSqlite3#3(SqlQuery#8)' in query '-'
-        Cannot use json aggregation with SQL keyword 'from']
-      `,
+         `[TypeError: Error building 'JsonAggregationSqlite3#1(SqlQuery#2)' in query '-'\\nCannot use json aggregation with SQL keyword 'from']`,
       );
    });
 

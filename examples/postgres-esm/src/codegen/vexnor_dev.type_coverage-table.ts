@@ -222,6 +222,12 @@ export const TypeCoverage = vexnor.newSqlTable<{ Select: ITypeCoverageSelect, In
        * col_circle circle
       */
       colCircle: "col_circle",
+   },
+   jsonSchema:
+   {
+      colDate: "Date",
+      colTimestamp: "Date",
+      colTimestamptz: "Date",
    }
 });
 
