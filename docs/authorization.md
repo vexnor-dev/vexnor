@@ -2,6 +2,23 @@
 
 `QueryRegistry` provides two enterprise hooks: authorization (pre-execution, can deny) and audit logging (post-execution, observational).
 
+## Registering Queries
+
+Pass queries as a named object — the key becomes the query name in audit logs:
+
+```typescript
+import * as accountQueries from './queries/accounts.js';
+import * as orderQueries from './queries/orders.js';
+
+// Pass a module namespace directly — all SqlQuery exports are registered,
+// non-query exports are skipped with a console.warn
+await queryRegistry.register(vexnorPostgres, accountQueries);
+await queryRegistry.register(vexnorPostgres, orderQueries);
+
+// Or pass an explicit object
+await queryRegistry.register(vexnorPostgres, { findAccounts, deleteAccount });
+```
+
 ## Query Authorization
 
 Tag a query with `.authorize(tag)` to require an authorization check before it executes:
@@ -56,7 +73,7 @@ queryRegistry.registerAuthorization(({ query, params }) => {
 Call `checkAuthorization()` at startup to fail fast if any tagged query has no hook registered:
 
 ```typescript
-await queryRegistry.register(plugin, deleteAccount, findAccounts);
+await queryRegistry.register(plugin, { deleteAccount, findAccounts });
 
 queryRegistry.registerAuthorization(myAuthHook);
 
@@ -92,12 +109,12 @@ Register an audit log listener to observe every query execution — success, fai
 
 ```typescript
 queryRegistry.registerAuditLog((event) => {
-  const { query, plugin, params, durationMs, error, location } = event.args;
+  const { query, name, plugin, params, durationMs, error, location } = event.args;
 
   if (error) {
-    logger.error({ query: query.label, plugin: plugin.name, durationMs, location, err: error }, 'query failed');
+    logger.error({ name, query: query.label, plugin: plugin.name, durationMs, location, err: error }, 'query failed');
   } else {
-    logger.info({ query: query.label, plugin: plugin.name, durationMs, location }, 'query executed');
+    logger.info({ name, query: query.label, plugin: plugin.name, durationMs, location }, 'query executed');
   }
 });
 ```
@@ -107,6 +124,7 @@ The listener receives an `AuditLogEvent` with the following `args`:
 | Field | Type | Description |
 |-------|------|-------------|
 | `query` | `SqlQueryAny` | The query that was executed |
+| `name` | `string \| null` | The name the query was registered under (the object key passed to `register()`) |
 | `plugin` | `VexnorPluginAny` | The plugin (database driver) used |
 | `params` | `Record<string, unknown>` | The runtime params passed to the query |
 | `durationMs` | `number` | Execution duration in milliseconds |
@@ -123,8 +141,8 @@ import pino from 'pino';
 const log = pino({ name: 'vexnor' });
 
 queryRegistry.registerAuditLog((event) => {
-  const { query, plugin, durationMs, error, location } = event.args;
-  const meta = { query: query.label, plugin: plugin.name, durationMs, location };
+  const { query, name, plugin, durationMs, error, location } = event.args;
+  const meta = { name, query: query.label, plugin: plugin.name, durationMs, location };
 
   if (error) {
     log.error({ ...meta, err: error }, 'query failed');
@@ -137,8 +155,8 @@ queryRegistry.registerAuditLog((event) => {
 Example output:
 
 ```json
-{"level":30,"name":"vexnor","query":"findAccounts","plugin":"vexnor-postgres","durationMs":3.2,"location":"file:///app/src/queries/accounts.ts:12:24","msg":"query executed"}
-{"level":50,"name":"vexnor","query":"deleteAccount","plugin":"vexnor-postgres","durationMs":1.1,"location":"file:///app/src/queries/accounts.ts:18:3","err":{},"msg":"query failed"}
+{"level":30,"name":"vexnor","name":"findAccounts","query":"findAccounts","plugin":"vexnor-postgres","durationMs":3.2,"location":"file:///app/src/queries/accounts.ts:12:24","msg":"query executed"}
+{"level":50,"name":"vexnor","name":"deleteAccount","query":"deleteAccount","plugin":"vexnor-postgres","durationMs":1.1,"location":"file:///app/src/queries/accounts.ts:18:3","err":{},"msg":"query failed"}
 ```
 
 ### SOC2 / HIPAA Notes

@@ -4,7 +4,7 @@ import { sql } from "#/core/sql.js";
 import { row } from "#/core/query/sql-select-row.js";
 import { param } from "#/core/query/sql-param.js";
 import { SqlQueryHandler, newSqlQueryHandler } from "#/core/query/sql-query-handler.js";
-import { SqlQuery } from "#/core/query/sql-query.js";
+import { SqlQuery, SqlQueryAny } from "#/core/query/sql-query.js";
 import { VexnorPlugin } from "#/plugin/vexnor-plugin.js";
 import { SqlRunArgs } from "#/core/query/sql-query-types.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
@@ -309,8 +309,12 @@ describe("QueryRegistry", () => {
 
       expect(registry.getQueries()).toHaveLength(1);
       expect(warnSpy).toHaveBeenCalledTimes(2);
-      expect(warnSpy).toHaveBeenCalledWith(`[vexnor] QueryRegistry.register: skipping "notAQuery" — not a SqlQuery instance`);
-      expect(warnSpy).toHaveBeenCalledWith(`[vexnor] QueryRegistry.register: skipping "alsoNotAQuery" — not a SqlQuery instance`);
+      expect(warnSpy).toHaveBeenCalledWith(
+         `[vexnor] QueryRegistry.register: skipping "notAQuery" — not a SqlQuery instance`,
+      );
+      expect(warnSpy).toHaveBeenCalledWith(
+         `[vexnor] QueryRegistry.register: skipping "alsoNotAQuery" — not a SqlQuery instance`,
+      );
 
       warnSpy.mockRestore();
    });
@@ -428,7 +432,9 @@ describe("QueryRegistry", () => {
       const hash = await findAccounts.hash;
       await expect(
          registry.execute("pluginA", hash, { email: "a@b.com" }, async () => ({
-            query: async () => { throw new Error("db failure"); },
+            query: async () => {
+               throw new Error("db failure");
+            },
          })),
       ).rejects.toThrow();
 
@@ -443,8 +449,12 @@ describe("QueryRegistry", () => {
       await registry.register(pluginA, { findAccounts });
 
       const order: number[] = [];
-      registry.registerAuditLog(() => { order.push(1); });
-      registry.registerAuditLog(() => { order.push(2); });
+      registry.registerAuditLog(() => {
+         order.push(1);
+      });
+      registry.registerAuditLog(() => {
+         order.push(2);
+      });
 
       const hash = await findAccounts.hash;
       await registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([]));
@@ -456,15 +466,17 @@ describe("QueryRegistry", () => {
       const taggedQuery = findAccounts.authorize("admin");
       const registry = new QueryRegistry();
       await registry.register(pluginA, { taggedQuery });
-      registry.registerAuthorization(() => { throw new Error("denied"); });
+      registry.registerAuthorization(() => {
+         throw new Error("denied");
+      });
 
       const hook = vi.fn();
       registry.registerAuditLog(hook);
 
       const hash = await taggedQuery.hash;
-      await expect(
-         registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([])),
-      ).rejects.toThrow("denied");
+      await expect(registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([]))).rejects.toThrow(
+         "denied",
+      );
 
       expect(hook).toHaveBeenCalledOnce();
       expect(hook).toHaveBeenCalledWith(
