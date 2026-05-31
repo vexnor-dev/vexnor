@@ -38,10 +38,10 @@
          "types": "./dist/test/testing.d.ts",
          "require": "./dist/test/testing.js"
       },
-      "./open-telemetry": {
-         "import": "./dist/open-telemetry/open-telemetry.js",
-         "types": "./dist/open-telemetry/open-telemetry.d.ts",
-         "require": "./dist/open-telemetry/open-telemetry.js"
+      "./telemetry": {
+         "import": "./dist/telemetry/telemetry.js",
+         "types": "./dist/telemetry/telemetry.d.ts",
+         "require": "./dist/telemetry/telemetry.js"
       }
    },
    "keywords": [

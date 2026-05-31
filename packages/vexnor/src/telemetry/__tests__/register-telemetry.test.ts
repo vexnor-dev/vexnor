@@ -1,6 +1,6 @@
 import { describe, test, expect, vi, beforeEach } from "vitest";
 import { SpanStatusCode } from "@opentelemetry/api";
-import "#/open-telemetry/register-open-telemetry.js";
+import "#/telemetry/register-telemetry.js";
 import { QueryRegistry } from "#/registry/query-registry.js";
 import { SqlQueryHandler, newSqlQueryHandler } from "#/core/query/sql-query-handler.js";
 import { SqlQuery } from "#/core/query/sql-query.js";

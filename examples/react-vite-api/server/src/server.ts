@@ -8,7 +8,7 @@ import pg from "pg";
 import mssql from "mssql";
 import BetterSqlite3 from "better-sqlite3";
 import { trace } from "@opentelemetry/api";
-import "vexnor/open-telemetry";
+import "vexnor/telemetry";
 import * as postgresQueries from "../../shared/queries/postgres.js";
 import * as mssqlQueries from "../../shared/queries/mssql.js";
 import * as sqlite3Queries from "../../shared/queries/sqlite3.js";
