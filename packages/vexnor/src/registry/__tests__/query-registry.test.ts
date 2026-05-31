@@ -293,7 +293,7 @@ describe("QueryRegistry", () => {
       await registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([]));
 
       expect(hook).toHaveBeenCalledWith(
-         expect.objectContaining({ args: expect.objectContaining({ name: "findAccounts" }) }),
+         expect.objectContaining({ args: expect.objectContaining({ queryName: "findAccounts" }) }),
       );
    });
 
@@ -384,7 +384,7 @@ describe("QueryRegistry", () => {
       await registry.register(pluginB, { findOrders: findOrders.authorize("admin") });
       expect(() => registry.checkAuthorization()).toThrowErrorMatchingInlineSnapshot(
          `
-        [SqlExecError: 2 queries require authorization but no hook is registered: SqlQuery#1: 
+        [SqlError: 2 queries require authorization but no hook is registered: SqlQuery#1: 
            select  SqlSelectRow#1(SqlTableColumn#1(account.account_id as accountId), SqlTableColumn#3(account.email)) 
            from  SqlTable#1(main.account) 
            where  SqlTableColumn#3(account.email)  =  $email 
@@ -394,6 +394,22 @@ describe("QueryRegistry", () => {
         ]
       `,
       );
+   });
+
+   test("execute wraps errors in SqlRunError with queryName from registered key", async () => {
+      const registry = new QueryRegistry();
+      await registry.register(pluginA, { findAccounts });
+
+      const hash = await findAccounts.hash;
+      const err = await registry
+         .execute("pluginA", hash, { email: "x" }, async () => ({
+            query: async () => {
+               throw new Error("db failure");
+            },
+         }))
+         .catch((e) => e);
+
+      expect(err.queryName).toBe("findAccounts");
    });
 
    // ── registerAuditLog ──────────────────────────────────────────────────
@@ -498,7 +514,13 @@ describe("QueryRegistry", () => {
       await registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([]));
 
       expect(hook).toHaveBeenCalledOnce();
-      expect(hook).toHaveBeenCalledWith({ plugin: pluginA, query: taggedQuery, params: { email: "a@b.com" }, context: {} });
+      expect(hook).toHaveBeenCalledWith({
+         plugin: pluginA,
+         query: taggedQuery,
+         queryName: "taggedQuery",
+         params: { email: "a@b.com" },
+         context: {},
+      });
    });
 
    test("authorize hook is not called for an untagged query", async () => {
@@ -528,7 +550,7 @@ describe("QueryRegistry", () => {
       const hash = await taggedQuery.hash;
 
       await expect(registry.execute("pluginA", hash, { email: "a@b.com" }, resolver)).rejects.toMatchInlineSnapshot(
-         `[Error: Forbidden: admin]`,
+         `[SqlRunError: Error executing query 'taggedQuery'. (Error: Forbidden: admin)]`,
       );
       expect(resolver).not.toHaveBeenCalled();
    });
@@ -566,7 +588,7 @@ describe("QueryRegistry", () => {
       const hash = await taggedQuery.hash;
       await expect(
          registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([])),
-      ).rejects.toMatchInlineSnapshot(`[Error: denied]`);
+      ).rejects.toMatchInlineSnapshot(`[SqlRunError: Error executing query 'taggedQuery'. (Error: denied)]`);
       expect(hook2).not.toHaveBeenCalled();
    });
 
@@ -584,7 +606,7 @@ describe("QueryRegistry", () => {
       await expect(
          registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([])),
       ).rejects.toMatchInlineSnapshot(
-         `[SqlRunError: Query requires authorization (tag: "admin") but no authorize hook is registered]`,
+         `[SqlRunError: Error executing query 'taggedQuery'. (SqlRunError: Query requires authorization (tag: "admin") but no authorize hook is registered)]`,
       );
    });
 });

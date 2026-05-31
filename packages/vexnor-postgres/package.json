@@ -29,7 +29,9 @@
    "license": "Apache-2.0",
    "repository": "https://github.com/vexnor-dev/vexnor",
    "sideEffects": [
-      "./dist/vexnor-postgres.js"
+      "./dist/index.js",
+      "./dist/vexnor-postgres.js",
+      "./dist/postgres-augment.js"
    ],
    "publishConfig": {
       "access": "public"

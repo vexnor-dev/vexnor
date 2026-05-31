@@ -79,12 +79,10 @@ export class PostgresQueryHandler<T extends { Row?: unknown; Params?: unknown }>
             { text, values },
          );
       } catch (err) {
-         throw new SqlRunError(
-            `Error running postgres query '${this.query.id}'`,
-            this.query,
-            { cause: err },
-            queryInput?.text,
-         );
+         throw new SqlRunError(`Error running postgres query '${this.query.id}'`, this.query, {
+            cause: err,
+            sql: queryInput?.text,
+         });
       }
    }
 }

@@ -84,7 +84,7 @@ export class MssqlQueryHandler<T extends { Params?: unknown; Row?: unknown }> ex
       try {
          return await request.query(text);
       } catch (err) {
-         throw new SqlRunError(`Error running MSSQL query.\n${text}`, this, { cause: err }, text);
+         throw new SqlRunError(`Error running MSSQL query.\n${text}`, this, { cause: err, sql: text });
       }
    }
 }

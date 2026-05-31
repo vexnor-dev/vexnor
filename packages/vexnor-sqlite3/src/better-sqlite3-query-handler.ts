@@ -100,8 +100,7 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
          throw new SqlRunError(
             `Error running sqlite query '${this.query.id}'`,
             this.query,
-            { cause: err },
-            queryConfig?.sql,
+            { cause: err, sql: queryConfig?.sql },
          );
       }
    }

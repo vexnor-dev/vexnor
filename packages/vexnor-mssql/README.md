@@ -199,9 +199,13 @@ const result = await Account.mssql.upsert({
 
 Available `select()` clauses: `SELECT`, `WHERE`, `JOIN`, `GROUP_BY`, `HAVING`, `ORDER_BY`, `limit`, `offset`, `includeMany`, `includeOne`.
 
-## Codegen
+## Bundler Notes
 
-Generate TypeScript types from your MSSQL schema:
+The `sideEffects` field in `package.json` explicitly marks `dist/index.js`, `dist/vexnor-mssql.js`, and `dist/mssql-augment.js` as having side effects. This is required for bundlers (Turbopack, webpack, esbuild) that perform tree-shaking — without it, the prototype augmentation that registers `.mssql` on all queries gets dropped, causing runtime errors.
+
+Do not remove or narrow the `sideEffects` field.
+
+## Codegen
 
 ```bash
 npx vexnor codegen \

@@ -76,7 +76,7 @@ export abstract class SqlQueryHandler<
          return this.deserialize(result, remote);
       } catch (err) {
          if (err instanceof SqlRunError) throw err;
-         throw new SqlRunError(`Error executing sql query '${this.id}'`, this, { cause: err });
+         throw new SqlRunError(`Error executing sql query '${this.id}'`, this, { cause: err, queryName: this.info?.label ?? undefined });
       }
    }
 
@@ -125,7 +125,7 @@ export abstract class SqlQueryHandler<
          const remote = isRemoteClient(await args.db);
          return this.resolveRows(this.deserialize(result, remote));
       } catch (err) {
-         throw new SqlRunError(`Error executing sql query '${this.id}'`, this, { cause: err });
+         throw new SqlRunError(`Error executing sql query '${this.id}'`, this, { cause: err, queryName: this.info?.label ?? undefined });
       }
    }
 }

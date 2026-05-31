@@ -121,17 +121,45 @@ const found = await Account.postgres.findBy().any({
 // found: IAccountSelect | null
 ```
 
+## Isomorphic SQL
+
+The same query object can execute directly on the server **or** be dispatched from the browser — without changing the call site.
+
+```typescript
+// Server — direct DB execution
+const accounts = await selectAccounts.postgres.all({ db: pool });
+
+// Browser — dispatched over HTTP to /api/db
+const accounts = await selectAccounts.postgres.all({ db: remoteClient });
+```
+
+The client never sends SQL. It sends a stable hash that identifies a pre-registered query. The server looks it up, runs it, and returns typed results. No REST endpoints to define, no API types to maintain — the query is the contract.
+
+See [Isomorphic SQL](docs/isomorphic-sql.md) for the full picture.
+
 ## Documentation
 
 - [Quickstart](docs/quickstart.md) — full onboarding, all core APIs
 - [Queries](docs/queries.md) — subqueries, CTEs, recursive CTEs, window functions
 - [Params](docs/params.md) — inline injection, `param()`, runtime validation
 - [CRUD](docs/crud.md) — typed query factories, execution methods
+- [Isomorphic SQL](docs/isomorphic-sql.md) — same query on server and client, how it works, comparison with REST/tRPC/GraphQL
 - [Registry](docs/registry.md) — QueryRegistry, isomorphic SQL, remote execution
 - [Authorization](docs/authorization.md) — query authorization, audit logging, SOC2/HIPAA
 - [CLI](docs/cli.md) — `codegen`, `exec run`, `exec init`, config reference
 - [Databases](docs/databases.md) — PostgreSQL, MS SQL Server, SQLite — driver setup and dialect notes
 - [Plugins & Adaptors](docs/plugins.md) — Drizzle, Prisma, TypeORM, Sequelize adaptors, building your own plugin
+
+## Examples
+
+Working examples are in the [`examples/`](examples/) directory:
+
+| Example | Description |
+|---|---|
+| [`postgres-esm`](examples/postgres-esm) | Minimal Node.js ESM script — insert, select, update with PostgreSQL |
+| [`postgres-cjs`](examples/postgres-cjs) | Same as above using CommonJS |
+| [`react-vite-api`](examples/react-vite-api) | React + Vite + Hono — isomorphic queries, `QueryRegistry`, `remoteClient`, PostgreSQL + MSSQL + SQLite3 |
+| [`react-next-app`](examples/react-next-app) | Next.js App Router — React Server Components, Server Actions, same isomorphic pattern |
 
 ## Requirements
 

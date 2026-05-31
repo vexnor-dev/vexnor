@@ -25,7 +25,9 @@
    "license": "Apache-2.0",
    "repository": "https://github.com/vexnor-dev/vexnor",
    "sideEffects": [
-      "./dist/vexnor-sqlite3.js"
+      "./dist/index.js",
+      "./dist/vexnor-sqlite3.js",
+      "./dist/sqlite3-augment.js"
    ],
    "publishConfig": {
       "access": "public"

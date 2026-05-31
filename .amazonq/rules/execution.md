@@ -21,8 +21,13 @@ This is a serious, high-quality codebase. No shortcuts. No lazy work. Ever.
 
 - Read the relevant files before making changes. Do not assume.
 - Always read the **full current file state** before editing — not just the sections that seem relevant.
+- **Never use a cached or previously seen version of a file when updating it. Always reload from the filesystem first.**
 - When fixing a bug, identify the exact root cause before touching code.
 - After making changes, always verify with a full build and test run.
+
+## Answering "why"
+
+- When asked "why" about a mistake or decision, give only the real, direct reason. No padding, no apology, no explanation of what the rule should have been.
 
 ## Do not remove existing code
 
@@ -37,6 +42,7 @@ This is a serious, high-quality codebase. No shortcuts. No lazy work. Ever.
 - Never make speculative changes to recover from a failed fix.
 - If a task involves unfamiliar interactions between components, ask for clarification until the full picture is clear before writing any code.
 - It is always better to ask one more question than to make one wrong change.
+- **If you cannot solve a problem without reverting to a solution the user already rejected — whether explicitly or by updating a file after you — stop immediately and ask for clarification. Never silently revert.**
 
 ## No speculative fixes
 

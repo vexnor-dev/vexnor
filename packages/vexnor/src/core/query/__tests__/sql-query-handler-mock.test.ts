@@ -5,6 +5,7 @@ import { param } from "#/core/query/sql-param.js";
 import { SqlQueryHandler, newSqlQueryHandler } from "#/core/query/sql-query-handler.js";
 import { SqlQuery } from "#/core/query/sql-query.js";
 import { SqlRunArgs } from "#/core/query/sql-query-types.js";
+import { SqlRunError } from "#/core/sql-run-error.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
 
 type MockResult = { rows: unknown[] };
@@ -127,5 +128,39 @@ describe("SqlQueryHandler mock execution", () => {
       const db = Promise.resolve<MockConnection>({ query: async () => ({ rows: [mockAccount] }) });
       const result = await mockHandler(findAccounts).all({ db, params: { email: "test@example.com" } });
       expect(result).toHaveLength(1);
+   });
+
+   test("all() wraps error in SqlRunError with queryLocation as queryName fallback", async () => {
+      const queryInTest = sql`
+         select ${row(Account.$accountId)} from ${Account}
+         where ${Account.$email} = ${param<{ email: string }>("email")}
+      `;
+      const db: MockConnection = {
+         query: async () => {
+            throw new Error("db failure");
+         },
+      };
+      const err = await mockHandler(queryInTest)
+         .all({ db, params: { email: "x" } })
+         .catch((e: unknown) => e as SqlRunError);
+      expect(err.queryName).toBe(err.queryLocation);
+   });
+
+   test("all() uses info label as queryName when set", async () => {
+      const { info } = await import("#/core/charms/sql-query-info.js");
+      const labelledQuery = sql`
+         ${info({ label: "myQuery" })}
+         select ${row(Account.$accountId)} from ${Account}
+         where ${Account.$email} = ${param<{ email: string }>("email")}
+      `;
+      const db: MockConnection = {
+         query: async () => {
+            throw new Error("db failure");
+         },
+      };
+      const err = await mockHandler(labelledQuery)
+         .all({ db, params: { email: "x" } })
+         .catch((e: unknown) => e as SqlRunError);
+      expect(err.queryName).toBe("myQuery");
    });
 });

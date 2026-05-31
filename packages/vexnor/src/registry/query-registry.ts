@@ -1,7 +1,6 @@
 import { ok } from "#/lib/assert.js";
 import { SqlQuery, type SqlQueryAny } from "#/core/query/sql-query.js";
 import type { VexnorPluginAny } from "#/plugin/vexnor-plugin.js";
-import { SqlExecError } from "#/cli/exec/sql-exec-error.js";
 import { SqlError } from "#/core/sql-error.js";
 import { SqlRunError } from "#/core/sql-run-error.js";
 
@@ -11,15 +10,18 @@ export type QueryMap = Record<string, SqlQueryAny>;
 export type AuthorizeArgs<TContext extends Record<string, unknown> = Record<string, unknown>> = {
    plugin: VexnorPluginAny;
    query: SqlQueryAny;
+   queryName: string;
    params: Record<string, unknown>;
    context: TContext;
 };
-export type AuthorizeHook<TContext extends Record<string, unknown> = Record<string, unknown>> = (args: AuthorizeArgs<TContext>) => void | Promise<void>;
+export type AuthorizeHook<TContext extends Record<string, unknown> = Record<string, unknown>> = (
+   args: AuthorizeArgs<TContext>,
+) => void | Promise<void>;
 
 export type AuditLogArgs<TContext extends Record<string, unknown> = Record<string, unknown>> = {
    plugin: VexnorPluginAny;
    query: SqlQueryAny;
-   name: string | null;
+   queryName: string | null;
    params: Record<string, unknown>;
    context: TContext;
    durationMs: number;
@@ -33,8 +35,16 @@ export class AuditLogEvent<TContext extends Record<string, unknown> = Record<str
    }
 }
 
+/**
+ * A `Promise<T>` that documents its rejection type as `E`.
+ * TypeScript does not natively type promise rejections — this is a
+ * documentation-only brand that makes the error type visible at call sites
+ * and enables typed `.catch()` without casting.
+ */
+export type TypedPromise<T, E> = Promise<T> & { readonly __errorType?: E };
+
 export class QueryRegistry<TContext extends Record<string, unknown> = Record<string, unknown>> extends EventTarget {
-   private readonly maps = new Map<string, Map<string, { query: SqlQueryAny; name: string | null }>>();
+   private readonly maps = new Map<string, Map<string, { query: SqlQueryAny; name: string }>>();
    private readonly plugins = new Map<string, VexnorPluginAny>();
    private readonly _authorizeHooks: AuthorizeHook<TContext>[] = [];
 
@@ -65,7 +75,7 @@ export class QueryRegistry<TContext extends Record<string, unknown> = Record<str
    checkAuthorization(): void {
       const authorized = this.getAuthorizedQueries();
       if (authorized.length > 0 && !this._authorizeHooks.length) {
-         throw new SqlExecError(
+         throw new SqlError(
             `${authorized.length} quer${authorized.length === 1 ? "y requires" : "ies require"} authorization but no hook is registered: ${authorized.map((q) => q.label).join(", ")}`,
          );
       }
@@ -94,28 +104,35 @@ export class QueryRegistry<TContext extends Record<string, unknown> = Record<str
    }
 
    async authorize(args: AuthorizeArgs<TContext>) {
-      const { query } = args;
+      const { query, queryName } = args;
       if (!query.authorization) return;
 
       if (!this._authorizeHooks.length) {
          throw new SqlRunError(
             `Query requires authorization (tag: "${query.authorization}") but no authorize hook is registered`,
             query,
-            {},
+            { queryName },
          );
       }
+
       for (const hook of this._authorizeHooks) {
          await hook(args);
       }
    }
 
+   /**
+    * Executes a registered query by plugin name and hash.
+    *
+    * Always rejects with {@link SqlRunError} on failure — including connection
+    * errors, query build errors, and authorization failures.
+    */
    async execute(
       pluginName: string,
       hash: string,
       params: Record<string, unknown>,
       resolver: ConnectionResolver,
       context: TContext = {} as TContext,
-   ): Promise<unknown> {
+   ): Promise<unknown & { readonly __errorType?: SqlRunError }> {
       const entry = this.maps.get(pluginName)?.get(hash);
       if (!entry) {
          throw new SqlError(`Unknown query hash: ${hash} for plugin: ${pluginName}`);
@@ -128,19 +145,22 @@ export class QueryRegistry<TContext extends Record<string, unknown> = Record<str
       const start = performance.now();
       let error: unknown | null = null;
       try {
-         await this.authorize({ plugin, query, params, context });
+         await this.authorize({ plugin, query, params, context, queryName: name });
          const db = await resolver(pluginName);
          const queryHandler = plugin.newQueryHandler(query);
          return await queryHandler.run({ db, params });
       } catch (err) {
          error = err;
-         throw err;
+         throw new SqlRunError(`Error executing query '${name}'`, query, {
+            cause: err,
+            queryName: name,
+         });
       } finally {
          this.dispatchEvent(
             new AuditLogEvent({
                plugin,
                query,
-               name,
+               queryName: name,
                params,
                context,
                durationMs: performance.now() - start,

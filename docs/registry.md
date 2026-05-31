@@ -1,5 +1,7 @@
 # Query Registry & Isomorphic SQL
 
+For a conceptual overview of the isomorphic pattern and how it compares to REST, tRPC, and GraphQL, see [Isomorphic SQL](isomorphic-sql.md).
+
 Vexnor queries are plain objects — they carry their SQL template, type information, and a stable hash. This makes them portable: the same query defined once can execute directly on the server, or be dispatched from the client to the server over HTTP without any additional API layer.
 
 ## The Isomorphic Pattern

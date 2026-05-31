@@ -1,0 +1,46 @@
+{
+   "name": "@vexnor/example-react-next-app",
+   "version": "0.1.0",
+   "private": true,
+   "scripts": {
+      "prebuild": "tsc -b",
+      "build": "next build",
+      "predev": "tsc -b",
+      "dev": "next dev",
+      "prestart": "tsc -b",
+      "start": "next start",
+      "lint": "eslint",
+      "codegen:postgres": "env-cmd --no-override -x -r ../../env-dev.json -e postgres node ../../packages/vexnor/cli.mjs codegen --plugin vexnor-postgres --schema vexnor_dev --pascalCaseTables --camelCaseColumns --host \\$POSTGRES_HOST --port \\$POSTGRES_PORT --database \\$POSTGRES_DATABASE --user \\$POSTGRES_USER --password \\$POSTGRES_PASSWORD --outDir './shared/codegen/postgres' | pino-pretty",
+      "codegen:mssql": "env-cmd --no-override -x -r ../../env-dev.json -e mssql node ../../packages/vexnor/cli.mjs codegen --plugin vexnor-mssql --schema vexnor_dev --pascalCaseTables --camelCaseColumns --host \\$MSSQL_HOST --port \\$MSSQL_PORT --database \\$MSSQL_DATABASE --user \\$MSSQL_USER --password \\$MSSQL_PASSWORD --outDir './shared/codegen/mssql' | pino-pretty",
+      "codegen:sqlite3": "env-cmd --no-override -x -r ../../env-dev.json -e sqlite3 node ../../packages/vexnor/cli.mjs codegen --plugin vexnor-sqlite3 --schema main --pascalCaseTables --camelCaseColumns --uri \\$SQLITE_PATH --omit migration_vexnor --outDir './shared/codegen/sqlite3' | pino-pretty",
+      "codegen": "run-p 'codegen:*'"
+   },
+   "dependencies": {
+      "better-sqlite3": "^12.10.0",
+      "mssql": "^12.5.4",
+      "next": "16.2.6",
+      "pg": "^8.16.3",
+      "react": "19.2.4",
+      "react-dom": "19.2.4",
+      "vexnor": "workspace:*",
+      "vexnor-mssql": "workspace:*",
+      "vexnor-postgres": "workspace:*",
+      "vexnor-sqlite3": "workspace:*"
+   },
+   "devDependencies": {
+      "env-cmd": "^10.1.0",
+      "npm-run-all": "^4.1.5",
+      "pino-pretty": "^13.1.1",
+      "@tailwindcss/postcss": "^4",
+      "@types/better-sqlite3": "^7.6.13",
+      "@types/mssql": "^12.3.0",
+      "@types/node": "^20",
+      "@types/pg": "^8.15.5",
+      "@types/react": "^19",
+      "@types/react-dom": "^19",
+      "eslint": "^9",
+      "eslint-config-next": "16.2.6",
+      "tailwindcss": "^4",
+      "typescript": "^5"
+   }
+}
