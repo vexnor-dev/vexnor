@@ -14,16 +14,46 @@ export type AuthorizeHook = (args: {
 export class QueryRegistry {
    private readonly maps = new Map<string, Map<string, SqlQueryAny>>();
    private readonly plugins = new Map<string, VexnorPluginAny>();
-   private _authorizeHook: AuthorizeHook | undefined;
+   private readonly _authorizeHooks: AuthorizeHook[] = [];
 
    /**
-    * Registers a hook that is called before every query execution.
+    * Registers a hook called before every authorized query execution.
     *
-    * The hook receives the query's `authorization` tag (or `null` if the query was
-    * not tagged with `.authorize()`). Throw inside the hook to deny execution.
+    * The hook receives the query's `authorization` tag. Throw inside the hook
+    * to deny execution.
     */
-   authorize(hook: AuthorizeHook): void {
-      this._authorizeHook = hook;
+   registerAuthorization(hook: AuthorizeHook): void {
+      this._authorizeHooks.push(hook);
+   }
+
+   /** Returns all registered queries that carry an `.authorize()` tag. */
+   getAuthorizedQueries(): SqlQueryAny[] {
+      return this.getQueries().filter((q) => q.authorization !== null);
+   }
+
+   /** Returns all registered queries that have no `.authorize()` tag. */
+   getUnauthorizedQueries(): SqlQueryAny[] {
+      return this.getQueries().filter((q) => q.authorization === null);
+   }
+
+   /**
+    * Asserts that all authorized queries have a hook registered.
+    *
+    * Call this at startup to fail fast if any tagged query has no hook.
+    * Throws if authorized queries exist, but no hook is registered.
+    */
+   checkAuthorization(): void {
+      const authorized = this.getAuthorizedQueries();
+      if (authorized.length > 0 && !this._authorizeHooks.length) {
+         throw new SqlExecError(
+            `${authorized.length} quer${authorized.length === 1 ? "y requires" : "ies require"} authorization but no hook is registered: ${authorized.map((q) => q.label).join(", ")}`,
+         );
+      }
+   }
+
+   /** Returns every query registered across all plugins. */
+   getQueries(): SqlQueryAny[] {
+      return Array.from(this.maps.values()).flatMap((map) => Array.from(map.values()));
    }
 
    async register(plugin: VexnorPluginAny, ...queries: SqlQueryAny[]): Promise<void> {
@@ -54,7 +84,7 @@ export class QueryRegistry {
       ok(plugin, `Unknown plugin: ${pluginName}`);
 
       if (query.authorization) {
-         if (!this._authorizeHook) {
+         if (!this._authorizeHooks.length) {
             throw new SqlRunError(
                `Query requires authorization (tag: "${query.authorization}") but no authorize hook is registered`,
                query,
@@ -62,7 +92,9 @@ export class QueryRegistry {
             );
          }
 
-         await this._authorizeHook({ plugin, query, params });
+         for (const hook of this._authorizeHooks) {
+            await hook({ plugin, query, params });
+         }
       }
 
       const db = await resolver(pluginName);

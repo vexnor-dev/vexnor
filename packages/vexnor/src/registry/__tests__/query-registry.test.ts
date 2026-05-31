@@ -280,6 +280,83 @@ describe("QueryRegistry", () => {
       expect(resolverB).toHaveBeenCalledWith("pluginB");
    });
 
+   // ── getAuthorizedQueries / getUnauthorizedQueries ─────────────────────────
+
+   test("getQueries returns all registered queries across all plugins", async () => {
+      const registry = new QueryRegistry();
+      await registry.register(pluginA, findAccounts);
+      await registry.register(pluginB, findOrders);
+
+      expect(registry.getQueries()).toHaveLength(2);
+   });
+
+   test("getAuthorizedQueries returns only tagged queries", async () => {
+      const taggedQuery = findAccounts.authorize("admin");
+      const registry = new QueryRegistry();
+      await registry.register(pluginA, taggedQuery);
+      await registry.register(pluginB, findOrders);
+
+      expect(registry.getAuthorizedQueries().map((q) => q.authorization)).toEqual(["admin"]);
+   });
+
+   test("getUnauthorizedQueries returns only untagged queries", async () => {
+      const taggedQuery = findAccounts.authorize("admin");
+      const registry = new QueryRegistry();
+      await registry.register(pluginA, taggedQuery);
+      await registry.register(pluginB, findOrders);
+
+      expect(registry.getUnauthorizedQueries().map((q) => q.authorization)).toEqual([null]);
+   });
+
+   test("getAuthorizedQueries returns empty when no queries are tagged", async () => {
+      const registry = new QueryRegistry();
+      await registry.register(pluginA, findAccounts);
+      await registry.register(pluginB, findOrders);
+
+      expect(registry.getAuthorizedQueries()).toEqual([]);
+   });
+
+   test("getUnauthorizedQueries returns empty when all queries are tagged", async () => {
+      const registry = new QueryRegistry();
+      await registry.register(pluginA, findAccounts.authorize("admin"));
+      await registry.register(pluginB, findOrders.authorize("admin"));
+
+      expect(registry.getUnauthorizedQueries()).toEqual([]);
+   });
+
+   // ── checkAuthorization ──────────────────────────────────────────────────────
+
+   test("checkAuthorization passes when all authorized queries have a hook", async () => {
+      const registry = new QueryRegistry();
+      await registry.register(pluginA, findAccounts.authorize("admin"));
+      registry.registerAuthorization(() => {});
+      expect(() => registry.checkAuthorization()).not.toThrow();
+   });
+
+   test("checkAuthorization passes when there are no authorized queries", async () => {
+      const registry = new QueryRegistry();
+      await registry.register(pluginA, findAccounts);
+      expect(() => registry.checkAuthorization()).not.toThrow();
+   });
+
+   test("checkAuthorization throws when authorized queries exist but no hook is registered", async () => {
+      const registry = new QueryRegistry();
+      await registry.register(pluginA, findAccounts.authorize("admin"));
+      await registry.register(pluginB, findOrders.authorize("admin"));
+      expect(() => registry.checkAuthorization()).toThrowErrorMatchingInlineSnapshot(
+         `
+        [SqlExecError: 2 queries require authorization but no hook is registered: SqlQuery#1: 
+           select  SqlSelectRow#1(SqlTableColumn#1(account.account_id as accountId), SqlTableColumn#3(account.email)) 
+           from  SqlTable#1(main.account) 
+           where  SqlTableColumn#3(account.email)  =  $email 
+        , SqlQuery#2: 
+           select  SqlSelectRow#2(SqlTableColumn#10(order.order_id as orderId), SqlTableColumn#11(order.status)) 
+           from  SqlTable#2(main.order) 
+        ]
+      `,
+      );
+   });
+
    // ── authorize hook ────────────────────────────────────────────────────────
 
    test("authorize hook receives the authorization of a tagged query", async () => {
@@ -288,7 +365,7 @@ describe("QueryRegistry", () => {
       await registry.register(pluginA, taggedQuery);
 
       const hook = vi.fn();
-      registry.authorize(hook);
+      registry.registerAuthorization(hook);
 
       const hash = await taggedQuery.hash;
       await registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([]));
@@ -303,7 +380,7 @@ describe("QueryRegistry", () => {
 
       const hook = vi.fn();
       hook.mockReset();
-      registry.authorize(hook);
+      registry.registerAuthorization(hook);
 
       const hash = await findAccounts.hash;
       await registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([]));
@@ -316,7 +393,7 @@ describe("QueryRegistry", () => {
       const registry = new QueryRegistry();
       await registry.register(pluginA, taggedQuery);
 
-      registry.authorize(({ query }) => {
+      registry.registerAuthorization(({ query }) => {
          throw new Error(`Forbidden: ${query.authorization}`);
       });
 
@@ -329,21 +406,35 @@ describe("QueryRegistry", () => {
       expect(resolver).not.toHaveBeenCalled();
    });
 
-   test("authorize hook is replaced by the last call to authorize()", async () => {
+   test("authorize hooks accumulate — both are called in order", async () => {
       const taggedQuery = findAccounts.authorize("admin");
       const registry = new QueryRegistry();
       await registry.register(pluginA, taggedQuery);
 
-      const hook1 = vi.fn();
-      const hook2 = vi.fn();
-      registry.authorize(hook1);
-      registry.authorize(hook2);
+      const order: number[] = [];
+      registry.registerAuthorization(() => { order.push(1); });
+      registry.registerAuthorization(() => { order.push(2); });
 
       const hash = await taggedQuery.hash;
       await registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([]));
 
-      expect(hook1).not.toHaveBeenCalled();
-      expect(hook2).toHaveBeenCalledOnce();
+      expect(order).toEqual([1, 2]);
+   });
+
+   test("authorize hooks run sequentially — second hook not called if first throws", async () => {
+      const taggedQuery = findAccounts.authorize("admin");
+      const registry = new QueryRegistry();
+      await registry.register(pluginA, taggedQuery);
+
+      const hook2 = vi.fn();
+      registry.registerAuthorization(() => { throw new Error("denied"); });
+      registry.registerAuthorization(hook2);
+
+      const hash = await taggedQuery.hash;
+      await expect(
+         registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([])),
+      ).rejects.toMatchInlineSnapshot(`[Error: denied]`);
+      expect(hook2).not.toHaveBeenCalled();
    });
 
    test(".authorize() on a query preserves the original query's hash", async () => {

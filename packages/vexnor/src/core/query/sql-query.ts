@@ -585,7 +585,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
    /**
     * Tags this query with an authorization label.
     *
-    * When a `QueryRegistry.authorize()` hook is registered, the hook is called
+    * When a `QueryRegistry.registerAuthorization()` hook is registered, the hook is called
     * with this tag before the query executes. Throw inside the hook to deny
     * execution.
     *
