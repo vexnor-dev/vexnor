@@ -75,6 +75,8 @@ app.post('/api/db', async (req, res) => {
 
 ### 4. Create a remote client
 
+For anonymous (unauthenticated) use, a static client is sufficient:
+
 ```typescript
 // client/remote-client.ts
 import type { RemoteClient } from 'vexnor';
@@ -91,6 +93,55 @@ export const remoteClient: RemoteClient = {
   },
 };
 ```
+
+For authenticated use, create a hook that reads the token from your auth context and attaches it as a header. The hook returns a stable `RemoteClient` reference via `useMemo` so it only changes when the token changes:
+
+```typescript
+// client/use-remote-client.ts
+import { useMemo } from 'react';
+import type { RemoteClient } from 'vexnor';
+import { useAuth } from './auth-context.js';
+
+export function useRemoteClient(): RemoteClient {
+  const { token } = useAuth();
+
+  return useMemo(
+    () => ({
+      remoteExecute: async ({ plugin, hash, params }) => {
+        const response = await fetch('/api/db', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({ plugin, hash, params }),
+        });
+        if (!response.ok) throw new Error(`Query failed: ${response.status}`);
+        return response.json();
+      },
+    }),
+    [token],
+  );
+}
+```
+
+The server reads the token from the `Authorization` header and passes it to `registry.execute` as context:
+
+```typescript
+app.post('/api/db', async (c) => {
+  const { plugin, hash, params } = await c.req.json();
+  const token = c.req.header('Authorization')?.replace('Bearer ', '') ?? null;
+
+  const result = await registry.execute(
+    plugin, hash, params ?? {},
+    async () => pool,
+    { token },
+  );
+  return c.json(result);
+});
+```
+
+The `{ token }` object is the `TContext` passed to your `registerAuthorization` hook — see [Authorization](authorization.md).
 
 ### 5. Execute from the client
 

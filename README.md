@@ -146,6 +146,7 @@ See [Isomorphic SQL](docs/isomorphic-sql.md) for the full picture.
 - [Isomorphic SQL](docs/isomorphic-sql.md) — same query on server and client, how it works, comparison with REST/tRPC/GraphQL
 - [Registry](docs/registry.md) — QueryRegistry, isomorphic SQL, remote execution
 - [Authorization](docs/authorization.md) — query authorization, audit logging, SOC2/HIPAA
+- [Telemetry](docs/telemetry.md) — OpenTelemetry integration, spans, OTLP exporters
 - [CLI](docs/cli.md) — `codegen`, `exec run`, `exec init`, config reference
 - [Databases](docs/databases.md) — PostgreSQL, MS SQL Server, SQLite — driver setup and dialect notes
 - [Plugins & Adaptors](docs/plugins.md) — Drizzle, Prisma, TypeORM, Sequelize adaptors, building your own plugin
