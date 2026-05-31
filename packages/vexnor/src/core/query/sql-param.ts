@@ -18,6 +18,7 @@ export class SqlParam<T extends { Name: string; Type: unknown }> extends Sql {
 
    constructor({ name, validation }: { name: T["Name"]; validation?: ParamValidation<unknown> | null }) {
       super({
+         type: "SqlParam",
          id: name,
       });
 

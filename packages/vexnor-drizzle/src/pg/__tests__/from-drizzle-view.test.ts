@@ -36,11 +36,7 @@ describe("fromDrizzleView (pg) — metadata", () => {
           "$accountId": SqlTableColumn {
             "columnName": "account_id",
             "format": null,
-            "hashIdLazy": Lazy {
-              "_computed": false,
-              "_value": null,
-              "callback": [Function],
-            },
+            "hashId": "SqlTableColumn#(account_order_summary.account_id as accountId)",
             "id": "SqlTableColumn#1(account_order_summary.account_id as accountId)",
             "jsonType": null,
             "key": "accountId",
@@ -54,11 +50,7 @@ describe("fromDrizzleView (pg) — metadata", () => {
           "$email": SqlTableColumn {
             "columnName": "email",
             "format": null,
-            "hashIdLazy": Lazy {
-              "_computed": false,
-              "_value": null,
-              "callback": [Function],
-            },
+            "hashId": "SqlTableColumn#(account_order_summary.email)",
             "id": "SqlTableColumn#2(account_order_summary.email)",
             "jsonType": null,
             "key": "email",
@@ -72,11 +64,7 @@ describe("fromDrizzleView (pg) — metadata", () => {
           "$firstName": SqlTableColumn {
             "columnName": "first_name",
             "format": null,
-            "hashIdLazy": Lazy {
-              "_computed": false,
-              "_value": null,
-              "callback": [Function],
-            },
+            "hashId": "SqlTableColumn#(account_order_summary.first_name as firstName)",
             "id": "SqlTableColumn#3(account_order_summary.first_name as firstName)",
             "jsonType": null,
             "key": "firstName",
@@ -90,11 +78,7 @@ describe("fromDrizzleView (pg) — metadata", () => {
           "$orderCount": SqlTableColumn {
             "columnName": "order_count",
             "format": null,
-            "hashIdLazy": Lazy {
-              "_computed": false,
-              "_value": null,
-              "callback": [Function],
-            },
+            "hashId": "SqlTableColumn#(account_order_summary.order_count as orderCount)",
             "id": "SqlTableColumn#4(account_order_summary.order_count as orderCount)",
             "jsonType": null,
             "key": "orderCount",
@@ -116,11 +100,7 @@ describe("fromDrizzleView (pg) — metadata", () => {
               "$accountId": SqlTableColumn {
                 "columnName": "account_id",
                 "format": null,
-                "hashIdLazy": Lazy {
-                  "_computed": false,
-                  "_value": null,
-                  "callback": [Function],
-                },
+                "hashId": "SqlTableColumn#(account_order_summary.account_id as accountId)",
                 "id": "SqlTableColumn#1(account_order_summary.account_id as accountId)",
                 "jsonType": null,
                 "key": "accountId",
@@ -134,11 +114,7 @@ describe("fromDrizzleView (pg) — metadata", () => {
               "$email": SqlTableColumn {
                 "columnName": "email",
                 "format": null,
-                "hashIdLazy": Lazy {
-                  "_computed": false,
-                  "_value": null,
-                  "callback": [Function],
-                },
+                "hashId": "SqlTableColumn#(account_order_summary.email)",
                 "id": "SqlTableColumn#2(account_order_summary.email)",
                 "jsonType": null,
                 "key": "email",
@@ -152,11 +128,7 @@ describe("fromDrizzleView (pg) — metadata", () => {
               "$firstName": SqlTableColumn {
                 "columnName": "first_name",
                 "format": null,
-                "hashIdLazy": Lazy {
-                  "_computed": false,
-                  "_value": null,
-                  "callback": [Function],
-                },
+                "hashId": "SqlTableColumn#(account_order_summary.first_name as firstName)",
                 "id": "SqlTableColumn#3(account_order_summary.first_name as firstName)",
                 "jsonType": null,
                 "key": "firstName",
@@ -170,11 +142,7 @@ describe("fromDrizzleView (pg) — metadata", () => {
               "$orderCount": SqlTableColumn {
                 "columnName": "order_count",
                 "format": null,
-                "hashIdLazy": Lazy {
-                  "_computed": false,
-                  "_value": null,
-                  "callback": [Function],
-                },
+                "hashId": "SqlTableColumn#(account_order_summary.order_count as orderCount)",
                 "id": "SqlTableColumn#4(account_order_summary.order_count as orderCount)",
                 "jsonType": null,
                 "key": "orderCount",
@@ -202,11 +170,7 @@ describe("fromDrizzleView (pg) — metadata", () => {
           "columnTypes": {},
           "dialect": "postgresql",
           "format": null,
-          "hashIdLazy": Lazy {
-            "_computed": false,
-            "_value": null,
-            "callback": [Function],
-          },
+          "hashId": "SqlTable#(vexnor_dev.account_order_summary)",
           "id": "SqlTable#3(vexnor_dev.account_order_summary)",
           "pk": [],
           "tableInfo": {

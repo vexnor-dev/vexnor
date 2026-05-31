@@ -14,7 +14,7 @@ QueryRegistry.prototype.registerOpenTelemetry = function (tracer: Tracer): void 
          "db.system": plugin.driver,
          "db.operation.name": name,
          "vexnor.query.id": query.id,
-         "vexnor.query.location": location ?? "",
+         "vexnor.query.location": location ? location.replace(process.cwd() + "/", "") : "",
          "vexnor.plugin": plugin.name,
       });
 

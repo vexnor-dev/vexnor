@@ -38,11 +38,7 @@ describe("fromDrizzleTable (mssql) — metadata", () => {
           "$accountId": SqlTableColumn {
             "columnName": "account_id",
             "format": null,
-            "hashIdLazy": Lazy {
-              "_computed": false,
-              "_value": null,
-              "callback": [Function],
-            },
+            "hashId": "SqlTableColumn#(account.account_id as accountId)",
             "id": "SqlTableColumn#1(account.account_id as accountId)",
             "jsonType": null,
             "key": "accountId",
@@ -56,11 +52,7 @@ describe("fromDrizzleTable (mssql) — metadata", () => {
           "$active": SqlTableColumn {
             "columnName": "active",
             "format": null,
-            "hashIdLazy": Lazy {
-              "_computed": false,
-              "_value": null,
-              "callback": [Function],
-            },
+            "hashId": "SqlTableColumn#(account.active)",
             "id": "SqlTableColumn#6(account.active)",
             "jsonType": null,
             "key": "active",
@@ -74,11 +66,7 @@ describe("fromDrizzleTable (mssql) — metadata", () => {
           "$age": SqlTableColumn {
             "columnName": "age",
             "format": null,
-            "hashIdLazy": Lazy {
-              "_computed": false,
-              "_value": null,
-              "callback": [Function],
-            },
+            "hashId": "SqlTableColumn#(account.age)",
             "id": "SqlTableColumn#5(account.age)",
             "jsonType": null,
             "key": "age",
@@ -92,11 +80,7 @@ describe("fromDrizzleTable (mssql) — metadata", () => {
           "$email": SqlTableColumn {
             "columnName": "email",
             "format": null,
-            "hashIdLazy": Lazy {
-              "_computed": false,
-              "_value": null,
-              "callback": [Function],
-            },
+            "hashId": "SqlTableColumn#(account.email)",
             "id": "SqlTableColumn#2(account.email)",
             "jsonType": null,
             "key": "email",
@@ -110,11 +94,7 @@ describe("fromDrizzleTable (mssql) — metadata", () => {
           "$firstName": SqlTableColumn {
             "columnName": "first_name",
             "format": null,
-            "hashIdLazy": Lazy {
-              "_computed": false,
-              "_value": null,
-              "callback": [Function],
-            },
+            "hashId": "SqlTableColumn#(account.first_name as firstName)",
             "id": "SqlTableColumn#3(account.first_name as firstName)",
             "jsonType": null,
             "key": "firstName",
@@ -128,11 +108,7 @@ describe("fromDrizzleTable (mssql) — metadata", () => {
           "$notes": SqlTableColumn {
             "columnName": "notes",
             "format": null,
-            "hashIdLazy": Lazy {
-              "_computed": false,
-              "_value": null,
-              "callback": [Function],
-            },
+            "hashId": "SqlTableColumn#(account.notes)",
             "id": "SqlTableColumn#4(account.notes)",
             "jsonType": null,
             "key": "notes",
@@ -146,11 +122,7 @@ describe("fromDrizzleTable (mssql) — metadata", () => {
           "$parentId": SqlTableColumn {
             "columnName": "parent_id",
             "format": null,
-            "hashIdLazy": Lazy {
-              "_computed": false,
-              "_value": null,
-              "callback": [Function],
-            },
+            "hashId": "SqlTableColumn#(account.parent_id as parentId)",
             "id": "SqlTableColumn#7(account.parent_id as parentId)",
             "jsonType": null,
             "key": "parentId",
@@ -172,11 +144,7 @@ describe("fromDrizzleTable (mssql) — metadata", () => {
               "$accountId": SqlTableColumn {
                 "columnName": "account_id",
                 "format": null,
-                "hashIdLazy": Lazy {
-                  "_computed": false,
-                  "_value": null,
-                  "callback": [Function],
-                },
+                "hashId": "SqlTableColumn#(account.account_id as accountId)",
                 "id": "SqlTableColumn#1(account.account_id as accountId)",
                 "jsonType": null,
                 "key": "accountId",
@@ -190,11 +158,7 @@ describe("fromDrizzleTable (mssql) — metadata", () => {
               "$active": SqlTableColumn {
                 "columnName": "active",
                 "format": null,
-                "hashIdLazy": Lazy {
-                  "_computed": false,
-                  "_value": null,
-                  "callback": [Function],
-                },
+                "hashId": "SqlTableColumn#(account.active)",
                 "id": "SqlTableColumn#6(account.active)",
                 "jsonType": null,
                 "key": "active",
@@ -208,11 +172,7 @@ describe("fromDrizzleTable (mssql) — metadata", () => {
               "$age": SqlTableColumn {
                 "columnName": "age",
                 "format": null,
-                "hashIdLazy": Lazy {
-                  "_computed": false,
-                  "_value": null,
-                  "callback": [Function],
-                },
+                "hashId": "SqlTableColumn#(account.age)",
                 "id": "SqlTableColumn#5(account.age)",
                 "jsonType": null,
                 "key": "age",
@@ -226,11 +186,7 @@ describe("fromDrizzleTable (mssql) — metadata", () => {
               "$email": SqlTableColumn {
                 "columnName": "email",
                 "format": null,
-                "hashIdLazy": Lazy {
-                  "_computed": false,
-                  "_value": null,
-                  "callback": [Function],
-                },
+                "hashId": "SqlTableColumn#(account.email)",
                 "id": "SqlTableColumn#2(account.email)",
                 "jsonType": null,
                 "key": "email",
@@ -244,11 +200,7 @@ describe("fromDrizzleTable (mssql) — metadata", () => {
               "$firstName": SqlTableColumn {
                 "columnName": "first_name",
                 "format": null,
-                "hashIdLazy": Lazy {
-                  "_computed": false,
-                  "_value": null,
-                  "callback": [Function],
-                },
+                "hashId": "SqlTableColumn#(account.first_name as firstName)",
                 "id": "SqlTableColumn#3(account.first_name as firstName)",
                 "jsonType": null,
                 "key": "firstName",
@@ -262,11 +214,7 @@ describe("fromDrizzleTable (mssql) — metadata", () => {
               "$notes": SqlTableColumn {
                 "columnName": "notes",
                 "format": null,
-                "hashIdLazy": Lazy {
-                  "_computed": false,
-                  "_value": null,
-                  "callback": [Function],
-                },
+                "hashId": "SqlTableColumn#(account.notes)",
                 "id": "SqlTableColumn#4(account.notes)",
                 "jsonType": null,
                 "key": "notes",
@@ -280,11 +228,7 @@ describe("fromDrizzleTable (mssql) — metadata", () => {
               "$parentId": SqlTableColumn {
                 "columnName": "parent_id",
                 "format": null,
-                "hashIdLazy": Lazy {
-                  "_computed": false,
-                  "_value": null,
-                  "callback": [Function],
-                },
+                "hashId": "SqlTableColumn#(account.parent_id as parentId)",
                 "id": "SqlTableColumn#7(account.parent_id as parentId)",
                 "jsonType": null,
                 "key": "parentId",
@@ -312,11 +256,7 @@ describe("fromDrizzleTable (mssql) — metadata", () => {
           "columnTypes": {},
           "dialect": "tsql",
           "format": null,
-          "hashIdLazy": Lazy {
-            "_computed": false,
-            "_value": null,
-            "callback": [Function],
-          },
+          "hashId": "SqlTable#(account)",
           "id": "SqlTable#4(account)",
           "pk": [
             "accountId",
@@ -337,11 +277,7 @@ describe("fromDrizzleTable (mssql) — metadata", () => {
           "$accountId": SqlTableColumn {
             "columnName": "account_id",
             "format": null,
-            "hashIdLazy": Lazy {
-              "_computed": false,
-              "_value": null,
-              "callback": [Function],
-            },
+            "hashId": "SqlTableColumn#(account.account_id as accountId)",
             "id": "SqlTableColumn#8(account.account_id as accountId)",
             "jsonType": null,
             "key": "accountId",
@@ -355,11 +291,7 @@ describe("fromDrizzleTable (mssql) — metadata", () => {
           "$email": SqlTableColumn {
             "columnName": "email",
             "format": null,
-            "hashIdLazy": Lazy {
-              "_computed": false,
-              "_value": null,
-              "callback": [Function],
-            },
+            "hashId": "SqlTableColumn#(account.email)",
             "id": "SqlTableColumn#9(account.email)",
             "jsonType": null,
             "key": "email",
@@ -373,11 +305,7 @@ describe("fromDrizzleTable (mssql) — metadata", () => {
           "$firstName": SqlTableColumn {
             "columnName": "first_name",
             "format": null,
-            "hashIdLazy": Lazy {
-              "_computed": false,
-              "_value": null,
-              "callback": [Function],
-            },
+            "hashId": "SqlTableColumn#(account.first_name as firstName)",
             "id": "SqlTableColumn#10(account.first_name as firstName)",
             "jsonType": null,
             "key": "firstName",
@@ -391,11 +319,7 @@ describe("fromDrizzleTable (mssql) — metadata", () => {
           "$parentId": SqlTableColumn {
             "columnName": "parent_id",
             "format": null,
-            "hashIdLazy": Lazy {
-              "_computed": false,
-              "_value": null,
-              "callback": [Function],
-            },
+            "hashId": "SqlTableColumn#(account.parent_id as parentId)",
             "id": "SqlTableColumn#11(account.parent_id as parentId)",
             "jsonType": null,
             "key": "parentId",
@@ -417,11 +341,7 @@ describe("fromDrizzleTable (mssql) — metadata", () => {
               "$accountId": SqlTableColumn {
                 "columnName": "account_id",
                 "format": null,
-                "hashIdLazy": Lazy {
-                  "_computed": false,
-                  "_value": null,
-                  "callback": [Function],
-                },
+                "hashId": "SqlTableColumn#(account.account_id as accountId)",
                 "id": "SqlTableColumn#8(account.account_id as accountId)",
                 "jsonType": null,
                 "key": "accountId",
@@ -435,11 +355,7 @@ describe("fromDrizzleTable (mssql) — metadata", () => {
               "$email": SqlTableColumn {
                 "columnName": "email",
                 "format": null,
-                "hashIdLazy": Lazy {
-                  "_computed": false,
-                  "_value": null,
-                  "callback": [Function],
-                },
+                "hashId": "SqlTableColumn#(account.email)",
                 "id": "SqlTableColumn#9(account.email)",
                 "jsonType": null,
                 "key": "email",
@@ -453,11 +369,7 @@ describe("fromDrizzleTable (mssql) — metadata", () => {
               "$firstName": SqlTableColumn {
                 "columnName": "first_name",
                 "format": null,
-                "hashIdLazy": Lazy {
-                  "_computed": false,
-                  "_value": null,
-                  "callback": [Function],
-                },
+                "hashId": "SqlTableColumn#(account.first_name as firstName)",
                 "id": "SqlTableColumn#10(account.first_name as firstName)",
                 "jsonType": null,
                 "key": "firstName",
@@ -471,11 +383,7 @@ describe("fromDrizzleTable (mssql) — metadata", () => {
               "$parentId": SqlTableColumn {
                 "columnName": "parent_id",
                 "format": null,
-                "hashIdLazy": Lazy {
-                  "_computed": false,
-                  "_value": null,
-                  "callback": [Function],
-                },
+                "hashId": "SqlTableColumn#(account.parent_id as parentId)",
                 "id": "SqlTableColumn#11(account.parent_id as parentId)",
                 "jsonType": null,
                 "key": "parentId",
@@ -503,11 +411,7 @@ describe("fromDrizzleTable (mssql) — metadata", () => {
           "columnTypes": {},
           "dialect": "tsql",
           "format": null,
-          "hashIdLazy": Lazy {
-            "_computed": false,
-            "_value": null,
-            "callback": [Function],
-          },
+          "hashId": "SqlTable#(vexnor_dev.account)",
           "id": "SqlTable#5(vexnor_dev.account)",
           "pk": [
             "accountId",

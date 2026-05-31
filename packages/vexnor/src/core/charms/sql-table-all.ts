@@ -13,11 +13,11 @@ export class SqlTableAll<Row extends Record<string, unknown>> extends Sql {
 
    constructor(row: InferTable$RowBySelect<Row>) {
       super({
+         type: "SqlTableAll",
          id: `${Object.keys(row).join(", ")}`,
-         hashId: () =>
-            Object.values(row)
-               .map((c) => c.hashId)
-               .join(","),
+         hashId: Object.values(row)
+            .map((c) => c.hashId)
+            .join(","),
       });
       this.row = row;
    }

@@ -33,8 +33,9 @@ export class SqlQueryColumn<
 
    constructor({ key, format, target, query }: SqlQueryColumnArgs<T>) {
       super({
+         type: "SqlQueryColumn",
          id: `${query.id}/${target.id}`,
-         hashId: () => target.hashId,
+         hashId: target.hashId,
       });
       this.key = key;
       this.format = format ?? null;

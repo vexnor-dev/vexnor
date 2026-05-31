@@ -30,7 +30,7 @@ export class SqlRunError extends Error {
    private readonly _message: string;
 
    constructor(message: string, query: SqlRunQueryRef, options: SqlRunErrorOptions) {
-      super(message + (options?.cause ? `. (${options.cause})` : ""), options);
+      super(message + (options?.cause ? `. (${options.cause})` : ""), { cause: options.cause });
       this._message = message;
       this.cause = options?.cause ?? null;
       this.name = "SqlRunError";

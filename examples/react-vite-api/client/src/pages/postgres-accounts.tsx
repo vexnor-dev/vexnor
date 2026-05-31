@@ -9,17 +9,17 @@ import { SearchInput } from "#/components/search-input.js";
 import { AccountRow } from "#/components/account-row";
 
 export default function PostgresAccountsPage() {
-   const db = useRemoteClient();
+   const remoteClient = useRemoteClient();
    const { filter } = useSearch({ from: "/postgres" });
 
    const [promise, setPromise] = useState<Promise<AccountRow[]>>(Promise.resolve([]));
 
    useEffect(() => {
-      setPromise(selectAccounts.postgres.all({ db, params: { filter } }));
+      setPromise(selectAccounts.postgres.all({ db: remoteClient, params: { filter } }));
    }, [filter]);
 
    function refresh() {
-      setPromise(selectAccounts.postgres.all({ db, params: { filter } }));
+      setPromise(selectAccounts.postgres.all({ db: remoteClient, params: { filter } }));
    }
 
    return (
@@ -27,7 +27,9 @@ export default function PostgresAccountsPage() {
          <h1>Accounts — PostgreSQL</h1>
          <CreateAccountForm
             onCreated={(email, firstName, lastName) =>
-               insertAccount.postgres.run({ db, params: { rows: [{ email, firstName, lastName }] } }).then(refresh)
+               insertAccount.postgres
+                  .run({ db: remoteClient, params: { rows: [{ email, firstName, lastName }] } })
+                  .then(refresh)
             }
          />
          <SearchInput placeholder="Search by name or email…" />
@@ -35,7 +37,7 @@ export default function PostgresAccountsPage() {
             <AccountGrid
                promise={promise}
                onRefresh={refresh}
-               onDelete={(accountId) => deleteAccount.postgres.run({ db, params: { accountId } })}
+               onDelete={(accountId) => deleteAccount.postgres.run({ db: remoteClient, params: { accountId } })}
             />
          </Suspense>
       </div>

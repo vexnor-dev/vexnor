@@ -17,6 +17,7 @@ export class SqlExpand<T extends { Params: unknown }> extends Sql {
 
    constructor(public readonly expand: SqlExpandHandler<T>) {
       super({
+         type: "SqlExpand",
          id: ``,
       });
 

@@ -48,11 +48,7 @@ describe("sql subqueries tests", () => {
         {
           "$accountId": SqlQueryColumn {
             "format": null,
-            "hashIdLazy": Lazy {
-              "_computed": false,
-              "_value": null,
-              "callback": [Function],
-            },
+            "hashId": "SqlQueryColumn#(SqlTableColumn#(account.account_id as accountId))",
             "id": "SqlQueryColumn#1(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#1(account.account_id as accountId))",
             "key": "accountId",
             "params": null,
@@ -108,11 +104,7 @@ describe("sql subqueries tests", () => {
                 "_value": [Circular],
                 "callback": [Function],
               },
-              "hashIdLazy": Lazy {
-                "_computed": false,
-                "_value": null,
-                "callback": [Function],
-              },
+              "hashId": "SqlQuery#(["\\n         ","\\n         select ","\\n         from ","\\n         where "," = ",""]|SqlQueryInfo#(label=AccountsWithEmail)|SqlSelectRow#(SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId)))|SqlTable#(main.account)|SqlTableColumn#(account.email)|SqlParam#(email))",
               "id": "SqlQuery#1(label=AccountsWithEmail)",
               "location": "<anonymous>",
               "rawStrings": [
@@ -130,11 +122,7 @@ describe("sql subqueries tests", () => {
               "rawValues": [
                 SqlQueryInfo {
                   "driver": null,
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlQueryInfo#(label=AccountsWithEmail)",
                   "id": "SqlQueryInfo#1(label=AccountsWithEmail)",
                   "label": "AccountsWithEmail",
                   "options": {
@@ -146,21 +134,13 @@ describe("sql subqueries tests", () => {
                 SqlSelectRow {
                   "columns": [
                     SqlTableAll {
-                      "hashIdLazy": Lazy {
-                        "_computed": false,
-                        "_value": null,
-                        "callback": [Function],
-                      },
+                      "hashId": "SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId))",
                       "id": "SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId)",
                       "row": {
                         "$accountId": SqlTableColumn {
                           "columnName": "account_id",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.account_id as accountId)",
                           "id": "SqlTableColumn#1(account.account_id as accountId)",
                           "jsonType": null,
                           "key": "accountId",
@@ -176,11 +156,7 @@ describe("sql subqueries tests", () => {
                         "$createdAt": SqlTableColumn {
                           "columnName": "created_at",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.created_at as createdAt)",
                           "id": "SqlTableColumn#7(account.created_at as createdAt)",
                           "jsonType": "Date",
                           "key": "createdAt",
@@ -196,11 +172,7 @@ describe("sql subqueries tests", () => {
                         "$email": SqlTableColumn {
                           "columnName": "email",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.email)",
                           "id": "SqlTableColumn#3(account.email)",
                           "jsonType": null,
                           "key": "email",
@@ -216,11 +188,7 @@ describe("sql subqueries tests", () => {
                         "$firstName": SqlTableColumn {
                           "columnName": "first_name",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.first_name as firstName)",
                           "id": "SqlTableColumn#4(account.first_name as firstName)",
                           "jsonType": null,
                           "key": "firstName",
@@ -236,11 +204,7 @@ describe("sql subqueries tests", () => {
                         "$lastName": SqlTableColumn {
                           "columnName": "last_name",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.last_name as lastName)",
                           "id": "SqlTableColumn#5(account.last_name as lastName)",
                           "jsonType": null,
                           "key": "lastName",
@@ -256,11 +220,7 @@ describe("sql subqueries tests", () => {
                         "$modifiedAt": SqlTableColumn {
                           "columnName": "modified_at",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.modified_at as modifiedAt)",
                           "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                           "jsonType": "Date",
                           "key": "modifiedAt",
@@ -276,11 +236,7 @@ describe("sql subqueries tests", () => {
                         "$notes": SqlTableColumn {
                           "columnName": "notes",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.notes)",
                           "id": "SqlTableColumn#6(account.notes)",
                           "jsonType": null,
                           "key": "notes",
@@ -296,11 +252,7 @@ describe("sql subqueries tests", () => {
                         "$parentId": SqlTableColumn {
                           "columnName": "parent_id",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.parent_id as parentId)",
                           "id": "SqlTableColumn#9(account.parent_id as parentId)",
                           "jsonType": null,
                           "key": "parentId",
@@ -316,11 +268,7 @@ describe("sql subqueries tests", () => {
                         "$status": SqlTableColumn {
                           "columnName": "status",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.status)",
                           "id": "SqlTableColumn#2(account.status)",
                           "jsonType": null,
                           "key": "status",
@@ -338,11 +286,7 @@ describe("sql subqueries tests", () => {
                       "type": "SqlTableAll",
                     },
                   ],
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlSelectRow#(SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId)))",
                   "id": "SqlSelectRow#1(SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId))",
                   "rowsByQueryId": Map {},
                   "tag": null,
@@ -352,11 +296,7 @@ describe("sql subqueries tests", () => {
                   "$accountId": SqlTableColumn {
                     "columnName": "account_id",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.account_id as accountId)",
                     "id": "SqlTableColumn#1(account.account_id as accountId)",
                     "jsonType": null,
                     "key": "accountId",
@@ -372,11 +312,7 @@ describe("sql subqueries tests", () => {
                   "$createdAt": SqlTableColumn {
                     "columnName": "created_at",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.created_at as createdAt)",
                     "id": "SqlTableColumn#7(account.created_at as createdAt)",
                     "jsonType": "Date",
                     "key": "createdAt",
@@ -392,11 +328,7 @@ describe("sql subqueries tests", () => {
                   "$email": SqlTableColumn {
                     "columnName": "email",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.email)",
                     "id": "SqlTableColumn#3(account.email)",
                     "jsonType": null,
                     "key": "email",
@@ -412,11 +344,7 @@ describe("sql subqueries tests", () => {
                   "$firstName": SqlTableColumn {
                     "columnName": "first_name",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.first_name as firstName)",
                     "id": "SqlTableColumn#4(account.first_name as firstName)",
                     "jsonType": null,
                     "key": "firstName",
@@ -432,11 +360,7 @@ describe("sql subqueries tests", () => {
                   "$lastName": SqlTableColumn {
                     "columnName": "last_name",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.last_name as lastName)",
                     "id": "SqlTableColumn#5(account.last_name as lastName)",
                     "jsonType": null,
                     "key": "lastName",
@@ -452,11 +376,7 @@ describe("sql subqueries tests", () => {
                   "$modifiedAt": SqlTableColumn {
                     "columnName": "modified_at",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.modified_at as modifiedAt)",
                     "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                     "jsonType": "Date",
                     "key": "modifiedAt",
@@ -472,11 +392,7 @@ describe("sql subqueries tests", () => {
                   "$notes": SqlTableColumn {
                     "columnName": "notes",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.notes)",
                     "id": "SqlTableColumn#6(account.notes)",
                     "jsonType": null,
                     "key": "notes",
@@ -492,11 +408,7 @@ describe("sql subqueries tests", () => {
                   "$parentId": SqlTableColumn {
                     "columnName": "parent_id",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.parent_id as parentId)",
                     "id": "SqlTableColumn#9(account.parent_id as parentId)",
                     "jsonType": null,
                     "key": "parentId",
@@ -512,11 +424,7 @@ describe("sql subqueries tests", () => {
                   "$status": SqlTableColumn {
                     "columnName": "status",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.status)",
                     "id": "SqlTableColumn#2(account.status)",
                     "jsonType": null,
                     "key": "status",
@@ -532,21 +440,13 @@ describe("sql subqueries tests", () => {
                   "_$$": Lazy {
                     "_computed": true,
                     "_value": SqlTableAll {
-                      "hashIdLazy": Lazy {
-                        "_computed": false,
-                        "_value": null,
-                        "callback": [Function],
-                      },
+                      "hashId": "SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId))",
                       "id": "SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId)",
                       "row": {
                         "$accountId": SqlTableColumn {
                           "columnName": "account_id",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.account_id as accountId)",
                           "id": "SqlTableColumn#1(account.account_id as accountId)",
                           "jsonType": null,
                           "key": "accountId",
@@ -562,11 +462,7 @@ describe("sql subqueries tests", () => {
                         "$createdAt": SqlTableColumn {
                           "columnName": "created_at",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.created_at as createdAt)",
                           "id": "SqlTableColumn#7(account.created_at as createdAt)",
                           "jsonType": "Date",
                           "key": "createdAt",
@@ -582,11 +478,7 @@ describe("sql subqueries tests", () => {
                         "$email": SqlTableColumn {
                           "columnName": "email",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.email)",
                           "id": "SqlTableColumn#3(account.email)",
                           "jsonType": null,
                           "key": "email",
@@ -602,11 +494,7 @@ describe("sql subqueries tests", () => {
                         "$firstName": SqlTableColumn {
                           "columnName": "first_name",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.first_name as firstName)",
                           "id": "SqlTableColumn#4(account.first_name as firstName)",
                           "jsonType": null,
                           "key": "firstName",
@@ -622,11 +510,7 @@ describe("sql subqueries tests", () => {
                         "$lastName": SqlTableColumn {
                           "columnName": "last_name",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.last_name as lastName)",
                           "id": "SqlTableColumn#5(account.last_name as lastName)",
                           "jsonType": null,
                           "key": "lastName",
@@ -642,11 +526,7 @@ describe("sql subqueries tests", () => {
                         "$modifiedAt": SqlTableColumn {
                           "columnName": "modified_at",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.modified_at as modifiedAt)",
                           "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                           "jsonType": "Date",
                           "key": "modifiedAt",
@@ -662,11 +542,7 @@ describe("sql subqueries tests", () => {
                         "$notes": SqlTableColumn {
                           "columnName": "notes",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.notes)",
                           "id": "SqlTableColumn#6(account.notes)",
                           "jsonType": null,
                           "key": "notes",
@@ -682,11 +558,7 @@ describe("sql subqueries tests", () => {
                         "$parentId": SqlTableColumn {
                           "columnName": "parent_id",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.parent_id as parentId)",
                           "id": "SqlTableColumn#9(account.parent_id as parentId)",
                           "jsonType": null,
                           "key": "parentId",
@@ -702,11 +574,7 @@ describe("sql subqueries tests", () => {
                         "$status": SqlTableColumn {
                           "columnName": "status",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.status)",
                           "id": "SqlTableColumn#2(account.status)",
                           "jsonType": null,
                           "key": "status",
@@ -731,11 +599,7 @@ describe("sql subqueries tests", () => {
                       "$accountId": SqlTableColumn {
                         "columnName": "account_id",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.account_id as accountId)",
                         "id": "SqlTableColumn#1(account.account_id as accountId)",
                         "jsonType": null,
                         "key": "accountId",
@@ -751,11 +615,7 @@ describe("sql subqueries tests", () => {
                       "$createdAt": SqlTableColumn {
                         "columnName": "created_at",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.created_at as createdAt)",
                         "id": "SqlTableColumn#7(account.created_at as createdAt)",
                         "jsonType": "Date",
                         "key": "createdAt",
@@ -771,11 +631,7 @@ describe("sql subqueries tests", () => {
                       "$email": SqlTableColumn {
                         "columnName": "email",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.email)",
                         "id": "SqlTableColumn#3(account.email)",
                         "jsonType": null,
                         "key": "email",
@@ -791,11 +647,7 @@ describe("sql subqueries tests", () => {
                       "$firstName": SqlTableColumn {
                         "columnName": "first_name",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.first_name as firstName)",
                         "id": "SqlTableColumn#4(account.first_name as firstName)",
                         "jsonType": null,
                         "key": "firstName",
@@ -811,11 +663,7 @@ describe("sql subqueries tests", () => {
                       "$lastName": SqlTableColumn {
                         "columnName": "last_name",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.last_name as lastName)",
                         "id": "SqlTableColumn#5(account.last_name as lastName)",
                         "jsonType": null,
                         "key": "lastName",
@@ -831,11 +679,7 @@ describe("sql subqueries tests", () => {
                       "$modifiedAt": SqlTableColumn {
                         "columnName": "modified_at",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.modified_at as modifiedAt)",
                         "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                         "jsonType": "Date",
                         "key": "modifiedAt",
@@ -851,11 +695,7 @@ describe("sql subqueries tests", () => {
                       "$notes": SqlTableColumn {
                         "columnName": "notes",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.notes)",
                         "id": "SqlTableColumn#6(account.notes)",
                         "jsonType": null,
                         "key": "notes",
@@ -871,11 +711,7 @@ describe("sql subqueries tests", () => {
                       "$parentId": SqlTableColumn {
                         "columnName": "parent_id",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.parent_id as parentId)",
                         "id": "SqlTableColumn#9(account.parent_id as parentId)",
                         "jsonType": null,
                         "key": "parentId",
@@ -891,11 +727,7 @@ describe("sql subqueries tests", () => {
                       "$status": SqlTableColumn {
                         "columnName": "status",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.status)",
                         "id": "SqlTableColumn#2(account.status)",
                         "jsonType": null,
                         "key": "status",
@@ -928,11 +760,7 @@ describe("sql subqueries tests", () => {
                   },
                   "dialect": "sql",
                   "format": null,
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlTable#(main.account)",
                   "id": "SqlTable#1(main.account)",
                   "pk": [
                     "accountId",
@@ -949,11 +777,7 @@ describe("sql subqueries tests", () => {
                 SqlTableColumn {
                   "columnName": "email",
                   "format": null,
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlTableColumn#(account.email)",
                   "id": "SqlTableColumn#3(account.email)",
                   "jsonType": null,
                   "key": "email",
@@ -967,11 +791,7 @@ describe("sql subqueries tests", () => {
                   "type": "SqlTableColumn",
                 },
                 SqlParam {
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlParam#(email)",
                   "id": "SqlParam#1(email)",
                   "name": "email",
                   "tag": null,
@@ -986,11 +806,7 @@ describe("sql subqueries tests", () => {
             "target": SqlTableColumn {
               "columnName": "account_id",
               "format": null,
-              "hashIdLazy": Lazy {
-                "_computed": false,
-                "_value": null,
-                "callback": [Function],
-              },
+              "hashId": "SqlTableColumn#(account.account_id as accountId)",
               "id": "SqlTableColumn#1(account.account_id as accountId)",
               "jsonType": null,
               "key": "accountId",
@@ -1007,11 +823,7 @@ describe("sql subqueries tests", () => {
           },
           "$createdAt": SqlQueryColumn {
             "format": null,
-            "hashIdLazy": Lazy {
-              "_computed": false,
-              "_value": null,
-              "callback": [Function],
-            },
+            "hashId": "SqlQueryColumn#(SqlTableColumn#(account.created_at as createdAt))",
             "id": "SqlQueryColumn#7(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#7(account.created_at as createdAt))",
             "key": "createdAt",
             "params": null,
@@ -1067,11 +879,7 @@ describe("sql subqueries tests", () => {
                 "_value": [Circular],
                 "callback": [Function],
               },
-              "hashIdLazy": Lazy {
-                "_computed": false,
-                "_value": null,
-                "callback": [Function],
-              },
+              "hashId": "SqlQuery#(["\\n         ","\\n         select ","\\n         from ","\\n         where "," = ",""]|SqlQueryInfo#(label=AccountsWithEmail)|SqlSelectRow#(SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId)))|SqlTable#(main.account)|SqlTableColumn#(account.email)|SqlParam#(email))",
               "id": "SqlQuery#1(label=AccountsWithEmail)",
               "location": "<anonymous>",
               "rawStrings": [
@@ -1089,11 +897,7 @@ describe("sql subqueries tests", () => {
               "rawValues": [
                 SqlQueryInfo {
                   "driver": null,
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlQueryInfo#(label=AccountsWithEmail)",
                   "id": "SqlQueryInfo#1(label=AccountsWithEmail)",
                   "label": "AccountsWithEmail",
                   "options": {
@@ -1105,21 +909,13 @@ describe("sql subqueries tests", () => {
                 SqlSelectRow {
                   "columns": [
                     SqlTableAll {
-                      "hashIdLazy": Lazy {
-                        "_computed": false,
-                        "_value": null,
-                        "callback": [Function],
-                      },
+                      "hashId": "SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId))",
                       "id": "SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId)",
                       "row": {
                         "$accountId": SqlTableColumn {
                           "columnName": "account_id",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.account_id as accountId)",
                           "id": "SqlTableColumn#1(account.account_id as accountId)",
                           "jsonType": null,
                           "key": "accountId",
@@ -1135,11 +931,7 @@ describe("sql subqueries tests", () => {
                         "$createdAt": SqlTableColumn {
                           "columnName": "created_at",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.created_at as createdAt)",
                           "id": "SqlTableColumn#7(account.created_at as createdAt)",
                           "jsonType": "Date",
                           "key": "createdAt",
@@ -1155,11 +947,7 @@ describe("sql subqueries tests", () => {
                         "$email": SqlTableColumn {
                           "columnName": "email",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.email)",
                           "id": "SqlTableColumn#3(account.email)",
                           "jsonType": null,
                           "key": "email",
@@ -1175,11 +963,7 @@ describe("sql subqueries tests", () => {
                         "$firstName": SqlTableColumn {
                           "columnName": "first_name",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.first_name as firstName)",
                           "id": "SqlTableColumn#4(account.first_name as firstName)",
                           "jsonType": null,
                           "key": "firstName",
@@ -1195,11 +979,7 @@ describe("sql subqueries tests", () => {
                         "$lastName": SqlTableColumn {
                           "columnName": "last_name",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.last_name as lastName)",
                           "id": "SqlTableColumn#5(account.last_name as lastName)",
                           "jsonType": null,
                           "key": "lastName",
@@ -1215,11 +995,7 @@ describe("sql subqueries tests", () => {
                         "$modifiedAt": SqlTableColumn {
                           "columnName": "modified_at",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.modified_at as modifiedAt)",
                           "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                           "jsonType": "Date",
                           "key": "modifiedAt",
@@ -1235,11 +1011,7 @@ describe("sql subqueries tests", () => {
                         "$notes": SqlTableColumn {
                           "columnName": "notes",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.notes)",
                           "id": "SqlTableColumn#6(account.notes)",
                           "jsonType": null,
                           "key": "notes",
@@ -1255,11 +1027,7 @@ describe("sql subqueries tests", () => {
                         "$parentId": SqlTableColumn {
                           "columnName": "parent_id",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.parent_id as parentId)",
                           "id": "SqlTableColumn#9(account.parent_id as parentId)",
                           "jsonType": null,
                           "key": "parentId",
@@ -1275,11 +1043,7 @@ describe("sql subqueries tests", () => {
                         "$status": SqlTableColumn {
                           "columnName": "status",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.status)",
                           "id": "SqlTableColumn#2(account.status)",
                           "jsonType": null,
                           "key": "status",
@@ -1297,11 +1061,7 @@ describe("sql subqueries tests", () => {
                       "type": "SqlTableAll",
                     },
                   ],
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlSelectRow#(SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId)))",
                   "id": "SqlSelectRow#1(SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId))",
                   "rowsByQueryId": Map {},
                   "tag": null,
@@ -1311,11 +1071,7 @@ describe("sql subqueries tests", () => {
                   "$accountId": SqlTableColumn {
                     "columnName": "account_id",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.account_id as accountId)",
                     "id": "SqlTableColumn#1(account.account_id as accountId)",
                     "jsonType": null,
                     "key": "accountId",
@@ -1331,11 +1087,7 @@ describe("sql subqueries tests", () => {
                   "$createdAt": SqlTableColumn {
                     "columnName": "created_at",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.created_at as createdAt)",
                     "id": "SqlTableColumn#7(account.created_at as createdAt)",
                     "jsonType": "Date",
                     "key": "createdAt",
@@ -1351,11 +1103,7 @@ describe("sql subqueries tests", () => {
                   "$email": SqlTableColumn {
                     "columnName": "email",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.email)",
                     "id": "SqlTableColumn#3(account.email)",
                     "jsonType": null,
                     "key": "email",
@@ -1371,11 +1119,7 @@ describe("sql subqueries tests", () => {
                   "$firstName": SqlTableColumn {
                     "columnName": "first_name",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.first_name as firstName)",
                     "id": "SqlTableColumn#4(account.first_name as firstName)",
                     "jsonType": null,
                     "key": "firstName",
@@ -1391,11 +1135,7 @@ describe("sql subqueries tests", () => {
                   "$lastName": SqlTableColumn {
                     "columnName": "last_name",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.last_name as lastName)",
                     "id": "SqlTableColumn#5(account.last_name as lastName)",
                     "jsonType": null,
                     "key": "lastName",
@@ -1411,11 +1151,7 @@ describe("sql subqueries tests", () => {
                   "$modifiedAt": SqlTableColumn {
                     "columnName": "modified_at",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.modified_at as modifiedAt)",
                     "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                     "jsonType": "Date",
                     "key": "modifiedAt",
@@ -1431,11 +1167,7 @@ describe("sql subqueries tests", () => {
                   "$notes": SqlTableColumn {
                     "columnName": "notes",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.notes)",
                     "id": "SqlTableColumn#6(account.notes)",
                     "jsonType": null,
                     "key": "notes",
@@ -1451,11 +1183,7 @@ describe("sql subqueries tests", () => {
                   "$parentId": SqlTableColumn {
                     "columnName": "parent_id",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.parent_id as parentId)",
                     "id": "SqlTableColumn#9(account.parent_id as parentId)",
                     "jsonType": null,
                     "key": "parentId",
@@ -1471,11 +1199,7 @@ describe("sql subqueries tests", () => {
                   "$status": SqlTableColumn {
                     "columnName": "status",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.status)",
                     "id": "SqlTableColumn#2(account.status)",
                     "jsonType": null,
                     "key": "status",
@@ -1491,21 +1215,13 @@ describe("sql subqueries tests", () => {
                   "_$$": Lazy {
                     "_computed": true,
                     "_value": SqlTableAll {
-                      "hashIdLazy": Lazy {
-                        "_computed": false,
-                        "_value": null,
-                        "callback": [Function],
-                      },
+                      "hashId": "SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId))",
                       "id": "SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId)",
                       "row": {
                         "$accountId": SqlTableColumn {
                           "columnName": "account_id",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.account_id as accountId)",
                           "id": "SqlTableColumn#1(account.account_id as accountId)",
                           "jsonType": null,
                           "key": "accountId",
@@ -1521,11 +1237,7 @@ describe("sql subqueries tests", () => {
                         "$createdAt": SqlTableColumn {
                           "columnName": "created_at",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.created_at as createdAt)",
                           "id": "SqlTableColumn#7(account.created_at as createdAt)",
                           "jsonType": "Date",
                           "key": "createdAt",
@@ -1541,11 +1253,7 @@ describe("sql subqueries tests", () => {
                         "$email": SqlTableColumn {
                           "columnName": "email",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.email)",
                           "id": "SqlTableColumn#3(account.email)",
                           "jsonType": null,
                           "key": "email",
@@ -1561,11 +1269,7 @@ describe("sql subqueries tests", () => {
                         "$firstName": SqlTableColumn {
                           "columnName": "first_name",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.first_name as firstName)",
                           "id": "SqlTableColumn#4(account.first_name as firstName)",
                           "jsonType": null,
                           "key": "firstName",
@@ -1581,11 +1285,7 @@ describe("sql subqueries tests", () => {
                         "$lastName": SqlTableColumn {
                           "columnName": "last_name",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.last_name as lastName)",
                           "id": "SqlTableColumn#5(account.last_name as lastName)",
                           "jsonType": null,
                           "key": "lastName",
@@ -1601,11 +1301,7 @@ describe("sql subqueries tests", () => {
                         "$modifiedAt": SqlTableColumn {
                           "columnName": "modified_at",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.modified_at as modifiedAt)",
                           "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                           "jsonType": "Date",
                           "key": "modifiedAt",
@@ -1621,11 +1317,7 @@ describe("sql subqueries tests", () => {
                         "$notes": SqlTableColumn {
                           "columnName": "notes",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.notes)",
                           "id": "SqlTableColumn#6(account.notes)",
                           "jsonType": null,
                           "key": "notes",
@@ -1641,11 +1333,7 @@ describe("sql subqueries tests", () => {
                         "$parentId": SqlTableColumn {
                           "columnName": "parent_id",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.parent_id as parentId)",
                           "id": "SqlTableColumn#9(account.parent_id as parentId)",
                           "jsonType": null,
                           "key": "parentId",
@@ -1661,11 +1349,7 @@ describe("sql subqueries tests", () => {
                         "$status": SqlTableColumn {
                           "columnName": "status",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.status)",
                           "id": "SqlTableColumn#2(account.status)",
                           "jsonType": null,
                           "key": "status",
@@ -1690,11 +1374,7 @@ describe("sql subqueries tests", () => {
                       "$accountId": SqlTableColumn {
                         "columnName": "account_id",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.account_id as accountId)",
                         "id": "SqlTableColumn#1(account.account_id as accountId)",
                         "jsonType": null,
                         "key": "accountId",
@@ -1710,11 +1390,7 @@ describe("sql subqueries tests", () => {
                       "$createdAt": SqlTableColumn {
                         "columnName": "created_at",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.created_at as createdAt)",
                         "id": "SqlTableColumn#7(account.created_at as createdAt)",
                         "jsonType": "Date",
                         "key": "createdAt",
@@ -1730,11 +1406,7 @@ describe("sql subqueries tests", () => {
                       "$email": SqlTableColumn {
                         "columnName": "email",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.email)",
                         "id": "SqlTableColumn#3(account.email)",
                         "jsonType": null,
                         "key": "email",
@@ -1750,11 +1422,7 @@ describe("sql subqueries tests", () => {
                       "$firstName": SqlTableColumn {
                         "columnName": "first_name",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.first_name as firstName)",
                         "id": "SqlTableColumn#4(account.first_name as firstName)",
                         "jsonType": null,
                         "key": "firstName",
@@ -1770,11 +1438,7 @@ describe("sql subqueries tests", () => {
                       "$lastName": SqlTableColumn {
                         "columnName": "last_name",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.last_name as lastName)",
                         "id": "SqlTableColumn#5(account.last_name as lastName)",
                         "jsonType": null,
                         "key": "lastName",
@@ -1790,11 +1454,7 @@ describe("sql subqueries tests", () => {
                       "$modifiedAt": SqlTableColumn {
                         "columnName": "modified_at",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.modified_at as modifiedAt)",
                         "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                         "jsonType": "Date",
                         "key": "modifiedAt",
@@ -1810,11 +1470,7 @@ describe("sql subqueries tests", () => {
                       "$notes": SqlTableColumn {
                         "columnName": "notes",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.notes)",
                         "id": "SqlTableColumn#6(account.notes)",
                         "jsonType": null,
                         "key": "notes",
@@ -1830,11 +1486,7 @@ describe("sql subqueries tests", () => {
                       "$parentId": SqlTableColumn {
                         "columnName": "parent_id",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.parent_id as parentId)",
                         "id": "SqlTableColumn#9(account.parent_id as parentId)",
                         "jsonType": null,
                         "key": "parentId",
@@ -1850,11 +1502,7 @@ describe("sql subqueries tests", () => {
                       "$status": SqlTableColumn {
                         "columnName": "status",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.status)",
                         "id": "SqlTableColumn#2(account.status)",
                         "jsonType": null,
                         "key": "status",
@@ -1887,11 +1535,7 @@ describe("sql subqueries tests", () => {
                   },
                   "dialect": "sql",
                   "format": null,
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlTable#(main.account)",
                   "id": "SqlTable#1(main.account)",
                   "pk": [
                     "accountId",
@@ -1908,11 +1552,7 @@ describe("sql subqueries tests", () => {
                 SqlTableColumn {
                   "columnName": "email",
                   "format": null,
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlTableColumn#(account.email)",
                   "id": "SqlTableColumn#3(account.email)",
                   "jsonType": null,
                   "key": "email",
@@ -1926,11 +1566,7 @@ describe("sql subqueries tests", () => {
                   "type": "SqlTableColumn",
                 },
                 SqlParam {
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlParam#(email)",
                   "id": "SqlParam#1(email)",
                   "name": "email",
                   "tag": null,
@@ -1945,11 +1581,7 @@ describe("sql subqueries tests", () => {
             "target": SqlTableColumn {
               "columnName": "created_at",
               "format": null,
-              "hashIdLazy": Lazy {
-                "_computed": false,
-                "_value": null,
-                "callback": [Function],
-              },
+              "hashId": "SqlTableColumn#(account.created_at as createdAt)",
               "id": "SqlTableColumn#7(account.created_at as createdAt)",
               "jsonType": "Date",
               "key": "createdAt",
@@ -1966,11 +1598,7 @@ describe("sql subqueries tests", () => {
           },
           "$email": SqlQueryColumn {
             "format": null,
-            "hashIdLazy": Lazy {
-              "_computed": false,
-              "_value": null,
-              "callback": [Function],
-            },
+            "hashId": "SqlQueryColumn#(SqlTableColumn#(account.email))",
             "id": "SqlQueryColumn#3(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#3(account.email))",
             "key": "email",
             "params": null,
@@ -2026,11 +1654,7 @@ describe("sql subqueries tests", () => {
                 "_value": [Circular],
                 "callback": [Function],
               },
-              "hashIdLazy": Lazy {
-                "_computed": false,
-                "_value": null,
-                "callback": [Function],
-              },
+              "hashId": "SqlQuery#(["\\n         ","\\n         select ","\\n         from ","\\n         where "," = ",""]|SqlQueryInfo#(label=AccountsWithEmail)|SqlSelectRow#(SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId)))|SqlTable#(main.account)|SqlTableColumn#(account.email)|SqlParam#(email))",
               "id": "SqlQuery#1(label=AccountsWithEmail)",
               "location": "<anonymous>",
               "rawStrings": [
@@ -2048,11 +1672,7 @@ describe("sql subqueries tests", () => {
               "rawValues": [
                 SqlQueryInfo {
                   "driver": null,
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlQueryInfo#(label=AccountsWithEmail)",
                   "id": "SqlQueryInfo#1(label=AccountsWithEmail)",
                   "label": "AccountsWithEmail",
                   "options": {
@@ -2064,21 +1684,13 @@ describe("sql subqueries tests", () => {
                 SqlSelectRow {
                   "columns": [
                     SqlTableAll {
-                      "hashIdLazy": Lazy {
-                        "_computed": false,
-                        "_value": null,
-                        "callback": [Function],
-                      },
+                      "hashId": "SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId))",
                       "id": "SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId)",
                       "row": {
                         "$accountId": SqlTableColumn {
                           "columnName": "account_id",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.account_id as accountId)",
                           "id": "SqlTableColumn#1(account.account_id as accountId)",
                           "jsonType": null,
                           "key": "accountId",
@@ -2094,11 +1706,7 @@ describe("sql subqueries tests", () => {
                         "$createdAt": SqlTableColumn {
                           "columnName": "created_at",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.created_at as createdAt)",
                           "id": "SqlTableColumn#7(account.created_at as createdAt)",
                           "jsonType": "Date",
                           "key": "createdAt",
@@ -2114,11 +1722,7 @@ describe("sql subqueries tests", () => {
                         "$email": SqlTableColumn {
                           "columnName": "email",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.email)",
                           "id": "SqlTableColumn#3(account.email)",
                           "jsonType": null,
                           "key": "email",
@@ -2134,11 +1738,7 @@ describe("sql subqueries tests", () => {
                         "$firstName": SqlTableColumn {
                           "columnName": "first_name",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.first_name as firstName)",
                           "id": "SqlTableColumn#4(account.first_name as firstName)",
                           "jsonType": null,
                           "key": "firstName",
@@ -2154,11 +1754,7 @@ describe("sql subqueries tests", () => {
                         "$lastName": SqlTableColumn {
                           "columnName": "last_name",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.last_name as lastName)",
                           "id": "SqlTableColumn#5(account.last_name as lastName)",
                           "jsonType": null,
                           "key": "lastName",
@@ -2174,11 +1770,7 @@ describe("sql subqueries tests", () => {
                         "$modifiedAt": SqlTableColumn {
                           "columnName": "modified_at",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.modified_at as modifiedAt)",
                           "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                           "jsonType": "Date",
                           "key": "modifiedAt",
@@ -2194,11 +1786,7 @@ describe("sql subqueries tests", () => {
                         "$notes": SqlTableColumn {
                           "columnName": "notes",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.notes)",
                           "id": "SqlTableColumn#6(account.notes)",
                           "jsonType": null,
                           "key": "notes",
@@ -2214,11 +1802,7 @@ describe("sql subqueries tests", () => {
                         "$parentId": SqlTableColumn {
                           "columnName": "parent_id",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.parent_id as parentId)",
                           "id": "SqlTableColumn#9(account.parent_id as parentId)",
                           "jsonType": null,
                           "key": "parentId",
@@ -2234,11 +1818,7 @@ describe("sql subqueries tests", () => {
                         "$status": SqlTableColumn {
                           "columnName": "status",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.status)",
                           "id": "SqlTableColumn#2(account.status)",
                           "jsonType": null,
                           "key": "status",
@@ -2256,11 +1836,7 @@ describe("sql subqueries tests", () => {
                       "type": "SqlTableAll",
                     },
                   ],
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlSelectRow#(SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId)))",
                   "id": "SqlSelectRow#1(SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId))",
                   "rowsByQueryId": Map {},
                   "tag": null,
@@ -2270,11 +1846,7 @@ describe("sql subqueries tests", () => {
                   "$accountId": SqlTableColumn {
                     "columnName": "account_id",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.account_id as accountId)",
                     "id": "SqlTableColumn#1(account.account_id as accountId)",
                     "jsonType": null,
                     "key": "accountId",
@@ -2290,11 +1862,7 @@ describe("sql subqueries tests", () => {
                   "$createdAt": SqlTableColumn {
                     "columnName": "created_at",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.created_at as createdAt)",
                     "id": "SqlTableColumn#7(account.created_at as createdAt)",
                     "jsonType": "Date",
                     "key": "createdAt",
@@ -2310,11 +1878,7 @@ describe("sql subqueries tests", () => {
                   "$email": SqlTableColumn {
                     "columnName": "email",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.email)",
                     "id": "SqlTableColumn#3(account.email)",
                     "jsonType": null,
                     "key": "email",
@@ -2330,11 +1894,7 @@ describe("sql subqueries tests", () => {
                   "$firstName": SqlTableColumn {
                     "columnName": "first_name",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.first_name as firstName)",
                     "id": "SqlTableColumn#4(account.first_name as firstName)",
                     "jsonType": null,
                     "key": "firstName",
@@ -2350,11 +1910,7 @@ describe("sql subqueries tests", () => {
                   "$lastName": SqlTableColumn {
                     "columnName": "last_name",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.last_name as lastName)",
                     "id": "SqlTableColumn#5(account.last_name as lastName)",
                     "jsonType": null,
                     "key": "lastName",
@@ -2370,11 +1926,7 @@ describe("sql subqueries tests", () => {
                   "$modifiedAt": SqlTableColumn {
                     "columnName": "modified_at",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.modified_at as modifiedAt)",
                     "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                     "jsonType": "Date",
                     "key": "modifiedAt",
@@ -2390,11 +1942,7 @@ describe("sql subqueries tests", () => {
                   "$notes": SqlTableColumn {
                     "columnName": "notes",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.notes)",
                     "id": "SqlTableColumn#6(account.notes)",
                     "jsonType": null,
                     "key": "notes",
@@ -2410,11 +1958,7 @@ describe("sql subqueries tests", () => {
                   "$parentId": SqlTableColumn {
                     "columnName": "parent_id",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.parent_id as parentId)",
                     "id": "SqlTableColumn#9(account.parent_id as parentId)",
                     "jsonType": null,
                     "key": "parentId",
@@ -2430,11 +1974,7 @@ describe("sql subqueries tests", () => {
                   "$status": SqlTableColumn {
                     "columnName": "status",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.status)",
                     "id": "SqlTableColumn#2(account.status)",
                     "jsonType": null,
                     "key": "status",
@@ -2450,21 +1990,13 @@ describe("sql subqueries tests", () => {
                   "_$$": Lazy {
                     "_computed": true,
                     "_value": SqlTableAll {
-                      "hashIdLazy": Lazy {
-                        "_computed": false,
-                        "_value": null,
-                        "callback": [Function],
-                      },
+                      "hashId": "SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId))",
                       "id": "SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId)",
                       "row": {
                         "$accountId": SqlTableColumn {
                           "columnName": "account_id",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.account_id as accountId)",
                           "id": "SqlTableColumn#1(account.account_id as accountId)",
                           "jsonType": null,
                           "key": "accountId",
@@ -2480,11 +2012,7 @@ describe("sql subqueries tests", () => {
                         "$createdAt": SqlTableColumn {
                           "columnName": "created_at",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.created_at as createdAt)",
                           "id": "SqlTableColumn#7(account.created_at as createdAt)",
                           "jsonType": "Date",
                           "key": "createdAt",
@@ -2500,11 +2028,7 @@ describe("sql subqueries tests", () => {
                         "$email": SqlTableColumn {
                           "columnName": "email",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.email)",
                           "id": "SqlTableColumn#3(account.email)",
                           "jsonType": null,
                           "key": "email",
@@ -2520,11 +2044,7 @@ describe("sql subqueries tests", () => {
                         "$firstName": SqlTableColumn {
                           "columnName": "first_name",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.first_name as firstName)",
                           "id": "SqlTableColumn#4(account.first_name as firstName)",
                           "jsonType": null,
                           "key": "firstName",
@@ -2540,11 +2060,7 @@ describe("sql subqueries tests", () => {
                         "$lastName": SqlTableColumn {
                           "columnName": "last_name",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.last_name as lastName)",
                           "id": "SqlTableColumn#5(account.last_name as lastName)",
                           "jsonType": null,
                           "key": "lastName",
@@ -2560,11 +2076,7 @@ describe("sql subqueries tests", () => {
                         "$modifiedAt": SqlTableColumn {
                           "columnName": "modified_at",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.modified_at as modifiedAt)",
                           "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                           "jsonType": "Date",
                           "key": "modifiedAt",
@@ -2580,11 +2092,7 @@ describe("sql subqueries tests", () => {
                         "$notes": SqlTableColumn {
                           "columnName": "notes",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.notes)",
                           "id": "SqlTableColumn#6(account.notes)",
                           "jsonType": null,
                           "key": "notes",
@@ -2600,11 +2108,7 @@ describe("sql subqueries tests", () => {
                         "$parentId": SqlTableColumn {
                           "columnName": "parent_id",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.parent_id as parentId)",
                           "id": "SqlTableColumn#9(account.parent_id as parentId)",
                           "jsonType": null,
                           "key": "parentId",
@@ -2620,11 +2124,7 @@ describe("sql subqueries tests", () => {
                         "$status": SqlTableColumn {
                           "columnName": "status",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.status)",
                           "id": "SqlTableColumn#2(account.status)",
                           "jsonType": null,
                           "key": "status",
@@ -2649,11 +2149,7 @@ describe("sql subqueries tests", () => {
                       "$accountId": SqlTableColumn {
                         "columnName": "account_id",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.account_id as accountId)",
                         "id": "SqlTableColumn#1(account.account_id as accountId)",
                         "jsonType": null,
                         "key": "accountId",
@@ -2669,11 +2165,7 @@ describe("sql subqueries tests", () => {
                       "$createdAt": SqlTableColumn {
                         "columnName": "created_at",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.created_at as createdAt)",
                         "id": "SqlTableColumn#7(account.created_at as createdAt)",
                         "jsonType": "Date",
                         "key": "createdAt",
@@ -2689,11 +2181,7 @@ describe("sql subqueries tests", () => {
                       "$email": SqlTableColumn {
                         "columnName": "email",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.email)",
                         "id": "SqlTableColumn#3(account.email)",
                         "jsonType": null,
                         "key": "email",
@@ -2709,11 +2197,7 @@ describe("sql subqueries tests", () => {
                       "$firstName": SqlTableColumn {
                         "columnName": "first_name",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.first_name as firstName)",
                         "id": "SqlTableColumn#4(account.first_name as firstName)",
                         "jsonType": null,
                         "key": "firstName",
@@ -2729,11 +2213,7 @@ describe("sql subqueries tests", () => {
                       "$lastName": SqlTableColumn {
                         "columnName": "last_name",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.last_name as lastName)",
                         "id": "SqlTableColumn#5(account.last_name as lastName)",
                         "jsonType": null,
                         "key": "lastName",
@@ -2749,11 +2229,7 @@ describe("sql subqueries tests", () => {
                       "$modifiedAt": SqlTableColumn {
                         "columnName": "modified_at",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.modified_at as modifiedAt)",
                         "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                         "jsonType": "Date",
                         "key": "modifiedAt",
@@ -2769,11 +2245,7 @@ describe("sql subqueries tests", () => {
                       "$notes": SqlTableColumn {
                         "columnName": "notes",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.notes)",
                         "id": "SqlTableColumn#6(account.notes)",
                         "jsonType": null,
                         "key": "notes",
@@ -2789,11 +2261,7 @@ describe("sql subqueries tests", () => {
                       "$parentId": SqlTableColumn {
                         "columnName": "parent_id",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.parent_id as parentId)",
                         "id": "SqlTableColumn#9(account.parent_id as parentId)",
                         "jsonType": null,
                         "key": "parentId",
@@ -2809,11 +2277,7 @@ describe("sql subqueries tests", () => {
                       "$status": SqlTableColumn {
                         "columnName": "status",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.status)",
                         "id": "SqlTableColumn#2(account.status)",
                         "jsonType": null,
                         "key": "status",
@@ -2846,11 +2310,7 @@ describe("sql subqueries tests", () => {
                   },
                   "dialect": "sql",
                   "format": null,
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlTable#(main.account)",
                   "id": "SqlTable#1(main.account)",
                   "pk": [
                     "accountId",
@@ -2867,11 +2327,7 @@ describe("sql subqueries tests", () => {
                 SqlTableColumn {
                   "columnName": "email",
                   "format": null,
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlTableColumn#(account.email)",
                   "id": "SqlTableColumn#3(account.email)",
                   "jsonType": null,
                   "key": "email",
@@ -2885,11 +2341,7 @@ describe("sql subqueries tests", () => {
                   "type": "SqlTableColumn",
                 },
                 SqlParam {
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlParam#(email)",
                   "id": "SqlParam#1(email)",
                   "name": "email",
                   "tag": null,
@@ -2904,11 +2356,7 @@ describe("sql subqueries tests", () => {
             "target": SqlTableColumn {
               "columnName": "email",
               "format": null,
-              "hashIdLazy": Lazy {
-                "_computed": false,
-                "_value": null,
-                "callback": [Function],
-              },
+              "hashId": "SqlTableColumn#(account.email)",
               "id": "SqlTableColumn#3(account.email)",
               "jsonType": null,
               "key": "email",
@@ -2925,11 +2373,7 @@ describe("sql subqueries tests", () => {
           },
           "$firstName": SqlQueryColumn {
             "format": null,
-            "hashIdLazy": Lazy {
-              "_computed": false,
-              "_value": null,
-              "callback": [Function],
-            },
+            "hashId": "SqlQueryColumn#(SqlTableColumn#(account.first_name as firstName))",
             "id": "SqlQueryColumn#4(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#4(account.first_name as firstName))",
             "key": "firstName",
             "params": null,
@@ -2985,11 +2429,7 @@ describe("sql subqueries tests", () => {
                 "_value": [Circular],
                 "callback": [Function],
               },
-              "hashIdLazy": Lazy {
-                "_computed": false,
-                "_value": null,
-                "callback": [Function],
-              },
+              "hashId": "SqlQuery#(["\\n         ","\\n         select ","\\n         from ","\\n         where "," = ",""]|SqlQueryInfo#(label=AccountsWithEmail)|SqlSelectRow#(SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId)))|SqlTable#(main.account)|SqlTableColumn#(account.email)|SqlParam#(email))",
               "id": "SqlQuery#1(label=AccountsWithEmail)",
               "location": "<anonymous>",
               "rawStrings": [
@@ -3007,11 +2447,7 @@ describe("sql subqueries tests", () => {
               "rawValues": [
                 SqlQueryInfo {
                   "driver": null,
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlQueryInfo#(label=AccountsWithEmail)",
                   "id": "SqlQueryInfo#1(label=AccountsWithEmail)",
                   "label": "AccountsWithEmail",
                   "options": {
@@ -3023,21 +2459,13 @@ describe("sql subqueries tests", () => {
                 SqlSelectRow {
                   "columns": [
                     SqlTableAll {
-                      "hashIdLazy": Lazy {
-                        "_computed": false,
-                        "_value": null,
-                        "callback": [Function],
-                      },
+                      "hashId": "SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId))",
                       "id": "SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId)",
                       "row": {
                         "$accountId": SqlTableColumn {
                           "columnName": "account_id",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.account_id as accountId)",
                           "id": "SqlTableColumn#1(account.account_id as accountId)",
                           "jsonType": null,
                           "key": "accountId",
@@ -3053,11 +2481,7 @@ describe("sql subqueries tests", () => {
                         "$createdAt": SqlTableColumn {
                           "columnName": "created_at",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.created_at as createdAt)",
                           "id": "SqlTableColumn#7(account.created_at as createdAt)",
                           "jsonType": "Date",
                           "key": "createdAt",
@@ -3073,11 +2497,7 @@ describe("sql subqueries tests", () => {
                         "$email": SqlTableColumn {
                           "columnName": "email",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.email)",
                           "id": "SqlTableColumn#3(account.email)",
                           "jsonType": null,
                           "key": "email",
@@ -3093,11 +2513,7 @@ describe("sql subqueries tests", () => {
                         "$firstName": SqlTableColumn {
                           "columnName": "first_name",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.first_name as firstName)",
                           "id": "SqlTableColumn#4(account.first_name as firstName)",
                           "jsonType": null,
                           "key": "firstName",
@@ -3113,11 +2529,7 @@ describe("sql subqueries tests", () => {
                         "$lastName": SqlTableColumn {
                           "columnName": "last_name",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.last_name as lastName)",
                           "id": "SqlTableColumn#5(account.last_name as lastName)",
                           "jsonType": null,
                           "key": "lastName",
@@ -3133,11 +2545,7 @@ describe("sql subqueries tests", () => {
                         "$modifiedAt": SqlTableColumn {
                           "columnName": "modified_at",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.modified_at as modifiedAt)",
                           "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                           "jsonType": "Date",
                           "key": "modifiedAt",
@@ -3153,11 +2561,7 @@ describe("sql subqueries tests", () => {
                         "$notes": SqlTableColumn {
                           "columnName": "notes",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.notes)",
                           "id": "SqlTableColumn#6(account.notes)",
                           "jsonType": null,
                           "key": "notes",
@@ -3173,11 +2577,7 @@ describe("sql subqueries tests", () => {
                         "$parentId": SqlTableColumn {
                           "columnName": "parent_id",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.parent_id as parentId)",
                           "id": "SqlTableColumn#9(account.parent_id as parentId)",
                           "jsonType": null,
                           "key": "parentId",
@@ -3193,11 +2593,7 @@ describe("sql subqueries tests", () => {
                         "$status": SqlTableColumn {
                           "columnName": "status",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.status)",
                           "id": "SqlTableColumn#2(account.status)",
                           "jsonType": null,
                           "key": "status",
@@ -3215,11 +2611,7 @@ describe("sql subqueries tests", () => {
                       "type": "SqlTableAll",
                     },
                   ],
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlSelectRow#(SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId)))",
                   "id": "SqlSelectRow#1(SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId))",
                   "rowsByQueryId": Map {},
                   "tag": null,
@@ -3229,11 +2621,7 @@ describe("sql subqueries tests", () => {
                   "$accountId": SqlTableColumn {
                     "columnName": "account_id",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.account_id as accountId)",
                     "id": "SqlTableColumn#1(account.account_id as accountId)",
                     "jsonType": null,
                     "key": "accountId",
@@ -3249,11 +2637,7 @@ describe("sql subqueries tests", () => {
                   "$createdAt": SqlTableColumn {
                     "columnName": "created_at",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.created_at as createdAt)",
                     "id": "SqlTableColumn#7(account.created_at as createdAt)",
                     "jsonType": "Date",
                     "key": "createdAt",
@@ -3269,11 +2653,7 @@ describe("sql subqueries tests", () => {
                   "$email": SqlTableColumn {
                     "columnName": "email",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.email)",
                     "id": "SqlTableColumn#3(account.email)",
                     "jsonType": null,
                     "key": "email",
@@ -3289,11 +2669,7 @@ describe("sql subqueries tests", () => {
                   "$firstName": SqlTableColumn {
                     "columnName": "first_name",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.first_name as firstName)",
                     "id": "SqlTableColumn#4(account.first_name as firstName)",
                     "jsonType": null,
                     "key": "firstName",
@@ -3309,11 +2685,7 @@ describe("sql subqueries tests", () => {
                   "$lastName": SqlTableColumn {
                     "columnName": "last_name",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.last_name as lastName)",
                     "id": "SqlTableColumn#5(account.last_name as lastName)",
                     "jsonType": null,
                     "key": "lastName",
@@ -3329,11 +2701,7 @@ describe("sql subqueries tests", () => {
                   "$modifiedAt": SqlTableColumn {
                     "columnName": "modified_at",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.modified_at as modifiedAt)",
                     "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                     "jsonType": "Date",
                     "key": "modifiedAt",
@@ -3349,11 +2717,7 @@ describe("sql subqueries tests", () => {
                   "$notes": SqlTableColumn {
                     "columnName": "notes",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.notes)",
                     "id": "SqlTableColumn#6(account.notes)",
                     "jsonType": null,
                     "key": "notes",
@@ -3369,11 +2733,7 @@ describe("sql subqueries tests", () => {
                   "$parentId": SqlTableColumn {
                     "columnName": "parent_id",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.parent_id as parentId)",
                     "id": "SqlTableColumn#9(account.parent_id as parentId)",
                     "jsonType": null,
                     "key": "parentId",
@@ -3389,11 +2749,7 @@ describe("sql subqueries tests", () => {
                   "$status": SqlTableColumn {
                     "columnName": "status",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.status)",
                     "id": "SqlTableColumn#2(account.status)",
                     "jsonType": null,
                     "key": "status",
@@ -3409,21 +2765,13 @@ describe("sql subqueries tests", () => {
                   "_$$": Lazy {
                     "_computed": true,
                     "_value": SqlTableAll {
-                      "hashIdLazy": Lazy {
-                        "_computed": false,
-                        "_value": null,
-                        "callback": [Function],
-                      },
+                      "hashId": "SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId))",
                       "id": "SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId)",
                       "row": {
                         "$accountId": SqlTableColumn {
                           "columnName": "account_id",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.account_id as accountId)",
                           "id": "SqlTableColumn#1(account.account_id as accountId)",
                           "jsonType": null,
                           "key": "accountId",
@@ -3439,11 +2787,7 @@ describe("sql subqueries tests", () => {
                         "$createdAt": SqlTableColumn {
                           "columnName": "created_at",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.created_at as createdAt)",
                           "id": "SqlTableColumn#7(account.created_at as createdAt)",
                           "jsonType": "Date",
                           "key": "createdAt",
@@ -3459,11 +2803,7 @@ describe("sql subqueries tests", () => {
                         "$email": SqlTableColumn {
                           "columnName": "email",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.email)",
                           "id": "SqlTableColumn#3(account.email)",
                           "jsonType": null,
                           "key": "email",
@@ -3479,11 +2819,7 @@ describe("sql subqueries tests", () => {
                         "$firstName": SqlTableColumn {
                           "columnName": "first_name",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.first_name as firstName)",
                           "id": "SqlTableColumn#4(account.first_name as firstName)",
                           "jsonType": null,
                           "key": "firstName",
@@ -3499,11 +2835,7 @@ describe("sql subqueries tests", () => {
                         "$lastName": SqlTableColumn {
                           "columnName": "last_name",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.last_name as lastName)",
                           "id": "SqlTableColumn#5(account.last_name as lastName)",
                           "jsonType": null,
                           "key": "lastName",
@@ -3519,11 +2851,7 @@ describe("sql subqueries tests", () => {
                         "$modifiedAt": SqlTableColumn {
                           "columnName": "modified_at",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.modified_at as modifiedAt)",
                           "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                           "jsonType": "Date",
                           "key": "modifiedAt",
@@ -3539,11 +2867,7 @@ describe("sql subqueries tests", () => {
                         "$notes": SqlTableColumn {
                           "columnName": "notes",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.notes)",
                           "id": "SqlTableColumn#6(account.notes)",
                           "jsonType": null,
                           "key": "notes",
@@ -3559,11 +2883,7 @@ describe("sql subqueries tests", () => {
                         "$parentId": SqlTableColumn {
                           "columnName": "parent_id",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.parent_id as parentId)",
                           "id": "SqlTableColumn#9(account.parent_id as parentId)",
                           "jsonType": null,
                           "key": "parentId",
@@ -3579,11 +2899,7 @@ describe("sql subqueries tests", () => {
                         "$status": SqlTableColumn {
                           "columnName": "status",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.status)",
                           "id": "SqlTableColumn#2(account.status)",
                           "jsonType": null,
                           "key": "status",
@@ -3608,11 +2924,7 @@ describe("sql subqueries tests", () => {
                       "$accountId": SqlTableColumn {
                         "columnName": "account_id",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.account_id as accountId)",
                         "id": "SqlTableColumn#1(account.account_id as accountId)",
                         "jsonType": null,
                         "key": "accountId",
@@ -3628,11 +2940,7 @@ describe("sql subqueries tests", () => {
                       "$createdAt": SqlTableColumn {
                         "columnName": "created_at",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.created_at as createdAt)",
                         "id": "SqlTableColumn#7(account.created_at as createdAt)",
                         "jsonType": "Date",
                         "key": "createdAt",
@@ -3648,11 +2956,7 @@ describe("sql subqueries tests", () => {
                       "$email": SqlTableColumn {
                         "columnName": "email",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.email)",
                         "id": "SqlTableColumn#3(account.email)",
                         "jsonType": null,
                         "key": "email",
@@ -3668,11 +2972,7 @@ describe("sql subqueries tests", () => {
                       "$firstName": SqlTableColumn {
                         "columnName": "first_name",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.first_name as firstName)",
                         "id": "SqlTableColumn#4(account.first_name as firstName)",
                         "jsonType": null,
                         "key": "firstName",
@@ -3688,11 +2988,7 @@ describe("sql subqueries tests", () => {
                       "$lastName": SqlTableColumn {
                         "columnName": "last_name",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.last_name as lastName)",
                         "id": "SqlTableColumn#5(account.last_name as lastName)",
                         "jsonType": null,
                         "key": "lastName",
@@ -3708,11 +3004,7 @@ describe("sql subqueries tests", () => {
                       "$modifiedAt": SqlTableColumn {
                         "columnName": "modified_at",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.modified_at as modifiedAt)",
                         "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                         "jsonType": "Date",
                         "key": "modifiedAt",
@@ -3728,11 +3020,7 @@ describe("sql subqueries tests", () => {
                       "$notes": SqlTableColumn {
                         "columnName": "notes",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.notes)",
                         "id": "SqlTableColumn#6(account.notes)",
                         "jsonType": null,
                         "key": "notes",
@@ -3748,11 +3036,7 @@ describe("sql subqueries tests", () => {
                       "$parentId": SqlTableColumn {
                         "columnName": "parent_id",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.parent_id as parentId)",
                         "id": "SqlTableColumn#9(account.parent_id as parentId)",
                         "jsonType": null,
                         "key": "parentId",
@@ -3768,11 +3052,7 @@ describe("sql subqueries tests", () => {
                       "$status": SqlTableColumn {
                         "columnName": "status",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.status)",
                         "id": "SqlTableColumn#2(account.status)",
                         "jsonType": null,
                         "key": "status",
@@ -3805,11 +3085,7 @@ describe("sql subqueries tests", () => {
                   },
                   "dialect": "sql",
                   "format": null,
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlTable#(main.account)",
                   "id": "SqlTable#1(main.account)",
                   "pk": [
                     "accountId",
@@ -3826,11 +3102,7 @@ describe("sql subqueries tests", () => {
                 SqlTableColumn {
                   "columnName": "email",
                   "format": null,
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlTableColumn#(account.email)",
                   "id": "SqlTableColumn#3(account.email)",
                   "jsonType": null,
                   "key": "email",
@@ -3844,11 +3116,7 @@ describe("sql subqueries tests", () => {
                   "type": "SqlTableColumn",
                 },
                 SqlParam {
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlParam#(email)",
                   "id": "SqlParam#1(email)",
                   "name": "email",
                   "tag": null,
@@ -3863,11 +3131,7 @@ describe("sql subqueries tests", () => {
             "target": SqlTableColumn {
               "columnName": "first_name",
               "format": null,
-              "hashIdLazy": Lazy {
-                "_computed": false,
-                "_value": null,
-                "callback": [Function],
-              },
+              "hashId": "SqlTableColumn#(account.first_name as firstName)",
               "id": "SqlTableColumn#4(account.first_name as firstName)",
               "jsonType": null,
               "key": "firstName",
@@ -3884,11 +3148,7 @@ describe("sql subqueries tests", () => {
           },
           "$lastName": SqlQueryColumn {
             "format": null,
-            "hashIdLazy": Lazy {
-              "_computed": false,
-              "_value": null,
-              "callback": [Function],
-            },
+            "hashId": "SqlQueryColumn#(SqlTableColumn#(account.last_name as lastName))",
             "id": "SqlQueryColumn#5(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#5(account.last_name as lastName))",
             "key": "lastName",
             "params": null,
@@ -3944,11 +3204,7 @@ describe("sql subqueries tests", () => {
                 "_value": [Circular],
                 "callback": [Function],
               },
-              "hashIdLazy": Lazy {
-                "_computed": false,
-                "_value": null,
-                "callback": [Function],
-              },
+              "hashId": "SqlQuery#(["\\n         ","\\n         select ","\\n         from ","\\n         where "," = ",""]|SqlQueryInfo#(label=AccountsWithEmail)|SqlSelectRow#(SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId)))|SqlTable#(main.account)|SqlTableColumn#(account.email)|SqlParam#(email))",
               "id": "SqlQuery#1(label=AccountsWithEmail)",
               "location": "<anonymous>",
               "rawStrings": [
@@ -3966,11 +3222,7 @@ describe("sql subqueries tests", () => {
               "rawValues": [
                 SqlQueryInfo {
                   "driver": null,
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlQueryInfo#(label=AccountsWithEmail)",
                   "id": "SqlQueryInfo#1(label=AccountsWithEmail)",
                   "label": "AccountsWithEmail",
                   "options": {
@@ -3982,21 +3234,13 @@ describe("sql subqueries tests", () => {
                 SqlSelectRow {
                   "columns": [
                     SqlTableAll {
-                      "hashIdLazy": Lazy {
-                        "_computed": false,
-                        "_value": null,
-                        "callback": [Function],
-                      },
+                      "hashId": "SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId))",
                       "id": "SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId)",
                       "row": {
                         "$accountId": SqlTableColumn {
                           "columnName": "account_id",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.account_id as accountId)",
                           "id": "SqlTableColumn#1(account.account_id as accountId)",
                           "jsonType": null,
                           "key": "accountId",
@@ -4012,11 +3256,7 @@ describe("sql subqueries tests", () => {
                         "$createdAt": SqlTableColumn {
                           "columnName": "created_at",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.created_at as createdAt)",
                           "id": "SqlTableColumn#7(account.created_at as createdAt)",
                           "jsonType": "Date",
                           "key": "createdAt",
@@ -4032,11 +3272,7 @@ describe("sql subqueries tests", () => {
                         "$email": SqlTableColumn {
                           "columnName": "email",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.email)",
                           "id": "SqlTableColumn#3(account.email)",
                           "jsonType": null,
                           "key": "email",
@@ -4052,11 +3288,7 @@ describe("sql subqueries tests", () => {
                         "$firstName": SqlTableColumn {
                           "columnName": "first_name",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.first_name as firstName)",
                           "id": "SqlTableColumn#4(account.first_name as firstName)",
                           "jsonType": null,
                           "key": "firstName",
@@ -4072,11 +3304,7 @@ describe("sql subqueries tests", () => {
                         "$lastName": SqlTableColumn {
                           "columnName": "last_name",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.last_name as lastName)",
                           "id": "SqlTableColumn#5(account.last_name as lastName)",
                           "jsonType": null,
                           "key": "lastName",
@@ -4092,11 +3320,7 @@ describe("sql subqueries tests", () => {
                         "$modifiedAt": SqlTableColumn {
                           "columnName": "modified_at",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.modified_at as modifiedAt)",
                           "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                           "jsonType": "Date",
                           "key": "modifiedAt",
@@ -4112,11 +3336,7 @@ describe("sql subqueries tests", () => {
                         "$notes": SqlTableColumn {
                           "columnName": "notes",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.notes)",
                           "id": "SqlTableColumn#6(account.notes)",
                           "jsonType": null,
                           "key": "notes",
@@ -4132,11 +3352,7 @@ describe("sql subqueries tests", () => {
                         "$parentId": SqlTableColumn {
                           "columnName": "parent_id",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.parent_id as parentId)",
                           "id": "SqlTableColumn#9(account.parent_id as parentId)",
                           "jsonType": null,
                           "key": "parentId",
@@ -4152,11 +3368,7 @@ describe("sql subqueries tests", () => {
                         "$status": SqlTableColumn {
                           "columnName": "status",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.status)",
                           "id": "SqlTableColumn#2(account.status)",
                           "jsonType": null,
                           "key": "status",
@@ -4174,11 +3386,7 @@ describe("sql subqueries tests", () => {
                       "type": "SqlTableAll",
                     },
                   ],
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlSelectRow#(SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId)))",
                   "id": "SqlSelectRow#1(SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId))",
                   "rowsByQueryId": Map {},
                   "tag": null,
@@ -4188,11 +3396,7 @@ describe("sql subqueries tests", () => {
                   "$accountId": SqlTableColumn {
                     "columnName": "account_id",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.account_id as accountId)",
                     "id": "SqlTableColumn#1(account.account_id as accountId)",
                     "jsonType": null,
                     "key": "accountId",
@@ -4208,11 +3412,7 @@ describe("sql subqueries tests", () => {
                   "$createdAt": SqlTableColumn {
                     "columnName": "created_at",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.created_at as createdAt)",
                     "id": "SqlTableColumn#7(account.created_at as createdAt)",
                     "jsonType": "Date",
                     "key": "createdAt",
@@ -4228,11 +3428,7 @@ describe("sql subqueries tests", () => {
                   "$email": SqlTableColumn {
                     "columnName": "email",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.email)",
                     "id": "SqlTableColumn#3(account.email)",
                     "jsonType": null,
                     "key": "email",
@@ -4248,11 +3444,7 @@ describe("sql subqueries tests", () => {
                   "$firstName": SqlTableColumn {
                     "columnName": "first_name",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.first_name as firstName)",
                     "id": "SqlTableColumn#4(account.first_name as firstName)",
                     "jsonType": null,
                     "key": "firstName",
@@ -4268,11 +3460,7 @@ describe("sql subqueries tests", () => {
                   "$lastName": SqlTableColumn {
                     "columnName": "last_name",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.last_name as lastName)",
                     "id": "SqlTableColumn#5(account.last_name as lastName)",
                     "jsonType": null,
                     "key": "lastName",
@@ -4288,11 +3476,7 @@ describe("sql subqueries tests", () => {
                   "$modifiedAt": SqlTableColumn {
                     "columnName": "modified_at",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.modified_at as modifiedAt)",
                     "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                     "jsonType": "Date",
                     "key": "modifiedAt",
@@ -4308,11 +3492,7 @@ describe("sql subqueries tests", () => {
                   "$notes": SqlTableColumn {
                     "columnName": "notes",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.notes)",
                     "id": "SqlTableColumn#6(account.notes)",
                     "jsonType": null,
                     "key": "notes",
@@ -4328,11 +3508,7 @@ describe("sql subqueries tests", () => {
                   "$parentId": SqlTableColumn {
                     "columnName": "parent_id",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.parent_id as parentId)",
                     "id": "SqlTableColumn#9(account.parent_id as parentId)",
                     "jsonType": null,
                     "key": "parentId",
@@ -4348,11 +3524,7 @@ describe("sql subqueries tests", () => {
                   "$status": SqlTableColumn {
                     "columnName": "status",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.status)",
                     "id": "SqlTableColumn#2(account.status)",
                     "jsonType": null,
                     "key": "status",
@@ -4368,21 +3540,13 @@ describe("sql subqueries tests", () => {
                   "_$$": Lazy {
                     "_computed": true,
                     "_value": SqlTableAll {
-                      "hashIdLazy": Lazy {
-                        "_computed": false,
-                        "_value": null,
-                        "callback": [Function],
-                      },
+                      "hashId": "SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId))",
                       "id": "SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId)",
                       "row": {
                         "$accountId": SqlTableColumn {
                           "columnName": "account_id",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.account_id as accountId)",
                           "id": "SqlTableColumn#1(account.account_id as accountId)",
                           "jsonType": null,
                           "key": "accountId",
@@ -4398,11 +3562,7 @@ describe("sql subqueries tests", () => {
                         "$createdAt": SqlTableColumn {
                           "columnName": "created_at",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.created_at as createdAt)",
                           "id": "SqlTableColumn#7(account.created_at as createdAt)",
                           "jsonType": "Date",
                           "key": "createdAt",
@@ -4418,11 +3578,7 @@ describe("sql subqueries tests", () => {
                         "$email": SqlTableColumn {
                           "columnName": "email",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.email)",
                           "id": "SqlTableColumn#3(account.email)",
                           "jsonType": null,
                           "key": "email",
@@ -4438,11 +3594,7 @@ describe("sql subqueries tests", () => {
                         "$firstName": SqlTableColumn {
                           "columnName": "first_name",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.first_name as firstName)",
                           "id": "SqlTableColumn#4(account.first_name as firstName)",
                           "jsonType": null,
                           "key": "firstName",
@@ -4458,11 +3610,7 @@ describe("sql subqueries tests", () => {
                         "$lastName": SqlTableColumn {
                           "columnName": "last_name",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.last_name as lastName)",
                           "id": "SqlTableColumn#5(account.last_name as lastName)",
                           "jsonType": null,
                           "key": "lastName",
@@ -4478,11 +3626,7 @@ describe("sql subqueries tests", () => {
                         "$modifiedAt": SqlTableColumn {
                           "columnName": "modified_at",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.modified_at as modifiedAt)",
                           "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                           "jsonType": "Date",
                           "key": "modifiedAt",
@@ -4498,11 +3642,7 @@ describe("sql subqueries tests", () => {
                         "$notes": SqlTableColumn {
                           "columnName": "notes",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.notes)",
                           "id": "SqlTableColumn#6(account.notes)",
                           "jsonType": null,
                           "key": "notes",
@@ -4518,11 +3658,7 @@ describe("sql subqueries tests", () => {
                         "$parentId": SqlTableColumn {
                           "columnName": "parent_id",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.parent_id as parentId)",
                           "id": "SqlTableColumn#9(account.parent_id as parentId)",
                           "jsonType": null,
                           "key": "parentId",
@@ -4538,11 +3674,7 @@ describe("sql subqueries tests", () => {
                         "$status": SqlTableColumn {
                           "columnName": "status",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.status)",
                           "id": "SqlTableColumn#2(account.status)",
                           "jsonType": null,
                           "key": "status",
@@ -4567,11 +3699,7 @@ describe("sql subqueries tests", () => {
                       "$accountId": SqlTableColumn {
                         "columnName": "account_id",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.account_id as accountId)",
                         "id": "SqlTableColumn#1(account.account_id as accountId)",
                         "jsonType": null,
                         "key": "accountId",
@@ -4587,11 +3715,7 @@ describe("sql subqueries tests", () => {
                       "$createdAt": SqlTableColumn {
                         "columnName": "created_at",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.created_at as createdAt)",
                         "id": "SqlTableColumn#7(account.created_at as createdAt)",
                         "jsonType": "Date",
                         "key": "createdAt",
@@ -4607,11 +3731,7 @@ describe("sql subqueries tests", () => {
                       "$email": SqlTableColumn {
                         "columnName": "email",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.email)",
                         "id": "SqlTableColumn#3(account.email)",
                         "jsonType": null,
                         "key": "email",
@@ -4627,11 +3747,7 @@ describe("sql subqueries tests", () => {
                       "$firstName": SqlTableColumn {
                         "columnName": "first_name",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.first_name as firstName)",
                         "id": "SqlTableColumn#4(account.first_name as firstName)",
                         "jsonType": null,
                         "key": "firstName",
@@ -4647,11 +3763,7 @@ describe("sql subqueries tests", () => {
                       "$lastName": SqlTableColumn {
                         "columnName": "last_name",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.last_name as lastName)",
                         "id": "SqlTableColumn#5(account.last_name as lastName)",
                         "jsonType": null,
                         "key": "lastName",
@@ -4667,11 +3779,7 @@ describe("sql subqueries tests", () => {
                       "$modifiedAt": SqlTableColumn {
                         "columnName": "modified_at",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.modified_at as modifiedAt)",
                         "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                         "jsonType": "Date",
                         "key": "modifiedAt",
@@ -4687,11 +3795,7 @@ describe("sql subqueries tests", () => {
                       "$notes": SqlTableColumn {
                         "columnName": "notes",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.notes)",
                         "id": "SqlTableColumn#6(account.notes)",
                         "jsonType": null,
                         "key": "notes",
@@ -4707,11 +3811,7 @@ describe("sql subqueries tests", () => {
                       "$parentId": SqlTableColumn {
                         "columnName": "parent_id",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.parent_id as parentId)",
                         "id": "SqlTableColumn#9(account.parent_id as parentId)",
                         "jsonType": null,
                         "key": "parentId",
@@ -4727,11 +3827,7 @@ describe("sql subqueries tests", () => {
                       "$status": SqlTableColumn {
                         "columnName": "status",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.status)",
                         "id": "SqlTableColumn#2(account.status)",
                         "jsonType": null,
                         "key": "status",
@@ -4764,11 +3860,7 @@ describe("sql subqueries tests", () => {
                   },
                   "dialect": "sql",
                   "format": null,
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlTable#(main.account)",
                   "id": "SqlTable#1(main.account)",
                   "pk": [
                     "accountId",
@@ -4785,11 +3877,7 @@ describe("sql subqueries tests", () => {
                 SqlTableColumn {
                   "columnName": "email",
                   "format": null,
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlTableColumn#(account.email)",
                   "id": "SqlTableColumn#3(account.email)",
                   "jsonType": null,
                   "key": "email",
@@ -4803,11 +3891,7 @@ describe("sql subqueries tests", () => {
                   "type": "SqlTableColumn",
                 },
                 SqlParam {
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlParam#(email)",
                   "id": "SqlParam#1(email)",
                   "name": "email",
                   "tag": null,
@@ -4822,11 +3906,7 @@ describe("sql subqueries tests", () => {
             "target": SqlTableColumn {
               "columnName": "last_name",
               "format": null,
-              "hashIdLazy": Lazy {
-                "_computed": false,
-                "_value": null,
-                "callback": [Function],
-              },
+              "hashId": "SqlTableColumn#(account.last_name as lastName)",
               "id": "SqlTableColumn#5(account.last_name as lastName)",
               "jsonType": null,
               "key": "lastName",
@@ -4843,11 +3923,7 @@ describe("sql subqueries tests", () => {
           },
           "$modifiedAt": SqlQueryColumn {
             "format": null,
-            "hashIdLazy": Lazy {
-              "_computed": false,
-              "_value": null,
-              "callback": [Function],
-            },
+            "hashId": "SqlQueryColumn#(SqlTableColumn#(account.modified_at as modifiedAt))",
             "id": "SqlQueryColumn#8(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#8(account.modified_at as modifiedAt))",
             "key": "modifiedAt",
             "params": null,
@@ -4903,11 +3979,7 @@ describe("sql subqueries tests", () => {
                 "_value": [Circular],
                 "callback": [Function],
               },
-              "hashIdLazy": Lazy {
-                "_computed": false,
-                "_value": null,
-                "callback": [Function],
-              },
+              "hashId": "SqlQuery#(["\\n         ","\\n         select ","\\n         from ","\\n         where "," = ",""]|SqlQueryInfo#(label=AccountsWithEmail)|SqlSelectRow#(SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId)))|SqlTable#(main.account)|SqlTableColumn#(account.email)|SqlParam#(email))",
               "id": "SqlQuery#1(label=AccountsWithEmail)",
               "location": "<anonymous>",
               "rawStrings": [
@@ -4925,11 +3997,7 @@ describe("sql subqueries tests", () => {
               "rawValues": [
                 SqlQueryInfo {
                   "driver": null,
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlQueryInfo#(label=AccountsWithEmail)",
                   "id": "SqlQueryInfo#1(label=AccountsWithEmail)",
                   "label": "AccountsWithEmail",
                   "options": {
@@ -4941,21 +4009,13 @@ describe("sql subqueries tests", () => {
                 SqlSelectRow {
                   "columns": [
                     SqlTableAll {
-                      "hashIdLazy": Lazy {
-                        "_computed": false,
-                        "_value": null,
-                        "callback": [Function],
-                      },
+                      "hashId": "SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId))",
                       "id": "SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId)",
                       "row": {
                         "$accountId": SqlTableColumn {
                           "columnName": "account_id",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.account_id as accountId)",
                           "id": "SqlTableColumn#1(account.account_id as accountId)",
                           "jsonType": null,
                           "key": "accountId",
@@ -4971,11 +4031,7 @@ describe("sql subqueries tests", () => {
                         "$createdAt": SqlTableColumn {
                           "columnName": "created_at",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.created_at as createdAt)",
                           "id": "SqlTableColumn#7(account.created_at as createdAt)",
                           "jsonType": "Date",
                           "key": "createdAt",
@@ -4991,11 +4047,7 @@ describe("sql subqueries tests", () => {
                         "$email": SqlTableColumn {
                           "columnName": "email",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.email)",
                           "id": "SqlTableColumn#3(account.email)",
                           "jsonType": null,
                           "key": "email",
@@ -5011,11 +4063,7 @@ describe("sql subqueries tests", () => {
                         "$firstName": SqlTableColumn {
                           "columnName": "first_name",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.first_name as firstName)",
                           "id": "SqlTableColumn#4(account.first_name as firstName)",
                           "jsonType": null,
                           "key": "firstName",
@@ -5031,11 +4079,7 @@ describe("sql subqueries tests", () => {
                         "$lastName": SqlTableColumn {
                           "columnName": "last_name",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.last_name as lastName)",
                           "id": "SqlTableColumn#5(account.last_name as lastName)",
                           "jsonType": null,
                           "key": "lastName",
@@ -5051,11 +4095,7 @@ describe("sql subqueries tests", () => {
                         "$modifiedAt": SqlTableColumn {
                           "columnName": "modified_at",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.modified_at as modifiedAt)",
                           "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                           "jsonType": "Date",
                           "key": "modifiedAt",
@@ -5071,11 +4111,7 @@ describe("sql subqueries tests", () => {
                         "$notes": SqlTableColumn {
                           "columnName": "notes",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.notes)",
                           "id": "SqlTableColumn#6(account.notes)",
                           "jsonType": null,
                           "key": "notes",
@@ -5091,11 +4127,7 @@ describe("sql subqueries tests", () => {
                         "$parentId": SqlTableColumn {
                           "columnName": "parent_id",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.parent_id as parentId)",
                           "id": "SqlTableColumn#9(account.parent_id as parentId)",
                           "jsonType": null,
                           "key": "parentId",
@@ -5111,11 +4143,7 @@ describe("sql subqueries tests", () => {
                         "$status": SqlTableColumn {
                           "columnName": "status",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.status)",
                           "id": "SqlTableColumn#2(account.status)",
                           "jsonType": null,
                           "key": "status",
@@ -5133,11 +4161,7 @@ describe("sql subqueries tests", () => {
                       "type": "SqlTableAll",
                     },
                   ],
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlSelectRow#(SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId)))",
                   "id": "SqlSelectRow#1(SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId))",
                   "rowsByQueryId": Map {},
                   "tag": null,
@@ -5147,11 +4171,7 @@ describe("sql subqueries tests", () => {
                   "$accountId": SqlTableColumn {
                     "columnName": "account_id",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.account_id as accountId)",
                     "id": "SqlTableColumn#1(account.account_id as accountId)",
                     "jsonType": null,
                     "key": "accountId",
@@ -5167,11 +4187,7 @@ describe("sql subqueries tests", () => {
                   "$createdAt": SqlTableColumn {
                     "columnName": "created_at",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.created_at as createdAt)",
                     "id": "SqlTableColumn#7(account.created_at as createdAt)",
                     "jsonType": "Date",
                     "key": "createdAt",
@@ -5187,11 +4203,7 @@ describe("sql subqueries tests", () => {
                   "$email": SqlTableColumn {
                     "columnName": "email",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.email)",
                     "id": "SqlTableColumn#3(account.email)",
                     "jsonType": null,
                     "key": "email",
@@ -5207,11 +4219,7 @@ describe("sql subqueries tests", () => {
                   "$firstName": SqlTableColumn {
                     "columnName": "first_name",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.first_name as firstName)",
                     "id": "SqlTableColumn#4(account.first_name as firstName)",
                     "jsonType": null,
                     "key": "firstName",
@@ -5227,11 +4235,7 @@ describe("sql subqueries tests", () => {
                   "$lastName": SqlTableColumn {
                     "columnName": "last_name",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.last_name as lastName)",
                     "id": "SqlTableColumn#5(account.last_name as lastName)",
                     "jsonType": null,
                     "key": "lastName",
@@ -5247,11 +4251,7 @@ describe("sql subqueries tests", () => {
                   "$modifiedAt": SqlTableColumn {
                     "columnName": "modified_at",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.modified_at as modifiedAt)",
                     "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                     "jsonType": "Date",
                     "key": "modifiedAt",
@@ -5267,11 +4267,7 @@ describe("sql subqueries tests", () => {
                   "$notes": SqlTableColumn {
                     "columnName": "notes",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.notes)",
                     "id": "SqlTableColumn#6(account.notes)",
                     "jsonType": null,
                     "key": "notes",
@@ -5287,11 +4283,7 @@ describe("sql subqueries tests", () => {
                   "$parentId": SqlTableColumn {
                     "columnName": "parent_id",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.parent_id as parentId)",
                     "id": "SqlTableColumn#9(account.parent_id as parentId)",
                     "jsonType": null,
                     "key": "parentId",
@@ -5307,11 +4299,7 @@ describe("sql subqueries tests", () => {
                   "$status": SqlTableColumn {
                     "columnName": "status",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.status)",
                     "id": "SqlTableColumn#2(account.status)",
                     "jsonType": null,
                     "key": "status",
@@ -5327,21 +4315,13 @@ describe("sql subqueries tests", () => {
                   "_$$": Lazy {
                     "_computed": true,
                     "_value": SqlTableAll {
-                      "hashIdLazy": Lazy {
-                        "_computed": false,
-                        "_value": null,
-                        "callback": [Function],
-                      },
+                      "hashId": "SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId))",
                       "id": "SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId)",
                       "row": {
                         "$accountId": SqlTableColumn {
                           "columnName": "account_id",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.account_id as accountId)",
                           "id": "SqlTableColumn#1(account.account_id as accountId)",
                           "jsonType": null,
                           "key": "accountId",
@@ -5357,11 +4337,7 @@ describe("sql subqueries tests", () => {
                         "$createdAt": SqlTableColumn {
                           "columnName": "created_at",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.created_at as createdAt)",
                           "id": "SqlTableColumn#7(account.created_at as createdAt)",
                           "jsonType": "Date",
                           "key": "createdAt",
@@ -5377,11 +4353,7 @@ describe("sql subqueries tests", () => {
                         "$email": SqlTableColumn {
                           "columnName": "email",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.email)",
                           "id": "SqlTableColumn#3(account.email)",
                           "jsonType": null,
                           "key": "email",
@@ -5397,11 +4369,7 @@ describe("sql subqueries tests", () => {
                         "$firstName": SqlTableColumn {
                           "columnName": "first_name",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.first_name as firstName)",
                           "id": "SqlTableColumn#4(account.first_name as firstName)",
                           "jsonType": null,
                           "key": "firstName",
@@ -5417,11 +4385,7 @@ describe("sql subqueries tests", () => {
                         "$lastName": SqlTableColumn {
                           "columnName": "last_name",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.last_name as lastName)",
                           "id": "SqlTableColumn#5(account.last_name as lastName)",
                           "jsonType": null,
                           "key": "lastName",
@@ -5437,11 +4401,7 @@ describe("sql subqueries tests", () => {
                         "$modifiedAt": SqlTableColumn {
                           "columnName": "modified_at",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.modified_at as modifiedAt)",
                           "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                           "jsonType": "Date",
                           "key": "modifiedAt",
@@ -5457,11 +4417,7 @@ describe("sql subqueries tests", () => {
                         "$notes": SqlTableColumn {
                           "columnName": "notes",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.notes)",
                           "id": "SqlTableColumn#6(account.notes)",
                           "jsonType": null,
                           "key": "notes",
@@ -5477,11 +4433,7 @@ describe("sql subqueries tests", () => {
                         "$parentId": SqlTableColumn {
                           "columnName": "parent_id",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.parent_id as parentId)",
                           "id": "SqlTableColumn#9(account.parent_id as parentId)",
                           "jsonType": null,
                           "key": "parentId",
@@ -5497,11 +4449,7 @@ describe("sql subqueries tests", () => {
                         "$status": SqlTableColumn {
                           "columnName": "status",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.status)",
                           "id": "SqlTableColumn#2(account.status)",
                           "jsonType": null,
                           "key": "status",
@@ -5526,11 +4474,7 @@ describe("sql subqueries tests", () => {
                       "$accountId": SqlTableColumn {
                         "columnName": "account_id",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.account_id as accountId)",
                         "id": "SqlTableColumn#1(account.account_id as accountId)",
                         "jsonType": null,
                         "key": "accountId",
@@ -5546,11 +4490,7 @@ describe("sql subqueries tests", () => {
                       "$createdAt": SqlTableColumn {
                         "columnName": "created_at",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.created_at as createdAt)",
                         "id": "SqlTableColumn#7(account.created_at as createdAt)",
                         "jsonType": "Date",
                         "key": "createdAt",
@@ -5566,11 +4506,7 @@ describe("sql subqueries tests", () => {
                       "$email": SqlTableColumn {
                         "columnName": "email",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.email)",
                         "id": "SqlTableColumn#3(account.email)",
                         "jsonType": null,
                         "key": "email",
@@ -5586,11 +4522,7 @@ describe("sql subqueries tests", () => {
                       "$firstName": SqlTableColumn {
                         "columnName": "first_name",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.first_name as firstName)",
                         "id": "SqlTableColumn#4(account.first_name as firstName)",
                         "jsonType": null,
                         "key": "firstName",
@@ -5606,11 +4538,7 @@ describe("sql subqueries tests", () => {
                       "$lastName": SqlTableColumn {
                         "columnName": "last_name",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.last_name as lastName)",
                         "id": "SqlTableColumn#5(account.last_name as lastName)",
                         "jsonType": null,
                         "key": "lastName",
@@ -5626,11 +4554,7 @@ describe("sql subqueries tests", () => {
                       "$modifiedAt": SqlTableColumn {
                         "columnName": "modified_at",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.modified_at as modifiedAt)",
                         "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                         "jsonType": "Date",
                         "key": "modifiedAt",
@@ -5646,11 +4570,7 @@ describe("sql subqueries tests", () => {
                       "$notes": SqlTableColumn {
                         "columnName": "notes",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.notes)",
                         "id": "SqlTableColumn#6(account.notes)",
                         "jsonType": null,
                         "key": "notes",
@@ -5666,11 +4586,7 @@ describe("sql subqueries tests", () => {
                       "$parentId": SqlTableColumn {
                         "columnName": "parent_id",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.parent_id as parentId)",
                         "id": "SqlTableColumn#9(account.parent_id as parentId)",
                         "jsonType": null,
                         "key": "parentId",
@@ -5686,11 +4602,7 @@ describe("sql subqueries tests", () => {
                       "$status": SqlTableColumn {
                         "columnName": "status",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.status)",
                         "id": "SqlTableColumn#2(account.status)",
                         "jsonType": null,
                         "key": "status",
@@ -5723,11 +4635,7 @@ describe("sql subqueries tests", () => {
                   },
                   "dialect": "sql",
                   "format": null,
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlTable#(main.account)",
                   "id": "SqlTable#1(main.account)",
                   "pk": [
                     "accountId",
@@ -5744,11 +4652,7 @@ describe("sql subqueries tests", () => {
                 SqlTableColumn {
                   "columnName": "email",
                   "format": null,
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlTableColumn#(account.email)",
                   "id": "SqlTableColumn#3(account.email)",
                   "jsonType": null,
                   "key": "email",
@@ -5762,11 +4666,7 @@ describe("sql subqueries tests", () => {
                   "type": "SqlTableColumn",
                 },
                 SqlParam {
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlParam#(email)",
                   "id": "SqlParam#1(email)",
                   "name": "email",
                   "tag": null,
@@ -5781,11 +4681,7 @@ describe("sql subqueries tests", () => {
             "target": SqlTableColumn {
               "columnName": "modified_at",
               "format": null,
-              "hashIdLazy": Lazy {
-                "_computed": false,
-                "_value": null,
-                "callback": [Function],
-              },
+              "hashId": "SqlTableColumn#(account.modified_at as modifiedAt)",
               "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
               "jsonType": "Date",
               "key": "modifiedAt",
@@ -5802,11 +4698,7 @@ describe("sql subqueries tests", () => {
           },
           "$notes": SqlQueryColumn {
             "format": null,
-            "hashIdLazy": Lazy {
-              "_computed": false,
-              "_value": null,
-              "callback": [Function],
-            },
+            "hashId": "SqlQueryColumn#(SqlTableColumn#(account.notes))",
             "id": "SqlQueryColumn#6(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#6(account.notes))",
             "key": "notes",
             "params": null,
@@ -5862,11 +4754,7 @@ describe("sql subqueries tests", () => {
                 "_value": [Circular],
                 "callback": [Function],
               },
-              "hashIdLazy": Lazy {
-                "_computed": false,
-                "_value": null,
-                "callback": [Function],
-              },
+              "hashId": "SqlQuery#(["\\n         ","\\n         select ","\\n         from ","\\n         where "," = ",""]|SqlQueryInfo#(label=AccountsWithEmail)|SqlSelectRow#(SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId)))|SqlTable#(main.account)|SqlTableColumn#(account.email)|SqlParam#(email))",
               "id": "SqlQuery#1(label=AccountsWithEmail)",
               "location": "<anonymous>",
               "rawStrings": [
@@ -5884,11 +4772,7 @@ describe("sql subqueries tests", () => {
               "rawValues": [
                 SqlQueryInfo {
                   "driver": null,
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlQueryInfo#(label=AccountsWithEmail)",
                   "id": "SqlQueryInfo#1(label=AccountsWithEmail)",
                   "label": "AccountsWithEmail",
                   "options": {
@@ -5900,21 +4784,13 @@ describe("sql subqueries tests", () => {
                 SqlSelectRow {
                   "columns": [
                     SqlTableAll {
-                      "hashIdLazy": Lazy {
-                        "_computed": false,
-                        "_value": null,
-                        "callback": [Function],
-                      },
+                      "hashId": "SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId))",
                       "id": "SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId)",
                       "row": {
                         "$accountId": SqlTableColumn {
                           "columnName": "account_id",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.account_id as accountId)",
                           "id": "SqlTableColumn#1(account.account_id as accountId)",
                           "jsonType": null,
                           "key": "accountId",
@@ -5930,11 +4806,7 @@ describe("sql subqueries tests", () => {
                         "$createdAt": SqlTableColumn {
                           "columnName": "created_at",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.created_at as createdAt)",
                           "id": "SqlTableColumn#7(account.created_at as createdAt)",
                           "jsonType": "Date",
                           "key": "createdAt",
@@ -5950,11 +4822,7 @@ describe("sql subqueries tests", () => {
                         "$email": SqlTableColumn {
                           "columnName": "email",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.email)",
                           "id": "SqlTableColumn#3(account.email)",
                           "jsonType": null,
                           "key": "email",
@@ -5970,11 +4838,7 @@ describe("sql subqueries tests", () => {
                         "$firstName": SqlTableColumn {
                           "columnName": "first_name",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.first_name as firstName)",
                           "id": "SqlTableColumn#4(account.first_name as firstName)",
                           "jsonType": null,
                           "key": "firstName",
@@ -5990,11 +4854,7 @@ describe("sql subqueries tests", () => {
                         "$lastName": SqlTableColumn {
                           "columnName": "last_name",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.last_name as lastName)",
                           "id": "SqlTableColumn#5(account.last_name as lastName)",
                           "jsonType": null,
                           "key": "lastName",
@@ -6010,11 +4870,7 @@ describe("sql subqueries tests", () => {
                         "$modifiedAt": SqlTableColumn {
                           "columnName": "modified_at",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.modified_at as modifiedAt)",
                           "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                           "jsonType": "Date",
                           "key": "modifiedAt",
@@ -6030,11 +4886,7 @@ describe("sql subqueries tests", () => {
                         "$notes": SqlTableColumn {
                           "columnName": "notes",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.notes)",
                           "id": "SqlTableColumn#6(account.notes)",
                           "jsonType": null,
                           "key": "notes",
@@ -6050,11 +4902,7 @@ describe("sql subqueries tests", () => {
                         "$parentId": SqlTableColumn {
                           "columnName": "parent_id",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.parent_id as parentId)",
                           "id": "SqlTableColumn#9(account.parent_id as parentId)",
                           "jsonType": null,
                           "key": "parentId",
@@ -6070,11 +4918,7 @@ describe("sql subqueries tests", () => {
                         "$status": SqlTableColumn {
                           "columnName": "status",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.status)",
                           "id": "SqlTableColumn#2(account.status)",
                           "jsonType": null,
                           "key": "status",
@@ -6092,11 +4936,7 @@ describe("sql subqueries tests", () => {
                       "type": "SqlTableAll",
                     },
                   ],
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlSelectRow#(SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId)))",
                   "id": "SqlSelectRow#1(SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId))",
                   "rowsByQueryId": Map {},
                   "tag": null,
@@ -6106,11 +4946,7 @@ describe("sql subqueries tests", () => {
                   "$accountId": SqlTableColumn {
                     "columnName": "account_id",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.account_id as accountId)",
                     "id": "SqlTableColumn#1(account.account_id as accountId)",
                     "jsonType": null,
                     "key": "accountId",
@@ -6126,11 +4962,7 @@ describe("sql subqueries tests", () => {
                   "$createdAt": SqlTableColumn {
                     "columnName": "created_at",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.created_at as createdAt)",
                     "id": "SqlTableColumn#7(account.created_at as createdAt)",
                     "jsonType": "Date",
                     "key": "createdAt",
@@ -6146,11 +4978,7 @@ describe("sql subqueries tests", () => {
                   "$email": SqlTableColumn {
                     "columnName": "email",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.email)",
                     "id": "SqlTableColumn#3(account.email)",
                     "jsonType": null,
                     "key": "email",
@@ -6166,11 +4994,7 @@ describe("sql subqueries tests", () => {
                   "$firstName": SqlTableColumn {
                     "columnName": "first_name",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.first_name as firstName)",
                     "id": "SqlTableColumn#4(account.first_name as firstName)",
                     "jsonType": null,
                     "key": "firstName",
@@ -6186,11 +5010,7 @@ describe("sql subqueries tests", () => {
                   "$lastName": SqlTableColumn {
                     "columnName": "last_name",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.last_name as lastName)",
                     "id": "SqlTableColumn#5(account.last_name as lastName)",
                     "jsonType": null,
                     "key": "lastName",
@@ -6206,11 +5026,7 @@ describe("sql subqueries tests", () => {
                   "$modifiedAt": SqlTableColumn {
                     "columnName": "modified_at",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.modified_at as modifiedAt)",
                     "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                     "jsonType": "Date",
                     "key": "modifiedAt",
@@ -6226,11 +5042,7 @@ describe("sql subqueries tests", () => {
                   "$notes": SqlTableColumn {
                     "columnName": "notes",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.notes)",
                     "id": "SqlTableColumn#6(account.notes)",
                     "jsonType": null,
                     "key": "notes",
@@ -6246,11 +5058,7 @@ describe("sql subqueries tests", () => {
                   "$parentId": SqlTableColumn {
                     "columnName": "parent_id",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.parent_id as parentId)",
                     "id": "SqlTableColumn#9(account.parent_id as parentId)",
                     "jsonType": null,
                     "key": "parentId",
@@ -6266,11 +5074,7 @@ describe("sql subqueries tests", () => {
                   "$status": SqlTableColumn {
                     "columnName": "status",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.status)",
                     "id": "SqlTableColumn#2(account.status)",
                     "jsonType": null,
                     "key": "status",
@@ -6286,21 +5090,13 @@ describe("sql subqueries tests", () => {
                   "_$$": Lazy {
                     "_computed": true,
                     "_value": SqlTableAll {
-                      "hashIdLazy": Lazy {
-                        "_computed": false,
-                        "_value": null,
-                        "callback": [Function],
-                      },
+                      "hashId": "SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId))",
                       "id": "SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId)",
                       "row": {
                         "$accountId": SqlTableColumn {
                           "columnName": "account_id",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.account_id as accountId)",
                           "id": "SqlTableColumn#1(account.account_id as accountId)",
                           "jsonType": null,
                           "key": "accountId",
@@ -6316,11 +5112,7 @@ describe("sql subqueries tests", () => {
                         "$createdAt": SqlTableColumn {
                           "columnName": "created_at",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.created_at as createdAt)",
                           "id": "SqlTableColumn#7(account.created_at as createdAt)",
                           "jsonType": "Date",
                           "key": "createdAt",
@@ -6336,11 +5128,7 @@ describe("sql subqueries tests", () => {
                         "$email": SqlTableColumn {
                           "columnName": "email",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.email)",
                           "id": "SqlTableColumn#3(account.email)",
                           "jsonType": null,
                           "key": "email",
@@ -6356,11 +5144,7 @@ describe("sql subqueries tests", () => {
                         "$firstName": SqlTableColumn {
                           "columnName": "first_name",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.first_name as firstName)",
                           "id": "SqlTableColumn#4(account.first_name as firstName)",
                           "jsonType": null,
                           "key": "firstName",
@@ -6376,11 +5160,7 @@ describe("sql subqueries tests", () => {
                         "$lastName": SqlTableColumn {
                           "columnName": "last_name",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.last_name as lastName)",
                           "id": "SqlTableColumn#5(account.last_name as lastName)",
                           "jsonType": null,
                           "key": "lastName",
@@ -6396,11 +5176,7 @@ describe("sql subqueries tests", () => {
                         "$modifiedAt": SqlTableColumn {
                           "columnName": "modified_at",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.modified_at as modifiedAt)",
                           "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                           "jsonType": "Date",
                           "key": "modifiedAt",
@@ -6416,11 +5192,7 @@ describe("sql subqueries tests", () => {
                         "$notes": SqlTableColumn {
                           "columnName": "notes",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.notes)",
                           "id": "SqlTableColumn#6(account.notes)",
                           "jsonType": null,
                           "key": "notes",
@@ -6436,11 +5208,7 @@ describe("sql subqueries tests", () => {
                         "$parentId": SqlTableColumn {
                           "columnName": "parent_id",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.parent_id as parentId)",
                           "id": "SqlTableColumn#9(account.parent_id as parentId)",
                           "jsonType": null,
                           "key": "parentId",
@@ -6456,11 +5224,7 @@ describe("sql subqueries tests", () => {
                         "$status": SqlTableColumn {
                           "columnName": "status",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.status)",
                           "id": "SqlTableColumn#2(account.status)",
                           "jsonType": null,
                           "key": "status",
@@ -6485,11 +5249,7 @@ describe("sql subqueries tests", () => {
                       "$accountId": SqlTableColumn {
                         "columnName": "account_id",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.account_id as accountId)",
                         "id": "SqlTableColumn#1(account.account_id as accountId)",
                         "jsonType": null,
                         "key": "accountId",
@@ -6505,11 +5265,7 @@ describe("sql subqueries tests", () => {
                       "$createdAt": SqlTableColumn {
                         "columnName": "created_at",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.created_at as createdAt)",
                         "id": "SqlTableColumn#7(account.created_at as createdAt)",
                         "jsonType": "Date",
                         "key": "createdAt",
@@ -6525,11 +5281,7 @@ describe("sql subqueries tests", () => {
                       "$email": SqlTableColumn {
                         "columnName": "email",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.email)",
                         "id": "SqlTableColumn#3(account.email)",
                         "jsonType": null,
                         "key": "email",
@@ -6545,11 +5297,7 @@ describe("sql subqueries tests", () => {
                       "$firstName": SqlTableColumn {
                         "columnName": "first_name",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.first_name as firstName)",
                         "id": "SqlTableColumn#4(account.first_name as firstName)",
                         "jsonType": null,
                         "key": "firstName",
@@ -6565,11 +5313,7 @@ describe("sql subqueries tests", () => {
                       "$lastName": SqlTableColumn {
                         "columnName": "last_name",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.last_name as lastName)",
                         "id": "SqlTableColumn#5(account.last_name as lastName)",
                         "jsonType": null,
                         "key": "lastName",
@@ -6585,11 +5329,7 @@ describe("sql subqueries tests", () => {
                       "$modifiedAt": SqlTableColumn {
                         "columnName": "modified_at",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.modified_at as modifiedAt)",
                         "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                         "jsonType": "Date",
                         "key": "modifiedAt",
@@ -6605,11 +5345,7 @@ describe("sql subqueries tests", () => {
                       "$notes": SqlTableColumn {
                         "columnName": "notes",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.notes)",
                         "id": "SqlTableColumn#6(account.notes)",
                         "jsonType": null,
                         "key": "notes",
@@ -6625,11 +5361,7 @@ describe("sql subqueries tests", () => {
                       "$parentId": SqlTableColumn {
                         "columnName": "parent_id",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.parent_id as parentId)",
                         "id": "SqlTableColumn#9(account.parent_id as parentId)",
                         "jsonType": null,
                         "key": "parentId",
@@ -6645,11 +5377,7 @@ describe("sql subqueries tests", () => {
                       "$status": SqlTableColumn {
                         "columnName": "status",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.status)",
                         "id": "SqlTableColumn#2(account.status)",
                         "jsonType": null,
                         "key": "status",
@@ -6682,11 +5410,7 @@ describe("sql subqueries tests", () => {
                   },
                   "dialect": "sql",
                   "format": null,
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlTable#(main.account)",
                   "id": "SqlTable#1(main.account)",
                   "pk": [
                     "accountId",
@@ -6703,11 +5427,7 @@ describe("sql subqueries tests", () => {
                 SqlTableColumn {
                   "columnName": "email",
                   "format": null,
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlTableColumn#(account.email)",
                   "id": "SqlTableColumn#3(account.email)",
                   "jsonType": null,
                   "key": "email",
@@ -6721,11 +5441,7 @@ describe("sql subqueries tests", () => {
                   "type": "SqlTableColumn",
                 },
                 SqlParam {
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlParam#(email)",
                   "id": "SqlParam#1(email)",
                   "name": "email",
                   "tag": null,
@@ -6740,11 +5456,7 @@ describe("sql subqueries tests", () => {
             "target": SqlTableColumn {
               "columnName": "notes",
               "format": null,
-              "hashIdLazy": Lazy {
-                "_computed": false,
-                "_value": null,
-                "callback": [Function],
-              },
+              "hashId": "SqlTableColumn#(account.notes)",
               "id": "SqlTableColumn#6(account.notes)",
               "jsonType": null,
               "key": "notes",
@@ -6761,11 +5473,7 @@ describe("sql subqueries tests", () => {
           },
           "$parentId": SqlQueryColumn {
             "format": null,
-            "hashIdLazy": Lazy {
-              "_computed": false,
-              "_value": null,
-              "callback": [Function],
-            },
+            "hashId": "SqlQueryColumn#(SqlTableColumn#(account.parent_id as parentId))",
             "id": "SqlQueryColumn#9(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#9(account.parent_id as parentId))",
             "key": "parentId",
             "params": null,
@@ -6821,11 +5529,7 @@ describe("sql subqueries tests", () => {
                 "_value": [Circular],
                 "callback": [Function],
               },
-              "hashIdLazy": Lazy {
-                "_computed": false,
-                "_value": null,
-                "callback": [Function],
-              },
+              "hashId": "SqlQuery#(["\\n         ","\\n         select ","\\n         from ","\\n         where "," = ",""]|SqlQueryInfo#(label=AccountsWithEmail)|SqlSelectRow#(SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId)))|SqlTable#(main.account)|SqlTableColumn#(account.email)|SqlParam#(email))",
               "id": "SqlQuery#1(label=AccountsWithEmail)",
               "location": "<anonymous>",
               "rawStrings": [
@@ -6843,11 +5547,7 @@ describe("sql subqueries tests", () => {
               "rawValues": [
                 SqlQueryInfo {
                   "driver": null,
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlQueryInfo#(label=AccountsWithEmail)",
                   "id": "SqlQueryInfo#1(label=AccountsWithEmail)",
                   "label": "AccountsWithEmail",
                   "options": {
@@ -6859,21 +5559,13 @@ describe("sql subqueries tests", () => {
                 SqlSelectRow {
                   "columns": [
                     SqlTableAll {
-                      "hashIdLazy": Lazy {
-                        "_computed": false,
-                        "_value": null,
-                        "callback": [Function],
-                      },
+                      "hashId": "SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId))",
                       "id": "SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId)",
                       "row": {
                         "$accountId": SqlTableColumn {
                           "columnName": "account_id",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.account_id as accountId)",
                           "id": "SqlTableColumn#1(account.account_id as accountId)",
                           "jsonType": null,
                           "key": "accountId",
@@ -6889,11 +5581,7 @@ describe("sql subqueries tests", () => {
                         "$createdAt": SqlTableColumn {
                           "columnName": "created_at",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.created_at as createdAt)",
                           "id": "SqlTableColumn#7(account.created_at as createdAt)",
                           "jsonType": "Date",
                           "key": "createdAt",
@@ -6909,11 +5597,7 @@ describe("sql subqueries tests", () => {
                         "$email": SqlTableColumn {
                           "columnName": "email",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.email)",
                           "id": "SqlTableColumn#3(account.email)",
                           "jsonType": null,
                           "key": "email",
@@ -6929,11 +5613,7 @@ describe("sql subqueries tests", () => {
                         "$firstName": SqlTableColumn {
                           "columnName": "first_name",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.first_name as firstName)",
                           "id": "SqlTableColumn#4(account.first_name as firstName)",
                           "jsonType": null,
                           "key": "firstName",
@@ -6949,11 +5629,7 @@ describe("sql subqueries tests", () => {
                         "$lastName": SqlTableColumn {
                           "columnName": "last_name",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.last_name as lastName)",
                           "id": "SqlTableColumn#5(account.last_name as lastName)",
                           "jsonType": null,
                           "key": "lastName",
@@ -6969,11 +5645,7 @@ describe("sql subqueries tests", () => {
                         "$modifiedAt": SqlTableColumn {
                           "columnName": "modified_at",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.modified_at as modifiedAt)",
                           "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                           "jsonType": "Date",
                           "key": "modifiedAt",
@@ -6989,11 +5661,7 @@ describe("sql subqueries tests", () => {
                         "$notes": SqlTableColumn {
                           "columnName": "notes",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.notes)",
                           "id": "SqlTableColumn#6(account.notes)",
                           "jsonType": null,
                           "key": "notes",
@@ -7009,11 +5677,7 @@ describe("sql subqueries tests", () => {
                         "$parentId": SqlTableColumn {
                           "columnName": "parent_id",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.parent_id as parentId)",
                           "id": "SqlTableColumn#9(account.parent_id as parentId)",
                           "jsonType": null,
                           "key": "parentId",
@@ -7029,11 +5693,7 @@ describe("sql subqueries tests", () => {
                         "$status": SqlTableColumn {
                           "columnName": "status",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.status)",
                           "id": "SqlTableColumn#2(account.status)",
                           "jsonType": null,
                           "key": "status",
@@ -7051,11 +5711,7 @@ describe("sql subqueries tests", () => {
                       "type": "SqlTableAll",
                     },
                   ],
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlSelectRow#(SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId)))",
                   "id": "SqlSelectRow#1(SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId))",
                   "rowsByQueryId": Map {},
                   "tag": null,
@@ -7065,11 +5721,7 @@ describe("sql subqueries tests", () => {
                   "$accountId": SqlTableColumn {
                     "columnName": "account_id",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.account_id as accountId)",
                     "id": "SqlTableColumn#1(account.account_id as accountId)",
                     "jsonType": null,
                     "key": "accountId",
@@ -7085,11 +5737,7 @@ describe("sql subqueries tests", () => {
                   "$createdAt": SqlTableColumn {
                     "columnName": "created_at",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.created_at as createdAt)",
                     "id": "SqlTableColumn#7(account.created_at as createdAt)",
                     "jsonType": "Date",
                     "key": "createdAt",
@@ -7105,11 +5753,7 @@ describe("sql subqueries tests", () => {
                   "$email": SqlTableColumn {
                     "columnName": "email",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.email)",
                     "id": "SqlTableColumn#3(account.email)",
                     "jsonType": null,
                     "key": "email",
@@ -7125,11 +5769,7 @@ describe("sql subqueries tests", () => {
                   "$firstName": SqlTableColumn {
                     "columnName": "first_name",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.first_name as firstName)",
                     "id": "SqlTableColumn#4(account.first_name as firstName)",
                     "jsonType": null,
                     "key": "firstName",
@@ -7145,11 +5785,7 @@ describe("sql subqueries tests", () => {
                   "$lastName": SqlTableColumn {
                     "columnName": "last_name",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.last_name as lastName)",
                     "id": "SqlTableColumn#5(account.last_name as lastName)",
                     "jsonType": null,
                     "key": "lastName",
@@ -7165,11 +5801,7 @@ describe("sql subqueries tests", () => {
                   "$modifiedAt": SqlTableColumn {
                     "columnName": "modified_at",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.modified_at as modifiedAt)",
                     "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                     "jsonType": "Date",
                     "key": "modifiedAt",
@@ -7185,11 +5817,7 @@ describe("sql subqueries tests", () => {
                   "$notes": SqlTableColumn {
                     "columnName": "notes",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.notes)",
                     "id": "SqlTableColumn#6(account.notes)",
                     "jsonType": null,
                     "key": "notes",
@@ -7205,11 +5833,7 @@ describe("sql subqueries tests", () => {
                   "$parentId": SqlTableColumn {
                     "columnName": "parent_id",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.parent_id as parentId)",
                     "id": "SqlTableColumn#9(account.parent_id as parentId)",
                     "jsonType": null,
                     "key": "parentId",
@@ -7225,11 +5849,7 @@ describe("sql subqueries tests", () => {
                   "$status": SqlTableColumn {
                     "columnName": "status",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.status)",
                     "id": "SqlTableColumn#2(account.status)",
                     "jsonType": null,
                     "key": "status",
@@ -7245,21 +5865,13 @@ describe("sql subqueries tests", () => {
                   "_$$": Lazy {
                     "_computed": true,
                     "_value": SqlTableAll {
-                      "hashIdLazy": Lazy {
-                        "_computed": false,
-                        "_value": null,
-                        "callback": [Function],
-                      },
+                      "hashId": "SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId))",
                       "id": "SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId)",
                       "row": {
                         "$accountId": SqlTableColumn {
                           "columnName": "account_id",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.account_id as accountId)",
                           "id": "SqlTableColumn#1(account.account_id as accountId)",
                           "jsonType": null,
                           "key": "accountId",
@@ -7275,11 +5887,7 @@ describe("sql subqueries tests", () => {
                         "$createdAt": SqlTableColumn {
                           "columnName": "created_at",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.created_at as createdAt)",
                           "id": "SqlTableColumn#7(account.created_at as createdAt)",
                           "jsonType": "Date",
                           "key": "createdAt",
@@ -7295,11 +5903,7 @@ describe("sql subqueries tests", () => {
                         "$email": SqlTableColumn {
                           "columnName": "email",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.email)",
                           "id": "SqlTableColumn#3(account.email)",
                           "jsonType": null,
                           "key": "email",
@@ -7315,11 +5919,7 @@ describe("sql subqueries tests", () => {
                         "$firstName": SqlTableColumn {
                           "columnName": "first_name",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.first_name as firstName)",
                           "id": "SqlTableColumn#4(account.first_name as firstName)",
                           "jsonType": null,
                           "key": "firstName",
@@ -7335,11 +5935,7 @@ describe("sql subqueries tests", () => {
                         "$lastName": SqlTableColumn {
                           "columnName": "last_name",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.last_name as lastName)",
                           "id": "SqlTableColumn#5(account.last_name as lastName)",
                           "jsonType": null,
                           "key": "lastName",
@@ -7355,11 +5951,7 @@ describe("sql subqueries tests", () => {
                         "$modifiedAt": SqlTableColumn {
                           "columnName": "modified_at",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.modified_at as modifiedAt)",
                           "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                           "jsonType": "Date",
                           "key": "modifiedAt",
@@ -7375,11 +5967,7 @@ describe("sql subqueries tests", () => {
                         "$notes": SqlTableColumn {
                           "columnName": "notes",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.notes)",
                           "id": "SqlTableColumn#6(account.notes)",
                           "jsonType": null,
                           "key": "notes",
@@ -7395,11 +5983,7 @@ describe("sql subqueries tests", () => {
                         "$parentId": SqlTableColumn {
                           "columnName": "parent_id",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.parent_id as parentId)",
                           "id": "SqlTableColumn#9(account.parent_id as parentId)",
                           "jsonType": null,
                           "key": "parentId",
@@ -7415,11 +5999,7 @@ describe("sql subqueries tests", () => {
                         "$status": SqlTableColumn {
                           "columnName": "status",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.status)",
                           "id": "SqlTableColumn#2(account.status)",
                           "jsonType": null,
                           "key": "status",
@@ -7444,11 +6024,7 @@ describe("sql subqueries tests", () => {
                       "$accountId": SqlTableColumn {
                         "columnName": "account_id",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.account_id as accountId)",
                         "id": "SqlTableColumn#1(account.account_id as accountId)",
                         "jsonType": null,
                         "key": "accountId",
@@ -7464,11 +6040,7 @@ describe("sql subqueries tests", () => {
                       "$createdAt": SqlTableColumn {
                         "columnName": "created_at",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.created_at as createdAt)",
                         "id": "SqlTableColumn#7(account.created_at as createdAt)",
                         "jsonType": "Date",
                         "key": "createdAt",
@@ -7484,11 +6056,7 @@ describe("sql subqueries tests", () => {
                       "$email": SqlTableColumn {
                         "columnName": "email",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.email)",
                         "id": "SqlTableColumn#3(account.email)",
                         "jsonType": null,
                         "key": "email",
@@ -7504,11 +6072,7 @@ describe("sql subqueries tests", () => {
                       "$firstName": SqlTableColumn {
                         "columnName": "first_name",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.first_name as firstName)",
                         "id": "SqlTableColumn#4(account.first_name as firstName)",
                         "jsonType": null,
                         "key": "firstName",
@@ -7524,11 +6088,7 @@ describe("sql subqueries tests", () => {
                       "$lastName": SqlTableColumn {
                         "columnName": "last_name",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.last_name as lastName)",
                         "id": "SqlTableColumn#5(account.last_name as lastName)",
                         "jsonType": null,
                         "key": "lastName",
@@ -7544,11 +6104,7 @@ describe("sql subqueries tests", () => {
                       "$modifiedAt": SqlTableColumn {
                         "columnName": "modified_at",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.modified_at as modifiedAt)",
                         "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                         "jsonType": "Date",
                         "key": "modifiedAt",
@@ -7564,11 +6120,7 @@ describe("sql subqueries tests", () => {
                       "$notes": SqlTableColumn {
                         "columnName": "notes",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.notes)",
                         "id": "SqlTableColumn#6(account.notes)",
                         "jsonType": null,
                         "key": "notes",
@@ -7584,11 +6136,7 @@ describe("sql subqueries tests", () => {
                       "$parentId": SqlTableColumn {
                         "columnName": "parent_id",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.parent_id as parentId)",
                         "id": "SqlTableColumn#9(account.parent_id as parentId)",
                         "jsonType": null,
                         "key": "parentId",
@@ -7604,11 +6152,7 @@ describe("sql subqueries tests", () => {
                       "$status": SqlTableColumn {
                         "columnName": "status",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.status)",
                         "id": "SqlTableColumn#2(account.status)",
                         "jsonType": null,
                         "key": "status",
@@ -7641,11 +6185,7 @@ describe("sql subqueries tests", () => {
                   },
                   "dialect": "sql",
                   "format": null,
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlTable#(main.account)",
                   "id": "SqlTable#1(main.account)",
                   "pk": [
                     "accountId",
@@ -7662,11 +6202,7 @@ describe("sql subqueries tests", () => {
                 SqlTableColumn {
                   "columnName": "email",
                   "format": null,
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlTableColumn#(account.email)",
                   "id": "SqlTableColumn#3(account.email)",
                   "jsonType": null,
                   "key": "email",
@@ -7680,11 +6216,7 @@ describe("sql subqueries tests", () => {
                   "type": "SqlTableColumn",
                 },
                 SqlParam {
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlParam#(email)",
                   "id": "SqlParam#1(email)",
                   "name": "email",
                   "tag": null,
@@ -7699,11 +6231,7 @@ describe("sql subqueries tests", () => {
             "target": SqlTableColumn {
               "columnName": "parent_id",
               "format": null,
-              "hashIdLazy": Lazy {
-                "_computed": false,
-                "_value": null,
-                "callback": [Function],
-              },
+              "hashId": "SqlTableColumn#(account.parent_id as parentId)",
               "id": "SqlTableColumn#9(account.parent_id as parentId)",
               "jsonType": null,
               "key": "parentId",
@@ -7720,11 +6248,7 @@ describe("sql subqueries tests", () => {
           },
           "$status": SqlQueryColumn {
             "format": null,
-            "hashIdLazy": Lazy {
-              "_computed": false,
-              "_value": null,
-              "callback": [Function],
-            },
+            "hashId": "SqlQueryColumn#(SqlTableColumn#(account.status))",
             "id": "SqlQueryColumn#2(SqlQuery#1(label=AccountsWithEmail)/SqlTableColumn#2(account.status))",
             "key": "status",
             "params": null,
@@ -7780,11 +6304,7 @@ describe("sql subqueries tests", () => {
                 "_value": [Circular],
                 "callback": [Function],
               },
-              "hashIdLazy": Lazy {
-                "_computed": false,
-                "_value": null,
-                "callback": [Function],
-              },
+              "hashId": "SqlQuery#(["\\n         ","\\n         select ","\\n         from ","\\n         where "," = ",""]|SqlQueryInfo#(label=AccountsWithEmail)|SqlSelectRow#(SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId)))|SqlTable#(main.account)|SqlTableColumn#(account.email)|SqlParam#(email))",
               "id": "SqlQuery#1(label=AccountsWithEmail)",
               "location": "<anonymous>",
               "rawStrings": [
@@ -7802,11 +6322,7 @@ describe("sql subqueries tests", () => {
               "rawValues": [
                 SqlQueryInfo {
                   "driver": null,
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlQueryInfo#(label=AccountsWithEmail)",
                   "id": "SqlQueryInfo#1(label=AccountsWithEmail)",
                   "label": "AccountsWithEmail",
                   "options": {
@@ -7818,21 +6334,13 @@ describe("sql subqueries tests", () => {
                 SqlSelectRow {
                   "columns": [
                     SqlTableAll {
-                      "hashIdLazy": Lazy {
-                        "_computed": false,
-                        "_value": null,
-                        "callback": [Function],
-                      },
+                      "hashId": "SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId))",
                       "id": "SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId)",
                       "row": {
                         "$accountId": SqlTableColumn {
                           "columnName": "account_id",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.account_id as accountId)",
                           "id": "SqlTableColumn#1(account.account_id as accountId)",
                           "jsonType": null,
                           "key": "accountId",
@@ -7848,11 +6356,7 @@ describe("sql subqueries tests", () => {
                         "$createdAt": SqlTableColumn {
                           "columnName": "created_at",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.created_at as createdAt)",
                           "id": "SqlTableColumn#7(account.created_at as createdAt)",
                           "jsonType": "Date",
                           "key": "createdAt",
@@ -7868,11 +6372,7 @@ describe("sql subqueries tests", () => {
                         "$email": SqlTableColumn {
                           "columnName": "email",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.email)",
                           "id": "SqlTableColumn#3(account.email)",
                           "jsonType": null,
                           "key": "email",
@@ -7888,11 +6388,7 @@ describe("sql subqueries tests", () => {
                         "$firstName": SqlTableColumn {
                           "columnName": "first_name",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.first_name as firstName)",
                           "id": "SqlTableColumn#4(account.first_name as firstName)",
                           "jsonType": null,
                           "key": "firstName",
@@ -7908,11 +6404,7 @@ describe("sql subqueries tests", () => {
                         "$lastName": SqlTableColumn {
                           "columnName": "last_name",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.last_name as lastName)",
                           "id": "SqlTableColumn#5(account.last_name as lastName)",
                           "jsonType": null,
                           "key": "lastName",
@@ -7928,11 +6420,7 @@ describe("sql subqueries tests", () => {
                         "$modifiedAt": SqlTableColumn {
                           "columnName": "modified_at",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.modified_at as modifiedAt)",
                           "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                           "jsonType": "Date",
                           "key": "modifiedAt",
@@ -7948,11 +6436,7 @@ describe("sql subqueries tests", () => {
                         "$notes": SqlTableColumn {
                           "columnName": "notes",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.notes)",
                           "id": "SqlTableColumn#6(account.notes)",
                           "jsonType": null,
                           "key": "notes",
@@ -7968,11 +6452,7 @@ describe("sql subqueries tests", () => {
                         "$parentId": SqlTableColumn {
                           "columnName": "parent_id",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.parent_id as parentId)",
                           "id": "SqlTableColumn#9(account.parent_id as parentId)",
                           "jsonType": null,
                           "key": "parentId",
@@ -7988,11 +6468,7 @@ describe("sql subqueries tests", () => {
                         "$status": SqlTableColumn {
                           "columnName": "status",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.status)",
                           "id": "SqlTableColumn#2(account.status)",
                           "jsonType": null,
                           "key": "status",
@@ -8010,11 +6486,7 @@ describe("sql subqueries tests", () => {
                       "type": "SqlTableAll",
                     },
                   ],
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlSelectRow#(SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId)))",
                   "id": "SqlSelectRow#1(SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId))",
                   "rowsByQueryId": Map {},
                   "tag": null,
@@ -8024,11 +6496,7 @@ describe("sql subqueries tests", () => {
                   "$accountId": SqlTableColumn {
                     "columnName": "account_id",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.account_id as accountId)",
                     "id": "SqlTableColumn#1(account.account_id as accountId)",
                     "jsonType": null,
                     "key": "accountId",
@@ -8044,11 +6512,7 @@ describe("sql subqueries tests", () => {
                   "$createdAt": SqlTableColumn {
                     "columnName": "created_at",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.created_at as createdAt)",
                     "id": "SqlTableColumn#7(account.created_at as createdAt)",
                     "jsonType": "Date",
                     "key": "createdAt",
@@ -8064,11 +6528,7 @@ describe("sql subqueries tests", () => {
                   "$email": SqlTableColumn {
                     "columnName": "email",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.email)",
                     "id": "SqlTableColumn#3(account.email)",
                     "jsonType": null,
                     "key": "email",
@@ -8084,11 +6544,7 @@ describe("sql subqueries tests", () => {
                   "$firstName": SqlTableColumn {
                     "columnName": "first_name",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.first_name as firstName)",
                     "id": "SqlTableColumn#4(account.first_name as firstName)",
                     "jsonType": null,
                     "key": "firstName",
@@ -8104,11 +6560,7 @@ describe("sql subqueries tests", () => {
                   "$lastName": SqlTableColumn {
                     "columnName": "last_name",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.last_name as lastName)",
                     "id": "SqlTableColumn#5(account.last_name as lastName)",
                     "jsonType": null,
                     "key": "lastName",
@@ -8124,11 +6576,7 @@ describe("sql subqueries tests", () => {
                   "$modifiedAt": SqlTableColumn {
                     "columnName": "modified_at",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.modified_at as modifiedAt)",
                     "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                     "jsonType": "Date",
                     "key": "modifiedAt",
@@ -8144,11 +6592,7 @@ describe("sql subqueries tests", () => {
                   "$notes": SqlTableColumn {
                     "columnName": "notes",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.notes)",
                     "id": "SqlTableColumn#6(account.notes)",
                     "jsonType": null,
                     "key": "notes",
@@ -8164,11 +6608,7 @@ describe("sql subqueries tests", () => {
                   "$parentId": SqlTableColumn {
                     "columnName": "parent_id",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.parent_id as parentId)",
                     "id": "SqlTableColumn#9(account.parent_id as parentId)",
                     "jsonType": null,
                     "key": "parentId",
@@ -8184,11 +6624,7 @@ describe("sql subqueries tests", () => {
                   "$status": SqlTableColumn {
                     "columnName": "status",
                     "format": null,
-                    "hashIdLazy": Lazy {
-                      "_computed": false,
-                      "_value": null,
-                      "callback": [Function],
-                    },
+                    "hashId": "SqlTableColumn#(account.status)",
                     "id": "SqlTableColumn#2(account.status)",
                     "jsonType": null,
                     "key": "status",
@@ -8204,21 +6640,13 @@ describe("sql subqueries tests", () => {
                   "_$$": Lazy {
                     "_computed": true,
                     "_value": SqlTableAll {
-                      "hashIdLazy": Lazy {
-                        "_computed": false,
-                        "_value": null,
-                        "callback": [Function],
-                      },
+                      "hashId": "SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId))",
                       "id": "SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId)",
                       "row": {
                         "$accountId": SqlTableColumn {
                           "columnName": "account_id",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.account_id as accountId)",
                           "id": "SqlTableColumn#1(account.account_id as accountId)",
                           "jsonType": null,
                           "key": "accountId",
@@ -8234,11 +6662,7 @@ describe("sql subqueries tests", () => {
                         "$createdAt": SqlTableColumn {
                           "columnName": "created_at",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.created_at as createdAt)",
                           "id": "SqlTableColumn#7(account.created_at as createdAt)",
                           "jsonType": "Date",
                           "key": "createdAt",
@@ -8254,11 +6678,7 @@ describe("sql subqueries tests", () => {
                         "$email": SqlTableColumn {
                           "columnName": "email",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.email)",
                           "id": "SqlTableColumn#3(account.email)",
                           "jsonType": null,
                           "key": "email",
@@ -8274,11 +6694,7 @@ describe("sql subqueries tests", () => {
                         "$firstName": SqlTableColumn {
                           "columnName": "first_name",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.first_name as firstName)",
                           "id": "SqlTableColumn#4(account.first_name as firstName)",
                           "jsonType": null,
                           "key": "firstName",
@@ -8294,11 +6710,7 @@ describe("sql subqueries tests", () => {
                         "$lastName": SqlTableColumn {
                           "columnName": "last_name",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.last_name as lastName)",
                           "id": "SqlTableColumn#5(account.last_name as lastName)",
                           "jsonType": null,
                           "key": "lastName",
@@ -8314,11 +6726,7 @@ describe("sql subqueries tests", () => {
                         "$modifiedAt": SqlTableColumn {
                           "columnName": "modified_at",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.modified_at as modifiedAt)",
                           "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                           "jsonType": "Date",
                           "key": "modifiedAt",
@@ -8334,11 +6742,7 @@ describe("sql subqueries tests", () => {
                         "$notes": SqlTableColumn {
                           "columnName": "notes",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.notes)",
                           "id": "SqlTableColumn#6(account.notes)",
                           "jsonType": null,
                           "key": "notes",
@@ -8354,11 +6758,7 @@ describe("sql subqueries tests", () => {
                         "$parentId": SqlTableColumn {
                           "columnName": "parent_id",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.parent_id as parentId)",
                           "id": "SqlTableColumn#9(account.parent_id as parentId)",
                           "jsonType": null,
                           "key": "parentId",
@@ -8374,11 +6774,7 @@ describe("sql subqueries tests", () => {
                         "$status": SqlTableColumn {
                           "columnName": "status",
                           "format": null,
-                          "hashIdLazy": Lazy {
-                            "_computed": false,
-                            "_value": null,
-                            "callback": [Function],
-                          },
+                          "hashId": "SqlTableColumn#(account.status)",
                           "id": "SqlTableColumn#2(account.status)",
                           "jsonType": null,
                           "key": "status",
@@ -8403,11 +6799,7 @@ describe("sql subqueries tests", () => {
                       "$accountId": SqlTableColumn {
                         "columnName": "account_id",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.account_id as accountId)",
                         "id": "SqlTableColumn#1(account.account_id as accountId)",
                         "jsonType": null,
                         "key": "accountId",
@@ -8423,11 +6815,7 @@ describe("sql subqueries tests", () => {
                       "$createdAt": SqlTableColumn {
                         "columnName": "created_at",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.created_at as createdAt)",
                         "id": "SqlTableColumn#7(account.created_at as createdAt)",
                         "jsonType": "Date",
                         "key": "createdAt",
@@ -8443,11 +6831,7 @@ describe("sql subqueries tests", () => {
                       "$email": SqlTableColumn {
                         "columnName": "email",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.email)",
                         "id": "SqlTableColumn#3(account.email)",
                         "jsonType": null,
                         "key": "email",
@@ -8463,11 +6847,7 @@ describe("sql subqueries tests", () => {
                       "$firstName": SqlTableColumn {
                         "columnName": "first_name",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.first_name as firstName)",
                         "id": "SqlTableColumn#4(account.first_name as firstName)",
                         "jsonType": null,
                         "key": "firstName",
@@ -8483,11 +6863,7 @@ describe("sql subqueries tests", () => {
                       "$lastName": SqlTableColumn {
                         "columnName": "last_name",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.last_name as lastName)",
                         "id": "SqlTableColumn#5(account.last_name as lastName)",
                         "jsonType": null,
                         "key": "lastName",
@@ -8503,11 +6879,7 @@ describe("sql subqueries tests", () => {
                       "$modifiedAt": SqlTableColumn {
                         "columnName": "modified_at",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.modified_at as modifiedAt)",
                         "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
                         "jsonType": "Date",
                         "key": "modifiedAt",
@@ -8523,11 +6895,7 @@ describe("sql subqueries tests", () => {
                       "$notes": SqlTableColumn {
                         "columnName": "notes",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.notes)",
                         "id": "SqlTableColumn#6(account.notes)",
                         "jsonType": null,
                         "key": "notes",
@@ -8543,11 +6911,7 @@ describe("sql subqueries tests", () => {
                       "$parentId": SqlTableColumn {
                         "columnName": "parent_id",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.parent_id as parentId)",
                         "id": "SqlTableColumn#9(account.parent_id as parentId)",
                         "jsonType": null,
                         "key": "parentId",
@@ -8563,11 +6927,7 @@ describe("sql subqueries tests", () => {
                       "$status": SqlTableColumn {
                         "columnName": "status",
                         "format": null,
-                        "hashIdLazy": Lazy {
-                          "_computed": false,
-                          "_value": null,
-                          "callback": [Function],
-                        },
+                        "hashId": "SqlTableColumn#(account.status)",
                         "id": "SqlTableColumn#2(account.status)",
                         "jsonType": null,
                         "key": "status",
@@ -8600,11 +6960,7 @@ describe("sql subqueries tests", () => {
                   },
                   "dialect": "sql",
                   "format": null,
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlTable#(main.account)",
                   "id": "SqlTable#1(main.account)",
                   "pk": [
                     "accountId",
@@ -8621,11 +6977,7 @@ describe("sql subqueries tests", () => {
                 SqlTableColumn {
                   "columnName": "email",
                   "format": null,
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlTableColumn#(account.email)",
                   "id": "SqlTableColumn#3(account.email)",
                   "jsonType": null,
                   "key": "email",
@@ -8639,11 +6991,7 @@ describe("sql subqueries tests", () => {
                   "type": "SqlTableColumn",
                 },
                 SqlParam {
-                  "hashIdLazy": Lazy {
-                    "_computed": false,
-                    "_value": null,
-                    "callback": [Function],
-                  },
+                  "hashId": "SqlParam#(email)",
                   "id": "SqlParam#1(email)",
                   "name": "email",
                   "tag": null,
@@ -8658,11 +7006,7 @@ describe("sql subqueries tests", () => {
             "target": SqlTableColumn {
               "columnName": "status",
               "format": null,
-              "hashIdLazy": Lazy {
-                "_computed": false,
-                "_value": null,
-                "callback": [Function],
-              },
+              "hashId": "SqlTableColumn#(account.status)",
               "id": "SqlTableColumn#2(account.status)",
               "jsonType": null,
               "key": "status",

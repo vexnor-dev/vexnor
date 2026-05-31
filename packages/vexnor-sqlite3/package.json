@@ -26,6 +26,7 @@
    "repository": "https://github.com/vexnor-dev/vexnor",
    "sideEffects": [
       "./dist/index.js",
+      "./dist/index.browser.js",
       "./dist/vexnor-sqlite3.js",
       "./dist/sqlite3-augment.js"
    ],

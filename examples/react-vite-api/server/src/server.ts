@@ -109,9 +109,7 @@ app.post("/api/db", async (c) => {
       );
       return c.json(result);
    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      if (message.startsWith("Unknown query hash")) return c.json({ error: message }, 403);
-      throw err;
+      return c.json(err, 403);
    }
 });
 

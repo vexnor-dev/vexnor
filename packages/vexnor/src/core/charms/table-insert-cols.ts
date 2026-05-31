@@ -17,8 +17,13 @@ export class TableInsertCols<
       inserts: T["Insert"][],
    ) {
       super({
-         id: `${Object.values(cols).map((c) => c.id).join(", ")} | rows: ${inserts.length}`,
-         hashId: () => Object.values(cols).map((c) => c.hashId).join(","),
+         type: "TableInsertCols",
+         id: `${Object.values(cols)
+            .map((c) => c.id)
+            .join(", ")} | rows: ${inserts.length}`,
+         hashId: Object.values(cols)
+            .map((c) => c.hashId)
+            .join(","),
       });
       this.keys = getCanonicalInsertKeys(cols, inserts);
    }

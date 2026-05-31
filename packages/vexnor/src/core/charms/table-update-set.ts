@@ -9,8 +9,11 @@ export class TableUpdateSet<T extends { Update: Record<string, unknown> }> exten
       public readonly update: T["Update"],
    ) {
       super({
+         type: "TableUpdateSet",
          id: `${Object.keys(update).join(", ")}`,
-         hashId: () => Object.keys(update).map((k) => `${cols[`$${k}`]?.hashId ?? k}=${JSON.stringify(update[k])}`).join(","),
+         hashId: Object.keys(update)
+            .map((k) => `${cols[`$${k}`]?.hashId ?? k}=${JSON.stringify(update[k])}`)
+            .join(","),
       });
    }
 

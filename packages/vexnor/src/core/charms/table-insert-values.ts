@@ -16,8 +16,16 @@ export class TableInsertValues<
       public readonly inserts: T["Insert"][],
    ) {
       super({
-         id: `${Object.values(cols).map((z) => z.id).join(", ")} | rows: ${inserts.length}`,
-         hashId: () => Object.values(cols).map((c) => c.hashId).join(",") + "|" + JSON.stringify(inserts),
+         type: "TableInsertValues",
+         id: `${Object.values(cols)
+            .map((z) => z.id)
+            .join(", ")} | rows: ${inserts.length}`,
+         hashId:
+            Object.values(cols)
+               .map((c) => c.hashId)
+               .join(",") +
+            "|" +
+            JSON.stringify(inserts),
       });
       this.keys = getCanonicalInsertKeys(cols, inserts);
    }

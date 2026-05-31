@@ -165,7 +165,7 @@ describe("hashId", () => {
    describe("SqlSelectCharm", () => {
       test("includes key when no jsonSchema", () => {
          const charm = new SqlSelectCharm({ key: "orders", write: () => {}, params: null });
-         expect(charm.hashId).toMatchInlineSnapshot(`"SqlSelectCharm#(orders)"`);
+         expect(charm.hashId).toMatchInlineSnapshot(`"SqlSelectCharm#(orders:{}|)"`);
       });
 
       test("includes jsonSchema when present", () => {

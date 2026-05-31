@@ -70,6 +70,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
 
    constructor({ rawStrings, rawValues, ...args }: SqlQueryArgs) {
       super({
+         type: "SqlQuery",
          id: (() => {
             const comment = findQueryComment(rawStrings);
             if (comment) return comment;
@@ -81,7 +82,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
                .map(([k, v]) => `${k}=${v}`)
                .join(", ");
          })(),
-         hashId: () =>
+         hashId:
             JSON.stringify(Array.from(rawStrings)) +
             "|" +
             rawValues.map((v) => (v instanceof Sql ? v.hashId : String(v))).join("|"),

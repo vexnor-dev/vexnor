@@ -52,9 +52,10 @@ export class JsonAggregationSqlite3<T extends { Params?: unknown; Row?: unknown;
       { type }: { type: JsonResultType },
    ) {
       super({
+         type: "JsonAggregationSqlite3",
          id: query.id,
          params: query.params,
-         hashId: () => `JsonAggregationSqlite3#(${type}:${query.hashId})`,
+         hashId: `${type}:${query.hashId}`,
       });
       this.type = type;
    }

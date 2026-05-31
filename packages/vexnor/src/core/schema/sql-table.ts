@@ -78,6 +78,7 @@ export class SqlTable<
    constructor(args: SqlTableOptions<T> | SqlTable<T>) {
       const { format, pk, tableInfo, crud, dialect } = args;
       super({
+         type: "SqlTable",
          id: (() => {
             const schema = tableInfo.schema ? `${tableInfo.schema}.` : "";
             const alias = tableInfo.alias ? ` as ${tableInfo.alias}` : "";

@@ -27,6 +27,7 @@
    ],
    "sideEffects": [
       "./dist/index.js",
+      "./dist/index.browser.js",
       "./dist/vexnor-mssql.js",
       "./dist/mssql-augment.js"
    ],

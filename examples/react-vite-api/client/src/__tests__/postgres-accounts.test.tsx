@@ -5,14 +5,24 @@ import { Suspense } from "react";
 import "vexnor-postgres";
 import { AccountStatusUdt } from "#shared/codegen/postgres/vexnor_dev-enums";
 import type { IAccountSelect } from "#shared/codegen/postgres/vexnor_dev.account-table";
+import { AuthProvider } from "#/auth-context.js";
 
-vi.mock("#/remote-client.js", () => ({
-   remoteClient: {
-      remoteExecute: vi.fn(),
-   },
+const mockRemoteExecute = vi.fn();
+const mockRemoteClient = { remoteExecute: mockRemoteExecute };
+
+vi.mock("#/use-remote-client.js", () => ({
+   useRemoteClient: () => mockRemoteClient,
 }));
 
-const { remoteClient } = await import("#/remote-client.js");
+vi.mock("@tanstack/react-router", async (importActual) => ({
+   ...(await importActual<typeof import("@tanstack/react-router")>()),
+   useSearch: () => ({ filter: undefined }),
+}));
+
+vi.mock("#/components/search-input.js", () => ({
+   SearchInput: () => null,
+}));
+
 const { default: PostgresAccountsPage } = await import("#/pages/postgres-accounts.js");
 
 const mockAccounts: (IAccountSelect & { orderCount: number; lastOrder: { orderId: string; status: string; createdAt: Date; productCount: number } | null })[] = [
@@ -46,15 +56,17 @@ const mockAccounts: (IAccountSelect & { orderCount: number; lastOrder: { orderId
 
 function renderPage() {
    return render(
-      <Suspense fallback={<p>Loading...</p>}>
-         <PostgresAccountsPage />
-      </Suspense>,
+      <AuthProvider>
+         <Suspense fallback={<p>Loading...</p>}>
+            <PostgresAccountsPage />
+         </Suspense>
+      </AuthProvider>,
    );
 }
 
 beforeEach(() => {
    vi.clearAllMocks();
-   vi.mocked(remoteClient.remoteExecute).mockResolvedValue({ rows: mockAccounts });
+   mockRemoteExecute.mockResolvedValue({ rows: mockAccounts });
 });
 
 describe("PostgresAccountsPage", () => {
@@ -63,121 +75,157 @@ describe("PostgresAccountsPage", () => {
       await waitFor(() => screen.getByText("alice@example.com"));
       expect(asFragment()).toMatchInlineSnapshot(`
         <DocumentFragment>
-          <h1>
-            Accounts (PostgreSQL)
-          </h1>
-          <form
-            action="javascript:throw new Error('A React form was unexpectedly submitted. If you called form.submit() manually, consider using form.requestSubmit() instead. If you\\'re trying to use event.stopPropagation() in a submit event handler, consider also calling event.preventDefault().')"
+          <div
+            class="page"
           >
-            <input
-              name="email"
-              placeholder="Email"
-              required=""
-            />
-            <input
-              name="firstName"
-              placeholder="First name"
-              required=""
-            />
-            <input
-              name="lastName"
-              placeholder="Last name"
-              required=""
-            />
-            <button
-              type="submit"
+            <h1>
+              Accounts — PostgreSQL
+            </h1>
+            <form
+              action="javascript:throw new Error('A React form was unexpectedly submitted. If you called form.submit() manually, consider using form.requestSubmit() instead. If you\\'re trying to use event.stopPropagation() in a submit event handler, consider also calling event.preventDefault().')"
+              class="form"
             >
-              Create
-            </button>
-          </form>
-          <table>
-            <thead>
-              <tr>
-                <th>
-                  Email
-                </th>
-                <th>
-                  First Name
-                </th>
-                <th>
-                  Last Name
-                </th>
-                <th>
-                  Status
-                </th>
-                <th>
-                  Created At
-                </th>
-                <th>
-                  Orders #
-                </th>
-                <th>
-                  Last Order
-                </th>
-                <th />
-              </tr>
-            </thead>
-            <tbody
-              style="opacity: 1;"
+              <input
+                name="email"
+                placeholder="Email"
+                required=""
+              />
+              <input
+                name="firstName"
+                placeholder="First name"
+                required=""
+              />
+              <input
+                name="lastName"
+                placeholder="Last name"
+                required=""
+              />
+              <button
+                class="btn btn-primary"
+                type="submit"
+              >
+                Create
+              </button>
+            </form>
+            <div
+              class="table-wrap"
             >
-              <tr>
-                <td>
-                  alice@example.com
-                </td>
-                <td>
-                  Alice
-                </td>
-                <td>
-                  Smith
-                </td>
-                <td>
-                  confirmed
-                </td>
-                <td>
-                  1/1/2024, 1:00:00 AM
-                </td>
-                <td>
-                  3
-                </td>
-                <td>
-                  delivered — 1/10/2024 (2 products)
-                </td>
-                <td>
-                  <button>
-                    Delete
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  bob@example.com
-                </td>
-                <td>
-                  Bob
-                </td>
-                <td>
-                  Jones
-                </td>
-                <td>
-                  created
-                </td>
-                <td>
-                  1/2/2024, 1:00:00 AM
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  —
-                </td>
-                <td>
-                  <button>
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+              <table
+                style="opacity: 1;"
+              >
+                <thead>
+                  <tr>
+                    <th>
+                      Email
+                    </th>
+                    <th>
+                      First Name
+                    </th>
+                    <th>
+                      Last Name
+                    </th>
+                    <th>
+                      Status
+                    </th>
+                    <th>
+                      Created At
+                    </th>
+                    <th>
+                      Orders
+                    </th>
+                    <th>
+                      Last Order
+                    </th>
+                    <th />
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      alice@example.com
+                    </td>
+                    <td>
+                      Alice
+                    </td>
+                    <td>
+                      Smith
+                    </td>
+                    <td>
+                      <span
+                        class="badge"
+                      >
+                        confirmed
+                      </span>
+                    </td>
+                    <td>
+                      2024-01-01
+                    </td>
+                    <td>
+                      3
+                    </td>
+                    <td>
+                      <div
+                        class="last-order"
+                      >
+                        <span
+                          class="last-order-status"
+                        >
+                          delivered
+                        </span>
+                        <span
+                          class="last-order-meta"
+                        >
+                          2024-01-10 · 2 products
+                        </span>
+                      </div>
+                    </td>
+                    <td>
+                      <button
+                        class="btn btn-danger"
+                        disabled=""
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      bob@example.com
+                    </td>
+                    <td>
+                      Bob
+                    </td>
+                    <td>
+                      Jones
+                    </td>
+                    <td>
+                      <span
+                        class="badge"
+                      >
+                        created
+                      </span>
+                    </td>
+                    <td>
+                      2024-01-02
+                    </td>
+                    <td>
+                      0
+                    </td>
+                    <td>
+                      —
+                    </td>
+                    <td>
+                      <button
+                        class="btn btn-danger"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </DocumentFragment>
       `);
    });
@@ -185,7 +233,7 @@ describe("PostgresAccountsPage", () => {
    test("calls remoteExecute with correct plugin on load", async () => {
       await act(async () => renderPage());
       await waitFor(() => screen.getByText("alice@example.com"));
-      expect(vi.mocked(remoteClient.remoteExecute)).toHaveBeenCalledWith(
+      expect(vi.mocked(mockRemoteExecute)).toHaveBeenCalledWith(
          expect.objectContaining({ plugin: "vexnor-postgres" }),
       );
    });
@@ -196,10 +244,10 @@ describe("PostgresAccountsPage", () => {
       await waitFor(() => screen.getByText("alice@example.com"));
 
       const deleteButtons = screen.getAllByText("Delete");
-      await user.click(deleteButtons[0]!);
+      await user.click(deleteButtons[1]!);
 
       await waitFor(() =>
-         expect(vi.mocked(remoteClient.remoteExecute)).toHaveBeenCalledTimes(3),
+         expect(vi.mocked(mockRemoteExecute)).toHaveBeenCalledTimes(3),
       );
    });
 
@@ -214,7 +262,7 @@ describe("PostgresAccountsPage", () => {
       await user.click(screen.getByRole("button", { name: "Create" }));
 
       await waitFor(() =>
-         expect(vi.mocked(remoteClient.remoteExecute)).toHaveBeenCalledTimes(3),
+         expect(vi.mocked(mockRemoteExecute)).toHaveBeenCalledTimes(3),
       );
    });
 });

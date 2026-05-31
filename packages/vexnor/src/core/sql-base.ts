@@ -1,7 +1,6 @@
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
 import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
 import { isError } from "#/lib/is-error.js";
-import { Lazy } from "#/lib/lazy.js";
 import { SqlJsonSchema } from "#/core/utils/sql-json-schema.js";
 
 export type TypeOf<S> = S extends { readonly [TYPE]?: infer R } ? R : void;
@@ -33,7 +32,7 @@ export declare const TYPE: unique symbol;
 export declare const PARAMS: unique symbol;
 export declare const ARGS: unique symbol;
 
-export type SqlOptions = Pick<Sql, "id"> & Partial<Pick<Sql, "tag">> & { hashId?: () => string };
+export type SqlOptions = Pick<Sql, "id"> & Partial<Pick<Sql, "tag" | "hashId">> & { type?: string };
 
 export abstract class Sql {
    declare readonly [ROW]?: unknown;
@@ -44,15 +43,11 @@ export abstract class Sql {
    readonly id: string;
    readonly type: string;
    readonly tag: string | null;
-   private readonly hashIdLazy: Lazy<string>;
+   readonly hashId: string;
 
    protected constructor(options: SqlOptions) {
       this.id = `${this.constructor.name}#${nextId(this.constructor.name)}`;
-      const name = this.constructor.name;
-      const fallback = options.id ?? "";
-      this.hashIdLazy = new Lazy(
-         options.hashId ? () => `${name}#(${options.hashId!()})` : () => `${name}#(${fallback})`,
-      );
+      this.hashId = `${options.type ?? this.constructor.name}#(${options.hashId ?? options.id})`;
 
       if (options.tag || options.id) {
          this.id += "(";
@@ -70,12 +65,8 @@ export abstract class Sql {
          this.id += ")";
       }
 
-      this.type = this.constructor.name;
+      this.type = options.type ?? this.constructor.name;
       this.tag = options?.tag ?? null;
-   }
-
-   get hashId() {
-      return this.hashIdLazy.value;
    }
 
    get jsonSchema(): SqlJsonSchema {

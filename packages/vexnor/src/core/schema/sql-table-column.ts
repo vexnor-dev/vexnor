@@ -32,6 +32,7 @@ export class SqlTableColumn<
 
    constructor({ columnName, key, tableInfo, format, jsonType }: SqlTableColumnOptions<T>) {
       super({
+         type: "SqlTableColumn",
          id: (() => {
             const table = tableInfo.alias || tableInfo.name;
             const alias = key !== columnName ? ` as ${key}` : "";

@@ -45,9 +45,10 @@ export class JsonAggregationPostgres<
       { type }: { type: JsonResultType },
    ) {
       super({
+         type: "JsonAggregationPostgres",
          id: query.id,
          params: query.params,
-         hashId: () => `JsonAggregationPostgres#(${type}:${query.hashId})`,
+         hashId: `${type}:${query.hashId}`,
       });
       this.type = type;
    }

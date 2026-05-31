@@ -30,6 +30,7 @@
    "repository": "https://github.com/vexnor-dev/vexnor",
    "sideEffects": [
       "./dist/index.js",
+      "./dist/index.browser.js",
       "./dist/vexnor-postgres.js",
       "./dist/postgres-augment.js"
    ],

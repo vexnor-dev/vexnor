@@ -39,12 +39,20 @@ describe("SqlCharm tests", () => {
          limit ${param<{ limit: number }>("limit")}
       `;
       const charm = testCharm(query);
+      const outerQuery = sql`
+         select ${row(Account.$$)}, ${charm.as("children")}
+         from ${Account}
+      `;
 
       assertType<{
          limit: SqlParam<{ Name: "limit"; Type: number }>;
          status: SqlParam<{ Name: "status"; Type: string }>;
       }>(charm.params);
       expect(charm.params).toMatchObject({
+         status: { name: "status" },
+         limit: { name: "limit" },
+      });
+      expect(outerQuery.params).toMatchObject({
          status: { name: "status" },
          limit: { name: "limit" },
       });

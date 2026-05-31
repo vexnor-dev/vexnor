@@ -1,6 +1,5 @@
 import { BuildSqlParams } from "#/core/query/sql-param.js";
 import { PARAMS, ROW, Sql, SqlOptions, TYPE } from "#/core/sql-base.js";
-import { hasParams } from "#/core/query/sql-query-types.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
 import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
 import { SqlJsonSchema } from "#/core/utils/sql-json-schema.js";
@@ -46,15 +45,16 @@ export class SqlSelectCharm<T extends { Key: string; Type: unknown; Params?: unk
       return this._jsonSchema ?? {};
    }
 
-   constructor({ key, write, jsonSchema, ...args }: SqlSelectCharmArgs<T>) {
+   constructor({ key, write, jsonSchema, params }: SqlSelectCharmArgs<T>) {
       super({
+         type: "SqlSelectCharm",
          id: `${key}`,
-         hashId: jsonSchema ? () => `${key}:${JSON.stringify(jsonSchema)}` : undefined,
+         hashId: `${key}:${JSON.stringify(jsonSchema ?? {})}|${Object.keys(params ?? {}).join(",")}`,
       });
       this.write = write;
       this.key = key;
       this._jsonSchema = jsonSchema;
-      this.params = (hasParams(args) ? args.params : null) as BuildSqlParams<T["Params"]>;
+      this.params = (params ?? null) as BuildSqlParams<T["Params"]>;
    }
 
    // eslint-disable-next-line unused-imports/no-unused-vars

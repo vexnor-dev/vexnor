@@ -56,7 +56,7 @@ describe("SqlQuery tests", () => {
           "id",
           "type",
           "tag",
-          "hashIdLazy",
+          "hashId",
           "rawStrings",
           "rawValues",
           "location",

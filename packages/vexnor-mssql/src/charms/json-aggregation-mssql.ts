@@ -43,9 +43,10 @@ export class JsonAggregationMssql<
       { type }: { type: JsonResultType },
    ) {
       super({
+         type: "JsonAggregationMssql",
          id: query.id,
          params: query.params,
-         hashId: () => `JsonAggregationMssql#(${type}:${query.hashId})`,
+         hashId: `${type}:${query.hashId}`,
       });
       this.type = type;
    }

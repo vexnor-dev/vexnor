@@ -11,11 +11,7 @@ describe("view — AccountOrderSummary (sqlite)", () => {
           "$accountId": SqlTableColumn {
             "columnName": "account_id",
             "format": null,
-            "hashIdLazy": Lazy {
-              "_computed": false,
-              "_value": null,
-              "callback": [Function],
-            },
+            "hashId": "SqlTableColumn#(account_order_summary.account_id as accountId)",
             "id": "SqlTableColumn#19(account_order_summary.account_id as accountId)",
             "jsonType": null,
             "key": "accountId",
@@ -29,11 +25,7 @@ describe("view — AccountOrderSummary (sqlite)", () => {
           "$email": SqlTableColumn {
             "columnName": "email",
             "format": null,
-            "hashIdLazy": Lazy {
-              "_computed": false,
-              "_value": null,
-              "callback": [Function],
-            },
+            "hashId": "SqlTableColumn#(account_order_summary.email)",
             "id": "SqlTableColumn#20(account_order_summary.email)",
             "jsonType": null,
             "key": "email",
@@ -47,11 +39,7 @@ describe("view — AccountOrderSummary (sqlite)", () => {
           "$firstName": SqlTableColumn {
             "columnName": "first_name",
             "format": null,
-            "hashIdLazy": Lazy {
-              "_computed": false,
-              "_value": null,
-              "callback": [Function],
-            },
+            "hashId": "SqlTableColumn#(account_order_summary.first_name as firstName)",
             "id": "SqlTableColumn#21(account_order_summary.first_name as firstName)",
             "jsonType": null,
             "key": "firstName",
@@ -65,11 +53,7 @@ describe("view — AccountOrderSummary (sqlite)", () => {
           "$lastName": SqlTableColumn {
             "columnName": "last_name",
             "format": null,
-            "hashIdLazy": Lazy {
-              "_computed": false,
-              "_value": null,
-              "callback": [Function],
-            },
+            "hashId": "SqlTableColumn#(account_order_summary.last_name as lastName)",
             "id": "SqlTableColumn#22(account_order_summary.last_name as lastName)",
             "jsonType": null,
             "key": "lastName",
@@ -83,11 +67,7 @@ describe("view — AccountOrderSummary (sqlite)", () => {
           "$latestOrderAt": SqlTableColumn {
             "columnName": "latest_order_at",
             "format": null,
-            "hashIdLazy": Lazy {
-              "_computed": false,
-              "_value": null,
-              "callback": [Function],
-            },
+            "hashId": "SqlTableColumn#(account_order_summary.latest_order_at as latestOrderAt)",
             "id": "SqlTableColumn#25(account_order_summary.latest_order_at as latestOrderAt)",
             "jsonType": null,
             "key": "latestOrderAt",
@@ -101,11 +81,7 @@ describe("view — AccountOrderSummary (sqlite)", () => {
           "$orderCount": SqlTableColumn {
             "columnName": "order_count",
             "format": null,
-            "hashIdLazy": Lazy {
-              "_computed": false,
-              "_value": null,
-              "callback": [Function],
-            },
+            "hashId": "SqlTableColumn#(account_order_summary.order_count as orderCount)",
             "id": "SqlTableColumn#24(account_order_summary.order_count as orderCount)",
             "jsonType": null,
             "key": "orderCount",
@@ -119,11 +95,7 @@ describe("view — AccountOrderSummary (sqlite)", () => {
           "$status": SqlTableColumn {
             "columnName": "status",
             "format": null,
-            "hashIdLazy": Lazy {
-              "_computed": false,
-              "_value": null,
-              "callback": [Function],
-            },
+            "hashId": "SqlTableColumn#(account_order_summary.status)",
             "id": "SqlTableColumn#23(account_order_summary.status)",
             "jsonType": null,
             "key": "status",
@@ -145,11 +117,7 @@ describe("view — AccountOrderSummary (sqlite)", () => {
               "$accountId": SqlTableColumn {
                 "columnName": "account_id",
                 "format": null,
-                "hashIdLazy": Lazy {
-                  "_computed": false,
-                  "_value": null,
-                  "callback": [Function],
-                },
+                "hashId": "SqlTableColumn#(account_order_summary.account_id as accountId)",
                 "id": "SqlTableColumn#19(account_order_summary.account_id as accountId)",
                 "jsonType": null,
                 "key": "accountId",
@@ -163,11 +131,7 @@ describe("view — AccountOrderSummary (sqlite)", () => {
               "$email": SqlTableColumn {
                 "columnName": "email",
                 "format": null,
-                "hashIdLazy": Lazy {
-                  "_computed": false,
-                  "_value": null,
-                  "callback": [Function],
-                },
+                "hashId": "SqlTableColumn#(account_order_summary.email)",
                 "id": "SqlTableColumn#20(account_order_summary.email)",
                 "jsonType": null,
                 "key": "email",
@@ -181,11 +145,7 @@ describe("view — AccountOrderSummary (sqlite)", () => {
               "$firstName": SqlTableColumn {
                 "columnName": "first_name",
                 "format": null,
-                "hashIdLazy": Lazy {
-                  "_computed": false,
-                  "_value": null,
-                  "callback": [Function],
-                },
+                "hashId": "SqlTableColumn#(account_order_summary.first_name as firstName)",
                 "id": "SqlTableColumn#21(account_order_summary.first_name as firstName)",
                 "jsonType": null,
                 "key": "firstName",
@@ -199,11 +159,7 @@ describe("view — AccountOrderSummary (sqlite)", () => {
               "$lastName": SqlTableColumn {
                 "columnName": "last_name",
                 "format": null,
-                "hashIdLazy": Lazy {
-                  "_computed": false,
-                  "_value": null,
-                  "callback": [Function],
-                },
+                "hashId": "SqlTableColumn#(account_order_summary.last_name as lastName)",
                 "id": "SqlTableColumn#22(account_order_summary.last_name as lastName)",
                 "jsonType": null,
                 "key": "lastName",
@@ -217,11 +173,7 @@ describe("view — AccountOrderSummary (sqlite)", () => {
               "$latestOrderAt": SqlTableColumn {
                 "columnName": "latest_order_at",
                 "format": null,
-                "hashIdLazy": Lazy {
-                  "_computed": false,
-                  "_value": null,
-                  "callback": [Function],
-                },
+                "hashId": "SqlTableColumn#(account_order_summary.latest_order_at as latestOrderAt)",
                 "id": "SqlTableColumn#25(account_order_summary.latest_order_at as latestOrderAt)",
                 "jsonType": null,
                 "key": "latestOrderAt",
@@ -235,11 +187,7 @@ describe("view — AccountOrderSummary (sqlite)", () => {
               "$orderCount": SqlTableColumn {
                 "columnName": "order_count",
                 "format": null,
-                "hashIdLazy": Lazy {
-                  "_computed": false,
-                  "_value": null,
-                  "callback": [Function],
-                },
+                "hashId": "SqlTableColumn#(account_order_summary.order_count as orderCount)",
                 "id": "SqlTableColumn#24(account_order_summary.order_count as orderCount)",
                 "jsonType": null,
                 "key": "orderCount",
@@ -253,11 +201,7 @@ describe("view — AccountOrderSummary (sqlite)", () => {
               "$status": SqlTableColumn {
                 "columnName": "status",
                 "format": null,
-                "hashIdLazy": Lazy {
-                  "_computed": false,
-                  "_value": null,
-                  "callback": [Function],
-                },
+                "hashId": "SqlTableColumn#(account_order_summary.status)",
                 "id": "SqlTableColumn#23(account_order_summary.status)",
                 "jsonType": null,
                 "key": "status",
@@ -285,11 +229,7 @@ describe("view — AccountOrderSummary (sqlite)", () => {
           "columnTypes": {},
           "dialect": "sqlite",
           "format": null,
-          "hashIdLazy": Lazy {
-            "_computed": false,
-            "_value": null,
-            "callback": [Function],
-          },
+          "hashId": "SqlTable#(main.account_order_summary)",
           "id": "SqlTable#4(main.account_order_summary)",
           "pk": [],
           "tableInfo": {
