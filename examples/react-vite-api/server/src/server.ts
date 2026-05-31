@@ -16,6 +16,7 @@ import vexnorMssql from "vexnor-mssql";
 import vexnorPostgres from "vexnor-postgres";
 import vexnorSqlite3 from "vexnor-sqlite3";
 import { QueryRegistry } from "vexnor/registry";
+import { handleDbError } from "./db-error.js";
 
 const tracer = trace.getTracer("vexnor-react-vite-api");
 
@@ -109,7 +110,7 @@ app.post("/api/db", async (c) => {
       );
       return c.json(result);
    } catch (err) {
-      return c.json(err, 403);
+      return handleDbError(c, err);
    }
 });
 
