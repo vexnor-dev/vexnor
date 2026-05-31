@@ -2,12 +2,35 @@ import { SqlQuery, SqlQueryExtended } from "#/core/query/sql-query.js";
 import { ok } from "#/lib/assert.js";
 import { SqlRunArgs, isRemoteClient } from "#/core/query/sql-query-types.js";
 import { SqlRunError } from "#/core/sql-run-error.js";
+import { SqlErrorCode } from "#/core/sql-error-code.js";
 import { deserialize } from "#/core/utils/sql-json-schema.js";
 import type { SqlJsonSchema } from "#/core/utils/sql-json-schema.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlQueryHandlerAny = SqlQueryHandler<any>;
 export type SqlExecuteMode = "run" | "all";
+
+function withTimeout<T>(promise: Promise<T>, ms: number, onTimeout: () => SqlRunError): Promise<T> {
+   return new Promise<T>((resolve, reject) => {
+      const timer = setTimeout(() => reject(onTimeout()), ms);
+      promise.then(
+         (v) => {
+            clearTimeout(timer);
+            resolve(v);
+         },
+         (e) => {
+            clearTimeout(timer);
+            reject(e);
+         },
+      );
+   });
+}
+
+function resolveRetryable(pluginRetryable: boolean, optionRetryable: "default" | true | false | undefined): boolean {
+   if (optionRetryable === true) return true;
+   if (optionRetryable === false) return false;
+   return pluginRetryable;
+}
 
 /**
  * Base query handler for async database operations
@@ -70,13 +93,36 @@ export abstract class SqlQueryHandler<
     * Executes the query, deserializes the result, and returns the raw QueryResult with deserialized rows.
     */
    async run(args: SqlRunArgs<Pick<T, "Connection" | "Params">>): Promise<T["QueryResult"]> {
+      const { timeout, retryable: retryableOption } = args.options ?? {};
       try {
-         const result = await this.execute(args, "run");
+         let execution = this.execute(args, "run");
+         if (timeout) {
+            execution = withTimeout(
+               execution,
+               timeout,
+               () =>
+                  new SqlRunError(`Query timed out after ${timeout}ms`, this, {
+                     code: SqlErrorCode.QUERY_TIMEOUT,
+                     queryName: this.info?.label ?? undefined,
+                  }),
+            );
+         }
+         const result = await execution;
          const remote = isRemoteClient(await args.db);
          return this.deserialize(result, remote);
       } catch (err) {
-         if (err instanceof SqlRunError) throw err;
-         throw new SqlRunError(`Error executing sql query '${this.id}'`, this, { cause: err, queryName: this.info?.label ?? undefined });
+         if (err instanceof SqlRunError) {
+            throw retryableOption !== undefined && retryableOption !== "default"
+               ? err.withOptions({ retryable: retryableOption })
+               : err;
+         }
+
+         throw new SqlRunError(`Error executing sql query '${this.id}'`, this, {
+            cause: err,
+            queryName: this.info?.label ?? undefined,
+            code: SqlErrorCode.QUERY_EXECUTION_FAILED,
+            retryable: resolveRetryable(false, retryableOption),
+         });
       }
    }
 
@@ -120,12 +166,35 @@ export abstract class SqlQueryHandler<
     * @param args - Database connection and query parameters.
     */
    async all(args: SqlRunArgs<Pick<T, "Connection" | "Params">>): Promise<T["Row"][]> {
+      const { timeout, retryable: retryableOption } = args.options ?? {};
       try {
-         const result = await this.execute(args, "all");
+         let execution = this.execute(args, "all");
+         if (timeout) {
+            execution = withTimeout(
+               execution,
+               timeout,
+               () =>
+                  new SqlRunError(`Query timed out after ${timeout}ms`, this, {
+                     code: SqlErrorCode.QUERY_TIMEOUT,
+                     queryName: this.info?.label ?? undefined,
+                  }),
+            );
+         }
+         const result = await execution;
          const remote = isRemoteClient(await args.db);
          return this.resolveRows(this.deserialize(result, remote));
       } catch (err) {
-         throw new SqlRunError(`Error executing sql query '${this.id}'`, this, { cause: err, queryName: this.info?.label ?? undefined });
+         if (err instanceof SqlRunError) {
+            throw retryableOption !== undefined && retryableOption !== "default"
+               ? err.withOptions({ retryable: retryableOption })
+               : err;
+         }
+         throw new SqlRunError(`Error executing sql query '${this.id}'`, this, {
+            cause: err,
+            queryName: this.info?.label ?? undefined,
+            code: SqlErrorCode.QUERY_EXECUTION_FAILED,
+            retryable: resolveRetryable(false, retryableOption),
+         });
       }
    }
 }

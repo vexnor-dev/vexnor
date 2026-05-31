@@ -25,13 +25,27 @@ export type SqlRunArgs<T extends { Connection: unknown; Params?: unknown }> =
       ? {
            db: T["Connection"] | PromiseLike<T["Connection"]>;
            params: T["Params"];
-           options?: SqlBuildOptions;
+           options?: SqlBuildOptions & SqlRunOptions;
         }
       : {
            db: T["Connection"] | PromiseLike<T["Connection"]>;
            params?: T["Params"];
-           options?: SqlBuildOptions;
+           options?: SqlBuildOptions & SqlRunOptions;
         };
+
+/**
+ * Runtime execution options — separate from SQL build options.
+ *
+ * - `timeout` — abort the query after this many milliseconds; throws `SqlRunError` with code `QUERY_TIMEOUT`
+ * - `retryable` — override the plugin's automatic retryable detection:
+ *   - `"default"` (or omitted) — plugin decides based on driver error codes
+ *   - `true` — always mark as retryable regardless of error
+ *   - `false` — never mark as retryable regardless of error
+ */
+export type SqlRunOptions = {
+   timeout?: number;
+   retryable?: "default" | true | false;
+};
 
 /** Arguments passed to `getSql()`. Requires `params` only when the query declares named parameters. */
 export type SqlInputArgs<Params> =

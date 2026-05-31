@@ -1,1 +1,2 @@
-export { QueryRegistry } from "./query-registry.js";
+export { QueryRegistry, type ConnectionResolver, type QueryMap, type AuthorizeArgs, type AuthorizeHook, type RateLimitArgs, type RateLimitHook, type AuditLogArgs, AuditLogEvent, type QueryRegistryOptions } from "./query-registry.js";
+export { SqlErrorCode } from "#/core/sql-error-code.js";

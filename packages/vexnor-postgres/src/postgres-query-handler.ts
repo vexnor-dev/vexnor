@@ -1,4 +1,12 @@
-import { SqlQueryHandler, SqlQuery, SqlRunArgs, SqlRunError, isRemoteClient, RemoteClient } from "vexnor";
+import { SqlQueryHandler, SqlQuery, SqlRunArgs, SqlRunError, SqlErrorCode, isRemoteClient, RemoteClient } from "vexnor";
+
+// Postgres transient error codes that are safe to retry
+const RETRYABLE_PG_CODES = new Set(["57P01", "08006", "08001", "08004", "40001", "40P01"]);
+
+function isRetryablePgError(err: unknown): boolean {
+   return typeof err === "object" && err !== null && "code" in err &&
+      RETRYABLE_PG_CODES.has((err as { code: string }).code);
+}
 import type { QueryResult } from "pg";
 import { PostgresTokenizer } from "#/postgres-tokenizer.js";
 import pkg from "../package.json" with { type: "json" };
@@ -36,7 +44,7 @@ export class PostgresQueryHandler<T extends { Row?: unknown; Params?: unknown }>
          queryInput = this.query.getSql(newArgs);
          return queryInput;
       } catch (err) {
-         throw new SqlRunError(`Error building postgres query '${this.query.id}'`, this.query, { cause: err });
+         throw new SqlRunError(`Error building postgres query '${this.query.id}'`, this.query, { cause: err, code: SqlErrorCode.QUERY_BUILD_FAILED });
       }
    }
 
@@ -82,6 +90,8 @@ export class PostgresQueryHandler<T extends { Row?: unknown; Params?: unknown }>
          throw new SqlRunError(`Error running postgres query '${this.query.id}'`, this.query, {
             cause: err,
             sql: queryInput?.text,
+            code: isRetryablePgError(err) ? SqlErrorCode.QUERY_RETRYABLE_FAILURE : SqlErrorCode.QUERY_EXECUTION_FAILED,
+            retryable: isRetryablePgError(err),
          });
       }
    }

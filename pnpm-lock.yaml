@@ -88,7 +88,7 @@ importers:
         version: 2.1.9(@types/node@20.19.0)(lightningcss@1.32.0)
       vitest:
         specifier: ^4.1.5
-        version: 4.1.7(@types/node@20.19.0)(@vitest/coverage-v8@4.1.7)(jsdom@29.1.1)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
+        version: 4.1.7(@opentelemetry/api@1.9.1)(@types/node@20.19.0)(@vitest/coverage-v8@4.1.7)(jsdom@29.1.1)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
 
   examples/postgres-cjs:
     dependencies:
@@ -110,7 +110,7 @@ importers:
         version: 6.1.1(typescript@5.9.3)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
       vitest:
         specifier: ^4.0.18
-        version: 4.1.7(@types/node@20.19.0)(@vitest/coverage-v8@4.1.7)(jsdom@29.1.1)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
+        version: 4.1.7(@opentelemetry/api@1.9.1)(@types/node@20.19.0)(@vitest/coverage-v8@4.1.7)(jsdom@29.1.1)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
 
   examples/postgres-esm:
     dependencies:
@@ -132,7 +132,7 @@ importers:
         version: 6.1.1(typescript@5.9.3)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
       vitest:
         specifier: ^4.0.18
-        version: 4.1.7(@types/node@20.19.0)(@vitest/coverage-v8@4.1.7)(jsdom@29.1.1)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
+        version: 4.1.7(@opentelemetry/api@1.9.1)(@types/node@20.19.0)(@vitest/coverage-v8@4.1.7)(jsdom@29.1.1)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
 
   examples/react-next-app:
     dependencies:
@@ -144,7 +144,7 @@ importers:
         version: 12.5.4(@azure/core-client@1.10.1)
       next:
         specifier: 16.2.6
-        version: 16.2.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        version: 16.2.6(@opentelemetry/api@1.9.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       pg:
         specifier: ^8.16.3
         version: 8.21.0
@@ -308,10 +308,13 @@ importers:
         version: 6.1.1(typescript@5.9.3)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
       vitest:
         specifier: ^4.1.7
-        version: 4.1.7(@types/node@20.19.0)(@vitest/coverage-v8@4.1.7)(jsdom@29.1.1)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
+        version: 4.1.7(@opentelemetry/api@1.9.1)(@types/node@20.19.0)(@vitest/coverage-v8@4.1.7)(jsdom@29.1.1)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
 
   packages/vexnor:
     dependencies:
+      '@opentelemetry/api':
+        specifier: ^1.0.0
+        version: 1.9.1
       code-block-writer:
         specifier: ^11.0.3
         version: 11.0.3
@@ -348,7 +351,7 @@ importers:
         version: 6.1.1(typescript@5.9.3)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
       vitest:
         specifier: ^4.1.5
-        version: 4.1.7(@types/node@20.19.0)(@vitest/coverage-v8@4.1.7)(jsdom@29.1.1)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
+        version: 4.1.7(@opentelemetry/api@1.9.1)(@types/node@20.19.0)(@vitest/coverage-v8@4.1.7)(jsdom@29.1.1)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
 
   packages/vexnor-drizzle:
     dependencies:
@@ -364,7 +367,7 @@ importers:
         version: 4.1.7(vitest@4.1.7)
       drizzle-orm:
         specifier: ^1.0.0-beta.20
-        version: 1.0.0-rc.4-5d5b77c(@electric-sql/pglite@0.4.1)(@sinclair/typebox@0.34.49)(@types/better-sqlite3@7.6.13)(@types/mssql@12.3.0(@azure/core-client@1.10.1))(@types/pg@8.20.0)(better-sqlite3@12.10.0)(mssql@12.5.4(@azure/core-client@1.10.1))(mysql2@3.15.3)(pg@8.21.0)(postgres@3.4.7)(sqlite3@5.1.7)(valibot@1.2.0(typescript@5.9.3))(zod@4.4.3)
+        version: 1.0.0-rc.4-5d5b77c(@electric-sql/pglite@0.4.1)(@opentelemetry/api@1.9.1)(@sinclair/typebox@0.34.49)(@types/better-sqlite3@7.6.13)(@types/mssql@12.3.0(@azure/core-client@1.10.1))(@types/pg@8.20.0)(better-sqlite3@12.10.0)(mssql@12.5.4(@azure/core-client@1.10.1))(mysql2@3.15.3)(pg@8.21.0)(postgres@3.4.7)(sqlite3@5.1.7)(valibot@1.2.0(typescript@5.9.3))(zod@4.4.3)
       npm-run-all:
         specifier: ^4.1.5
         version: 4.1.5
@@ -379,7 +382,7 @@ importers:
         version: 6.1.1(typescript@5.9.3)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
       vitest:
         specifier: ^4.1.5
-        version: 4.1.7(@types/node@20.19.0)(@vitest/coverage-v8@4.1.7)(jsdom@29.1.1)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
+        version: 4.1.7(@opentelemetry/api@1.9.1)(@types/node@20.19.0)(@vitest/coverage-v8@4.1.7)(jsdom@29.1.1)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
 
   packages/vexnor-mssql:
     dependencies:
@@ -410,7 +413,7 @@ importers:
         version: 6.1.1(typescript@5.9.3)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
       vitest:
         specifier: ^4.1.5
-        version: 4.1.7(@types/node@20.19.0)(@vitest/coverage-v8@4.1.7)(jsdom@29.1.1)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
+        version: 4.1.7(@opentelemetry/api@1.9.1)(@types/node@20.19.0)(@vitest/coverage-v8@4.1.7)(jsdom@29.1.1)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
 
   packages/vexnor-postgres:
     dependencies:
@@ -441,7 +444,7 @@ importers:
         version: 6.1.1(typescript@5.9.3)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
       vitest:
         specifier: ^4.1.5
-        version: 4.1.7(@types/node@20.19.0)(@vitest/coverage-v8@4.1.7)(jsdom@29.1.1)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
+        version: 4.1.7(@opentelemetry/api@1.9.1)(@types/node@20.19.0)(@vitest/coverage-v8@4.1.7)(jsdom@29.1.1)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
 
   packages/vexnor-prisma:
     dependencies:
@@ -475,7 +478,7 @@ importers:
         version: 6.1.1(typescript@5.9.3)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
       vitest:
         specifier: ^4.1.5
-        version: 4.1.7(@types/node@20.19.0)(@vitest/coverage-v8@4.1.7)(jsdom@29.1.1)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
+        version: 4.1.7(@opentelemetry/api@1.9.1)(@types/node@20.19.0)(@vitest/coverage-v8@4.1.7)(jsdom@29.1.1)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
 
   packages/vexnor-prisma/src/__tests__/fixtures-v6-client-js/generated: {}
 
@@ -516,7 +519,7 @@ importers:
         version: 6.1.1(typescript@5.9.3)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
       vitest:
         specifier: ^4.1.5
-        version: 4.1.7(@types/node@20.19.0)(@vitest/coverage-v8@4.1.7)(jsdom@29.1.1)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
+        version: 4.1.7(@opentelemetry/api@1.9.1)(@types/node@20.19.0)(@vitest/coverage-v8@4.1.7)(jsdom@29.1.1)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
 
   packages/vexnor-sqlite3:
     dependencies:
@@ -547,7 +550,7 @@ importers:
         version: 6.1.1(typescript@5.9.3)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
       vitest:
         specifier: ^4.1.5
-        version: 4.1.7(@types/node@20.19.0)(@vitest/coverage-v8@4.1.7)(jsdom@29.1.1)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
+        version: 4.1.7(@opentelemetry/api@1.9.1)(@types/node@20.19.0)(@vitest/coverage-v8@4.1.7)(jsdom@29.1.1)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
 
   packages/vexnor-typeorm:
     dependencies:
@@ -584,7 +587,7 @@ importers:
         version: 6.1.1(typescript@5.9.3)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
       vitest:
         specifier: ^4.1.5
-        version: 4.1.7(@types/node@20.19.0)(@vitest/coverage-v8@4.1.7)(jsdom@29.1.1)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
+        version: 4.1.7(@opentelemetry/api@1.9.1)(@types/node@20.19.0)(@vitest/coverage-v8@4.1.7)(jsdom@29.1.1)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
 
   tests/vexnor-test-mssql:
     dependencies:
@@ -627,7 +630,7 @@ importers:
         version: 4.1.7(vitest@4.1.7)
       drizzle-orm:
         specifier: ^1.0.0-beta.20
-        version: 1.0.0-rc.4-5d5b77c(@electric-sql/pglite@0.4.1)(@sinclair/typebox@0.34.49)(@types/better-sqlite3@7.6.13)(@types/mssql@12.3.0(@azure/core-client@1.10.1))(@types/pg@8.20.0)(better-sqlite3@12.10.0)(mssql@12.5.4(@azure/core-client@1.10.1))(mysql2@3.15.3)(pg@8.21.0)(postgres@3.4.7)(sqlite3@5.1.7)(valibot@1.2.0(typescript@5.9.3))(zod@4.4.3)
+        version: 1.0.0-rc.4-5d5b77c(@electric-sql/pglite@0.4.1)(@opentelemetry/api@1.9.1)(@sinclair/typebox@0.34.49)(@types/better-sqlite3@7.6.13)(@types/mssql@12.3.0(@azure/core-client@1.10.1))(@types/pg@8.20.0)(better-sqlite3@12.10.0)(mssql@12.5.4(@azure/core-client@1.10.1))(mysql2@3.15.3)(pg@8.21.0)(postgres@3.4.7)(sqlite3@5.1.7)(valibot@1.2.0(typescript@5.9.3))(zod@4.4.3)
       prisma:
         specifier: ^7.8.0
         version: 7.8.0(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(better-sqlite3@12.10.0)(magicast@0.5.3)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@5.9.3)
@@ -645,7 +648,7 @@ importers:
         version: 6.1.1(typescript@5.9.3)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
       vitest:
         specifier: ^4.1.7
-        version: 4.1.7(@types/node@20.19.0)(@vitest/coverage-v8@4.1.7)(jsdom@29.1.1)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
+        version: 4.1.7(@opentelemetry/api@1.9.1)(@types/node@20.19.0)(@vitest/coverage-v8@4.1.7)(jsdom@29.1.1)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
 
   tests/vexnor-test-postgres:
     dependencies:
@@ -688,7 +691,7 @@ importers:
         version: 4.1.7(vitest@4.1.7)
       drizzle-orm:
         specifier: ^1.0.0-beta.20
-        version: 1.0.0-rc.4-5d5b77c(@electric-sql/pglite@0.4.1)(@sinclair/typebox@0.34.49)(@types/better-sqlite3@7.6.13)(@types/mssql@12.3.0(@azure/core-client@1.10.1))(@types/pg@8.20.0)(better-sqlite3@12.10.0)(mssql@12.5.4(@azure/core-client@1.10.1))(mysql2@3.15.3)(pg@8.21.0)(postgres@3.4.7)(sqlite3@5.1.7)(valibot@1.2.0(typescript@5.9.3))(zod@4.4.3)
+        version: 1.0.0-rc.4-5d5b77c(@electric-sql/pglite@0.4.1)(@opentelemetry/api@1.9.1)(@sinclair/typebox@0.34.49)(@types/better-sqlite3@7.6.13)(@types/mssql@12.3.0(@azure/core-client@1.10.1))(@types/pg@8.20.0)(better-sqlite3@12.10.0)(mssql@12.5.4(@azure/core-client@1.10.1))(mysql2@3.15.3)(pg@8.21.0)(postgres@3.4.7)(sqlite3@5.1.7)(valibot@1.2.0(typescript@5.9.3))(zod@4.4.3)
       env-cmd:
         specifier: ^10.1.0
         version: 10.1.0
@@ -712,7 +715,7 @@ importers:
         version: 6.1.1(typescript@5.9.3)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
       vitest:
         specifier: ^4.1.5
-        version: 4.1.7(@types/node@20.19.0)(@vitest/coverage-v8@4.1.7)(jsdom@29.1.1)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
+        version: 4.1.7(@opentelemetry/api@1.9.1)(@types/node@20.19.0)(@vitest/coverage-v8@4.1.7)(jsdom@29.1.1)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
 
   tests/vexnor-test-sqlite3:
     dependencies:
@@ -755,7 +758,7 @@ importers:
         version: 4.1.7(vitest@4.1.7)
       drizzle-orm:
         specifier: ^1.0.0-beta.20
-        version: 1.0.0-rc.4-5d5b77c(@electric-sql/pglite@0.4.1)(@sinclair/typebox@0.34.49)(@types/better-sqlite3@7.6.13)(@types/mssql@12.3.0(@azure/core-client@1.10.1))(@types/pg@8.20.0)(better-sqlite3@12.10.0)(mssql@12.5.4(@azure/core-client@1.10.1))(mysql2@3.15.3)(pg@8.21.0)(postgres@3.4.7)(sqlite3@5.1.7)(valibot@1.2.0(typescript@5.9.3))(zod@4.4.3)
+        version: 1.0.0-rc.4-5d5b77c(@electric-sql/pglite@0.4.1)(@opentelemetry/api@1.9.1)(@sinclair/typebox@0.34.49)(@types/better-sqlite3@7.6.13)(@types/mssql@12.3.0(@azure/core-client@1.10.1))(@types/pg@8.20.0)(better-sqlite3@12.10.0)(mssql@12.5.4(@azure/core-client@1.10.1))(mysql2@3.15.3)(pg@8.21.0)(postgres@3.4.7)(sqlite3@5.1.7)(valibot@1.2.0(typescript@5.9.3))(zod@4.4.3)
       prisma:
         specifier: ^7.8.0
         version: 7.8.0(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(better-sqlite3@12.10.0)(magicast@0.5.3)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@5.9.3)
@@ -773,7 +776,7 @@ importers:
         version: 6.1.1(typescript@5.9.3)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
       vitest:
         specifier: ^4.1.5
-        version: 4.1.7(@types/node@20.19.0)(@vitest/coverage-v8@4.1.7)(jsdom@29.1.1)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
+        version: 4.1.7(@opentelemetry/api@1.9.1)(@types/node@20.19.0)(@vitest/coverage-v8@4.1.7)(jsdom@29.1.1)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
 
 packages:
 
@@ -1667,6 +1670,10 @@ packages:
     resolution: {integrity: sha512-1SUf/Cg2GzGDyaf15aR9St9TWlb+XvbZXWpDx8YKs7MLzMH/BCeopv+y9vzrzgkfykCGuWOlSu3mZhj2+FQcrg==}
     engines: {node: '>=10'}
     deprecated: This functionality has been moved to @npmcli/fs
+
+  '@opentelemetry/api@1.9.1':
+    resolution: {integrity: sha512-gLyJlPHPZYdAk1JENA9LeHejZe1Ti77/pTeFm/nMXmQH/HFZlcS/O2XJB+L8fkbrNSqhdtlvjBVjxwUYanNH5Q==}
+    engines: {node: '>=8.0.0'}
 
   '@oxc-project/types@0.132.0':
     resolution: {integrity: sha512-FESMOxil5Se014ui/Eq8fT5uHJo6nIRwH0PfJrZJXs6Gek3ZVFOrpUv3YIZT20m+extU98Hg1Ym72U58rlsxUQ==}
@@ -6782,6 +6789,8 @@ snapshots:
       rimraf: 3.0.2
     optional: true
 
+  '@opentelemetry/api@1.9.1': {}
+
   '@oxc-project/types@0.132.0': {}
 
   '@pinojs/redact@0.4.0': {}
@@ -7557,7 +7566,7 @@ snapshots:
       obug: 2.1.1
       std-env: 4.1.0
       tinyrainbow: 3.1.0
-      vitest: 4.1.7(@types/node@20.19.0)(@vitest/coverage-v8@4.1.7)(jsdom@29.1.1)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
+      vitest: 4.1.7(@opentelemetry/api@1.9.1)(@types/node@20.19.0)(@vitest/coverage-v8@4.1.7)(jsdom@29.1.1)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
 
   '@vitest/expect@4.1.7':
     dependencies:
@@ -8193,9 +8202,10 @@ snapshots:
 
   dottie@2.0.7: {}
 
-  drizzle-orm@1.0.0-rc.4-5d5b77c(@electric-sql/pglite@0.4.1)(@sinclair/typebox@0.34.49)(@types/better-sqlite3@7.6.13)(@types/mssql@12.3.0(@azure/core-client@1.10.1))(@types/pg@8.20.0)(better-sqlite3@12.10.0)(mssql@12.5.4(@azure/core-client@1.10.1))(mysql2@3.15.3)(pg@8.21.0)(postgres@3.4.7)(sqlite3@5.1.7)(valibot@1.2.0(typescript@5.9.3))(zod@4.4.3):
+  drizzle-orm@1.0.0-rc.4-5d5b77c(@electric-sql/pglite@0.4.1)(@opentelemetry/api@1.9.1)(@sinclair/typebox@0.34.49)(@types/better-sqlite3@7.6.13)(@types/mssql@12.3.0(@azure/core-client@1.10.1))(@types/pg@8.20.0)(better-sqlite3@12.10.0)(mssql@12.5.4(@azure/core-client@1.10.1))(mysql2@3.15.3)(pg@8.21.0)(postgres@3.4.7)(sqlite3@5.1.7)(valibot@1.2.0(typescript@5.9.3))(zod@4.4.3):
     optionalDependencies:
       '@electric-sql/pglite': 0.4.1
+      '@opentelemetry/api': 1.9.1
       '@sinclair/typebox': 0.34.49
       '@types/better-sqlite3': 7.6.13
       '@types/mssql': 12.3.0(@azure/core-client@1.10.1)
@@ -9623,7 +9633,7 @@ snapshots:
   negotiator@0.6.4:
     optional: true
 
-  next@16.2.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
+  next@16.2.6(@opentelemetry/api@1.9.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
     dependencies:
       '@next/env': 16.2.6
       '@swc/helpers': 0.5.15
@@ -9642,6 +9652,7 @@ snapshots:
       '@next/swc-linux-x64-musl': 16.2.6
       '@next/swc-win32-arm64-msvc': 16.2.6
       '@next/swc-win32-x64-msvc': 16.2.6
+      '@opentelemetry/api': 1.9.1
       sharp: 0.34.5
     transitivePeerDependencies:
       - '@babel/core'
@@ -11160,7 +11171,7 @@ snapshots:
       tsx: 4.22.3
       yaml: 2.9.0
 
-  vitest@4.1.7(@types/node@20.19.0)(@vitest/coverage-v8@4.1.7)(jsdom@29.1.1)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0)):
+  vitest@4.1.7(@opentelemetry/api@1.9.1)(@types/node@20.19.0)(@vitest/coverage-v8@4.1.7)(jsdom@29.1.1)(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0)):
     dependencies:
       '@vitest/expect': 4.1.7
       '@vitest/mocker': 4.1.7(vite@8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
@@ -11183,6 +11194,7 @@ snapshots:
       vite: 8.0.14(@types/node@20.19.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0)
       why-is-node-running: 2.3.0
     optionalDependencies:
+      '@opentelemetry/api': 1.9.1
       '@types/node': 20.19.0
       '@vitest/coverage-v8': 4.1.7(vitest@4.1.7)
       jsdom: 29.1.1

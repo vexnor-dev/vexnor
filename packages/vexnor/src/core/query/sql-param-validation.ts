@@ -1,4 +1,5 @@
 import { SqlBuildError } from "#/core/sql-build-error.js";
+import { SqlErrorCode } from "#/core/sql-error-code.js";
 
 type NonNullish<T> = Exclude<T, null | undefined>;
 type ValidateFn<T> = {
@@ -36,51 +37,32 @@ export function validateParamValue(name: string, value: unknown, validation: Par
    if (!validation) return;
    if (value == null) return;
    const rules = validation as ParamValidationRuntime;
+   const fail = (msg: string) => new SqlBuildError(msg, { code: SqlErrorCode.PARAM_VALIDATION_FAILED });
 
    if (rules.minLength != null) {
       const len = getLength(value);
-      if (len == null || len < rules.minLength) {
-         throw new SqlBuildError(`Invalid param '${name}': expected length >= ${rules.minLength}`);
-      }
+      if (len == null || len < rules.minLength) throw fail(`Invalid param '${name}': expected length >= ${rules.minLength}`);
    }
-
    if (rules.maxLength != null) {
       const len = getLength(value);
-      if (len == null || len > rules.maxLength) {
-         throw new SqlBuildError(`Invalid param '${name}': expected length <= ${rules.maxLength}`);
-      }
+      if (len == null || len > rules.maxLength) throw fail(`Invalid param '${name}': expected length <= ${rules.maxLength}`);
    }
-
    if (rules.pattern) {
-      if (typeof value !== "string" || !rules.pattern.test(value)) {
-         throw new SqlBuildError(`Invalid param '${name}': pattern mismatch`);
-      }
+      if (typeof value !== "string" || !rules.pattern.test(value)) throw fail(`Invalid param '${name}': pattern mismatch`);
    }
-
    if (rules.min != null) {
-      if (!isAtLeast(value, rules.min)) {
-         throw new SqlBuildError(`Invalid param '${name}': expected value >= ${String(rules.min)}`);
-      }
+      if (!isAtLeast(value, rules.min)) throw fail(`Invalid param '${name}': expected value >= ${String(rules.min)}`);
    }
-
    if (rules.max != null) {
-      if (!isAtMost(value, rules.max)) {
-         throw new SqlBuildError(`Invalid param '${name}': expected value <= ${String(rules.max)}`);
-      }
+      if (!isAtMost(value, rules.max)) throw fail(`Invalid param '${name}': expected value <= ${String(rules.max)}`);
    }
-
    if (rules.enum && !rules.enum.some((item) => Object.is(item, value))) {
-      throw new SqlBuildError(`Invalid param '${name}': value not in enum`);
+      throw fail(`Invalid param '${name}': value not in enum`);
    }
-
    if (rules.validate) {
       const result = rules.validate(value);
-      if (result === false) {
-         throw new SqlBuildError(`Invalid param '${name}': custom validation failed`);
-      }
-      if (typeof result === "string" && result.trim()) {
-         throw new SqlBuildError(`Invalid param '${name}': ${result}`);
-      }
+      if (result === false) throw fail(`Invalid param '${name}': custom validation failed`);
+      if (typeof result === "string" && result.trim()) throw fail(`Invalid param '${name}': ${result}`);
    }
 }
 

@@ -1,4 +1,5 @@
 export { SqlError } from "#/core/sql-error.js";
+export { SqlErrorCode } from "#/core/sql-error-code.js";
 
 // format
 export { type SqlLanguage, SQL_LANGUAGES } from "#/format/sql-language.js";
@@ -29,6 +30,7 @@ export {
    type SqlQueryScope,
    type SqlQueryOptions,
    type SqlRunArgs,
+   type SqlRunOptions,
    type SqlInputArgs,
    type RemoteClient,
    isRemoteClient,
@@ -99,7 +101,7 @@ export { isPrimitive, type Primitive } from "#/lib/primitive.js";
 export { isError } from "#/lib/is-error.js";
 export { ok } from "#/lib/assert.js";
 export type { Bit } from "#/lib/bit.js";
-export { SqlRunError } from "./sql-run-error.js";
+export { SqlRunError, type SqlRunErrorOptions, type SqlRunQueryRef } from "./sql-run-error.js";
 
 // CACHE
 export { CACHE } from "#/lib/cache.js";

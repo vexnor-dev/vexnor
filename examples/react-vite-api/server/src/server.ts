@@ -60,7 +60,33 @@ const app = new Hono();
 app.use("*", logger());
 app.use("/api/*", cors());
 
-app.get("/api/health", (c) => c.json({ status: "ok" }));
+app.get("/api/health", async (c) => {
+   const checks: Record<string, string> = {};
+
+   try {
+      await pgPool.query("SELECT 1");
+      checks.postgres = "ok";
+   } catch (err) {
+      checks.postgres = err instanceof Error ? err.message : String(err);
+   }
+
+   try {
+      await mssqlPool.request().query("SELECT 1");
+      checks.mssql = "ok";
+   } catch (err) {
+      checks.mssql = err instanceof Error ? err.message : String(err);
+   }
+
+   try {
+      sqliteDb.prepare("SELECT 1").get();
+      checks.sqlite3 = "ok";
+   } catch (err) {
+      checks.sqlite3 = err instanceof Error ? err.message : String(err);
+   }
+
+   const allOk = Object.values(checks).every((v) => v === "ok");
+   return c.json({ status: allOk ? "ok" : "degraded", databases: checks }, allOk ? 200 : 503);
+});
 
 app.post("/api/db", async (c) => {
    const { plugin, hash, params } = await c.req.json<{

@@ -9,6 +9,8 @@ import { VexnorPlugin } from "#/plugin/vexnor-plugin.js";
 import { SqlRunArgs } from "#/core/query/sql-query-types.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
 import { Order } from "@test-models/vexnor_dev.order-table.js";
+import { SqlRunError } from "#/core/sql-run-error.js";
+import { ok } from "node:assert";
 
 // ── minimal mock infrastructure ──────────────────────────────────────────────
 
@@ -407,8 +409,9 @@ describe("QueryRegistry", () => {
                throw new Error("db failure");
             },
          }))
-         .catch((e) => e);
+         .catch((e: unknown) => e);
 
+      ok(err instanceof SqlRunError);
       expect(err.queryName).toBe("findAccounts");
    });
 
@@ -550,7 +553,7 @@ describe("QueryRegistry", () => {
       const hash = await taggedQuery.hash;
 
       await expect(registry.execute("pluginA", hash, { email: "a@b.com" }, resolver)).rejects.toMatchInlineSnapshot(
-         `[SqlRunError: Error executing query 'taggedQuery'. (Error: Forbidden: admin)]`,
+         `[SqlRunError: Authorization denied for query "taggedQuery". (Error: Forbidden: admin)]`,
       );
       expect(resolver).not.toHaveBeenCalled();
    });
@@ -588,7 +591,7 @@ describe("QueryRegistry", () => {
       const hash = await taggedQuery.hash;
       await expect(
          registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([])),
-      ).rejects.toMatchInlineSnapshot(`[SqlRunError: Error executing query 'taggedQuery'. (Error: denied)]`);
+      ).rejects.toMatchInlineSnapshot(`[SqlRunError: Authorization denied for query "taggedQuery". (Error: denied)]`);
       expect(hook2).not.toHaveBeenCalled();
    });
 
@@ -606,7 +609,7 @@ describe("QueryRegistry", () => {
       await expect(
          registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([])),
       ).rejects.toMatchInlineSnapshot(
-         `[SqlRunError: Error executing query 'taggedQuery'. (SqlRunError: Query requires authorization (tag: "admin") but no authorize hook is registered)]`,
+         `[SqlRunError: Query "taggedQuery" requires authorization (tag: "admin") but no authorize hook is registered]`,
       );
    });
 });

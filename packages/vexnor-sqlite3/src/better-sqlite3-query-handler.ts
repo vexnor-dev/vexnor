@@ -1,4 +1,13 @@
-import { SqlRunArgs, SqlQueryHandler, SqlQuery, SqlRunError, isRemoteClient, type RemoteClient } from "vexnor";
+import { SqlRunArgs, SqlQueryHandler, SqlQuery, SqlRunError, SqlErrorCode, isRemoteClient, type RemoteClient } from "vexnor";
+
+// SQLite transient error codes safe to retry
+const RETRYABLE_SQLITE_CODES = new Set(["SQLITE_BUSY", "SQLITE_LOCKED"]);
+
+function isRetryableSqliteError(err: unknown): boolean {
+   if (typeof err !== "object" || err === null) return false;
+   const code = (err as { code?: string }).code;
+   return code !== undefined && RETRYABLE_SQLITE_CODES.has(code);
+}
 import type { Database, RunResult } from "better-sqlite3";
 import { Sqlite3Formatter } from "#/sqlite3-formatter.js";
 import { Sqlite3Tokenizer } from "#/sqlite3-tokenizer.js";
@@ -51,7 +60,7 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
          };
          return queryInput;
       } catch (err) {
-         throw new SqlRunError(`Error building sqlite query '${this.query.id}'`, this.query, { cause: err });
+         throw new SqlRunError(`Error building sqlite query '${this.query.id}'`, this.query, { cause: err, code: SqlErrorCode.QUERY_BUILD_FAILED });
       }
    }
 
@@ -100,7 +109,12 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
          throw new SqlRunError(
             `Error running sqlite query '${this.query.id}'`,
             this.query,
-            { cause: err, sql: queryConfig?.sql },
+            {
+               cause: err,
+               sql: queryConfig?.sql,
+               code: isRetryableSqliteError(err) ? SqlErrorCode.QUERY_RETRYABLE_FAILURE : SqlErrorCode.QUERY_EXECUTION_FAILED,
+               retryable: isRetryableSqliteError(err),
+            },
          );
       }
    }
@@ -111,7 +125,7 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
          const remote = isRemoteClient(await args.db);
          return this.deserializeRows(result.rows, remote);
       } catch (err) {
-         throw new SqlRunError(`Error running sqlite query '${this.query.id}'`, this.query, { cause: err });
+         throw new SqlRunError(`Error running sqlite query '${this.query.id}'`, this.query, { cause: err, code: SqlErrorCode.QUERY_EXECUTION_FAILED });
       }
    }
 }

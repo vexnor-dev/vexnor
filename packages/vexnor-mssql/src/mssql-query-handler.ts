@@ -1,4 +1,15 @@
-import { SqlQueryHandler, SqlInputArgs, SqlQuery, SqlRunArgs, SqlRunError, isRemoteClient, RemoteClient } from "vexnor";
+import { SqlQueryHandler, SqlInputArgs, SqlQuery, SqlRunArgs, SqlRunError, SqlErrorCode, isRemoteClient, RemoteClient } from "vexnor";
+
+// MSSQL transient error numbers and codes safe to retry
+const RETRYABLE_MSSQL_NUMBERS = new Set([1205]); // deadlock
+const RETRYABLE_MSSQL_CODES = new Set(["ECONNRESET", "ETIMEOUT", "ESOCKET"]);
+
+function isRetryableMssqlError(err: unknown): boolean {
+   if (typeof err !== "object" || err === null) return false;
+   const e = err as { code?: string; number?: number };
+   return (e.code !== undefined && RETRYABLE_MSSQL_CODES.has(e.code)) ||
+      (e.number !== undefined && RETRYABLE_MSSQL_NUMBERS.has(e.number));
+}
 import type { IResult, Request } from "mssql";
 import { defaultQueryOptions } from "./default-query-options.js";
 import pkg from "../package.json" with { type: "json" };
@@ -30,7 +41,7 @@ export class MssqlQueryHandler<T extends { Params?: unknown; Row?: unknown }> ex
          queryInput = this.query.getSql(newArgs);
          return queryInput;
       } catch (err) {
-         throw new SqlRunError(`Error building mssql query '${this.query.id}'`, this.query, { cause: err });
+         throw new SqlRunError(`Error building mssql query '${this.query.id}'`, this.query, { cause: err, code: SqlErrorCode.QUERY_BUILD_FAILED });
       }
    }
 
@@ -84,7 +95,12 @@ export class MssqlQueryHandler<T extends { Params?: unknown; Row?: unknown }> ex
       try {
          return await request.query(text);
       } catch (err) {
-         throw new SqlRunError(`Error running MSSQL query.\n${text}`, this, { cause: err, sql: text });
+         throw new SqlRunError(`Error running MSSQL query.\n${text}`, this, {
+            cause: err,
+            sql: text,
+            code: isRetryableMssqlError(err) ? SqlErrorCode.QUERY_RETRYABLE_FAILURE : SqlErrorCode.QUERY_EXECUTION_FAILED,
+            retryable: isRetryableMssqlError(err),
+         });
       }
    }
 }
