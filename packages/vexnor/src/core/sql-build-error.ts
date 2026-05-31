@@ -5,5 +5,6 @@ export class SqlBuildError extends Error {
       public readonly options?: ErrorOptions,
    ) {
       super(message, options);
+      this.name = "SqlBuildError";
    }
 }

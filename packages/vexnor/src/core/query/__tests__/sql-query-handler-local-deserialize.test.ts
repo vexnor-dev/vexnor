@@ -1,4 +1,4 @@
-import { describe, expect, test, beforeEach } from "vitest";
+import { describe, expect, test } from "vitest";
 import { sql } from "#/core/sql.js";
 import { row } from "#/core/query/sql-select-row.js";
 import { SqlQueryHandler, newSqlQueryHandler } from "#/core/query/sql-query-handler.js";
@@ -6,7 +6,6 @@ import { SqlQuery, SqlQueryExtended } from "#/core/query/sql-query.js";
 import { SqlRunArgs } from "#/core/query/sql-query-types.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
 import { SqlSelectCharm } from "#/core/query/sql-charm.js";
-import { resetIds } from "#/core/sql-base.js";
 
 type MockResult = { rows: unknown[] };
 type MockConnection = { query: () => Promise<MockResult> };
@@ -38,8 +37,6 @@ function mockHandler<T extends { Row?: unknown; Params?: unknown }>(query: SqlQu
 }
 
 const DATE_STR = "2001-05-30T10:40:50.867Z";
-
-beforeEach(() => resetIds());
 
 describe("SqlQueryHandler all() — server-side deserialization", () => {
    test("no schema — returns rows unchanged", async () => {

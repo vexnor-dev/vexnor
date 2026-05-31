@@ -28,7 +28,7 @@ export type JsonResultType = "one" | "many";
  * FROM ${Account}
  * WHERE ${Account.$accountId} = ${param("accountId")}
  */
-export class JsonAggregationSqlite3<T extends { Params?: unknown; Row?: unknown }> extends SqlCharm<{
+export class JsonAggregationSqlite3<T extends { Params?: unknown; Row?: unknown; Type?: Array<T["Row"]> | (T["Row"] | null) }> extends SqlCharm<{
    Params: T["Params"];
 }> {
    static readonly CONFIG: Record<
@@ -83,7 +83,7 @@ export class JsonAggregationSqlite3<T extends { Params?: unknown; Row?: unknown 
       }
    }
 
-   as<Key extends string>(key: Key): SqlSelectCharm<{ Key: Key; Type: T["Row"]; Params: T["Params"] }> {
+   as<Key extends string>(key: Key): SqlSelectCharm<{ Key: Key; Type: T["Type"]; Params: T["Params"] }> {
       const fields = Object.values(this.query.row ?? {}).flatMap((value) => {
          if (value instanceof SqlSelectValue || value instanceof SqlQueryColumn) {
             return [raw(`'${value.key}'`), quote(value.key)];
@@ -99,7 +99,7 @@ export class JsonAggregationSqlite3<T extends { Params?: unknown; Row?: unknown 
       const innerSchema = this.query.jsonSchema;
       const jsonSchema: SqlJsonSchema = { [key]: this.type === "one" ? innerSchema : [innerSchema] };
 
-      return new SqlSelectCharm<{ Key: Key; Type: string; Params: T["Params"] }>({
+      return new SqlSelectCharm<{ Key: Key; Type: T["Type"]; Params: T["Params"] }>({
          key,
          params: this.params,
          jsonSchema,

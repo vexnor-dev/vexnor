@@ -19,12 +19,29 @@ export abstract class SqlQueryHandler<
       super(query);
    }
 
+   /**
+    * Tags this handler with an authorization label.
+    *
+    * Uses `Object.create` to return a new object of the same concrete handler
+    * type with `_authorization` shadowed — necessary because handler subclasses
+    * have incompatible constructor signatures and cannot be re-instantiated
+    * generically.
+    */
+   override authorize(tag: string): this {
+      const clone = Object.create(this) as this;
+      clone._authorization = tag;
+      return clone;
+   }
+
    abstract resolveRows(res: T["QueryResult"]): T["Row"][];
 
    /**
     * Executes the query and returns the raw QueryResult without deserialized rows.
     */
-   abstract execute(args: SqlRunArgs<Pick<T, "Connection" | "Params">>, mode?: SqlExecuteMode): Promise<T["QueryResult"]>;
+   abstract execute(
+      args: SqlRunArgs<Pick<T, "Connection" | "Params">>,
+      mode?: SqlExecuteMode,
+   ): Promise<T["QueryResult"]>;
 
    /**
     * Deserializes rows based on local vs remote execution context.

@@ -38,7 +38,6 @@ describe("fromDrizzleTable (pg) — metadata", () => {
         SqlTable {
           "$accountId": SqlTableColumn {
             "columnName": "account_id",
-            "columnType": null,
             "format": null,
             "hashIdLazy": Lazy {
               "_computed": false,
@@ -46,6 +45,7 @@ describe("fromDrizzleTable (pg) — metadata", () => {
               "callback": [Function],
             },
             "id": "SqlTableColumn#1(account.account_id as accountId)",
+            "jsonType": null,
             "key": "accountId",
             "tableInfo": {
               "name": "account",
@@ -56,7 +56,6 @@ describe("fromDrizzleTable (pg) — metadata", () => {
           },
           "$active": SqlTableColumn {
             "columnName": "active",
-            "columnType": null,
             "format": null,
             "hashIdLazy": Lazy {
               "_computed": false,
@@ -64,6 +63,7 @@ describe("fromDrizzleTable (pg) — metadata", () => {
               "callback": [Function],
             },
             "id": "SqlTableColumn#7(account.active)",
+            "jsonType": null,
             "key": "active",
             "tableInfo": {
               "name": "account",
@@ -74,7 +74,6 @@ describe("fromDrizzleTable (pg) — metadata", () => {
           },
           "$age": SqlTableColumn {
             "columnName": "age",
-            "columnType": null,
             "format": null,
             "hashIdLazy": Lazy {
               "_computed": false,
@@ -82,6 +81,7 @@ describe("fromDrizzleTable (pg) — metadata", () => {
               "callback": [Function],
             },
             "id": "SqlTableColumn#6(account.age)",
+            "jsonType": null,
             "key": "age",
             "tableInfo": {
               "name": "account",
@@ -92,7 +92,6 @@ describe("fromDrizzleTable (pg) — metadata", () => {
           },
           "$createdAt": SqlTableColumn {
             "columnName": "created_at",
-            "columnType": null,
             "format": null,
             "hashIdLazy": Lazy {
               "_computed": false,
@@ -100,6 +99,7 @@ describe("fromDrizzleTable (pg) — metadata", () => {
               "callback": [Function],
             },
             "id": "SqlTableColumn#5(account.created_at as createdAt)",
+            "jsonType": null,
             "key": "createdAt",
             "tableInfo": {
               "name": "account",
@@ -110,7 +110,6 @@ describe("fromDrizzleTable (pg) — metadata", () => {
           },
           "$email": SqlTableColumn {
             "columnName": "email",
-            "columnType": null,
             "format": null,
             "hashIdLazy": Lazy {
               "_computed": false,
@@ -118,6 +117,7 @@ describe("fromDrizzleTable (pg) — metadata", () => {
               "callback": [Function],
             },
             "id": "SqlTableColumn#2(account.email)",
+            "jsonType": null,
             "key": "email",
             "tableInfo": {
               "name": "account",
@@ -128,7 +128,6 @@ describe("fromDrizzleTable (pg) — metadata", () => {
           },
           "$firstName": SqlTableColumn {
             "columnName": "first_name",
-            "columnType": null,
             "format": null,
             "hashIdLazy": Lazy {
               "_computed": false,
@@ -136,6 +135,7 @@ describe("fromDrizzleTable (pg) — metadata", () => {
               "callback": [Function],
             },
             "id": "SqlTableColumn#3(account.first_name as firstName)",
+            "jsonType": null,
             "key": "firstName",
             "tableInfo": {
               "name": "account",
@@ -146,7 +146,6 @@ describe("fromDrizzleTable (pg) — metadata", () => {
           },
           "$notes": SqlTableColumn {
             "columnName": "notes",
-            "columnType": null,
             "format": null,
             "hashIdLazy": Lazy {
               "_computed": false,
@@ -154,6 +153,7 @@ describe("fromDrizzleTable (pg) — metadata", () => {
               "callback": [Function],
             },
             "id": "SqlTableColumn#4(account.notes)",
+            "jsonType": null,
             "key": "notes",
             "tableInfo": {
               "name": "account",
@@ -164,7 +164,6 @@ describe("fromDrizzleTable (pg) — metadata", () => {
           },
           "$parentId": SqlTableColumn {
             "columnName": "parent_id",
-            "columnType": null,
             "format": null,
             "hashIdLazy": Lazy {
               "_computed": false,
@@ -172,6 +171,7 @@ describe("fromDrizzleTable (pg) — metadata", () => {
               "callback": [Function],
             },
             "id": "SqlTableColumn#8(account.parent_id as parentId)",
+            "jsonType": null,
             "key": "parentId",
             "tableInfo": {
               "name": "account",
@@ -190,7 +190,6 @@ describe("fromDrizzleTable (pg) — metadata", () => {
             "_value": {
               "$accountId": SqlTableColumn {
                 "columnName": "account_id",
-                "columnType": null,
                 "format": null,
                 "hashIdLazy": Lazy {
                   "_computed": false,
@@ -198,6 +197,7 @@ describe("fromDrizzleTable (pg) — metadata", () => {
                   "callback": [Function],
                 },
                 "id": "SqlTableColumn#1(account.account_id as accountId)",
+                "jsonType": null,
                 "key": "accountId",
                 "tableInfo": {
                   "name": "account",
@@ -208,7 +208,6 @@ describe("fromDrizzleTable (pg) — metadata", () => {
               },
               "$active": SqlTableColumn {
                 "columnName": "active",
-                "columnType": null,
                 "format": null,
                 "hashIdLazy": Lazy {
                   "_computed": false,
@@ -216,6 +215,7 @@ describe("fromDrizzleTable (pg) — metadata", () => {
                   "callback": [Function],
                 },
                 "id": "SqlTableColumn#7(account.active)",
+                "jsonType": null,
                 "key": "active",
                 "tableInfo": {
                   "name": "account",
@@ -226,7 +226,6 @@ describe("fromDrizzleTable (pg) — metadata", () => {
               },
               "$age": SqlTableColumn {
                 "columnName": "age",
-                "columnType": null,
                 "format": null,
                 "hashIdLazy": Lazy {
                   "_computed": false,
@@ -234,6 +233,7 @@ describe("fromDrizzleTable (pg) — metadata", () => {
                   "callback": [Function],
                 },
                 "id": "SqlTableColumn#6(account.age)",
+                "jsonType": null,
                 "key": "age",
                 "tableInfo": {
                   "name": "account",
@@ -244,7 +244,6 @@ describe("fromDrizzleTable (pg) — metadata", () => {
               },
               "$createdAt": SqlTableColumn {
                 "columnName": "created_at",
-                "columnType": null,
                 "format": null,
                 "hashIdLazy": Lazy {
                   "_computed": false,
@@ -252,6 +251,7 @@ describe("fromDrizzleTable (pg) — metadata", () => {
                   "callback": [Function],
                 },
                 "id": "SqlTableColumn#5(account.created_at as createdAt)",
+                "jsonType": null,
                 "key": "createdAt",
                 "tableInfo": {
                   "name": "account",
@@ -262,7 +262,6 @@ describe("fromDrizzleTable (pg) — metadata", () => {
               },
               "$email": SqlTableColumn {
                 "columnName": "email",
-                "columnType": null,
                 "format": null,
                 "hashIdLazy": Lazy {
                   "_computed": false,
@@ -270,6 +269,7 @@ describe("fromDrizzleTable (pg) — metadata", () => {
                   "callback": [Function],
                 },
                 "id": "SqlTableColumn#2(account.email)",
+                "jsonType": null,
                 "key": "email",
                 "tableInfo": {
                   "name": "account",
@@ -280,7 +280,6 @@ describe("fromDrizzleTable (pg) — metadata", () => {
               },
               "$firstName": SqlTableColumn {
                 "columnName": "first_name",
-                "columnType": null,
                 "format": null,
                 "hashIdLazy": Lazy {
                   "_computed": false,
@@ -288,6 +287,7 @@ describe("fromDrizzleTable (pg) — metadata", () => {
                   "callback": [Function],
                 },
                 "id": "SqlTableColumn#3(account.first_name as firstName)",
+                "jsonType": null,
                 "key": "firstName",
                 "tableInfo": {
                   "name": "account",
@@ -298,7 +298,6 @@ describe("fromDrizzleTable (pg) — metadata", () => {
               },
               "$notes": SqlTableColumn {
                 "columnName": "notes",
-                "columnType": null,
                 "format": null,
                 "hashIdLazy": Lazy {
                   "_computed": false,
@@ -306,6 +305,7 @@ describe("fromDrizzleTable (pg) — metadata", () => {
                   "callback": [Function],
                 },
                 "id": "SqlTableColumn#4(account.notes)",
+                "jsonType": null,
                 "key": "notes",
                 "tableInfo": {
                   "name": "account",
@@ -316,7 +316,6 @@ describe("fromDrizzleTable (pg) — metadata", () => {
               },
               "$parentId": SqlTableColumn {
                 "columnName": "parent_id",
-                "columnType": null,
                 "format": null,
                 "hashIdLazy": Lazy {
                   "_computed": false,
@@ -324,6 +323,7 @@ describe("fromDrizzleTable (pg) — metadata", () => {
                   "callback": [Function],
                 },
                 "id": "SqlTableColumn#8(account.parent_id as parentId)",
+                "jsonType": null,
                 "key": "parentId",
                 "tableInfo": {
                   "name": "account",
@@ -373,7 +373,6 @@ describe("fromDrizzleTable (pg) — metadata", () => {
         SqlTable {
           "$accountId": SqlTableColumn {
             "columnName": "account_id",
-            "columnType": null,
             "format": null,
             "hashIdLazy": Lazy {
               "_computed": false,
@@ -381,6 +380,7 @@ describe("fromDrizzleTable (pg) — metadata", () => {
               "callback": [Function],
             },
             "id": "SqlTableColumn#9(account.account_id as accountId)",
+            "jsonType": null,
             "key": "accountId",
             "tableInfo": {
               "name": "account",
@@ -391,7 +391,6 @@ describe("fromDrizzleTable (pg) — metadata", () => {
           },
           "$email": SqlTableColumn {
             "columnName": "email",
-            "columnType": null,
             "format": null,
             "hashIdLazy": Lazy {
               "_computed": false,
@@ -399,6 +398,7 @@ describe("fromDrizzleTable (pg) — metadata", () => {
               "callback": [Function],
             },
             "id": "SqlTableColumn#10(account.email)",
+            "jsonType": null,
             "key": "email",
             "tableInfo": {
               "name": "account",
@@ -409,7 +409,6 @@ describe("fromDrizzleTable (pg) — metadata", () => {
           },
           "$firstName": SqlTableColumn {
             "columnName": "first_name",
-            "columnType": null,
             "format": null,
             "hashIdLazy": Lazy {
               "_computed": false,
@@ -417,6 +416,7 @@ describe("fromDrizzleTable (pg) — metadata", () => {
               "callback": [Function],
             },
             "id": "SqlTableColumn#11(account.first_name as firstName)",
+            "jsonType": null,
             "key": "firstName",
             "tableInfo": {
               "name": "account",
@@ -427,7 +427,6 @@ describe("fromDrizzleTable (pg) — metadata", () => {
           },
           "$parentId": SqlTableColumn {
             "columnName": "parent_id",
-            "columnType": null,
             "format": null,
             "hashIdLazy": Lazy {
               "_computed": false,
@@ -435,6 +434,7 @@ describe("fromDrizzleTable (pg) — metadata", () => {
               "callback": [Function],
             },
             "id": "SqlTableColumn#12(account.parent_id as parentId)",
+            "jsonType": null,
             "key": "parentId",
             "tableInfo": {
               "name": "account",
@@ -453,7 +453,6 @@ describe("fromDrizzleTable (pg) — metadata", () => {
             "_value": {
               "$accountId": SqlTableColumn {
                 "columnName": "account_id",
-                "columnType": null,
                 "format": null,
                 "hashIdLazy": Lazy {
                   "_computed": false,
@@ -461,6 +460,7 @@ describe("fromDrizzleTable (pg) — metadata", () => {
                   "callback": [Function],
                 },
                 "id": "SqlTableColumn#9(account.account_id as accountId)",
+                "jsonType": null,
                 "key": "accountId",
                 "tableInfo": {
                   "name": "account",
@@ -471,7 +471,6 @@ describe("fromDrizzleTable (pg) — metadata", () => {
               },
               "$email": SqlTableColumn {
                 "columnName": "email",
-                "columnType": null,
                 "format": null,
                 "hashIdLazy": Lazy {
                   "_computed": false,
@@ -479,6 +478,7 @@ describe("fromDrizzleTable (pg) — metadata", () => {
                   "callback": [Function],
                 },
                 "id": "SqlTableColumn#10(account.email)",
+                "jsonType": null,
                 "key": "email",
                 "tableInfo": {
                   "name": "account",
@@ -489,7 +489,6 @@ describe("fromDrizzleTable (pg) — metadata", () => {
               },
               "$firstName": SqlTableColumn {
                 "columnName": "first_name",
-                "columnType": null,
                 "format": null,
                 "hashIdLazy": Lazy {
                   "_computed": false,
@@ -497,6 +496,7 @@ describe("fromDrizzleTable (pg) — metadata", () => {
                   "callback": [Function],
                 },
                 "id": "SqlTableColumn#11(account.first_name as firstName)",
+                "jsonType": null,
                 "key": "firstName",
                 "tableInfo": {
                   "name": "account",
@@ -507,7 +507,6 @@ describe("fromDrizzleTable (pg) — metadata", () => {
               },
               "$parentId": SqlTableColumn {
                 "columnName": "parent_id",
-                "columnType": null,
                 "format": null,
                 "hashIdLazy": Lazy {
                   "_computed": false,
@@ -515,6 +514,7 @@ describe("fromDrizzleTable (pg) — metadata", () => {
                   "callback": [Function],
                 },
                 "id": "SqlTableColumn#12(account.parent_id as parentId)",
+                "jsonType": null,
                 "key": "parentId",
                 "tableInfo": {
                   "name": "account",

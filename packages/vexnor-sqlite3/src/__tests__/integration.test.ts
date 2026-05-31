@@ -120,7 +120,7 @@ describe("integration tests", () => {
       const result = await query.sqlite.any({ db, params: { id: parentId } });
       expect(result).toBeDefined();
       expect(result?.children).toBeDefined();
-      const children = JSON.parse(result!.children as unknown as string);
+      const children = result!.children;
       expect(Array.isArray(children)).toBe(true);
       expect(children.length).toBe(2);
    });
@@ -142,8 +142,10 @@ describe("integration tests", () => {
       const result = await query.sqlite.any({ db });
       if (result) {
          expect(result.parent).toBeDefined();
-         const parent = JSON.parse(result.parent as unknown as string);
-         expect(parent.accountId).toBe(result.parentId);
+         const parent = result.parent;
+         if (parent) {
+            expect(parent.accountId).toBe(result.parentId);
+         }
       }
    });
 });

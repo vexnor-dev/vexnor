@@ -56,7 +56,6 @@ describe("fromTypeORM — decorator entities", () => {
         SqlTable {
           "$accountId": SqlTableColumn {
             "columnName": "account_id",
-            "columnType": null,
             "format": null,
             "hashIdLazy": Lazy {
               "_computed": false,
@@ -64,6 +63,7 @@ describe("fromTypeORM — decorator entities", () => {
               "callback": [Function],
             },
             "id": "SqlTableColumn#1(account.account_id as accountId)",
+            "jsonType": null,
             "key": "accountId",
             "tableInfo": {
               "name": "account",
@@ -74,7 +74,6 @@ describe("fromTypeORM — decorator entities", () => {
           },
           "$email": SqlTableColumn {
             "columnName": "email",
-            "columnType": null,
             "format": null,
             "hashIdLazy": Lazy {
               "_computed": false,
@@ -82,6 +81,7 @@ describe("fromTypeORM — decorator entities", () => {
               "callback": [Function],
             },
             "id": "SqlTableColumn#2(account.email)",
+            "jsonType": null,
             "key": "email",
             "tableInfo": {
               "name": "account",
@@ -92,7 +92,6 @@ describe("fromTypeORM — decorator entities", () => {
           },
           "$firstName": SqlTableColumn {
             "columnName": "first_name",
-            "columnType": null,
             "format": null,
             "hashIdLazy": Lazy {
               "_computed": false,
@@ -100,6 +99,7 @@ describe("fromTypeORM — decorator entities", () => {
               "callback": [Function],
             },
             "id": "SqlTableColumn#3(account.first_name as firstName)",
+            "jsonType": null,
             "key": "firstName",
             "tableInfo": {
               "name": "account",
@@ -110,7 +110,6 @@ describe("fromTypeORM — decorator entities", () => {
           },
           "$parentId": SqlTableColumn {
             "columnName": "parent_id",
-            "columnType": null,
             "format": null,
             "hashIdLazy": Lazy {
               "_computed": false,
@@ -118,6 +117,7 @@ describe("fromTypeORM — decorator entities", () => {
               "callback": [Function],
             },
             "id": "SqlTableColumn#4(account.parent_id as parentId)",
+            "jsonType": null,
             "key": "parentId",
             "tableInfo": {
               "name": "account",
@@ -136,7 +136,6 @@ describe("fromTypeORM — decorator entities", () => {
             "_value": {
               "$accountId": SqlTableColumn {
                 "columnName": "account_id",
-                "columnType": null,
                 "format": null,
                 "hashIdLazy": Lazy {
                   "_computed": false,
@@ -144,6 +143,7 @@ describe("fromTypeORM — decorator entities", () => {
                   "callback": [Function],
                 },
                 "id": "SqlTableColumn#1(account.account_id as accountId)",
+                "jsonType": null,
                 "key": "accountId",
                 "tableInfo": {
                   "name": "account",
@@ -154,7 +154,6 @@ describe("fromTypeORM — decorator entities", () => {
               },
               "$email": SqlTableColumn {
                 "columnName": "email",
-                "columnType": null,
                 "format": null,
                 "hashIdLazy": Lazy {
                   "_computed": false,
@@ -162,6 +161,7 @@ describe("fromTypeORM — decorator entities", () => {
                   "callback": [Function],
                 },
                 "id": "SqlTableColumn#2(account.email)",
+                "jsonType": null,
                 "key": "email",
                 "tableInfo": {
                   "name": "account",
@@ -172,7 +172,6 @@ describe("fromTypeORM — decorator entities", () => {
               },
               "$firstName": SqlTableColumn {
                 "columnName": "first_name",
-                "columnType": null,
                 "format": null,
                 "hashIdLazy": Lazy {
                   "_computed": false,
@@ -180,6 +179,7 @@ describe("fromTypeORM — decorator entities", () => {
                   "callback": [Function],
                 },
                 "id": "SqlTableColumn#3(account.first_name as firstName)",
+                "jsonType": null,
                 "key": "firstName",
                 "tableInfo": {
                   "name": "account",
@@ -190,7 +190,6 @@ describe("fromTypeORM — decorator entities", () => {
               },
               "$parentId": SqlTableColumn {
                 "columnName": "parent_id",
-                "columnType": null,
                 "format": null,
                 "hashIdLazy": Lazy {
                   "_computed": false,
@@ -198,6 +197,7 @@ describe("fromTypeORM — decorator entities", () => {
                   "callback": [Function],
                 },
                 "id": "SqlTableColumn#4(account.parent_id as parentId)",
+                "jsonType": null,
                 "key": "parentId",
                 "tableInfo": {
                   "name": "account",

@@ -74,7 +74,6 @@ describe("fromTypeORM — EntitySchema metadata", () => {
         SqlTable {
           "$accountId": SqlTableColumn {
             "columnName": "account_id",
-            "columnType": null,
             "format": null,
             "hashIdLazy": Lazy {
               "_computed": false,
@@ -82,6 +81,7 @@ describe("fromTypeORM — EntitySchema metadata", () => {
               "callback": [Function],
             },
             "id": "SqlTableColumn#1(account.account_id as accountId)",
+            "jsonType": null,
             "key": "accountId",
             "tableInfo": {
               "name": "account",
@@ -92,7 +92,6 @@ describe("fromTypeORM — EntitySchema metadata", () => {
           },
           "$email": SqlTableColumn {
             "columnName": "email",
-            "columnType": null,
             "format": null,
             "hashIdLazy": Lazy {
               "_computed": false,
@@ -100,6 +99,7 @@ describe("fromTypeORM — EntitySchema metadata", () => {
               "callback": [Function],
             },
             "id": "SqlTableColumn#2(account.email)",
+            "jsonType": null,
             "key": "email",
             "tableInfo": {
               "name": "account",
@@ -110,7 +110,6 @@ describe("fromTypeORM — EntitySchema metadata", () => {
           },
           "$firstName": SqlTableColumn {
             "columnName": "first_name",
-            "columnType": null,
             "format": null,
             "hashIdLazy": Lazy {
               "_computed": false,
@@ -118,6 +117,7 @@ describe("fromTypeORM — EntitySchema metadata", () => {
               "callback": [Function],
             },
             "id": "SqlTableColumn#3(account.first_name as firstName)",
+            "jsonType": null,
             "key": "firstName",
             "tableInfo": {
               "name": "account",
@@ -128,7 +128,6 @@ describe("fromTypeORM — EntitySchema metadata", () => {
           },
           "$notes": SqlTableColumn {
             "columnName": "notes",
-            "columnType": null,
             "format": null,
             "hashIdLazy": Lazy {
               "_computed": false,
@@ -136,6 +135,7 @@ describe("fromTypeORM — EntitySchema metadata", () => {
               "callback": [Function],
             },
             "id": "SqlTableColumn#4(account.notes)",
+            "jsonType": null,
             "key": "notes",
             "tableInfo": {
               "name": "account",
@@ -146,7 +146,6 @@ describe("fromTypeORM — EntitySchema metadata", () => {
           },
           "$parentId": SqlTableColumn {
             "columnName": "parent_id",
-            "columnType": null,
             "format": null,
             "hashIdLazy": Lazy {
               "_computed": false,
@@ -154,6 +153,7 @@ describe("fromTypeORM — EntitySchema metadata", () => {
               "callback": [Function],
             },
             "id": "SqlTableColumn#5(account.parent_id as parentId)",
+            "jsonType": null,
             "key": "parentId",
             "tableInfo": {
               "name": "account",
@@ -172,7 +172,6 @@ describe("fromTypeORM — EntitySchema metadata", () => {
             "_value": {
               "$accountId": SqlTableColumn {
                 "columnName": "account_id",
-                "columnType": null,
                 "format": null,
                 "hashIdLazy": Lazy {
                   "_computed": false,
@@ -180,6 +179,7 @@ describe("fromTypeORM — EntitySchema metadata", () => {
                   "callback": [Function],
                 },
                 "id": "SqlTableColumn#1(account.account_id as accountId)",
+                "jsonType": null,
                 "key": "accountId",
                 "tableInfo": {
                   "name": "account",
@@ -190,7 +190,6 @@ describe("fromTypeORM — EntitySchema metadata", () => {
               },
               "$email": SqlTableColumn {
                 "columnName": "email",
-                "columnType": null,
                 "format": null,
                 "hashIdLazy": Lazy {
                   "_computed": false,
@@ -198,6 +197,7 @@ describe("fromTypeORM — EntitySchema metadata", () => {
                   "callback": [Function],
                 },
                 "id": "SqlTableColumn#2(account.email)",
+                "jsonType": null,
                 "key": "email",
                 "tableInfo": {
                   "name": "account",
@@ -208,7 +208,6 @@ describe("fromTypeORM — EntitySchema metadata", () => {
               },
               "$firstName": SqlTableColumn {
                 "columnName": "first_name",
-                "columnType": null,
                 "format": null,
                 "hashIdLazy": Lazy {
                   "_computed": false,
@@ -216,6 +215,7 @@ describe("fromTypeORM — EntitySchema metadata", () => {
                   "callback": [Function],
                 },
                 "id": "SqlTableColumn#3(account.first_name as firstName)",
+                "jsonType": null,
                 "key": "firstName",
                 "tableInfo": {
                   "name": "account",
@@ -226,7 +226,6 @@ describe("fromTypeORM — EntitySchema metadata", () => {
               },
               "$notes": SqlTableColumn {
                 "columnName": "notes",
-                "columnType": null,
                 "format": null,
                 "hashIdLazy": Lazy {
                   "_computed": false,
@@ -234,6 +233,7 @@ describe("fromTypeORM — EntitySchema metadata", () => {
                   "callback": [Function],
                 },
                 "id": "SqlTableColumn#4(account.notes)",
+                "jsonType": null,
                 "key": "notes",
                 "tableInfo": {
                   "name": "account",
@@ -244,7 +244,6 @@ describe("fromTypeORM — EntitySchema metadata", () => {
               },
               "$parentId": SqlTableColumn {
                 "columnName": "parent_id",
-                "columnType": null,
                 "format": null,
                 "hashIdLazy": Lazy {
                   "_computed": false,
@@ -252,6 +251,7 @@ describe("fromTypeORM — EntitySchema metadata", () => {
                   "callback": [Function],
                 },
                 "id": "SqlTableColumn#5(account.parent_id as parentId)",
+                "jsonType": null,
                 "key": "parentId",
                 "tableInfo": {
                   "name": "account",

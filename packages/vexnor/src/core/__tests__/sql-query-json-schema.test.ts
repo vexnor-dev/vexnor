@@ -1,14 +1,11 @@
-import { describe, expect, test, beforeEach } from "vitest";
+import { describe, expect, test } from "vitest";
 import { sql } from "#/core/sql.js";
 import { row } from "#/core/query/sql-select-row.js";
 import { col } from "#/core/query/sql-select-column.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
 import { Order } from "@test-models/vexnor_dev.order-table.js";
-import { resetIds } from "#/core/sql-base.js";
 import { SqlSelectCharm } from "#/core/query/sql-charm.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-
-beforeEach(() => resetIds());
 
 describe("SqlQuery.jsonSchema", () => {
    test("returns empty schema when no Date or charm columns selected", () => {

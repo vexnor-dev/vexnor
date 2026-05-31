@@ -1,5 +1,5 @@
 import { ok } from "#/lib/assert.js";
-import { Sql } from "#/core/sql-base.js";
+import { resetIds, Sql } from "#/core/sql-base.js";
 
 export class Cache {
    private map = new Map<string, Sql>();
@@ -22,4 +22,9 @@ export const CACHE = new Cache();
 
 export function resetCache() {
    CACHE.reset();
+}
+
+export function resetAll() {
+   resetIds();
+   resetCache();
 }

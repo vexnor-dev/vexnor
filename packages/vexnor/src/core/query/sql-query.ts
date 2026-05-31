@@ -44,7 +44,7 @@ export type SqlQueryExtended<T extends { Row?: unknown; Params?: unknown }> = Sq
 export declare const QUERY: unique symbol;
 
 export type SqlQueryArgs = Pick<SqlQueryAny, "rawStrings" | "rawValues"> &
-   Partial<Pick<SqlQueryAny, "info" | "tag" | "label">>;
+   Partial<Pick<SqlQueryAny, "info" | "tag" | "label">> & { authorization?: string | null };
 
 export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql {
    declare readonly [QUERY]: SqlQuery<Pick<T, "Row" | "Params">>;
@@ -54,6 +54,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
 
    readonly rawStrings: TemplateStringsArray;
    readonly rawValues: unknown[];
+   protected _authorization: string | null;
 
    private readonly _innerQueriesLazy = new Lazy<SqlQueryAny[]>(this.initInnerQueries.bind(this));
    private readonly _dialectsLazy = new Lazy<Set<string>>(this.initDialects.bind(this));
@@ -88,6 +89,11 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
 
       this.rawStrings = rawStrings;
       this.rawValues = rawValues;
+      this._authorization = args.authorization ?? null;
+   }
+
+   get authorization() {
+      return this._authorization;
    }
 
    get info(): SqlQueryInfo | null {
@@ -577,10 +583,25 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
    }
 
    /**
+    * Tags this query with an authorization label.
+    *
+    * When a `QueryRegistry.authorize()` hook is registered, the hook is called
+    * with this tag before the query executes. Throw inside the hook to deny
+    * execution.
+    *
+    * @param tag - An arbitrary string label (e.g. `'admin'`, `'read:orders'`).
+    */
+   authorize(tag: string): this {
+      const clone = Object.create(this) as this;
+      clone._authorization = tag;
+      return clone;
+   }
+
+   /**
     * Returns a reference to this query rendered in a specific SQL format.
     *
     * Use this to control how the query is embedded when it appears as a
-    * subquery — for example forcing it to render as a CTE (`"with"`) or
+    * subquery — for example, forcing it to render as a CTE (`"with"`) or
     * as an inline subquery (`"select"`, `"from"`).
     *
     * @param queryFormat - The SQL context in which to render this query.

@@ -5,5 +5,6 @@ export class SqlMetaError extends Error {
       public readonly options?: ErrorOptions,
    ) {
       super(message, options);
+      this.name = "SqlMetaError";
    }
 }

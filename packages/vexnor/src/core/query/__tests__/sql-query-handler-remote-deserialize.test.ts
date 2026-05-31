@@ -1,4 +1,4 @@
-import { describe, expect, test, beforeEach } from "vitest";
+import { describe, expect, test } from "vitest";
 import { sql } from "#/core/sql.js";
 import { row } from "#/core/query/sql-select-row.js";
 import { SqlQueryHandler, newSqlQueryHandler } from "#/core/query/sql-query-handler.js";
@@ -6,7 +6,6 @@ import { SqlQuery, SqlQueryExtended } from "#/core/query/sql-query.js";
 import { SqlRunArgs, RemoteClient } from "#/core/query/sql-query-types.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
 import { SqlSelectCharm } from "#/core/query/sql-charm.js";
-import { resetIds } from "#/core/sql-base.js";
 
 type MockResult = { rows: unknown[] };
 
@@ -43,8 +42,6 @@ const remoteClient = <TRow>(rows: TRow[]): RemoteClient => ({
       return Promise.resolve({ rows }) as unknown as Promise<TResult>;
    },
 });
-
-beforeEach(() => resetIds());
 
 describe("SqlQueryHandler all() — remote deserialization", () => {
    test("no schema — returns rows unchanged", async () => {

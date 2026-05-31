@@ -1,4 +1,4 @@
-import { describe, expect, test, vi, beforeEach } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { sql } from "#/core/sql.js";
 import { row } from "#/core/query/sql-select-row.js";
 import { param } from "#/core/query/sql-param.js";
@@ -6,7 +6,6 @@ import { SqlQueryHandler, newSqlQueryHandler } from "#/core/query/sql-query-hand
 import { SqlQuery } from "#/core/query/sql-query.js";
 import { SqlRunArgs } from "#/core/query/sql-query-types.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { resetIds } from "#/core/sql-base.js";
 
 type MockResult = { rows: unknown[] };
 type MockConnection = { query: (sql: string, params: unknown[]) => Promise<MockResult> };
@@ -48,8 +47,6 @@ const findAccounts = sql`
 `;
 
 const mockAccount = { accountId: "1", email: "test@example.com", firstName: "Test" };
-
-beforeEach(() => resetIds());
 
 describe("SqlQueryHandler mock execution", () => {
    test("all() returns resolved rows", async () => {

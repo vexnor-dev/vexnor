@@ -17,6 +17,7 @@ export class SqlRunError extends Error {
       sql?: string,
    ) {
       super(message, options);
+      this.name = "SqlRunError";
       this.queryId = query.id;
       this.sql = sql ?? null;
    }

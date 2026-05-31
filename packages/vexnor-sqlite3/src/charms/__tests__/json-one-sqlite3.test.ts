@@ -1,7 +1,9 @@
-import { assertType, describe, expect, test } from "vitest";
+import { assertType, beforeEach, describe, expect, test } from "vitest";
 import { param, row, sql, SqlBuildContext, SqlCharm, SqlParam } from "vexnor";
 import { jsonOne } from "#/charms/json-aggregation-sqlite3.js";
-import { Account } from "vexnor/testing";
+import { Account, resetAll } from "vexnor/testing";
+
+beforeEach(() => resetAll());
 
 describe("json-one-sqlite3 tests", () => {
    test("should render select w/o alias", () => {

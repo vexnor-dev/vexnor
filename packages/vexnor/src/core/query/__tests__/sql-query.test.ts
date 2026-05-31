@@ -59,6 +59,7 @@ describe("SqlQuery tests", () => {
           "hashIdLazy",
           "rawStrings",
           "rawValues",
+          "_authorization",
           "_innerQueriesLazy",
           "_dialectsLazy",
           "_paramsLazy",
@@ -213,3 +214,4 @@ describe("SqlQuery.dialects", () => {
       expect(query.getSql({}).text).toContain("pg_table");
    });
 });
+

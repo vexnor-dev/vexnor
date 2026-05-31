@@ -49,7 +49,6 @@ describe("fromDrizzleView (sqlite) — metadata", () => {
         SqlTable {
           "$accountId": SqlTableColumn {
             "columnName": "account_id",
-            "columnType": null,
             "format": null,
             "hashIdLazy": Lazy {
               "_computed": false,
@@ -57,6 +56,7 @@ describe("fromDrizzleView (sqlite) — metadata", () => {
               "callback": [Function],
             },
             "id": "SqlTableColumn#1(account_order_summary.account_id as accountId)",
+            "jsonType": null,
             "key": "accountId",
             "tableInfo": {
               "name": "account_order_summary",
@@ -67,7 +67,6 @@ describe("fromDrizzleView (sqlite) — metadata", () => {
           },
           "$email": SqlTableColumn {
             "columnName": "email",
-            "columnType": null,
             "format": null,
             "hashIdLazy": Lazy {
               "_computed": false,
@@ -75,6 +74,7 @@ describe("fromDrizzleView (sqlite) — metadata", () => {
               "callback": [Function],
             },
             "id": "SqlTableColumn#2(account_order_summary.email)",
+            "jsonType": null,
             "key": "email",
             "tableInfo": {
               "name": "account_order_summary",
@@ -85,7 +85,6 @@ describe("fromDrizzleView (sqlite) — metadata", () => {
           },
           "$firstName": SqlTableColumn {
             "columnName": "first_name",
-            "columnType": null,
             "format": null,
             "hashIdLazy": Lazy {
               "_computed": false,
@@ -93,6 +92,7 @@ describe("fromDrizzleView (sqlite) — metadata", () => {
               "callback": [Function],
             },
             "id": "SqlTableColumn#3(account_order_summary.first_name as firstName)",
+            "jsonType": null,
             "key": "firstName",
             "tableInfo": {
               "name": "account_order_summary",
@@ -103,7 +103,6 @@ describe("fromDrizzleView (sqlite) — metadata", () => {
           },
           "$orderCount": SqlTableColumn {
             "columnName": "order_count",
-            "columnType": null,
             "format": null,
             "hashIdLazy": Lazy {
               "_computed": false,
@@ -111,6 +110,7 @@ describe("fromDrizzleView (sqlite) — metadata", () => {
               "callback": [Function],
             },
             "id": "SqlTableColumn#4(account_order_summary.order_count as orderCount)",
+            "jsonType": null,
             "key": "orderCount",
             "tableInfo": {
               "name": "account_order_summary",
@@ -129,7 +129,6 @@ describe("fromDrizzleView (sqlite) — metadata", () => {
             "_value": {
               "$accountId": SqlTableColumn {
                 "columnName": "account_id",
-                "columnType": null,
                 "format": null,
                 "hashIdLazy": Lazy {
                   "_computed": false,
@@ -137,6 +136,7 @@ describe("fromDrizzleView (sqlite) — metadata", () => {
                   "callback": [Function],
                 },
                 "id": "SqlTableColumn#1(account_order_summary.account_id as accountId)",
+                "jsonType": null,
                 "key": "accountId",
                 "tableInfo": {
                   "name": "account_order_summary",
@@ -147,7 +147,6 @@ describe("fromDrizzleView (sqlite) — metadata", () => {
               },
               "$email": SqlTableColumn {
                 "columnName": "email",
-                "columnType": null,
                 "format": null,
                 "hashIdLazy": Lazy {
                   "_computed": false,
@@ -155,6 +154,7 @@ describe("fromDrizzleView (sqlite) — metadata", () => {
                   "callback": [Function],
                 },
                 "id": "SqlTableColumn#2(account_order_summary.email)",
+                "jsonType": null,
                 "key": "email",
                 "tableInfo": {
                   "name": "account_order_summary",
@@ -165,7 +165,6 @@ describe("fromDrizzleView (sqlite) — metadata", () => {
               },
               "$firstName": SqlTableColumn {
                 "columnName": "first_name",
-                "columnType": null,
                 "format": null,
                 "hashIdLazy": Lazy {
                   "_computed": false,
@@ -173,6 +172,7 @@ describe("fromDrizzleView (sqlite) — metadata", () => {
                   "callback": [Function],
                 },
                 "id": "SqlTableColumn#3(account_order_summary.first_name as firstName)",
+                "jsonType": null,
                 "key": "firstName",
                 "tableInfo": {
                   "name": "account_order_summary",
@@ -183,7 +183,6 @@ describe("fromDrizzleView (sqlite) — metadata", () => {
               },
               "$orderCount": SqlTableColumn {
                 "columnName": "order_count",
-                "columnType": null,
                 "format": null,
                 "hashIdLazy": Lazy {
                   "_computed": false,
@@ -191,6 +190,7 @@ describe("fromDrizzleView (sqlite) — metadata", () => {
                   "callback": [Function],
                 },
                 "id": "SqlTableColumn#4(account_order_summary.order_count as orderCount)",
+                "jsonType": null,
                 "key": "orderCount",
                 "tableInfo": {
                   "name": "account_order_summary",
