@@ -498,7 +498,7 @@ describe("QueryRegistry", () => {
       await registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([]));
 
       expect(hook).toHaveBeenCalledOnce();
-      expect(hook).toHaveBeenCalledWith({ plugin: pluginA, query: taggedQuery, params: { email: "a@b.com" } });
+      expect(hook).toHaveBeenCalledWith({ plugin: pluginA, query: taggedQuery, params: { email: "a@b.com" }, context: {} });
    });
 
    test("authorize hook is not called for an untagged query", async () => {

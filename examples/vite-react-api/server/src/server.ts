@@ -17,7 +17,9 @@ import vexnorSqlite3 from "vexnor-sqlite3";
 import { QueryRegistry } from "vexnor/registry";
 
 const log = pino({ name: "vexnor" });
-const queryRegistry = new QueryRegistry();
+
+type RequestContext = { token: string | null };
+const queryRegistry = new QueryRegistry<RequestContext>();
 
 const pgPool = new pg.Pool({
    host: process.env.POSTGRES_HOST ?? "localhost",
@@ -66,6 +68,7 @@ app.post("/api/db", async (c) => {
       hash: string;
       params: Record<string, unknown>;
    }>();
+   const token = c.req.header("Authorization")?.replace("Bearer ", "") ?? null;
    try {
       const result = await queryRegistry.execute(plugin, hash, params ?? {}, async (p: string) => {
          switch (plugin) {
@@ -78,7 +81,7 @@ app.post("/api/db", async (c) => {
             default:
                throw new Error(`Unknown plugin: ${p}`);
          }
-      });
+      }, { token });
       return c.json(result);
    } catch (err) {
       const message = err instanceof Error ? err.message : String(err);

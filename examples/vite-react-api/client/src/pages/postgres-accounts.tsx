@@ -1,6 +1,6 @@
 import "vexnor-postgres";
 import { Suspense, use, useActionState, useState, useTransition } from "react";
-import { remoteClient } from "#/remote-client.js";
+import { useRemoteClient } from "#/use-remote-client.js";
 import { deleteAccount, insertAccount, selectAccounts } from "#shared/queries/postgres";
 import { TypeOf } from "vexnor";
 
@@ -13,9 +13,10 @@ function AccountGrid({
 }) {
    const accounts = use(promise);
    const [pending, startTransition] = useTransition();
+   const db = useRemoteClient();
 
    function onDelete(accountId: string) {
-      deleteAccount.postgres.run({ db: remoteClient, params: { accountId } }).then(() => startTransition(onRefresh));
+      deleteAccount.postgres.run({ db, params: { accountId } }).then(() => startTransition(onRefresh));
    }
 
    return (
@@ -53,11 +54,12 @@ function AccountGrid({
 }
 
 function CreateAccountForm({ onCreated }: { onCreated: () => void }) {
+   const db = useRemoteClient();
    const [error, submitAction, pending] = useActionState(async (_: unknown, formData: FormData) => {
       const email = formData.get("email") as string;
       const firstName = formData.get("firstName") as string;
       const lastName = formData.get("lastName") as string;
-      await insertAccount.run({ db: remoteClient, params: { rows: [{ email, firstName, lastName }] } });
+      await insertAccount.run({ db, params: { rows: [{ email, firstName, lastName }] } });
       onCreated();
       return null;
    }, null);
@@ -76,10 +78,11 @@ function CreateAccountForm({ onCreated }: { onCreated: () => void }) {
 }
 
 export default function PostgresAccountsPage() {
-   const [promise, setPromise] = useState(() => selectAccounts.postgres.all({ db: remoteClient }));
+   const db = useRemoteClient();
+   const [promise, setPromise] = useState(() => selectAccounts.postgres.all({ db }));
 
    function refresh() {
-      setPromise(selectAccounts.postgres.all({ db: remoteClient }));
+      setPromise(selectAccounts.postgres.all({ db }));
    }
 
    return (

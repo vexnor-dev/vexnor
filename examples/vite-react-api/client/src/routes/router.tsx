@@ -2,10 +2,33 @@ import { createRootRoute, createRoute, createRouter, Link, Outlet } from "@tanst
 import PostgresAccountsPage from "../pages/postgres-accounts";
 import MssqlAccountsPage from "../pages/mssql-accounts";
 import Sqlite3AccountsPage from "../pages/sqlite3-accounts";
+import { useAuth } from "#/auth-context";
+
+function AuthBar() {
+   const auth = useAuth();
+   // In a real app, login() would receive a JWT from your auth provider (Auth0, Cognito, etc.)
+   // Here we simulate it with a hardcoded token for demonstration purposes
+   const fakeToken = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyXzEyMyIsInJvbGVzIjpbImFkbWluIl19.signature";
+   return (
+      <div style={{ padding: "8px", background: "#f0f0f0", marginBottom: "8px" }}>
+         {auth.authenticated ? (
+            <span>
+               Signed in as <strong>{auth.userId}</strong> [{auth.roles.join(", ")}]{" "}
+               <button onClick={auth.logout}>Sign out</button>
+            </span>
+         ) : (
+            <span>
+               Anonymous <button onClick={() => auth.login(fakeToken)}>Sign in (demo)</button>
+            </span>
+         )}
+      </div>
+   );
+}
 
 const rootRoute = createRootRoute({
    component: () => (
       <>
+         <AuthBar />
          <nav>
             <Link to="/postgres">PostgreSQL</Link>
             {" | "}

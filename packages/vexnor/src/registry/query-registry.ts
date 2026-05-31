@@ -8,50 +8,41 @@ import { SqlRunError } from "#/core/sql-run-error.js";
 export type ConnectionResolver = (pluginName: string) => Promise<unknown>;
 export type QueryMap = Record<string, SqlQueryAny>;
 
-export type AuthorizeArgs = {
+export type AuthorizeArgs<TContext extends Record<string, unknown> = Record<string, unknown>> = {
    plugin: VexnorPluginAny;
    query: SqlQueryAny;
    params: Record<string, unknown>;
+   context: TContext;
 };
-export type AuthorizeHook = (args: AuthorizeArgs) => void | Promise<void>;
+export type AuthorizeHook<TContext extends Record<string, unknown> = Record<string, unknown>> = (args: AuthorizeArgs<TContext>) => void | Promise<void>;
 
-export type AuditLogArgs = {
+export type AuditLogArgs<TContext extends Record<string, unknown> = Record<string, unknown>> = {
    plugin: VexnorPluginAny;
    query: SqlQueryAny;
    name: string | null;
    params: Record<string, unknown>;
+   context: TContext;
    durationMs: number;
    error: unknown | null;
    location: string | null;
 };
 
-export class AuditLogEvent extends Event {
-   constructor(public readonly args: AuditLogArgs) {
+export class AuditLogEvent<TContext extends Record<string, unknown> = Record<string, unknown>> extends Event {
+   constructor(public readonly args: AuditLogArgs<TContext>) {
       super("auditLog");
    }
 }
 
-export class QueryRegistry extends EventTarget {
+export class QueryRegistry<TContext extends Record<string, unknown> = Record<string, unknown>> extends EventTarget {
    private readonly maps = new Map<string, Map<string, { query: SqlQueryAny; name: string | null }>>();
    private readonly plugins = new Map<string, VexnorPluginAny>();
-   private readonly _authorizeHooks: AuthorizeHook[] = [];
+   private readonly _authorizeHooks: AuthorizeHook<TContext>[] = [];
 
-   /**
-    * Registers a hook called before every authorized query execution.
-    *
-    * Throw inside the hook to deny execution.
-    */
-   registerAuthorization(hook: AuthorizeHook): void {
+   registerAuthorization(hook: AuthorizeHook<TContext>): void {
       this._authorizeHooks.push(hook);
    }
 
-   /**
-    * Registers an audit log listener called after every query execution —
-    * success, failure, or authorization denial.
-    *
-    * Use for observability and compliance (SOC2, HIPAA).
-    */
-   registerAuditLog(listener: (event: AuditLogEvent) => void): void {
+   registerAuditLog(listener: (event: AuditLogEvent<TContext>) => void): void {
       this.addEventListener("auditLog", listener as Parameters<EventTarget["addEventListener"]>[1]);
    }
 
@@ -102,7 +93,7 @@ export class QueryRegistry extends EventTarget {
       }
    }
 
-   async authorize(args: AuthorizeArgs) {
+   async authorize(args: AuthorizeArgs<TContext>) {
       const { query } = args;
       if (!query.authorization) return;
 
@@ -123,6 +114,7 @@ export class QueryRegistry extends EventTarget {
       hash: string,
       params: Record<string, unknown>,
       resolver: ConnectionResolver,
+      context: TContext = {} as TContext,
    ): Promise<unknown> {
       const entry = this.maps.get(pluginName)?.get(hash);
       if (!entry) {
@@ -136,7 +128,7 @@ export class QueryRegistry extends EventTarget {
       const start = performance.now();
       let error: unknown | null = null;
       try {
-         await this.authorize({ plugin, query, params });
+         await this.authorize({ plugin, query, params, context });
          const db = await resolver(pluginName);
          const queryHandler = plugin.newQueryHandler(query);
          return await queryHandler.run({ db, params });
@@ -150,6 +142,7 @@ export class QueryRegistry extends EventTarget {
                query,
                name,
                params,
+               context,
                durationMs: performance.now() - start,
                error,
                location: query.location,
