@@ -1,4 +1,4 @@
-import "./register-telemetry.js";
+import "./register-open-telemetry.js";
 import { Tracer } from "@opentelemetry/api";
 
 // Augment for dist consumers (import from "vexnor/registry")
