@@ -16,7 +16,6 @@ QueryRegistry.prototype.registerOpenTelemetry = function (tracer: Tracer): void 
          "vexnor.query.id": query.id,
          "vexnor.query.location": location ?? "",
          "vexnor.plugin": plugin.name,
-         "vexnor.duration_ms": durationMs,
       });
 
       if (error) {

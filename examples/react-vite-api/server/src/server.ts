@@ -7,7 +7,8 @@ import path from "node:path";
 import pg from "pg";
 import mssql from "mssql";
 import BetterSqlite3 from "better-sqlite3";
-import pino from "pino";
+import { trace } from "@opentelemetry/api";
+import "vexnor/open-telemetry";
 import * as postgresQueries from "../../shared/queries/postgres.js";
 import * as mssqlQueries from "../../shared/queries/mssql.js";
 import * as sqlite3Queries from "../../shared/queries/sqlite3.js";
@@ -16,7 +17,7 @@ import vexnorPostgres from "vexnor-postgres";
 import vexnorSqlite3 from "vexnor-sqlite3";
 import { QueryRegistry } from "vexnor/registry";
 
-const log = pino({ name: "vexnor" });
+const tracer = trace.getTracer("vexnor-react-vite-api");
 
 type RequestContext = { token: string | null };
 const queryRegistry = new QueryRegistry<RequestContext>();
@@ -45,15 +46,7 @@ await queryRegistry.register(vexnorPostgres, postgresQueries);
 await queryRegistry.register(vexnorMssql, mssqlQueries);
 await queryRegistry.register(vexnorSqlite3, sqlite3Queries);
 
-queryRegistry.registerAuditLog((event) => {
-   const { query, queryName, plugin, durationMs, error, location } = event.args;
-   const meta = { name: queryName, query: query.label, plugin: plugin.name, durationMs, location };
-   if (error) {
-      log.error({ ...meta, err: error }, "query failed");
-   } else {
-      log.info(meta, "query executed");
-   }
-});
+queryRegistry.registerOpenTelemetry(tracer);
 
 const app = new Hono();
 
