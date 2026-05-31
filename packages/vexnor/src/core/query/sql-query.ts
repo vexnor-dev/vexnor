@@ -44,7 +44,7 @@ export type SqlQueryExtended<T extends { Row?: unknown; Params?: unknown }> = Sq
 export declare const QUERY: unique symbol;
 
 export type SqlQueryArgs = Pick<SqlQueryAny, "rawStrings" | "rawValues"> &
-   Partial<Pick<SqlQueryAny, "info" | "tag" | "label">> & { authorization?: string | null };
+   Partial<Pick<SqlQueryAny, "info" | "tag" | "label">> & { authorization?: string | null; location?: string | null };
 
 export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql {
    declare readonly [QUERY]: SqlQuery<Pick<T, "Row" | "Params">>;
@@ -54,6 +54,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
 
    readonly rawStrings: TemplateStringsArray;
    readonly rawValues: unknown[];
+   readonly location: string | null;
    protected _authorization: string | null;
 
    private readonly _innerQueriesLazy = new Lazy<SqlQueryAny[]>(this.initInnerQueries.bind(this));
@@ -89,6 +90,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
 
       this.rawStrings = rawStrings;
       this.rawValues = rawValues;
+      this.location = args.location ?? null;
       this._authorization = args.authorization ?? null;
    }
 

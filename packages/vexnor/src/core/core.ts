@@ -1,3 +1,5 @@
+export { SqlError } from "#/core/sql-error.js";
+
 // format
 export { type SqlLanguage, SQL_LANGUAGES } from "#/format/sql-language.js";
 export { type SqlFormatterFn, type RegisterFormatterOptions, getFormatter } from "#/format/formatter-registry.js";
@@ -103,4 +105,3 @@ export { SqlRunError } from "./sql-run-error.js";
 export { CACHE } from "#/lib/cache.js";
 
 export type { SqlQueryColumns } from "#/core/query/sql-query.js";
-

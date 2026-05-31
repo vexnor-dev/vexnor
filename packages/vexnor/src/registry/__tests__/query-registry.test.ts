@@ -77,8 +77,8 @@ function makeDb(rows: unknown[] = []): MockConnection {
 describe("QueryRegistry", () => {
    test("register stores queries for two plugins and execute runs each independently", async () => {
       const registry = new QueryRegistry();
-      await registry.register(pluginA, findAccounts);
-      await registry.register(pluginB, findOrders);
+      await registry.register(pluginA, { findAccounts });
+      await registry.register(pluginB, { findOrders });
 
       const hashA = await findAccounts.hash;
       const hashB = await findOrders.hash;
@@ -114,24 +114,24 @@ describe("QueryRegistry", () => {
 
    test("queries are scoped per plugin — pluginA hash not found under pluginB", async () => {
       const registry = new QueryRegistry();
-      await registry.register(pluginA, findAccounts);
-      await registry.register(pluginB, findOrders);
+      await registry.register(pluginA, { findAccounts });
+      await registry.register(pluginB, { findOrders });
 
       const hashA = await findAccounts.hash;
 
       await expect(
          registry.execute("pluginB", hashA, { email: "a@b.com" }, async () => makeDb()),
       ).rejects.toMatchInlineSnapshot(
-         `[SqlExecError: Unknown query hash: 2ab5ce374f9cecb297f54776cc0b291d6437c554703f3c0a5ecf09782bec890c for plugin: pluginB]`,
+         `[SqlError: Unknown query hash: 2ab5ce374f9cecb297f54776cc0b291d6437c554703f3c0a5ecf09782bec890c for plugin: pluginB]`,
       );
    });
 
    test("register is idempotent — re-registering same plugin/query is safe", async () => {
       const registry = new QueryRegistry();
-      await registry.register(pluginA, findAccounts);
-      await registry.register(pluginA, findAccounts); // second call must not throw
-      await registry.register(pluginB, findOrders);
-      await registry.register(pluginB, findOrders);
+      await registry.register(pluginA, { findAccounts });
+      await registry.register(pluginA, { findAccounts }); // second call must not throw
+      await registry.register(pluginB, { findOrders });
+      await registry.register(pluginB, { findOrders });
 
       const hashA = await findAccounts.hash;
       const hashB = await findOrders.hash;
@@ -151,10 +151,10 @@ describe("QueryRegistry", () => {
 
    test("register with a different plugin instance for the same name keeps the first", async () => {
       const registry = new QueryRegistry();
-      await registry.register(pluginA, findAccounts);
+      await registry.register(pluginA, { findAccounts });
 
       const pluginA2 = new MockPlugin("pluginA");
-      await registry.register(pluginA2, findAccounts);
+      await registry.register(pluginA2, { findAccounts });
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect((registry as any).plugins.get("pluginA")).toBe(pluginA);
@@ -162,20 +162,20 @@ describe("QueryRegistry", () => {
 
    test("register with zero queries is a no-op", async () => {
       const registry = new QueryRegistry();
-      await registry.register(pluginA);
-      await registry.register(pluginB);
+      await registry.register(pluginA, {});
+      await registry.register(pluginB, {});
 
       const hashA = await findAccounts.hash;
       await expect(registry.execute("pluginA", hashA, {}, async () => makeDb())).rejects.toMatchInlineSnapshot(
-         `[SqlExecError: Unknown query hash: 2ab5ce374f9cecb297f54776cc0b291d6437c554703f3c0a5ecf09782bec890c for plugin: pluginA]`,
+         `[SqlError: Unknown query hash: 2ab5ce374f9cecb297f54776cc0b291d6437c554703f3c0a5ecf09782bec890c for plugin: pluginA]`,
       );
    });
 
    test("register accepts multiple queries in one call", async () => {
       const q2 = sql`select ${row(Account.$accountId)} from ${Account}`;
       const registry = new QueryRegistry();
-      await registry.register(pluginA, findAccounts, q2);
-      await registry.register(pluginB, findOrders);
+      await registry.register(pluginA, { findAccounts, q2 });
+      await registry.register(pluginB, { findOrders });
 
       const h1 = await findAccounts.hash;
       const h2 = await q2.hash;
@@ -218,15 +218,15 @@ describe("QueryRegistry", () => {
 
    test("execute throws for unknown query hash", async () => {
       const registry = new QueryRegistry();
-      await registry.register(pluginA, findAccounts);
-      await registry.register(pluginB, findOrders);
+      await registry.register(pluginA, { findAccounts });
+      await registry.register(pluginB, { findOrders });
 
       await expect(registry.execute("pluginA", "deadbeef", {}, async () => makeDb())).rejects.toMatchInlineSnapshot(
-         `[SqlExecError: Unknown query hash: deadbeef for plugin: pluginA]`,
+         `[SqlError: Unknown query hash: deadbeef for plugin: pluginA]`,
       );
 
       await expect(registry.execute("pluginB", "deadbeef", {}, async () => makeDb())).rejects.toMatchInlineSnapshot(
-         `[SqlExecError: Unknown query hash: deadbeef for plugin: pluginB]`,
+         `[SqlError: Unknown query hash: deadbeef for plugin: pluginB]`,
       );
    });
 
@@ -234,14 +234,14 @@ describe("QueryRegistry", () => {
       const registry = new QueryRegistry();
 
       await expect(registry.execute("ghost", "deadbeef", {}, async () => makeDb())).rejects.toMatchInlineSnapshot(
-         `[SqlExecError: Unknown query hash: deadbeef for plugin: ghost]`,
+         `[SqlError: Unknown query hash: deadbeef for plugin: ghost]`,
       );
    });
 
    test("execute throws assertion error when plugin missing after map entry exists", async () => {
       const registry = new QueryRegistry();
-      await registry.register(pluginA, findAccounts);
-      await registry.register(pluginB, findOrders);
+      await registry.register(pluginA, { findAccounts });
+      await registry.register(pluginB, { findOrders });
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (registry as any).plugins.delete("pluginA");
@@ -262,8 +262,8 @@ describe("QueryRegistry", () => {
 
    test("resolver is called with the correct plugin name for each plugin", async () => {
       const registry = new QueryRegistry();
-      await registry.register(pluginA, findAccounts);
-      await registry.register(pluginB, findOrders);
+      await registry.register(pluginA, { findAccounts });
+      await registry.register(pluginB, { findOrders });
 
       const resolverA = vi.fn(async () => makeDb([{ accountId: "1", email: "z@z.com" }]));
       const resolverB = vi.fn(async () => makeDb([{ orderId: "o1", status: "done" }]));
@@ -280,12 +280,47 @@ describe("QueryRegistry", () => {
       expect(resolverB).toHaveBeenCalledWith("pluginB");
    });
 
+   // ── register filtering ────────────────────────────────────────────────────
+
+   test("register stores query name from object key and it appears in audit log", async () => {
+      const registry = new QueryRegistry();
+      await registry.register(pluginA, { findAccounts });
+
+      const hook = vi.fn();
+      registry.registerAuditLog(hook);
+
+      const hash = await findAccounts.hash;
+      await registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([]));
+
+      expect(hook).toHaveBeenCalledWith(
+         expect.objectContaining({ args: expect.objectContaining({ name: "findAccounts" }) }),
+      );
+   });
+
+   test("register skips non-SqlQuery values and warns", async () => {
+      const registry = new QueryRegistry();
+      const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+      await registry.register(pluginA, {
+         findAccounts,
+         notAQuery: "some string" as unknown as SqlQueryAny,
+         alsoNotAQuery: 42 as unknown as SqlQueryAny,
+      });
+
+      expect(registry.getQueries()).toHaveLength(1);
+      expect(warnSpy).toHaveBeenCalledTimes(2);
+      expect(warnSpy).toHaveBeenCalledWith(`[vexnor] QueryRegistry.register: skipping "notAQuery" — not a SqlQuery instance`);
+      expect(warnSpy).toHaveBeenCalledWith(`[vexnor] QueryRegistry.register: skipping "alsoNotAQuery" — not a SqlQuery instance`);
+
+      warnSpy.mockRestore();
+   });
+
    // ── getAuthorizedQueries / getUnauthorizedQueries ─────────────────────────
 
    test("getQueries returns all registered queries across all plugins", async () => {
       const registry = new QueryRegistry();
-      await registry.register(pluginA, findAccounts);
-      await registry.register(pluginB, findOrders);
+      await registry.register(pluginA, { findAccounts });
+      await registry.register(pluginB, { findOrders });
 
       expect(registry.getQueries()).toHaveLength(2);
    });
@@ -293,8 +328,8 @@ describe("QueryRegistry", () => {
    test("getAuthorizedQueries returns only tagged queries", async () => {
       const taggedQuery = findAccounts.authorize("admin");
       const registry = new QueryRegistry();
-      await registry.register(pluginA, taggedQuery);
-      await registry.register(pluginB, findOrders);
+      await registry.register(pluginA, { taggedQuery });
+      await registry.register(pluginB, { findOrders });
 
       expect(registry.getAuthorizedQueries().map((q) => q.authorization)).toEqual(["admin"]);
    });
@@ -302,24 +337,24 @@ describe("QueryRegistry", () => {
    test("getUnauthorizedQueries returns only untagged queries", async () => {
       const taggedQuery = findAccounts.authorize("admin");
       const registry = new QueryRegistry();
-      await registry.register(pluginA, taggedQuery);
-      await registry.register(pluginB, findOrders);
+      await registry.register(pluginA, { taggedQuery });
+      await registry.register(pluginB, { findOrders });
 
       expect(registry.getUnauthorizedQueries().map((q) => q.authorization)).toEqual([null]);
    });
 
    test("getAuthorizedQueries returns empty when no queries are tagged", async () => {
       const registry = new QueryRegistry();
-      await registry.register(pluginA, findAccounts);
-      await registry.register(pluginB, findOrders);
+      await registry.register(pluginA, { findAccounts });
+      await registry.register(pluginB, { findOrders });
 
       expect(registry.getAuthorizedQueries()).toEqual([]);
    });
 
    test("getUnauthorizedQueries returns empty when all queries are tagged", async () => {
       const registry = new QueryRegistry();
-      await registry.register(pluginA, findAccounts.authorize("admin"));
-      await registry.register(pluginB, findOrders.authorize("admin"));
+      await registry.register(pluginA, { findAccounts: findAccounts.authorize("admin") });
+      await registry.register(pluginB, { findOrders: findOrders.authorize("admin") });
 
       expect(registry.getUnauthorizedQueries()).toEqual([]);
    });
@@ -328,21 +363,21 @@ describe("QueryRegistry", () => {
 
    test("checkAuthorization passes when all authorized queries have a hook", async () => {
       const registry = new QueryRegistry();
-      await registry.register(pluginA, findAccounts.authorize("admin"));
+      await registry.register(pluginA, { findAccounts: findAccounts.authorize("admin") });
       registry.registerAuthorization(() => {});
       expect(() => registry.checkAuthorization()).not.toThrow();
    });
 
    test("checkAuthorization passes when there are no authorized queries", async () => {
       const registry = new QueryRegistry();
-      await registry.register(pluginA, findAccounts);
+      await registry.register(pluginA, { findAccounts });
       expect(() => registry.checkAuthorization()).not.toThrow();
    });
 
    test("checkAuthorization throws when authorized queries exist but no hook is registered", async () => {
       const registry = new QueryRegistry();
-      await registry.register(pluginA, findAccounts.authorize("admin"));
-      await registry.register(pluginB, findOrders.authorize("admin"));
+      await registry.register(pluginA, { findAccounts: findAccounts.authorize("admin") });
+      await registry.register(pluginB, { findOrders: findOrders.authorize("admin") });
       expect(() => registry.checkAuthorization()).toThrowErrorMatchingInlineSnapshot(
          `
         [SqlExecError: 2 queries require authorization but no hook is registered: SqlQuery#1: 
@@ -357,12 +392,92 @@ describe("QueryRegistry", () => {
       );
    });
 
+   // ── registerAuditLog ──────────────────────────────────────────────────
+
+   test("audit log hook is called after successful execution", async () => {
+      const registry = new QueryRegistry();
+      await registry.register(pluginA, { findAccounts });
+
+      const hook = vi.fn();
+      registry.registerAuditLog(hook);
+
+      const hash = await findAccounts.hash;
+      await registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([]));
+
+      expect(hook).toHaveBeenCalledOnce();
+      expect(hook).toHaveBeenCalledWith(
+         expect.objectContaining({
+            args: expect.objectContaining({
+               query: findAccounts,
+               plugin: pluginA,
+               params: { email: "a@b.com" },
+               error: null,
+               durationMs: expect.any(Number),
+            }),
+         }),
+      );
+   });
+
+   test("audit log hook is called after failed execution with the error", async () => {
+      const registry = new QueryRegistry();
+      await registry.register(pluginA, { findAccounts });
+
+      const hook = vi.fn();
+      registry.registerAuditLog(hook);
+
+      const hash = await findAccounts.hash;
+      await expect(
+         registry.execute("pluginA", hash, { email: "a@b.com" }, async () => ({
+            query: async () => { throw new Error("db failure"); },
+         })),
+      ).rejects.toThrow();
+
+      expect(hook).toHaveBeenCalledOnce();
+      expect(hook).toHaveBeenCalledWith(
+         expect.objectContaining({ args: expect.objectContaining({ error: expect.any(Error) }) }),
+      );
+   });
+
+   test("audit log hooks accumulate and run sequentially", async () => {
+      const registry = new QueryRegistry();
+      await registry.register(pluginA, { findAccounts });
+
+      const order: number[] = [];
+      registry.registerAuditLog(() => { order.push(1); });
+      registry.registerAuditLog(() => { order.push(2); });
+
+      const hash = await findAccounts.hash;
+      await registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([]));
+
+      expect(order).toEqual([1, 2]);
+   });
+
+   test("audit log hook fires even when authorization denies execution", async () => {
+      const taggedQuery = findAccounts.authorize("admin");
+      const registry = new QueryRegistry();
+      await registry.register(pluginA, { taggedQuery });
+      registry.registerAuthorization(() => { throw new Error("denied"); });
+
+      const hook = vi.fn();
+      registry.registerAuditLog(hook);
+
+      const hash = await taggedQuery.hash;
+      await expect(
+         registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([])),
+      ).rejects.toThrow("denied");
+
+      expect(hook).toHaveBeenCalledOnce();
+      expect(hook).toHaveBeenCalledWith(
+         expect.objectContaining({ args: expect.objectContaining({ error: expect.any(Error) }) }),
+      );
+   });
+
    // ── authorize hook ────────────────────────────────────────────────────────
 
    test("authorize hook receives the authorization of a tagged query", async () => {
       const taggedQuery = findAccounts.authorize("admin");
       const registry = new QueryRegistry();
-      await registry.register(pluginA, taggedQuery);
+      await registry.register(pluginA, { taggedQuery });
 
       const hook = vi.fn();
       registry.registerAuthorization(hook);
@@ -376,7 +491,7 @@ describe("QueryRegistry", () => {
 
    test("authorize hook is not called for an untagged query", async () => {
       const registry = new QueryRegistry();
-      await registry.register(pluginA, findAccounts);
+      await registry.register(pluginA, { findAccounts });
 
       const hook = vi.fn();
       hook.mockReset();
@@ -391,7 +506,7 @@ describe("QueryRegistry", () => {
    test("authorize hook throwing denies execution and resolver is never called", async () => {
       const taggedQuery = findAccounts.authorize("admin");
       const registry = new QueryRegistry();
-      await registry.register(pluginA, taggedQuery);
+      await registry.register(pluginA, { taggedQuery });
 
       registry.registerAuthorization(({ query }) => {
          throw new Error(`Forbidden: ${query.authorization}`);
@@ -409,11 +524,15 @@ describe("QueryRegistry", () => {
    test("authorize hooks accumulate — both are called in order", async () => {
       const taggedQuery = findAccounts.authorize("admin");
       const registry = new QueryRegistry();
-      await registry.register(pluginA, taggedQuery);
+      await registry.register(pluginA, { taggedQuery });
 
       const order: number[] = [];
-      registry.registerAuthorization(() => { order.push(1); });
-      registry.registerAuthorization(() => { order.push(2); });
+      registry.registerAuthorization(() => {
+         order.push(1);
+      });
+      registry.registerAuthorization(() => {
+         order.push(2);
+      });
 
       const hash = await taggedQuery.hash;
       await registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([]));
@@ -424,10 +543,12 @@ describe("QueryRegistry", () => {
    test("authorize hooks run sequentially — second hook not called if first throws", async () => {
       const taggedQuery = findAccounts.authorize("admin");
       const registry = new QueryRegistry();
-      await registry.register(pluginA, taggedQuery);
+      await registry.register(pluginA, { taggedQuery });
 
       const hook2 = vi.fn();
-      registry.registerAuthorization(() => { throw new Error("denied"); });
+      registry.registerAuthorization(() => {
+         throw new Error("denied");
+      });
       registry.registerAuthorization(hook2);
 
       const hash = await taggedQuery.hash;
@@ -445,7 +566,7 @@ describe("QueryRegistry", () => {
    test("execute throws when tagged query has no authorize hook registered", async () => {
       const taggedQuery = findAccounts.authorize("admin");
       const registry = new QueryRegistry();
-      await registry.register(pluginA, taggedQuery);
+      await registry.register(pluginA, { taggedQuery });
 
       const hash = await taggedQuery.hash;
       await expect(

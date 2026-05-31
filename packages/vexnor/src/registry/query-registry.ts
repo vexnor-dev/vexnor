@@ -1,29 +1,58 @@
 import { ok } from "#/lib/assert.js";
-import type { SqlQueryAny } from "#/core/query/sql-query.js";
+import { SqlQuery, type SqlQueryAny } from "#/core/query/sql-query.js";
 import type { VexnorPluginAny } from "#/plugin/vexnor-plugin.js";
-import { SqlRunError } from "#/core/sql-run-error.js";
 import { SqlExecError } from "#/cli/exec/sql-exec-error.js";
+import { SqlError } from "#/core/sql-error.js";
+import { SqlRunError } from "#/core/sql-run-error.js";
 
 export type ConnectionResolver = (pluginName: string) => Promise<unknown>;
-export type AuthorizeHook = (args: {
+export type QueryMap = Record<string, SqlQueryAny>;
+
+export type AuthorizeArgs = {
    plugin: VexnorPluginAny;
    query: SqlQueryAny;
    params: Record<string, unknown>;
-}) => void | Promise<void>;
+};
+export type AuthorizeHook = (args: AuthorizeArgs) => void | Promise<void>;
 
-export class QueryRegistry {
-   private readonly maps = new Map<string, Map<string, SqlQueryAny>>();
+export type AuditLogArgs = {
+   plugin: VexnorPluginAny;
+   query: SqlQueryAny;
+   name: string | null;
+   params: Record<string, unknown>;
+   durationMs: number;
+   error: unknown | null;
+   location: string | null;
+};
+
+export class AuditLogEvent extends Event {
+   constructor(public readonly args: AuditLogArgs) {
+      super("auditLog");
+   }
+}
+
+export class QueryRegistry extends EventTarget {
+   private readonly maps = new Map<string, Map<string, { query: SqlQueryAny; name: string | null }>>();
    private readonly plugins = new Map<string, VexnorPluginAny>();
    private readonly _authorizeHooks: AuthorizeHook[] = [];
 
    /**
     * Registers a hook called before every authorized query execution.
     *
-    * The hook receives the query's `authorization` tag. Throw inside the hook
-    * to deny execution.
+    * Throw inside the hook to deny execution.
     */
    registerAuthorization(hook: AuthorizeHook): void {
       this._authorizeHooks.push(hook);
+   }
+
+   /**
+    * Registers an audit log listener called after every query execution —
+    * success, failure, or authorization denial.
+    *
+    * Use for observability and compliance (SOC2, HIPAA).
+    */
+   registerAuditLog(listener: (event: AuditLogEvent) => void): void {
+      this.addEventListener("auditLog", listener as Parameters<EventTarget["addEventListener"]>[1]);
    }
 
    /** Returns all registered queries that carry an `.authorize()` tag. */
@@ -53,10 +82,10 @@ export class QueryRegistry {
 
    /** Returns every query registered across all plugins. */
    getQueries(): SqlQueryAny[] {
-      return Array.from(this.maps.values()).flatMap((map) => Array.from(map.values()));
+      return Array.from(this.maps.values()).flatMap((map) => Array.from(map.values()).map((e) => e.query));
    }
 
-   async register(plugin: VexnorPluginAny, ...queries: SqlQueryAny[]): Promise<void> {
+   async register(plugin: VexnorPluginAny, queries: QueryMap): Promise<void> {
       if (!this.plugins.has(plugin.name)) {
          this.plugins.set(plugin.name, plugin);
       }
@@ -64,8 +93,28 @@ export class QueryRegistry {
          this.maps.set(plugin.name, new Map());
       }
       const map = this.maps.get(plugin.name)!;
-      for (const query of queries) {
-         map.set(await query.hash, query);
+      for (const [name, value] of Object.entries(queries)) {
+         if (!(value instanceof SqlQuery)) {
+            console.warn(`[vexnor] QueryRegistry.register: skipping "${name}" — not a SqlQuery instance`);
+            continue;
+         }
+         map.set(await value.hash, { query: value, name });
+      }
+   }
+
+   async authorize(args: AuthorizeArgs) {
+      const { query } = args;
+      if (!query.authorization) return;
+
+      if (!this._authorizeHooks.length) {
+         throw new SqlRunError(
+            `Query requires authorization (tag: "${query.authorization}") but no authorize hook is registered`,
+            query,
+            {},
+         );
+      }
+      for (const hook of this._authorizeHooks) {
+         await hook(args);
       }
    }
 
@@ -75,30 +124,37 @@ export class QueryRegistry {
       params: Record<string, unknown>,
       resolver: ConnectionResolver,
    ): Promise<unknown> {
-      const query = this.maps.get(pluginName)?.get(hash);
-      if (!query) {
-         throw new SqlExecError(`Unknown query hash: ${hash} for plugin: ${pluginName}`);
+      const entry = this.maps.get(pluginName)?.get(hash);
+      if (!entry) {
+         throw new SqlError(`Unknown query hash: ${hash} for plugin: ${pluginName}`);
       }
+      const { query, name } = entry;
 
       const plugin = this.plugins.get(pluginName);
       ok(plugin, `Unknown plugin: ${pluginName}`);
 
-      if (query.authorization) {
-         if (!this._authorizeHooks.length) {
-            throw new SqlRunError(
-               `Query requires authorization (tag: "${query.authorization}") but no authorize hook is registered`,
+      const start = performance.now();
+      let error: unknown | null = null;
+      try {
+         await this.authorize({ plugin, query, params });
+         const db = await resolver(pluginName);
+         const queryHandler = plugin.newQueryHandler(query);
+         return await queryHandler.run({ db, params });
+      } catch (err) {
+         error = err;
+         throw err;
+      } finally {
+         this.dispatchEvent(
+            new AuditLogEvent({
+               plugin,
                query,
-               {},
-            );
-         }
-
-         for (const hook of this._authorizeHooks) {
-            await hook({ plugin, query, params });
-         }
+               name,
+               params,
+               durationMs: performance.now() - start,
+               error,
+               location: query.location,
+            }),
+         );
       }
-
-      const db = await resolver(pluginName);
-      const queryHandler = plugin.newQueryHandler(query);
-      return queryHandler.run({ db, params });
    }
 }

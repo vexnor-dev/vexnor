@@ -114,6 +114,7 @@ describe("sql subqueries tests", () => {
                 "callback": [Function],
               },
               "id": "SqlQuery#1(label=AccountsWithEmail)",
+              "location": "<anonymous>",
               "rawStrings": [
                 "
                  ",
@@ -1072,6 +1073,7 @@ describe("sql subqueries tests", () => {
                 "callback": [Function],
               },
               "id": "SqlQuery#1(label=AccountsWithEmail)",
+              "location": "<anonymous>",
               "rawStrings": [
                 "
                  ",
@@ -2030,6 +2032,7 @@ describe("sql subqueries tests", () => {
                 "callback": [Function],
               },
               "id": "SqlQuery#1(label=AccountsWithEmail)",
+              "location": "<anonymous>",
               "rawStrings": [
                 "
                  ",
@@ -2988,6 +2991,7 @@ describe("sql subqueries tests", () => {
                 "callback": [Function],
               },
               "id": "SqlQuery#1(label=AccountsWithEmail)",
+              "location": "<anonymous>",
               "rawStrings": [
                 "
                  ",
@@ -3946,6 +3950,7 @@ describe("sql subqueries tests", () => {
                 "callback": [Function],
               },
               "id": "SqlQuery#1(label=AccountsWithEmail)",
+              "location": "<anonymous>",
               "rawStrings": [
                 "
                  ",
@@ -4904,6 +4909,7 @@ describe("sql subqueries tests", () => {
                 "callback": [Function],
               },
               "id": "SqlQuery#1(label=AccountsWithEmail)",
+              "location": "<anonymous>",
               "rawStrings": [
                 "
                  ",
@@ -5862,6 +5868,7 @@ describe("sql subqueries tests", () => {
                 "callback": [Function],
               },
               "id": "SqlQuery#1(label=AccountsWithEmail)",
+              "location": "<anonymous>",
               "rawStrings": [
                 "
                  ",
@@ -6820,6 +6827,7 @@ describe("sql subqueries tests", () => {
                 "callback": [Function],
               },
               "id": "SqlQuery#1(label=AccountsWithEmail)",
+              "location": "<anonymous>",
               "rawStrings": [
                 "
                  ",
@@ -7778,6 +7786,7 @@ describe("sql subqueries tests", () => {
                 "callback": [Function],
               },
               "id": "SqlQuery#1(label=AccountsWithEmail)",
+              "location": "<anonymous>",
               "rawStrings": [
                 "
                  ",

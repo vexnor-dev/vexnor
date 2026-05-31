@@ -7,6 +7,7 @@ import path from "node:path";
 import pg from "pg";
 import mssql from "mssql";
 import BetterSqlite3 from "better-sqlite3";
+import pino from "pino";
 import * as postgresQueries from "../../shared/queries/postgres.js";
 import * as mssqlQueries from "../../shared/queries/mssql.js";
 import * as sqlite3Queries from "../../shared/queries/sqlite3.js";
@@ -15,6 +16,7 @@ import vexnorPostgres from "vexnor-postgres";
 import vexnorSqlite3 from "vexnor-sqlite3";
 import { QueryRegistry } from "vexnor/registry";
 
+const log = pino({ name: "vexnor" });
 const queryRegistry = new QueryRegistry();
 
 const pgPool = new pg.Pool({
@@ -37,24 +39,19 @@ const sqliteDb = new BetterSqlite3(
    path.resolve(process.cwd(), process.env.SQLITE_PATH ?? "../../@db-sqlite3/vexnor-dev.sqlite"),
 );
 
-await queryRegistry.register(
-   vexnorPostgres,
-   postgresQueries.selectAccounts,
-   postgresQueries.deleteAccount,
-   postgresQueries.insertAccount,
-);
-await queryRegistry.register(
-   vexnorMssql,
-   mssqlQueries.selectAccounts,
-   mssqlQueries.deleteAccount,
-   mssqlQueries.insertAccount,
-);
-await queryRegistry.register(
-   vexnorSqlite3,
-   sqlite3Queries.selectAccounts,
-   sqlite3Queries.deleteAccount,
-   sqlite3Queries.insertAccount,
-);
+await queryRegistry.register(vexnorPostgres, postgresQueries);
+await queryRegistry.register(vexnorMssql, mssqlQueries);
+await queryRegistry.register(vexnorSqlite3, sqlite3Queries);
+
+queryRegistry.registerAuditLog((event) => {
+   const { query, name, plugin, durationMs, error, location } = event.args;
+   const meta = { name, query: query.label, plugin: plugin.name, durationMs, location };
+   if (error) {
+      log.error({ ...meta, err: error }, "query failed");
+   } else {
+      log.info(meta, "query executed");
+   }
+});
 
 const app = new Hono();
 

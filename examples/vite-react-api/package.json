@@ -1,5 +1,5 @@
 {
-   "name": "@vexnor/example-web-react-hono",
+   "name": "@vexnor/example-vite-react-api",
    "version": "1.0.0",
    "private": true,
    "license": "Apache-2.0",
@@ -7,7 +7,7 @@
    "scripts": {
       "predev": "lsof -ti :3001 | xargs kill -9 2>/dev/null || true && tsc -b",
       "dev": "run-p dev:server dev:client",
-      "dev:server": "env-cmd --no-override -x -r ../../env-dev.json -e db node --watch --import tsx/esm server/src/server.ts",
+      "dev:server": "env-cmd --no-override -x -r ../../env-dev.json -e db node --watch --import tsx/esm server/src/server.ts | pino-pretty",
       "dev:client": "vite",
       "build": "tsc -b && tsc -p tsconfig.server.json && vite build",
       "test": "vitest run",
@@ -31,7 +31,8 @@
       "vexnor": "workspace:*",
       "vexnor-mssql": "workspace:*",
       "vexnor-postgres": "workspace:*",
-      "vexnor-sqlite3": "workspace:*"
+      "vexnor-sqlite3": "workspace:*",
+      "pino": "^9.0.0"
    },
    "devDependencies": {
       "@testing-library/react": "^16.3.2",

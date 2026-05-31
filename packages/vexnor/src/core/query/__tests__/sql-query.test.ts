@@ -59,6 +59,7 @@ describe("SqlQuery tests", () => {
           "hashIdLazy",
           "rawStrings",
           "rawValues",
+          "location",
           "_authorization",
           "_innerQueriesLazy",
           "_dialectsLazy",
