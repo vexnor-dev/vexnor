@@ -127,6 +127,7 @@ const found = await Account.postgres.findBy().any({
 - [Queries](docs/queries.md) — subqueries, CTEs, recursive CTEs, window functions
 - [Params](docs/params.md) — inline injection, `param()`, runtime validation
 - [CRUD](docs/crud.md) — typed query factories, execution methods
+- [Registry](docs/registry.md) — QueryRegistry, isomorphic SQL, remote execution
 - [Authorization](docs/authorization.md) — query authorization, audit logging, SOC2/HIPAA
 - [CLI](docs/cli.md) — `codegen`, `exec run`, `exec init`, config reference
 - [Databases](docs/databases.md) — PostgreSQL, MS SQL Server, SQLite — driver setup and dialect notes

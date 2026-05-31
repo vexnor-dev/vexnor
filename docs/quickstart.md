@@ -210,6 +210,7 @@ Works the same across all databases — swap `.postgres` for `.mssql` or `.sqlit
 - [Queries](queries.md) — subqueries, CTEs, recursive CTEs, window functions
 - [Params](params.md) — `param()` validation rules, inline injection
 - [CRUD](crud.md) — typed query factories (`findBy`, `select`, `insertRows`, `upsert`, ...)
+- [Registry](registry.md) — QueryRegistry, isomorphic SQL, remote execution
 - [CLI](cli.md) — `exec run`, `exec init`, config reference
 - [Databases](databases.md) — per-DB driver setup and dialect notes
 - [Plugins & Adaptors](plugins.md) — Drizzle, Prisma, TypeORM, Sequelize
