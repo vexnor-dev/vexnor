@@ -135,13 +135,32 @@ const accounts = await selectAccounts.postgres.all({ db: remoteClient });
 
 The client never sends SQL. It sends a stable hash that identifies a pre-registered query. The server looks it up, runs it, and returns typed results. No REST endpoints to define, no API types to maintain — the query is the contract.
 
+`HttpRemoteClient` is the built-in implementation:
+
+```typescript
+import { HttpRemoteClient } from 'vexnor';
+
+// Static (no auth)
+const remoteClient = new HttpRemoteClient({ targetUrl: '/api/db' });
+
+// Auth-aware hook (React)
+import { useMemo } from 'react';
+function useRemoteClient() {
+  const { token } = useAuth();
+  return useMemo(() => new HttpRemoteClient({
+    targetUrl: '/api/db',
+    headerResolver: async () => token ? { Authorization: `Bearer ${token}` } : {},
+  }), [token]);
+}
+```
+
 See [Isomorphic SQL](docs/isomorphic-sql.md) for the full picture.
 
 ## Documentation
 
 - [Quickstart](docs/quickstart.md) — full onboarding, all core APIs
 - [Queries](docs/queries.md) — subqueries, CTEs, recursive CTEs, window functions
-- [Params](docs/params.md) — inline injection, `param()`, runtime validation
+- [Params](docs/params.md) — inline injection, `param()`, `expand()`, runtime validation
 - [CRUD](docs/crud.md) — typed query factories, execution methods
 - [Isomorphic SQL](docs/isomorphic-sql.md) — same query on server and client, how it works, comparison with REST/tRPC/GraphQL
 - [Registry](docs/registry.md) — QueryRegistry, isomorphic SQL, remote execution
@@ -159,7 +178,7 @@ Working examples are in the [`examples/`](examples/) directory:
 |---|---|
 | [`postgres-esm`](examples/postgres-esm) | Minimal Node.js ESM script — insert, select, update with PostgreSQL |
 | [`postgres-cjs`](examples/postgres-cjs) | Same as above using CommonJS |
-| [`react-vite-api`](examples/react-vite-api) | React + Vite + Hono — isomorphic queries, `QueryRegistry`, `remoteClient`, PostgreSQL + MSSQL + SQLite3 |
+| [`react-vite-api`](examples/react-vite-api) | React + Vite + Hono — isomorphic queries, `QueryRegistry`, `HttpRemoteClient`, PostgreSQL + MSSQL + SQLite3 |
 | [`react-next-app`](examples/react-next-app) | Next.js App Router — React Server Components, Server Actions, same isomorphic pattern |
 
 ## Requirements

@@ -201,14 +201,27 @@ All queries expose four execution methods:
 | `.one({ db, params? })` | `T` | yes |
 | `.any({ db, params? })` | `T \| null` | no |
 | `.all({ db, params? })` | `T[]` | no |
-| `.run({ db, params? })` | void | no |
+| `.run({ db, params? })` | `RunResult` | no |
 
 Works the same across all databases — swap `.postgres` for `.mssql` or `.sqlite`.
+
+All methods accept an optional `options` object:
+
+```typescript
+await query.postgres.all({
+  db: pool,
+  params: { ... },
+  options: {
+    timeout: 5000,     // abort after 5 s; throws SqlRunError with code QUERY_TIMEOUT
+    retryable: false,  // override the plugin's automatic retryable detection
+  },
+});
+```
 
 ## Next Steps
 
 - [Queries](queries.md) — subqueries, CTEs, recursive CTEs, window functions
-- [Params](params.md) — `param()` validation rules, inline injection
+- [Params](params.md) — `param()`, `expand()`, validation rules, inline injection
 - [CRUD](crud.md) — typed query factories (`findBy`, `select`, `insertRows`, `upsert`, ...)
 - [Registry](registry.md) — QueryRegistry, isomorphic SQL, remote execution
 - [CLI](cli.md) — `exec run`, `exec init`, config reference

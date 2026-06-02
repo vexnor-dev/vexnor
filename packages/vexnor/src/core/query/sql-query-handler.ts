@@ -97,7 +97,7 @@ export abstract class SqlQueryHandler<
     */
    async run<TResult = T["QueryResult"]>(
       args: SqlRunArgs<Pick<T, "Connection" | "Params">>,
-      mode: SqlExecuteMode = "run",
+      mode: SqlExecuteMode = "mutation",
    ): Promise<TResult> {
       const { db, options } = args;
       const { timeout, retryable: retryableOption } = options ?? {};
@@ -192,7 +192,7 @@ export abstract class SqlQueryHandler<
     * @param args - Database connection and query parameters.
     */
    async all(args: SqlRunArgs<Pick<T, "Connection" | "Params">>): Promise<T["Row"][]> {
-      return this.resolveRows(await this.run(args, "all"));
+      return this.resolveRows(await this.run(args, "query"));
    }
 }
 

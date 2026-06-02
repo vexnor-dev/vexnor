@@ -60,88 +60,94 @@ Passing the module namespace directly registers all `SqlQuery` exports under the
 
 ```typescript
 // server/app.ts
+import { SqlError, SqlRunError } from 'vexnor/registry';
 import { registry, pool } from './registry.js';
-import vexnorPostgres from 'vexnor-postgres';
 
-app.post('/api/db', async (req, res) => {
-  const { plugin, hash, params } = req.body;
+app.post('/api/db', async (c) => {
+  const { plugin, hash, params, name, location, mode } = await c.req.json();
+  const token = c.req.header('Authorization')?.replace('Bearer ', '') ?? null;
 
-  const result = await registry.execute(plugin, hash, params ?? {}, async () => pool);
-  res.json(result);
+  try {
+    const result = await registry.execute(
+      plugin, hash, params ?? {},
+      async () => pool,
+      { token },
+      mode,
+    );
+    return c.json(result);
+  } catch (err) {
+    return handleDbError(c, err, { name, location });
+  }
 });
 ```
 
-`registry.execute` looks up the query by hash, executes it against the database, and returns the serialized result.
+`registry.execute` looks up the query by hash, runs authorization and rate-limit checks, executes against the database, and fires the audit log. The fifth argument is the context object passed to your authorization hook — see [Authorization](authorization.md).
+
+#### Error handling
+
+Map `SqlErrorCode` values to HTTP status codes so clients can handle errors programmatically:
+
+```typescript
+import { SqlError, SqlRunError } from 'vexnor/registry';
+
+const SQL_ERROR_STATUS: Record<string, number> = {
+  QUERY_NOT_FOUND: 400,
+  QUERY_BUILD_FAILED: 400,
+  PARAM_VALIDATION_FAILED: 400,
+  QUERY_NOT_AUTHORIZED: 403,
+  REGISTRY_NOT_AUTHORIZED: 403,
+  QUERY_RATE_LIMITED: 429,
+  QUERY_EXECUTION_FAILED: 500,
+  QUERY_RETRYABLE_FAILURE: 503,
+  QUERY_TIMEOUT: 504,
+};
+
+function handleDbError(c: Context, err: unknown, meta?: { name?: string | null; location?: string | null }) {
+  if (err instanceof SqlRunError || err instanceof SqlError) {
+    const status = SQL_ERROR_STATUS[err.code] ?? 500;
+    return c.json({ error: err.message, code: err.code, ...meta }, status);
+  }
+  return c.json({ error: String(err) }, 500);
+}
+```
+
+`SqlRunError` carries `code`, `retryable`, `queryName`, and `queryLocation` — all available for logging or client-side retry logic.
 
 ### 4. Create a remote client
 
-For anonymous (unauthenticated) use, a static client is sufficient:
+For anonymous (unauthenticated) use, construct an `HttpRemoteClient` with the endpoint URL:
 
 ```typescript
 // client/remote-client.ts
-import type { RemoteClient } from 'vexnor';
+import { HttpRemoteClient } from 'vexnor';
 
-export const remoteClient: RemoteClient = {
-  remoteExecute: async ({ plugin, hash, params }) => {
-    const response = await fetch('/api/db', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ plugin, hash, params }),
-    });
-    if (!response.ok) throw new Error(`Query failed: ${response.status}`);
-    return response.json();
-  },
-};
+export const remoteClient = new HttpRemoteClient({ targetUrl: '/api/db' });
 ```
 
-For authenticated use, create a hook that reads the token from your auth context and attaches it as a header. The hook returns a stable `RemoteClient` reference via `useMemo` so it only changes when the token changes:
+For authenticated use, provide a `headerResolver` that reads the token from your auth context. Use `useMemo` so the client reference only changes when the token changes:
 
 ```typescript
 // client/use-remote-client.ts
 import { useMemo } from 'react';
-import type { RemoteClient } from 'vexnor';
+import { HttpRemoteClient } from 'vexnor';
 import { useAuth } from './auth-context.js';
 
-export function useRemoteClient(): RemoteClient {
+export function useRemoteClient() {
   const { token } = useAuth();
 
   return useMemo(
-    () => ({
-      remoteExecute: async ({ plugin, hash, params }) => {
-        const response = await fetch('/api/db', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-          body: JSON.stringify({ plugin, hash, params }),
-        });
-        if (!response.ok) throw new Error(`Query failed: ${response.status}`);
-        return response.json();
-      },
+    () => new HttpRemoteClient({
+      targetUrl: '/api/db',
+      headerResolver: async () => ({
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      }),
     }),
     [token],
   );
 }
 ```
 
-The server reads the token from the `Authorization` header and passes it to `registry.execute` as context:
-
-```typescript
-app.post('/api/db', async (c) => {
-  const { plugin, hash, params } = await c.req.json();
-  const token = c.req.header('Authorization')?.replace('Bearer ', '') ?? null;
-
-  const result = await registry.execute(
-    plugin, hash, params ?? {},
-    async () => pool,
-    { token },
-  );
-  return c.json(result);
-});
-```
-
-The `{ token }` object is the `TContext` passed to your `registerAuthorization` hook — see [Authorization](authorization.md).
+`HttpRemoteClient` handles `Content-Type`, JSON serialization, and response parsing. You can also pass static `headers`, or a custom `fetch` implementation for testing.
 
 ### 5. Execute from the client
 
@@ -159,23 +165,99 @@ await deleteAccount.postgres.run({ db: remoteClient, params: { accountId: '123' 
 
 The result type is inferred from the query definition — no separate API types, no code generation for the HTTP layer.
 
+## Next.js App Router
+
+In a Next.js app, all three execution modes share the same query objects from `shared/queries/`:
+
+**React Server Components** — fetch directly from the database, no API call:
+
+```typescript
+// app/postgres/accounts/page.tsx
+import { pgPool } from '@/shared/db/postgres';
+import { selectAccounts, insertAccount } from '@/shared/queries/postgres';
+
+async function createAccountAction(email: string, firstName: string, lastName: string) {
+  'use server';
+  await insertAccount.postgres.run({
+    db: pgPool,
+    params: { rows: [{ email, firstName, lastName }] },
+  });
+}
+
+export default async function AccountsPage({ searchParams }) {
+  const params = getSelectAccountParams({ searchParams: await searchParams });
+  const accounts = await selectAccounts.postgres.all({ db: pgPool, params });
+  // render directly — no loading state, no useEffect
+  return <AccountsGrid initialAccounts={accounts} initialParams={params} />;
+}
+```
+
+**Client components** — use `useRemoteClient()` to dispatch to `/api/db` for interactive refetches:
+
+```typescript
+// app/components/accounts-grid.tsx
+'use client';
+import { useRemoteClient } from '@/app/components/use-remote-client';
+import { selectAccounts } from '@/shared/queries/postgres';
+
+export function AccountsGrid({ initialAccounts, initialParams }) {
+  const remoteClient = useRemoteClient();
+
+  async function refetch(params) {
+    const accounts = await selectAccounts.postgres.all({ db: remoteClient, params });
+    setAccounts(accounts);
+  }
+  // ...
+}
+```
+
+**The `/api/db` route** — same `QueryRegistry` endpoint as the Hono example:
+
+```typescript
+// app/api/db/route.ts
+import { SqlError, SqlRunError } from 'vexnor/registry';
+
+export async function POST(request: Request) {
+  const { plugin, hash, params, name, location, mode } = await request.json();
+  const token = request.headers.get('Authorization')?.replace('Bearer ', '') ?? null;
+
+  try {
+    const result = await registry.execute(
+      plugin, hash, params ?? {},
+      async () => getPool(plugin),
+      { token },
+      mode,
+    );
+    return Response.json(result);
+  } catch (err) {
+    if (err instanceof SqlRunError || err instanceof SqlError) {
+      const status = SQL_ERROR_STATUS[err.code] ?? 500;
+      return Response.json({ error: err.message, code: err.code, name, location }, { status });
+    }
+    throw err;
+  }
+}
+```
+
 ## How It Works
 
 When `.postgres.all({ db: remoteClient })` is called:
 
 1. Vexnor detects that `db` is a `RemoteClient` (not a real connection pool)
-2. It calls `remoteClient.remoteExecute({ plugin: 'vexnor-postgres', hash, params })`
+2. It calls `remoteClient.remoteExecute({ plugin: 'vexnor-postgres', hash, params, name, location })`
 3. The server receives the request, looks up the query by hash in the registry
 4. The query executes against the real DB connection on the server
 5. The result is serialized and returned
 6. Vexnor deserializes the result on the client (handling `Date` strings, nested JSON, etc.)
 
-The hash is a stable SHA-256 of the query's template strings — it never changes unless the SQL itself changes.
+The hash is a stable SHA-256 of the query's template strings — it never changes unless the SQL itself changes. `name` and `location` are forwarded for error messages and audit logs.
 
 ## QueryRegistry API
 
 ```typescript
 const registry = new QueryRegistry();
+// With options:
+const registry = new QueryRegistry({ maxConcurrent: 50 });
 
 // Register queries — pass a module namespace or explicit object
 await registry.register(plugin, queries);
@@ -183,13 +265,34 @@ await registry.register(plugin, queries);
 // Startup validation — throws if any .authorize()-tagged query has no hook registered
 registry.checkAuthorization();
 
+// Hooks
+registry.registerAuthorization(hook);  // called before every .authorize()-tagged query
+registry.registerRateLimit(hook);      // called before every query; throw to reject
+registry.registerAuditLog(listener);   // called after every query, success or failure
+registry.registerOpenTelemetry(tracer); // built on registerAuditLog; see Telemetry docs
+
 // Introspection
 registry.getQueries();              // all registered queries
 registry.getAuthorizedQueries();    // queries with .authorize() tag
 registry.getUnauthorizedQueries();  // queries without .authorize() tag
 
 // Execute a query by plugin name and hash
-await registry.execute(pluginName, hash, params, connectionResolver);
+await registry.execute(pluginName, hash, params, connectionResolver, context?, mode?);
+```
+
+### Constructor Options
+
+- `maxConcurrent?: number` — maximum number of queries that may execute concurrently. Queries exceeding this limit are rejected immediately with `QUERY_RATE_LIMITED`.
+
+### `registerRateLimit(hook)`
+
+Called before every query. Use this for per-user token-bucket rate limiting or other request-level policies. The hook receives `inFlight` — the current concurrency count — alongside the query and context. Throw to reject.
+
+```typescript
+registry.registerRateLimit(async ({ queryName, context, inFlight }) => {
+  if (inFlight > 100) throw new Error('Too many concurrent queries');
+  await rateLimiter.consume(context.userId); // throws if limit exceeded
+});
 ```
 
 For authorization hooks and audit logging see [Authorization](authorization.md).

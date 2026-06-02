@@ -95,7 +95,7 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
     */
    async execute<TResult>(
       args: SqlRunArgs<{ Connection: Sqlite3Client; Params: T["Params"] }>,
-      mode: "run" | "all" = "run",
+      mode: "query" | "mutation" = "mutation",
    ): Promise<TResult> {
       const { db, options: { debug } = {} } = args;
       const resolvedDb = await db;
@@ -105,7 +105,7 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
          queryConfig = this.getOptions(args);
          if (debug) debug(Object.freeze(queryConfig));
          const statement = (resolvedDb as Database).prepare<unknown[] | object, T["Row"]>(queryConfig.sql);
-         if (mode === "all" /*|| statement.reader*/) {
+         if (mode === "query" /*|| statement.reader*/) {
             const rows = statement.all(queryConfig.values);
             return Promise.resolve({ rows } as TResult);
          }
@@ -124,13 +124,13 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
    }
 
    /**
-    * Overrides base all() because sqlite3 reads go through execute(args, "all") directly,
+    * Overrides base all() because sqlite3 reads go through execute(args, "query") directly,
     * bypassing the RunResult shape that run() returns.
     */
    override async all(
       args: SqlRunArgs<{ Connection: Sqlite3Client | RemoteClient; Params: T["Params"] }>,
    ): Promise<T["Row"][]> {
-      const result = await this.run<QueryResult<T["Row"]>>(args, "all");
+      const result = await this.run<QueryResult<T["Row"]>>(args, "query");
       return this.deserializeRows(result.rows, true);
    }
 
@@ -141,7 +141,7 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
             "Connection" | "Params"
          >
       >,
-      mode: SqlExecuteMode = "run",
+      mode: SqlExecuteMode = "mutation",
    ): Promise<TResult> {
       return super.run(args, mode);
    }

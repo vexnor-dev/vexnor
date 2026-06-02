@@ -184,7 +184,7 @@ export class QueryRegistry<TContext extends Record<string, unknown> = Record<str
       params: Record<string, unknown>,
       resolver: ConnectionResolver,
       context: TContext = {} as TContext,
-      mode: SqlExecuteMode = "run",
+      mode: SqlExecuteMode = "mutation",
    ): Promise<TResult> {
       const entry = this.maps.get(pluginName)?.get(hash);
       if (!entry) {
