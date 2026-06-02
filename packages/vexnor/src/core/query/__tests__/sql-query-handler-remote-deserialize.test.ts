@@ -13,20 +13,28 @@ class MockQueryHandler<T extends { Row?: unknown; Params?: unknown }> extends Sq
    Pick<T, "Row" | "Params"> & { QueryResult: MockResult; Connection: RemoteClient }
 > {
    constructor(query: SqlQuery<Pick<T, "Row" | "Params">>) {
-      super(query);
+      super(query, { pluginName: "mock" });
    }
 
    resolveRows(result: MockResult): T["Row"][] {
       return result.rows as T["Row"][];
    }
 
-   deserialize(result: MockResult, remote: boolean): MockResult {
-      return { ...result, rows: this.deserializeRows(result.rows as T["Row"][], remote) };
+   deserialize<TResult = MockResult>(result: TResult, isRemoteClient: boolean): TResult {
+      return { ...result, rows: this.deserializeRows((result as MockResult).rows as T["Row"][], isRemoteClient) };
    }
 
-   async execute(args: SqlRunArgs<{ Connection: RemoteClient; Params: T["Params"] }>): Promise<MockResult> {
+   async execute<TResult = MockResult>(
+      args: SqlRunArgs<{ Connection: RemoteClient; Params: T["Params"] }>,
+   ): Promise<TResult> {
       const db = await args.db;
-      return db.remoteExecute<MockResult>({ plugin: "test", hash: "", params: {} });
+      return (await db.remoteExecute<MockResult>({
+         plugin: "test",
+         hash: "",
+         params: {},
+         name: null,
+         location: null,
+      })) as TResult;
    }
 }
 
@@ -164,11 +172,13 @@ describe("SqlQueryHandler run() — remote deserialization", () => {
          write() {},
       });
       const q = sql`select ${row(Account.$accountId, Account.$createdAt)}, ${charm} from ${Account}`;
-      const rows = [{
-         accountId: "1",
-         createdAt: DATE_STR,
-         orders: [{ orderId: "o1", createdAt: DATE_STR }],
-      }];
+      const rows = [
+         {
+            accountId: "1",
+            createdAt: DATE_STR,
+            orders: [{ orderId: "o1", createdAt: DATE_STR }],
+         },
+      ];
       const result = await mockHandler(q).run({ db: remoteClient(rows) });
       expect(result).toMatchInlineSnapshot(`
         {

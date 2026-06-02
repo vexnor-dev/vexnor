@@ -3,9 +3,9 @@
    "version": "0.1.0",
    "private": true,
    "scripts": {
-      "prebuild": "tsc -b",
+      "prebuild": "pnpm -C ../../packages/vexnor build && pnpm -C ../../packages/vexnor-postgres build && pnpm -C ../../packages/vexnor-mssql build && pnpm -C ../../packages/vexnor-sqlite3 build && tsc -b",
       "build": "next build",
-      "predev": "tsc -b",
+      "predev": "run-s 'build'",
       "dev": "next dev",
       "prestart": "tsc -b",
       "start": "next start",

@@ -1,4 +1,4 @@
-import { SqlError, SqlErrorCode, SqlRunError } from "vexnor/registry";
+import { SqlError, SqlRunError } from "vexnor/registry";
 import type { Context } from "hono";
 
 type ErrorStatus = 400 | 403 | 429 | 500 | 503 | 504;
@@ -15,17 +15,17 @@ export const SQL_ERROR_STATUS: Record<string, ErrorStatus> = {
    QUERY_TIMEOUT: 504,
 };
 
-export type DbErrorResponse = { error: string; code: string; status: ErrorStatus } | { error: string; status: 500 };
+export type DbErrorResponse = { error: string; code: string; status: ErrorStatus; name?: string | null; location?: string | null } | { error: string; status: 500 };
 
-export function toDbErrorResponse(err: unknown): DbErrorResponse {
+export function toDbErrorResponse(err: unknown, meta?: { name?: string | null; location?: string | null }): DbErrorResponse {
    if (err instanceof SqlRunError || err instanceof SqlError) {
       const status: ErrorStatus = SQL_ERROR_STATUS[err.code] ?? 500;
-      return { error: err.message, code: err.code, status };
+      return { error: err.message, code: err.code, status, ...meta };
    }
    return { error: String(err), status: 500 };
 }
 
-export function handleDbError(c: Context, err: unknown) {
-   const { status, ...body } = toDbErrorResponse(err);
+export function handleDbError(c: Context, err: unknown, meta?: { name?: string | null; location?: string | null }) {
+   const { status, ...body } = toDbErrorResponse(err, meta);
    return c.json(body, status);
 }

@@ -12,14 +12,29 @@ describe("SqlExpand", () => {
          const query = sql`
             SELECT ${row(Account.$$)}
             FROM ${Account}
-            WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>((params) => {
-               return sql`${params?.ids?.[0]}`;
-            })})
+            WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>({ ids: null }, ({ ids }) => sql`${ids[0]}`)})
          `;
 
          const result = query.getSql({ params: { ids: ["id1", "id2", "id3"] } });
 
-         expect(result.text).toMatchSnapshot();
+         expect(result.text).toMatchInlineSnapshot(`
+           "/* <query_0> */
+           SELECT
+             "a_1"."account_id" AS "accountId",
+             "a_1"."status",
+             "a_1"."email",
+             "a_1"."first_name" AS "firstName",
+             "a_1"."last_name" AS "lastName",
+             "a_1"."notes",
+             "a_1"."created_at" AS "createdAt",
+             "a_1"."modified_at" AS "modifiedAt",
+             "a_1"."parent_id" AS "parentId"
+           FROM
+             "main"."account" AS "a_1"
+           WHERE
+             "a_1"."account_id" IN (/* <query_1> */ ? /* </query_1> */)
+             /* </query_0> */"
+         `);
          expect(result.values).toEqual(["id1"]);
       });
 
@@ -27,14 +42,35 @@ describe("SqlExpand", () => {
          const query = sql`
             SELECT ${row(Account.$$)}
             FROM ${Account}
-            WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>((params) => {
-               return params?.ids?.map((id) => sql`${id}`) ?? null;
-            })})
+            WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>({ ids: null }, ({ ids }) =>
+               ids.map((id) => sql`${id}`),
+            )})
          `;
 
          const result = query.getSql({ params: { ids: ["id1", "id2", "id3"] } });
 
-         expect(result.text).toMatchSnapshot();
+         expect(result.text).toMatchInlineSnapshot(`
+           "/* <query_0> */
+           SELECT
+             "a_1"."account_id" AS "accountId",
+             "a_1"."status",
+             "a_1"."email",
+             "a_1"."first_name" AS "firstName",
+             "a_1"."last_name" AS "lastName",
+             "a_1"."notes",
+             "a_1"."created_at" AS "createdAt",
+             "a_1"."modified_at" AS "modifiedAt",
+             "a_1"."parent_id" AS "parentId"
+           FROM
+             "main"."account" AS "a_1"
+           WHERE
+             "a_1"."account_id" IN (
+               /* <query_1> */ ? /* </query_1> */,
+               /* <query_2> */ ? /* </query_2> */,
+               /* <query_3> */ ? /* </query_3> */
+             )
+             /* </query_0> */"
+         `);
          expect(result.values).toEqual(["id1", "id2", "id3"]);
       });
 
@@ -42,14 +78,31 @@ describe("SqlExpand", () => {
          const query = sql`
             SELECT ${row(Account.$$)}
             FROM ${Account}
-            WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>((params) => {
-               return params?.ids?.map((id) => sql`${id}`) ?? null;
-            })})
+            WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>({ ids: null }, ({ ids }) =>
+               ids.map((id) => sql`${id}`),
+            )})
          `;
 
          const result = query.getSql({ params: { ids: [] } });
 
-         expect(result.text).toMatchSnapshot();
+         expect(result.text).toMatchInlineSnapshot(`
+           "/* <query_0> */
+           SELECT
+             "a_1"."account_id" AS "accountId",
+             "a_1"."status",
+             "a_1"."email",
+             "a_1"."first_name" AS "firstName",
+             "a_1"."last_name" AS "lastName",
+             "a_1"."notes",
+             "a_1"."created_at" AS "createdAt",
+             "a_1"."modified_at" AS "modifiedAt",
+             "a_1"."parent_id" AS "parentId"
+           FROM
+             "main"."account" AS "a_1"
+           WHERE
+             "a_1"."account_id" IN ()
+             /* </query_0> */"
+         `);
          expect(result.values).toEqual([]);
       });
    });
@@ -59,25 +112,47 @@ describe("SqlExpand", () => {
          const query = sql`
             SELECT ${row(Account.$$)}
             FROM ${Account}
-            WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>((params) => {
-               return params?.ids?.map((id) => sql`${id}`) ?? null;
-            })})
+            WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>({ ids: null }, ({ ids }) =>
+               ids.map((id) => sql`${id}`),
+            )})
             AND ${Account.$email} = ${param<{ email: string }>("email")}
          `;
 
          const result = query.getSql({ params: { ids: ["id1", "id2"], email: "test@example.com" } });
 
-         expect(result.text).toMatchSnapshot();
+         expect(result.text).toMatchInlineSnapshot(`
+           "/* <query_0> */
+           SELECT
+             "a_1"."account_id" AS "accountId",
+             "a_1"."status",
+             "a_1"."email",
+             "a_1"."first_name" AS "firstName",
+             "a_1"."last_name" AS "lastName",
+             "a_1"."notes",
+             "a_1"."created_at" AS "createdAt",
+             "a_1"."modified_at" AS "modifiedAt",
+             "a_1"."parent_id" AS "parentId"
+           FROM
+             "main"."account" AS "a_1"
+           WHERE
+             "a_1"."account_id" IN (
+               /* <query_1> */ ? /* </query_1> */,
+               /* <query_2> */ ? /* </query_2> */
+             )
+             AND "a_1"."email" = ?
+             /* </query_0> */"
+         `);
          expect(result.values).toEqual(["id1", "id2", "test@example.com"]);
       });
 
       test("expand with param references inside handler", () => {
+         type Conditions = Array<{ col: keyof typeof Account.cols; val: string }>;
          const query = sql`
             SELECT ${row(Account.$$)}
             FROM ${Account}
-            WHERE ${expand<{ conditions: Array<{ col: keyof typeof Account.cols; val: string }> }>((params) => {
-               return params?.conditions?.map((cond) => sql`${Account.cols[cond.col]} = ${cond.val}`) ?? null;
-            })}
+            WHERE ${expand<{ conditions: Conditions }>({ conditions: null }, ({ conditions }) =>
+               conditions.map((cond) => sql`${Account.cols[cond.col]} = ${cond.val}`),
+            )}
          `;
 
          const result = query.getSql({
@@ -89,26 +164,38 @@ describe("SqlExpand", () => {
             },
          });
 
-         expect(result.text).toMatchSnapshot();
+         expect(result.text).toMatchInlineSnapshot(`
+           "/* <query_0> */
+           SELECT
+             "a_1"."account_id" AS "accountId",
+             "a_1"."status",
+             "a_1"."email",
+             "a_1"."first_name" AS "firstName",
+             "a_1"."last_name" AS "lastName",
+             "a_1"."notes",
+             "a_1"."created_at" AS "createdAt",
+             "a_1"."modified_at" AS "modifiedAt",
+             "a_1"."parent_id" AS "parentId"
+           FROM
+             "main"."account" AS "a_1"
+           WHERE
+             /* <query_1> */ "a_1"."email" = ? /* </query_1> */,
+             /* <query_2> */ "a_1"."first_name" = ? /* </query_2> */
+             /* </query_0> */"
+         `);
          expect(result.values).toEqual(["test@example.com", "John"]);
       });
    });
 
    describe("expand in CRUD operations", () => {
       test("expand for INSERT columns", () => {
+         type Inserts = Array<{ email: string; firstName: string }>;
          const query = sql`
             INSERT INTO ${Account}
-            (${expand<{ inserts: Array<{ email: string; firstName: string }> }>(() => {
-               return [Account.$email, Account.$firstName];
-            })})
-            VALUES (${expand<{ inserts: Array<{ email: string; firstName: string }> }>((params) => {
-               return (
-                  params?.inserts?.map((insert) => {
-                     const values = Object.values(insert);
-                     return sql`(${values})`;
-                  }) ?? null
-               );
-            })})
+            (${expand<{ inserts: Inserts }>({ inserts: null }, () => [Account.$email, Account.$firstName])})
+            VALUES (${expand<{ inserts: Inserts }>({ inserts: null }, ({ inserts }) =>
+               inserts.map((insert) => sql`(${Object.values(insert)})`),
+            )})
          `;
 
          const result = query.getSql({
@@ -120,36 +207,44 @@ describe("SqlExpand", () => {
             },
          });
 
-         expect(result.text).toMatchSnapshot();
+         expect(result.text).toMatchInlineSnapshot(`
+           "/* <query_0> */
+           INSERT INTO
+             "main"."account" ("email", "first_name")
+           VALUES
+             (
+               /* <query_1> */ (?, ?) /* </query_1> */,
+               /* <query_2> */ (?, ?) /* </query_2> */
+             )
+             /* </query_0> */"
+         `);
          expect(result.values).toEqual(["test1@example.com", "John", "test2@example.com", "Jane"]);
       });
 
       test("expand for UPDATE SET clause", () => {
          const query = sql`
             UPDATE ${Account}
-            SET ${expand<{ updates: { email?: string; firstName?: string } }>((params) => {
-               const updates = params?.updates;
-               if (!updates) return null;
-               const results = [];
-               if (updates.email !== undefined) {
-                  results.push(sql`${Account.$email} = ${updates.email}`);
-               }
-               if (updates.firstName !== undefined) {
-                  results.push(sql`${Account.$firstName} = ${updates.firstName}`);
-               }
-               return results;
-            })}
+            SET ${expand<{ email: string; firstName: string }>(
+               { email: null, firstName: null },
+               ({ email, firstName }) => [sql`${Account.$email} = ${email}`, sql`${Account.$firstName} = ${firstName}`],
+            )}
             WHERE ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}
          `;
 
          const result = query.getSql({
-            params: {
-               updates: { email: "new@example.com", firstName: "UpdatedName" },
-               accountId: "123",
-            },
+            params: { email: "new@example.com", firstName: "UpdatedName", accountId: "123" },
          });
 
-         expect(result.text).toMatchSnapshot();
+         expect(result.text).toMatchInlineSnapshot(`
+           "/* <query_0> */
+           UPDATE "main"."account"
+           SET
+             /* <query_1> */ "email" = ? /* </query_1> */,
+             /* <query_2> */ "first_name" = ? /* </query_2> */
+           WHERE
+             "account"."account_id" = ?
+             /* </query_0> */"
+         `);
          expect(result.values).toEqual(["new@example.com", "UpdatedName", "123"]);
       });
    });
@@ -159,9 +254,9 @@ describe("SqlExpand", () => {
          const subquery = sql`
             SELECT ${row(Account.$accountId)}
             FROM ${Account}
-            WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>((params) => {
-               return params?.ids?.map((id) => sql`${id}`) ?? null;
-            })})
+            WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>({ ids: null }, ({ ids }) =>
+               ids.map((id) => sql`${id}`),
+            )})
          `;
 
          const query = sql`
@@ -172,7 +267,37 @@ describe("SqlExpand", () => {
 
          const result = query.getSql({ params: { ids: ["id1", "id2", "id3"] } });
 
-         expect(result.text).toMatchSnapshot();
+         expect(result.text).toMatchInlineSnapshot(`
+           "/* <query_0> */
+           SELECT
+             "a_1"."account_id" AS "accountId",
+             "a_1"."status",
+             "a_1"."email",
+             "a_1"."first_name" AS "firstName",
+             "a_1"."last_name" AS "lastName",
+             "a_1"."notes",
+             "a_1"."created_at" AS "createdAt",
+             "a_1"."modified_at" AS "modifiedAt",
+             "a_1"."parent_id" AS "parentId"
+           FROM
+             "main"."account" AS "a_1"
+           WHERE
+             "a_1"."account_id" IN (
+               /* <query_1> */
+               SELECT
+                 "a_2"."account_id" AS "accountId"
+               FROM
+                 "main"."account" AS "a_2"
+               WHERE
+                 "a_2"."account_id" IN (
+                   /* <query_2> */ ? /* </query_2> */,
+                   /* <query_3> */ ? /* </query_3> */,
+                   /* <query_4> */ ? /* </query_4> */
+                 )
+                 /* </query_1> */
+             )
+             /* </query_0> */"
+         `);
          expect(result.values).toEqual(["id1", "id2", "id3"]);
       });
 
@@ -180,9 +305,9 @@ describe("SqlExpand", () => {
          const innerQuery = sql`
             SELECT ${row(Account.$accountId)}
             FROM ${Account}
-            WHERE ${Account.$status} IN (${expand<{ statuses: string[] }>((params) => {
-               return params?.statuses?.map((status) => sql`${status}`) ?? null;
-            })})
+            WHERE ${Account.$status} IN (${expand<{ statuses: string[] }>({ statuses: null }, ({ statuses }) =>
+               statuses.map((status) => sql`${status}`),
+            )})
          `;
 
          const middleQuery = sql`
@@ -199,13 +324,50 @@ describe("SqlExpand", () => {
          `;
 
          const result = query.getSql({
-            params: {
-               statuses: ["CREATED", "CONFIRMED"],
-               email: "test@example.com",
-            },
+            params: { statuses: ["CREATED", "CONFIRMED"], email: "test@example.com" },
          });
 
-         expect(result.text).toMatchSnapshot();
+         expect(result.text).toMatchInlineSnapshot(`
+           "/* <query_0> */
+           SELECT
+             "a_1"."account_id" AS "accountId",
+             "a_1"."status",
+             "a_1"."email",
+             "a_1"."first_name" AS "firstName",
+             "a_1"."last_name" AS "lastName",
+             "a_1"."notes",
+             "a_1"."created_at" AS "createdAt",
+             "a_1"."modified_at" AS "modifiedAt",
+             "a_1"."parent_id" AS "parentId"
+           FROM
+             "main"."account" AS "a_1"
+           WHERE
+             "a_1"."account_id" IN (
+               /* <query_1> */
+               SELECT
+                 "a_2"."account_id" AS "accountId",
+                 "a_2"."email"
+               FROM
+                 "main"."account" AS "a_2"
+               WHERE
+                 "a_2"."account_id" IN (
+                   /* <query_2> */
+                   SELECT
+                     "a_3"."account_id" AS "accountId"
+                   FROM
+                     "main"."account" AS "a_3"
+                   WHERE
+                     "a_3"."status" IN (
+                       /* <query_3> */ ? /* </query_3> */,
+                       /* <query_4> */ ? /* </query_4> */
+                     )
+                     /* </query_2> */
+                 )
+                 AND "a_2"."email" = ?
+                 /* </query_1> */
+             )
+             /* </query_0> */"
+         `);
          expect(result.values).toEqual(["CREATED", "CONFIRMED", "test@example.com"]);
       });
 
@@ -213,18 +375,18 @@ describe("SqlExpand", () => {
          const level3Query = sql`
             SELECT ${row(Account.$accountId)}
             FROM ${Account}
-            WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>((params) => {
-               return params?.ids?.map((id) => sql`${id}`) ?? null;
-            })})
+            WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>({ ids: null }, ({ ids }) =>
+               ids.map((id) => sql`${id}`),
+            )})
          `;
 
          const level2Query = sql`
             SELECT ${row(Account.$accountId)}
             FROM ${Account}
             WHERE ${Account.$accountId} IN (${level3Query})
-            AND ${Account.$status} IN (${expand<{ statuses: string[] }>((params) => {
-               return params?.statuses?.map((status) => sql`${status}`) ?? null;
-            })})
+            AND ${Account.$status} IN (${expand<{ statuses: string[] }>({ statuses: null }, ({ statuses }) =>
+               statuses.map((status) => sql`${status}`),
+            )})
          `;
 
          const level1Query = sql`
@@ -241,14 +403,63 @@ describe("SqlExpand", () => {
          `;
 
          const result = rootQuery.getSql({
-            params: {
-               ids: ["id1", "id2"],
-               statuses: ["CREATED", "CONFIRMED"],
-               email: "test@example.com",
-            },
+            params: { ids: ["id1", "id2"], statuses: ["CREATED", "CONFIRMED"], email: "test@example.com" },
          });
 
-         expect(result.text).toMatchSnapshot();
+         expect(result.text).toMatchInlineSnapshot(`
+           "/* <query_0> */
+           SELECT
+             "a_1"."account_id" AS "accountId",
+             "a_1"."status",
+             "a_1"."email",
+             "a_1"."first_name" AS "firstName",
+             "a_1"."last_name" AS "lastName",
+             "a_1"."notes",
+             "a_1"."created_at" AS "createdAt",
+             "a_1"."modified_at" AS "modifiedAt",
+             "a_1"."parent_id" AS "parentId"
+           FROM
+             "main"."account" AS "a_1"
+           WHERE
+             "a_1"."account_id" IN (
+               /* <query_1> */
+               SELECT
+                 "a_2"."account_id" AS "accountId",
+                 "a_2"."email"
+               FROM
+                 "main"."account" AS "a_2"
+               WHERE
+                 "a_2"."account_id" IN (
+                   /* <query_2> */
+                   SELECT
+                     "a_3"."account_id" AS "accountId"
+                   FROM
+                     "main"."account" AS "a_3"
+                   WHERE
+                     "a_3"."account_id" IN (
+                       /* <query_3> */
+                       SELECT
+                         "a_4"."account_id" AS "accountId"
+                       FROM
+                         "main"."account" AS "a_4"
+                       WHERE
+                         "a_4"."account_id" IN (
+                           /* <query_4> */ ? /* </query_4> */,
+                           /* <query_5> */ ? /* </query_5> */
+                         )
+                         /* </query_3> */
+                     )
+                     AND "a_3"."status" IN (
+                       /* <query_6> */ ? /* </query_6> */,
+                       /* <query_7> */ ? /* </query_7> */
+                     )
+                     /* </query_2> */
+                 )
+                 AND "a_2"."email" = ?
+                 /* </query_1> */
+             )
+             /* </query_0> */"
+         `);
          expect(result.values).toEqual(["id1", "id2", "CREATED", "CONFIRMED", "test@example.com"]);
       });
    });
@@ -258,22 +469,41 @@ describe("SqlExpand", () => {
          const query = sql`
             SELECT ${row(Account.$$)}
             FROM ${Account}
-            WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>((params) => {
-               return params?.ids?.map((id) => sql`${id}`) ?? null;
-            })})
-            AND ${Account.$status} IN (${expand<{ statuses: string[] }>((params) => {
-               return params?.statuses?.map((status) => sql`${status}`) ?? null;
-            })})
+            WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>({ ids: null }, ({ ids }) =>
+               ids.map((id) => sql`${id}`),
+            )})
+            AND ${Account.$status} IN (${expand<{ statuses: string[] }>({ statuses: null }, ({ statuses }) =>
+               statuses.map((status) => sql`${status}`),
+            )})
          `;
 
-         const result = query.getSql({
-            params: {
-               ids: ["id1", "id2"],
-               statuses: ["CREATED", "CONFIRMED"],
-            },
-         });
+         const result = query.getSql({ params: { ids: ["id1", "id2"], statuses: ["CREATED", "CONFIRMED"] } });
 
-         expect(result.text).toMatchSnapshot();
+         expect(result.text).toMatchInlineSnapshot(`
+           "/* <query_0> */
+           SELECT
+             "a_1"."account_id" AS "accountId",
+             "a_1"."status",
+             "a_1"."email",
+             "a_1"."first_name" AS "firstName",
+             "a_1"."last_name" AS "lastName",
+             "a_1"."notes",
+             "a_1"."created_at" AS "createdAt",
+             "a_1"."modified_at" AS "modifiedAt",
+             "a_1"."parent_id" AS "parentId"
+           FROM
+             "main"."account" AS "a_1"
+           WHERE
+             "a_1"."account_id" IN (
+               /* <query_1> */ ? /* </query_1> */,
+               /* <query_2> */ ? /* </query_2> */
+             )
+             AND "a_1"."status" IN (
+               /* <query_3> */ ? /* </query_3> */,
+               /* <query_4> */ ? /* </query_4> */
+             )
+             /* </query_0> */"
+         `);
          expect(result.values).toEqual(["id1", "id2", "CREATED", "CONFIRMED"]);
       });
 
@@ -281,38 +511,56 @@ describe("SqlExpand", () => {
          const query = sql`
             SELECT ${row(Account.$$)}
             FROM ${Account}
-            WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>((params) => {
-               return params?.ids?.map((id) => sql`${id}`) ?? null;
-            })})
+            WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>({ ids: null }, ({ ids }) =>
+               ids.map((id) => sql`${id}`),
+            )})
             AND ${Account.$email} = ${param<{ email: string }>("email")}
-            AND ${Account.$status} IN (${expand<{ statuses: string[] }>((params) => {
-               return params?.statuses?.map((status) => sql`${status}`) ?? null;
-            })})
+            AND ${Account.$status} IN (${expand<{ statuses: string[] }>({ statuses: null }, ({ statuses }) =>
+               statuses.map((status) => sql`${status}`),
+            )})
             AND ${Account.$firstName} = ${param<{ firstName: string }>("firstName")}
          `;
 
          const result = query.getSql({
-            params: {
-               ids: ["id1", "id2"],
-               email: "test@example.com",
-               statuses: ["CREATED"],
-               firstName: "John",
-            },
+            params: { ids: ["id1", "id2"], email: "test@example.com", statuses: ["CREATED"], firstName: "John" },
          });
 
-         expect(result.text).toMatchSnapshot();
+         expect(result.text).toMatchInlineSnapshot(`
+           "/* <query_0> */
+           SELECT
+             "a_1"."account_id" AS "accountId",
+             "a_1"."status",
+             "a_1"."email",
+             "a_1"."first_name" AS "firstName",
+             "a_1"."last_name" AS "lastName",
+             "a_1"."notes",
+             "a_1"."created_at" AS "createdAt",
+             "a_1"."modified_at" AS "modifiedAt",
+             "a_1"."parent_id" AS "parentId"
+           FROM
+             "main"."account" AS "a_1"
+           WHERE
+             "a_1"."account_id" IN (
+               /* <query_1> */ ? /* </query_1> */,
+               /* <query_2> */ ? /* </query_2> */
+             )
+             AND "a_1"."email" = ?
+             AND "a_1"."status" IN (/* <query_3> */ ? /* </query_3> */)
+             AND "a_1"."first_name" = ?
+             /* </query_0> */"
+         `);
          expect(result.values).toEqual(["id1", "id2", "test@example.com", "CREATED", "John"]);
       });
    });
 
    describe("expand type inference", () => {
-      test("expand params type is inferred correctly", () => {
+      test("expand params type is inferred from generic", () => {
          const query = sql`
             SELECT ${row(Account.$$)}
             FROM ${Account}
-            WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>((params) => {
-               assertType<Partial<{ ids: string[] }> | undefined>(params);
-               return params?.ids?.map((id) => sql`${id}`) ?? null;
+            WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>({ ids: null }, ({ ids }) => {
+               assertType<string[]>(ids);
+               return ids.map((id) => sql`${id}`);
             })})
          `;
 
@@ -326,17 +574,15 @@ describe("SqlExpand", () => {
          const query = sql`
             SELECT ${row(Account.$$)}
             FROM ${Account}
-            WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>((params) => {
-               return params?.ids?.map((id) => sql`${id}`) ?? null;
-            })})
+            WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>({ ids: null }, ({ ids }) =>
+               ids.map((id) => sql`${id}`),
+            )})
             AND ${Account.$email} = ${param<{ email: string }>("email")}
          `;
 
          assertType<SqlQuery<{ Row: IAccountSelect; Params: { ids: string[]; email: string } }>>(query);
 
-         const result = query.getSql({
-            params: { ids: ["id1", "id2"], email: "test@example.com" },
-         });
+         const result = query.getSql({ params: { ids: ["id1", "id2"], email: "test@example.com" } });
          expect(result.values).toEqual(["id1", "id2", "test@example.com"]);
       });
 
@@ -344,9 +590,9 @@ describe("SqlExpand", () => {
          const subquery = sql`
             SELECT ${row(Account.$accountId)}
             FROM ${Account}
-            WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>((params) => {
-               return params?.ids?.map((id) => sql`${id}`) ?? null;
-            })})
+            WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>({ ids: null }, ({ ids }) =>
+               ids.map((id) => sql`${id}`),
+            )})
          `;
 
          const query = sql`
@@ -359,9 +605,7 @@ describe("SqlExpand", () => {
          assertType<SqlQuery<{ Row: { accountId: string }; Params: { ids: string[] } }>>(subquery);
          assertType<SqlQuery<{ Row: IAccountSelect; Params: { ids: string[]; email: string } }>>(query);
 
-         const result = query.getSql({
-            params: { ids: ["id1", "id2"], email: "test@example.com" },
-         });
+         const result = query.getSql({ params: { ids: ["id1", "id2"], email: "test@example.com" } });
          expect(result.values).toEqual(["id1", "id2", "test@example.com"]);
       });
 
@@ -369,9 +613,9 @@ describe("SqlExpand", () => {
          const innerQuery = sql`
             SELECT ${row(Account.$accountId)}
             FROM ${Account}
-            WHERE ${Account.$status} IN (${expand<{ statuses: string[] }>((params) => {
-               return params?.statuses?.map((status) => sql`${status}`) ?? null;
-            })})
+            WHERE ${Account.$status} IN (${expand<{ statuses: string[] }>({ statuses: null }, ({ statuses }) =>
+               statuses.map((status) => sql`${status}`),
+            )})
          `;
 
          const middleQuery = sql`
@@ -397,11 +641,7 @@ describe("SqlExpand", () => {
          >(query);
 
          const result = query.getSql({
-            params: {
-               statuses: ["CREATED", "CONFIRMED"],
-               email: "test@example.com",
-               firstName: "John",
-            },
+            params: { statuses: ["CREATED", "CONFIRMED"], email: "test@example.com", firstName: "John" },
          });
          expect(result.values).toEqual(["CREATED", "CONFIRMED", "test@example.com", "John"]);
       });
@@ -410,18 +650,18 @@ describe("SqlExpand", () => {
          const level3Query = sql`
             SELECT ${row(Account.$accountId)}
             FROM ${Account}
-            WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>((params) => {
-               return params?.ids?.map((id) => sql`${id}`) ?? null;
-            })})
+            WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>({ ids: null }, ({ ids }) =>
+               ids.map((id) => sql`${id}`),
+            )})
          `;
 
          const level2Query = sql`
             SELECT ${row(Account.$accountId)}
             FROM ${Account}
             WHERE ${Account.$accountId} IN (${level3Query})
-            AND ${Account.$status} IN (${expand<{ statuses: string[] }>((params) => {
-               return params?.statuses?.map((status) => sql`${status}`) ?? null;
-            })})
+            AND ${Account.$status} IN (${expand<{ statuses: string[] }>({ statuses: null }, ({ statuses }) =>
+               statuses.map((status) => sql`${status}`),
+            )})
          `;
 
          const level1Query = sql`
@@ -470,12 +710,12 @@ describe("SqlExpand", () => {
          const query = sql`
             SELECT ${row(Account.$$)}
             FROM ${Account}
-            WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>((params) => {
-               return params?.ids?.map((id) => sql`${id}`) ?? null;
-            })})
-            AND ${Account.$status} IN (${expand<{ statuses: string[] }>((params) => {
-               return params?.statuses?.map((status) => sql`${status}`) ?? null;
-            })})
+            WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>({ ids: null }, ({ ids }) =>
+               ids.map((id) => sql`${id}`),
+            )})
+            AND ${Account.$status} IN (${expand<{ statuses: string[] }>({ statuses: null }, ({ statuses }) =>
+               statuses.map((status) => sql`${status}`),
+            )})
             AND ${Account.$email} = ${param<{ email: string }>("email")}
          `;
 
@@ -484,24 +724,124 @@ describe("SqlExpand", () => {
          );
 
          const result = query.getSql({
-            params: {
-               ids: ["id1", "id2"],
-               statuses: ["CREATED", "CONFIRMED"],
-               email: "test@example.com",
-            },
+            params: { ids: ["id1", "id2"], statuses: ["CREATED", "CONFIRMED"], email: "test@example.com" },
          });
          expect(result.values).toEqual(["id1", "id2", "CREATED", "CONFIRMED", "test@example.com"]);
       });
    });
 
-   describe("expand error handling", () => {
-      test("throws error when params not provided", () => {
+   describe("expand validation", () => {
+      test("validates params before invoking handler", () => {
          const query = sql`
             SELECT ${row(Account.$$)}
             FROM ${Account}
-            WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>((params) => {
-               return params?.ids?.map((id) => sql`${id}`) ?? null;
-            })})
+            WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>({ ids: { minLength: 1 } }, ({ ids }) =>
+               ids.map((id) => sql`${id}`),
+            )})
+         `;
+
+         expect(() => query.getSql({ params: { ids: [] } })).toThrow("Invalid param 'ids'");
+         expect(() => query.getSql({ params: { ids: ["id1"] } })).not.toThrow();
+      });
+
+      test("validates values whitelist", () => {
+         const query = sql`
+            SELECT ${row(Account.$$)}
+            FROM ${Account}
+            ORDER BY ${expand<{ sort: string }>({ sort: { values: ["email", "createdAt"] } }, ({ sort }) => [
+               sql`${sort}`,
+            ])}
+         `;
+
+         expect(() => query.getSql({ params: { sort: "invalid" } })).toThrow("Invalid param 'sort'");
+         expect(() => query.getSql({ params: { sort: "email" } })).not.toThrow();
+      });
+   });
+
+   describe("expand default values", () => {
+      test("undefined param uses declared default", () => {
+         const query = sql`
+            SELECT ${row(Account.$$)}
+            FROM ${Account}
+            ORDER BY ${expand<{ sort?: string }>({ sort: { default: "createdAt" } }, ({ sort }) => [sql`${sort}`])}
+         `;
+
+         const { text, values } = query.getSql({ params: {} });
+         expect(text).toMatchInlineSnapshot(`
+           "/* <query_0> */
+           SELECT
+             "a_1"."account_id" AS "accountId",
+             "a_1"."status",
+             "a_1"."email",
+             "a_1"."first_name" AS "firstName",
+             "a_1"."last_name" AS "lastName",
+             "a_1"."notes",
+             "a_1"."created_at" AS "createdAt",
+             "a_1"."modified_at" AS "modifiedAt",
+             "a_1"."parent_id" AS "parentId"
+           FROM
+             "main"."account" AS "a_1"
+           ORDER BY
+             /* <query_1> */ ? /* </query_1> */
+             /* </query_0> */"
+         `);
+         expect(values).toEqual(["createdAt"]);
+      });
+
+      test("invalid param with default falls back silently", () => {
+         const query = sql`
+            SELECT ${row(Account.$$)}
+            FROM ${Account}
+            ORDER BY ${expand<{ sort: string }>(
+               { sort: { values: ["email", "createdAt"], default: "createdAt" } },
+               ({ sort }) => [sql`${sort}`],
+            )}
+         `;
+
+         const { values, text } = query.getSql({ params: { sort: "invalid" } });
+         expect(text).toMatchInlineSnapshot(`
+           "/* <query_0> */
+           SELECT
+             "a_1"."account_id" AS "accountId",
+             "a_1"."status",
+             "a_1"."email",
+             "a_1"."first_name" AS "firstName",
+             "a_1"."last_name" AS "lastName",
+             "a_1"."notes",
+             "a_1"."created_at" AS "createdAt",
+             "a_1"."modified_at" AS "modifiedAt",
+             "a_1"."parent_id" AS "parentId"
+           FROM
+             "main"."account" AS "a_1"
+           ORDER BY
+             /* <query_1> */ ? /* </query_1> */
+             /* </query_0> */"
+         `);
+         expect(values).toEqual(["createdAt"]);
+      });
+
+      test("invalid param without default throws", () => {
+         const query = sql`
+            SELECT ${row(Account.$$)}
+            FROM ${Account}
+            ORDER BY ${expand<{ sort: string }>({ sort: { values: ["email", "createdAt"] } }, ({ sort }) => [
+               sql`${sort}`,
+            ])}
+         `;
+
+         expect(() => query.getSql({ params: { sort: "invalid" } })).toThrow("Invalid param 'sort'");
+      });
+   });
+
+   describe("expand error handling", () => {
+      test("expands to empty when params not provided", () => {
+         const query = sql`
+            SELECT ${row(Account.$$)}
+            FROM ${Account}
+            WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>(
+               { ids: null },
+               ({ ids }) => ids?.map((id) => sql`${id}`) ?? null,
+            )})
          `;
 
          // @ts-expect-error - Testing runtime validation

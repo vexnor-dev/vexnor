@@ -15,7 +15,8 @@
       "pretest": "run-s 'codegen:*'",
       "test": "vitest --coverage run",
       "test:watch": "vitest --watch",
-      "test:run": "vitest run"
+      "test:run": "vitest run",
+      "test1": "env-cmd --no-override -x -r ../../env-dev.json -e mssql vite-node src/test.ts | pino-pretty"
    },
    "dependencies": {
       "@sinclair/typebox": "^0.34.41",

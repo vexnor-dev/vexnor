@@ -57,21 +57,18 @@ describe("mssql type coverage", () => {
       expect(result).toMatchInlineSnapshot(`
         {
           "colBigint": "9223372036854775807",
-          "colBinary": {
-            "data": [
-              1,
-              2,
-              3,
-              4,
-              5,
-              6,
-              7,
-              8,
-              9,
-              10,
-            ],
-            "type": "Buffer",
-          },
+          "colBinary": Uint8Array [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+          ],
           "colBit": true,
           "colChar": "char      ",
           "colDate": 2024-01-15T00:00:00.000Z,
@@ -79,14 +76,11 @@ describe("mssql type coverage", () => {
           "colDatetime2": 2024-01-15T10:30:00.000Z,
           "colDecimal": 12345.67,
           "colFloat": 3.141592653589793,
-          "colImage": {
-            "data": [
-              255,
-              0,
-              128,
-            ],
-            "type": "Buffer",
-          },
+          "colImage": Uint8Array [
+            255,
+            0,
+            128,
+          ],
           "colInt": 2147483647,
           "colMoney": 1234.56,
           "colNchar": "nchar     ",
@@ -100,15 +94,12 @@ describe("mssql type coverage", () => {
           "colText": "text value",
           "colTime": 1970-01-01T13:45:00.000Z,
           "colTinyint": 255,
-          "colVarbinary": {
-            "data": [
-              1,
-              2,
-              3,
-              4,
-            ],
-            "type": "Buffer",
-          },
+          "colVarbinary": Uint8Array [
+            1,
+            2,
+            3,
+            4,
+          ],
           "colVarchar": "hello",
           "colXml": "<root><child/></root>",
         }
@@ -159,21 +150,18 @@ describe("mssql type coverage", () => {
       expect(result).toMatchInlineSnapshot(`
         {
           "colBigint": "9223372036854775806",
-          "colBinary": {
-            "data": [
-              10,
-              20,
-              30,
-              40,
-              50,
-              60,
-              70,
-              80,
-              90,
-              100,
-            ],
-            "type": "Buffer",
-          },
+          "colBinary": Uint8Array [
+            10,
+            20,
+            30,
+            40,
+            50,
+            60,
+            70,
+            80,
+            90,
+            100,
+          ],
           "colBit": false,
           "colChar": "upd       ",
           "colDate": 2025-06-01T00:00:00.000Z,
@@ -181,14 +169,11 @@ describe("mssql type coverage", () => {
           "colDatetime2": 2025-06-01T08:00:00.000Z,
           "colDecimal": 99.99,
           "colFloat": 2.718281828459045,
-          "colImage": {
-            "data": [
-              0,
-              128,
-              255,
-            ],
-            "type": "Buffer",
-          },
+          "colImage": Uint8Array [
+            0,
+            128,
+            255,
+          ],
           "colInt": 42,
           "colMoney": 99.99,
           "colNchar": "upd       ",
@@ -202,15 +187,12 @@ describe("mssql type coverage", () => {
           "colText": "updated text",
           "colTime": 1970-01-01T14:00:00.000Z,
           "colTinyint": 10,
-          "colVarbinary": {
-            "data": [
-              9,
-              10,
-              11,
-              12,
-            ],
-            "type": "Buffer",
-          },
+          "colVarbinary": Uint8Array [
+            9,
+            10,
+            11,
+            12,
+          ],
           "colVarchar": "updated",
           "colXml": "<updated/>",
         }

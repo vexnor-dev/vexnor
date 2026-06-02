@@ -1,6 +1,6 @@
 import { assertType, describe, expect, test } from "vitest";
-import { ExtractCharmParams, SqlCharm, SqlSelectCharm } from "#/core/query/sql-charm.js";
-import { BuildSqlParams, param, SqlParam } from "#/core/query/sql-param.js";
+import { SqlCharm, SqlSelectCharm } from "#/core/query/sql-charm.js";
+import { BuildSqlParams, InferSqlParams, param, SqlParam } from "#/core/query/sql-param.js";
 import { sql } from "#/core/sql.js";
 import { row } from "#/core/query/sql-select-row.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
@@ -21,14 +21,15 @@ describe("SqlCharm tests", () => {
       const charm = testCharm(query);
       assertType<{
          limit: SqlParam<{ Name: "limit"; Type: number }>;
-         status: SqlParam<{ Name: "status"; Type: string }>;
+         status: SqlParam<{ Name: "status"; Type: AccountStatusUdt }>;
       }>(charm.params);
       expect(charm.params).toMatchObject({
          status: { name: "status" },
          limit: { name: "limit" },
       });
-      type Params = ExtractCharmParams<typeof charm>;
-      assertType<Params>({ limit: 1, test: "x" });
+      type Params = InferSqlParams<typeof charm.params>;
+
+      assertType<Params>({ limit: 1, status: AccountStatusUdt.CONFIRMED });
    });
 
    test("query should infer Params from inner charm", () => {

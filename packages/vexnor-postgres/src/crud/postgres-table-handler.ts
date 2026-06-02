@@ -103,7 +103,9 @@ function buildFindByExpand<T extends { Select: Record<string, unknown> }>(
 function postgresFind<T extends { Select: Record<string, unknown> }, Params extends Partial<T["Select"]>>(
    table: SqlTable<T>,
 ): PostgresQueryHandler<{ Params: Params; Row: T["Select"] }> {
-   const whereExpand = expand<Params>((params) => {
+   const whereExpand = expand<Params>(
+      Object.fromEntries(Object.values(table.cols).map((col) => [col.key, null])) as Record<keyof Params, null>,
+      (params) => {
       if (!params) return null;
       return buildFindByExpand(table, params as Partial<T["Select"]>) as ReturnType<typeof buildFindByExpand>;
    });

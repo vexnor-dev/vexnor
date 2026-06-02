@@ -14,20 +14,22 @@ class MockQueryHandler<T extends { Row?: unknown; Params?: unknown }> extends Sq
    Pick<T, "Row" | "Params"> & { QueryResult: MockResult; Connection: MockConnection }
 > {
    constructor(query: SqlQuery<Pick<T, "Row" | "Params">>) {
-      super(query);
+      super(query, { pluginName: "mock" });
    }
 
    resolveRows(result: MockResult): T["Row"][] {
       return result.rows as T["Row"][];
    }
 
-   deserialize(result: MockResult, remote: boolean): MockResult {
-      return { ...result, rows: this.deserializeRows(result.rows as T["Row"][], remote) };
+   deserialize<TResult = MockResult>(result: TResult, remote: boolean): TResult {
+      return { ...result, rows: this.deserializeRows((result as MockResult).rows as T["Row"][], remote) };
    }
 
-   async execute(args: SqlRunArgs<{ Connection: MockConnection; Params: T["Params"] }>): Promise<MockResult> {
+   async execute<TResult = MockResult>(
+      args: SqlRunArgs<{ Connection: MockConnection; Params: T["Params"] }>,
+   ): Promise<TResult> {
       const _db = await args.db;
-      return _db.query();
+      return (await _db.query()) as TResult;
    }
 }
 
@@ -152,11 +154,13 @@ describe("SqlQueryHandler run() — server-side deserialization", () => {
          write() {},
       });
       const q = sql`select ${row(Account.$accountId, Account.$createdAt)}, ${charm} from ${Account}`;
-      const rows = [{
-         accountId: "1",
-         createdAt: new Date(DATE_STR),
-         orders: [{ orderId: "o1", createdAt: DATE_STR }],
-      }];
+      const rows = [
+         {
+            accountId: "1",
+            createdAt: new Date(DATE_STR),
+            orders: [{ orderId: "o1", createdAt: DATE_STR }],
+         },
+      ];
       const result = await mockHandler(q).run({ db: { query: async () => ({ rows }) } });
       expect(result).toMatchInlineSnapshot(`
         {

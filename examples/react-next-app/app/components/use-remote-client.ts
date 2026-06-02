@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { HttpRemoteClient, type RemoteClient } from "vexnor";
-import { useAuth } from "./auth-context.js";
+import { useAuth } from "./auth-context";
 
 export function useRemoteClient(): RemoteClient {
    const { token } = useAuth();

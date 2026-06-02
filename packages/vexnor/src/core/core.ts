@@ -14,7 +14,12 @@ export { SqlBuildError } from "./sql-build-error.js";
 
 // query
 export { SqlQuery, type SqlQueryAny, type SqlQueryExtended, type SqlQueryExtendedAny } from "./query/sql-query.js";
-export { SqlQueryHandler, type SqlQueryHandlerAny, newSqlQueryHandler } from "./query/sql-query-handler.js";
+export {
+   SqlQueryHandler,
+   type SqlQueryHandlerAny,
+   newSqlQueryHandler,
+   type SqlExecuteMode,
+} from "./query/sql-query-handler.js";
 export { SqlQueryRef, type SqlQueryRefAny, type SqlQueryRefExtended } from "./query/sql-query-ref.js";
 export { param, SqlParam, type SqlParamAny } from "./query/sql-param.js";
 export { row, SqlSelectRow, type SqlSelectRowAny } from "./query/sql-select-row.js";
@@ -35,6 +40,11 @@ export {
    type RemoteClient,
    isRemoteClient,
 } from "./query/sql-query-types.js";
+export {
+   HttpRemoteClient,
+   type HttpRemoteClientOptions,
+   type HttpRemoteClientHeaderResolver,
+} from "./query/http-remote-client.js";
 export { type SqlBuildToken, type SqlParamFormat, type SqlQueryRow, type SqlQueryAll } from "./query/sql-models.js";
 
 // schema

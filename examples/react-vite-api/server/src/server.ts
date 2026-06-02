@@ -83,10 +83,12 @@ app.get("/api/health", async (c) => {
 });
 
 app.post("/api/db", async (c) => {
-   const { plugin, hash, params } = await c.req.json<{
+   const { plugin, hash, params, name, location } = await c.req.json<{
       plugin: string;
       hash: string;
       params: Record<string, unknown>;
+      name: string | null;
+      location: string | null;
    }>();
    const token = c.req.header("Authorization")?.replace("Bearer ", "") ?? null;
    try {
@@ -110,7 +112,7 @@ app.post("/api/db", async (c) => {
       );
       return c.json(result);
    } catch (err) {
-      return handleDbError(c, err);
+      return handleDbError(c, err, { name, location });
    }
 });
 

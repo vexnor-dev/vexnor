@@ -1,36 +1,14 @@
 import { SqlQuery, SqlQueryExtended } from "#/core/query/sql-query.js";
 import { ok } from "#/lib/assert.js";
-import { SqlRunArgs, isRemoteClient } from "#/core/query/sql-query-types.js";
+import { isRemoteClient, SqlRunArgs } from "#/core/query/sql-query-types.js";
 import { SqlRunError } from "#/core/sql-run-error.js";
 import { SqlErrorCode } from "#/core/sql-error-code.js";
-import { deserialize } from "#/core/utils/sql-json-schema.js";
 import type { SqlJsonSchema } from "#/core/utils/sql-json-schema.js";
+import { deserialize } from "#/core/utils/sql-json-schema.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlQueryHandlerAny = SqlQueryHandler<any>;
 export type SqlExecuteMode = "run" | "all";
-
-function withTimeout<T>(promise: Promise<T>, ms: number, onTimeout: () => SqlRunError): Promise<T> {
-   return new Promise<T>((resolve, reject) => {
-      const timer = setTimeout(() => reject(onTimeout()), ms);
-      promise.then(
-         (v) => {
-            clearTimeout(timer);
-            resolve(v);
-         },
-         (e) => {
-            clearTimeout(timer);
-            reject(e);
-         },
-      );
-   });
-}
-
-function resolveRetryable(pluginRetryable: boolean, optionRetryable: "default" | true | false | undefined): boolean {
-   if (optionRetryable === true) return true;
-   if (optionRetryable === false) return false;
-   return pluginRetryable;
-}
 
 /**
  * Base query handler for async database operations
@@ -38,8 +16,12 @@ function resolveRetryable(pluginRetryable: boolean, optionRetryable: "default" |
 export abstract class SqlQueryHandler<
    T extends { Row?: unknown; Params?: unknown; QueryResult: object; Connection: unknown },
 > extends SqlQuery<Pick<T, "Params" | "Row">> {
-   protected constructor(query: SqlQuery<Pick<T, "Row" | "Params">>) {
+   readonly pluginName: string;
+   readonly rowSchemas = new Map<boolean, SqlJsonSchema>();
+
+   protected constructor(query: SqlQuery<Pick<T, "Row" | "Params">>, { pluginName }: { pluginName: string }) {
       super(query);
+      this.pluginName = pluginName;
    }
 
    /**
@@ -61,10 +43,28 @@ export abstract class SqlQueryHandler<
    /**
     * Executes the query and returns the raw QueryResult without deserialized rows.
     */
-   abstract execute(
+   abstract execute<TResult>(
       args: SqlRunArgs<Pick<T, "Connection" | "Params">>,
       mode?: SqlExecuteMode,
-   ): Promise<T["QueryResult"]>;
+   ): Promise<TResult>;
+
+   /**
+    * Returns the JSON schema for the query result rows, with optional filtering for remote execution.
+    *
+    * For remote execution, all fields are included (including top-level Date strings).
+    * For local execution, only nested object/array fields are included (top-level Date fields are already Date instances).
+    * @param isRemoteClient
+    */
+   getRowSchema(isRemoteClient: boolean) {
+      if (this.rowSchemas.has(isRemoteClient)) return this.rowSchemas.get(isRemoteClient)!;
+
+      const schema = this.jsonSchema;
+      const result: SqlJsonSchema = isRemoteClient
+         ? schema
+         : Object.fromEntries(Object.entries(schema).filter(([, v]) => typeof v !== "string"));
+      this.rowSchemas.set(isRemoteClient, result);
+      return result;
+   }
 
    /**
     * Deserializes rows based on local vs remote execution context.
@@ -80,22 +80,48 @@ export abstract class SqlQueryHandler<
       const filteredSchema: SqlJsonSchema = remote
          ? schema
          : Object.fromEntries(Object.entries(schema).filter(([, v]) => typeof v !== "string"));
+
       if (!Object.keys(filteredSchema).length) return rows;
+
       return rows.map((row) => deserialize(row, filteredSchema));
    }
 
    /**
     * Override in plugin handlers to deserialize rows and recompose into the native result shape.
+    * @param result
+    * @param isRemoteClient
     */
-   abstract deserialize(result: T["QueryResult"], remote: boolean): T["QueryResult"];
+   abstract deserialize<TResult>(result: TResult, isRemoteClient: boolean): TResult;
 
    /**
     * Executes the query, deserializes the result, and returns the raw QueryResult with deserialized rows.
     */
-   async run(args: SqlRunArgs<Pick<T, "Connection" | "Params">>): Promise<T["QueryResult"]> {
-      const { timeout, retryable: retryableOption } = args.options ?? {};
+   async run<TResult = T["QueryResult"]>(
+      args: SqlRunArgs<Pick<T, "Connection" | "Params">>,
+      mode: SqlExecuteMode = "run",
+   ): Promise<TResult> {
+      const { db, options } = args;
+      const { timeout, retryable: retryableOption } = options ?? {};
+
+      const resolvedDb = await db;
+
+      if (isRemoteClient(resolvedDb)) {
+         const hash = await this.hash;
+         const params = (args as { params?: Record<string, unknown> }).params ?? {};
+
+         return await resolvedDb
+            .remoteExecute<TResult>({
+               plugin: this.pluginName,
+               hash,
+               params,
+               name: null,
+               location: this.location,
+            })
+            .then((data) => this.deserialize<TResult>(data, true));
+      }
+
       try {
-         let execution = this.execute(args, "run");
+         let execution = this.execute<TResult>(args, mode);
          if (timeout) {
             execution = withTimeout(
                execution,
@@ -107,9 +133,7 @@ export abstract class SqlQueryHandler<
                   }),
             );
          }
-         const result = await execution;
-         const remote = isRemoteClient(await args.db);
-         return this.deserialize(result, remote);
+         return await execution.then((data) => this.deserialize(data, false));
       } catch (err) {
          if (err instanceof SqlRunError) {
             throw retryableOption !== undefined && retryableOption !== "default"
@@ -160,42 +184,15 @@ export abstract class SqlQueryHandler<
       return rows.length > 0 ? rows[0] : undefined;
    }
 
+   //TODO: refactor this, make serialize / deserialize and integrate it already in the query execution
+
    /**
     * Executes the query and returns all rows.
     *
     * @param args - Database connection and query parameters.
     */
    async all(args: SqlRunArgs<Pick<T, "Connection" | "Params">>): Promise<T["Row"][]> {
-      const { timeout, retryable: retryableOption } = args.options ?? {};
-      try {
-         let execution = this.execute(args, "all");
-         if (timeout) {
-            execution = withTimeout(
-               execution,
-               timeout,
-               () =>
-                  new SqlRunError(`Query timed out after ${timeout}ms`, this, {
-                     code: SqlErrorCode.QUERY_TIMEOUT,
-                     queryName: this.info?.label ?? undefined,
-                  }),
-            );
-         }
-         const result = await execution;
-         const remote = isRemoteClient(await args.db);
-         return this.resolveRows(this.deserialize(result, remote));
-      } catch (err) {
-         if (err instanceof SqlRunError) {
-            throw retryableOption !== undefined && retryableOption !== "default"
-               ? err.withOptions({ retryable: retryableOption })
-               : err;
-         }
-         throw new SqlRunError(`Error executing sql query '${this.id}'`, this, {
-            cause: err,
-            queryName: this.info?.label ?? undefined,
-            code: SqlErrorCode.QUERY_EXECUTION_FAILED,
-            retryable: resolveRetryable(false, retryableOption),
-         });
-      }
+      return this.resolveRows(await this.run(args, "all"));
    }
 }
 
@@ -225,4 +222,26 @@ export function newSqlQueryHandler<
          return undefined;
       },
    });
+}
+
+function withTimeout<T>(promise: Promise<T>, ms: number, onTimeout: () => SqlRunError): Promise<T> {
+   return new Promise<T>((resolve, reject) => {
+      const timer = setTimeout(() => reject(onTimeout()), ms);
+      promise.then(
+         (v) => {
+            clearTimeout(timer);
+            resolve(v);
+         },
+         (e) => {
+            clearTimeout(timer);
+            reject(e);
+         },
+      );
+   });
+}
+
+function resolveRetryable(pluginRetryable: boolean, optionRetryable: "default" | true | false | undefined): boolean {
+   if (optionRetryable === true) return true;
+   if (optionRetryable === false) return false;
+   return pluginRetryable;
 }

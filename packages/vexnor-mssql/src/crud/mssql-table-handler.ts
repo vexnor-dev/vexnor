@@ -116,10 +116,13 @@ function buildFindByExpand<T extends { Select: Record<string, unknown> }>(
 function mssqlFind<T extends { Select: Record<string, unknown> }, Params extends Partial<T["Select"]>>(
    table: SqlTable<T>,
 ): MssqlQueryHandler<{ Params: Params; Row: T["Select"] }> {
-   const whereExpand = expand<Params>((params) => {
-      if (!params) return null;
-      return buildFindByExpand(table, params as Partial<T["Select"]>) as ReturnType<typeof buildFindByExpand>;
-   });
+   const whereExpand = expand<Params>(
+      Object.fromEntries(Object.values(table.cols).map((col) => [col.key, null])) as Record<keyof Params, null>,
+      (params) => {
+         if (!params) return null;
+         return buildFindByExpand(table, params as Partial<T["Select"]>) as ReturnType<typeof buildFindByExpand>;
+      },
+   );
 
    return mssqlSql`
       ${info({ driver: "transactsql" }) ?? raw.BLANK}

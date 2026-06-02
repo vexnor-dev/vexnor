@@ -8,7 +8,6 @@ import {
 import { ARGS, PARAMS, Sql, TYPE } from "#/core/sql-base.js";
 import { Lazy } from "#/lib/lazy.js";
 import { BuildSqlParams, SqlParam } from "#/core/query/sql-param.js";
-import { validateParamValue } from "#/core/query/sql-param-validation.js";
 import { SqlQueryAll, SqlQueryRow } from "#/core/query/sql-models.js";
 import { SqlQueryInfo } from "#/core/charms/sql-query-info.js";
 import { findQueryComment } from "#/core/utils/find-query-comment.js";
@@ -28,8 +27,10 @@ import { SqlTable } from "#/core/schema/sql-table.js";
 import { ok } from "#/lib/assert.js";
 import { isSqlLanguage } from "#/core/query/lib/is-sql-language.js";
 import { isPrimitive } from "#/lib/primitive.js";
+import { SqlExpand } from "#/core/query/sql-expand.js";
 import { getDefaultParamFormat } from "#/core/query/default-param-format.js";
 import { SqlJsonSchema } from "#/core/utils/sql-json-schema.js";
+import { parseCallerLocation } from "#/core/utils/caller-location.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlQueryAny = SqlQuery<any>;
@@ -44,7 +45,7 @@ export type SqlQueryExtended<T extends { Row?: unknown; Params?: unknown }> = Sq
 export declare const QUERY: unique symbol;
 
 export type SqlQueryArgs = Pick<SqlQueryAny, "rawStrings" | "rawValues"> &
-   Partial<Pick<SqlQueryAny, "info" | "tag" | "label">> & { authorization?: string | null; location?: string | null };
+   Partial<Pick<SqlQueryAny, "info" | "tag" | "label">> & { authorization?: string | null };
 
 export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql {
    declare readonly [QUERY]: SqlQuery<Pick<T, "Row" | "Params">>;
@@ -91,7 +92,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
 
       this.rawStrings = rawStrings;
       this.rawValues = rawValues;
-      this.location = args.location ?? null;
+      this.location = parseCallerLocation(new Error().stack);
       this._authorization = args.authorization ?? null;
    }
 
@@ -460,6 +461,13 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
             case Array.isArray(rawValue):
                q.push(...rawValue);
                break;
+            case rawValue instanceof SqlExpand:
+               if (rawValue.params)
+                  params = {
+                     ...(params ?? {}),
+                     ...(rawValue.params as Record<string, SqlParam<{ Name: string; Type: unknown }>>),
+                  };
+               break;
             case rawValue instanceof SqlParam:
                params = { ...(params ?? {}), [rawValue.name]: rawValue };
                break;
@@ -533,9 +541,10 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
                const paramToken = this.params?.[token.name as keyof NonNullable<typeof this.params>] as
                   | SqlParam<{ Name: string; Type: unknown }>
                   | undefined;
+               ok(paramToken, `Param token not found for token: ${token.name}`);
+
                const rawValue = args.params[token.name];
-               const value = rawValue === undefined ? null : rawValue;
-               validateParamValue(token.name, value, paramToken?.validation ?? null);
+               const value = paramToken.valueOrDefault(rawValue) ?? null;
 
                if (Array.isArray(value)) {
                   for (let i = 0; i < value.length; i++) {

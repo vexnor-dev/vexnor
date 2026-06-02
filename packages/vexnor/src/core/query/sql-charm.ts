@@ -8,9 +8,7 @@ import { SqlJsonSchema } from "#/core/utils/sql-json-schema.js";
 export type SqlCharmAny = SqlCharm<any>;
 
 export type ExtractCharmParams<T> =
-   T extends SqlCharm<infer Options extends { Params: Record<string, unknown>; Type?: unknown }>
-      ? Options["Params"]
-      : void;
+   T extends SqlCharm<infer Options extends { Params: Record<string, unknown> }> ? Options["Params"] : void;
 
 export abstract class SqlCharm<T extends { Params?: unknown; Type?: unknown }> extends Sql {
    declare readonly [PARAMS]: T["Params"];

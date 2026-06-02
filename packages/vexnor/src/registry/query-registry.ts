@@ -177,13 +177,13 @@ export class QueryRegistry<TContext extends Record<string, unknown> = Record<str
     * executes against the resolved connection, and fires the audit log.
     * Always rejects with {@link SqlRunError} on failure.
     */
-   async execute(
+   async execute<TResult>(
       pluginName: string,
       hash: string,
       params: Record<string, unknown>,
       resolver: ConnectionResolver,
       context: TContext = {} as TContext,
-   ): Promise<unknown> {
+   ): Promise<TResult> {
       const entry = this.maps.get(pluginName)?.get(hash);
       if (!entry) {
          throw new SqlError(`Unknown query hash: ${hash} for plugin: ${pluginName}`, {
@@ -195,12 +195,12 @@ export class QueryRegistry<TContext extends Record<string, unknown> = Record<str
       const plugin = this.plugins.get(pluginName);
       ok(plugin, `Unknown plugin: ${pluginName}`);
 
-      this._inFlight++;
       const start = performance.now();
       let error: unknown | null = null;
       try {
          await this.runAuthorize({ plugin, query, params, context, queryName: name });
          await this.runRateLimit({ plugin, query, params, context, queryName: name, inFlight: this._inFlight });
+         this._inFlight++;
 
          const db = await resolver(pluginName);
          const queryHandler = plugin.newQueryHandler(query);

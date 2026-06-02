@@ -8,7 +8,11 @@ export const dynamic = "force-dynamic";
 
 async function deleteAccountAction(accountId: string) {
    "use server";
-   await deleteAccount.sqlite.run({ db: sqliteDb, params: { accountId } });
+   const result = await deleteAccount.sqlite.run({ db: sqliteDb, params: { accountId } });
+   return {
+      deleted: Boolean(result.changes === 1),
+      refresh: true,
+   };
 }
 
 async function createAccountAction(email: string, firstName: string, lastName: string) {
@@ -16,14 +20,9 @@ async function createAccountAction(email: string, firstName: string, lastName: s
    await insertAccount.sqlite.run({ db: sqliteDb, params: { rows: [{ email, firstName, lastName }] } });
 }
 
-export default async function Sqlite3AccountsPage({
-   searchParams,
-}: {
-   searchParams: Promise<{ filter?: string }>;
-}) {
+export default async function Sqlite3AccountsPage({ searchParams }: { searchParams: Promise<{ filter?: string }> }) {
    const { filter } = await searchParams;
-   const accounts = await selectAccounts.sqlite
-      .all({ db: sqliteDb, params: { filter } });
+   const accounts = await selectAccounts.sqlite.all({ db: sqliteDb, params: { filter } });
 
    return (
       <div className="max-w-6xl mx-auto px-6 py-10">

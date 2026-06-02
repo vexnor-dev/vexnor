@@ -791,6 +791,8 @@ describe("sql subqueries tests", () => {
                   "type": "SqlTableColumn",
                 },
                 SqlParam {
+                  "default": null,
+                  "hasDefault": false,
                   "hashId": "SqlParam#(email)",
                   "id": "SqlParam#1(email)",
                   "name": "email",
@@ -1566,6 +1568,8 @@ describe("sql subqueries tests", () => {
                   "type": "SqlTableColumn",
                 },
                 SqlParam {
+                  "default": null,
+                  "hasDefault": false,
                   "hashId": "SqlParam#(email)",
                   "id": "SqlParam#1(email)",
                   "name": "email",
@@ -2341,6 +2345,8 @@ describe("sql subqueries tests", () => {
                   "type": "SqlTableColumn",
                 },
                 SqlParam {
+                  "default": null,
+                  "hasDefault": false,
                   "hashId": "SqlParam#(email)",
                   "id": "SqlParam#1(email)",
                   "name": "email",
@@ -3116,6 +3122,8 @@ describe("sql subqueries tests", () => {
                   "type": "SqlTableColumn",
                 },
                 SqlParam {
+                  "default": null,
+                  "hasDefault": false,
                   "hashId": "SqlParam#(email)",
                   "id": "SqlParam#1(email)",
                   "name": "email",
@@ -3891,6 +3899,8 @@ describe("sql subqueries tests", () => {
                   "type": "SqlTableColumn",
                 },
                 SqlParam {
+                  "default": null,
+                  "hasDefault": false,
                   "hashId": "SqlParam#(email)",
                   "id": "SqlParam#1(email)",
                   "name": "email",
@@ -4666,6 +4676,8 @@ describe("sql subqueries tests", () => {
                   "type": "SqlTableColumn",
                 },
                 SqlParam {
+                  "default": null,
+                  "hasDefault": false,
                   "hashId": "SqlParam#(email)",
                   "id": "SqlParam#1(email)",
                   "name": "email",
@@ -5441,6 +5453,8 @@ describe("sql subqueries tests", () => {
                   "type": "SqlTableColumn",
                 },
                 SqlParam {
+                  "default": null,
+                  "hasDefault": false,
                   "hashId": "SqlParam#(email)",
                   "id": "SqlParam#1(email)",
                   "name": "email",
@@ -6216,6 +6230,8 @@ describe("sql subqueries tests", () => {
                   "type": "SqlTableColumn",
                 },
                 SqlParam {
+                  "default": null,
+                  "hasDefault": false,
                   "hashId": "SqlParam#(email)",
                   "id": "SqlParam#1(email)",
                   "name": "email",
@@ -6991,6 +7007,8 @@ describe("sql subqueries tests", () => {
                   "type": "SqlTableColumn",
                 },
                 SqlParam {
+                  "default": null,
+                  "hasDefault": false,
                   "hashId": "SqlParam#(email)",
                   "id": "SqlParam#1(email)",
                   "name": "email",

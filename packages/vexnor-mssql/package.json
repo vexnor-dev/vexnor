@@ -35,9 +35,9 @@
       "access": "public"
    },
    "scripts": {
-      "build": "run-s 'build:*'",
-      "build:1-tsc": "tsc -b",
-      "build:2-alias": "tsc-alias",
+      "clean": "rimraf dist tsconfig.tsbuildinfo",
+      "build": "tsc -b",
+      "postbuild": "tsc-alias",
       "pretest": "run-s 'build'",
       "test": "vitest --coverage run",
       "test:watch": "vitest --watch",

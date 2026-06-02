@@ -1,11 +1,21 @@
-import { SqlQueryHandler, SqlQuery, SqlRunArgs, SqlRunError, SqlErrorCode, isRemoteClient, RemoteClient } from "vexnor";
+import {
+   SqlQueryHandler,
+   SqlQuery,
+   SqlRunArgs,
+   SqlRunError,
+   SqlErrorCode,
+   deserialize,
+   ok,
+   RemoteClient,
+} from "vexnor";
 
 // Postgres transient error codes that are safe to retry
 const RETRYABLE_PG_CODES = new Set(["57P01", "08006", "08001", "08004", "40001", "40P01"]);
 
 function isRetryablePgError(err: unknown): boolean {
-   return typeof err === "object" && err !== null && "code" in err &&
-      RETRYABLE_PG_CODES.has((err as { code: string }).code);
+   return (
+      typeof err === "object" && err !== null && "code" in err && RETRYABLE_PG_CODES.has((err as { code: string }).code)
+   );
 }
 import type { QueryResult } from "pg";
 import { PostgresTokenizer } from "#/postgres-tokenizer.js";
@@ -13,20 +23,20 @@ import pkg from "../package.json" with { type: "json" };
 
 export const PLUGIN_NAME = pkg.name;
 
-export type PostgresClient =
-   | { query: (queryConfig: { text: string; values: unknown[] }) => Promise<QueryResult> }
-   | RemoteClient;
+export type PostgresClient = {
+   query: <TRow>(queryConfig: { text: string; values: unknown[] }) => Promise<QueryResult<RowOrDefault<TRow>>>;
+};
 
 type RowOrDefault<T> = T extends object ? T : never;
 
 export class PostgresQueryHandler<T extends { Row?: unknown; Params?: unknown }> extends SqlQueryHandler<
    Pick<T, "Row" | "Params"> & {
+      Connection: PostgresClient | RemoteClient;
       QueryResult: QueryResult<RowOrDefault<T["Row"]>>;
-      Connection: PostgresClient;
    }
 > {
    constructor(readonly query: SqlQuery<Pick<T, "Row" | "Params">>) {
-      super(query);
+      super(query, { pluginName: PLUGIN_NAME });
    }
 
    getOptions(args: SqlRunArgs<{ Connection: PostgresClient; Params: T["Params"] }>) {
@@ -44,7 +54,10 @@ export class PostgresQueryHandler<T extends { Row?: unknown; Params?: unknown }>
          queryInput = this.query.getSql(newArgs);
          return queryInput;
       } catch (err) {
-         throw new SqlRunError(`Error building postgres query '${this.query.id}'`, this.query, { cause: err, code: SqlErrorCode.QUERY_BUILD_FAILED });
+         throw new SqlRunError(`Error building postgres query '${this.query.id}'`, this.query, {
+            cause: err,
+            code: SqlErrorCode.QUERY_BUILD_FAILED,
+         });
       }
    }
 
@@ -52,9 +65,14 @@ export class PostgresQueryHandler<T extends { Row?: unknown; Params?: unknown }>
       return result.rows;
    }
 
-   deserialize(result: QueryResult<RowOrDefault<T["Row"]>>, remote: boolean): QueryResult<RowOrDefault<T["Row"]>> {
-      const rows = this.deserializeRows(this.resolveRows(result), remote) as RowOrDefault<T["Row"]>[];
-      return { ...result, rows };
+   deserialize<TResult = QueryResult<RowOrDefault<T["Row"]>>>(result: TResult, remote: boolean): TResult {
+      ok(isQueryResult(result), `Postgres query result should be an object with a 'rows' property.`);
+      const rowSchema = this.getRowSchema(remote);
+      for (let i = 0; i < result.rows.length; i++) {
+         result.rows[i] = deserialize(result.rows[i]!, rowSchema);
+      }
+
+      return result as TResult;
    }
 
    /**
@@ -66,26 +84,17 @@ export class PostgresQueryHandler<T extends { Row?: unknown; Params?: unknown }>
     *
     * @param args - Database connection and query parameters.
     */
-   async execute(
+   async execute<TResult = QueryResult<RowOrDefault<T["Row"]>>>(
       args: SqlRunArgs<{ Connection: PostgresClient; Params: T["Params"] }>,
-   ): Promise<QueryResult<RowOrDefault<T["Row"]>>> {
+   ): Promise<TResult> {
       const { db, options: { debug } = {} } = args;
       const resolvedDb = await db;
-
-      if (isRemoteClient(resolvedDb)) {
-         const hash = await this.query.hash;
-         const params = (args as { params?: Record<string, unknown> }).params ?? {};
-         return resolvedDb.remoteExecute<QueryResult<RowOrDefault<T["Row"]>>>({ plugin: PLUGIN_NAME, hash, params });
-      }
-
       let queryInput = undefined;
       try {
          queryInput = this.getOptions(args);
          if (debug) debug(Object.freeze(queryInput));
          const { text, values } = queryInput;
-         return await (resolvedDb as { query: (c: { text: string; values: unknown[] }) => Promise<QueryResult> }).query(
-            { text, values },
-         );
+         return (await resolvedDb.query({ text, values })) as TResult;
       } catch (err) {
          throw new SqlRunError(`Error running postgres query '${this.query.id}'`, this.query, {
             cause: err,
@@ -95,4 +104,10 @@ export class PostgresQueryHandler<T extends { Row?: unknown; Params?: unknown }>
          });
       }
    }
+}
+
+function isQueryResult<T extends object>(x: unknown): x is QueryResult<T> {
+   return (
+      typeof x === "object" && x !== null && "command" in x && "rowCount" in x && "rows" in x && Array.isArray(x.rows)
+   );
 }

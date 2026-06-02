@@ -10,6 +10,7 @@ import { SqlRunArgs } from "#/core/query/sql-query-types.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
 import { Order } from "@test-models/vexnor_dev.order-table.js";
 import { SqlRunError } from "#/core/sql-run-error.js";
+import { SqlErrorCode } from "#/core/sql-error-code.js";
 import { ok } from "node:assert";
 
 // ── minimal mock infrastructure ──────────────────────────────────────────────
@@ -18,21 +19,28 @@ type MockResult = { rows: unknown[] };
 type MockConnection = { query: (sql: string, params: unknown[]) => Promise<MockResult> };
 
 class MockQueryHandler<T extends { Row?: unknown; Params?: unknown }> extends SqlQueryHandler<
-   Pick<T, "Row" | "Params"> & { QueryResult: MockResult; Connection: MockConnection }
+   Pick<T, "Row" | "Params"> & { QueryResult: MockResult; Connection: MockConnection; RunResult: MockResult }
 > {
    constructor(private readonly q: SqlQuery<Pick<T, "Row" | "Params">>) {
-      super(q);
+      super(q, { pluginName: "mock" });
    }
    resolveRows(result: MockResult): T["Row"][] {
       return result.rows as T["Row"][];
    }
-   deserialize(result: MockResult, remote: boolean): MockResult {
-      return { ...result, rows: this.deserializeRows(result.rows as T["Row"][], remote) };
+
+   deserialize<TResult = MockResult>(result: TResult, isRemoteClient: boolean) {
+      return {
+         ...result,
+         rows: this.deserializeRows((result as MockResult).rows as T["Row"][], isRemoteClient),
+      } as TResult;
    }
-   async execute(args: SqlRunArgs<{ Connection: MockConnection; Params: T["Params"] }>): Promise<MockResult> {
+
+   async execute<TResult = MockResult>(
+      args: SqlRunArgs<{ Connection: MockConnection; Params: T["Params"] }>,
+   ): Promise<TResult> {
       const db = await args.db;
       const { text, values } = this.q.getSql(args);
-      return db.query(text, values);
+      return (await db.query(text, values)) as TResult;
    }
 }
 
@@ -610,6 +618,166 @@ describe("QueryRegistry", () => {
          registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([])),
       ).rejects.toMatchInlineSnapshot(
          `[SqlRunError: Query "taggedQuery" requires authorization (tag: "admin") but no authorize hook is registered]`,
+      );
+   });
+
+   // ── rate limiting ─────────────────────────────────────────────────────────
+
+   test("registerRateLimit hook is called on every execute with correct args", async () => {
+      const registry = new QueryRegistry();
+      await registry.register(pluginA, { findAccounts });
+
+      const hook = vi.fn();
+      registry.registerRateLimit(hook);
+
+      const hash = await findAccounts.hash;
+      await registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([]));
+
+      expect(hook).toHaveBeenCalledOnce();
+      expect(hook).toHaveBeenCalledWith({
+         plugin: pluginA,
+         query: findAccounts,
+         queryName: "findAccounts",
+         params: { email: "a@b.com" },
+         context: {},
+         inFlight: 0,
+      });
+   });
+
+   test("registerRateLimit hook throwing rejects with QUERY_RATE_LIMITED", async () => {
+      const registry = new QueryRegistry();
+      await registry.register(pluginA, { findAccounts });
+
+      registry.registerRateLimit(() => {
+         throw new Error("too many requests");
+      });
+
+      const resolver = vi.fn(async () => makeDb([]));
+      const hash = await findAccounts.hash;
+
+      await expect(registry.execute("pluginA", hash, { email: "a@b.com" }, resolver)).rejects.toMatchInlineSnapshot(
+         `[SqlRunError: Rate limit exceeded for query "findAccounts". (Error: too many requests)]`,
+      );
+      expect(resolver).not.toHaveBeenCalled();
+   });
+
+   test("registerRateLimit hook throwing SqlRunError propagates as SqlRunError with QUERY_RATE_LIMITED", async () => {
+      const registry = new QueryRegistry();
+      await registry.register(pluginA, { findAccounts });
+
+      registry.registerRateLimit(() => {
+         throw new SqlRunError("custom rate error", findAccounts, {
+            code: SqlErrorCode.QUERY_RATE_LIMITED,
+            queryName: "findAccounts",
+         });
+      });
+
+      const hash = await findAccounts.hash;
+      await expect(
+         registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([])),
+      ).rejects.toMatchInlineSnapshot(`[SqlRunError: custom rate error]`);
+   });
+
+   test("rate limit hooks accumulate — both are called in order", async () => {
+      const registry = new QueryRegistry();
+      await registry.register(pluginA, { findAccounts });
+
+      const order: number[] = [];
+      registry.registerRateLimit(() => {
+         order.push(1);
+      });
+      registry.registerRateLimit(() => {
+         order.push(2);
+      });
+
+      const hash = await findAccounts.hash;
+      await registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([]));
+
+      expect(order).toEqual([1, 2]);
+   });
+
+   test("rate limit hooks run sequentially — second hook not called if first throws", async () => {
+      const registry = new QueryRegistry();
+      await registry.register(pluginA, { findAccounts });
+
+      const hook2 = vi.fn();
+      registry.registerRateLimit(() => {
+         throw new Error("denied");
+      });
+      registry.registerRateLimit(hook2);
+
+      const hash = await findAccounts.hash;
+      await expect(
+         registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([])),
+      ).rejects.toMatchInlineSnapshot(`[SqlRunError: Rate limit exceeded for query "findAccounts". (Error: denied)]`);
+      expect(hook2).not.toHaveBeenCalled();
+   });
+
+   test("maxConcurrent option rejects when concurrency limit is reached", async () => {
+      const registry = new QueryRegistry({ maxConcurrent: 1 });
+      await registry.register(pluginA, { findAccounts });
+
+      const hash = await findAccounts.hash;
+
+      // Create the deferred before starting execute so unblock is set synchronously
+      let unblock!: () => void;
+      const blocker = new Promise<MockConnection>((resolve) => {
+         unblock = () => resolve(makeDb([]));
+      });
+
+      const first = registry.execute("pluginA", hash, { email: "a@b.com" }, async () => blocker);
+
+      // Yield so the first execute increments inFlight before the second starts
+      await Promise.resolve();
+
+      // Second query arrives while first is still in-flight (inFlight === 1 >= maxConcurrent 1)
+      const secondError = await registry
+         .execute("pluginA", hash, { email: "b@b.com" }, async () => makeDb([]))
+         .catch((e: unknown) => e);
+
+      unblock();
+      await first;
+
+      expect(secondError).toMatchInlineSnapshot(
+         `[SqlRunError: Query "findAccounts" rejected — concurrency limit of 1 reached]`,
+      );
+   });
+
+   test("maxConcurrent allows execution once in-flight drops back below limit", async () => {
+      const registry = new QueryRegistry({ maxConcurrent: 1 });
+      await registry.register(pluginA, { findAccounts });
+
+      const hash = await findAccounts.hash;
+
+      // First query completes normally (inFlight peaks at 1, then drops to 0)
+      await registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([]));
+
+      // Second query should now succeed (inFlight back to 0, well below limit)
+      await expect(registry.execute("pluginA", hash, { email: "b@b.com" }, async () => makeDb([]))).resolves
+         .toMatchInlineSnapshot(`
+        {
+          "rows": [],
+        }
+      `);
+   });
+
+   test("audit log fires even when rate limit hook rejects", async () => {
+      const registry = new QueryRegistry();
+      await registry.register(pluginA, { findAccounts });
+
+      registry.registerRateLimit(() => {
+         throw new Error("rate limited");
+      });
+
+      const hook = vi.fn();
+      registry.registerAuditLog(hook);
+
+      const hash = await findAccounts.hash;
+      await expect(registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([]))).rejects.toThrow();
+
+      expect(hook).toHaveBeenCalledOnce();
+      expect(hook).toHaveBeenCalledWith(
+         expect.objectContaining({ args: expect.objectContaining({ error: expect.any(Error) }) }),
       );
    });
 });

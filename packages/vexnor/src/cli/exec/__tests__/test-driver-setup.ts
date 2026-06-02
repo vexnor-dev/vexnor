@@ -5,27 +5,31 @@ import { SqlQueryToken, SqlParams, SqlRow } from "#/core/sql.js";
 
 let mockData: unknown[] = [{ id: 1, result: "test" }];
 
+type QueryResult<T> = { rows: T[] };
+
 export class TestDriverQueryHandler<T extends { Row?: unknown; Params?: unknown }> extends SqlQueryHandler<
    Pick<T, "Params" | "Row"> & {
-      QueryResult: { rows: T["Row"][] };
+      QueryResult: QueryResult<T["Row"]>;
       Connection: unknown;
    }
 > {
    constructor(query: SqlQuery<{ Params: T["Params"]; Row: T["Row"] }>) {
-      super(query);
+      super(query, { pluginName: "mock" });
    }
 
-   resolveRows(result: { rows: T["Row"][] }): T["Row"][] {
+   resolveRows(result: QueryResult<T["Row"]>): T["Row"][] {
       return result.rows;
    }
 
-   deserialize(result: { rows: T["Row"][] }, remote: boolean): { rows: T["Row"][] } {
-      return { rows: this.deserializeRows(result.rows, remote) };
+   deserialize<TResult = QueryResult<T["Row"]>>(result: TResult, remote: boolean): TResult {
+      return { rows: this.deserializeRows((result as { rows: T["Row"][] }).rows, remote) } as TResult;
    }
 
-   // eslint-disable-next-line unused-imports/no-unused-vars
-   async execute(_args: SqlRunArgs<{ Connection: unknown; Params: T["Params"] }>): Promise<{ rows: T["Row"][] }> {
-      return { rows: mockData as T["Row"][] };
+   async execute<TResult = QueryResult<T["Row"]>>(
+      // eslint-disable-next-line unused-imports/no-unused-vars
+      _args: SqlRunArgs<{ Connection: unknown; Params: T["Params"] }>,
+   ): Promise<TResult> {
+      return { rows: mockData as T["Row"][] } as TResult;
    }
 }
 

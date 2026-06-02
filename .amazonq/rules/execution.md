@@ -22,6 +22,7 @@ This is a serious, high-quality codebase. No shortcuts. No lazy work. Ever.
 - Read the relevant files before making changes. Do not assume.
 - Always read the **full current file state** before editing — not just the sections that seem relevant.
 - **Never use a cached or previously seen version of a file when updating it. Always reload from the filesystem first.**
+- **When rewriting a file in full, always read the current file from disk first and carry forward every change the user has made since the last known state.**
 - When fixing a bug, identify the exact root cause before touching code.
 - After making changes, always verify with a full build and test run.
 
@@ -49,6 +50,9 @@ This is a serious, high-quality codebase. No shortcuts. No lazy work. Ever.
 - Do not touch things that have not been confirmed broken.
 - Do not make "while I'm here" changes.
 - If something looks wrong but wasn't mentioned, flag it — do not silently fix it.
+- Do not rename, restructure, or reformat existing code unless explicitly asked. Names, field names, and signatures must be preserved exactly as-is.
+- **Never change an agreed API or DX without explicit instruction. If a constraint blocks the implementation, stop and ask — do not invent a workaround.**
+- **Never introduce new exports, types, or abstractions to work around a problem unless explicitly asked. Identify the root cause and ask for direction.**
 
 ## No half-measures
 

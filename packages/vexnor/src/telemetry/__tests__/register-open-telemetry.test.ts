@@ -20,18 +20,20 @@ class MockQueryHandler<T extends { Row?: unknown; Params?: unknown }> extends Sq
    Pick<T, "Row" | "Params"> & { QueryResult: MockResult; Connection: MockConnection }
 > {
    constructor(private readonly q: SqlQuery<Pick<T, "Row" | "Params">>) {
-      super(q);
+      super(q, { pluginName: "mock" });
    }
    resolveRows(result: MockResult): T["Row"][] {
       return result.rows as T["Row"][];
    }
-   deserialize(result: MockResult): MockResult {
+   deserialize<TResult = MockResult>(result: TResult): TResult {
       return result;
    }
-   async execute(args: SqlRunArgs<{ Connection: MockConnection; Params: T["Params"] }>): Promise<MockResult> {
+   async execute<TResult = MockResult>(
+      args: SqlRunArgs<{ Connection: MockConnection; Params: T["Params"] }>,
+   ): Promise<TResult> {
       const db = await args.db;
       const { text, values } = this.q.getSql(args);
-      return db.query(text, values);
+      return (await db.query(text, values)) as TResult;
    }
 }
 

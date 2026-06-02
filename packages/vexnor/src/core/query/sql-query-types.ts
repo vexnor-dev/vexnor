@@ -78,6 +78,8 @@ export type RemoteClient = {
       plugin: string;
       hash: string;
       params: Record<string, unknown>;
+      name: string | null;
+      location: string | null;
    }) => Promise<TResult>;
 };
 

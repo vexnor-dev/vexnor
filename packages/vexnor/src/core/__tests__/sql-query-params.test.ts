@@ -293,19 +293,103 @@ describe("SqlQuery.params", () => {
       expect(() => query.getSql({ params: { accountId: "123" } })).toThrow("must start with acc_");
    });
 
-   test("enforces validation rule typing at compile time", () => {
-      // @ts-expect-error number params must not accept string-only rules
-      param<{ n: number }>("n", { pattern: /x/ });
+   test("uses declared default when param is not provided", () => {
+      const query = sql`
+         select ${row(Account.$$)}
+         from ${Account}
+         where ${Account.$status} = ${param<{ status?: string }>("status", { default: "ACTIVE" })}
+      `;
 
-      // @ts-expect-error string params must not accept number/date range rules
-      param<{ s: string }>("s", { min: 1 });
+      const { text, values: missingValues } = query.getSql({ params: {} });
+      const { values: undefinedValues } = query.getSql({ params: { status: undefined } });
+      const { values: explicitValues } = query.getSql({ params: { status: "CONFIRMED" } });
 
-      // @ts-expect-error date params must use Date ranges
-      param<{ d: Date }>("d", { min: 1 });
+      expect(text).toMatchInlineSnapshot(`
+        "/* <query_0> */
+        SELECT
+          "a_1"."account_id" AS "accountId",
+          "a_1"."status",
+          "a_1"."email",
+          "a_1"."first_name" AS "firstName",
+          "a_1"."last_name" AS "lastName",
+          "a_1"."notes",
+          "a_1"."created_at" AS "createdAt",
+          "a_1"."modified_at" AS "modifiedAt",
+          "a_1"."parent_id" AS "parentId"
+        FROM
+          "main"."account" AS "a_1"
+        WHERE
+          "a_1"."status" = ?
+          /* </query_0> */"
+      `);
+      expect(missingValues).toEqual(["ACTIVE"]);
+      expect(undefinedValues).toEqual(["ACTIVE"]);
+      expect(explicitValues).toEqual(["CONFIRMED"]);
+   });
 
-      // valid examples
-      param<{ n: number }>("n", { min: 1, max: 10 });
-      param<{ s: string }>("s", { minLength: 1, pattern: /x/ });
-      param<{ d: Date }>("d", { min: new Date(0), max: new Date() });
+   test("null is not replaced by default", () => {
+      const query = sql`
+         select ${row(Account.$$)}
+         from ${Account}
+         where ${Account.$status} = ${param<{ status?: string }>("status", { default: "ACTIVE" })}
+      `;
+
+      // @ts-expect-error - null is not assignable to optional string, testing runtime behaviour
+      const { values } = query.getSql({ params: { status: null } });
+      expect(values).toEqual([null]);
+   });
+
+   test("invalid value with default falls back to default silently", () => {
+      const query = sql`
+         select ${row(Account.$$)}
+         from ${Account}
+         order by ${param<{ sort: string }>("sort", { values: ["email", "createdAt"], default: "createdAt" })}
+      `;
+
+      const { values } = query.getSql({ params: { sort: "invalid" } });
+      expect(values).toEqual(["createdAt"]);
+   });
+
+   test("invalid value without default throws", () => {
+      const query = sql`
+         select ${row(Account.$$)}
+         from ${Account}
+         order by ${param<{ sort: string }>("sort", { values: ["email", "createdAt"] })}
+      `;
+
+      expect(() => query.getSql({ params: { sort: "invalid" } })).toThrow("Invalid param 'sort'");
+   });
+
+   test("same param used multiple times emits repeated placeholders and values", () => {
+      const query = sql`
+         select ${row(Account.$$)}
+         from ${Account}
+         where ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}
+            or ${Account.$parentId} = ${param<{ accountId: string }>("accountId")}
+      `;
+
+      const { text, values } = query.getSql({ params: { accountId: "123" } });
+
+      expect(text).toMatchInlineSnapshot(`
+        "/* <query_0> */
+        SELECT
+          "a_1"."account_id" AS "accountId",
+          "a_1"."status",
+          "a_1"."email",
+          "a_1"."first_name" AS "firstName",
+          "a_1"."last_name" AS "lastName",
+          "a_1"."notes",
+          "a_1"."created_at" AS "createdAt",
+          "a_1"."modified_at" AS "modifiedAt",
+          "a_1"."parent_id" AS "parentId"
+        FROM
+          "main"."account" AS "a_1"
+        WHERE
+          "a_1"."account_id" = ?
+          OR "a_1"."parent_id" = ?
+          /* </query_0> */"
+      `);
+      expect(values).toEqual(["123", "123"]);
+      expect(Object.keys(query.params)).toHaveLength(1);
    });
 });

@@ -54,10 +54,10 @@ export function sqlUpdate<
 export function buildUpdateSetExpand<T extends { Select: Record<string, unknown>; Update: Record<string, unknown> }>(
    table: SqlTable<T>,
 ) {
-   return expand<SqlUpdateParameters<T>>((params) => {
-      if (!params?.set) return null;
+   return expand<SqlUpdateParameters<T>>({ set: null }, ({ set }) => {
+      if (!set) return null;
       const setValues: SqlQueryRefAny[] = [];
-      for (const [key, value] of Object.entries(params.set)) {
+      for (const [key, value] of Object.entries(set)) {
          const col = table.cols[`$${key}`];
          ok(col, `Column not found: ${key}`);
          ok(isPrimitive(value), `Value it's not a primitive: ${value}`);

@@ -42,27 +42,11 @@ export function sql<Token extends SqlQueryToken = SqlQueryToken, Tokens extends 
    Params: SqlParams<typeof rawValues>;
    Row: SqlRow<typeof rawValues>;
 }> {
-   const location = parseCallerLocation(new Error().stack);
    const query = new SqlQuery<{
       Params: SqlParams<typeof rawValues>;
       Row: SqlRow<typeof rawValues>;
-   }>({ rawStrings, rawValues, location });
+   }>({ rawStrings, rawValues });
    return newSqlQuery(query);
-}
-
-function parseCallerLocation(stack: string | undefined): string | null {
-   if (!stack) return null;
-   const lines = stack.split("\n");
-   const caller = lines.find(
-      (line) =>
-         line.includes("at ") &&
-         !line.includes("/vexnor/src/") &&
-         !line.includes("/vexnor/dist/") &&
-         !line.includes("/node_modules/"),
-   );
-   if (!caller) return null;
-   const match = caller.match(/\((.+)\)$/) ?? caller.match(/at (.+)$/);
-   return match?.[1]?.trim() ?? null;
 }
 
 export type SqlRow<T> = Void<BuildSqlRow<T>>;
