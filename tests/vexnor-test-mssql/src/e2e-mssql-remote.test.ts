@@ -42,8 +42,8 @@ describe.sequential("mssql remote execution", (ctx) => {
       });
 
       remoteClient = {
-         remoteExecute: ({ plugin, hash, params }) =>
-            registry.execute(plugin, hash, params ?? {}, async () => pool.request()),
+         remoteExecute: ({ plugin, hash, params, mode }) =>
+            registry.execute(plugin, hash, params ?? {}, async () => pool.request(), undefined, mode),
       };
 
       account = await sql`

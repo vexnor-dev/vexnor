@@ -18,7 +18,6 @@ export {
    SqlQueryHandler,
    type SqlQueryHandlerAny,
    newSqlQueryHandler,
-   type SqlExecuteMode,
 } from "./query/sql-query-handler.js";
 export { SqlQueryRef, type SqlQueryRefAny, type SqlQueryRefExtended } from "./query/sql-query-ref.js";
 export { param, SqlParam, type SqlParamAny } from "./query/sql-param.js";
@@ -38,6 +37,7 @@ export {
    type SqlRunOptions,
    type SqlInputArgs,
    type RemoteClient,
+   type SqlExecuteMode,
    isRemoteClient,
 } from "./query/sql-query-types.js";
 export {

@@ -4,6 +4,7 @@ import type { VexnorPluginAny } from "#/plugin/vexnor-plugin.js";
 import { SqlError } from "#/core/sql-error.js";
 import { SqlRunError } from "#/core/sql-run-error.js";
 import { SqlErrorCode } from "#/core/sql-error-code.js";
+import type { SqlExecuteMode } from "#/core/query/sql-query-types.js";
 
 export type ConnectionResolver = (pluginName: string) => Promise<unknown>;
 export type QueryMap = Record<string, SqlQueryAny>;
@@ -183,6 +184,7 @@ export class QueryRegistry<TContext extends Record<string, unknown> = Record<str
       params: Record<string, unknown>,
       resolver: ConnectionResolver,
       context: TContext = {} as TContext,
+      mode: SqlExecuteMode = "run",
    ): Promise<TResult> {
       const entry = this.maps.get(pluginName)?.get(hash);
       if (!entry) {
@@ -204,7 +206,7 @@ export class QueryRegistry<TContext extends Record<string, unknown> = Record<str
 
          const db = await resolver(pluginName);
          const queryHandler = plugin.newQueryHandler(query);
-         return await queryHandler.run({ db, params });
+         return await queryHandler.run({ db, params }, mode);
       } catch (err) {
          error = err;
          if (err instanceof SqlRunError) throw err.withOptions({ queryName: name });

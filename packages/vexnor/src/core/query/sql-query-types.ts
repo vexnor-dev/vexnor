@@ -3,6 +3,8 @@ import { SqlParamAny } from "#/core/query/sql-param.js";
 import { Sql } from "#/core/sql-base.js";
 import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
 
+export type SqlExecuteMode = "run" | "all";
+
 export type SqlQueryFormat = "with" | "select" | "from" | "join" | "fn" | "default";
 
 export type SqlQueryType = "main" | "inline";
@@ -80,6 +82,7 @@ export type RemoteClient = {
       params: Record<string, unknown>;
       name: string | null;
       location: string | null;
+      mode?: SqlExecuteMode;
    }) => Promise<TResult>;
 };
 

@@ -41,8 +41,8 @@ describe.sequential("postgres remote execution", () => {
       });
 
       remoteClient = {
-         remoteExecute: ({ plugin, hash, params }) =>
-            registry.execute(plugin, hash, params ?? {}, async () => pool),
+         remoteExecute: ({ plugin, hash, params, mode }) =>
+            registry.execute(plugin, hash, params ?? {}, async () => pool, undefined, mode),
       };
 
       account = await sql`

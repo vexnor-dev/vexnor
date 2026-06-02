@@ -1,6 +1,6 @@
 import { SqlQuery, SqlQueryExtended } from "#/core/query/sql-query.js";
 import { ok } from "#/lib/assert.js";
-import { isRemoteClient, SqlRunArgs } from "#/core/query/sql-query-types.js";
+import { isRemoteClient, SqlExecuteMode, SqlRunArgs } from "#/core/query/sql-query-types.js";
 import { SqlRunError } from "#/core/sql-run-error.js";
 import { SqlErrorCode } from "#/core/sql-error-code.js";
 import type { SqlJsonSchema } from "#/core/utils/sql-json-schema.js";
@@ -8,7 +8,6 @@ import { deserialize } from "#/core/utils/sql-json-schema.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlQueryHandlerAny = SqlQueryHandler<any>;
-export type SqlExecuteMode = "run" | "all";
 
 /**
  * Base query handler for async database operations
@@ -116,6 +115,7 @@ export abstract class SqlQueryHandler<
                params,
                name: null,
                location: this.location,
+               mode,
             })
             .then((data) => this.deserialize<TResult>(data, true));
       }
