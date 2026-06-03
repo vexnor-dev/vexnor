@@ -194,6 +194,7 @@ class TestCharm<T extends { Params?: unknown; Row?: unknown }> extends SqlCharm<
       super({
          id: "test",
          params: innerQuery.params,
+         hashId: "test",
       });
    }
 

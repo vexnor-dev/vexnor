@@ -98,14 +98,14 @@ describe("hashId", () => {
 
    describe("SqlRaw (raw)", () => {
       test("includes raw value", () => {
-         expect(raw("1=1").hashId).toMatchInlineSnapshot(`"SqlRaw#(SqlRaw(1=1))"`);
+         expect(raw("1=1").hashId).toMatchInlineSnapshot(`"SqlRaw#(1=1)"`);
       });
    });
 
    describe("SqlSelectValue (val)", () => {
       test("includes expression and key", () => {
          const v = val`count(*)`.as<{ total: number }>("total");
-         expect(v.hashId).toMatchInlineSnapshot(`"SqlSelectValue#(count(*) ... as total)"`);
+         expect(v.hashId).toMatchInlineSnapshot(`"SqlSelectValue#(total: SqlQuery#(["count(*)"]|))"`);
       });
    });
 

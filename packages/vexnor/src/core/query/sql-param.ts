@@ -1,8 +1,9 @@
-import { ARGS, PARAMS, ParamsOfArgs, Sql } from "#/core/sql-base.js";
+import { ARGS, PARAMS, ParamsOfArgs } from "#/core/sql-base.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
 import { isParamValueValid, ParamValidation, validateParamValue } from "#/core/query/sql-param-validation.js";
 import { SqlBuildError } from "#/core/sql-build-error.js";
 import { SqlErrorCode } from "#/core/sql-error-code.js";
+import { Sql, SqlOptions } from "#/core/sql-base.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlParamAny = SqlParam<any>;
@@ -16,17 +17,28 @@ export class SqlParam<T extends { Name: string; Type: unknown }> extends Sql {
    declare readonly [ARGS]?: T["Type"];
 
    readonly name: T["Name"];
+   readonly isRuntime: boolean;
    readonly validation: ParamValidation<T["Type"]> | null;
    readonly default: unknown | null;
    readonly hasDefault: boolean;
 
-   constructor({ name, validation }: { name: T["Name"]; validation?: ParamValidation<T["Type"]> | null }) {
+   constructor({
+      name,
+      validation,
+      isRuntime = false,
+   }: {
+      name: T["Name"];
+      validation?: ParamValidation<T["Type"]> | null;
+      isRuntime?: boolean;
+   }) {
       super({
-         type: "SqlParam",
+         type: isRuntime ? "SqlRuntime" : "SqlParam",
          id: name,
-      });
+         hashId: name,
+      } satisfies SqlOptions);
 
       this.name = name;
+      this.isRuntime = isRuntime;
       this.validation = validation ?? null;
       this.hasDefault = validation != null && "default" in validation;
       this.default = this.hasDefault ? validation!.default ?? null : null;

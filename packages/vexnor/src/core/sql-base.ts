@@ -32,7 +32,7 @@ export declare const TYPE: unique symbol;
 export declare const PARAMS: unique symbol;
 export declare const ARGS: unique symbol;
 
-export type SqlOptions = Pick<Sql, "id"> & Partial<Pick<Sql, "tag" | "hashId">> & { type?: string };
+export type SqlOptions = Pick<Sql, "id" | "hashId"> & Partial<Pick<Sql, "tag">> & { type?: string };
 
 export abstract class Sql {
    declare readonly [ROW]?: unknown;

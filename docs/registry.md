@@ -81,7 +81,7 @@ app.post('/api/db', async (c) => {
 });
 ```
 
-`registry.execute` looks up the query by hash, runs authorization and rate-limit checks, executes against the database, and fires the audit log. The fifth argument is the context object passed to your authorization hook — see [Authorization](authorization.md).
+`registry.execute` looks up the query by hash, runs authorization and rate-limit checks, **injects any `runtime()` params from the context object**, executes against the database, and fires the audit log. The fifth argument is the runtime context — values are automatically merged into query params for any `runtime()` nodes declared on the query. See [Runtime Params](params.md#runtime-params-with-runtime) and [Authorization](authorization.md).
 
 #### Error handling
 
@@ -258,6 +258,9 @@ The hash is a stable SHA-256 of the query's template strings — it never change
 const registry = new QueryRegistry();
 // With options:
 const registry = new QueryRegistry({ maxConcurrent: 50 });
+// With typed runtime context (for runtime() params and authorization hooks):
+type AppRuntime = { userId: string; tenantId: string };
+const registry = new QueryRegistry<AppRuntime>();
 
 // Register queries — pass a module namespace or explicit object
 await registry.register(plugin, queries);
@@ -267,11 +270,8 @@ registry.checkAuthorization();
 
 // Hooks
 registry.registerAuthorization(hook);  // called before every .authorize()-tagged query
-registry.registerAuditLog(listener);   // called after every query, success or failure
-registry.registerOpenTelemetry(tracer); // built on registerAuditLog; see Telemetry docs
-
-// Rate limiting
-registry.use(plugin);                  // attach a RateLimiterPlugin
+registry.use(plugin);                  // attach a QueryExecutionPlugin (audit log, rate limit, telemetry)
+registry.registerOpenTelemetry(tracer); // built-in OpenTelemetry plugin; see Telemetry docs
 
 // Introspection
 registry.getQueries();              // all registered queries
@@ -279,7 +279,8 @@ registry.getAuthorizedQueries();    // queries with .authorize() tag
 registry.getUnauthorizedQueries();  // queries without .authorize() tag
 
 // Execute a query by plugin name and hash
-await registry.execute(pluginName, hash, params, connectionResolver, context?, mode?);
+// Fifth arg is the runtime context — runtime() params are injected from it automatically
+await registry.execute(pluginName, hash, params, connectionResolver, runtimeContext?, mode?);
 ```
 
 ### Constructor Options
@@ -314,22 +315,26 @@ limiter.contextMetrics;  // ReadonlyMap<hash, ReadonlyMap<contextKey, ContextMet
 limiter.clearContextMetrics(userId); // eager eviction on logout
 ```
 
-For a fully custom rate limiter, implement the `RateLimiterPlugin` interface directly:
+For a fully custom plugin, implement the `QueryExecutionPlugin` interface directly:
 
 ```typescript
-import type { RateLimiterPlugin } from 'vexnor/registry';
+import type { QueryExecutionPlugin } from 'vexnor/registry';
 
-const myLimiter: RateLimiterPlugin = {
+const myPlugin: QueryExecutionPlugin = {
+  name: 'my-plugin',
   check: ({ queryName, context }) => {
     // throw SqlRunError to reject with QUERY_RATE_LIMITED
     // throw any other error — it will be wrapped automatically
   },
-  record: async ({ queryName, durationMs, error }) => {
-    // persist metrics, update counters, etc.
+  before: ({ queryName }) => {
+    // fires after checks pass, before the query runs (fire-and-forget)
+  },
+  after: ({ queryName, durationMs, error }) => {
+    // fires after every query completes, success or failure (fire-and-forget)
   },
 };
 
-registry.use(myLimiter);
+registry.use(myPlugin);
 ```
 
 ## Security

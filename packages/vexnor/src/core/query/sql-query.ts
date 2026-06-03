@@ -164,8 +164,21 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
    }
 
    async initHash(): Promise<string> {
-      const paramNames = this.params ? Object.keys(this.params).sort().join(",") : "";
-      const input = this.hashId + "|" + paramNames;
+      const params = this.params as Record<string, SqlParam<{ Name: string; Type: unknown }>> | null ?? {};
+      const paramNames = Object.entries(params)
+         .filter(([, v]) => !v.isRuntime)
+         .map(([k]) => k)
+         .sort()
+         .join(",");
+      const runtimeNames = Object.entries(params)
+         .filter(([, v]) => v.isRuntime)
+         .map(([k]) => k)
+         .sort()
+         .join(",");
+      const input =
+         runtimeNames.length > 0
+            ? this.hashId + "|" + paramNames + "|runtime:" + runtimeNames
+            : this.hashId + "|" + paramNames;
       const encoded = new TextEncoder().encode(input);
       const buf = await crypto.subtle.digest("SHA-256", encoded);
       return Array.from(new Uint8Array(buf))
@@ -345,6 +358,8 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
                         return `${rawString} (${rawValue.label})`;
                      case rawValue instanceof SqlQueryRef:
                         return `${rawString} (${rawValue.innerQuery.label})`;
+                     case rawValue instanceof SqlParam && rawValue.isRuntime:
+                        return `${rawString} $runtime:${rawValue.name}`;
                      case rawValue instanceof SqlParam:
                         return `${rawString} $${rawValue.name}`;
                      case rawValue instanceof Sql:
@@ -467,6 +482,9 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
                      ...(params ?? {}),
                      ...(rawValue.params as Record<string, SqlParam<{ Name: string; Type: unknown }>>),
                   };
+               break;
+            case rawValue instanceof SqlParam && rawValue.isRuntime:
+               params = { ...(params ?? {}), [rawValue.name]: rawValue };
                break;
             case rawValue instanceof SqlParam:
                params = { ...(params ?? {}), [rawValue.name]: rawValue };

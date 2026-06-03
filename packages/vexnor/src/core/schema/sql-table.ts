@@ -79,10 +79,17 @@ export class SqlTable<
       const { format, pk, tableInfo, crud, dialect } = args;
       super({
          type: "SqlTable",
-         id: (() => {
-            const schema = tableInfo.schema ? `${tableInfo.schema}.` : "";
-            const alias = tableInfo.alias ? ` as ${tableInfo.alias}` : "";
-            return `${schema}${tableInfo.name}${alias}`;
+         ...(() => {
+            let hashId = "";
+            if (tableInfo.schema) hashId += `${tableInfo.schema}.`;
+
+            hashId += tableInfo.name;
+            if (tableInfo.alias) hashId += ` as ${tableInfo.alias}`;
+
+            return {
+               hashId,
+               id: hashId,
+            };
          })(),
       });
       this.tableInfo = tableInfo;

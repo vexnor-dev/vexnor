@@ -21,6 +21,7 @@ export {
 } from "./query/sql-query-handler.js";
 export { SqlQueryRef, type SqlQueryRefAny, type SqlQueryRefExtended } from "./query/sql-query-ref.js";
 export { param, SqlParam, type SqlParamAny } from "./query/sql-param.js";
+export { runtime, SqlRuntime, type SqlRuntimeAny } from "./query/sql-runtime.js";
 export { row, SqlSelectRow, type SqlSelectRowAny } from "./query/sql-select-row.js";
 export { val, SqlSelectValue, type SqlSelectValueAny } from "./query/sql-select-value.js";
 export { raw, quote, SqlRaw } from "./query/sql-raw.js";

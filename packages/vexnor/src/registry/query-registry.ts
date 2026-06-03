@@ -10,30 +10,30 @@ import type { ExecutionArgs, QueryExecutionPlugin, AfterArgs } from "./query-exe
 export type ConnectionResolver = (pluginName: string) => Promise<unknown>;
 export type QueryMap = Record<string, SqlQueryAny>;
 
-export type AuthorizeArgs<TContext extends Record<string, unknown> = Record<string, unknown>> = {
+export type AuthorizeArgs<TRuntime extends Record<string, unknown> = Record<string, unknown>> = {
    plugin: VexnorPluginAny;
    query: SqlQueryAny;
    queryName: string;
    params: Record<string, unknown>;
-   context: TContext;
+   context: TRuntime;
 };
-export type AuthorizeHook<TContext extends Record<string, unknown> = Record<string, unknown>> = (
-   args: AuthorizeArgs<TContext>,
+export type AuthorizeHook<TRuntime extends Record<string, unknown> = Record<string, unknown>> = (
+   args: AuthorizeArgs<TRuntime>,
 ) => void | Promise<void>;
 
-export class BeforeQueryEvent<TContext extends Record<string, unknown> = Record<string, unknown>> extends Event {
-   constructor(public readonly args: ExecutionArgs<TContext>) {
+export class BeforeQueryEvent<TRuntime extends Record<string, unknown> = Record<string, unknown>> extends Event {
+   constructor(public readonly args: ExecutionArgs<TRuntime>) {
       super("beforeQuery");
    }
 }
 
-export class AfterQueryEvent<TContext extends Record<string, unknown> = Record<string, unknown>> extends Event {
-   constructor(public readonly args: AfterArgs<TContext>) {
+export class AfterQueryEvent<TRuntime extends Record<string, unknown> = Record<string, unknown>> extends Event {
+   constructor(public readonly args: AfterArgs<TRuntime>) {
       super("afterQuery");
    }
 }
 
-export type QueryRegistryOptions<TContext extends Record<string, unknown> = Record<string, unknown>> = {
+export type QueryRegistryOptions<TRuntime extends Record<string, unknown> = Record<string, unknown>> = {
    /**
     * Maximum number of queries that may execute concurrently.
     * Queries exceeding this limit are rejected with `QUERY_RATE_LIMITED`.
@@ -45,20 +45,20 @@ export type QueryRegistryOptions<TContext extends Record<string, unknown> = Reco
     */
    onPluginError?: (
       err: unknown,
-      plugin: QueryExecutionPlugin<TContext>,
-      phase: { before: ExecutionArgs<TContext> } | { after: AfterArgs<TContext> },
+      plugin: QueryExecutionPlugin<TRuntime>,
+      phase: { before: ExecutionArgs<TRuntime> } | { after: AfterArgs<TRuntime> },
    ) => void;
 };
 
-export class QueryRegistry<TContext extends Record<string, unknown> = Record<string, unknown>> extends EventTarget {
+export class QueryRegistry<TRuntime extends Record<string, unknown> = Record<string, unknown>> extends EventTarget {
    private readonly maps = new Map<string, Map<string, { query: SqlQueryAny; name: string }>>();
    private readonly plugins = new Map<string, VexnorPluginAny>();
-   private readonly _authorizeHooks: AuthorizeHook<TContext>[] = [];
-   private readonly _checkPlugins: QueryExecutionPlugin<TContext>[] = [];
-   private readonly _options: QueryRegistryOptions<TContext>;
+   private readonly _authorizeHooks: AuthorizeHook<TRuntime>[] = [];
+   private readonly _checkPlugins: QueryExecutionPlugin<TRuntime>[] = [];
+   private readonly _options: QueryRegistryOptions<TRuntime>;
    private _inFlight = 0;
 
-   constructor(options: QueryRegistryOptions<TContext> = {}) {
+   constructor(options: QueryRegistryOptions<TRuntime> = {}) {
       super();
       this._options = options;
    }
@@ -72,21 +72,21 @@ export class QueryRegistry<TContext extends Record<string, unknown> = Record<str
     *
     * Returns an unsubscribe function that removes the plugin's listeners and check hook.
     */
-   use(plugin: QueryExecutionPlugin<TContext>): () => void {
+   use(plugin: QueryExecutionPlugin<TRuntime>): () => void {
       if (plugin.check) {
          this._checkPlugins.push(plugin);
       }
 
       const beforeListener = plugin.before
          ? (e: Event) => {
-              const args = (e as BeforeQueryEvent<TContext>).args;
+              const args = (e as BeforeQueryEvent<TRuntime>).args;
               this.invokePluginListener(plugin, { before: args }, () => plugin.before!(args));
            }
          : null;
 
       const afterListener = plugin.after
          ? (e: Event) => {
-              const args = (e as AfterQueryEvent<TContext>).args;
+              const args = (e as AfterQueryEvent<TRuntime>).args;
               this.invokePluginListener(plugin, { after: args }, () => plugin.after!(args));
            }
          : null;
@@ -112,7 +112,7 @@ export class QueryRegistry<TContext extends Record<string, unknown> = Record<str
     * @see {@link SqlQuery.authorize} for tagging queries.
     * @see {@link checkAuthorization} for startup validation.
     */
-   registerAuthorization(hook: AuthorizeHook<TContext>): void {
+   registerAuthorization(hook: AuthorizeHook<TRuntime>): void {
       this._authorizeHooks.push(hook);
    }
 
@@ -190,7 +190,7 @@ export class QueryRegistry<TContext extends Record<string, unknown> = Record<str
       hash: string,
       params: Record<string, unknown>,
       resolver: ConnectionResolver,
-      context: TContext = {} as TContext,
+      context: TRuntime = {} as TRuntime,
       mode: SqlExecuteMode = "mutation",
    ): Promise<TResult> {
       const entry = this.maps.get(pluginName)?.get(hash);
@@ -204,12 +204,13 @@ export class QueryRegistry<TContext extends Record<string, unknown> = Record<str
       const plugin = this.plugins.get(pluginName);
       ok(plugin, `Unknown plugin: ${pluginName}`);
 
-      const executionArgs: ExecutionArgs<TContext> = {
+      const mergedParams = this.mergeRuntimeParams(query, params, context);
+      const executionArgs: ExecutionArgs<TRuntime> = {
          plugin,
          query,
          queryHash: hash,
          queryName: name,
-         params,
+         params: mergedParams,
          context,
          location: query.location,
       };
@@ -217,7 +218,7 @@ export class QueryRegistry<TContext extends Record<string, unknown> = Record<str
       let error: unknown | null = null;
       let started = false;
       try {
-         await this.runAuthorize({ plugin, query, params, context, queryName: name });
+         await this.runAuthorize({ plugin, query, params: mergedParams, context, queryName: name });
          await this.runCheckPlugins(executionArgs);
          this.checkMaxConcurrent(name, query);
          started = true;
@@ -225,7 +226,7 @@ export class QueryRegistry<TContext extends Record<string, unknown> = Record<str
          this.dispatchEvent(new BeforeQueryEvent(executionArgs));
          const db = await resolver(pluginName);
          const queryHandler = plugin.newQueryHandler(query);
-         return await queryHandler.run({ db, params }, mode);
+         return await queryHandler.run({ db, params: mergedParams }, mode);
       } catch (err) {
          error = err;
          if (err instanceof SqlRunError) throw err.withOptions({ queryName: name });
@@ -239,15 +240,33 @@ export class QueryRegistry<TContext extends Record<string, unknown> = Record<str
          const durationMs = performance.now() - start;
          if (started) {
             this._inFlight--;
-            const afterArgs: AfterArgs<TContext> = { ...executionArgs, durationMs, error };
+            const afterArgs: AfterArgs<TRuntime> = { ...executionArgs, durationMs, error };
             this.dispatchEvent(new AfterQueryEvent(afterArgs));
          }
       }
    }
 
+   private mergeRuntimeParams(
+      query: SqlQueryAny,
+      params: Record<string, unknown>,
+      runtime: Record<string, unknown>,
+   ): Record<string, unknown> {
+      const queryParams = query.params as Record<string, unknown> | null;
+      if (!queryParams) return params;
+
+      const hasRuntime = Object.values(queryParams).some((p) => (p as { isRuntime?: boolean }).isRuntime);
+      if (!hasRuntime) return params;
+
+      const merged: Record<string, unknown> = { ...params };
+      for (const [key, p] of Object.entries(queryParams)) {
+         if ((p as { isRuntime?: boolean }).isRuntime) merged[key] = runtime[key];
+      }
+      return merged;
+   }
+
    private invokePluginListener(
-      plugin: QueryExecutionPlugin<TContext>,
-      phase: { before: ExecutionArgs<TContext> } | { after: AfterArgs<TContext> },
+      plugin: QueryExecutionPlugin<TRuntime>,
+      phase: { before: ExecutionArgs<TRuntime> } | { after: AfterArgs<TRuntime> },
       fn: () => void,
    ): void {
       try {
@@ -259,8 +278,8 @@ export class QueryRegistry<TContext extends Record<string, unknown> = Record<str
 
    private handlePluginError(
       err: unknown,
-      plugin: QueryExecutionPlugin<TContext>,
-      phase: { before: ExecutionArgs<TContext> } | { after: AfterArgs<TContext> },
+      plugin: QueryExecutionPlugin<TRuntime>,
+      phase: { before: ExecutionArgs<TRuntime> } | { after: AfterArgs<TRuntime> },
    ): void {
       try {
          if (plugin.onError) {
@@ -276,7 +295,7 @@ export class QueryRegistry<TContext extends Record<string, unknown> = Record<str
       }
    }
 
-   private async runCheckPlugins(args: ExecutionArgs<TContext>) {
+   private async runCheckPlugins(args: ExecutionArgs<TRuntime>) {
       for (const p of this._checkPlugins) {
          if (!p.check) continue;
          try {
@@ -292,7 +311,7 @@ export class QueryRegistry<TContext extends Record<string, unknown> = Record<str
       }
    }
 
-   private async runAuthorize(args: AuthorizeArgs<TContext>) {
+   private async runAuthorize(args: AuthorizeArgs<TRuntime>) {
       const { query, queryName } = args;
 
       if (!query.authorization) return;

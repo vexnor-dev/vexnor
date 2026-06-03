@@ -147,7 +147,107 @@ const orderDir = param<{ orderDir?: string }>('orderDir', {
 
 Without a `default`, an invalid value throws `SqlBuildError` with code `PARAM_VALIDATION_FAILED`.
 
-## `expand()` — Dynamic SQL Expansion
+## Runtime Params with `runtime()`
+
+`runtime()` declares a named parameter whose value is **server-injected** rather than caller-supplied. It is identical to `param()` at the SQL level — it emits a placeholder at build time — but the `QueryRegistry` fills it automatically from the trusted context object passed to `registry.execute()` instead of accepting it from the caller's `params`.
+
+This is the correct mechanism for row-level access control: bake the restriction into the query itself so it cannot be bypassed, rather than relying on the authorization callback to check it after the fact.
+
+```typescript
+import { runtime } from 'vexnor';
+
+// Only returns orders belonging to the currently authenticated user
+const myOrders = sql`
+  SELECT ${row(Order.$$)}
+  FROM ${Order}
+  WHERE ${Order.$userId} = ${runtime<{ userId: string }>('userId')}
+  ORDER BY ${Order.$createdAt} DESC
+`;
+```
+
+When this query runs through the registry, `userId` is pulled from the server-side context — the caller never provides it and cannot override it.
+
+### Registry setup
+
+Type the `QueryRegistry` with the shape of your runtime context. Every field available in the context is a candidate for `runtime()` params:
+
+```typescript
+type AppRuntime = { userId: string; tenantId: string };
+
+const registry = new QueryRegistry<AppRuntime>();
+await registry.register(vexnorPostgres, { myOrders });
+```
+
+In the HTTP handler, populate the context from the verified session:
+
+```typescript
+app.post('/api/db', async (c) => {
+  const { plugin, hash, params, mode } = await c.req.json();
+  const session = await verifyToken(c.req.header('Authorization'));
+
+  const result = await registry.execute(
+    plugin, hash, params ?? {},
+    async () => pool,
+    { userId: session.userId, tenantId: session.tenantId }, // ← trusted runtime context
+    mode,
+  );
+  return c.json(result);
+});
+```
+
+The registry merges `userId` from the context into the query params automatically — the HTTP client never sends it.
+
+### Direct execution
+
+Outside the registry (scripts, tests, server actions), runtime params are passed like regular params:
+
+```typescript
+await myOrders.postgres.all({
+  db: pool,
+  params: { userId: 'u-123' },
+});
+```
+
+No special handling needed — `runtime()` is just metadata that tells the registry where to source the value.
+
+### Validation
+
+`runtime()` accepts the same validation rules as `param()`. Use validation to catch misconfiguration early — if the context object is missing a required value or provides an invalid one, the query throws before executing rather than silently passing `null` to the database:
+
+```typescript
+runtime<{ userId: string }>('userId', { minLength: 1 })
+```
+
+### Default values
+
+`runtime()` supports `default` for legitimate fallback scenarios, such as admin impersonation:
+
+```typescript
+// When context.impersonatedUserId is set, use it; otherwise fall back to context.userId
+const viewAs = runtime<{ impersonatedUserId?: string }>('impersonatedUserId', {
+  default: undefined, // registry will use undefined → falls through to your query logic
+});
+```
+
+A more common pattern is two separate runtime params:
+
+```typescript
+const effectiveUserId = runtime<{ effectiveUserId: string }>('effectiveUserId');
+// In the registry context: { effectiveUserId: impersonating ? targetId : session.userId }
+```
+
+### `runtime()` vs `param()`
+
+| | `param()` | `runtime()` |
+|---|---|---|
+| Value source | Caller-supplied `params` | Registry context (server-injected) |
+| Direct execution | Pass in `params` | Pass in `params` |
+| Registry execution | Caller sends in request | Injected from server context |
+| Contributes to `query.hash` | Yes (as param) | Yes (as runtime, separately keyed) |
+| Validation | Yes | Yes |
+| Default values | Yes | Yes |
+
+
 
 `expand` lazily builds a list of SQL nodes at query execution time. Use it when the shape or number of SQL fragments depends on runtime values — `IN (...)` lists, dynamic `ORDER BY`, conditional `SET` clauses, etc.
 

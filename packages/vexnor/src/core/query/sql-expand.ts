@@ -27,7 +27,13 @@ export class SqlExpand<T extends { Params: Record<string, unknown> }> extends Sq
    ) {
       super({
          type: "SqlExpand",
-         id: ``,
+         ...(() => {
+            const hashId = Object.keys(params).join("-");
+            return {
+               id: hashId,
+               hashId: hashId,
+            };
+         })(),
       });
    }
 
