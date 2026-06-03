@@ -267,9 +267,11 @@ registry.checkAuthorization();
 
 // Hooks
 registry.registerAuthorization(hook);  // called before every .authorize()-tagged query
-registry.registerRateLimit(hook);      // called before every query; throw to reject
 registry.registerAuditLog(listener);   // called after every query, success or failure
 registry.registerOpenTelemetry(tracer); // built on registerAuditLog; see Telemetry docs
+
+// Rate limiting
+registry.use(plugin);                  // attach a RateLimiterPlugin
 
 // Introspection
 registry.getQueries();              // all registered queries
@@ -282,20 +284,53 @@ await registry.execute(pluginName, hash, params, connectionResolver, context?, m
 
 ### Constructor Options
 
-- `maxConcurrent?: number` — maximum number of queries that may execute concurrently. Queries exceeding this limit are rejected immediately with `QUERY_RATE_LIMITED`.
+- `maxConcurrent?: number` — maximum number of queries that may execute concurrently across all query types. Queries exceeding this limit are rejected immediately with `QUERY_RATE_LIMITED`.
 
-### `registerRateLimit(hook)`
+### `use(plugin)`
 
-Called before every query. Use this for per-user token-bucket rate limiting or other request-level policies. The hook receives `inFlight` — the current concurrency count — alongside the query and context. Throw to reject.
+Attaches a `RateLimiterPlugin` to the registry. The plugin's `check()` is called before every query executes — throw to reject. The plugin's `record()` is called after every query completes, whether it succeeded or failed. Multiple plugins accumulate and all run on every execution.
+
+The built-in `TimeToLiveRateLimiter` covers the most common cases:
 
 ```typescript
-registry.registerRateLimit(async ({ queryName, context, inFlight }) => {
-  if (inFlight > 100) throw new Error('Too many concurrent queries');
-  await rateLimiter.consume(context.userId); // throws if limit exceeded
+import { TimeToLiveRateLimiter } from 'vexnor/registry';
+
+const limiter = new TimeToLiveRateLimiter({
+  contextKeyResolver: (ctx) => ctx.userId,   // enables per-user metrics
+  maxConcurrent: 20,                          // per-query concurrency cap
+  maxConcurrentPerContext: 3,                 // per-user concurrency cap
+  contextMetricsTtlMs: 5 * 60 * 1000,        // evict idle users after 5min (default)
+  limit: async ({ queryMetrics, contextMetrics, context }) => {
+    // custom logic — throw to reject
+    await rateLimiter.consume(context.userId);
+  },
 });
+
+registry.use(limiter);
+
+// Per-query metrics for monitoring
+limiter.metrics;         // ReadonlyMap<hash, QueryMetrics>
+limiter.contextMetrics;  // ReadonlyMap<hash, ReadonlyMap<contextKey, ContextMetrics>>
+limiter.clearContextMetrics(userId); // eager eviction on logout
 ```
 
-For authorization hooks and audit logging see [Authorization](authorization.md).
+For a fully custom rate limiter, implement the `RateLimiterPlugin` interface directly:
+
+```typescript
+import type { RateLimiterPlugin } from 'vexnor/registry';
+
+const myLimiter: RateLimiterPlugin = {
+  check: ({ queryName, context }) => {
+    // throw SqlRunError to reject with QUERY_RATE_LIMITED
+    // throw any other error — it will be wrapped automatically
+  },
+  record: async ({ queryName, durationMs, error }) => {
+    // persist metrics, update counters, etc.
+  },
+};
+
+registry.use(myLimiter);
+```
 
 ## Security
 

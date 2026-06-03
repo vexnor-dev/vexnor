@@ -1,5 +1,7 @@
 import { describe, expect, test, vi } from "vitest";
 import { QueryRegistry } from "#/registry/query-registry.js";
+import { TimeToLiveRateLimiter } from "#/registry/time-to-live-rate-limiter.js";
+import { AuditLogPlugin } from "#/registry/audit-log-plugin.js";
 import { sql } from "#/core/sql.js";
 import { row } from "#/core/query/sql-select-row.js";
 import { param } from "#/core/query/sql-param.js";
@@ -10,7 +12,6 @@ import { SqlRunArgs } from "#/core/query/sql-query-types.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
 import { Order } from "@test-models/vexnor_dev.order-table.js";
 import { SqlRunError } from "#/core/sql-run-error.js";
-import { SqlErrorCode } from "#/core/sql-error-code.js";
 import { ok } from "node:assert";
 
 // ── minimal mock infrastructure ──────────────────────────────────────────────
@@ -292,18 +293,18 @@ describe("QueryRegistry", () => {
 
    // ── register filtering ────────────────────────────────────────────────────
 
-   test("register stores query name from object key and it appears in audit log", async () => {
+   test("register stores query name from object key and it appears in after() args", async () => {
       const registry = new QueryRegistry();
       await registry.register(pluginA, { findAccounts });
 
-      const hook = vi.fn();
-      registry.registerAuditLog(hook);
+      const onLog = vi.fn();
+      registry.use(new AuditLogPlugin({ onLog }));
 
       const hash = await findAccounts.hash;
       await registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([]));
 
-      expect(hook).toHaveBeenCalledWith(
-         expect.objectContaining({ args: expect.objectContaining({ queryName: "findAccounts" }) }),
+      expect(onLog).toHaveBeenCalledWith(
+         expect.objectContaining({ queryName: "findAccounts" }),
       );
    });
 
@@ -423,65 +424,56 @@ describe("QueryRegistry", () => {
       expect(err.queryName).toBe("findAccounts");
    });
 
-   // ── registerAuditLog ──────────────────────────────────────────────────
+   // ── AuditLogPlugin ────────────────────────────────────────────────────────
 
-   test("audit log hook is called after successful execution", async () => {
+   test("AuditLogPlugin onLog is called after successful execution", async () => {
       const registry = new QueryRegistry();
       await registry.register(pluginA, { findAccounts });
 
-      const hook = vi.fn();
-      registry.registerAuditLog(hook);
+      const onLog = vi.fn();
+      registry.use(new AuditLogPlugin({ onLog }));
 
       const hash = await findAccounts.hash;
       await registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([]));
 
-      expect(hook).toHaveBeenCalledOnce();
-      expect(hook).toHaveBeenCalledWith(
+      expect(onLog).toHaveBeenCalledOnce();
+      expect(onLog).toHaveBeenCalledWith(
          expect.objectContaining({
-            args: expect.objectContaining({
-               query: findAccounts,
-               plugin: pluginA,
-               params: { email: "a@b.com" },
-               error: null,
-               durationMs: expect.any(Number),
-            }),
+            query: findAccounts,
+            plugin: pluginA,
+            params: { email: "a@b.com" },
+            error: null,
+            durationMs: expect.any(Number),
+            contextLog: null,
          }),
       );
    });
 
-   test("audit log hook is called after failed execution with the error", async () => {
+   test("AuditLogPlugin onLog is called after failed execution with the error", async () => {
       const registry = new QueryRegistry();
       await registry.register(pluginA, { findAccounts });
 
-      const hook = vi.fn();
-      registry.registerAuditLog(hook);
+      const onLog = vi.fn();
+      registry.use(new AuditLogPlugin({ onLog }));
 
       const hash = await findAccounts.hash;
       await expect(
          registry.execute("pluginA", hash, { email: "a@b.com" }, async () => ({
-            query: async () => {
-               throw new Error("db failure");
-            },
+            query: async () => { throw new Error("db failure"); },
          })),
       ).rejects.toThrow();
 
-      expect(hook).toHaveBeenCalledOnce();
-      expect(hook).toHaveBeenCalledWith(
-         expect.objectContaining({ args: expect.objectContaining({ error: expect.any(Error) }) }),
-      );
+      expect(onLog).toHaveBeenCalledOnce();
+      expect(onLog).toHaveBeenCalledWith(expect.objectContaining({ error: expect.any(Error) }));
    });
 
-   test("audit log hooks accumulate and run sequentially", async () => {
+   test("multiple AuditLogPlugin instances accumulate and all fire", async () => {
       const registry = new QueryRegistry();
       await registry.register(pluginA, { findAccounts });
 
       const order: number[] = [];
-      registry.registerAuditLog(() => {
-         order.push(1);
-      });
-      registry.registerAuditLog(() => {
-         order.push(2);
-      });
+      registry.use(new AuditLogPlugin({ name: "audit-1", onLog: () => order.push(1) }));
+      registry.use(new AuditLogPlugin({ name: "audit-2", onLog: () => order.push(2) }));
 
       const hash = await findAccounts.hash;
       await registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([]));
@@ -489,26 +481,19 @@ describe("QueryRegistry", () => {
       expect(order).toEqual([1, 2]);
    });
 
-   test("audit log hook fires even when authorization denies execution", async () => {
+   test("AuditLogPlugin after() does not fire when authorization denies execution", async () => {
       const taggedQuery = findAccounts.authorize("admin");
       const registry = new QueryRegistry();
       await registry.register(pluginA, { taggedQuery });
-      registry.registerAuthorization(() => {
-         throw new Error("denied");
-      });
+      registry.registerAuthorization(() => { throw new Error("denied"); });
 
-      const hook = vi.fn();
-      registry.registerAuditLog(hook);
+      const onLog = vi.fn();
+      registry.use(new AuditLogPlugin({ onLog }));
 
       const hash = await taggedQuery.hash;
-      await expect(registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([]))).rejects.toThrow(
-         "denied",
-      );
+      await expect(registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([]))).rejects.toThrow("denied");
 
-      expect(hook).toHaveBeenCalledOnce();
-      expect(hook).toHaveBeenCalledWith(
-         expect.objectContaining({ args: expect.objectContaining({ error: expect.any(Error) }) }),
-      );
+      expect(onLog).not.toHaveBeenCalled();
    });
 
    // ── authorize hook ────────────────────────────────────────────────────────
@@ -623,96 +608,6 @@ describe("QueryRegistry", () => {
 
    // ── rate limiting ─────────────────────────────────────────────────────────
 
-   test("registerRateLimit hook is called on every execute with correct args", async () => {
-      const registry = new QueryRegistry();
-      await registry.register(pluginA, { findAccounts });
-
-      const hook = vi.fn();
-      registry.registerRateLimit(hook);
-
-      const hash = await findAccounts.hash;
-      await registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([]));
-
-      expect(hook).toHaveBeenCalledOnce();
-      expect(hook).toHaveBeenCalledWith({
-         plugin: pluginA,
-         query: findAccounts,
-         queryName: "findAccounts",
-         params: { email: "a@b.com" },
-         context: {},
-         inFlight: 0,
-      });
-   });
-
-   test("registerRateLimit hook throwing rejects with QUERY_RATE_LIMITED", async () => {
-      const registry = new QueryRegistry();
-      await registry.register(pluginA, { findAccounts });
-
-      registry.registerRateLimit(() => {
-         throw new Error("too many requests");
-      });
-
-      const resolver = vi.fn(async () => makeDb([]));
-      const hash = await findAccounts.hash;
-
-      await expect(registry.execute("pluginA", hash, { email: "a@b.com" }, resolver)).rejects.toMatchInlineSnapshot(
-         `[SqlRunError: Rate limit exceeded for query "findAccounts". (Error: too many requests)]`,
-      );
-      expect(resolver).not.toHaveBeenCalled();
-   });
-
-   test("registerRateLimit hook throwing SqlRunError propagates as SqlRunError with QUERY_RATE_LIMITED", async () => {
-      const registry = new QueryRegistry();
-      await registry.register(pluginA, { findAccounts });
-
-      registry.registerRateLimit(() => {
-         throw new SqlRunError("custom rate error", findAccounts, {
-            code: SqlErrorCode.QUERY_RATE_LIMITED,
-            queryName: "findAccounts",
-         });
-      });
-
-      const hash = await findAccounts.hash;
-      await expect(
-         registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([])),
-      ).rejects.toMatchInlineSnapshot(`[SqlRunError: custom rate error]`);
-   });
-
-   test("rate limit hooks accumulate — both are called in order", async () => {
-      const registry = new QueryRegistry();
-      await registry.register(pluginA, { findAccounts });
-
-      const order: number[] = [];
-      registry.registerRateLimit(() => {
-         order.push(1);
-      });
-      registry.registerRateLimit(() => {
-         order.push(2);
-      });
-
-      const hash = await findAccounts.hash;
-      await registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([]));
-
-      expect(order).toEqual([1, 2]);
-   });
-
-   test("rate limit hooks run sequentially — second hook not called if first throws", async () => {
-      const registry = new QueryRegistry();
-      await registry.register(pluginA, { findAccounts });
-
-      const hook2 = vi.fn();
-      registry.registerRateLimit(() => {
-         throw new Error("denied");
-      });
-      registry.registerRateLimit(hook2);
-
-      const hash = await findAccounts.hash;
-      await expect(
-         registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([])),
-      ).rejects.toMatchInlineSnapshot(`[SqlRunError: Rate limit exceeded for query "findAccounts". (Error: denied)]`);
-      expect(hook2).not.toHaveBeenCalled();
-   });
-
    test("maxConcurrent option rejects when concurrency limit is reached", async () => {
       const registry = new QueryRegistry({ maxConcurrent: 1 });
       await registry.register(pluginA, { findAccounts });
@@ -739,7 +634,7 @@ describe("QueryRegistry", () => {
       await first;
 
       expect(secondError).toMatchInlineSnapshot(
-         `[SqlRunError: Query "findAccounts" rejected — concurrency limit of 1 reached]`,
+         `[SqlRunError: Query "findAccounts" rejected — concurrency limit of 1 reached (1 in flight)]`,
       );
    });
 
@@ -761,23 +656,289 @@ describe("QueryRegistry", () => {
       `);
    });
 
-   test("audit log fires even when rate limit hook rejects", async () => {
+   // ── AuditLogPlugin contextLogResolver ────────────────────────────────────
+
+   test("contextLog is null when no contextLogResolver is configured", async () => {
+      const registry = new QueryRegistry<{ userId: string }>();
+      await registry.register(pluginA, { findAccounts });
+
+      const onLog = vi.fn();
+      registry.use(new AuditLogPlugin<{ userId: string }>({ onLog }));
+
+      const hash = await findAccounts.hash;
+      await registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([]), { userId: "u1" });
+
+      expect(onLog.mock.calls[0]![0].contextLog).toMatchInlineSnapshot(`null`);
+   });
+
+   test("contextLog contains only what the resolver returns", async () => {
+      const registry = new QueryRegistry<{ userId: string; secret: string }>();
+      await registry.register(pluginA, { findAccounts });
+
+      const onLog = vi.fn();
+      registry.use(new AuditLogPlugin<{ userId: string; secret: string }>({
+         contextLogResolver: ({ userId }) => ({ userId }),
+         onLog,
+      }));
+
+      const hash = await findAccounts.hash;
+      await registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([]), { userId: "u1", secret: "s3cr3t" });
+
+      expect(onLog.mock.calls[0]![0].contextLog).toMatchInlineSnapshot(`
+        {
+          "userId": "u1",
+        }
+      `);
+   });
+
+   test("raw context is not forwarded to onLog — only contextLog is", async () => {
+      const registry = new QueryRegistry<{ userId: string; secret: string }>();
+      await registry.register(pluginA, { findAccounts });
+
+      const onLog = vi.fn();
+      registry.use(new AuditLogPlugin<{ userId: string; secret: string }>({
+         contextLogResolver: ({ userId }) => ({ userId }),
+         onLog,
+      }));
+
+      const hash = await findAccounts.hash;
+      await registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([]), { userId: "u1", secret: "s3cr3t" });
+
+      const args = onLog.mock.calls[0]![0];
+      expect(args).not.toHaveProperty("context");
+      expect(args.contextLog).toMatchInlineSnapshot(`
+        {
+          "userId": "u1",
+        }
+      `);
+   });
+
+   // ── use() / TimeToLiveRateLimiter integration ─────────────────────────────
+
+   test("use() wires TimeToLiveRateLimiter — check() rejects and after() is not called", async () => {
+      const limiter = new TimeToLiveRateLimiter({ maxConcurrent: 1 });
+      const registry = new QueryRegistry();
+      await registry.register(pluginA, { findAccounts });
+      registry.use(limiter);
+
+      const hash = await findAccounts.hash;
+
+      let unblock!: () => void;
+      const blocker = new Promise<MockConnection>((resolve) => {
+         unblock = () => resolve(makeDb([]));
+      });
+
+      const first = registry.execute("pluginA", hash, { email: "a@b.com" }, async () => blocker);
+      await Promise.resolve();
+
+      await expect(
+         registry.execute("pluginA", hash, { email: "b@b.com" }, async () => makeDb([])),
+      ).rejects.toMatchInlineSnapshot(
+         `[SqlRunError: Query "findAccounts" rejected — concurrency limit of 1 reached (1 in flight)]`,
+      );
+
+      unblock();
+      await first;
+
+      expect(limiter.metrics.get(hash)?.totalCalls).toBe(1);
+      expect(limiter.metrics.get(hash)?.inFlight).toBe(0);
+   });
+
+   test("use() wires TimeToLiveRateLimiter — metrics are updated after successful execution", async () => {
+      const limiter = new TimeToLiveRateLimiter();
+      const registry = new QueryRegistry();
+      await registry.register(pluginA, { findAccounts });
+      registry.use(limiter);
+
+      const hash = await findAccounts.hash;
+      await registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([]));
+      await registry.execute("pluginA", hash, { email: "b@b.com" }, async () => makeDb([]));
+
+      const m = limiter.metrics.get(hash)!;
+      expect(m.totalCalls).toBe(2);
+      expect(m.inFlight).toBe(0);
+      expect(m.totalErrors).toBe(0);
+      expect(m.avgDurationMs).toBeGreaterThanOrEqual(0);
+   });
+
+   test("use() wires TimeToLiveRateLimiter — plain Error from check() is wrapped in SqlRunError", async () => {
+      const registry = new QueryRegistry();
+      await registry.register(pluginA, { findAccounts });
+      registry.use({
+         name: "test-limiter",
+         check: () => { throw new Error("too busy"); },
+         after: () => {},
+      });
+
+      const hash = await findAccounts.hash;
+      await expect(
+         registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([])),
+      ).rejects.toMatchInlineSnapshot(
+         `[SqlRunError: Rate limit exceeded for query "findAccounts". (Error: too busy)]`,
+      );
+   });
+
+   // ── use() — before() / after() fire-and-forget ────────────────────────────
+
+   test("before() fires after checks pass and before query runs — fire and forget", async () => {
       const registry = new QueryRegistry();
       await registry.register(pluginA, { findAccounts });
 
-      registry.registerRateLimit(() => {
-         throw new Error("rate limited");
+      const order: string[] = [];
+      registry.use({
+         name: "observer",
+         before: () => { order.push("before"); },
       });
 
-      const hook = vi.fn();
-      registry.registerAuditLog(hook);
+      const hash = await findAccounts.hash;
+      await registry.execute("pluginA", hash, { email: "a@b.com" }, async () => {
+         order.push("query");
+         return makeDb([]);
+      });
+
+      // yield to let the fire-and-forget before() promise settle
+      await Promise.resolve();
+      expect(order).toEqual(["before", "query"]);
+   });
+
+   test("before() is not called when check() rejects", async () => {
+      const registry = new QueryRegistry();
+      await registry.register(pluginA, { findAccounts });
+
+      const before = vi.fn();
+      registry.use({
+         name: "observer",
+         check: () => { throw new Error("denied"); },
+         before,
+      });
 
       const hash = await findAccounts.hash;
       await expect(registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([]))).rejects.toThrow();
+      await Promise.resolve();
 
-      expect(hook).toHaveBeenCalledOnce();
-      expect(hook).toHaveBeenCalledWith(
-         expect.objectContaining({ args: expect.objectContaining({ error: expect.any(Error) }) }),
+      expect(before).not.toHaveBeenCalled();
+   });
+
+   test("after() fires after query completes — fire and forget", async () => {
+      const registry = new QueryRegistry();
+      await registry.register(pluginA, { findAccounts });
+
+      const after = vi.fn();
+      registry.use({ name: "observer", after });
+
+      const hash = await findAccounts.hash;
+      await registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([]));
+      await Promise.resolve();
+
+      expect(after).toHaveBeenCalledOnce();
+      expect(after).toHaveBeenCalledWith(
+         expect.objectContaining({ queryName: "findAccounts", error: null, durationMs: expect.any(Number) }),
       );
+   });
+
+   test("after() is not called when check() rejects", async () => {
+      const registry = new QueryRegistry();
+      await registry.register(pluginA, { findAccounts });
+
+      const after = vi.fn();
+      registry.use({
+         name: "observer",
+         check: () => { throw new Error("denied"); },
+         after,
+      });
+
+      const hash = await findAccounts.hash;
+      await expect(registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([]))).rejects.toThrow();
+      await Promise.resolve();
+
+      expect(after).not.toHaveBeenCalled();
+   });
+
+   // ── use() — onError / onPluginError ───────────────────────────────────────
+
+   test("plugin.onError is called when after() throws — phase carries AfterArgs", async () => {
+      const registry = new QueryRegistry();
+      await registry.register(pluginA, { findAccounts });
+
+      const onError = vi.fn();
+      registry.use({
+         name: "failing-plugin",
+         after: () => { throw new Error("after failed"); },
+         onError,
+      });
+
+      const hash = await findAccounts.hash;
+      await registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([]));
+      await Promise.resolve();
+
+      expect(onError).toHaveBeenCalledOnce();
+      expect(onError).toHaveBeenCalledWith(
+         expect.any(Error),
+         expect.objectContaining({ after: expect.objectContaining({ queryName: "findAccounts" }) }),
+      );
+   });
+
+   test("onPluginError registry option is called when after() throws and plugin has no onError", async () => {
+      const onPluginError = vi.fn();
+      const registry = new QueryRegistry({ onPluginError });
+      await registry.register(pluginA, { findAccounts });
+
+      registry.use({
+         name: "failing-plugin",
+         after: () => { throw new Error("after failed"); },
+      });
+
+      const hash = await findAccounts.hash;
+      await registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([]));
+      await Promise.resolve();
+
+      expect(onPluginError).toHaveBeenCalledOnce();
+      expect(onPluginError).toHaveBeenCalledWith(
+         expect.any(Error),
+         expect.objectContaining({ name: "failing-plugin" }),
+         expect.objectContaining({ after: expect.objectContaining({ queryName: "findAccounts" }) }),
+      );
+   });
+
+   test("plugin.onError takes precedence over onPluginError", async () => {
+      const onPluginError = vi.fn();
+      const onError = vi.fn();
+      const registry = new QueryRegistry({ onPluginError });
+      await registry.register(pluginA, { findAccounts });
+
+      registry.use({
+         name: "failing-plugin",
+         after: () => { throw new Error("after failed"); },
+         onError,
+      });
+
+      const hash = await findAccounts.hash;
+      await registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([]));
+      await Promise.resolve();
+
+      expect(onError).toHaveBeenCalledOnce();
+      expect(onPluginError).not.toHaveBeenCalled();
+   });
+
+   test("process.emitWarning is called when onError itself throws", async () => {
+      const registry = new QueryRegistry();
+      await registry.register(pluginA, { findAccounts });
+
+      const warnSpy = vi.spyOn(process, "emitWarning").mockImplementation(() => {});
+      registry.use({
+         name: "broken-plugin",
+         after: () => { throw new Error("after failed"); },
+         onError: () => { throw new Error("onError failed"); },
+      });
+
+      const hash = await findAccounts.hash;
+      await registry.execute("pluginA", hash, { email: "a@b.com" }, async () => makeDb([]));
+      await Promise.resolve();
+
+      expect(warnSpy).toHaveBeenCalledOnce();
+      expect(warnSpy).toHaveBeenCalledWith(
+         expect.stringContaining(`QueryExecutionPlugin "broken-plugin" onError threw during "after" phase`),
+      );
+      warnSpy.mockRestore();
    });
 });

@@ -5,6 +5,7 @@ import { SqlError } from "#/core/sql-error.js";
 import { SqlRunError } from "#/core/sql-run-error.js";
 import { SqlErrorCode } from "#/core/sql-error-code.js";
 import type { SqlExecuteMode } from "#/core/query/sql-query-types.js";
+import type { ExecutionArgs, QueryExecutionPlugin, AfterArgs } from "./query-execution-plugin.js";
 
 export type ConnectionResolver = (pluginName: string) => Promise<unknown>;
 export type QueryMap = Record<string, SqlQueryAny>;
@@ -20,55 +21,85 @@ export type AuthorizeHook<TContext extends Record<string, unknown> = Record<stri
    args: AuthorizeArgs<TContext>,
 ) => void | Promise<void>;
 
-export type RateLimitArgs<TContext extends Record<string, unknown> = Record<string, unknown>> = {
-   plugin: VexnorPluginAny;
-   query: SqlQueryAny;
-   queryName: string;
-   params: Record<string, unknown>;
-   context: TContext;
-   /** Number of queries currently in flight at the time this query was submitted. */
-   inFlight: number;
-};
-export type RateLimitHook<TContext extends Record<string, unknown> = Record<string, unknown>> = (
-   args: RateLimitArgs<TContext>,
-) => void | Promise<void>;
-
-export type AuditLogArgs<TContext extends Record<string, unknown> = Record<string, unknown>> = {
-   plugin: VexnorPluginAny;
-   query: SqlQueryAny;
-   queryName: string | null;
-   params: Record<string, unknown>;
-   context: TContext;
-   durationMs: number;
-   error: unknown | null;
-   location: string | null;
-};
-
-export class AuditLogEvent<TContext extends Record<string, unknown> = Record<string, unknown>> extends Event {
-   constructor(public readonly args: AuditLogArgs<TContext>) {
-      super("auditLog");
+export class BeforeQueryEvent<TContext extends Record<string, unknown> = Record<string, unknown>> extends Event {
+   constructor(public readonly args: ExecutionArgs<TContext>) {
+      super("beforeQuery");
    }
 }
 
-export type QueryRegistryOptions = {
+export class AfterQueryEvent<TContext extends Record<string, unknown> = Record<string, unknown>> extends Event {
+   constructor(public readonly args: AfterArgs<TContext>) {
+      super("afterQuery");
+   }
+}
+
+export type QueryRegistryOptions<TContext extends Record<string, unknown> = Record<string, unknown>> = {
    /**
     * Maximum number of queries that may execute concurrently.
     * Queries exceeding this limit are rejected with `QUERY_RATE_LIMITED`.
     */
    maxConcurrent?: number;
+   /**
+    * Fallback error handler called when a plugin's `before()` or `after()` throws
+    * and the plugin does not define its own `onError()`.
+    */
+   onPluginError?: (
+      err: unknown,
+      plugin: QueryExecutionPlugin<TContext>,
+      phase: { before: ExecutionArgs<TContext> } | { after: AfterArgs<TContext> },
+   ) => void;
 };
 
 export class QueryRegistry<TContext extends Record<string, unknown> = Record<string, unknown>> extends EventTarget {
    private readonly maps = new Map<string, Map<string, { query: SqlQueryAny; name: string }>>();
    private readonly plugins = new Map<string, VexnorPluginAny>();
    private readonly _authorizeHooks: AuthorizeHook<TContext>[] = [];
-   private readonly _rateLimitHooks: RateLimitHook<TContext>[] = [];
-   private readonly _options: QueryRegistryOptions;
+   private readonly _checkPlugins: QueryExecutionPlugin<TContext>[] = [];
+   private readonly _options: QueryRegistryOptions<TContext>;
    private _inFlight = 0;
 
-   constructor(options: QueryRegistryOptions = {}) {
+   constructor(options: QueryRegistryOptions<TContext> = {}) {
       super();
       this._options = options;
+   }
+
+   /**
+    * Attaches a `QueryExecutionPlugin` to the registry.
+    *
+    * - `check()` is called before every query executes — throw to reject.
+    * - `before()` is dispatched via EventTarget after checks pass, before the query runs.
+    * - `after()` is dispatched via EventTarget after every query completes, success or failure.
+    *
+    * Returns an unsubscribe function that removes the plugin's listeners and check hook.
+    */
+   use(plugin: QueryExecutionPlugin<TContext>): () => void {
+      if (plugin.check) {
+         this._checkPlugins.push(plugin);
+      }
+
+      const beforeListener = plugin.before
+         ? (e: Event) => {
+              const args = (e as BeforeQueryEvent<TContext>).args;
+              this.invokePluginListener(plugin, { before: args }, () => plugin.before!(args));
+           }
+         : null;
+
+      const afterListener = plugin.after
+         ? (e: Event) => {
+              const args = (e as AfterQueryEvent<TContext>).args;
+              this.invokePluginListener(plugin, { after: args }, () => plugin.after!(args));
+           }
+         : null;
+
+      if (beforeListener) this.addEventListener("beforeQuery", beforeListener);
+      if (afterListener) this.addEventListener("afterQuery", afterListener);
+
+      return () => {
+         const idx = this._checkPlugins.indexOf(plugin);
+         if (idx >= 0) this._checkPlugins.splice(idx, 1);
+         if (beforeListener) this.removeEventListener("beforeQuery", beforeListener);
+         if (afterListener) this.removeEventListener("afterQuery", afterListener);
+      };
    }
 
    /**
@@ -83,30 +114,6 @@ export class QueryRegistry<TContext extends Record<string, unknown> = Record<str
     */
    registerAuthorization(hook: AuthorizeHook<TContext>): void {
       this._authorizeHooks.push(hook);
-   }
-
-   /**
-    * Registers a rate-limit hook called before every query executes.
-    *
-    * Use this to implement per-user request rate limiting (e.g. token bucket).
-    * The hook receives `inFlight` — the current concurrency count — alongside
-    * the query and context. Throw to reject the query with `QUERY_RATE_LIMITED`.
-    * For simple concurrency limiting, use the `maxConcurrent` constructor option instead.
-    */
-   registerRateLimit(hook: RateLimitHook<TContext>): void {
-      this._rateLimitHooks.push(hook);
-   }
-
-   /**
-    * Registers an audit log listener called after every query execution — whether
-    * it succeeded or failed. Receives timing, query identity, params, and the error
-    * if one occurred.
-    *
-    * Use this for logging, metrics, or OpenTelemetry span creation.
-    * Multiple listeners accumulate and all fire regardless of each other's outcome.
-    */
-   registerAuditLog(listener: (event: AuditLogEvent<TContext>) => void): void {
-      this.addEventListener("auditLog", listener as Parameters<EventTarget["addEventListener"]>[1]);
    }
 
    /**
@@ -174,8 +181,8 @@ export class QueryRegistry<TContext extends Record<string, unknown> = Record<str
    /**
     * Executes a registered query by plugin name and hash.
     *
-    * Looks up the query by hash, runs authorization and rate-limit checks,
-    * executes against the resolved connection, and fires the audit log.
+    * Looks up the query by hash, runs authorization and check plugin hooks,
+    * dispatches before/after events, executes against the resolved connection.
     * Always rejects with {@link SqlRunError} on failure.
     */
    async execute<TResult>(
@@ -197,13 +204,25 @@ export class QueryRegistry<TContext extends Record<string, unknown> = Record<str
       const plugin = this.plugins.get(pluginName);
       ok(plugin, `Unknown plugin: ${pluginName}`);
 
+      const executionArgs: ExecutionArgs<TContext> = {
+         plugin,
+         query,
+         queryHash: hash,
+         queryName: name,
+         params,
+         context,
+         location: query.location,
+      };
       const start = performance.now();
       let error: unknown | null = null;
+      let started = false;
       try {
          await this.runAuthorize({ plugin, query, params, context, queryName: name });
-         await this.runRateLimit({ plugin, query, params, context, queryName: name, inFlight: this._inFlight });
+         await this.runCheckPlugins(executionArgs);
+         this.checkMaxConcurrent(name, query);
+         started = true;
          this._inFlight++;
-
+         this.dispatchEvent(new BeforeQueryEvent(executionArgs));
          const db = await resolver(pluginName);
          const queryHandler = plugin.newQueryHandler(query);
          return await queryHandler.run({ db, params }, mode);
@@ -217,19 +236,59 @@ export class QueryRegistry<TContext extends Record<string, unknown> = Record<str
             code: SqlErrorCode.QUERY_EXECUTION_FAILED,
          });
       } finally {
-         this._inFlight--;
-         this.dispatchEvent(
-            new AuditLogEvent({
-               plugin,
-               query,
-               queryName: name,
-               params,
-               context,
-               durationMs: performance.now() - start,
-               error,
-               location: query.location,
-            }),
+         const durationMs = performance.now() - start;
+         if (started) {
+            this._inFlight--;
+            const afterArgs: AfterArgs<TContext> = { ...executionArgs, durationMs, error };
+            this.dispatchEvent(new AfterQueryEvent(afterArgs));
+         }
+      }
+   }
+
+   private invokePluginListener(
+      plugin: QueryExecutionPlugin<TContext>,
+      phase: { before: ExecutionArgs<TContext> } | { after: AfterArgs<TContext> },
+      fn: () => void,
+   ): void {
+      try {
+         fn();
+      } catch (err) {
+         this.handlePluginError(err, plugin, phase);
+      }
+   }
+
+   private handlePluginError(
+      err: unknown,
+      plugin: QueryExecutionPlugin<TContext>,
+      phase: { before: ExecutionArgs<TContext> } | { after: AfterArgs<TContext> },
+   ): void {
+      try {
+         if (plugin.onError) {
+            plugin.onError(err, phase);
+         } else {
+            this._options.onPluginError?.(err, plugin, phase);
+         }
+      } catch (handlerErr) {
+         const phaseName = "before" in phase ? "before" : "after";
+         process.emitWarning(
+            `[vexnor] QueryExecutionPlugin "${plugin.name}" onError threw during "${phaseName}" phase: ${handlerErr}`,
          );
+      }
+   }
+
+   private async runCheckPlugins(args: ExecutionArgs<TContext>) {
+      for (const p of this._checkPlugins) {
+         if (!p.check) continue;
+         try {
+            await p.check(args);
+         } catch (err) {
+            if (err instanceof SqlRunError) throw err;
+            throw new SqlRunError(`Rate limit exceeded for query "${args.queryName}"`, args.query, {
+               cause: err,
+               code: SqlErrorCode.QUERY_RATE_LIMITED,
+               queryName: args.queryName,
+            });
+         }
       }
    }
 
@@ -261,29 +320,14 @@ export class QueryRegistry<TContext extends Record<string, unknown> = Record<str
       }
    }
 
-   private async runRateLimit(args: RateLimitArgs<TContext>) {
+   private checkMaxConcurrent(queryName: string, query: SqlQueryAny): void {
       const { maxConcurrent } = this._options;
-
       if (maxConcurrent !== undefined && this._inFlight >= maxConcurrent) {
          throw new SqlRunError(
-            `Query "${args.queryName}" rejected — concurrency limit of ${maxConcurrent} reached`,
-            args.query,
-            { code: SqlErrorCode.QUERY_RATE_LIMITED, queryName: args.queryName },
+            `Query "${queryName}" rejected — concurrency limit of ${maxConcurrent} reached (${this._inFlight} in flight)`,
+            query,
+            { code: SqlErrorCode.QUERY_RATE_LIMITED, queryName },
          );
-      }
-
-      for (const hook of this._rateLimitHooks) {
-         try {
-            await hook(args);
-         } catch (err) {
-            if (err instanceof SqlRunError) throw err;
-
-            throw new SqlRunError(`Rate limit exceeded for query "${args.queryName}"`, args.query, {
-               cause: err,
-               code: SqlErrorCode.QUERY_RATE_LIMITED,
-               queryName: args.queryName,
-            });
-         }
       }
    }
 }

@@ -1,0 +1,212 @@
+import { SqlRunError } from "#/core/sql-run-error.js";
+import { SqlErrorCode } from "#/core/sql-error-code.js";
+import type { QueryExecutionPlugin, ExecutionArgs, AfterArgs } from "./query-execution-plugin.js";
+
+export type QueryMetrics = {
+   /** Number of currently executing instances of this query. */
+   inFlight: number;
+   /** Lifetime execution count (including in-flight). */
+   totalCalls: number;
+   /** Lifetime error count. */
+   totalErrors: number;
+   /** Rolling average duration of completed executions, in milliseconds. */
+   avgDurationMs: number;
+};
+
+export type ContextMetrics = {
+   /** The key derived from context via `contextKeyResolver`. */
+   contextKey: string;
+   /** Number of currently executing instances of this query for this context key. */
+   inFlight: number;
+   /** Lifetime execution count for this context key (including in-flight). */
+   totalCalls: number;
+   /** Lifetime error count for this context key. */
+   totalErrors: number;
+   /** Rolling average duration of completed executions for this context key, in milliseconds. */
+   avgDurationMs: number;
+   /** Timestamp of the last activity for TTL eviction purposes. */
+   lastActivityAt: number;
+};
+
+export type LimitArgs<TContext extends Record<string, unknown> = Record<string, unknown>> =
+   ExecutionArgs<TContext> & {
+      /** Metrics for this query across all contexts at the time of the check. */
+      queryMetrics: QueryMetrics;
+      /** Metrics for this query scoped to the resolved context key, or `null` if no `contextKeyResolver` is configured. */
+      contextMetrics: ContextMetrics | null;
+   };
+
+export type TimeToLiveRateLimiterOptions<TContext extends Record<string, unknown> = Record<string, unknown>> = {
+   /**
+    * Name identifying this plugin instance — used in error messages and warnings.
+    * Defaults to `"TimeToLiveRateLimiter"`.
+    */
+   name?: string;
+   /**
+    * Derives a stable string key from the execution context (e.g. user ID, tenant ID).
+    * When set, per-context metrics are tracked and passed to `limit()`.
+    * When absent, `contextMetrics` is `null`.
+    */
+   contextKeyResolver?: (context: TContext) => string;
+   /**
+    * How long (in milliseconds) a context key's metrics are retained after its last activity.
+    * Idle entries are evicted lazily on each `check()` call.
+    * Defaults to 5 minutes.
+    */
+   contextMetricsTtlMs?: number;
+   /**
+    * Maximum number of concurrent executions of any single query.
+    * Queries exceeding this limit are rejected with `QUERY_RATE_LIMITED`.
+    */
+   maxConcurrent?: number;
+   /**
+    * Maximum number of concurrent executions of any single query per context key.
+    * Only applies when `contextKeyResolver` is configured.
+    * Queries exceeding this limit are rejected with `QUERY_RATE_LIMITED`.
+    */
+   maxConcurrentPerContext?: number;
+   /**
+    * Custom limit hook — called before every query with current metrics snapshots.
+    * Throw to reject. Runs after `maxConcurrent` and `maxConcurrentPerContext` checks.
+    */
+   limit?: (args: LimitArgs<TContext>) => void | Promise<void>;
+};
+
+export class TimeToLiveRateLimiter<TContext extends Record<string, unknown> = Record<string, unknown>>
+   implements QueryExecutionPlugin<TContext>
+{
+   readonly name: string;
+   private readonly _queryMetrics = new Map<string, QueryMetrics>();
+   private readonly _contextMetrics = new Map<string, Map<string, ContextMetrics>>();
+   private readonly _options: TimeToLiveRateLimiterOptions<TContext>;
+
+   constructor(options: TimeToLiveRateLimiterOptions<TContext> = {}) {
+      this.name = options.name ?? "TimeToLiveRateLimiter";
+      this._options = options;
+   }
+
+   /** Per-query metrics across all contexts. Keyed by query hash. */
+   get metrics(): ReadonlyMap<string, QueryMetrics> {
+      return this._queryMetrics;
+   }
+
+   /** Per-query, per-context metrics. Outer key: query hash. Inner key: context key. */
+   get contextMetrics(): ReadonlyMap<string, ReadonlyMap<string, ContextMetrics>> {
+      return this._contextMetrics as ReadonlyMap<string, ReadonlyMap<string, ContextMetrics>>;
+   }
+
+   /**
+    * Evicts context metrics for a specific key, or clears all context metrics if no key is given.
+    * Useful for eager cleanup on logout or session end.
+    */
+   clearContextMetrics(contextKey?: string): void {
+      if (contextKey === undefined) {
+         this._contextMetrics.clear();
+      } else {
+         for (const inner of this._contextMetrics.values()) {
+            inner.delete(contextKey);
+         }
+      }
+   }
+
+   async check(args: ExecutionArgs<TContext>): Promise<void> {
+      this.sweep();
+
+      const { query, queryHash, queryName } = args;
+      const qm = this.getOrCreateQueryMetrics(queryHash);
+      const contextKey = this._options.contextKeyResolver?.(args.context);
+      const cm = contextKey !== undefined ? this.getOrCreateContextMetrics(queryHash, contextKey) : null;
+
+      const { maxConcurrent, maxConcurrentPerContext } = this._options;
+
+      if (maxConcurrent !== undefined && qm.inFlight >= maxConcurrent) {
+         throw new SqlRunError(
+            `Query "${queryName}" rejected — concurrency limit of ${maxConcurrent} reached (${qm.inFlight} in flight)`,
+            query,
+            { code: SqlErrorCode.QUERY_RATE_LIMITED, queryName },
+         );
+      }
+
+      if (maxConcurrentPerContext !== undefined && cm !== null && cm.inFlight >= maxConcurrentPerContext) {
+         throw new SqlRunError(
+            `Query "${queryName}" rejected — per-context concurrency limit of ${maxConcurrentPerContext} reached for key "${contextKey}" (${cm.inFlight} in flight)`,
+            query,
+            { code: SqlErrorCode.QUERY_RATE_LIMITED, queryName },
+         );
+      }
+
+      if (this._options.limit) {
+         try {
+            await this._options.limit({ ...args, queryMetrics: { ...qm }, contextMetrics: cm ? { ...cm } : null });
+         } catch (err) {
+            if (err instanceof SqlRunError) throw err;
+            throw new SqlRunError(`Rate limit exceeded for query "${queryName}"`, query, {
+               cause: err,
+               code: SqlErrorCode.QUERY_RATE_LIMITED,
+               queryName,
+            });
+         }
+      }
+
+      qm.inFlight++;
+      qm.totalCalls++;
+      if (cm) { cm.inFlight++; cm.totalCalls++; cm.lastActivityAt = Date.now(); }
+   }
+
+   after(args: AfterArgs<TContext>): void {
+      const { queryHash, error, durationMs } = args;
+
+      const qm = this._queryMetrics.get(queryHash);
+      if (!qm) return;
+
+      qm.inFlight--;
+      const completed = qm.totalCalls - qm.inFlight;
+      qm.avgDurationMs = qm.avgDurationMs + (durationMs - qm.avgDurationMs) / completed;
+      if (error !== null) qm.totalErrors++;
+
+      const contextKey = this._options.contextKeyResolver?.(args.context);
+      if (contextKey !== undefined) {
+         const cm = this._contextMetrics.get(queryHash)?.get(contextKey);
+         if (cm) {
+            cm.inFlight--;
+            const cmCompleted = cm.totalCalls - cm.inFlight;
+            cm.avgDurationMs = cm.avgDurationMs + (durationMs - cm.avgDurationMs) / cmCompleted;
+            if (error !== null) cm.totalErrors++;
+            cm.lastActivityAt = Date.now();
+         }
+      }
+   }
+
+   private getOrCreateQueryMetrics(hash: string): QueryMetrics {
+      let m = this._queryMetrics.get(hash);
+      if (!m) {
+         m = { inFlight: 0, totalCalls: 0, totalErrors: 0, avgDurationMs: 0 };
+         this._queryMetrics.set(hash, m);
+      }
+      return m;
+   }
+
+   private getOrCreateContextMetrics(hash: string, contextKey: string): ContextMetrics {
+      let inner = this._contextMetrics.get(hash);
+      if (!inner) {
+         inner = new Map();
+         this._contextMetrics.set(hash, inner);
+      }
+      let m = inner.get(contextKey);
+      if (!m) {
+         m = { contextKey, inFlight: 0, totalCalls: 0, totalErrors: 0, avgDurationMs: 0, lastActivityAt: Date.now() };
+         inner.set(contextKey, m);
+      }
+      return m;
+   }
+
+   private sweep(): void {
+      const ttl = this._options.contextMetricsTtlMs ?? 5 * 60 * 1000;
+      const cutoff = Date.now() - ttl;
+      for (const inner of this._contextMetrics.values()) {
+         for (const [key, m] of inner) {
+            if (m.inFlight === 0 && m.lastActivityAt < cutoff) inner.delete(key);
+         }
+      }
+   }
+}
