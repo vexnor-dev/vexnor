@@ -72,21 +72,33 @@ export function PostgresAccountsGrid({
    return (
       <>
          <AlertMessage message={alert} onDismiss={() => setAlert(null)} />
-         <div className="mb-4 grid gap-3 md:grid-cols-[1fr_220px]">
+         <div className="mb-4 grid gap-3 md:grid-cols-[1fr_220px] items-start">
             <SearchInput defaultValue={filterInput} onChange={handleFilterChange} />
-            <select
-               value={`${params.accountOrderBy}:${params.orderDir}`}
-               onChange={(e) => {
-                  const [nextField, nextDir] = e.target.value.split(":");
-                  handleOrderChange(nextField as AccountOrderBy, nextDir as OrderDirection);
-               }}
-               className={`w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 ${isPending ? "opacity-60" : ""}`}
-            >
-               <option value={`${Account.$createdAt.columnName}:DESC`}>Newest First</option>
-               <option value={`${Account.$createdAt.columnName}:ASC`}>Oldest First</option>
-               <option value={`${Account.$email.columnName}:ASC`}>Email A-Z</option>
-               <option value={`${Account.$email.columnName}:DESC`}>Email Z-A</option>
-            </select>
+            <div className="relative">
+               <select
+                  value={`${params.accountOrderBy}:${params.orderDir}`}
+                  onChange={(e) => {
+                     const [nextField, nextDir] = e.target.value.split(":");
+                     handleOrderChange(nextField as AccountOrderBy, nextDir as OrderDirection);
+                  }}
+                  className={`w-full border border-gray-300 rounded-md px-3 py-2 pr-8 text-sm bg-white appearance-none focus:outline-none focus:ring-2 focus:ring-gray-400 ${isPending ? "opacity-60" : ""}`}
+               >
+                  <option value={`${Account.$createdAt.columnName}:DESC`}>Newest First</option>
+                  <option value={`${Account.$createdAt.columnName}:ASC`}>Oldest First</option>
+                  <option value={`${Account.$email.columnName}:ASC`}>Email A-Z</option>
+                  <option value={`${Account.$email.columnName}:DESC`}>Email Z-A</option>
+               </select>
+               <svg
+                  className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 14 14"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+               >
+                  <path d="M3 5L7 9L11 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+               </svg>
+            </div>
          </div>
          <div className={isPending ? "opacity-60 transition-opacity" : ""}>
             <AccountTable accounts={accounts} deleteAction={handleDelete} />
