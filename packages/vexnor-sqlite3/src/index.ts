@@ -11,6 +11,7 @@ export { sqlite3Delete } from "#/crud/sqlite3-delete.js";
 export { sqlite3Select } from "#/crud/sqlite3-select.js";
 export { sqlite3Upsert } from "#/crud/sqlite3-upsert.js";
 export { newSqlite3TableHandler } from "#/crud/sqlite3-table-handler.js";
+export { BetterSqlite3QueryHandler } from "#/better-sqlite3-query-handler.js";
 export { transaction, savepoint } from "#/sqlite3-transaction.js";
 export type { Sqlite3TransactionOptions, Sqlite3TransactionBehavior } from "#/sqlite3-transaction.js";
 
