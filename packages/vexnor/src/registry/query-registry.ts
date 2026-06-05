@@ -7,7 +7,17 @@ import { SqlErrorCode } from "#/core/sql-error-code.js";
 import type { SqlExecuteMode } from "#/core/query/sql-query-types.js";
 import type { ExecutionArgs, QueryExecutionPlugin, AfterArgs } from "./query-execution-plugin.js";
 
-export type ConnectionResolver = (args: ExecuteQueryArgs) => Promise<unknown>;
+export type ConnectionResolverArgs<TRuntime extends Record<string, unknown> = Record<string, unknown>> = {
+   plugin: VexnorPluginAny;
+   query: SqlQueryAny;
+   params: Record<string, unknown>;
+   context: TRuntime;
+   mode: SqlExecuteMode;
+};
+
+export type ConnectionResolver = <TRuntime extends Record<string, unknown> = Record<string, unknown>>(
+   args: ConnectionResolverArgs<TRuntime>,
+) => Promise<unknown>;
 export type QueryMap = Record<string, SqlQueryAny>;
 
 export type AuthorizeArgs<TRuntime extends Record<string, unknown> = Record<string, unknown>> = {
@@ -265,7 +275,7 @@ export class QueryRegistry<TRuntime extends Record<string, unknown> = Record<str
          started = true;
          this._inFlight++;
          this.dispatchEvent(new BeforeQueryEvent(executionArgs));
-         const db = await resolver({ plugin: pluginName, hash, params, location, mode });
+         const db = await resolver({ plugin, query, params, mode, context });
          const queryHandler = plugin.newQueryHandler(query);
          return await queryHandler.run({ db, params: mergedParams }, mode);
       } catch (err) {
