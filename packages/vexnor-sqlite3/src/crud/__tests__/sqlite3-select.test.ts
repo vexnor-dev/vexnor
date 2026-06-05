@@ -1,7 +1,7 @@
 import "vexnor-sqlite3";
-import { describe, expect, test } from "vitest";
+import { assertType, describe, expect, test } from "vitest";
 import { Account, Order } from "vexnor/testing";
-import { sql, row, param, input } from "vexnor";
+import { sql, row, col, param, input, ParamsOf } from "vexnor";
 import { sqlite3Select } from "#/crud/sqlite3-select.js";
 import { defaultQueryOptions } from "#/crud/default-query-options.js";
 
@@ -356,4 +356,90 @@ describe("sqlite3Select()", () => {
           /* </query_0> */"
       `);
    });
+
+   test("with SELECT override — full subquery inlines into SELECT clause", () => {
+      const orderCount = col<{ orderCount: number }>("orderCount");
+      const query = sqlite3Select(Account, {
+         SELECT: sql`${row(Account.$$)}, (select count(*) from ${Order} where ${Order.$accountId} = ${Account.$accountId}) as ${orderCount}`,
+      });
+      const { text } = query.getSql({ options: defaultQueryOptions });
+      expect(text).toMatchInlineSnapshot(`
+        "/* <query_0> */
+        SELECT
+          (
+            /* <query_1> */ "a_1"."account_id",
+            "a_1"."status",
+            "a_1"."email",
+            "a_1"."first_name",
+            "a_1"."last_name",
+            "a_1"."notes",
+            "a_1"."created_at",
+            "a_1"."modified_at",
+            "a_1"."parent_id",
+            (
+              SELECT
+                count(*)
+              FROM
+                "main"."order" AS "o_2"
+              WHERE
+                "o_2"."account_id" = "a_1"."account_id"
+            ) AS "orderCount" /* </query_1> */
+          ) AS "query_1"
+        FROM
+          "main"."account" AS "a_3"
+          /* </query_0> */"
+      `);
+   });
 });
+
+   describe("param propagation through SqlSelectArgs clauses", () => {
+      const emailParam = param<{ email: string }>("email");
+      const dirParam = param<{ dir: string }>("dir");
+      const limitParam = param<{ limit: number }>("limit");
+
+      test("param in includeMany subquery propagates to ParamsOf query", () => {
+         const orders = sql`
+            select ${row(Order.$$)}
+            from ${Order}
+            where ${Order.$accountId} = ${Account.out.$accountId}
+            limit ${limitParam}
+         `;
+         // eslint-disable-next-line unused-imports/no-unused-vars
+         const query = sqlite3Select(Account, {
+            WHERE: sql`${Account.$email} = ${emailParam}`,
+            ORDER_BY: sql`${Account.$createdAt} ${dirParam}`,
+            includeMany: { orders },
+         });
+         type Params = ParamsOf<typeof query>;
+         assertType<Params>({
+            email: "a@b.com",
+            dir: "desc",
+            limit: 5,
+            // @ts-expect-error not declared
+            other: "x",
+         });
+      });
+
+      test("param in includeOne subquery propagates to ParamsOf query", () => {
+         const lastOrder = sql`
+            select ${row(Order.$$)}
+            from ${Order}
+            where ${Order.$accountId} = ${Account.out.$accountId}
+            limit ${limitParam}
+         `;
+         // eslint-disable-next-line unused-imports/no-unused-vars
+         const query = sqlite3Select(Account, {
+            WHERE: sql`${Account.$email} = ${emailParam}`,
+            ORDER_BY: sql`${Account.$createdAt} ${dirParam}`,
+            includeOne: { lastOrder },
+         });
+         type Params = ParamsOf<typeof query>;
+         assertType<Params>({
+            email: "a@b.com",
+            dir: "desc",
+            limit: 1,
+            // @ts-expect-error not declared
+            other: "x",
+         });
+      });
+   });

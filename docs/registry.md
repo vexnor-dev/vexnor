@@ -64,19 +64,18 @@ import { SqlError, SqlRunError } from 'vexnor/registry';
 import { registry, pool } from './registry.js';
 
 app.post('/api/db', async (c) => {
-  const { plugin, hash, params, name, location, mode } = await c.req.json();
+  const args = await c.req.json();
   const token = c.req.header('Authorization')?.replace('Bearer ', '') ?? null;
 
   try {
     const result = await registry.execute(
-      plugin, hash, params ?? {},
-      async () => pool,
+      args,
+      async ({ plugin }) => getPool(plugin),
       { token },
-      mode,
     );
     return c.json(result);
   } catch (err) {
-    return handleDbError(c, err, { name, location });
+    return handleDbError(c, err, args);
   }
 });
 ```
@@ -218,15 +217,14 @@ export function AccountsGrid({ initialAccounts, initialParams }) {
 import { SqlError, SqlRunError } from 'vexnor/registry';
 
 export async function POST(request: Request) {
-  const { plugin, hash, params, name, location, mode } = await request.json();
+  const args = await request.json();
   const token = request.headers.get('Authorization')?.replace('Bearer ', '') ?? null;
 
   try {
     const result = await registry.execute(
-      plugin, hash, params ?? {},
-      async () => getPool(plugin),
+      args,
+      async ({ plugin }) => getPool(plugin),
       { token },
-      mode,
     );
     return Response.json(result);
   } catch (err) {
@@ -278,9 +276,10 @@ registry.getQueries();              // all registered queries
 registry.getAuthorizedQueries();    // queries with .authorize() tag
 registry.getUnauthorizedQueries();  // queries without .authorize() tag
 
-// Execute a query by plugin name and hash
-// Fifth arg is the runtime context — runtime() params are injected from it automatically
-await registry.execute(pluginName, hash, params, connectionResolver, runtimeContext?, mode?);
+// Execute a query by passing the full request args object
+// Second arg is the connection resolver — receives the full ExecuteQueryArgs
+// Third arg is the runtime context — runtime() params are injected from it automatically
+await registry.execute(args, connectionResolver, runtimeContext?);
 ```
 
 ### Constructor Options
@@ -289,9 +288,16 @@ await registry.execute(pluginName, hash, params, connectionResolver, runtimeCont
 
 ### `use(plugin)`
 
-Attaches a `RateLimiterPlugin` to the registry. The plugin's `check()` is called before every query executes — throw to reject. The plugin's `record()` is called after every query completes, whether it succeeded or failed. Multiple plugins accumulate and all run on every execution.
+Attaches a `QueryExecutionPlugin` to the registry. Returns an unsubscribe function.
 
-The built-in `TimeToLiveRateLimiter` covers the most common cases:
+- `check()` — async gate called before every query executes. Throw to reject.
+- `before()` — called after checks pass, before the query runs (fire-and-forget).
+- `after()` — called after every query completes, success or failure (fire-and-forget).
+- `onError()` — called when `before()` or `after()` throws.
+
+Multiple plugins accumulate and all run on every execution.
+
+The built-in `TimeToLiveRateLimiter` covers the most common rate-limiting cases:
 
 ```typescript
 import { TimeToLiveRateLimiter } from 'vexnor/registry';
@@ -315,6 +321,19 @@ limiter.contextMetrics;  // ReadonlyMap<hash, ReadonlyMap<contextKey, ContextMet
 limiter.clearContextMetrics(userId); // eager eviction on logout
 ```
 
+The built-in `AuditLogPlugin` covers audit logging:
+
+```typescript
+import { AuditLogPlugin } from 'vexnor/registry';
+
+registry.use(new AuditLogPlugin({
+  contextLogResolver: ({ userId }) => ({ userId }), // opt-in — never logs raw context
+  onLog: ({ name, durationMs, error, context }) => {
+    logger.info({ name, durationMs, error, ...context });
+  },
+}));
+```
+
 For a fully custom plugin, implement the `QueryExecutionPlugin` interface directly:
 
 ```typescript
@@ -322,14 +341,14 @@ import type { QueryExecutionPlugin } from 'vexnor/registry';
 
 const myPlugin: QueryExecutionPlugin = {
   name: 'my-plugin',
-  check: ({ queryName, context }) => {
+  check: ({ name, context }) => {
     // throw SqlRunError to reject with QUERY_RATE_LIMITED
     // throw any other error — it will be wrapped automatically
   },
-  before: ({ queryName }) => {
+  before: ({ name }) => {
     // fires after checks pass, before the query runs (fire-and-forget)
   },
-  after: ({ queryName, durationMs, error }) => {
+  after: ({ name, durationMs, error }) => {
     // fires after every query completes, success or failure (fire-and-forget)
   },
 };

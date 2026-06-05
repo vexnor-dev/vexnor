@@ -4,6 +4,7 @@ import { SqlQueryHandler, SqlQueryHandlerAny } from "#/core/query/sql-query-hand
 import { SqlQuery } from "#/core/query/sql-query.js";
 import { detectQueryType } from "#/cli/exec/detect-query-type.js";
 import { confirmPrompt } from "#/cli/exec/confirm-prompt.js";
+import { isRuntimeValue } from "#/core/query/runtime-value.js";
 import * as path from "node:path";
 import { SqlExecError } from "#/cli/exec/sql-exec-error.js";
 
@@ -11,6 +12,7 @@ export interface ExecOptions {
    config: string;
    queryConfig?: string;
    env?: string;
+   runtime?: string[];
    format?: "table" | "json" | "csv";
    limit?: number;
    dryRun?: boolean;
@@ -77,10 +79,32 @@ export async function execCommand(queryName: string, options: ExecOptions): Prom
          ? querySettings.environments[options.env]
          : querySettings.params;
 
+   // Parse --runtime key=value pairs and substitute RuntimeValue sentinels
+   const runtimeOverrides: Record<string, string> = {};
+   for (const entry of options.runtime ?? []) {
+      const eq = entry.indexOf("=");
+      if (eq === -1) throw new Error(`Invalid --runtime value '${entry}': expected key=value`);
+      runtimeOverrides[entry.slice(0, eq)] = entry.slice(eq + 1);
+   }
+
+   const resolvedParams: Record<string, unknown> = {};
+   for (const [key, value] of Object.entries(params ?? {})) {
+      if (isRuntimeValue(value)) {
+         if (!(key in runtimeOverrides)) {
+            throw new Error(
+               `Runtime param '${key}' has no value. Provide it with: --runtime ${key}=<value>`,
+            );
+         }
+         resolvedParams[key] = runtimeOverrides[key];
+      } else {
+         resolvedParams[key] = value;
+      }
+   }
+
    const format = options.format || querySettings.format || rootConfig.exec?.format || "json";
    const limit = options.limit ?? querySettings.limit ?? rootConfig.exec?.limit;
 
-   const { text, values } = query.getSql({ params });
+   const { text, values } = query.getSql({ params: resolvedParams });
    if (options.dryRun) {
       console.log("SQL:", text);
       console.log("Values:", values);
@@ -137,13 +161,13 @@ export async function execCommand(queryName: string, options: ExecOptions): Prom
 
       let result: unknown[];
       try {
-         result = (await queryHandler.all({ db: connection.db, params })) as unknown[];
+         result = (await queryHandler.all({ db: connection.db, params: resolvedParams })) as unknown[];
       } catch (err) {
          const errorMsg = err instanceof Error ? err.message : String(err);
          throw new Error(
             `Query execution failed for '${queryName}':\n` +
                `SQL: ${text}\n` +
-               `Params: ${JSON.stringify(params)}\n` +
+               `Params: ${JSON.stringify(resolvedParams)}\n` +
                `Error: ${errorMsg}`,
          );
       }

@@ -20,7 +20,20 @@ import { handleDbError } from "./db-error.js";
 
 const tracer = trace.getTracer("vexnor-react-vite-api");
 
-type RequestContext = { token: string | null };
+type RequestContext = { token: string | null; userId: string | null };
+
+function decodeUserId(token: string | null): string | null {
+   if (!token) return null;
+   try {
+      const payload = token.split(".")[1];
+      if (!payload) return null;
+      const decoded = JSON.parse(Buffer.from(payload, "base64").toString("utf-8")) as { sub?: string };
+      return decoded.sub ?? null;
+   } catch {
+      return null;
+   }
+}
+
 const queryRegistry = new QueryRegistry<RequestContext>();
 
 const pgPool = new pg.Pool({
@@ -83,21 +96,14 @@ app.get("/api/health", async (c) => {
 });
 
 app.post("/api/db", async (c) => {
-   const { plugin, hash, params, name, location } = await c.req.json<{
-      plugin: string;
-      hash: string;
-      params: Record<string, unknown>;
-      name: string | null;
-      location: string | null;
-   }>();
+   const args = await c.req.json();
    const token = c.req.header("Authorization")?.replace("Bearer ", "") ?? null;
+   const userId = decodeUserId(token);
    try {
       const result = await queryRegistry.execute(
-         plugin,
-         hash,
-         params ?? {},
-         async (p: string) => {
-            switch (plugin) {
+         args,
+         async ({ plugin }) => {
+            switch (args.plugin) {
                case vexnorMssql.name:
                   return mssqlPool.request();
                case vexnorPostgres.name:
@@ -105,14 +111,14 @@ app.post("/api/db", async (c) => {
                case vexnorSqlite3.name:
                   return sqliteDb;
                default:
-                  throw new Error(`Unknown plugin: ${p}`);
+                  throw new Error(`Unknown plugin: ${plugin}`);
             }
          },
-         { token },
+         { token, userId },
       );
       return c.json(result);
    } catch (err) {
-      return handleDbError(c, err, { name, location });
+      return handleDbError(c, err, args);
    }
 });
 

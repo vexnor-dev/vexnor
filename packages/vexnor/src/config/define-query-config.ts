@@ -36,7 +36,7 @@ export function defineQueryConfig<TQueries extends Record<string, SqlQueryAny>>(
             throw new Error(`Query '${key}' missing profile`);
          }
 
-         if (!settings.params) {
+         if (query.params && Object.keys(query.params).length && !settings.params) {
             throw new Error(`Query '${key}' missing params`);
          }
 

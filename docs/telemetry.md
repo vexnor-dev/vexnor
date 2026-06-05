@@ -61,9 +61,19 @@ Each query execution produces one span:
 | `vexnor.query.id` | Internal query instance id |
 | `vexnor.query.location` | Source file and line where the query was defined (relative to cwd) |
 | `vexnor.plugin` | Plugin name (e.g. `vexnor-postgres`) |
+| `vexnor.input.plugin` | Plugin name from the raw request |
+| `vexnor.input.hash` | Query hash from the raw request |
+| `vexnor.input.location` | Source location from the raw request |
+| `vexnor.input.mode` | Execution mode (`query` or `mutation`) |
 | `status` | `OK` on success, `ERROR` on failure |
 
-On failure, the span status is set to `ERROR` with the error message, and `span.recordException(error)` is called.
+On failure, the span status is set to `ERROR` with the error message, and `span.recordException(error)` is called. For `SqlRunError`, additional attributes are set:
+
+| Field | Value |
+|-------|-------|
+| `vexnor.error.code` | The `SqlErrorCode` (e.g. `QUERY_EXECUTION_FAILED`) |
+| `vexnor.error.name` | Error name |
+| `vexnor.query.sql` | The SQL text that failed (if available) |
 
 ## Sending to a Collector
 
@@ -82,23 +92,26 @@ const sdk = new NodeSDK({
 
 ## Combining with Audit Logging
 
-`registerOpenTelemetry` is built on top of `registerAuditLog` — it registers an audit log listener internally. You can register additional listeners alongside it:
+`registerOpenTelemetry` is built on the `use()` plugin system. You can attach additional `AuditLogPlugin` instances alongside it:
 
 ```typescript
+import { AuditLogPlugin } from 'vexnor/registry';
+
 registry.registerOpenTelemetry(tracer);
 
 // Also log to pino for structured text output
-registry.registerAuditLog((event) => {
-  const { queryName, plugin, durationMs, error } = event.args;
-  if (error) {
-    log.error({ queryName, plugin: plugin.name, durationMs, err: error }, 'query failed');
-  } else {
-    log.info({ queryName, plugin: plugin.name, durationMs }, 'query executed');
-  }
-});
+registry.use(new AuditLogPlugin({
+  onLog: ({ name, plugin, durationMs, error }) => {
+    if (error) {
+      log.error({ name, plugin: plugin.name, durationMs, err: error }, 'query failed');
+    } else {
+      log.info({ name, plugin: plugin.name, durationMs }, 'query executed');
+    }
+  },
+}));
 ```
 
-Both listeners receive every event independently.
+Both receive every event independently.
 
 ## Notes
 

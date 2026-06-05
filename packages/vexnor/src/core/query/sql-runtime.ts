@@ -1,11 +1,5 @@
 import { ParamValidation } from "#/core/query/sql-param-validation.js";
-import { SqlParam, SqlParamAny } from "#/core/query/sql-param.js";
-
-/** Type alias — a runtime param is a regular SqlParam with isRuntime: true. */
-export type SqlRuntime<T extends { Name: string; Type: unknown }> = SqlParam<T>;
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type SqlRuntimeAny = SqlParamAny;
+import { SqlParam } from "#/core/query/sql-param.js";
 
 /**
  * Declares a named runtime parameter with a compile-time type.
@@ -18,7 +12,7 @@ export type SqlRuntimeAny = SqlParamAny;
  * On direct execution (outside the registry), runtime values are passed just
  * like regular params.
  *
- * @param key - The parameter name, must be a key of `T`.
+ * @param key - The parameter name must be a key of `T`.
  * @param validation - Optional validation rules applied before execution.
  * @returns A `SqlParam` node with `isRuntime: true` that emits a placeholder at build time.
  *

@@ -205,4 +205,60 @@ describe("execCommand", () => {
       expect(mockCreateConnection).not.toHaveBeenCalled();
       expect(consoleOutput.join("\n")).toContain("Operation cancelled");
    });
+
+   // ── --runtime flag ───────────────────────────────────────────────────
+
+   test("--runtime substitutes runtimeValue sentinel with provided value", async () => {
+      const configPath = join(__dirname, "fixtures", "vexnor.config.ts");
+      const queryConfigPath = join(__dirname, "fixtures", "runtime-queries.vexnor.ts");
+
+      await execCommand("selectMyOrders", {
+         config: configPath,
+         queryConfig: queryConfigPath,
+         runtime: ["userId=u-abc"],
+      });
+
+      expect(mockCreateConnection).toHaveBeenCalled();
+   });
+
+   test("--runtime dry-run shows substituted value in SQL output", async () => {
+      const configPath = join(__dirname, "fixtures", "vexnor.config.ts");
+      const queryConfigPath = join(__dirname, "fixtures", "runtime-queries.vexnor.ts");
+
+      await execCommand("selectMyOrders", {
+         config: configPath,
+         queryConfig: queryConfigPath,
+         runtime: ["userId=u-abc"],
+         dryRun: true,
+      });
+
+      expect(consoleOutput.join("\n")).toContain("u-abc");
+      expect(mockCreateConnection).not.toHaveBeenCalled();
+   });
+
+   test("throws when runtime param has runtimeValue but no --runtime override provided", async () => {
+      const configPath = join(__dirname, "fixtures", "vexnor.config.ts");
+      const queryConfigPath = join(__dirname, "fixtures", "runtime-queries.vexnor.ts");
+
+      await expect(
+         execCommand("selectMyOrders", {
+            config: configPath,
+            queryConfig: queryConfigPath,
+            // no runtime: [] provided
+         }),
+      ).rejects.toThrow("Runtime param 'userId' has no value");
+   });
+
+   test("throws on malformed --runtime entry (missing =)", async () => {
+      const configPath = join(__dirname, "fixtures", "vexnor.config.ts");
+      const queryConfigPath = join(__dirname, "fixtures", "runtime-queries.vexnor.ts");
+
+      await expect(
+         execCommand("selectMyOrders", {
+            config: configPath,
+            queryConfig: queryConfigPath,
+            runtime: ["userIdNoEquals"],
+         }),
+      ).rejects.toThrow("Invalid --runtime value 'userIdNoEquals': expected key=value");
+   });
 });

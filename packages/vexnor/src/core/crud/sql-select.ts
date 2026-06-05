@@ -1,7 +1,7 @@
 import { SqlQueryAny, SqlQueryExtended } from "#/core/query/sql-query.js";
 import { SqlParam } from "#/core/query/sql-param.js";
 import { Simplify } from "#/core/utils/utility-types.js";
-import { ParamsOfArgs, RowOf, TypeOf } from "#/core/sql-base.js";
+import { ParamsOfArgs, TypeOf } from "#/core/sql-base.js";
 import { SqlTable } from "#/core/schema/sql-table.js";
 import { ok, strictEqual } from "#/lib/assert.js";
 import { sql } from "#/core/sql.js";
@@ -93,13 +93,13 @@ export function expandFromClause<T extends { Select: Record<string, unknown> }>(
 export type SqlTableReadRowSelect<
    T extends { Select: Record<string, unknown> },
    Args extends SqlSelectArgs,
-> = Args["SELECT"] extends SqlQueryAny ? RowOf<Args["SELECT"]> : T["Select"];
+> = Args["SELECT"] extends SqlQueryAny ? TypeOf<Args["SELECT"]> : T["Select"];
 
 export type SqlTableReadRowIncludeOne<Args> = Args extends {
    includeOne: Record<string, SqlQueryAny>;
 }
    ? {
-        [K in keyof Args["includeOne"]]: TypeOf<Args["includeOne"][K]>;
+        [K in keyof Args["includeOne"]]: TypeOf<Args["includeOne"][K]> | null;
      }
    : unknown;
 

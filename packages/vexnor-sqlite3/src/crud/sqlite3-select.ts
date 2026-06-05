@@ -43,7 +43,7 @@ export function sqlite3Select<T extends { Select: Record<string, unknown> }, Arg
 
    return sql`
       ${info({ driver: "sqlite" }) ?? raw.BLANK}
-      select ${args.SELECT?.$$ ? row(args.SELECT.$$) : row(table.$$)}
+      select ${args.SELECT ? args.SELECT.inline("default") : row(table.$$)}
                 ${includes.length > 0 ? raw(", ") : raw.BLANK} ${includes}
       from ${table} ${baseArgs.JOIN ? baseArgs.JOIN.inline() : raw.BLANK}
          ${baseArgs.WHERE ? sql`where ${baseArgs.WHERE.inline()}`.inline("default") : raw.BLANK}

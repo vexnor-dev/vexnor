@@ -14,12 +14,17 @@ type Ctx = { userId: string };
 function execArgs(overrides: Partial<ExecutionArgs> = {}): ExecutionArgs {
    return {
       plugin: stubPlugin,
+      name: "findAccounts",
       query: stubQuery,
-      queryHash: "hash-a",
-      queryName: "findAccounts",
+      input: {
+         plugin: stubPlugin.name,
+         hash: "hash-a",
+         location: null,
+         params: {},
+         mode: "query",
+      },
       params: {},
       context: {},
-      location: null,
       ...overrides,
    };
 }
@@ -28,11 +33,16 @@ function ctxArgs(userId: string, overrides: Partial<ExecutionArgs<Ctx>> = {}): E
    return {
       plugin: stubPlugin,
       query: stubQuery,
-      queryHash: "hash-a",
-      queryName: "findAccounts",
+      name: "findAccounts",
+      input: {
+         plugin: stubPlugin.name,
+         hash: "hash-a",
+         location: null,
+         params: {},
+         mode: "query",
+      },
       params: {},
       context: { userId },
-      location: null,
       ...overrides,
    };
 }
@@ -100,14 +110,14 @@ describe("TimeToLiveRateLimiter — metrics tracking", () => {
 
    test("after() is a no-op when hash is unknown", () => {
       const limiter = new TimeToLiveRateLimiter();
-      expect(() => limiter.after(afterArgs({ queryHash: "unknown" }))).not.toThrow();
+      expect(() => limiter.after(afterArgs({ input: { plugin: "", hash: "unknown", location: null, params: {}, mode: "query" } }))).not.toThrow();
    });
 
    test("tracks separate metrics per query hash", async () => {
       const limiter = new TimeToLiveRateLimiter();
-      await limiter.check(execArgs({ queryHash: "hash-a" }));
-      await limiter.check(execArgs({ queryHash: "hash-b" }));
-      await limiter.after(afterArgs({ queryHash: "hash-a", durationMs: 5 }));
+      await limiter.check(execArgs({ input: { plugin: "", hash: "hash-a", location: null, params: {}, mode: "query" } }));
+      await limiter.check(execArgs({ input: { plugin: "", hash: "hash-b", location: null, params: {}, mode: "query" } }));
+      await limiter.after(afterArgs({ input: { plugin: "", hash: "hash-a", location: null, params: {}, mode: "query" }, durationMs: 5 }));
 
       expect(limiter.metrics.get("hash-a")).toMatchInlineSnapshot(`
         {
@@ -250,7 +260,9 @@ describe("TimeToLiveRateLimiter — limit hook", () => {
 
    test("limit hook throwing wraps error in SqlRunError with QUERY_RATE_LIMITED", async () => {
       const limiter = new TimeToLiveRateLimiter({
-         limit: () => { throw new Error("too many"); },
+         limit: () => {
+            throw new Error("too many");
+         },
       });
 
       await expect(limiter.check(execArgs())).rejects.toMatchInlineSnapshot(
@@ -260,14 +272,12 @@ describe("TimeToLiveRateLimiter — limit hook", () => {
 
    test("limit hook throwing SqlRunError propagates as-is", async () => {
       const limiter = new TimeToLiveRateLimiter({
-         limit: ({ query, queryName }) => {
-            throw new SqlRunError("custom", query, { queryName, code: SqlErrorCode.QUERY_RATE_LIMITED });
+         limit: ({ query, name }) => {
+            throw new SqlRunError("custom", query, { queryName: name, code: SqlErrorCode.QUERY_RATE_LIMITED });
          },
       });
 
-      await expect(limiter.check(execArgs())).rejects.toMatchInlineSnapshot(
-         `[SqlRunError: custom]`,
-      );
+      await expect(limiter.check(execArgs())).rejects.toMatchInlineSnapshot(`[SqlRunError: custom]`);
    });
 
    test("limit hook runs after maxConcurrent check — not called on second rejected check", async () => {
@@ -324,7 +334,7 @@ describe("TimeToLiveRateLimiter — clearContextMetrics", () => {
    test("clearContextMetrics() with no arg clears all context entries", async () => {
       const limiter = new TimeToLiveRateLimiter<Ctx>({ contextKeyResolver: (ctx) => ctx.userId });
       await limiter.check(ctxArgs("u1"));
-      await limiter.check(ctxArgs("u1", { queryHash: "hash-b" }));
+      await limiter.check(ctxArgs("u1", { input: { plugin: "", hash: "hash-b", location: null, params: {}, mode: "query" } }));
 
       limiter.clearContextMetrics();
 
@@ -335,7 +345,7 @@ describe("TimeToLiveRateLimiter — clearContextMetrics", () => {
    test("clearContextMetrics(key) removes only that key across all hashes", async () => {
       const limiter = new TimeToLiveRateLimiter<Ctx>({ contextKeyResolver: (ctx) => ctx.userId });
       await limiter.check(ctxArgs("u1"));
-      await limiter.check(ctxArgs("u1", { queryHash: "hash-b" }));
+      await limiter.check(ctxArgs("u1", { input: { plugin: "", hash: "hash-b", location: null, params: {}, mode: "query" } }));
       await limiter.check(ctxArgs("u2"));
 
       limiter.clearContextMetrics("u1");
@@ -349,7 +359,7 @@ describe("TimeToLiveRateLimiter — clearContextMetrics", () => {
 // ── name ──────────────────────────────────────────────────────────────────────
 
 describe("TimeToLiveRateLimiter — name", () => {
-   test("defaults to \"TimeToLiveRateLimiter\" when not set", () => {
+   test('defaults to "TimeToLiveRateLimiter" when not set', () => {
       const limiter = new TimeToLiveRateLimiter();
       expect(limiter.name).toMatchInlineSnapshot(`"TimeToLiveRateLimiter"`);
    });

@@ -2,6 +2,7 @@ import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
 import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
 import { isError } from "#/lib/is-error.js";
 import { SqlJsonSchema } from "#/core/utils/sql-json-schema.js";
+import { ok } from "#/lib/assert.js";
 
 export type TypeOf<S> = S extends { readonly [TYPE]?: infer R } ? R : void;
 export type ArgsOf<S> = S extends { readonly [ARGS]?: infer R } ? R : void;
@@ -17,9 +18,21 @@ export type RowsOfArgs<T> = {
 type CollectParams<T> =
    ParamsOf<T> extends Record<string, unknown>
       ? ParamsOf<T>
-      : T extends Record<string, unknown>
-        ? UnionToIntersection<{ [K in keyof T]-?: CollectParams<NonNullable<T[K]>> }[keyof T]>
-        : never;
+      : T extends { readonly [SQL_TOKEN]: never }
+        ? never
+        : T extends Record<string, unknown>
+          ? { [K in keyof T]-?: CollectParams<NonNullable<T[K]>> } extends infer Collected
+             ? Collected extends Record<string, never>
+                ? never
+                : UnionToIntersection<
+                     Collected[keyof Collected & keyof T] extends infer U
+                        ? U extends Record<string, unknown>
+                           ? U
+                           : never
+                        : never
+                  >
+             : never
+          : never;
 
 export type ParamsOfArgs<T> = [CollectParams<T>] extends [never]
    ? void
@@ -31,6 +44,7 @@ export declare const ROW: unique symbol;
 export declare const TYPE: unique symbol;
 export declare const PARAMS: unique symbol;
 export declare const ARGS: unique symbol;
+export declare const SQL_TOKEN: unique symbol;
 
 export type SqlOptions = Pick<Sql, "id" | "hashId"> & Partial<Pick<Sql, "tag">> & { type?: string };
 
@@ -39,6 +53,7 @@ export abstract class Sql {
    declare readonly [TYPE]?: unknown;
    declare readonly [PARAMS]?: unknown;
    declare readonly [ARGS]?: unknown;
+   declare readonly [SQL_TOKEN]: never;
 
    readonly id: string;
    readonly type: string;
@@ -47,7 +62,8 @@ export abstract class Sql {
 
    protected constructor(options: SqlOptions) {
       this.id = `${this.constructor.name}#${nextId(this.constructor.name)}`;
-      this.hashId = `${options.type ?? this.constructor.name}#(${options.hashId ?? options.id})`;
+      ok(options.hashId, `Invalid hashId provided for ${options.type ?? this.constructor.name}`);
+      this.hashId = `${options.type ?? this.constructor.name}#(${options.hashId})`;
 
       if (options.tag || options.id) {
          this.id += "(";

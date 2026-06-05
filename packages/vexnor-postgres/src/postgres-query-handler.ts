@@ -107,7 +107,5 @@ export class PostgresQueryHandler<T extends { Row?: unknown; Params?: unknown }>
 }
 
 function isQueryResult<T extends object>(x: unknown): x is QueryResult<T> {
-   return (
-      typeof x === "object" && x !== null && "command" in x && "rowCount" in x && "rows" in x && Array.isArray(x.rows)
-   );
+   return typeof x === "object" && x !== null && "rows" in x && Array.isArray((x as { rows: unknown }).rows);
 }

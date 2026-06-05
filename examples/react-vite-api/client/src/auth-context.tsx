@@ -1,18 +1,23 @@
 import { createContext, useCallback, useContext, useMemo, useState } from "react";
 
-type AuthState =
-   | { authenticated: false; token: null }
-   | { authenticated: true; token: string; userId: string; roles: string[] };
+export type DbKey = "postgres" | "mssql" | "sqlite3";
 
-type AuthContext = AuthState & {
-   login: (token: string) => void;
-   logout: () => void;
+type DbAuthState =
+   | { authenticated: false; token: null }
+   | { authenticated: true; token: string; userId: string; name: string; roles: string[] };
+
+type AuthContextValue = {
+   sessions: Record<DbKey, DbAuthState>;
+   login: (db: DbKey, token: string) => void;
+   logout: (db: DbKey) => void;
 };
 
-const Context = createContext<AuthContext | null>(null);
+const UNAUTHENTICATED: DbAuthState = { authenticated: false, token: null };
+
+const Context = createContext<AuthContextValue | null>(null);
 
 // Minimal JWT payload decoder — no verification, server must verify
-function decodeJwtPayload(token: string): { sub?: string; roles?: string[] } | null {
+function decodeJwtPayload(token: string): { sub?: string; name?: string; roles?: string[] } | null {
    try {
       const payload = token.split(".")[1];
       if (!payload) return null;
@@ -22,30 +27,49 @@ function decodeJwtPayload(token: string): { sub?: string; roles?: string[] } | n
    }
 }
 
+const INITIAL: Record<DbKey, DbAuthState> = {
+   postgres: UNAUTHENTICATED,
+   mssql: UNAUTHENTICATED,
+   sqlite3: UNAUTHENTICATED,
+};
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-   const [state, setState] = useState<AuthState>({ authenticated: false, token: null });
+   const [sessions, setSessions] = useState<Record<DbKey, DbAuthState>>(INITIAL);
 
-   const login = useCallback((token: string) => {
+   const login = useCallback((db: DbKey, token: string) => {
       const payload = decodeJwtPayload(token);
-      setState({
-         authenticated: true,
-         token,
-         userId: payload?.sub ?? "unknown",
-         roles: payload?.roles ?? [],
-      });
+      setSessions((prev) => ({
+         ...prev,
+         [db]: {
+            authenticated: true,
+            token,
+            userId: payload?.sub ?? "unknown",
+            name: payload?.name ?? payload?.sub ?? "unknown",
+            roles: payload?.roles ?? [],
+         },
+      }));
    }, []);
 
-   const logout = useCallback(() => {
-      setState({ authenticated: false, token: null });
+   const logout = useCallback((db: DbKey) => {
+      setSessions((prev) => ({ ...prev, [db]: UNAUTHENTICATED }));
    }, []);
 
-   const value = useMemo(() => ({ ...state, login, logout }), [state, login, logout]);
+   const value = useMemo(() => ({ sessions, login, logout }), [sessions, login, logout]);
 
    return <Context value={value}>{children}</Context>;
 }
 
-export function useAuth(): AuthContext {
+export function useAuth(db: DbKey): DbAuthState & { login: (token: string) => void; logout: () => void } {
    const ctx = useContext(Context);
    if (!ctx) throw new Error("useAuth must be used inside <AuthProvider>");
-   return ctx;
+   const state = ctx.sessions[db];
+   const login = useCallback((token: string) => ctx.login(db, token), [ctx, db]);
+   const logout = useCallback(() => ctx.logout(db), [ctx, db]);
+   return useMemo(() => ({ ...state, login, logout }), [state, login, logout]);
+}
+
+export function useAuthSessions(): Record<DbKey, DbAuthState> & { logout: (db: DbKey) => void } {
+   const ctx = useContext(Context);
+   if (!ctx) throw new Error("useAuthSessions must be used inside <AuthProvider>");
+   return useMemo(() => ({ ...ctx.sessions, logout: ctx.logout }), [ctx.sessions, ctx.logout]);
 }

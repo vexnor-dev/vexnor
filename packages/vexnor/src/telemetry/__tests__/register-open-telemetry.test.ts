@@ -1,11 +1,11 @@
 import { describe, test, expect, vi, beforeEach } from "vitest";
 import { SpanStatusCode } from "@opentelemetry/api";
 import "#/telemetry/register-open-telemetry.js";
-import { QueryRegistry } from "#/registry/query-registry.js";
+import { QueryRegistry, type ConnectionResolver } from "#/registry/query-registry.js";
 import { SqlQueryHandler, newSqlQueryHandler } from "#/core/query/sql-query-handler.js";
 import { SqlQuery } from "#/core/query/sql-query.js";
 import { VexnorPlugin } from "#/plugin/vexnor-plugin.js";
-import { SqlRunArgs } from "#/core/query/sql-query-types.js";
+import { SqlRunArgs, type SqlExecuteMode } from "#/core/query/sql-query-types.js";
 import { sql } from "#/core/sql.js";
 import { row } from "#/core/query/sql-select-row.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
@@ -62,6 +62,17 @@ function makeDb(rows: unknown[] = []): MockConnection {
    return { query: async () => ({ rows }) };
 }
 
+function executeRegistry<TResult = MockResult>(
+   registry: QueryRegistry,
+   plugin: string,
+   hash: string,
+   params: Record<string, unknown>,
+   resolver: ConnectionResolver,
+   mode: SqlExecuteMode = "query",
+) {
+   return registry.execute<TResult>({ plugin, hash, params, location: "test", mode }, resolver);
+}
+
 // ── mock tracer ───────────────────────────────────────────────────────────────
 
 function makeMockTracer() {
@@ -89,7 +100,7 @@ describe("registerOpenTelemetry", () => {
       registry.registerOpenTelemetry(tracer);
 
       const hash = await findAccounts.hash;
-      await registry.execute("mockPlugin", hash, {}, async () => makeDb([{ accountId: "1" }]));
+      await executeRegistry(registry, "mockPlugin", hash, {}, async () => makeDb([{ accountId: "1" }]));
 
       expect(tracer.startSpan).toHaveBeenCalledWith(
          expect.stringContaining("findAccounts"),
@@ -113,13 +124,11 @@ describe("registerOpenTelemetry", () => {
 
       const hash = await findAccounts.hash;
       const dbError = new Error("connection refused");
-      await registry
-         .execute("mockPlugin", hash, {}, async () => ({
-            query: async () => {
-               throw dbError;
-            },
-         }))
-         .catch(() => {});
+      await executeRegistry(registry, "mockPlugin", hash, {}, async () => ({
+         query: async () => {
+            throw dbError;
+         },
+      })).catch(() => {});
 
       expect(span.setStatus).toHaveBeenCalledWith(expect.objectContaining({ code: SpanStatusCode.ERROR }));
       expect(span.recordException).toHaveBeenCalledWith(
@@ -139,7 +148,7 @@ describe("registerOpenTelemetry", () => {
       const anonQuery = sql`select ${row(Account.$accountId)} from ${Account}`;
       await standaloneRegistry.register(plugin, { anonQuery });
       const hash = await anonQuery.hash;
-      await standaloneRegistry.execute("mockPlugin", hash, {}, async () => makeDb([]));
+      await executeRegistry(standaloneRegistry, "mockPlugin", hash, {}, async () => makeDb([]));
 
       expect(tracer.startSpan).toHaveBeenCalledWith(expect.stringContaining("anonQuery"), expect.any(Object));
       expect(span.end).toHaveBeenCalled();

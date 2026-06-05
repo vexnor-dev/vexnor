@@ -13,6 +13,7 @@ describe("SQL_ERROR_STATUS", () => {
           "QUERY_EXECUTION_FAILED": 500,
           "QUERY_NOT_AUTHORIZED": 403,
           "QUERY_NOT_FOUND": 400,
+          "QUERY_PARAMETERS_INVALID": 400,
           "QUERY_RATE_LIMITED": 429,
           "QUERY_RETRYABLE_FAILURE": 503,
           "QUERY_TIMEOUT": 504,

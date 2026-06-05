@@ -95,7 +95,7 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
     */
    async execute<TResult>(
       args: SqlRunArgs<{ Connection: Sqlite3Client; Params: T["Params"] }>,
-      mode: "query" | "mutation" = "mutation",
+      mode: SqlExecuteMode = "mutation",
    ): Promise<TResult> {
       const { db, options: { debug } = {} } = args;
       const resolvedDb = await db;

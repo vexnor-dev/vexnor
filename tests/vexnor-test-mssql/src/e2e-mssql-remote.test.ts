@@ -42,8 +42,8 @@ describe.sequential("mssql remote execution", (ctx) => {
       });
 
       remoteClient = {
-         remoteExecute: ({ plugin, hash, params, mode }) =>
-            registry.execute(plugin, hash, params ?? {}, async () => pool.request(), undefined, mode),
+         remoteExecute: (config) =>
+            registry.execute({ ...config, params: config.params ?? {} }, async () => pool.request()),
       };
 
       account = await sql`
@@ -78,9 +78,7 @@ describe.sequential("mssql remote execution", (ctx) => {
          params: { accountId: account.accountId, limit: 10 },
       });
       expect(results[0]!.orders).toHaveLength(2);
-      expect(results[0]!.orders.map((o) => o.orderId)).toEqual(
-         expect.arrayContaining(orders.map((o) => o.orderId)),
-      );
+      expect(results[0]!.orders.map((o) => o.orderId)).toEqual(expect.arrayContaining(orders.map((o) => o.orderId)));
    });
 
    test("all() via remote deserializes top-level Date fields", async () => {

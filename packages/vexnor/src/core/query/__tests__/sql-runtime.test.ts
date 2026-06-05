@@ -3,12 +3,13 @@ import { sql } from "#/core/sql.js";
 import { row } from "#/core/query/sql-select-row.js";
 import { param, SqlParam } from "#/core/query/sql-param.js";
 import { runtime } from "#/core/query/sql-runtime.js";
+import { runtimeValue, isRuntimeValue } from "#/core/query/runtime-value.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { QueryRegistry } from "#/registry/query-registry.js";
+import { QueryRegistry, type ConnectionResolver } from "#/registry/query-registry.js";
 import { SqlQuery } from "#/core/query/sql-query.js";
 import { SqlQueryHandler, newSqlQueryHandler } from "#/core/query/sql-query-handler.js";
 import { VexnorPlugin } from "#/plugin/vexnor-plugin.js";
-import { SqlRunArgs } from "#/core/query/sql-query-types.js";
+import { SqlRunArgs, type SqlExecuteMode } from "#/core/query/sql-query-types.js";
 
 // ── minimal mock infrastructure ──────────────────────────────────────────────
 
@@ -68,6 +69,18 @@ function makeDb(rows: unknown[] = [], capturedParams?: { sql: string; values: un
    };
 }
 
+function executeRegistry<TResult = MockResult, TRuntime extends Record<string, unknown> = Record<string, unknown>>(
+   registry: QueryRegistry<TRuntime>,
+   plugin: string,
+   hash: string,
+   params: Record<string, unknown>,
+   resolver: ConnectionResolver,
+   context?: TRuntime,
+   mode: SqlExecuteMode = "query",
+) {
+   return registry.execute<TResult>({ plugin, hash, params, location: "test", mode }, resolver, context);
+}
+
 // ── tests ─────────────────────────────────────────────────────────────────────
 
 describe("SqlRuntime", () => {
@@ -86,9 +99,7 @@ describe("SqlRuntime", () => {
       });
 
       test("hashId includes name", () => {
-         expect(runtime<{ userId: string }>("userId").hashId).toMatchInlineSnapshot(
-            `"SqlRuntime#(userId)"`,
-         );
+         expect(runtime<{ userId: string }>("userId").hashId).toMatchInlineSnapshot(`"SqlRuntime#(userId)"`);
       });
 
       test("different names produce different hashIds", () => {
@@ -180,9 +191,7 @@ describe("SqlRuntime", () => {
       });
 
       test("SqlRuntime and SqlParam with same name produce different hashIds", () => {
-         expect(runtime<{ userId: string }>("userId").hashId).not.toBe(
-            param<{ userId: string }>("userId").hashId,
-         );
+         expect(runtime<{ userId: string }>("userId").hashId).not.toBe(param<{ userId: string }>("userId").hashId);
       });
    });
 
@@ -220,7 +229,7 @@ describe("SqlRuntime", () => {
          const captured: { sql: string; values: unknown[] }[] = [];
          const hash = await q.hash;
 
-         await registry.execute("mock", hash, {}, async () => makeDb([], captured), { userId: "u-abc" });
+         await executeRegistry(registry, "mock", hash, {}, async () => makeDb([], captured), { userId: "u-abc" });
 
          expect(captured[0]!.values).toMatchInlineSnapshot(`
            [
@@ -242,13 +251,9 @@ describe("SqlRuntime", () => {
          const captured: { sql: string; values: unknown[] }[] = [];
          const hash = await q.hash;
 
-         await registry.execute(
-            "mock",
-            hash,
-            { email: "a@b.com" },
-            async () => makeDb([], captured),
-            { userId: "u-abc" },
-         );
+         await executeRegistry(registry, "mock", hash, { email: "a@b.com" }, async () => makeDb([], captured), {
+            userId: "u-abc",
+         });
 
          expect(captured[0]!.values).toMatchInlineSnapshot(`
            [
@@ -271,7 +276,8 @@ describe("SqlRuntime", () => {
          const captured: { sql: string; values: unknown[] }[] = [];
          const hash = await q.hash;
 
-         await registry.execute(
+         await executeRegistry(
+            registry,
             "mock",
             hash,
             { email: "jane@example.com" },
@@ -300,8 +306,53 @@ describe("SqlRuntime", () => {
          const hash = await q.hash;
 
          await expect(
-            registry.execute("mock", hash, {}, async () => makeDb([]), { userId: "" }),
+            executeRegistry(registry, "mock", hash, {}, async () => makeDb([]), { userId: "" }),
          ).rejects.toThrow("Invalid param 'userId'");
       });
+   });
+});
+
+describe("runtimeValue sentinel", () => {
+   test("isRuntimeValue returns true for runtimeValue", () => {
+      expect(isRuntimeValue(runtimeValue)).toBe(true);
+   });
+
+   test("isRuntimeValue returns false for other values", () => {
+      expect(isRuntimeValue(null)).toBe(false);
+      expect(isRuntimeValue(undefined)).toBe(false);
+      expect(isRuntimeValue("")).toBe(false);
+      expect(isRuntimeValue(0)).toBe(false);
+      expect(isRuntimeValue(Symbol("other"))).toBe(false);
+   });
+
+   test("runtimeValue is unique — two references are the same instance", () => {
+      expect(runtimeValue).toBe(runtimeValue);
+   });
+
+   test("passing runtimeValue on direct execution produces null in the SQL values", () => {
+      const q = sql`
+         SELECT ${row(Account.$accountId)}
+         FROM ${Account}
+         WHERE ${Account.$accountId} = ${runtime<{ userId: string }>("userId")}
+      `;
+      // runtimeValue satisfies the type but resolves to null at SQL build time
+      const { values } = q.getSql({ params: { userId: runtimeValue as unknown as string } });
+      expect(values).toMatchInlineSnapshot(`
+        [
+          null,
+        ]
+      `);
+   });
+
+   test("runtimeValue params are stripped before remote execute is called", () => {
+      const rawParams: Record<string, unknown> = { userId: runtimeValue, email: "a@b.com" };
+      const stripped = Object.fromEntries(Object.entries(rawParams).filter(([, v]) => !isRuntimeValue(v)));
+
+      expect(stripped).toMatchInlineSnapshot(`
+        {
+          "email": "a@b.com",
+        }
+      `);
+      expect("userId" in stripped).toBe(false);
    });
 });

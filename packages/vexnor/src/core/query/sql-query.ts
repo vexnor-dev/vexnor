@@ -28,6 +28,7 @@ import { ok } from "#/lib/assert.js";
 import { isSqlLanguage } from "#/core/query/lib/is-sql-language.js";
 import { isPrimitive } from "#/lib/primitive.js";
 import { SqlExpand } from "#/core/query/sql-expand.js";
+import { isRuntimeValue } from "#/core/query/runtime-value.js";
 import { getDefaultParamFormat } from "#/core/query/default-param-format.js";
 import { SqlJsonSchema } from "#/core/utils/sql-json-schema.js";
 import { parseCallerLocation } from "#/core/utils/caller-location.js";
@@ -86,7 +87,11 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
          hashId:
             JSON.stringify(Array.from(rawStrings)) +
             "|" +
-            rawValues.map((v) => (v instanceof Sql ? v.hashId : String(v))).join("|"),
+            rawValues.map((v) => {
+               if (v instanceof Sql) return v.hashId;
+               if (Array.isArray(v)) return v.map((item) => (item instanceof Sql ? item.hashId : String(item))).join(",");
+               return String(v);
+            }).join("|"),
          tag: args.tag,
       });
 
@@ -164,7 +169,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
    }
 
    async initHash(): Promise<string> {
-      const params = this.params as Record<string, SqlParam<{ Name: string; Type: unknown }>> | null ?? {};
+      const params = (this.params as Record<string, SqlParam<{ Name: string; Type: unknown }>> | null) ?? {};
       const paramNames = Object.entries(params)
          .filter(([, v]) => !v.isRuntime)
          .map(([k]) => k)
@@ -562,7 +567,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
                ok(paramToken, `Param token not found for token: ${token.name}`);
 
                const rawValue = args.params[token.name];
-               const value = paramToken.valueOrDefault(rawValue) ?? null;
+               const value = isRuntimeValue(rawValue) ? null : (paramToken.valueOrDefault(rawValue) ?? null);
 
                if (Array.isArray(value)) {
                   for (let i = 0; i < value.length; i++) {
@@ -651,6 +656,10 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
     */
    inline(queryFormat?: SqlQueryFormat | null): SqlQueryRefExtended<T> {
       return newSqlQueryRef(this, { queryType: "inline", queryFormat });
+   }
+
+   get rowType(): T["Row"] {
+      throw new Error("this property is only for fetching the row type");
    }
 }
 

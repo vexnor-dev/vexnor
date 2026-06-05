@@ -182,14 +182,13 @@ In the HTTP handler, populate the context from the verified session:
 
 ```typescript
 app.post('/api/db', async (c) => {
-  const { plugin, hash, params, mode } = await c.req.json();
+  const args = await c.req.json();
   const session = await verifyToken(c.req.header('Authorization'));
 
   const result = await registry.execute(
-    plugin, hash, params ?? {},
+    args,
     async () => pool,
     { userId: session.userId, tenantId: session.tenantId }, // ← trusted runtime context
-    mode,
   );
   return c.json(result);
 });
@@ -208,7 +207,20 @@ await myOrders.postgres.all({
 });
 ```
 
-No special handling needed — `runtime()` is just metadata that tells the registry where to source the value.
+### Isomorphic execution — `runtimeValue`
+
+When calling a query with `runtime()` params from the browser via `remoteClient`, the client doesn't know the user's server-side identity. Use the `runtimeValue` sentinel to satisfy the TypeScript type requirement without sending an actual value:
+
+```typescript
+import { runtimeValue } from 'vexnor';
+
+await myOrders.postgres.all({
+  db: remoteClient,
+  params: { userId: runtimeValue }, // ← stripped before sending; server injects from context
+});
+```
+
+`runtimeValue` is a branded sentinel — it is assignable to any param type but is stripped by the remote client before the HTTP request is sent. The real value is injected server-side from the registry context. Passing `runtimeValue` on a direct server execution (without the registry) produces `null`.
 
 ### Validation
 
@@ -242,12 +254,13 @@ const effectiveUserId = runtime<{ effectiveUserId: string }>('effectiveUserId');
 |---|---|---|
 | Value source | Caller-supplied `params` | Registry context (server-injected) |
 | Direct execution | Pass in `params` | Pass in `params` |
+| Isomorphic (remote) execution | Caller sends in request | Use `runtimeValue` sentinel; stripped before sending |
 | Registry execution | Caller sends in request | Injected from server context |
 | Contributes to `query.hash` | Yes (as param) | Yes (as runtime, separately keyed) |
 | Validation | Yes | Yes |
 | Default values | Yes | Yes |
 
-
+## `expand()` — Dynamic SQL Expansion
 
 `expand` lazily builds a list of SQL nodes at query execution time. Use it when the shape or number of SQL fragments depends on runtime values — `IN (...)` lists, dynamic `ORDER BY`, conditional `SET` clauses, etc.
 

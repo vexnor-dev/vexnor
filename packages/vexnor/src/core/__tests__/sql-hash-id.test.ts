@@ -133,6 +133,20 @@ describe("hashId", () => {
          const q2 = sql`select ${Account.$accountId} from ${Account} where 1=1`;
          expect(q1.hashId).not.toBe(q2.hashId);
       });
+
+      test("array rawValues use hashId of each element — not toString()/id", () => {
+         // When sql is called with an array interpolation (e.g. plugin select includes),
+         // each element's hashId must be used, not its id (which contains the instance counter).
+         const charm1 = new SqlSelectCharm({ key: "orders", write: () => {}, params: null });
+         const charm2 = new SqlSelectCharm({ key: "items", write: () => {}, params: null });
+         const includes = [charm1, charm2];
+         const q1 = sql`select ${row(Account.$$)}, ${includes} from ${Account}`;
+         const q2 = sql`select ${row(Account.$$)}, ${includes} from ${Account}`;
+         // Must be identical — independent of instance counter
+         expect(q1.hashId).toBe(q2.hashId);
+         // Must not contain any counter pattern like Type#number(
+         expect(q1.hashId).not.toMatch(/[A-Za-z]#\d+\(/);
+      });
    });
 
    describe("SqlQueryColumn", () => {

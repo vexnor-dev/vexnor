@@ -22,13 +22,13 @@ function isRetryableMssqlError(err: unknown): boolean {
       (e.number !== undefined && RETRYABLE_MSSQL_NUMBERS.has(e.number))
    );
 }
-import type { IResult, Request } from "mssql";
+import type { ConnectionPool, IResult, Request } from "mssql";
 import { defaultQueryOptions } from "./default-query-options.js";
 import pkg from "../package.json" with { type: "json" };
 
 export const PLUGIN_NAME = pkg.name;
 
-export type MssqlClient = Request;
+export type MssqlClient = Request | ConnectionPool;
 
 export class MssqlQueryHandler<T extends { Params?: unknown; Row?: unknown }> extends SqlQueryHandler<
    Pick<T, "Row" | "Params"> & {
@@ -102,7 +102,10 @@ export class MssqlQueryHandler<T extends { Params?: unknown; Row?: unknown }> ex
       args: SqlRunArgs<{ Connection: MssqlClient; Params: T["Params"] }>,
    ): Promise<TResult> {
       const { db, options: { debug } = {} } = args;
-      const request = await db;
+      const resolved = await db;
+      const request = "request" in resolved && typeof resolved.request === "function"
+         ? (resolved as ConnectionPool).request()
+         : resolved as Request;
       const queryInput = this.getOptions(args);
       if (debug) debug(Object.freeze(queryInput));
       const { values, text } = queryInput;

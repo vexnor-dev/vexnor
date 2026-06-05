@@ -5,6 +5,7 @@ import { SqlRunError } from "#/core/sql-run-error.js";
 import { SqlErrorCode } from "#/core/sql-error-code.js";
 import type { SqlJsonSchema } from "#/core/utils/sql-json-schema.js";
 import { deserialize } from "#/core/utils/sql-json-schema.js";
+import { isRuntimeValue } from "#/core/query/runtime-value.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlQueryHandlerAny = SqlQueryHandler<any>;
@@ -106,7 +107,11 @@ export abstract class SqlQueryHandler<
 
       if (isRemoteClient(resolvedDb)) {
          const hash = await this.hash;
-         const params = (args as { params?: Record<string, unknown> }).params ?? {};
+         const rawParams = (args as { params?: Record<string, unknown> }).params ?? {};
+         // Strip runtimeValue sentinels — these are injected server-side from registry context
+         const params = Object.fromEntries(
+            Object.entries(rawParams).filter(([, v]) => !isRuntimeValue(v)),
+         );
 
          return await resolvedDb
             .remoteExecute<TResult>({

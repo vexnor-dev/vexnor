@@ -1,36 +1,68 @@
 import "vexnor-mssql";
-import { row, sql, param, col } from "vexnor";
-import { jsonOne } from "vexnor-mssql";
+import { row, sql, param, col, runtime } from "vexnor";
 import { Account } from "../codegen/mssql/vexnor_dev.account-table.js";
 import { Order } from "../codegen/mssql/vexnor_dev.order-table.js";
 import { OrderItem } from "../codegen/mssql/vexnor_dev.order_item-table.js";
 
-const lastOrder = sql`
-   select top 1 ${row(Order.$orderId, Order.$status, Order.$createdAt)},
-          (select count(*)
-           from ${OrderItem}
-           where ${OrderItem.$orderId} = ${Order.$orderId}) as ${col<{ productCount: number }>("productCount")}
+const filter = param<{ filter?: string }>("filter");
+const accountId = param<{ accountId: string }>("accountId");
+
+const orderItems = sql`
+   select ${row(OrderItem.$$)}
+   from ${OrderItem}
+   where ${OrderItem.$orderId} = ${Order.out.$orderId}
+`;
+
+const accountOrders = sql`
+   select ${row(Order.$$)},
+          (select count(*) from ${OrderItem} where ${OrderItem.$orderId} = ${Order.$orderId}) as ${col<{ productCount: number }>("productCount")}
    from ${Order}
    where ${Order.$accountId} = ${Account.out.$accountId}
    order by ${Order.$createdAt} desc
 `;
 
-const filter = param<{ filter?: string }>("filter");
-const accountId = param<{ accountId: string }>("accountId");
+const lastOrder = sql`
+   select top 1 ${row(Order.$$)},
+          (select count(*) from ${OrderItem} where ${OrderItem.$orderId} = ${Order.$orderId}) as ${col<{ productCount: number }>("productCount")}
+   from ${Order}
+   where ${Order.$accountId} = ${Account.out.$accountId}
+   order by ${Order.$createdAt} desc
+`;
 
-export const selectAccounts = sql`
-   select ${row(Account.$$)},
-          (select count(*)
-           from ${Order}
-           where ${Order.$accountId} = ${Account.$accountId}) as ${col<{ orderCount: number }>("orderCount")},
-          ${jsonOne(lastOrder).as("lastOrder")}
-   from ${Account} ${jsonOne(lastOrder)}
-   where (${filter} is null
+export const selectAccounts = Account.mssql.select({
+   SELECT: sql`${row(Account.$$)}, (select count(*) from ${Order} where ${Order.$accountId} = ${Account.$accountId}) as ${col<{ orderCount: number }>("orderCount")}`,
+   WHERE: sql`
+      ${filter} is null
       or ${Account.$email} like '%' + ${filter} + '%'
       or ${Account.$firstName} like '%' + ${filter} + '%'
-      or ${Account.$lastName} like '%' + ${filter} + '%')
-   order by ${Account.$createdAt} desc
-`;
+      or ${Account.$lastName} like '%' + ${filter} + '%'
+   `,
+   ORDER_BY: sql`${Account.$createdAt} desc`,
+   includeOne: { lastOrder },
+});
+
+/**
+ * Login picker query — returns all accounts with their order and product counts.
+ * Used to populate the login screen so a user can pick an account to sign in as.
+ */
+export const selectAccountsForLogin = Account.mssql.select({
+   WHERE: sql`
+      (select count(*) from ${Order} where ${Order.$accountId} = ${Account.$accountId}) > 0
+   `,
+   ORDER_BY: sql`${Account.$createdAt} desc`,
+   includeMany: { orders: accountOrders },
+});
+
+/**
+ * My orders query — returns orders with their items for the authenticated user.
+ * Uses runtime("userId") so the value is injected from the server-side session,
+ * never supplied by the client.
+ */
+export const selectMyOrders = Order.mssql.select({
+   WHERE: sql`${Order.$accountId} = ${runtime<{ userId: string }>("userId")}`,
+   ORDER_BY: sql`${Order.$createdAt} desc`,
+   includeMany: { items: orderItems },
+});
 
 export const deleteAccount = Account.mssql.delete({
    WHERE: sql`${Account.$accountId} = ${accountId}`,

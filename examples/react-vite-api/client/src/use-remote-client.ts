@@ -1,9 +1,9 @@
 import { useMemo } from "react";
 import { HttpRemoteClient, type RemoteClient } from "vexnor";
-import { useAuth } from "./auth-context.js";
+import { useAuth, type DbKey } from "./auth-context.js";
 
-export function useRemoteClient(): RemoteClient {
-   const { token } = useAuth();
+export function useRemoteClient(db: DbKey): RemoteClient {
+   const { token } = useAuth(db);
 
    return useMemo(
       () =>

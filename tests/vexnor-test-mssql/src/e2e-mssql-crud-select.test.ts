@@ -97,7 +97,7 @@ describe.sequential("vexnor mssql CRUD - select", async (ctx) => {
       const results = await query.all({ db: pool.request() });
       expect(results).toHaveLength(1);
       const parsed = results[0]!.firstOrder;
-      expect(parsed.orderId).toBe(order.orderId);
+      expect(parsed!.orderId).toBe(order.orderId);
    });
 
    test("select: includeOne returns null when no match", async () => {
@@ -157,6 +157,6 @@ describe.sequential("vexnor mssql CRUD - select", async (ctx) => {
       expect(parsedChildren).toHaveLength(1);
       expect(parsedChildren[0]!.accountId).toBe(childAccount.accountId);
       const parsedOrder = results[0]!.firstOrder;
-      expect(parsedOrder.orderId).toBe(order.orderId);
+      expect(parsedOrder!.orderId).toBe(order.orderId);
    });
 });

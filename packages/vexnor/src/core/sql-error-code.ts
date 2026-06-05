@@ -12,6 +12,8 @@ export const enum SqlErrorCode {
    /** Query execution failed — driver error, connection failure, etc. */
    QUERY_EXECUTION_FAILED = "QUERY_EXECUTION_FAILED",
 
+   QUERY_PARAMETERS_INVALID = "QUERY_PARAMETERS_INVALID",
+
    /** Query exceeded the configured timeout. */
    QUERY_TIMEOUT = "QUERY_TIMEOUT",
 

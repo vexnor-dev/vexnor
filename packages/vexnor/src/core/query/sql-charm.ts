@@ -17,7 +17,9 @@ export abstract class SqlCharm<T extends { Params?: unknown; Type?: unknown }> e
    readonly params: BuildSqlParams<T["Params"]>;
 
    protected constructor(options: SqlOptions & { params: BuildSqlParams<T["Params"]> }) {
-      super(options);
+      super({
+         ...options,
+      });
       this.params = options.params;
    }
 }

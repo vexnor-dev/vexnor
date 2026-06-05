@@ -1,44 +1,76 @@
 import "vexnor-sqlite3";
 import { Suspense, useEffect, useState } from "react";
-import { useSearch } from "@tanstack/react-router";
-import { deleteAccount, insertAccount, selectAccounts } from "#shared/queries/sqlite3";
+import { useSearch, useNavigate } from "@tanstack/react-router";
+import { runtimeValue } from "vexnor";
+import { deleteAccount, insertAccount, selectAccounts, selectMyOrders } from "#shared/queries/sqlite3";
 import { AccountGrid } from "#/components/account-grid.js";
 import { CreateAccountForm } from "#/components/create-account-form.js";
 import { SearchInput } from "#/components/search-input.js";
-import type { AccountRow } from "#/components/account-row";
+import { MyOrders } from "#/components/my-orders.js";
 import { useRemoteClient } from "#/use-remote-client.js";
+import { useAuth } from "#/auth-context.js";
+
+type Tab = "orders" | "accounts";
 
 export default function Sqlite3AccountsPage() {
-   const remoteClient = useRemoteClient();
+   const remoteClient = useRemoteClient("sqlite3");
+   const auth = useAuth("sqlite3");
+   const navigate = useNavigate();
    const { filter } = useSearch({ from: "/sqlite3" });
-   const [promise, setPromise] = useState<Promise<AccountRow[]>>(Promise.resolve([]));
+   const [tab, setTab] = useState<Tab>("orders");
+   const [accountsPromise, setAccountsPromise] = useState<Promise<(typeof selectAccounts.rowType)[]>>(
+      Promise.resolve([]),
+   );
+   const [ordersPromise] = useState<Promise<(typeof selectMyOrders.rowType)[]>>(() =>
+      selectMyOrders.sqlite.all({ db: remoteClient, params: { userId: runtimeValue } }),
+   );
 
    useEffect(() => {
-      setPromise(selectAccounts.sqlite.all({ db: remoteClient, params: { filter } }));
-   }, [filter]);
+      if (tab === "accounts") {
+         setAccountsPromise(selectAccounts.sqlite.all({ db: remoteClient, params: { filter } }));
+      }
+   }, [tab, filter]);
 
    function refresh() {
-      setPromise(selectAccounts.sqlite.all({ db: remoteClient, params: { filter } }));
+      setAccountsPromise(selectAccounts.sqlite.all({ db: remoteClient, params: { filter } }));
    }
 
    return (
       <div className="page">
-         <h1>Accounts — SQLite3</h1>
-         <CreateAccountForm
-            onCreated={(email, firstName, lastName) =>
-               insertAccount.sqlite
-                  .run({ db: remoteClient, params: { rows: [{ email, firstName, lastName }] } })
-                  .then(refresh)
-            }
-         />
-         <SearchInput placeholder="Search by name or email…" />
-         <Suspense fallback={<p className="loading">Loading…</p>}>
-            <AccountGrid
-               promise={promise}
-               onRefresh={refresh}
-               onDelete={(accountId) => deleteAccount.sqlite.run({ db: remoteClient, params: { accountId } })}
-            />
-         </Suspense>
+         <h1>SQLite3</h1>
+         <div className="tabs">
+            <button className={`tab-btn${tab === "orders" ? " active" : ""}`} onClick={() => setTab("orders")}>My Orders</button>
+            <button className={`tab-btn${tab === "accounts" ? " active" : ""}`} onClick={() => setTab("accounts")}>Accounts</button>
+         </div>
+         {tab === "orders" && (
+            auth.authenticated
+               ? <MyOrders promise={ordersPromise} />
+               : (
+                  <div className="unauthenticated">
+                     <p>Sign in to view your orders.</p>
+                     <button className="btn btn-primary" onClick={() => void navigate({ to: "/sqlite3-login" })}>Sign in</button>
+                  </div>
+               )
+         )}
+         {tab === "accounts" && (
+            <>
+               <CreateAccountForm
+                  onCreated={(email, firstName, lastName) =>
+                     insertAccount.sqlite
+                        .run({ db: remoteClient, params: { rows: [{ email, firstName, lastName }] } })
+                        .then(refresh)
+                  }
+               />
+               <SearchInput placeholder="Search by name or email…" />
+               <Suspense fallback={<p className="loading">Loading…</p>}>
+                  <AccountGrid
+                     promise={accountsPromise}
+                     onRefresh={refresh}
+                     onDelete={(accountId) => deleteAccount.sqlite.run({ db: remoteClient, params: { accountId } })}
+                  />
+               </Suspense>
+            </>
+         )}
       </div>
    );
 }

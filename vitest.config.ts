@@ -15,6 +15,8 @@ export default defineConfig({
          "./tests/vexnor-test-mssql",
          "./tests/vexnor-test-postgres",
          "./tests/vexnor-test-sqlite3",
+         "./examples/react-vite-api",
+         "./examples/react-next-app",
       ],
       typecheck: {
          enabled: true,

@@ -105,63 +105,70 @@ if (unprotected.length > 0) {
 
 ## Audit Logging
 
-Register an audit log listener to observe every query execution — success, failure, or authorization denial. Uses the browser-compatible `EventTarget` API.
+Attach an `AuditLogPlugin` to observe every query execution — success, failure, or authorization denial.
 
 ```typescript
-queryRegistry.registerAuditLog((event) => {
-  const { query, name, plugin, params, durationMs, error, location } = event.args;
+import { AuditLogPlugin } from 'vexnor/registry';
 
-  if (error) {
-    logger.error({ name, query: query.label, plugin: plugin.name, durationMs, location, err: error }, 'query failed');
-  } else {
-    logger.info({ name, query: query.label, plugin: plugin.name, durationMs, location }, 'query executed');
-  }
-});
+queryRegistry.use(new AuditLogPlugin({
+  contextLogResolver: ({ userId }) => ({ userId }), // opt-in — never logs raw context
+  onLog: ({ query, name, plugin, params, durationMs, error, context }) => {
+    if (error) {
+      logger.error({ name, query: query.label, plugin: plugin.name, durationMs, err: error, ...context }, 'query failed');
+    } else {
+      logger.info({ name, query: query.label, plugin: plugin.name, durationMs, ...context }, 'query executed');
+    }
+  },
+}));
 ```
 
-The listener receives an `AuditLogEvent` with the following `args`:
+The `onLog` callback receives the following fields:
 
 | Field | Type | Description |
 |-------|------|-------------|
 | `query` | `SqlQueryAny` | The query that was executed |
-| `name` | `string \| null` | The name the query was registered under (the object key passed to `register()`) |
+| `name` | `string` | The name the query was registered under (the object key passed to `register()`) |
 | `plugin` | `VexnorPluginAny` | The plugin (database driver) used |
-| `params` | `Record<string, unknown>` | The runtime params passed to the query |
+| `params` | `Record<string, unknown>` | The merged params passed to the query (runtime params included) |
 | `durationMs` | `number` | Execution duration in milliseconds |
 | `error` | `unknown \| null` | The error if execution failed, `null` on success |
-| `location` | `string \| null` | File and line where the query was defined |
+| `context` | `Record<string, unknown> \| null` | The trimmed context from `contextLogResolver`, or `null` if not configured |
+| `input` | `ExecuteQueryArgs` | The raw request: `{ plugin, hash, params, location, mode }` |
 
-Multiple listeners can be registered — they all receive every event independently.
+Multiple plugins can be attached — they all receive every event independently.
 
 ### With Pino
 
 ```typescript
 import pino from 'pino';
+import { AuditLogPlugin } from 'vexnor/registry';
 
 const log = pino({ name: 'vexnor' });
 
-queryRegistry.registerAuditLog((event) => {
-  const { query, name, plugin, durationMs, error, location } = event.args;
-  const meta = { name, query: query.label, plugin: plugin.name, durationMs, location };
-
-  if (error) {
-    log.error({ ...meta, err: error }, 'query failed');
-  } else {
-    log.info(meta, 'query executed');
-  }
-});
+queryRegistry.use(new AuditLogPlugin({
+  contextLogResolver: ({ userId }) => ({ userId }),
+  onLog: ({ name, plugin, durationMs, error, context }) => {
+    const meta = { name, plugin: plugin.name, durationMs, ...context };
+    if (error) {
+      log.error({ ...meta, err: error }, 'query failed');
+    } else {
+      log.info(meta, 'query executed');
+    }
+  },
+}));
 ```
 
 Example output:
 
 ```json
-{"level":30,"name":"vexnor","name":"findAccounts","query":"findAccounts","plugin":"vexnor-postgres","durationMs":3.2,"location":"file:///app/src/queries/accounts.ts:12:24","msg":"query executed"}
-{"level":50,"name":"vexnor","name":"deleteAccount","query":"deleteAccount","plugin":"vexnor-postgres","durationMs":1.1,"location":"file:///app/src/queries/accounts.ts:18:3","err":{},"msg":"query failed"}
+{"level":30,"name":"vexnor","name":"findAccounts","plugin":"vexnor-postgres","durationMs":3.2,"userId":"u-123","msg":"query executed"}
+{"level":50,"name":"vexnor","name":"deleteAccount","plugin":"vexnor-postgres","durationMs":1.1,"userId":"u-123","err":{},"msg":"query failed"}
 ```
 
 ### SOC2 / HIPAA Notes
 
 - The audit log fires on **every** execution — success, failure, and authorization denial. Denied attempts are logged with the error.
-- `params` are included in `event.args` but **not** logged by default in the examples above. If your params contain PII or PHI, omit them from your log output or scrub them before logging.
-- `location` identifies where in your codebase the query was defined — useful for tracing which code path triggered a sensitive operation.
+- `params` are included in `onLog` args but **not** logged by default in the examples above. If your params contain PII or PHI, omit them from your log output or scrub them before logging.
+- `contextLogResolver` is opt-in — raw context is never forwarded to `onLog`. Only what you explicitly return from the resolver is included.
+- `input.location` identifies where in your codebase the query was defined — useful for tracing which code path triggered a sensitive operation.
 - For HIPAA compliance, ensure your log destination (CloudWatch, Datadog, etc.) has appropriate access controls and retention policies.

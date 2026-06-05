@@ -2,6 +2,7 @@ import { describe, expect, test } from "vitest";
 import { sql } from "#/core/sql.js";
 import { row } from "#/core/query/sql-select-row.js";
 import { param } from "#/core/query/sql-param.js";
+import { SqlSelectCharm } from "#/core/query/sql-charm.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
 import { Order } from "@test-models/vexnor_dev.order-table.js";
 
@@ -40,6 +41,20 @@ describe("SqlQuery.hash", () => {
       const q = sql`select ${row(Account.$$)} from ${Account}`;
       const h1 = await q.hash;
       const h2 = await q.hash;
+      expect(h1).toBe(h2);
+   });
+
+   test("hash is stable when array rawValues are used — independent of instance counters", async () => {
+      // Plugin select templates embed includes as arrays e.g. sql`select ${row(t.$$)}, ${includes} from ${t}`.
+      // Each process instantiates charms with different counters but identical content.
+      // The hash must match across processes — regression test for the array toString() bug.
+      const makeQuery = () => {
+         const c1 = new SqlSelectCharm({ key: "orders", write: () => {}, params: null });
+         const c2 = new SqlSelectCharm({ key: "items", write: () => {}, params: null });
+         return sql`select ${row(Account.$$)}, ${[c1, c2]} from ${Account}`;
+      };
+      const h1 = await makeQuery().hash;
+      const h2 = await makeQuery().hash;
       expect(h1).toBe(h2);
    });
 });

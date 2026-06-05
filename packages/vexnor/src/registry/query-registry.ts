@@ -7,20 +7,28 @@ import { SqlErrorCode } from "#/core/sql-error-code.js";
 import type { SqlExecuteMode } from "#/core/query/sql-query-types.js";
 import type { ExecutionArgs, QueryExecutionPlugin, AfterArgs } from "./query-execution-plugin.js";
 
-export type ConnectionResolver = (pluginName: string) => Promise<unknown>;
+export type ConnectionResolver = (args: ExecuteQueryArgs) => Promise<unknown>;
 export type QueryMap = Record<string, SqlQueryAny>;
 
 export type AuthorizeArgs<TRuntime extends Record<string, unknown> = Record<string, unknown>> = {
    plugin: VexnorPluginAny;
    query: SqlQueryAny;
-   queryName: string;
+   name: string;
+   location: string | null;
    params: Record<string, unknown>;
    context: TRuntime;
 };
 export type AuthorizeHook<TRuntime extends Record<string, unknown> = Record<string, unknown>> = (
    args: AuthorizeArgs<TRuntime>,
 ) => void | Promise<void>;
-
+export type ExecuteQueryArgs = {
+   plugin: string;
+   hash: string;
+   params: Record<string, unknown>;
+   location: string | null;
+   mode: SqlExecuteMode;
+};
+const ExecuteQueryKeys: (keyof ExecuteQueryArgs)[] = ["plugin", "hash", "params", "location", "mode"];
 export class BeforeQueryEvent<TRuntime extends Record<string, unknown> = Record<string, unknown>> extends Event {
    constructor(public readonly args: ExecutionArgs<TRuntime>) {
       super("beforeQuery");
@@ -154,6 +162,36 @@ export class QueryRegistry<TRuntime extends Record<string, unknown> = Record<str
       return Array.from(this.maps.values()).flatMap((map) => Array.from(map.values()).map((e) => e.query));
    }
 
+   /** Returns all registered queries with their plugin name, hash, and display name. */
+   getRegisteredQueries(): { plugin: string; hash: string; name: string; location: string | null; hashId: string }[] {
+      const result: { plugin: string; hash: string; name: string; location: string | null; hashId: string }[] = [];
+      for (const [plugin, map] of this.maps) {
+         for (const [hash, { query, name }] of map) {
+            result.push({ plugin, hash, name, location: query.location, hashId: query.hashId });
+         }
+      }
+      return result;
+   }
+
+   getExecutionParams(request: unknown): ExecuteQueryArgs {
+      if (!request || typeof request !== "object") {
+         throw new SqlError("Expected request object with query name and params", {
+            code: SqlErrorCode.QUERY_PARAMETERS_INVALID,
+         });
+      }
+
+      return Object.fromEntries(
+         ExecuteQueryKeys.map((key) => {
+            const value = (request as Record<string, unknown>)[key];
+            if (!value)
+               throw new SqlError(`Missing required parameter in request: ${key}`, {
+                  code: SqlErrorCode.QUERY_PARAMETERS_INVALID,
+               });
+            return [key, value];
+         }),
+      ) as ExecuteQueryArgs;
+   }
+
    /**
     * Registers a set of queries under a plugin.
     *
@@ -186,45 +224,48 @@ export class QueryRegistry<TRuntime extends Record<string, unknown> = Record<str
     * Always rejects with {@link SqlRunError} on failure.
     */
    async execute<TResult>(
-      pluginName: string,
-      hash: string,
-      params: Record<string, unknown>,
+      args: ExecuteQueryArgs | Record<string, unknown>,
       resolver: ConnectionResolver,
       context: TRuntime = {} as TRuntime,
-      mode: SqlExecuteMode = "mutation",
    ): Promise<TResult> {
+      const { hash, params, mode, location, plugin: pluginName } = this.getExecutionParams(args);
       const entry = this.maps.get(pluginName)?.get(hash);
       if (!entry) {
-         throw new SqlError(`Unknown query hash: ${hash} for plugin: ${pluginName}`, {
+         throw new SqlError(`Unknown query hash: ${hash} for plugin: ${args.plugin}`, {
             code: SqlErrorCode.QUERY_NOT_FOUND,
          });
       }
       const { query, name } = entry;
 
       const plugin = this.plugins.get(pluginName);
-      ok(plugin, `Unknown plugin: ${pluginName}`);
+      ok(plugin, `Unknown plugin: ${plugin}`);
 
       const mergedParams = this.mergeRuntimeParams(query, params, context);
       const executionArgs: ExecutionArgs<TRuntime> = {
          plugin,
          query,
-         queryHash: hash,
-         queryName: name,
+         name,
+         input: {
+            plugin: pluginName,
+            hash: hash,
+            params,
+            location,
+            mode,
+         },
          params: mergedParams,
          context,
-         location: query.location,
       };
       const start = performance.now();
       let error: unknown | null = null;
       let started = false;
       try {
-         await this.runAuthorize({ plugin, query, params: mergedParams, context, queryName: name });
+         await this.runAuthorize({ plugin, query, params: mergedParams, context, name: name, location });
          await this.runCheckPlugins(executionArgs);
          this.checkMaxConcurrent(name, query);
          started = true;
          this._inFlight++;
          this.dispatchEvent(new BeforeQueryEvent(executionArgs));
-         const db = await resolver(pluginName);
+         const db = await resolver({ plugin: pluginName, hash, params, location, mode });
          const queryHandler = plugin.newQueryHandler(query);
          return await queryHandler.run({ db, params: mergedParams }, mode);
       } catch (err) {
@@ -302,25 +343,25 @@ export class QueryRegistry<TRuntime extends Record<string, unknown> = Record<str
             await p.check(args);
          } catch (err) {
             if (err instanceof SqlRunError) throw err;
-            throw new SqlRunError(`Rate limit exceeded for query "${args.queryName}"`, args.query, {
+            throw new SqlRunError(`Rate limit exceeded for query "${args.name}"`, args.query, {
                cause: err,
                code: SqlErrorCode.QUERY_RATE_LIMITED,
-               queryName: args.queryName,
+               queryName: args.name,
             });
          }
       }
    }
 
    private async runAuthorize(args: AuthorizeArgs<TRuntime>) {
-      const { query, queryName } = args;
+      const { query, name } = args;
 
       if (!query.authorization) return;
 
       if (!this._authorizeHooks.length) {
          throw new SqlRunError(
-            `Query "${queryName}" requires authorization (tag: "${query.authorization}") but no authorize hook is registered`,
+            `Query "${name}" requires authorization (tag: "${query.authorization}") but no authorize hook is registered`,
             query,
-            { code: SqlErrorCode.QUERY_NOT_AUTHORIZED, queryName },
+            { code: SqlErrorCode.QUERY_NOT_AUTHORIZED, queryName: name },
          );
       }
 
@@ -330,10 +371,10 @@ export class QueryRegistry<TRuntime extends Record<string, unknown> = Record<str
          } catch (err) {
             if (err instanceof SqlRunError) throw err;
 
-            throw new SqlRunError(`Authorization denied for query "${queryName}"`, query, {
+            throw new SqlRunError(`Authorization denied for query "${name}"`, query, {
                cause: err,
                code: SqlErrorCode.QUERY_NOT_AUTHORIZED,
-               queryName,
+               queryName: name,
             });
          }
       }

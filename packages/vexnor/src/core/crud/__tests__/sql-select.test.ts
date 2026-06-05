@@ -1,5 +1,6 @@
 import { assertType, describe, expect, test } from "vitest";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
+import { Order } from "@test-models/vexnor_dev.order-table.js";
 import { input } from "#/core/query/sql-input.js";
 import { sql } from "#/core/sql.js";
 import {
@@ -10,7 +11,13 @@ import {
 } from "#/core/crud/sql-select.js";
 import { SqlQuery } from "#/core/query/sql-query.js";
 import { IOrderSelect } from "@test-models/vexnor_dev.order-table.js";
-import { OrderStatusUdt } from "#/test/testing.js";
+import { IAccountSelect, OrderStatusUdt } from "#/test/testing.js";
+import { param } from "#/core/query/sql-param.js";
+import { runtime } from "#/core/query/sql-runtime.js";
+import { ParamsOf, TypeOf } from "#/core/sql-base.js";
+import { row } from "#/core/query/sql-select-row.js";
+import { col } from "#/core/query/sql-select-column.js";
+import { testSelect } from "#/test/test-select.js";
 
 describe("sqlTableRead()", () => {
    test("SqlTableReadRowIncludeOne<> should infer type", () => {
@@ -70,6 +77,53 @@ describe("sqlTableRead()", () => {
       });
    });
 
+   describe("row type inference from SqlSelectArgs", () => {
+      const orderCount = col<{ orderCount: number }>("orderCount");
+
+      test("SELECT override with row(T.$$) + col produces base columns plus extra", () => {
+         // eslint-disable-next-line unused-imports/no-unused-vars
+         const query = sqlSelect(Account, {
+            SELECT: sql`${row(Account.$$)}, (select count(*)) as ${orderCount}`,
+         });
+         type Row = TypeOf<typeof query>;
+         // must include all base IAccountSelect fields plus orderCount
+         assertType<Row>({
+            accountId: "",
+            email: "",
+            firstName: "",
+            lastName: "",
+            status: "created" as IAccountSelect["status"],
+            notes: null,
+            createdAt: new Date(),
+            modifiedAt: new Date(),
+            parentId: null,
+            orderCount: 0,
+            // @ts-expect-error not in result
+            other: "",
+         });
+      });
+
+      test("includeOne result row adds T | null field to base columns", () => {
+         const firstOrder = sql`select ${row(Order.$$)} from ${Order}`;
+         type Row = SqlSelectResultRow<
+            { Select: IAccountSelect },
+            { includeOne: { firstOrder: typeof firstOrder } }
+         >;
+         // base columns present
+         assertType<Row["accountId"]>("");
+         assertType<Row["email"]>("");
+         // includeOne field is T | null
+         assertType<Row["firstOrder"]>(null);
+         assertType<Row["firstOrder"]>({
+            orderId: "",
+            status: "created" as IOrderSelect["status"],
+            createdAt: new Date(),
+            modifiedAt: new Date(),
+            accountId: "",
+         });
+      });
+   });
+
    test("should generate find query without where clause", () => {
       const query = sqlSelect(Account, {});
 
@@ -123,5 +177,148 @@ describe("sqlTableRead()", () => {
    test("should return query with correct row type", () => {
       const query = sqlSelect(Account, {});
       expect(query.row).toBeDefined();
+   });
+
+   describe("param propagation through SqlSelectArgs clauses", () => {
+      const emailParam = param<{ email: string }>("email");
+      const filterParam = param<{ filter?: string }>("filter");
+      const extraParam = param<{ extra: number }>("extra");
+      const dirParam = param<{ dir: string }>("dir");
+
+      test("param in WHERE propagates to ParamsOf query", () => {
+         const query = sqlSelect(Account, {
+            WHERE: sql`${Account.$email} = ${emailParam}`,
+         });
+         type Params = ParamsOf<typeof query>;
+         assertType<Params>({
+            email: "a@b.com",
+            // @ts-expect-error not declared
+            other: "x",
+         });
+      });
+
+      test("optional param in WHERE propagates as optional", () => {
+         const query = sqlSelect(Account, {
+            WHERE: sql`${Account.$email} = ${filterParam}`,
+         });
+         type Params = ParamsOf<typeof query>;
+         assertType<Params>({});
+         assertType<Params>({ filter: "x" });
+      });
+
+      test("param in SELECT propagates to ParamsOf query", () => {
+         const query = sqlSelect(Account, {
+            SELECT: sql`${row(Account.$$)}, ${col<{ extra: number }>("extra")} as ${extraParam}`,
+         });
+         type Params = ParamsOf<typeof query>;
+         assertType<Params>({
+            extra: 1,
+            // @ts-expect-error not declared
+            other: "x",
+         });
+      });
+
+      test("param in ORDER_BY propagates to ParamsOf query", () => {
+         const query = sqlSelect(Account, {
+            ORDER_BY: sql`${Account.$createdAt} ${dirParam}`,
+         });
+         type Params = ParamsOf<typeof query>;
+         assertType<Params>({
+            dir: "desc",
+            // @ts-expect-error not declared
+            other: "x",
+         });
+      });
+
+      test("params across multiple clauses merge into single Params type", () => {
+         // eslint-disable-next-line unused-imports/no-unused-vars
+         const query = sqlSelect(Account, {
+            WHERE: sql`${Account.$email} = ${emailParam}`,
+            ORDER_BY: sql`${Account.$createdAt} ${dirParam}`,
+         });
+         type Params = ParamsOf<typeof query>;
+         assertType<Params>({
+            email: "a@b.com",
+            dir: "desc",
+            // @ts-expect-error not declared
+            other: "x",
+         });
+      });
+   });
+
+   describe("param and row type with includeOne / includeMany (via testSelect)", () => {
+      const emailParam = param<{ email: string }>("email");
+      const userIdRuntime = runtime<{ userId: string }>("userId");
+      const limitParam = param<{ limit: number }>("limit");
+      const orderCount = col<{ orderCount: number }>("orderCount");
+
+      const orderItems = sql`select ${row(Order.$$)} from ${Order} where ${Order.$accountId} = ${Account.out.$accountId}`;
+      const orders = sql`select ${row(Order.$$)} from ${Order} where ${Order.$accountId} = ${Account.out.$accountId} limit ${limitParam}`;
+
+      test("WHERE runtime + includeMany: params propagate", () => {
+         // eslint-disable-next-line unused-imports/no-unused-vars
+         const query = testSelect(Account, {
+            WHERE: sql`${Account.$accountId} = ${userIdRuntime}`,
+            includeMany: { orders: orderItems },
+         });
+         type Params = ParamsOf<typeof query>;
+         assertType<Params>({ userId: "abc" });
+      });
+
+      test("WHERE param + includeOne: params propagate", () => {
+         // eslint-disable-next-line unused-imports/no-unused-vars
+         const query = testSelect(Account, {
+            WHERE: sql`${Account.$email} = ${emailParam}`,
+            includeOne: { lastOrder: orderItems },
+         });
+         type Params = ParamsOf<typeof query>;
+         assertType<Params>({ email: "a@b.com" });
+      });
+
+      test("WHERE param + includeMany subquery param: all params merge", () => {
+         // eslint-disable-next-line unused-imports/no-unused-vars
+         const query = testSelect(Account, {
+            WHERE: sql`${Account.$email} = ${emailParam}`,
+            includeMany: { orders },
+         });
+         type Params = ParamsOf<typeof query>;
+         assertType<Params>({ email: "a@b.com", limit: 10 });
+         assertType<Params>({
+            email: "a@b.com",
+            limit: 10,
+            // @ts-expect-error not declared
+            other: "x",
+         });
+      });
+
+      test("SELECT override + includeMany: row includes base columns + extra + nested", () => {
+         // eslint-disable-next-line unused-imports/no-unused-vars
+         const query = testSelect(Account, {
+            SELECT: sql`${row(Account.$$)}, (select count(*)) as ${orderCount}`,
+            includeMany: { orders: orderItems },
+         });
+         type Row = TypeOf<typeof query>;
+         assertType<Row["accountId"]>("");
+         assertType<Row["email"]>("");
+         assertType<Row["orderCount"]>(0);
+         assertType<Row["orders"]>([]);
+      });
+
+      test("includeOne row field is T | null", () => {
+         // eslint-disable-next-line unused-imports/no-unused-vars
+         const query = testSelect(Account, {
+            includeOne: { lastOrder: orderItems },
+         });
+         type Row = TypeOf<typeof query>;
+         assertType<Row["accountId"]>("");
+         assertType<Row["lastOrder"]>(null);
+         assertType<Row["lastOrder"]>({
+            orderId: "",
+            status: "created" as IOrderSelect["status"],
+            createdAt: new Date(),
+            modifiedAt: new Date(),
+            accountId: "",
+         });
+      });
    });
 });

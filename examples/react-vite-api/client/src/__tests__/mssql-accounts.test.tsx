@@ -13,9 +13,11 @@ vi.mock("#/use-remote-client.js", () => ({
    useRemoteClient: () => mockRemoteClient,
 }));
 
+const mockNavigate = vi.fn();
 vi.mock("@tanstack/react-router", async (importActual) => ({
    ...(await importActual<typeof import("@tanstack/react-router")>()),
    useSearch: () => ({ filter: undefined }),
+   useNavigate: () => mockNavigate,
 }));
 
 vi.mock("#/components/search-input.js", () => ({
@@ -43,7 +45,7 @@ const mockAccounts: (IAccountSelect & { orderCount: number; lastOrder: { orderId
       email: "bob@example.com",
       firstName: "Bob",
       lastName: "Jones",
-      status: "created",
+      status: "confirmed",
       notes: null,
       createdAt: new Date("2024-01-02"),
       modifiedAt: new Date("2024-01-02"),
@@ -65,12 +67,33 @@ function renderPage() {
 
 beforeEach(() => {
    vi.clearAllMocks();
-   mockRemoteExecute.mockResolvedValue({ recordset: mockAccounts });
+   mockRemoteExecute.mockResolvedValue({ recordsets: [mockAccounts] });
 });
 
 describe("MssqlAccountsPage", () => {
-   test("renders accounts", async () => {
+   test("renders tabs", async () => {
+      await act(async () => renderPage());
+      expect(screen.getByRole("button", { name: "My Orders" })).toBeDefined();
+      expect(screen.getByRole("button", { name: "Accounts" })).toBeDefined();
+   });
+
+   test("shows unauthenticated prompt on My Orders tab by default", async () => {
+      await act(async () => renderPage());
+      expect(screen.getByText("Sign in to view your orders.")).toBeDefined();
+      expect(screen.getByRole("button", { name: "Sign in" })).toBeDefined();
+   });
+
+   test("sign in button navigates to /mssql-login", async () => {
+      const user = userEvent.setup();
+      await act(async () => renderPage());
+      await user.click(screen.getByRole("button", { name: "Sign in" }));
+      expect(mockNavigate).toHaveBeenCalledWith(expect.objectContaining({ to: "/mssql-login" }));
+   });
+
+   test("renders accounts after switching to Accounts tab", async () => {
+      const user = userEvent.setup();
       const { asFragment } = await act(async () => renderPage());
+      await act(async () => user.click(screen.getByRole("button", { name: "Accounts" })));
       await waitFor(() => screen.getByText("alice@example.com"));
       expect(asFragment()).toMatchInlineSnapshot(`
         <DocumentFragment>
@@ -78,8 +101,22 @@ describe("MssqlAccountsPage", () => {
             class="page"
           >
             <h1>
-              Accounts — MS SQL Server
+              MS SQL Server
             </h1>
+            <div
+              class="tabs"
+            >
+              <button
+                class="tab-btn"
+              >
+                My Orders
+              </button>
+              <button
+                class="tab-btn active"
+              >
+                Accounts
+              </button>
+            </div>
             <form
               action="javascript:throw new Error('A React form was unexpectedly submitted. If you called form.submit() manually, consider using form.requestSubmit() instead. If you\\'re trying to use event.stopPropagation() in a submit event handler, consider also calling event.preventDefault().')"
               class="form"
@@ -201,7 +238,7 @@ describe("MssqlAccountsPage", () => {
                       <span
                         class="badge"
                       >
-                        created
+                        confirmed
                       </span>
                     </td>
                     <td>
@@ -229,8 +266,10 @@ describe("MssqlAccountsPage", () => {
       `);
    });
 
-   test("calls remoteExecute with correct plugin on load", async () => {
+   test("calls remoteExecute with correct plugin on Accounts tab", async () => {
+      const user = userEvent.setup();
       await act(async () => renderPage());
+      await act(async () => user.click(screen.getByRole("button", { name: "Accounts" })));
       await waitFor(() => screen.getByText("alice@example.com"));
       expect(vi.mocked(mockRemoteExecute)).toHaveBeenCalledWith(
          expect.objectContaining({ plugin: "vexnor-mssql" }),
@@ -240,19 +279,26 @@ describe("MssqlAccountsPage", () => {
    test("delete calls remoteExecute and refreshes list", async () => {
       const user = userEvent.setup();
       await act(async () => renderPage());
+      await act(async () => user.click(screen.getByRole("button", { name: "Accounts" })));
       await waitFor(() => screen.getByText("alice@example.com"));
 
       const deleteButtons = screen.getAllByText("Delete");
       await user.click(deleteButtons[1]!);
 
       await waitFor(() =>
-         expect(vi.mocked(mockRemoteExecute)).toHaveBeenCalledTimes(3),
+         expect(vi.mocked(mockRemoteExecute)).toHaveBeenCalledTimes(4),
       );
    });
 
    test("create form submits and refreshes list", async () => {
       const user = userEvent.setup();
+      mockRemoteExecute
+         .mockResolvedValueOnce({ recordsets: [mockAccounts] })
+         .mockResolvedValueOnce({ recordsets: [[mockAccounts[0]]] })
+         .mockResolvedValueOnce({ recordsets: [mockAccounts] });
+
       await act(async () => renderPage());
+      await act(async () => user.click(screen.getByRole("button", { name: "Accounts" })));
       await waitFor(() => screen.getByText("alice@example.com"));
 
       await user.type(screen.getByPlaceholderText("Email"), "new@example.com");
@@ -261,7 +307,7 @@ describe("MssqlAccountsPage", () => {
       await user.click(screen.getByRole("button", { name: "Create" }));
 
       await waitFor(() =>
-         expect(vi.mocked(mockRemoteExecute)).toHaveBeenCalledTimes(3),
+         expect(vi.mocked(mockRemoteExecute)).toHaveBeenCalledTimes(4),
       );
    });
 });

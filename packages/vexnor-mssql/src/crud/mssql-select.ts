@@ -43,7 +43,7 @@ export function mssqlSelect<T extends { Select: Record<string, unknown> }, Args 
 
    const result = sql`
       ${info({ driver: "transactsql" }) ?? raw.BLANK}
-      select ${args.SELECT?.$$ ? row(args.SELECT.$$) : row(table.$$)}
+      select ${args.SELECT ? args.SELECT.inline("default") : row(table.$$)}
                 ${includes.length > 0 ? raw(", ") : raw.BLANK} ${includes}
       from ${table} ${ones.map(({ charm }) => charm)} ${manys.map(({ charm }) => charm)} ${baseArgs.JOIN ? baseArgs.JOIN.inline() : raw.BLANK}
          ${baseArgs.WHERE ? sql`where ${baseArgs.WHERE.inline()}`.inline("default") : raw.BLANK}

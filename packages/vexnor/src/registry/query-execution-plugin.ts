@@ -1,16 +1,21 @@
 import type { VexnorPluginAny } from "#/plugin/vexnor-plugin.js";
 import type { SqlQueryAny } from "#/core/query/sql-query.js";
+import { SqlExecuteMode } from "#/core/query/sql-query-types.js";
 
 /** Identity fields shared by `check`, `before`, and `after`. */
 export type ExecutionArgs<TContext extends Record<string, unknown> = Record<string, unknown>> = {
    plugin: VexnorPluginAny;
+   name: string;
    query: SqlQueryAny;
-   queryHash: string;
-   queryName: string;
    params: Record<string, unknown>;
+   input: {
+      plugin: string;
+      hash: string;
+      params: Record<string, unknown>;
+      location: string | null;
+      mode: SqlExecuteMode;
+   };
    context: TContext;
-   /** Source location of the query definition, or `null` if unavailable. */
-   location: string | null;
 };
 
 /** Args passed to `after()` after a query completes — success or failure. */
@@ -36,8 +41,5 @@ export interface QueryExecutionPlugin<TContext extends Record<string, unknown> =
    check?(args: ExecutionArgs<TContext>): void | Promise<void>;
    before?(args: ExecutionArgs<TContext>): void;
    after?(args: AfterArgs<TContext>): void;
-   onError?(
-      err: unknown,
-      phase: { before: ExecutionArgs<TContext> } | { after: AfterArgs<TContext> },
-   ): void;
+   onError?(err: unknown, phase: { before: ExecutionArgs<TContext> } | { after: AfterArgs<TContext> }): void;
 }

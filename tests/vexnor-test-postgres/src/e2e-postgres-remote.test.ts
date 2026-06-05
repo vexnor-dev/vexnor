@@ -41,8 +41,7 @@ describe.sequential("postgres remote execution", () => {
       });
 
       remoteClient = {
-         remoteExecute: ({ plugin, hash, params, mode }) =>
-            registry.execute(plugin, hash, params ?? {}, async () => pool, undefined, mode),
+         remoteExecute: (config) => registry.execute({ ...config, params: config.params ?? {} }, async () => pool),
       };
 
       account = await sql`
@@ -58,10 +57,7 @@ describe.sequential("postgres remote execution", () => {
 
       orders = await sql`
          insert into ${Order}
-            ${Order.insertColsVals(
-               { accountId: account.accountId },
-               { accountId: account.accountId },
-            )}
+            ${Order.insertColsVals({ accountId: account.accountId }, { accountId: account.accountId })}
             returning ${row(Order.$$)}
       `.all({ db: pool });
    });
@@ -82,9 +78,7 @@ describe.sequential("postgres remote execution", () => {
          params: { accountId: account.accountId, limit: 10 },
       });
       expect(results[0]!.orders).toHaveLength(2);
-      expect(results[0]!.orders.map((o) => o.orderId)).toEqual(
-         expect.arrayContaining(orders.map((o) => o.orderId)),
-      );
+      expect(results[0]!.orders.map((o) => o.orderId)).toEqual(expect.arrayContaining(orders.map((o) => o.orderId)));
    });
 
    test("all() via remote deserializes top-level Date fields", async () => {

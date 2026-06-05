@@ -28,13 +28,12 @@ export type ContextMetrics = {
    lastActivityAt: number;
 };
 
-export type LimitArgs<TContext extends Record<string, unknown> = Record<string, unknown>> =
-   ExecutionArgs<TContext> & {
-      /** Metrics for this query across all contexts at the time of the check. */
-      queryMetrics: QueryMetrics;
-      /** Metrics for this query scoped to the resolved context key, or `null` if no `contextKeyResolver` is configured. */
-      contextMetrics: ContextMetrics | null;
-   };
+export type LimitArgs<TContext extends Record<string, unknown> = Record<string, unknown>> = ExecutionArgs<TContext> & {
+   /** Metrics for this query across all contexts at the time of the check. */
+   queryMetrics: QueryMetrics;
+   /** Metrics for this query scoped to the resolved context key, or `null` if no `contextKeyResolver` is configured. */
+   contextMetrics: ContextMetrics | null;
+};
 
 export type TimeToLiveRateLimiterOptions<TContext extends Record<string, unknown> = Record<string, unknown>> = {
    /**
@@ -72,9 +71,9 @@ export type TimeToLiveRateLimiterOptions<TContext extends Record<string, unknown
    limit?: (args: LimitArgs<TContext>) => void | Promise<void>;
 };
 
-export class TimeToLiveRateLimiter<TContext extends Record<string, unknown> = Record<string, unknown>>
-   implements QueryExecutionPlugin<TContext>
-{
+export class TimeToLiveRateLimiter<
+   TContext extends Record<string, unknown> = Record<string, unknown>,
+> implements QueryExecutionPlugin<TContext> {
    readonly name: string;
    private readonly _queryMetrics = new Map<string, QueryMetrics>();
    private readonly _contextMetrics = new Map<string, Map<string, ContextMetrics>>();
@@ -112,26 +111,26 @@ export class TimeToLiveRateLimiter<TContext extends Record<string, unknown> = Re
    async check(args: ExecutionArgs<TContext>): Promise<void> {
       this.sweep();
 
-      const { query, queryHash, queryName } = args;
-      const qm = this.getOrCreateQueryMetrics(queryHash);
+      const { query, name, input } = args;
+      const qm = this.getOrCreateQueryMetrics(input.hash);
       const contextKey = this._options.contextKeyResolver?.(args.context);
-      const cm = contextKey !== undefined ? this.getOrCreateContextMetrics(queryHash, contextKey) : null;
+      const cm = contextKey !== undefined ? this.getOrCreateContextMetrics(input.hash, contextKey) : null;
 
       const { maxConcurrent, maxConcurrentPerContext } = this._options;
 
       if (maxConcurrent !== undefined && qm.inFlight >= maxConcurrent) {
          throw new SqlRunError(
-            `Query "${queryName}" rejected — concurrency limit of ${maxConcurrent} reached (${qm.inFlight} in flight)`,
+            `Query "${name}" rejected — concurrency limit of ${maxConcurrent} reached (${qm.inFlight} in flight)`,
             query,
-            { code: SqlErrorCode.QUERY_RATE_LIMITED, queryName },
+            { code: SqlErrorCode.QUERY_RATE_LIMITED, queryName: name },
          );
       }
 
       if (maxConcurrentPerContext !== undefined && cm !== null && cm.inFlight >= maxConcurrentPerContext) {
          throw new SqlRunError(
-            `Query "${queryName}" rejected — per-context concurrency limit of ${maxConcurrentPerContext} reached for key "${contextKey}" (${cm.inFlight} in flight)`,
+            `Query "${name}" rejected — per-context concurrency limit of ${maxConcurrentPerContext} reached for key "${contextKey}" (${cm.inFlight} in flight)`,
             query,
-            { code: SqlErrorCode.QUERY_RATE_LIMITED, queryName },
+            { code: SqlErrorCode.QUERY_RATE_LIMITED, queryName: name },
          );
       }
 
@@ -140,23 +139,28 @@ export class TimeToLiveRateLimiter<TContext extends Record<string, unknown> = Re
             await this._options.limit({ ...args, queryMetrics: { ...qm }, contextMetrics: cm ? { ...cm } : null });
          } catch (err) {
             if (err instanceof SqlRunError) throw err;
-            throw new SqlRunError(`Rate limit exceeded for query "${queryName}"`, query, {
+            throw new SqlRunError(`Rate limit exceeded for query "${name}"`, query, {
                cause: err,
                code: SqlErrorCode.QUERY_RATE_LIMITED,
-               queryName,
+               queryName: name,
             });
          }
       }
 
       qm.inFlight++;
       qm.totalCalls++;
-      if (cm) { cm.inFlight++; cm.totalCalls++; cm.lastActivityAt = Date.now(); }
+      if (cm) {
+         cm.inFlight++;
+         cm.totalCalls++;
+         cm.lastActivityAt = Date.now();
+      }
    }
 
    after(args: AfterArgs<TContext>): void {
-      const { queryHash, error, durationMs } = args;
+      const { input, error, durationMs } = args;
+      const hash = input.hash;
 
-      const qm = this._queryMetrics.get(queryHash);
+      const qm = this._queryMetrics.get(hash);
       if (!qm) return;
 
       qm.inFlight--;
@@ -166,7 +170,7 @@ export class TimeToLiveRateLimiter<TContext extends Record<string, unknown> = Re
 
       const contextKey = this._options.contextKeyResolver?.(args.context);
       if (contextKey !== undefined) {
-         const cm = this._contextMetrics.get(queryHash)?.get(contextKey);
+         const cm = this._contextMetrics.get(hash)?.get(contextKey);
          if (cm) {
             cm.inFlight--;
             const cmCompleted = cm.totalCalls - cm.inFlight;

@@ -2,6 +2,7 @@ import { SqlQueryHandlerAny } from "#/core/query/sql-query-handler.js";
 import { SqlQueryAny, SqlQuery } from "#/core/query/sql-query.js";
 import { ParamsOf } from "#/core/sql-base.js";
 import { ConnectionConfig, VexnorPluginAny } from "#/plugin/plugin.js";
+import { RuntimeValue } from "#/core/query/runtime-value.js";
 
 export type QueryOrHandler = SqlQueryAny | SqlQueryHandlerAny;
 
@@ -61,5 +62,7 @@ export type QuerySettingsParams<T extends SqlQueryAny> =
    T extends SqlQuery<{ Params: void }>
       ? Record<string, never>
       : T extends SqlQuery<infer Q extends { Params?: unknown }>
-        ? Q["Params"]
+        ? Q["Params"] extends Record<string, unknown>
+           ? { [K in keyof Q["Params"]]: Q["Params"][K] | RuntimeValue }
+           : Q["Params"]
         : Record<string, never>;
