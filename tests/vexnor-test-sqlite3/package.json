@@ -8,7 +8,7 @@
    "scripts": {
       "precodegen": "pnpm run -r --filter='vexnor' --filter='vexnor-sqlite3' --filter='vexnor-drizzle' --filter='vexnor-prisma' --filter='vexnor-typeorm'  build",
       "codegen:vexnor": "env-cmd --no-override -x -r ../../env-dev.json -e sqlite3 node ../../packages/vexnor/cli.mjs codegen --plugin vexnor-sqlite3 --schema main --pascalCaseTables --camelCaseColumns --uri \\$SQLITE_PATH --omit migration_vexnor --outDir './src/codegen' | pino-pretty",
-      "codegen-1:prisma": "pnpm exec prisma generate --schema prisma/schema.prisma --config prisma/prisma.config.ts",
+      "codegen:prisma": "pnpm exec prisma generate --schema prisma/schema.prisma --config prisma/prisma.config.ts",
       "codegen": "run-s 'codegen:*' 'codegen-1:*'",
       "prebuild": "run-s 'codegen:*'",
       "pretest": "run-s 'codegen:*'",
