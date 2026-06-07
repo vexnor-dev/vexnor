@@ -1,5 +1,5 @@
-import { SqlError, SqlRunError } from "vexnor/registry";
-import { QueryRegistry } from "vexnor/registry";
+import { SqlError, SqlRunError } from "vexnor/execution";
+import { SqlQueryRegistry } from "vexnor/execution";
 import vexnorPostgres from "vexnor-postgres";
 import vexnorMssql from "vexnor-mssql";
 import vexnorSqlite3 from "vexnor-sqlite3";
@@ -9,6 +9,7 @@ import { sqliteDb } from "@/shared/db/sqlite3";
 import { queries as postgresQueries } from "@/shared/queries/postgres";
 import * as mssqlQueries from "@/shared/queries/mssql";
 import * as sqlite3Queries from "@/shared/queries/sqlite3";
+import { SqlExecuteMode } from "vexnor";
 
 const SQL_ERROR_STATUS: Record<string, number> = {
    QUERY_NOT_FOUND: 400,
@@ -22,7 +23,7 @@ const SQL_ERROR_STATUS: Record<string, number> = {
    QUERY_TIMEOUT: 504,
 };
 
-const registry = new QueryRegistry();
+const registry = new SqlQueryRegistry();
 await registry.register(vexnorPostgres, postgresQueries);
 await registry.register(vexnorMssql, mssqlQueries);
 await registry.register(vexnorSqlite3, sqlite3Queries);
@@ -33,7 +34,7 @@ export async function POST(request: Request) {
       hash: string;
       params: Record<string, unknown>;
       location: string | null;
-      mode: "query" | "mutation";
+      mode: SqlExecuteMode;
    };
    const token = request.headers.get("Authorization")?.replace("Bearer ", "") ?? null;
 
@@ -41,7 +42,7 @@ export async function POST(request: Request) {
       const result = await registry.execute(
          args,
          async ({ plugin }) => {
-            switch (plugin) {
+            switch (plugin.name) {
                case vexnorPostgres.name:
                   return pgPool;
                case vexnorMssql.name:

@@ -1,34 +1,38 @@
 import { describe, expect, test } from "vitest";
 import { sql } from "#/core/sql.js";
 import { row } from "#/core/query/sql-select-row.js";
-import { SqlQueryHandler, newSqlQueryHandler } from "#/core/query/sql-query-handler.js";
+import { newSqlQueryHandler, SqlQueryHandler } from "#/core/query/sql-query-handler.js";
 import { SqlQuery, SqlQueryExtended } from "#/core/query/sql-query.js";
-import { SqlRunArgs, RemoteClient } from "#/core/query/sql-query-types.js";
+import { RemoteClient, SqlRunArgs } from "#/core/query/sql-query-types.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
 import { SqlSelectCharm } from "#/core/query/sql-charm.js";
 
-type MockResult = { rows: unknown[] };
+type MockQueryResult = { rows: unknown[] };
 
 class MockQueryHandler<T extends { Row?: unknown; Params?: unknown }> extends SqlQueryHandler<
-   Pick<T, "Row" | "Params"> & { QueryResult: MockResult; Connection: RemoteClient }
+   Pick<T, "Row" | "Params"> & { Read: MockQueryResult; Write: MockQueryResult; Connection: RemoteClient }
 > {
    constructor(query: SqlQuery<Pick<T, "Row" | "Params">>) {
       super(query, { pluginName: "mock" });
    }
 
-   resolveRows(result: MockResult): T["Row"][] {
+   isReadResult(result: unknown): result is MockQueryResult {
+      return typeof result === "object" && result !== null && "rows" in result && Array.isArray(result.rows);
+   }
+
+   resolveRows(result: MockQueryResult): T["Row"][] {
       return result.rows as T["Row"][];
    }
 
-   deserialize<TResult = MockResult>(result: TResult, isRemoteClient: boolean): TResult {
-      return { ...result, rows: this.deserializeRows((result as MockResult).rows as T["Row"][], isRemoteClient) };
+   deserialize<TResult = MockQueryResult>(result: TResult, isRemoteClient: boolean): TResult {
+      return { ...result, rows: this.deserializeRows((result as MockQueryResult).rows as T["Row"][], isRemoteClient) };
    }
 
-   async execute<TResult = MockResult>(
+   async execute<TResult = MockQueryResult>(
       args: SqlRunArgs<{ Connection: RemoteClient; Params: T["Params"] }>,
    ): Promise<TResult> {
       const db = await args.db;
-      return (await db.remoteExecute<MockResult>({
+      return (await db.remoteExecute<MockQueryResult>({
          plugin: "test",
          hash: "",
          params: {},

@@ -1,11 +1,14 @@
 import { SqlQuery, SqlQueryExtended } from "#/core/query/sql-query.js";
 import { ok } from "#/lib/assert.js";
-import { isRemoteClient, SqlExecuteMode, SqlRunArgs } from "#/core/query/sql-query-types.js";
+import { isRemoteClient, SqlExecuteMode, SqlQueryRunArgs, SqlRunArgs } from "#/core/query/sql-query-types.js";
 import { SqlRunError } from "#/core/sql-run-error.js";
 import { SqlErrorCode } from "#/core/sql-error-code.js";
 import type { SqlJsonSchema } from "#/core/utils/sql-json-schema.js";
 import { deserialize } from "#/core/utils/sql-json-schema.js";
-import { isRuntimeValue } from "#/core/query/runtime-value.js";
+import { isContextValue } from "#/core/query/context-value.js";
+import { isVexnorConnection } from "#/plugin/vexnor-connection.js";
+import type { ExecutionArgs } from "#/execution/sql-query-execution-plugin.js";
+import { runWithRetry } from "#/core/query/sql-retry.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlQueryHandlerAny = SqlQueryHandler<any>;
@@ -14,7 +17,7 @@ export type SqlQueryHandlerAny = SqlQueryHandler<any>;
  * Base query handler for async database operations
  */
 export abstract class SqlQueryHandler<
-   T extends { Row?: unknown; Params?: unknown; QueryResult: object; Connection: unknown },
+   T extends { Row?: unknown; Params?: unknown; Read: object; Write: object; Connection: unknown },
 > extends SqlQuery<Pick<T, "Params" | "Row">> {
    readonly pluginName: string;
    readonly rowSchemas = new Map<boolean, SqlJsonSchema>();
@@ -38,15 +41,15 @@ export abstract class SqlQueryHandler<
       return clone;
    }
 
-   abstract resolveRows(res: T["QueryResult"]): T["Row"][];
+   abstract resolveRows(res: T["Read"]): T["Row"][];
 
    /**
     * Executes the query and returns the raw QueryResult without deserialized rows.
     */
-   abstract execute<TResult>(
+   abstract execute(
       args: SqlRunArgs<Pick<T, "Connection" | "Params">>,
       mode?: SqlExecuteMode,
-   ): Promise<TResult>;
+   ): Promise<typeof mode extends "write" ? T["Write"] : T["Read"]>;
 
    /**
     * Returns the JSON schema for the query result rows, with optional filtering for remote execution.
@@ -91,42 +94,96 @@ export abstract class SqlQueryHandler<
     * @param result
     * @param isRemoteClient
     */
-   abstract deserialize<TResult>(result: TResult, isRemoteClient: boolean): TResult;
+   abstract deserialize(result: T["Read"], isRemoteClient: boolean): T["Read"];
+
+   isReadResult(result: unknown): result is T["Read"] {
+      return typeof result === "object" && result !== null && "rows" in result && Array.isArray(result.rows);
+   }
+
+   // Helper type: the bound for TContext on public methods
+   declare private readonly _params: T["Params"] extends Record<string, unknown>
+      ? T["Params"]
+      : Record<string, unknown>;
 
    /**
     * Executes the query, deserializes the result, and returns the raw QueryResult with deserialized rows.
     */
-   async run<TResult = T["QueryResult"]>(
-      args: SqlRunArgs<Pick<T, "Connection" | "Params">>,
-      mode: SqlExecuteMode = "mutation",
-   ): Promise<TResult> {
-      const { db, options } = args;
-      const { timeout, retryable: retryableOption } = options ?? {};
+   async run<TContext extends typeof this._params>(
+      args: SqlQueryRunArgs<Pick<T, "Connection" | "Params">, TContext>,
+      mode: SqlExecuteMode = "read",
+   ): Promise<typeof mode extends "write" ? T["Write"] : T["Read"]> {
+      const { db } = args;
 
       const resolvedDb = await db;
 
+      if (isVexnorConnection(resolvedDb)) {
+         const rawDb = resolvedDb.db;
+         if (resolvedDb.pipeline) {
+            const params = this.getInputParams(args);
+            const hash = await this.hash;
+            const executionArgs: ExecutionArgs = {
+               plugin: { name: this.pluginName },
+               query: this,
+               name: this.info?.label ?? this.id,
+               input: {
+                  plugin: this.pluginName,
+                  hash,
+                  params,
+                  location: this.location,
+                  mode,
+               },
+               params,
+               context: this.getContext(args.params),
+            };
+
+            return await resolvedDb.pipeline.execute(
+               executionArgs,
+               async () =>
+                  runWithRetry(args.options?.retry, undefined, () =>
+                     this.runLocal({ ...args, db: rawDb } as SqlRunArgs<Pick<T, "Connection" | "Params">>, mode),
+                  ),
+               args.options,
+            );
+         }
+
+         return await this.runLocal({ ...args, db: rawDb } as SqlRunArgs<Pick<T, "Connection" | "Params">>, mode);
+      }
+
       if (isRemoteClient(resolvedDb)) {
          const hash = await this.hash;
-         const rawParams = (args as { params?: Record<string, unknown> }).params ?? {};
+         const rawParams = this.getInputParams(args);
          // Strip runtimeValue sentinels — these are injected server-side from registry context
-         const params = Object.fromEntries(
-            Object.entries(rawParams).filter(([, v]) => !isRuntimeValue(v)),
-         );
+         const params = Object.fromEntries(Object.entries(rawParams).filter(([, v]) => !isContextValue(v)));
 
          return await resolvedDb
-            .remoteExecute<TResult>({
+            .remoteExecute<T["Write"]>({
                plugin: this.pluginName,
                hash,
                params,
                name: null,
                location: this.location,
                mode,
+               options: args.options,
             })
-            .then((data) => this.deserialize<TResult>(data, true));
+            .then((data) => {
+               if (!this.isReadResult(data)) return data;
+
+               return this.deserialize(data, true);
+            });
       }
 
+      return await runWithRetry(args.options?.retry, undefined, () => this.runLocal(args, mode));
+   }
+
+   async runLocal(
+      args: SqlRunArgs<Pick<T, "Connection" | "Params">>,
+      mode: SqlExecuteMode = "read",
+   ): Promise<typeof mode extends "write" ? T["Write"] : T["Read"]> {
+      const { options } = args;
+      const { timeout, retryable: retryableOption } = options ?? {};
+
       try {
-         let execution = this.execute<TResult>(args, mode);
+         let execution = this.execute(args, mode);
          if (timeout) {
             execution = withTimeout(
                execution,
@@ -138,7 +195,12 @@ export abstract class SqlQueryHandler<
                   }),
             );
          }
-         return await execution.then((data) => this.deserialize(data, false));
+
+         return await execution.then((data) => {
+            if (this.isReadResult(data)) return this.deserialize(data, false);
+
+            return data;
+         });
       } catch (err) {
          if (err instanceof SqlRunError) {
             throw retryableOption !== undefined && retryableOption !== "default"
@@ -155,6 +217,10 @@ export abstract class SqlQueryHandler<
       }
    }
 
+   private getInputParams(args: SqlQueryRunArgs<Pick<T, "Connection" | "Params">, never>): Record<string, unknown> {
+      return (args as { params?: Record<string, unknown> }).params ?? {};
+   }
+
    /**
     * Executes the query and returns exactly one row.
     *
@@ -162,7 +228,9 @@ export abstract class SqlQueryHandler<
     *
     * @param args - Database connection and query parameters.
     */
-   async one(args: SqlRunArgs<Pick<T, "Connection" | "Params">>): Promise<T["Row"]> {
+   async one<TContext extends typeof this._params>(
+      args: SqlQueryRunArgs<Pick<T, "Connection" | "Params">, TContext>,
+   ): Promise<T["Row"]> {
       const rows = await this.all(args);
       ok(rows.length === 1, `Expected one row, actual is ${rows.length} rows.`);
       ok(rows[0], `The one row in result is not defined: ${rows[0]}`);
@@ -174,7 +242,9 @@ export abstract class SqlQueryHandler<
     * Throws if the result contains zero rows.
     * @param args - Database connection and query parameters.
     */
-   async first(args: SqlRunArgs<Pick<T, "Connection" | "Params">>): Promise<T["Row"] | undefined> {
+   async first<TContext extends typeof this._params>(
+      args: SqlQueryRunArgs<Pick<T, "Connection" | "Params">, TContext>,
+   ): Promise<T["Row"] | undefined> {
       const rows = await this.all(args);
       return rows.length > 0 ? rows[0] : undefined;
    }
@@ -184,7 +254,9 @@ export abstract class SqlQueryHandler<
     *
     * @param args - Database connection and query parameters.
     */
-   async any(args: SqlRunArgs<Pick<T, "Connection" | "Params">>): Promise<T["Row"] | undefined> {
+   async any<TContext extends typeof this._params>(
+      args: SqlQueryRunArgs<Pick<T, "Connection" | "Params">, TContext>,
+   ): Promise<T["Row"] | undefined> {
       const rows = await this.all(args);
       return rows.length > 0 ? rows[0] : undefined;
    }
@@ -196,13 +268,15 @@ export abstract class SqlQueryHandler<
     *
     * @param args - Database connection and query parameters.
     */
-   async all(args: SqlRunArgs<Pick<T, "Connection" | "Params">>): Promise<T["Row"][]> {
-      return this.resolveRows(await this.run(args, "query"));
+   async all<TContext extends typeof this._params>(
+      args: SqlQueryRunArgs<Pick<T, "Connection" | "Params">, TContext>,
+   ): Promise<T["Row"][]> {
+      return this.resolveRows(await this.run(args, "read"));
    }
 }
 
 export function newSqlQueryHandler<
-   T extends { Row?: unknown; Params?: unknown; QueryResult: object; Connection: unknown },
+   T extends { Row?: unknown; Params?: unknown; Read: object; Write: object; Connection: unknown },
    Handler extends SqlQueryHandler<T>,
 >(handler: Handler): Handler & SqlQueryExtended<Pick<T, "Row" | "Params">> {
    return new Proxy(handler, {

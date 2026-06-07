@@ -11,7 +11,7 @@ import {
 import BetterSqlite3 from "better-sqlite3";
 import { findPrimaryKeys, findTableColumns, findTables, findViews } from "#/schema/find-tables.js";
 import { getColumnType } from "#/schema/get-column-type.js";
-import { SqlQueryHandler, SqlQuery } from "vexnor";
+import { SqlQuery, SqlQueryHandler } from "vexnor";
 import { BetterSqlite3QueryHandler } from "#/better-sqlite3-query-handler.js";
 import pkg from "../package.json" with { type: "json" };
 import "#/sqlite3-augment.js";
@@ -28,10 +28,12 @@ export class VexnorSqlite3 extends VexnorPlugin<{
    driver = "better-sqlite3";
    dialect = "sqlite";
 
-   newQueryHandler<T extends { Row?: unknown; Params?: unknown; QueryResult: object; Connection: unknown }>(
-      query: SqlQuery<{ Params: T["Params"]; Row: T["Row"] }>,
-   ): SqlQueryHandler<T> {
-      return new BetterSqlite3QueryHandler(query);
+   newQueryHandler<Args extends { Row?: unknown; Params?: unknown; Read: object; Write: object }>(
+      query: SqlQuery<Pick<Args, "Row" | "Params">>,
+   ): SqlQueryHandler<Pick<Args, "Row" | "Params" | "Read" | "Write"> & { Connection: BetterSqlite3.Database }> {
+      return new BetterSqlite3QueryHandler(query) as SqlQueryHandler<
+         Pick<Args, "Row" | "Params" | "Read" | "Write"> & { Connection: BetterSqlite3.Database }
+      >;
    }
 
    getLibrary(): LibraryOutputFile[] {
@@ -111,7 +113,12 @@ export class VexnorSqlite3 extends VexnorPlugin<{
       };
    }
 
-   async createConnection(config: Sqlite3ConnectionConfig): Promise<VexnorConnection<BetterSqlite3.Database>> {
+   async createConnection<TContext extends Record<string, unknown>>({
+      config,
+   }: {
+      config: Sqlite3ConnectionConfig;
+      context?: TContext;
+   }): Promise<VexnorConnection<{ Connection: BetterSqlite3.Database; Context: TContext }>> {
       const db = new BetterSqlite3(config.uri);
       return new VexnorConnection(db, (db) => {
          Promise.resolve(() => {

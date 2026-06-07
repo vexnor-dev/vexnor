@@ -1,5 +1,5 @@
 import "vexnor-postgres";
-import { row, sql, param, col, runtime } from "vexnor";
+import { row, sql, param, col, ctx } from "vexnor";
 import { Account } from "../codegen/postgres/vexnor_dev.account-table.js";
 import { Order } from "../codegen/postgres/vexnor_dev.order-table.js";
 import { OrderItem } from "../codegen/postgres/vexnor_dev.order_item-table.js";
@@ -51,7 +51,7 @@ export const selectAccountsForLogin = Account.postgres.select({
  * never supplied by the client.
  */
 export const selectMyOrders = Order.postgres.select({
-   WHERE: sql`${Order.$accountId} = ${runtime<{ userId: string }>("userId")}`,
+   WHERE: sql`${Order.$accountId} = ${ctx<{ userId: string }>("userId")}`,
    ORDER_BY: sql`${Order.$createdAt} desc`,
    includeMany: { items: orderItems },
 });

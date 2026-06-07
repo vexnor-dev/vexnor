@@ -33,11 +33,18 @@ export type MssqlClient = Request | ConnectionPool;
 export class MssqlQueryHandler<T extends { Params?: unknown; Row?: unknown }> extends SqlQueryHandler<
    Pick<T, "Row" | "Params"> & {
       Connection: MssqlClient | RemoteClient;
-      QueryResult: IResult<T["Row"]>;
+      Read: IResult<T["Row"]>;
+      Write: IResult<T["Row"]>;
    }
 > {
    constructor(readonly query: SqlQuery<Pick<T, "Row" | "Params">>) {
       super(query, { pluginName: PLUGIN_NAME });
+   }
+
+   isReadResult(result: unknown): result is IResult<T["Row"]> {
+      return (
+         typeof result === "object" && result !== null && "recordsets" in result && Array.isArray(result.recordsets)
+      );
    }
 
    getOptions(args: SqlRunArgs<{ Connection: MssqlClient; Params: T["Params"] }>) {
@@ -61,13 +68,13 @@ export class MssqlQueryHandler<T extends { Params?: unknown; Row?: unknown }> ex
    }
 
    resolveRows(result: IResult<T["Row"]>): T["Row"][] {
-      ok(result.recordsets, `MSSQL query result doesn't have a 'recordsets' array.`);
+      ok(Array.isArray(result.recordsets), `MSSQL query result doesn't have a 'recordsets' array.`);
       ok(result.recordsets[0], `MSSQL query result doesn't have any results in 'recordsets' array.`);
-      return result.recordsets[0] ?? [];
+      return (result.recordsets[0] as T["Row"][]) ?? [];
    }
 
    deserialize<TResult = IResult<T["Row"]>>(result: TResult, isRemoteClient: boolean): TResult {
-      ok(isQueryResult(result), `MSSQL query result should be an object with a 'recordsets' property.`);
+      ok(this.isReadResult(result), `MSSQL query result should be an object with a 'recordsets' property.`);
       const rowSchema = this.getRowSchema(isRemoteClient);
       const { recordsets } = result;
       if (!Array.isArray(recordsets)) {
@@ -98,14 +105,13 @@ export class MssqlQueryHandler<T extends { Params?: unknown; Row?: unknown }> ex
     *
     * @param args - Database connection and query parameters.
     */
-   async execute<TResult = IResult<T["Row"]>>(
-      args: SqlRunArgs<{ Connection: MssqlClient; Params: T["Params"] }>,
-   ): Promise<TResult> {
+   async execute(args: SqlRunArgs<{ Connection: MssqlClient; Params: T["Params"] }>): Promise<IResult<T["Row"]>> {
       const { db, options: { debug } = {} } = args;
       const resolved = await db;
-      const request = "request" in resolved && typeof resolved.request === "function"
-         ? (resolved as ConnectionPool).request()
-         : resolved as Request;
+      const request =
+         "request" in resolved && typeof resolved.request === "function"
+            ? (resolved as ConnectionPool).request()
+            : (resolved as Request);
       const queryInput = this.getOptions(args);
       if (debug) debug(Object.freeze(queryInput));
       const { values, text } = queryInput;
@@ -123,9 +129,7 @@ export class MssqlQueryHandler<T extends { Params?: unknown; Row?: unknown }> ex
       }
 
       try {
-         const result = await request.query(text);
-         // result.recordset.splice(0);
-         return result as TResult;
+         return await request.query(text);
       } catch (err) {
          throw new SqlRunError(`Error running MSSQL query.\n${text}`, this, {
             cause: err,
@@ -137,8 +141,4 @@ export class MssqlQueryHandler<T extends { Params?: unknown; Row?: unknown }> ex
          });
       }
    }
-}
-
-function isQueryResult<T extends object>(value: unknown): value is IResult<T> {
-   return typeof value === "object" && value !== null && "recordsets" in value && Array.isArray(value.recordsets);
 }

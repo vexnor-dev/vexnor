@@ -1,4 +1,4 @@
-declare const RUNTIME_VALUE_SYMBOL: unique symbol;
+declare const CONTEXT_VALUE_SYMBOL: unique symbol;
 
 /**
  * A branded sentinel type assignable to any param type.
@@ -8,12 +8,12 @@ declare const RUNTIME_VALUE_SYMBOL: unique symbol;
  * The remote client strips any param set to `runtimeValue` before sending
  * the request — it will never reach the server as a caller-supplied value.
  */
-export type RuntimeValue = { readonly [RUNTIME_VALUE_SYMBOL]: true };
+export type ContextValue = { readonly [CONTEXT_VALUE_SYMBOL]: true };
 
 /**
  * Sentinel value for runtime-injected params.
  *
- * Use this when calling a query that uses `runtime()` params from the client.
+ * Use this when calling a query that uses `ctx()` params from the client.
  * The value satisfies the TypeScript type requirement but is stripped by the
  * remote client before the request is sent — the real value is injected
  * server-side from the registry context.
@@ -34,8 +34,8 @@ export type RuntimeValue = { readonly [RUNTIME_VALUE_SYMBOL]: true };
  *   params: { userId: session.userId },
  * });
  */
-export const runtimeValue: RuntimeValue = Symbol("runtimeValue") as unknown as RuntimeValue;
+export const contextValue: ContextValue = Symbol("runtimeValue") as unknown as ContextValue;
 
-export function isRuntimeValue(value: unknown): boolean {
-   return value === runtimeValue;
+export function isContextValue(value: unknown): boolean {
+   return value === contextValue;
 }

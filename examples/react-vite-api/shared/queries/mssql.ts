@@ -1,5 +1,5 @@
 import "vexnor-mssql";
-import { row, sql, param, col, runtime } from "vexnor";
+import { row, sql, param, col, ctx } from "vexnor";
 import { Account } from "../codegen/mssql/vexnor_dev.account-table.js";
 import { Order } from "../codegen/mssql/vexnor_dev.order-table.js";
 import { OrderItem } from "../codegen/mssql/vexnor_dev.order_item-table.js";
@@ -55,11 +55,11 @@ export const selectAccountsForLogin = Account.mssql.select({
 
 /**
  * My orders query — returns orders with their items for the authenticated user.
- * Uses runtime("userId") so the value is injected from the server-side session,
+ * Uses ctx("userId") so the value is injected from the server-side session,
  * never supplied by the client.
  */
 export const selectMyOrders = Order.mssql.select({
-   WHERE: sql`${Order.$accountId} = ${runtime<{ userId: string }>("userId")}`,
+   WHERE: sql`${Order.$accountId} = ${ctx<{ userId: string }>("userId")}`,
    ORDER_BY: sql`${Order.$createdAt} desc`,
    includeMany: { items: orderItems },
 });

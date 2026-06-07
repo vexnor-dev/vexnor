@@ -1,64 +1,14 @@
-import { describe, expect, test, vi } from "vitest";
+import { describe, expect, test } from "vitest";
 import { sql } from "#/core/sql.js";
 import { row } from "#/core/query/sql-select-row.js";
-import { param, SqlParam } from "#/core/query/sql-param.js";
-import { runtime } from "#/core/query/sql-runtime.js";
-import { runtimeValue, isRuntimeValue } from "#/core/query/runtime-value.js";
+import { ctx, param, SqlParam } from "#/core/query/sql-param.js";
+import { isContextValue, contextValue } from "#/core/query/context-value.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { QueryRegistry, type ConnectionResolver } from "#/registry/query-registry.js";
-import { SqlQuery } from "#/core/query/sql-query.js";
-import { SqlQueryHandler, newSqlQueryHandler } from "#/core/query/sql-query-handler.js";
-import { VexnorPlugin } from "#/plugin/vexnor-plugin.js";
-import { SqlRunArgs, type SqlExecuteMode } from "#/core/query/sql-query-types.js";
+import { type ConnectionResolver, SqlQueryRegistry } from "#/execution/sql-query-registry.js";
+import { type SqlExecuteMode } from "#/core/query/sql-query-types.js";
+import { MockConnection, MockPlugin } from "#/test/mock-plugin.js";
 
-// ── minimal mock infrastructure ──────────────────────────────────────────────
-
-type MockResult = { rows: unknown[] };
-type MockConnection = { query: (sql: string, params: unknown[]) => Promise<MockResult> };
-
-class MockQueryHandler<T extends { Row?: unknown; Params?: unknown }> extends SqlQueryHandler<
-   Pick<T, "Row" | "Params"> & { QueryResult: MockResult; Connection: MockConnection; RunResult: MockResult }
-> {
-   constructor(private readonly q: SqlQuery<Pick<T, "Row" | "Params">>) {
-      super(q, { pluginName: "mock" });
-   }
-   resolveRows(result: MockResult): T["Row"][] {
-      return result.rows as T["Row"][];
-   }
-   deserialize<TResult = MockResult>(result: TResult, isRemoteClient: boolean) {
-      return {
-         ...result,
-         rows: this.deserializeRows((result as MockResult).rows as T["Row"][], isRemoteClient),
-      } as TResult;
-   }
-   async execute<TResult = MockResult>(
-      args: SqlRunArgs<{ Connection: MockConnection; Params: T["Params"] }>,
-   ): Promise<TResult> {
-      const db = await args.db;
-      const { text, values } = this.q.getSql(args);
-      return (await db.query(text, values)) as TResult;
-   }
-}
-
-class MockPlugin extends VexnorPlugin<{ Connection: MockConnection; Config: never }> {
-   constructor(readonly name: string) {
-      super();
-   }
-   readonly dialect = "sql";
-   readonly driver = "mock";
-   getColumnType = vi.fn();
-   getSchema = vi.fn();
-   getLibrary = vi.fn(() => []);
-   createConnection = vi.fn();
-   newQueryHandler<T extends { Row?: unknown; Params?: unknown; QueryResult: object; Connection: unknown }>(
-      query: SqlQuery<Pick<T, "Row" | "Params">>,
-   ) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return newSqlQueryHandler(new MockQueryHandler(query as any) as any) as any;
-   }
-}
-
-const plugin = new MockPlugin("mock");
+const plugin = new MockPlugin({ name: "mock" });
 
 function makeDb(rows: unknown[] = [], capturedParams?: { sql: string; values: unknown[] }[]): MockConnection {
    return {
@@ -66,46 +16,44 @@ function makeDb(rows: unknown[] = [], capturedParams?: { sql: string; values: un
          capturedParams?.push({ sql, values });
          return { rows };
       },
-   };
+   } as MockConnection;
 }
 
-function executeRegistry<TResult = MockResult, TRuntime extends Record<string, unknown> = Record<string, unknown>>(
-   registry: QueryRegistry<TRuntime>,
+function executeRegistry<TContext extends Record<string, unknown> = Record<string, unknown>>(
+   registry: SqlQueryRegistry<TContext>,
    plugin: string,
    hash: string,
    params: Record<string, unknown>,
    resolver: ConnectionResolver,
-   context?: TRuntime,
-   mode: SqlExecuteMode = "query",
+   context?: TContext,
+   mode: SqlExecuteMode = "read",
 ) {
-   return registry.execute<TResult>({ plugin, hash, params, location: "test", mode }, resolver, context);
+   return registry.execute({ plugin, hash, params, location: "test", mode }, resolver, context);
 }
 
 // ── tests ─────────────────────────────────────────────────────────────────────
 
-describe("SqlRuntime", () => {
-   describe("runtime() factory", () => {
-      test("returns a SqlParam instance with isRuntime: true", () => {
-         expect(runtime<{ userId: string }>("userId")).toBeInstanceOf(SqlParam);
-         expect(runtime<{ userId: string }>("userId").isRuntime).toBe(true);
+describe("Context values", () => {
+   describe("ctx() factory", () => {
+      test("returns a SqlParam instance with isContext: true", () => {
+         expect(ctx<{ userId: string }>("userId")).toBeInstanceOf(SqlParam);
+         expect(ctx<{ userId: string }>("userId").isContext).toBe(true);
       });
 
-      test("param() returns isRuntime: false", () => {
-         expect(param<{ userId: string }>("userId").isRuntime).toBe(false);
+      test("param() returns isContext: false", () => {
+         expect(param<{ userId: string }>("userId").isContext).toBe(false);
       });
 
       test("has type SqlRuntime", () => {
-         expect(runtime<{ userId: string }>("userId").type).toMatchInlineSnapshot(`"SqlRuntime"`);
+         expect(ctx<{ userId: string }>("userId").type).toMatchInlineSnapshot(`"SqlContext"`);
       });
 
       test("hashId includes name", () => {
-         expect(runtime<{ userId: string }>("userId").hashId).toMatchInlineSnapshot(`"SqlRuntime#(userId)"`);
+         expect(ctx<{ userId: string }>("userId").hashId).toMatchInlineSnapshot(`"SqlContext#(userId)"`);
       });
 
       test("different names produce different hashIds", () => {
-         expect(runtime<{ userId: string }>("userId").hashId).not.toBe(
-            runtime<{ tenantId: string }>("tenantId").hashId,
-         );
+         expect(ctx<{ userId: string }>("userId").hashId).not.toBe(ctx<{ tenantId: string }>("tenantId").hashId);
       });
    });
 
@@ -114,15 +62,15 @@ describe("SqlRuntime", () => {
          const q = sql`
             SELECT ${row(Account.$accountId)}
             FROM ${Account}
-            WHERE ${Account.$accountId} = ${runtime<{ userId: string }>("userId")}
+            WHERE ${Account.$accountId} = ${ctx<{ userId: string }>("userId")}
               AND ${Account.$email} = ${param<{ email: string }>("email")}
          `;
          expect(q.params).toHaveProperty("userId");
          expect(q.params).toHaveProperty("email");
          expect(q.params!["userId"]).toBeInstanceOf(SqlParam);
-         expect((q.params!["userId"] as SqlParam<{ Name: "userId"; Type: string }>).isRuntime).toBe(true);
+         expect((q.params!["userId"] as SqlParam<{ Name: "userId"; Type: string }>).isContext).toBe(true);
          expect(q.params!["email"]).toBeInstanceOf(SqlParam);
-         expect((q.params!["email"] as SqlParam<{ Name: "email"; Type: string }>).isRuntime).toBe(false);
+         expect((q.params!["email"] as SqlParam<{ Name: "email"; Type: string }>).isContext).toBe(false);
       });
    });
 
@@ -130,7 +78,7 @@ describe("SqlRuntime", () => {
       test("query with runtime has a different hash than the same query without it", async () => {
          const withRuntime = sql`
             SELECT ${row(Account.$accountId)} FROM ${Account}
-            WHERE ${Account.$accountId} = ${runtime<{ userId: string }>("userId")}
+            WHERE ${Account.$accountId} = ${ctx<{ userId: string }>("userId")}
          `;
          const withParam = sql`
             SELECT ${row(Account.$accountId)} FROM ${Account}
@@ -140,14 +88,14 @@ describe("SqlRuntime", () => {
       });
 
       test("two queries with the same runtime key have the same hash", async () => {
-         const q1 = sql`SELECT ${row(Account.$accountId)} FROM ${Account} WHERE ${Account.$accountId} = ${runtime<{ userId: string }>("userId")}`;
-         const q2 = sql`SELECT ${row(Account.$accountId)} FROM ${Account} WHERE ${Account.$accountId} = ${runtime<{ userId: string }>("userId")}`;
+         const q1 = sql`SELECT ${row(Account.$accountId)} FROM ${Account} WHERE ${Account.$accountId} = ${ctx<{ userId: string }>("userId")}`;
+         const q2 = sql`SELECT ${row(Account.$accountId)} FROM ${Account} WHERE ${Account.$accountId} = ${ctx<{ userId: string }>("userId")}`;
          expect(await q1.hash).toBe(await q2.hash);
       });
 
       test("queries with different runtime keys have different hashes", async () => {
-         const q1 = sql`SELECT ${row(Account.$accountId)} FROM ${Account} WHERE ${Account.$accountId} = ${runtime<{ userId: string }>("userId")}`;
-         const q2 = sql`SELECT ${row(Account.$accountId)} FROM ${Account} WHERE ${Account.$accountId} = ${runtime<{ tenantId: string }>("tenantId")}`;
+         const q1 = sql`SELECT ${row(Account.$accountId)} FROM ${Account} WHERE ${Account.$accountId} = ${ctx<{ userId: string }>("userId")}`;
+         const q2 = sql`SELECT ${row(Account.$accountId)} FROM ${Account} WHERE ${Account.$accountId} = ${ctx<{ tenantId: string }>("tenantId")}`;
          expect(await q1.hash).not.toBe(await q2.hash);
       });
 
@@ -163,7 +111,7 @@ describe("SqlRuntime", () => {
          const q = sql`
             SELECT ${row(Account.$accountId)}
             FROM ${Account}
-            WHERE ${Account.$accountId} = ${runtime<{ userId: string }>("userId")}
+            WHERE ${Account.$accountId} = ${ctx<{ userId: string }>("userId")}
          `;
          const { values } = q.getSql({ params: { userId: "u-123" } });
          expect(values).toMatchInlineSnapshot(`
@@ -176,22 +124,22 @@ describe("SqlRuntime", () => {
 
    describe("SqlParamBase shared validation", () => {
       test("validates runtime value — throws on invalid", () => {
-         const r = runtime<{ userId: string }>("userId", { minLength: 3 });
+         const r = ctx<{ userId: string }>("userId", { minLength: 3 });
          expect(() => r.valueOrDefault("ab")).toThrow("Invalid param 'userId'");
       });
 
       test("uses default when value is undefined", () => {
-         const r = runtime<{ userId: string }>("userId", { default: "anon" });
+         const r = ctx<{ userId: string }>("userId", { default: "anon" });
          expect(r.valueOrDefault(undefined)).toBe("anon");
       });
 
       test("uses default when value is invalid and default is declared", () => {
-         const r = runtime<{ userId: string }>("userId", { minLength: 3, default: "anon" });
+         const r = ctx<{ userId: string }>("userId", { minLength: 3, default: "anon" });
          expect(r.valueOrDefault("ab")).toBe("anon");
       });
 
       test("SqlRuntime and SqlParam with same name produce different hashIds", () => {
-         expect(runtime<{ userId: string }>("userId").hashId).not.toBe(param<{ userId: string }>("userId").hashId);
+         expect(ctx<{ userId: string }>("userId").hashId).not.toBe(param<{ userId: string }>("userId").hashId);
       });
    });
 
@@ -200,7 +148,7 @@ describe("SqlRuntime", () => {
          const inner = sql`
             SELECT ${row(Account.$accountId)}
             FROM ${Account}
-            WHERE ${Account.$accountId} = ${runtime<{ userId: string }>("userId")}
+            WHERE ${Account.$accountId} = ${ctx<{ userId: string }>("userId")}
          `;
          const outer = sql`
             SELECT ${row(Account.$accountId)}
@@ -211,7 +159,7 @@ describe("SqlRuntime", () => {
          expect(outer.params).toHaveProperty("userId");
          expect(outer.params).toHaveProperty("email");
          expect(outer.params!["userId"]).toBeInstanceOf(SqlParam);
-         expect((outer.params!["userId"] as SqlParam<{ Name: "userId"; Type: string }>).isRuntime).toBe(true);
+         expect((outer.params!["userId"] as SqlParam<{ Name: "userId"; Type: string }>).isContext).toBe(true);
       });
    });
 
@@ -220,10 +168,10 @@ describe("SqlRuntime", () => {
          const q = sql`
             SELECT ${row(Account.$accountId, Account.$email)}
             FROM ${Account}
-            WHERE ${Account.$accountId} = ${runtime<{ userId: string }>("userId")}
+            WHERE ${Account.$accountId} = ${ctx<{ userId: string }>("userId")}
          `;
 
-         const registry = new QueryRegistry<{ userId: string }>();
+         const registry = new SqlQueryRegistry<{ userId: string }>();
          await registry.register(plugin, { q });
 
          const captured: { sql: string; values: unknown[] }[] = [];
@@ -245,7 +193,7 @@ describe("SqlRuntime", () => {
             WHERE ${Account.$email} = ${param<{ email: string }>("email")}
          `;
 
-         const registry = new QueryRegistry<{ userId: string }>();
+         const registry = new SqlQueryRegistry<{ userId: string }>();
          await registry.register(plugin, { q });
 
          const captured: { sql: string; values: unknown[] }[] = [];
@@ -266,11 +214,11 @@ describe("SqlRuntime", () => {
          const q = sql`
             SELECT ${row(Account.$accountId)}
             FROM ${Account}
-            WHERE ${Account.$accountId} = ${runtime<{ userId: string }>("userId")}
+            WHERE ${Account.$accountId} = ${ctx<{ userId: string }>("userId")}
               AND ${Account.$email} = ${param<{ email: string }>("email")}
          `;
 
-         const registry = new QueryRegistry<{ userId: string }>();
+         const registry = new SqlQueryRegistry<{ userId: string }>();
          await registry.register(plugin, { q });
 
          const captured: { sql: string; values: unknown[] }[] = [];
@@ -297,10 +245,10 @@ describe("SqlRuntime", () => {
          const q = sql`
             SELECT ${row(Account.$accountId)}
             FROM ${Account}
-            WHERE ${Account.$accountId} = ${runtime<{ userId: string }>("userId", { minLength: 1 })}
+            WHERE ${Account.$accountId} = ${ctx<{ userId: string }>("userId", { minLength: 1 })}
          `;
 
-         const registry = new QueryRegistry<{ userId: string }>();
+         const registry = new SqlQueryRegistry<{ userId: string }>();
          await registry.register(plugin, { q });
 
          const hash = await q.hash;
@@ -313,30 +261,30 @@ describe("SqlRuntime", () => {
 });
 
 describe("runtimeValue sentinel", () => {
-   test("isRuntimeValue returns true for runtimeValue", () => {
-      expect(isRuntimeValue(runtimeValue)).toBe(true);
+   test("isContextValue returns true for runtimeValue", () => {
+      expect(isContextValue(contextValue)).toBe(true);
    });
 
-   test("isRuntimeValue returns false for other values", () => {
-      expect(isRuntimeValue(null)).toBe(false);
-      expect(isRuntimeValue(undefined)).toBe(false);
-      expect(isRuntimeValue("")).toBe(false);
-      expect(isRuntimeValue(0)).toBe(false);
-      expect(isRuntimeValue(Symbol("other"))).toBe(false);
+   test("isContextValue returns false for other values", () => {
+      expect(isContextValue(null)).toBe(false);
+      expect(isContextValue(undefined)).toBe(false);
+      expect(isContextValue("")).toBe(false);
+      expect(isContextValue(0)).toBe(false);
+      expect(isContextValue(Symbol("other"))).toBe(false);
    });
 
    test("runtimeValue is unique — two references are the same instance", () => {
-      expect(runtimeValue).toBe(runtimeValue);
+      expect(contextValue).toBe(contextValue);
    });
 
    test("passing runtimeValue on direct execution produces null in the SQL values", () => {
       const q = sql`
          SELECT ${row(Account.$accountId)}
          FROM ${Account}
-         WHERE ${Account.$accountId} = ${runtime<{ userId: string }>("userId")}
+         WHERE ${Account.$accountId} = ${ctx<{ userId: string }>("userId")}
       `;
       // runtimeValue satisfies the type but resolves to null at SQL build time
-      const { values } = q.getSql({ params: { userId: runtimeValue as unknown as string } });
+      const { values } = q.getSql({ params: { userId: contextValue as unknown as string } });
       expect(values).toMatchInlineSnapshot(`
         [
           null,
@@ -345,8 +293,8 @@ describe("runtimeValue sentinel", () => {
    });
 
    test("runtimeValue params are stripped before remote execute is called", () => {
-      const rawParams: Record<string, unknown> = { userId: runtimeValue, email: "a@b.com" };
-      const stripped = Object.fromEntries(Object.entries(rawParams).filter(([, v]) => !isRuntimeValue(v)));
+      const rawParams: Record<string, unknown> = { userId: contextValue, email: "a@b.com" };
+      const stripped = Object.fromEntries(Object.entries(rawParams).filter(([, v]) => !isContextValue(v)));
 
       expect(stripped).toMatchInlineSnapshot(`
         {

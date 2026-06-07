@@ -33,7 +33,7 @@ describe("integration tests", () => {
 
    test("should connect to SQLite database", async () => {
       const plugin = new VexnorSqlite3();
-      const connection = await plugin.createConnection({ uri: dbPath });
+      const connection = await plugin.createConnection({ config: { uri: dbPath } });
       expect(connection).toBeDefined();
    });
 

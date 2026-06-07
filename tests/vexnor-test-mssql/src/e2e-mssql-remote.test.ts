@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, test } from "vitest";
 import { info, param, row, type RemoteClient } from "vexnor";
-import { QueryRegistry } from "vexnor/registry";
+import { SqlQueryRegistry } from "vexnor/execution";
 import { Account, IAccountSelect, IOrderSelect, Order } from "./codegen/vexnor_dev.schema.js";
 import { jsonMany, sql } from "vexnor-mssql";
 import vexnorMssql from "vexnor-mssql";
@@ -34,7 +34,7 @@ describe.sequential("mssql remote execution", (ctx) => {
    beforeAll(async () => {
       await pool.connect();
 
-      const registry = new QueryRegistry();
+      const registry = new SqlQueryRegistry();
       await registry.register(vexnorMssql, {
          selectAccountsWithOrders,
          deleteAccount,

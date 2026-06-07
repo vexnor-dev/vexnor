@@ -59,7 +59,7 @@ exec
    .option("-c, --config <path>", "Path to vexnor.config.ts", "vexnor.config.ts")
    .option("-q, --query-config <path>", "Path to query config file")
    .option("-e, --env <environment>", "Environment to use for params")
-   .option("-r, --runtime <key=value...>", "Runtime param values (e.g. --runtime userId=abc123)")
+   .option("-ctx, --context <key=value...>", "Runtime param values (e.g. --context userId=abc123)")
    .option("-f, --format <format>", "Output format (table|json|csv)")
    .option("-l, --limit <number>", "Limit number of results", parseInt)
    .option("--dry-run", "Show SQL without executing")

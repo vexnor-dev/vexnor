@@ -16,9 +16,8 @@ export { SqlBuildError } from "./sql-build-error.js";
 export { SqlQuery, type SqlQueryAny, type SqlQueryExtended, type SqlQueryExtendedAny } from "./query/sql-query.js";
 export { SqlQueryHandler, type SqlQueryHandlerAny, newSqlQueryHandler } from "./query/sql-query-handler.js";
 export { SqlQueryRef, type SqlQueryRefAny, type SqlQueryRefExtended } from "./query/sql-query-ref.js";
-export { param, SqlParam, type SqlParamAny } from "./query/sql-param.js";
-export { runtime } from "./query/sql-runtime.js";
-export { runtimeValue, type RuntimeValue, isRuntimeValue } from "./query/runtime-value.js";
+export { ctx, param, SqlParam, type SqlParamAny } from "./query/sql-param.js";
+export { contextValue, type ContextValue, isContextValue } from "./query/context-value.js";
 export { row, SqlSelectRow, type SqlSelectRowAny } from "./query/sql-select-row.js";
 export { val, SqlSelectValue, type SqlSelectValueAny } from "./query/sql-select-value.js";
 export { raw, quote, SqlRaw } from "./query/sql-raw.js";
@@ -33,6 +32,8 @@ export {
    type SqlQueryOptions,
    type SqlRunArgs,
    type SqlRunOptions,
+   type SqlRetryOptions,
+   type SqlRetryArgs,
    type SqlInputArgs,
    type RemoteClient,
    type SqlExecuteMode,

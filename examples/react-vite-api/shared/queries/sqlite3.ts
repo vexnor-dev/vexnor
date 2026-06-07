@@ -1,5 +1,5 @@
 import "vexnor-sqlite3";
-import { col, param, row, runtime, sql } from "vexnor";
+import { col, param, row, ctx, sql } from "vexnor";
 import { Account } from "../codegen/sqlite3/main.account-table.js";
 import { Order } from "../codegen/sqlite3/main.order-table.js";
 import { OrderItem } from "../codegen/sqlite3/main.order_item-table.js";
@@ -62,7 +62,7 @@ export const selectAccountsForLogin = Account.sqlite.select({
  * never supplied by the client.
  */
 export const selectMyOrders = Order.sqlite.select({
-   WHERE: sql`${Order.$accountId} = ${runtime<{ userId: string }>("userId")}`,
+   WHERE: sql`${Order.$accountId} = ${ctx<{ userId: string }>("userId")}`,
    ORDER_BY: sql`${Order.$createdAt} desc`,
    includeMany: { items: orderItems },
 });

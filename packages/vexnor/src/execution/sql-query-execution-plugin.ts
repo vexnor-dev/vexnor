@@ -1,10 +1,15 @@
-import type { VexnorPluginAny } from "#/plugin/vexnor-plugin.js";
 import type { SqlQueryAny } from "#/core/query/sql-query.js";
 import { SqlExecuteMode } from "#/core/query/sql-query-types.js";
 
+export type SqlQueryExecutionPluginRef = {
+   readonly name: string;
+   readonly driver?: string;
+   readonly dialect?: string;
+};
+
 /** Identity fields shared by `check`, `before`, and `after`. */
 export type ExecutionArgs<TContext extends Record<string, unknown> = Record<string, unknown>> = {
-   plugin: VexnorPluginAny;
+   plugin: SqlQueryExecutionPluginRef;
    name: string;
    query: SqlQueryAny;
    params: Record<string, unknown>;
@@ -35,7 +40,7 @@ export type AfterArgs<TContext extends Record<string, unknown> = Record<string, 
  * - `after()` — sync observer called after every query completes, success or failure. Fire-and-forget via EventTarget.
  * - `onError()` — called when `before()` or `after()` throws, with the original args for context.
  */
-export interface QueryExecutionPlugin<TContext extends Record<string, unknown> = Record<string, unknown>> {
+export interface SqlQueryExecutionPlugin<TContext extends Record<string, unknown> = Record<string, unknown>> {
    /** Unique name identifying this plugin — used in error messages and warnings. */
    readonly name: string;
    check?(args: ExecutionArgs<TContext>): void | Promise<void>;

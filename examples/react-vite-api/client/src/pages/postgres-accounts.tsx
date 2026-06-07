@@ -1,7 +1,7 @@
 import "vexnor-postgres";
 import { Suspense, useEffect, useState } from "react";
 import { useSearch, useNavigate } from "@tanstack/react-router";
-import { runtimeValue } from "vexnor";
+import { contextValue } from "vexnor";
 import { deleteAccount, insertAccount, selectAccounts, selectMyOrders } from "#shared/queries/postgres";
 import { AccountGrid } from "#/components/account-grid.js";
 import { CreateAccountForm } from "#/components/create-account-form.js";
@@ -22,7 +22,7 @@ export default function PostgresAccountsPage() {
       Promise.resolve([]),
    );
    const [ordersPromise] = useState<Promise<(typeof selectMyOrders.rowType)[]>>(() =>
-      selectMyOrders.postgres.all({ db: remoteClient, params: { userId: runtimeValue } }),
+      selectMyOrders.postgres.all({ db: remoteClient, params: { userId: contextValue } }),
    );
 
    useEffect(() => {
@@ -39,19 +39,24 @@ export default function PostgresAccountsPage() {
       <div className="page">
          <h1>PostgreSQL</h1>
          <div className="tabs">
-            <button className={`tab-btn${tab === "orders" ? " active" : ""}`} onClick={() => setTab("orders")}>My Orders</button>
-            <button className={`tab-btn${tab === "accounts" ? " active" : ""}`} onClick={() => setTab("accounts")}>Accounts</button>
+            <button className={`tab-btn${tab === "orders" ? " active" : ""}`} onClick={() => setTab("orders")}>
+               My Orders
+            </button>
+            <button className={`tab-btn${tab === "accounts" ? " active" : ""}`} onClick={() => setTab("accounts")}>
+               Accounts
+            </button>
          </div>
-         {tab === "orders" && (
-            auth.authenticated
-               ? <MyOrders promise={ordersPromise} />
-               : (
-                  <div className="unauthenticated">
-                     <p>Sign in to view your orders.</p>
-                     <button className="btn btn-primary" onClick={() => void navigate({ to: "/postgres-login" })}>Sign in</button>
-                  </div>
-               )
-         )}
+         {tab === "orders" &&
+            (auth.authenticated ? (
+               <MyOrders promise={ordersPromise} />
+            ) : (
+               <div className="unauthenticated">
+                  <p>Sign in to view your orders.</p>
+                  <button className="btn btn-primary" onClick={() => void navigate({ to: "/postgres-login" })}>
+                     Sign in
+                  </button>
+               </div>
+            ))}
          {tab === "accounts" && (
             <>
                <CreateAccountForm

@@ -1,6 +1,6 @@
 import { SqlRunError } from "#/core/sql-run-error.js";
 import { SqlErrorCode } from "#/core/sql-error-code.js";
-import type { QueryExecutionPlugin, ExecutionArgs, AfterArgs } from "./query-execution-plugin.js";
+import type { SqlQueryExecutionPlugin, ExecutionArgs, AfterArgs } from "./sql-query-execution-plugin.js";
 
 export type QueryMetrics = {
    /** Number of currently executing instances of this query. */
@@ -69,19 +69,26 @@ export type TimeToLiveRateLimiterOptions<TContext extends Record<string, unknown
     * Throw to reject. Runs after `maxConcurrent` and `maxConcurrentPerContext` checks.
     */
    limit?: (args: LimitArgs<TContext>) => void | Promise<void>;
+   /**
+    * Clock function — returns current timestamp in milliseconds.
+    * Defaults to `Date.now`. Override in tests to control time.
+    */
+   now?: () => number;
 };
 
 export class TimeToLiveRateLimiter<
    TContext extends Record<string, unknown> = Record<string, unknown>,
-> implements QueryExecutionPlugin<TContext> {
+> implements SqlQueryExecutionPlugin<TContext> {
    readonly name: string;
+   private readonly now: () => number;
    private readonly _queryMetrics = new Map<string, QueryMetrics>();
    private readonly _contextMetrics = new Map<string, Map<string, ContextMetrics>>();
-   private readonly _options: TimeToLiveRateLimiterOptions<TContext>;
+   private readonly options: TimeToLiveRateLimiterOptions<TContext>;
 
    constructor(options: TimeToLiveRateLimiterOptions<TContext> = {}) {
       this.name = options.name ?? "TimeToLiveRateLimiter";
-      this._options = options;
+      this.now = options.now ?? Date.now;
+      this.options = options;
    }
 
    /** Per-query metrics across all contexts. Keyed by query hash. */
@@ -113,10 +120,10 @@ export class TimeToLiveRateLimiter<
 
       const { query, name, input } = args;
       const qm = this.getOrCreateQueryMetrics(input.hash);
-      const contextKey = this._options.contextKeyResolver?.(args.context);
+      const contextKey = this.options.contextKeyResolver?.(args.context);
       const cm = contextKey !== undefined ? this.getOrCreateContextMetrics(input.hash, contextKey) : null;
 
-      const { maxConcurrent, maxConcurrentPerContext } = this._options;
+      const { maxConcurrent, maxConcurrentPerContext } = this.options;
 
       if (maxConcurrent !== undefined && qm.inFlight >= maxConcurrent) {
          throw new SqlRunError(
@@ -134,9 +141,9 @@ export class TimeToLiveRateLimiter<
          );
       }
 
-      if (this._options.limit) {
+      if (this.options.limit) {
          try {
-            await this._options.limit({ ...args, queryMetrics: { ...qm }, contextMetrics: cm ? { ...cm } : null });
+            await this.options.limit({ ...args, queryMetrics: { ...qm }, contextMetrics: cm ? { ...cm } : null });
          } catch (err) {
             if (err instanceof SqlRunError) throw err;
             throw new SqlRunError(`Rate limit exceeded for query "${name}"`, query, {
@@ -152,7 +159,7 @@ export class TimeToLiveRateLimiter<
       if (cm) {
          cm.inFlight++;
          cm.totalCalls++;
-         cm.lastActivityAt = Date.now();
+         cm.lastActivityAt = this.now();
       }
    }
 
@@ -163,20 +170,20 @@ export class TimeToLiveRateLimiter<
       const qm = this._queryMetrics.get(hash);
       if (!qm) return;
 
-      qm.inFlight--;
+      qm.inFlight = Math.max(0, qm.inFlight - 1);
       const completed = qm.totalCalls - qm.inFlight;
       qm.avgDurationMs = qm.avgDurationMs + (durationMs - qm.avgDurationMs) / completed;
       if (error !== null) qm.totalErrors++;
 
-      const contextKey = this._options.contextKeyResolver?.(args.context);
+      const contextKey = this.options.contextKeyResolver?.(args.context);
       if (contextKey !== undefined) {
          const cm = this._contextMetrics.get(hash)?.get(contextKey);
          if (cm) {
-            cm.inFlight--;
+            cm.inFlight = Math.max(0, cm.inFlight - 1);
             const cmCompleted = cm.totalCalls - cm.inFlight;
             cm.avgDurationMs = cm.avgDurationMs + (durationMs - cm.avgDurationMs) / cmCompleted;
             if (error !== null) cm.totalErrors++;
-            cm.lastActivityAt = Date.now();
+            cm.lastActivityAt = this.now();
          }
       }
    }
@@ -198,15 +205,15 @@ export class TimeToLiveRateLimiter<
       }
       let m = inner.get(contextKey);
       if (!m) {
-         m = { contextKey, inFlight: 0, totalCalls: 0, totalErrors: 0, avgDurationMs: 0, lastActivityAt: Date.now() };
+         m = { contextKey, inFlight: 0, totalCalls: 0, totalErrors: 0, avgDurationMs: 0, lastActivityAt: this.now() };
          inner.set(contextKey, m);
       }
       return m;
    }
 
    private sweep(): void {
-      const ttl = this._options.contextMetricsTtlMs ?? 5 * 60 * 1000;
-      const cutoff = Date.now() - ttl;
+      const ttl = this.options.contextMetricsTtlMs ?? 5 * 60 * 1000;
+      const cutoff = this.now() - ttl;
       for (const inner of this._contextMetrics.values()) {
          for (const [key, m] of inner) {
             if (m.inFlight === 0 && m.lastActivityAt < cutoff) inner.delete(key);

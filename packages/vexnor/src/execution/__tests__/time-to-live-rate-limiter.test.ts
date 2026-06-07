@@ -1,8 +1,8 @@
 import { describe, expect, test, vi } from "vitest";
-import { TimeToLiveRateLimiter } from "#/registry/time-to-live-rate-limiter.js";
+import { TimeToLiveRateLimiter } from "#/execution/time-to-live-rate-limiter.js";
 import { SqlRunError } from "#/core/sql-run-error.js";
 import { SqlErrorCode } from "#/core/sql-error-code.js";
-import type { ExecutionArgs, AfterArgs } from "#/registry/query-execution-plugin.js";
+import type { ExecutionArgs, AfterArgs } from "#/execution/sql-query-execution-plugin.js";
 
 // ── minimal stubs ─────────────────────────────────────────────────────────────
 
@@ -21,7 +21,7 @@ function execArgs(overrides: Partial<ExecutionArgs> = {}): ExecutionArgs {
          hash: "hash-a",
          location: null,
          params: {},
-         mode: "query",
+         mode: "read",
       },
       params: {},
       context: {},
@@ -39,7 +39,7 @@ function ctxArgs(userId: string, overrides: Partial<ExecutionArgs<Ctx>> = {}): E
          hash: "hash-a",
          location: null,
          params: {},
-         mode: "query",
+         mode: "read",
       },
       params: {},
       context: { userId },
@@ -110,14 +110,22 @@ describe("TimeToLiveRateLimiter — metrics tracking", () => {
 
    test("after() is a no-op when hash is unknown", () => {
       const limiter = new TimeToLiveRateLimiter();
-      expect(() => limiter.after(afterArgs({ input: { plugin: "", hash: "unknown", location: null, params: {}, mode: "query" } }))).not.toThrow();
+      expect(() =>
+         limiter.after(afterArgs({ input: { plugin: "", hash: "unknown", location: null, params: {}, mode: "read" } })),
+      ).not.toThrow();
    });
 
    test("tracks separate metrics per query hash", async () => {
       const limiter = new TimeToLiveRateLimiter();
-      await limiter.check(execArgs({ input: { plugin: "", hash: "hash-a", location: null, params: {}, mode: "query" } }));
-      await limiter.check(execArgs({ input: { plugin: "", hash: "hash-b", location: null, params: {}, mode: "query" } }));
-      await limiter.after(afterArgs({ input: { plugin: "", hash: "hash-a", location: null, params: {}, mode: "query" }, durationMs: 5 }));
+      await limiter.check(
+         execArgs({ input: { plugin: "", hash: "hash-a", location: null, params: {}, mode: "read" } }),
+      );
+      await limiter.check(
+         execArgs({ input: { plugin: "", hash: "hash-b", location: null, params: {}, mode: "read" } }),
+      );
+      limiter.after(
+         afterArgs({ input: { plugin: "", hash: "hash-a", location: null, params: {}, mode: "read" }, durationMs: 5 }),
+      );
 
       expect(limiter.metrics.get("hash-a")).toMatchInlineSnapshot(`
         {
@@ -294,16 +302,17 @@ describe("TimeToLiveRateLimiter — limit hook", () => {
 
 describe("TimeToLiveRateLimiter — TTL sweep", () => {
    test("idle context entries are evicted after TTL on next check()", async () => {
+      let currentTime = Date.now();
       const limiter = new TimeToLiveRateLimiter<Ctx>({
          contextKeyResolver: (ctx) => ctx.userId,
          contextMetricsTtlMs: 1,
+         now: () => currentTime,
       });
 
       await limiter.check(ctxArgs("u1"));
       await limiter.after(ctxAfterArgs("u1"));
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (limiter as any)._contextMetrics.get("hash-a").get("u1").lastActivityAt = Date.now() - 100;
+      currentTime += 100; // advance time past TTL
 
       await limiter.check(ctxArgs("u2"));
 
@@ -312,15 +321,16 @@ describe("TimeToLiveRateLimiter — TTL sweep", () => {
    });
 
    test("in-flight context entries are not evicted by sweep", async () => {
+      let currentTime = Date.now();
       const limiter = new TimeToLiveRateLimiter<Ctx>({
          contextKeyResolver: (ctx) => ctx.userId,
          contextMetricsTtlMs: 1,
+         now: () => currentTime,
       });
 
       await limiter.check(ctxArgs("u1")); // inFlight = 1, not yet recorded
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (limiter as any)._contextMetrics.get("hash-a").get("u1").lastActivityAt = Date.now() - 100;
+      currentTime += 100; // advance time past TTL
 
       await limiter.check(ctxArgs("u2"));
 
@@ -334,7 +344,9 @@ describe("TimeToLiveRateLimiter — clearContextMetrics", () => {
    test("clearContextMetrics() with no arg clears all context entries", async () => {
       const limiter = new TimeToLiveRateLimiter<Ctx>({ contextKeyResolver: (ctx) => ctx.userId });
       await limiter.check(ctxArgs("u1"));
-      await limiter.check(ctxArgs("u1", { input: { plugin: "", hash: "hash-b", location: null, params: {}, mode: "query" } }));
+      await limiter.check(
+         ctxArgs("u1", { input: { plugin: "", hash: "hash-b", location: null, params: {}, mode: "read" } }),
+      );
 
       limiter.clearContextMetrics();
 
@@ -345,7 +357,9 @@ describe("TimeToLiveRateLimiter — clearContextMetrics", () => {
    test("clearContextMetrics(key) removes only that key across all hashes", async () => {
       const limiter = new TimeToLiveRateLimiter<Ctx>({ contextKeyResolver: (ctx) => ctx.userId });
       await limiter.check(ctxArgs("u1"));
-      await limiter.check(ctxArgs("u1", { input: { plugin: "", hash: "hash-b", location: null, params: {}, mode: "query" } }));
+      await limiter.check(
+         ctxArgs("u1", { input: { plugin: "", hash: "hash-b", location: null, params: {}, mode: "read" } }),
+      );
       await limiter.check(ctxArgs("u2"));
 
       limiter.clearContextMetrics("u1");

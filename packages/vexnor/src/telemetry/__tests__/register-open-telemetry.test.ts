@@ -1,76 +1,29 @@
-import { describe, test, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 import { SpanStatusCode } from "@opentelemetry/api";
 import "#/telemetry/register-open-telemetry.js";
-import { QueryRegistry, type ConnectionResolver } from "#/registry/query-registry.js";
-import { SqlQueryHandler, newSqlQueryHandler } from "#/core/query/sql-query-handler.js";
-import { SqlQuery } from "#/core/query/sql-query.js";
-import { VexnorPlugin } from "#/plugin/vexnor-plugin.js";
-import { SqlRunArgs, type SqlExecuteMode } from "#/core/query/sql-query-types.js";
+import { type ConnectionResolver, SqlQueryRegistry } from "#/execution/sql-query-registry.js";
+import { type SqlExecuteMode } from "#/core/query/sql-query-types.js";
 import { sql } from "#/core/sql.js";
 import { row } from "#/core/query/sql-select-row.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
 import { SqlErrorCode } from "#/core/sql-error-code.js";
+import { MockConnection, MockPlugin } from "#/test/mock-plugin.js";
 
-// ── minimal mock infrastructure ──────────────────────────────────────────────
-
-type MockResult = { rows: unknown[] };
-type MockConnection = { query: (sql: string, params: unknown[]) => Promise<MockResult> };
-
-class MockQueryHandler<T extends { Row?: unknown; Params?: unknown }> extends SqlQueryHandler<
-   Pick<T, "Row" | "Params"> & { QueryResult: MockResult; Connection: MockConnection }
-> {
-   constructor(private readonly q: SqlQuery<Pick<T, "Row" | "Params">>) {
-      super(q, { pluginName: "mock" });
-   }
-   resolveRows(result: MockResult): T["Row"][] {
-      return result.rows as T["Row"][];
-   }
-   deserialize<TResult = MockResult>(result: TResult): TResult {
-      return result;
-   }
-   async execute<TResult = MockResult>(
-      args: SqlRunArgs<{ Connection: MockConnection; Params: T["Params"] }>,
-   ): Promise<TResult> {
-      const db = await args.db;
-      const { text, values } = this.q.getSql(args);
-      return (await db.query(text, values)) as TResult;
-   }
-}
-
-class MockPlugin extends VexnorPlugin<{ Connection: MockConnection; Config: never }> {
-   constructor(readonly name: string) {
-      super();
-   }
-   readonly dialect = "sql";
-   readonly driver = "mock";
-   getColumnType = vi.fn();
-   getSchema = vi.fn();
-   getLibrary = vi.fn(() => []);
-   createConnection = vi.fn();
-
-   newQueryHandler<T extends { Row?: unknown; Params?: unknown; QueryResult: object; Connection: unknown }>(
-      query: SqlQuery<Pick<T, "Row" | "Params">>,
-   ) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return newSqlQueryHandler(new MockQueryHandler(query as any) as any) as any;
-   }
-}
-
-const plugin = new MockPlugin("mockPlugin");
+const plugin = new MockPlugin({ name: "mockPlugin" });
 const findAccounts = sql`select ${row(Account.$accountId)} from ${Account}`;
 function makeDb(rows: unknown[] = []): MockConnection {
-   return { query: async () => ({ rows }) };
+   return { query: async () => ({ rows }) } as MockConnection;
 }
 
-function executeRegistry<TResult = MockResult>(
-   registry: QueryRegistry,
+function executeRegistry(
+   registry: SqlQueryRegistry,
    plugin: string,
    hash: string,
    params: Record<string, unknown>,
    resolver: ConnectionResolver,
-   mode: SqlExecuteMode = "query",
+   mode: SqlExecuteMode = "read",
 ) {
-   return registry.execute<TResult>({ plugin, hash, params, location: "test", mode }, resolver);
+   return registry.execute({ plugin, hash, params, location: "test", mode }, resolver);
 }
 
 // ── mock tracer ───────────────────────────────────────────────────────────────
@@ -89,9 +42,9 @@ function makeMockTracer() {
 // ── tests ─────────────────────────────────────────────────────────────────────
 
 describe("registerOpenTelemetry", () => {
-   let registry: QueryRegistry;
+   let registry: SqlQueryRegistry;
    beforeEach(() => {
-      registry = new QueryRegistry();
+      registry = new SqlQueryRegistry();
    });
 
    test("creates a span with correct attributes on successful execution", async () => {
@@ -108,7 +61,7 @@ describe("registerOpenTelemetry", () => {
       );
       expect(span.setAttributes).toHaveBeenCalledWith(
          expect.objectContaining({
-            "db.system": "mock",
+            "db.system": "test",
             "db.operation.name": "findAccounts",
             "vexnor.plugin": "mockPlugin",
          }),
@@ -140,7 +93,7 @@ describe("registerOpenTelemetry", () => {
    test("span name falls back to query.id when queryName is null", async () => {
       // Execute directly without registry so queryName is null
       const { tracer, span } = makeMockTracer();
-      const standaloneRegistry = new QueryRegistry();
+      const standaloneRegistry = new SqlQueryRegistry();
       await standaloneRegistry.register(plugin, { findAccounts });
       standaloneRegistry.registerOpenTelemetry(tracer);
 

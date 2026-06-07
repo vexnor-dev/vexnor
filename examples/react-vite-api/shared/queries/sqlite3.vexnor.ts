@@ -1,6 +1,6 @@
 import "vexnor-sqlite3";
 import { defineQueryConfig } from "vexnor/config";
-import { runtimeValue } from "vexnor";
+import { contextValue } from "vexnor";
 import sqlite3Plugin from "vexnor-sqlite3";
 import { selectAccounts, selectAccountsForLogin, selectMyOrders, deleteAccount, insertAccount } from "./sqlite3.js";
 
@@ -28,7 +28,7 @@ export default defineQueryConfig({
       selectMyOrders: {
          profile: "sqlite3",
          plugin: sqlite3Plugin,
-         params: { userId: runtimeValue },
+         params: { userId: contextValue },
       },
       deleteAccount: {
          profile: "sqlite3",

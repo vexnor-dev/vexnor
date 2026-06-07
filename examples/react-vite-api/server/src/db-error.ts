@@ -1,4 +1,4 @@
-import { SqlError, SqlRunError } from "vexnor/registry";
+import { SqlError, SqlRunError } from "vexnor/execution";
 import type { Context } from "hono";
 import { SqlErrorCode } from "vexnor";
 

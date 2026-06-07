@@ -227,10 +227,14 @@ class MyPlugin extends VexnorPlugin<{ Connection: MyConnection; Config: MyConfig
   getLibrary(): LibraryOutputFile[] { return []; }
 
   // Connection factory
-  async createConnection(config: MyConfig): Promise<VexnorConnection<MyConnection>> { ... }
+  async createConnection<TContext extends Record<string, unknown>>({ config }: {
+    config: MyConfig;
+  }): Promise<VexnorConnection<{ Connection: MyConnection; Context: TContext }>> { ... }
 
   // Query handler factory — called per query at runtime
-  newQueryHandler<T>(query: SqlQuery<T>): SqlQueryHandler<T> { ... }
+  newQueryHandler<Args extends { Row?: unknown; Params?: unknown; Context?: unknown; Read: object; Write: object }>(
+    query: SqlQuery<Pick<Args, 'Row' | 'Params' | 'Context'>>,
+  ): SqlQueryHandler<Pick<Args, 'Row' | 'Params' | 'Context' | 'Read' | 'Write'> & { Connection: MyConnection }> { ... }
 }
 ```
 

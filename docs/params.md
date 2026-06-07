@@ -147,20 +147,20 @@ const orderDir = param<{ orderDir?: string }>('orderDir', {
 
 Without a `default`, an invalid value throws `SqlBuildError` with code `PARAM_VALIDATION_FAILED`.
 
-## Runtime Params with `runtime()`
+## Context Params with `ctx()`
 
-`runtime()` declares a named parameter whose value is **server-injected** rather than caller-supplied. It is identical to `param()` at the SQL level — it emits a placeholder at build time — but the `QueryRegistry` fills it automatically from the trusted context object passed to `registry.execute()` instead of accepting it from the caller's `params`.
+`ctx()` declares a named parameter whose value is **server-injected** rather than caller-supplied. It is identical to `param()` at the SQL level — it emits a placeholder at build time — but the `QueryRegistry` fills it automatically from the trusted context object passed to `registry.execute()` instead of accepting it from the caller's `params`.
 
 This is the correct mechanism for row-level access control: bake the restriction into the query itself so it cannot be bypassed, rather than relying on the authorization callback to check it after the fact.
 
 ```typescript
-import { runtime } from 'vexnor';
+import { ctx } from 'vexnor';
 
 // Only returns orders belonging to the currently authenticated user
 const myOrders = sql`
   SELECT ${row(Order.$$)}
   FROM ${Order}
-  WHERE ${Order.$userId} = ${runtime<{ userId: string }>('userId')}
+  WHERE ${Order.$userId} = ${ctx<{ userId: string }>('userId')}
   ORDER BY ${Order.$createdAt} DESC
 `;
 ```
@@ -169,7 +169,7 @@ When this query runs through the registry, `userId` is pulled from the server-si
 
 ### Registry setup
 
-Type the `QueryRegistry` with the shape of your runtime context. Every field available in the context is a candidate for `runtime()` params:
+Type the `QueryRegistry` with the shape of your context. Every field available in the context is a candidate for `ctx()` params:
 
 ```typescript
 type AppRuntime = { userId: string; tenantId: string };
@@ -198,7 +198,7 @@ The registry merges `userId` from the context into the query params automaticall
 
 ### Direct execution
 
-Outside the registry (scripts, tests, server actions), runtime params are passed like regular params:
+Outside the registry (scripts, tests, server actions), context params are passed like regular params:
 
 ```typescript
 await myOrders.postgres.all({
@@ -209,7 +209,7 @@ await myOrders.postgres.all({
 
 ### Isomorphic execution — `runtimeValue`
 
-When calling a query with `runtime()` params from the browser via `remoteClient`, the client doesn't know the user's server-side identity. Use the `runtimeValue` sentinel to satisfy the TypeScript type requirement without sending an actual value:
+When calling a query with `ctx()` params from the browser via `remoteClient`, the client doesn't know the user's server-side identity. Use the `runtimeValue` sentinel to satisfy the TypeScript type requirement without sending an actual value:
 
 ```typescript
 import { runtimeValue } from 'vexnor';
@@ -224,39 +224,39 @@ await myOrders.postgres.all({
 
 ### Validation
 
-`runtime()` accepts the same validation rules as `param()`. Use validation to catch misconfiguration early — if the context object is missing a required value or provides an invalid one, the query throws before executing rather than silently passing `null` to the database:
+`ctx()` accepts the same validation rules as `param()`. Use validation to catch misconfiguration early — if the context object is missing a required value or provides an invalid one, the query throws before executing rather than silently passing `null` to the database:
 
 ```typescript
-runtime<{ userId: string }>('userId', { minLength: 1 })
+ctx<{ userId: string }>('userId', { minLength: 1 })
 ```
 
 ### Default values
 
-`runtime()` supports `default` for legitimate fallback scenarios, such as admin impersonation:
+`ctx()` supports `default` for legitimate fallback scenarios, such as admin impersonation:
 
 ```typescript
 // When context.impersonatedUserId is set, use it; otherwise fall back to context.userId
-const viewAs = runtime<{ impersonatedUserId?: string }>('impersonatedUserId', {
+const viewAs = ctx<{ impersonatedUserId?: string }>('impersonatedUserId', {
   default: undefined, // registry will use undefined → falls through to your query logic
 });
 ```
 
-A more common pattern is two separate runtime params:
+A more common pattern is two separate context params:
 
 ```typescript
-const effectiveUserId = runtime<{ effectiveUserId: string }>('effectiveUserId');
+const effectiveUserId = ctx<{ effectiveUserId: string }>('effectiveUserId');
 // In the registry context: { effectiveUserId: impersonating ? targetId : session.userId }
 ```
 
-### `runtime()` vs `param()`
+### `ctx()` vs `param()`
 
-| | `param()` | `runtime()` |
+| | `param()` | `ctx()` |
 |---|---|---|
 | Value source | Caller-supplied `params` | Registry context (server-injected) |
 | Direct execution | Pass in `params` | Pass in `params` |
-| Isomorphic (remote) execution | Caller sends in request | Use `runtimeValue` sentinel; stripped before sending |
+| Isomorphic (remote) execution | Caller sends in request | Use `contextValue` sentinel; stripped before sending |
 | Registry execution | Caller sends in request | Injected from server context |
-| Contributes to `query.hash` | Yes (as param) | Yes (as runtime, separately keyed) |
+| Contributes to `query.hash` | Yes (as param) | Yes (as context, separately keyed) |
 | Validation | Yes | Yes |
 | Default values | Yes | Yes |
 

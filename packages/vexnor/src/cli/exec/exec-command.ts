@@ -4,7 +4,7 @@ import { SqlQueryHandler, SqlQueryHandlerAny } from "#/core/query/sql-query-hand
 import { SqlQuery } from "#/core/query/sql-query.js";
 import { detectQueryType } from "#/cli/exec/detect-query-type.js";
 import { confirmPrompt } from "#/cli/exec/confirm-prompt.js";
-import { isRuntimeValue } from "#/core/query/runtime-value.js";
+import { isContextValue } from "#/core/query/context-value.js";
 import * as path from "node:path";
 import { SqlExecError } from "#/cli/exec/sql-exec-error.js";
 
@@ -12,7 +12,7 @@ export interface ExecOptions {
    config: string;
    queryConfig?: string;
    env?: string;
-   runtime?: string[];
+   context?: string[];
    format?: "table" | "json" | "csv";
    limit?: number;
    dryRun?: boolean;
@@ -79,21 +79,19 @@ export async function execCommand(queryName: string, options: ExecOptions): Prom
          ? querySettings.environments[options.env]
          : querySettings.params;
 
-   // Parse --runtime key=value pairs and substitute RuntimeValue sentinels
+   // Parse --context key=value pairs and substitute contextValue sentinels
    const runtimeOverrides: Record<string, string> = {};
-   for (const entry of options.runtime ?? []) {
+   for (const entry of options.context ?? []) {
       const eq = entry.indexOf("=");
-      if (eq === -1) throw new Error(`Invalid --runtime value '${entry}': expected key=value`);
+      if (eq === -1) throw new Error(`Invalid --context value '${entry}': expected key=value`);
       runtimeOverrides[entry.slice(0, eq)] = entry.slice(eq + 1);
    }
 
    const resolvedParams: Record<string, unknown> = {};
    for (const [key, value] of Object.entries(params ?? {})) {
-      if (isRuntimeValue(value)) {
+      if (isContextValue(value)) {
          if (!(key in runtimeOverrides)) {
-            throw new Error(
-               `Runtime param '${key}' has no value. Provide it with: --runtime ${key}=<value>`,
-            );
+            throw new Error(`Context param '${key}' has no value. Provide it with: --context ${key}=<value>`);
          }
          resolvedParams[key] = runtimeOverrides[key];
       } else {
@@ -139,7 +137,7 @@ export async function execCommand(queryName: string, options: ExecOptions): Prom
 
    let connection;
    try {
-      connection = await plugin.createConnection(profile.connection);
+      connection = await plugin.createConnection({ config: profile.connection });
    } catch (err) {
       throw new Error(
          `Failed to connect using profile '${profileName}': ${err instanceof Error ? err.message : String(err)}`,

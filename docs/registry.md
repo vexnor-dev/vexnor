@@ -80,7 +80,7 @@ app.post('/api/db', async (c) => {
 });
 ```
 
-`registry.execute` looks up the query by hash, runs authorization and rate-limit checks, **injects any `runtime()` params from the context object**, executes against the database, and fires the audit log. The fifth argument is the runtime context — values are automatically merged into query params for any `runtime()` nodes declared on the query. See [Runtime Params](params.md#runtime-params-with-runtime) and [Authorization](authorization.md).
+`registry.execute` looks up the query by hash, runs authorization and rate-limit checks, **injects any `ctx()` params from the context object**, executes against the database, and fires the audit log. The fifth argument is the runtime context — values are automatically merged into query params for any `ctx()` nodes declared on the query. See [Context Params](params.md#context-params-with-ctx) and [Authorization](authorization.md).
 
 #### Error handling
 
@@ -256,7 +256,7 @@ The hash is a stable SHA-256 of the query's template strings — it never change
 const registry = new QueryRegistry();
 // With options:
 const registry = new QueryRegistry({ maxConcurrent: 50 });
-// With typed runtime context (for runtime() params and authorization hooks):
+// With typed runtime context (for ctx() params and authorization hooks):
 type AppRuntime = { userId: string; tenantId: string };
 const registry = new QueryRegistry<AppRuntime>();
 
@@ -277,8 +277,9 @@ registry.getAuthorizedQueries();    // queries with .authorize() tag
 registry.getUnauthorizedQueries();  // queries without .authorize() tag
 
 // Execute a query by passing the full request args object
-// Second arg is the connection resolver — receives the full ExecuteQueryArgs
-// Third arg is the runtime context — runtime() params are injected from it automatically
+// Second arg is the connection resolver — receives plugin, query, params, context, mode
+// Third arg is the runtime context — ctx() params are injected from it automatically
+// TResult defaults to unknown; provide a type parameter when you need a typed return
 await registry.execute(args, connectionResolver, runtimeContext?);
 ```
 

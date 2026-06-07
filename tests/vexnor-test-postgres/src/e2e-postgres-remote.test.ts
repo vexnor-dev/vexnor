@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, test } from "vitest";
 import { info, param, row, type RemoteClient } from "vexnor";
-import { QueryRegistry } from "vexnor/registry";
+import { SqlQueryRegistry } from "vexnor/execution";
 import { Account, AccountStatusUdt, IAccountSelect, IOrderSelect, Order } from "./codegen/vexnor_dev.schema.js";
 import { jsonMany, sql } from "vexnor-postgres";
 import vexnorPostgres from "vexnor-postgres";
@@ -32,7 +32,7 @@ describe.sequential("postgres remote execution", () => {
    let orders!: IOrderSelect[];
 
    beforeAll(async () => {
-      const registry = new QueryRegistry();
+      const registry = new SqlQueryRegistry();
       await registry.register(vexnorPostgres, {
          selectAccountsWithOrders,
          insertAccount,

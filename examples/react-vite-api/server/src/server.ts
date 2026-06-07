@@ -15,7 +15,7 @@ import * as sqlite3Queries from "../../shared/queries/sqlite3.js";
 import vexnorMssql from "vexnor-mssql";
 import vexnorPostgres from "vexnor-postgres";
 import vexnorSqlite3 from "vexnor-sqlite3";
-import { QueryRegistry } from "vexnor/registry";
+import { SqlQueryRegistry } from "vexnor/execution";
 import { handleDbError } from "./db-error.js";
 
 const tracer = trace.getTracer("vexnor-react-vite-api");
@@ -34,7 +34,7 @@ function decodeUserId(token: string | null): string | null {
    }
 }
 
-const queryRegistry = new QueryRegistry<RequestContext>();
+const queryRegistry = new SqlQueryRegistry<RequestContext>();
 
 const pgPool = new pg.Pool({
    host: process.env.POSTGRES_HOST ?? "localhost",

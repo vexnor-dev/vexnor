@@ -12,8 +12,7 @@ import {
 import { SqlQuery } from "#/core/query/sql-query.js";
 import { IOrderSelect } from "@test-models/vexnor_dev.order-table.js";
 import { IAccountSelect, OrderStatusUdt } from "#/test/testing.js";
-import { param } from "#/core/query/sql-param.js";
-import { runtime } from "#/core/query/sql-runtime.js";
+import { param, ctx } from "#/core/query/sql-param.js";
 import { ParamsOf, TypeOf } from "#/core/sql-base.js";
 import { row } from "#/core/query/sql-select-row.js";
 import { col } from "#/core/query/sql-select-column.js";
@@ -105,10 +104,7 @@ describe("sqlTableRead()", () => {
 
       test("includeOne result row adds T | null field to base columns", () => {
          const firstOrder = sql`select ${row(Order.$$)} from ${Order}`;
-         type Row = SqlSelectResultRow<
-            { Select: IAccountSelect },
-            { includeOne: { firstOrder: typeof firstOrder } }
-         >;
+         type Row = SqlSelectResultRow<{ Select: IAccountSelect }, { includeOne: { firstOrder: typeof firstOrder } }>;
          // base columns present
          assertType<Row["accountId"]>("");
          assertType<Row["email"]>("");
@@ -186,6 +182,7 @@ describe("sqlTableRead()", () => {
       const dirParam = param<{ dir: string }>("dir");
 
       test("param in WHERE propagates to ParamsOf query", () => {
+         // eslint-disable-next-line unused-imports/no-unused-vars
          const query = sqlSelect(Account, {
             WHERE: sql`${Account.$email} = ${emailParam}`,
          });
@@ -198,6 +195,7 @@ describe("sqlTableRead()", () => {
       });
 
       test("optional param in WHERE propagates as optional", () => {
+         // eslint-disable-next-line unused-imports/no-unused-vars
          const query = sqlSelect(Account, {
             WHERE: sql`${Account.$email} = ${filterParam}`,
          });
@@ -207,6 +205,7 @@ describe("sqlTableRead()", () => {
       });
 
       test("param in SELECT propagates to ParamsOf query", () => {
+         // eslint-disable-next-line unused-imports/no-unused-vars
          const query = sqlSelect(Account, {
             SELECT: sql`${row(Account.$$)}, ${col<{ extra: number }>("extra")} as ${extraParam}`,
          });
@@ -219,6 +218,7 @@ describe("sqlTableRead()", () => {
       });
 
       test("param in ORDER_BY propagates to ParamsOf query", () => {
+         // eslint-disable-next-line unused-imports/no-unused-vars
          const query = sqlSelect(Account, {
             ORDER_BY: sql`${Account.$createdAt} ${dirParam}`,
          });
@@ -248,7 +248,7 @@ describe("sqlTableRead()", () => {
 
    describe("param and row type with includeOne / includeMany (via testSelect)", () => {
       const emailParam = param<{ email: string }>("email");
-      const userIdRuntime = runtime<{ userId: string }>("userId");
+      const userIdRuntime = ctx<{ userId: string }>("userId");
       const limitParam = param<{ limit: number }>("limit");
       const orderCount = col<{ orderCount: number }>("orderCount");
 

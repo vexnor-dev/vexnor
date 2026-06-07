@@ -35,11 +35,11 @@ export class VexnorMssql extends VexnorPlugin<{ Config: ConnectionConfig; Connec
 
    async getSchema(args: GetSchemaArgs<ConnectionConfig>): Promise<SqlSchema> {
       const { schemas } = args;
-      const connection = await this.createConnection(args);
+      const connection = await this.createConnection({ config: args });
       try {
          const result = await findTables.mssql
             .all({
-               db: connection.db.request(),
+               db: (connection.db as mssql.ConnectionPool).request(),
                params: { schemas },
             })
             .catch((err) => {
@@ -48,7 +48,7 @@ export class VexnorMssql extends VexnorPlugin<{ Config: ConnectionConfig; Connec
             });
          const viewResult = await findViews.mssql
             .all({
-               db: connection.db.request(),
+               db: (connection.db as mssql.ConnectionPool).request(),
                params: { schemas },
             })
             .catch((err) => {
@@ -60,7 +60,8 @@ export class VexnorMssql extends VexnorPlugin<{ Config: ConnectionConfig; Connec
                table_type: "table" as const,
                table_name: row.table_name,
                table_schema: row.table_schema,
-               columns: typeof row.table_columns === "string" ? JSON.parse(row.table_columns || "[]") : row.table_columns,
+               columns:
+                  typeof row.table_columns === "string" ? JSON.parse(row.table_columns || "[]") : row.table_columns,
                primary_keys: row.primary_key
                   ? [
                        {
@@ -76,17 +77,22 @@ export class VexnorMssql extends VexnorPlugin<{ Config: ConnectionConfig; Connec
                table_type: "view" as const,
                table_name: row.table_name,
                table_schema: row.table_schema,
-               columns: typeof row.table_columns === "string" ? JSON.parse(row.table_columns || "[]") : row.table_columns,
+               columns:
+                  typeof row.table_columns === "string" ? JSON.parse(row.table_columns || "[]") : row.table_columns,
                primary_keys: [],
             })),
          ];
          logger.info(
             {
                mssql: (() => {
-                  return { driver: connection.db.driver };
+                  return { driver: (connection.db as mssql.ConnectionPool).driver };
                })(),
                schemas,
-               tables: tables.map(({ table_name, table_schema, table_type }) => ({ table_schema, table_name, table_type })),
+               tables: tables.map(({ table_name, table_schema, table_type }) => ({
+                  table_schema,
+                  table_name,
+                  table_type,
+               })),
             },
             `Generating mapping code for ${schemas.join(", ")}`,
          );
@@ -99,9 +105,12 @@ export class VexnorMssql extends VexnorPlugin<{ Config: ConnectionConfig; Connec
       }
    }
 
-   async createConnection<Config extends ConnectionConfig>(
-      config: Config,
-   ): Promise<VexnorConnection<mssql.ConnectionPool>> {
+   async createConnection<TContext extends Record<string, unknown>>({
+      config,
+   }: {
+      config: ConnectionConfig;
+      context?: TContext;
+   }): Promise<VexnorConnection<{ Connection: mssql.ConnectionPool; Context: TContext }>> {
       const pool = (() => {
          if ("uri" in config) {
             return new mssql.ConnectionPool(config.uri);
@@ -127,15 +136,16 @@ export class VexnorMssql extends VexnorPlugin<{ Config: ConnectionConfig; Connec
 
       await pool.connect();
 
-      return new VexnorConnection(pool, (p) => p.close());
+      return new VexnorConnection(pool, (p: mssql.ConnectionPool) => p.close());
    }
 
-   newQueryHandler<T extends { Row?: unknown; Params?: unknown; QueryResult: object; Connection: unknown }>(
-      query: SqlQuery<{ Params: T["Params"]; Row: T["Row"] }>,
-   ): SqlQueryHandler<T> {
-      return new MssqlQueryHandler(query);
+   newQueryHandler<Args extends { Row?: unknown; Params?: unknown; Read: object; Write: object }>(
+      query: SqlQuery<Pick<Args, "Row" | "Params">>,
+   ): SqlQueryHandler<Pick<Args, "Row" | "Params" | "Read" | "Write"> & { Connection: mssql.ConnectionPool }> {
+      return new MssqlQueryHandler(query) as SqlQueryHandler<
+         Pick<Args, "Row" | "Params" | "Read" | "Write"> & { Connection: mssql.ConnectionPool }
+      >;
    }
 }
 
 export const vexnorMssql = new VexnorMssql();
-

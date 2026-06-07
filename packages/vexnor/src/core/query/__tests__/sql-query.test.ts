@@ -64,6 +64,7 @@ describe("SqlQuery tests", () => {
           "_innerQueriesLazy",
           "_dialectsLazy",
           "_paramsLazy",
+          "_contextLazy",
           "_rowLazy",
           "_$$Lazy",
           "_labelLazy",

@@ -1,6 +1,6 @@
 import "vexnor-mssql";
 import { defineQueryConfig } from "vexnor/config";
-import { runtimeValue } from "vexnor";
+import { contextValue } from "vexnor";
 import mssqlPlugin from "vexnor-mssql";
 import { selectAccounts, selectAccountsForLogin, selectMyOrders, deleteAccount, insertAccount } from "./mssql.js";
 
@@ -28,7 +28,7 @@ export default defineQueryConfig({
       selectMyOrders: {
          profile: "mssql",
          plugin: mssqlPlugin,
-         params: { userId: runtimeValue },
+         params: { userId: contextValue },
       },
       deleteAccount: {
          profile: "mssql",

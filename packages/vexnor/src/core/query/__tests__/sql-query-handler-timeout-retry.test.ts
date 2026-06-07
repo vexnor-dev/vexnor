@@ -11,7 +11,7 @@ import { row } from "#/core/query/sql-select-row.js";
 type MockResult = { rows: unknown[] };
 
 class MockQueryHandler<T extends { Row?: unknown; Params?: unknown }> extends SqlQueryHandler<
-   Pick<T, "Row" | "Params"> & { QueryResult: MockResult; Connection: unknown }
+   Pick<T, "Row" | "Params"> & { Read: MockResult; Write: MockResult; Connection: unknown }
 > {
    constructor(
       query: SqlQuery<Pick<T, "Row" | "Params">>,
@@ -28,7 +28,10 @@ class MockQueryHandler<T extends { Row?: unknown; Params?: unknown }> extends Sq
       return result;
    }
 
-   async execute<TResult>(_args: SqlRunArgs<{ Connection: unknown; Params: T["Params"] }>, mode: SqlExecuteMode = "mutation"): Promise<TResult> {
+   async execute<TResult>(
+      _args: SqlRunArgs<{ Connection: unknown; Params: T["Params"] }>,
+      mode: SqlExecuteMode = "write",
+   ): Promise<TResult> {
       return this._execute(mode) as TResult;
    }
 }
@@ -47,9 +50,9 @@ const db = {};
 describe("SqlQueryHandler — timeout", () => {
    test("throws QUERY_TIMEOUT when execute exceeds timeout", async () => {
       const handler = mockHandler(q, () => new Promise(() => {})); // never resolves
-   await expect(
-         handler.run({ db, options: { timeout: 10 } }),
-      ).rejects.toMatchInlineSnapshot(`[SqlRunError: Query timed out after 10ms]`);
+      await expect(handler.run({ db, options: { timeout: 10 } })).rejects.toMatchInlineSnapshot(
+         `[SqlRunError: Query timed out after 10ms]`,
+      );
    });
 
    test("QUERY_TIMEOUT error has correct code and retryable=false", async () => {
@@ -78,10 +81,14 @@ describe("SqlQueryHandler — timeout", () => {
 describe("SqlQueryHandler — retryable option override", () => {
    function driverError(retryable: boolean) {
       return mockHandler(q, () => {
-         const err = new SqlRunError("driver error", { id: "test", location: null }, {
-            code: SqlErrorCode.QUERY_RETRYABLE_FAILURE,
-            retryable,
-         });
+         const err = new SqlRunError(
+            "driver error",
+            { id: "test", location: null },
+            {
+               code: SqlErrorCode.QUERY_RETRYABLE_FAILURE,
+               retryable,
+            },
+         );
          return Promise.reject(err);
       });
    }
@@ -91,52 +98,99 @@ describe("SqlQueryHandler — retryable option override", () => {
    }
 
    test("retryable: true — forces retryable=true on a non-retryable SqlRunError", async () => {
-      const err = await driverError(false).run({ db, options: { retryable: true } }).catch((e: unknown) => e);
+      const err = await driverError(false)
+         .run({ db, options: { retryable: true } })
+         .catch((e: unknown) => e);
       expect(err).toBeInstanceOf(SqlRunError);
       expect(err.retryable).toBe(true);
    });
 
    test("retryable: false — forces retryable=false on a retryable SqlRunError", async () => {
-      const err = await driverError(true).run({ db, options: { retryable: false } }).catch((e: unknown) => e);
+      const err = await driverError(true)
+         .run({ db, options: { retryable: false } })
+         .catch((e: unknown) => e);
       expect(err).toBeInstanceOf(SqlRunError);
       expect(err.retryable).toBe(false);
    });
 
    test("retryable: default — preserves driver retryable=true", async () => {
-      const err = await driverError(true).run({ db, options: { retryable: "default" } }).catch((e: unknown) => e);
+      const err = await driverError(true)
+         .run({ db, options: { retryable: "default" } })
+         .catch((e: unknown) => e);
       expect(err).toBeInstanceOf(SqlRunError);
       expect(err.retryable).toBe(true);
    });
 
    test("retryable: default — preserves driver retryable=false", async () => {
-      const err = await driverError(false).run({ db, options: { retryable: "default" } }).catch((e: unknown) => e);
+      const err = await driverError(false)
+         .run({ db, options: { retryable: "default" } })
+         .catch((e: unknown) => e);
       expect(err).toBeInstanceOf(SqlRunError);
       expect(err.retryable).toBe(false);
    });
 
    test("retryable omitted — preserves driver retryable value", async () => {
-      const err = await driverError(true).run({ db }).catch((e: unknown) => e);
+      const err = await driverError(true)
+         .run({ db })
+         .catch((e: unknown) => e);
       expect(err).toBeInstanceOf(SqlRunError);
       expect(err.retryable).toBe(true);
    });
 
    test("retryable: true — non-SqlRunError is wrapped with retryable=true", async () => {
-      const err = await nonSqlError().run({ db, options: { retryable: true } }).catch((e: unknown) => e);
+      const err = await nonSqlError()
+         .run({ db, options: { retryable: true } })
+         .catch((e: unknown) => e);
       expect(err).toBeInstanceOf(SqlRunError);
       expect(err.code).toBe(SqlErrorCode.QUERY_EXECUTION_FAILED);
       expect(err.retryable).toBe(true);
    });
 
    test("retryable: false — non-SqlRunError is wrapped with retryable=false", async () => {
-      const err = await nonSqlError().run({ db, options: { retryable: false } }).catch((e: unknown) => e);
+      const err = await nonSqlError()
+         .run({ db, options: { retryable: false } })
+         .catch((e: unknown) => e);
       expect(err).toBeInstanceOf(SqlRunError);
       expect(err.retryable).toBe(false);
    });
 
    test("retryable omitted — non-SqlRunError is wrapped with retryable=false", async () => {
-      const err = await nonSqlError().run({ db }).catch((e: unknown) => e);
+      const err = await nonSqlError()
+         .run({ db })
+         .catch((e: unknown) => e);
       expect(err).toBeInstanceOf(SqlRunError);
       expect(err.retryable).toBe(false);
+   });
+
+   test("retry retries retryable direct local execution failures", async () => {
+      let attempts = 0;
+      const handler = mockHandler(q, async () => {
+         attempts++;
+         if (attempts === 1) {
+            throw new SqlRunError(
+               "temporary driver error",
+               { id: "test", location: null },
+               {
+                  code: SqlErrorCode.QUERY_RETRYABLE_FAILURE,
+                  retryable: true,
+               },
+            );
+         }
+         return { rows: [{ accountId: "1" }] };
+      });
+
+      const result = await handler.run({ db, options: { retry: { maxAttempts: 2 } } });
+
+      expect(attempts).toBe(2);
+      expect(result).toMatchInlineSnapshot(`
+        {
+          "rows": [
+            {
+              "accountId": "1",
+            },
+          ],
+        }
+      `);
    });
 });
 

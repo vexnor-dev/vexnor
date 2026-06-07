@@ -31,10 +31,10 @@
          "types": "./dist/config/config.d.ts",
          "require": "./dist/config/config.js"
       },
-      "./registry": {
-         "import": "./dist/registry/registry.js",
-         "types": "./dist/registry/registry.d.ts",
-         "require": "./dist/registry/registry.js"
+      "./execution": {
+         "import": "./dist/execution/execution.js",
+         "types": "./dist/execution/execution.d.ts",
+         "require": "./dist/execution/execution.js"
       },
       "./testing": {
          "import": "./dist/test/testing.js",

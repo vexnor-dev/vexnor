@@ -161,8 +161,12 @@ The server only executes queries that were explicitly registered at startup. The
 await registry.register(vexnorPostgres, { selectAccounts, deleteAccount, insertAccount });
 
 // client dispatches by hash — server rejects anything not registered
-const result = await registry.execute(plugin, hash, params, resolver);
-// throws SqlError with code QUERY_NOT_FOUND — if hash not registered
+const result = await registry.execute(
+  args,
+  async ({ plugin }) => getPool(plugin),
+  context,
+);
+// throws SqlError with code QUERY_NOT_FOUND if hash not registered
 ```
 
 The `/api/db` endpoint should map `SqlErrorCode` values to appropriate HTTP status codes so clients get structured error responses:

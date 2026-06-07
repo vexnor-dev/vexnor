@@ -1,4 +1,4 @@
-import type { QueryExecutionPlugin, AfterArgs } from "./query-execution-plugin.js";
+import type { SqlQueryExecutionPlugin, AfterArgs } from "./sql-query-execution-plugin.js";
 
 export type AuditLogArgs<TContext extends Record<string, unknown> = Record<string, unknown>> = AfterArgs<TContext>;
 
@@ -28,7 +28,7 @@ export type AuditLogPluginOptions<TContext extends Record<string, unknown> = Rec
  */
 export class AuditLogPlugin<
    TContext extends Record<string, unknown> = Record<string, unknown>,
-> implements QueryExecutionPlugin<TContext> {
+> implements SqlQueryExecutionPlugin<TContext> {
    readonly name: string;
 
    constructor(public readonly options: AuditLogPluginOptions<TContext>) {

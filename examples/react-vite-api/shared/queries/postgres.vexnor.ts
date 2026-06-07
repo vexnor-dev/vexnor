@@ -1,6 +1,6 @@
 import "vexnor-postgres";
 import { defineQueryConfig } from "vexnor/config";
-import { runtimeValue } from "vexnor";
+import { contextValue } from "vexnor";
 import postgresPlugin from "vexnor-postgres";
 import { selectAccounts, selectAccountsForLogin, selectMyOrders, deleteAccount, insertAccount } from "./postgres.js";
 
@@ -28,7 +28,7 @@ export default defineQueryConfig({
       selectMyOrders: {
          profile: "postgres",
          plugin: postgresPlugin,
-         params: { userId: runtimeValue },
+         params: { userId: contextValue },
       },
       deleteAccount: {
          profile: "postgres",

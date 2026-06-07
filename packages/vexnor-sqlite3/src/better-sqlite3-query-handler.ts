@@ -1,4 +1,5 @@
 import {
+   ok,
    type RemoteClient,
    SqlErrorCode,
    SqlExecuteMode,
@@ -25,12 +26,13 @@ export const PLUGIN_NAME = pkg.name;
 
 export type Sqlite3Client = Database;
 
-export type QueryResult<T> = { rows: T[] };
+export type ReadResult<T> = { rows: T[] };
 
 export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unknown }> extends SqlQueryHandler<
    Pick<T, "Row" | "Params"> & {
       Connection: Sqlite3Client | RemoteClient;
-      QueryResult: RunResult;
+      Read: ReadResult<T["Row"]>;
+      Write: RunResult;
    }
 > {
    static Formatter = new Sqlite3Formatter();
@@ -40,13 +42,13 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
    }
 
    // eslint-disable-next-line unused-imports/no-unused-vars
-   resolveRows(_res: RunResult): T["Row"][] {
+   resolveRows(_res: ReadResult<T["Row"]>): T["Row"][] {
       throw new Error("Method not supported: better-sqlite3 result doesn't include any rows");
    }
 
    // RunResult has no rows — deserialization is a no-op for write results
-   deserialize<TResult>(result: TResult): TResult {
-      if (isQueryResult(result)) {
+   deserialize(result: ReadResult<T["Row"]>): ReadResult<T["Row"]> {
+      if (this.isReadResult(result)) {
          return {
             ...result,
             rows: this.deserializeRows(result.rows, false),
@@ -54,6 +56,10 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
       }
 
       return result;
+   }
+
+   isReadResult(result: unknown): result is ReadResult<T["Row"]> {
+      return typeof result === "object" && result !== null && "rows" in result && Array.isArray(result.rows);
    }
 
    getOptions(args: SqlRunArgs<{ Connection: Sqlite3Client; Params: T["Params"] }>) {
@@ -93,10 +99,15 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
     * @param args - Database connection and query parameters.
     * @param mode
     */
-   async execute<TResult>(
+   execute(
       args: SqlRunArgs<{ Connection: Sqlite3Client; Params: T["Params"] }>,
-      mode: SqlExecuteMode = "mutation",
-   ): Promise<TResult> {
+      mode: "read",
+   ): Promise<ReadResult<T["Row"]>>;
+   execute(args: SqlRunArgs<{ Connection: Sqlite3Client; Params: T["Params"] }>, mode?: "write"): Promise<RunResult>;
+   async execute(
+      args: SqlRunArgs<{ Connection: Sqlite3Client; Params: T["Params"] }>,
+      mode: SqlExecuteMode = "write",
+   ): Promise<ReadResult<T["Row"]> | RunResult> {
       const { db, options: { debug } = {} } = args;
       const resolvedDb = await db;
 
@@ -105,12 +116,12 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
          queryConfig = this.getOptions(args);
          if (debug) debug(Object.freeze(queryConfig));
          const statement = (resolvedDb as Database).prepare<unknown[] | object, T["Row"]>(queryConfig.sql);
-         if (mode === "query" /*|| statement.reader*/) {
+         if (mode === "read" /*|| statement.reader*/) {
             const rows = statement.all(queryConfig.values);
-            return Promise.resolve({ rows } as TResult);
+            return Promise.resolve({ rows });
          }
 
-         return Promise.resolve(statement.run(queryConfig.values) as TResult);
+         return Promise.resolve(statement.run(queryConfig.values));
       } catch (err) {
          throw new SqlRunError(`Error running sqlite query '${this.query.id}'`, this.query, {
             cause: err,
@@ -130,23 +141,39 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
    override async all(
       args: SqlRunArgs<{ Connection: Sqlite3Client | RemoteClient; Params: T["Params"] }>,
    ): Promise<T["Row"][]> {
-      const result = await this.run<QueryResult<T["Row"]>>(args, "query");
+      const result = await super.run(args, "read");
+      ok(this.isReadResult(result), `Query result doesn't is not a read result`);
+
       return this.deserializeRows(result.rows, true);
    }
 
-   override async run<TResult = RunResult>(
+   override run(
       args: SqlRunArgs<
          Pick<
-            Pick<T, "Row" | "Params"> & { Connection: Sqlite3Client | RemoteClient; QueryResult: RunResult },
+            Pick<T, "Row" | "Params"> & { Connection: Sqlite3Client | RemoteClient; Write: RunResult },
             "Connection" | "Params"
          >
       >,
-      mode: SqlExecuteMode = "mutation",
-   ): Promise<TResult> {
-      return super.run(args, mode);
+      mode: "read",
+   ): Promise<ReadResult<T["Row"]>>;
+   override run(
+      args: SqlRunArgs<
+         Pick<
+            Pick<T, "Row" | "Params"> & { Connection: Sqlite3Client | RemoteClient; Write: RunResult },
+            "Connection" | "Params"
+         >
+      >,
+      mode?: "write",
+   ): Promise<RunResult>;
+   override async run(
+      args: SqlRunArgs<
+         Pick<
+            Pick<T, "Row" | "Params"> & { Connection: Sqlite3Client | RemoteClient; Write: RunResult },
+            "Connection" | "Params"
+         >
+      >,
+      mode: SqlExecuteMode = "write",
+   ): Promise<ReadResult<T["Row"]> | RunResult> {
+      return await super.run(args, mode);
    }
-}
-
-function isQueryResult<T extends object>(x: unknown): x is QueryResult<T> {
-   return typeof x === "object" && x !== null && "rows" in x && Array.isArray(x.rows);
 }

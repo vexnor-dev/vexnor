@@ -1,6 +1,12 @@
 import { describe, expect, test, vi } from "vitest";
 import { loadPlugin } from "#/load-plugin.js";
-import testPlugin from "#/cli/exec/__tests__/test-plugin.js";
+import { MockConnection, MockPlugin } from "#/test/mock-plugin.js";
+
+const mockDb: MockConnection = {
+   query: vi.fn().mockResolvedValue({ rows: [] }),
+};
+
+const testPlugin = new MockPlugin({ name: "test-plugin" }, mockDb);
 
 vi.mock("vexnor-test", () => ({ default: testPlugin }));
 

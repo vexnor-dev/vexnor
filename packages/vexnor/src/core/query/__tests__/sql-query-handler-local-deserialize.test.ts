@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { sql } from "#/core/sql.js";
 import { row } from "#/core/query/sql-select-row.js";
-import { SqlQueryHandler, newSqlQueryHandler } from "#/core/query/sql-query-handler.js";
+import { newSqlQueryHandler, SqlQueryHandler } from "#/core/query/sql-query-handler.js";
 import { SqlQuery, SqlQueryExtended } from "#/core/query/sql-query.js";
 import { SqlRunArgs } from "#/core/query/sql-query-types.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
@@ -11,7 +11,7 @@ type MockResult = { rows: unknown[] };
 type MockConnection = { query: () => Promise<MockResult> };
 
 class MockQueryHandler<T extends { Row?: unknown; Params?: unknown }> extends SqlQueryHandler<
-   Pick<T, "Row" | "Params"> & { QueryResult: MockResult; Connection: MockConnection }
+   Pick<T, "Row" | "Params"> & { Read: MockResult; Write: MockResult; Connection: MockConnection }
 > {
    constructor(query: SqlQuery<Pick<T, "Row" | "Params">>) {
       super(query, { pluginName: "mock" });

@@ -80,7 +80,7 @@ npx vexnor exec run <query> [options]
 | `-e, --env <name>` | Parameter environment to use |
 | `-f, --format <format>` | Output format: `table` \| `json` \| `csv` (default: `json`) |
 | `-l, --limit <number>` | Limit number of results |
-| `-r, --runtime <key=value...>` | Runtime param values (repeatable) |
+| `-ctx, --context <key=value...>` | Context param values (repeatable) |
 | `--dry-run` | Print SQL and params without executing |
 | `--no-confirm` | Skip confirmation prompt for mutations |
 
@@ -99,8 +99,8 @@ npx vexnor exec run findActiveAccounts -q queries.vexnor.ts --dry-run
 # Output as CSV
 npx vexnor exec run findActiveAccounts -q queries.vexnor.ts --format csv
 
-# Provide runtime param (e.g. userId injected server-side in production)
-npx vexnor exec run selectMyOrders -q queries.vexnor.ts --runtime userId=abc123
+# Provide context param (e.g. userId injected server-side in production)
+npx vexnor exec run selectMyOrders -q queries.vexnor.ts --context userId=abc123
 ```
 
 ---
