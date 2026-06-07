@@ -101,7 +101,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
 
       this.rawStrings = args.rawStrings;
       this.rawValues = args.rawValues;
-      this.location = parseCallerLocation(new Error().stack);
+      this.location = parseCallerLocation(new Error().stack, import.meta.url);
       this._authorization = args.authorization ?? null;
    }
 

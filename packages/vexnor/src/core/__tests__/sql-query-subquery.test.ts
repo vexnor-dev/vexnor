@@ -111,7 +111,7 @@ describe("sql subqueries tests", () => {
               },
               "hashId": "SqlQuery#(["\\n         ","\\n         select ","\\n         from ","\\n         where "," = ",""]|SqlQueryInfo#(label=AccountsWithEmail)|SqlSelectRow#(SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId)))|SqlTable#(main.account)|SqlTableColumn#(account.email)|SqlParam#(email))",
               "id": "SqlQuery#1(label=AccountsWithEmail)",
-              "location": "<anonymous>",
+              "location": "src/core/__tests__/sql-query-subquery.test.ts:41:36",
               "rawStrings": [
                 "
                  ",
@@ -894,7 +894,7 @@ describe("sql subqueries tests", () => {
               },
               "hashId": "SqlQuery#(["\\n         ","\\n         select ","\\n         from ","\\n         where "," = ",""]|SqlQueryInfo#(label=AccountsWithEmail)|SqlSelectRow#(SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId)))|SqlTable#(main.account)|SqlTableColumn#(account.email)|SqlParam#(email))",
               "id": "SqlQuery#1(label=AccountsWithEmail)",
-              "location": "<anonymous>",
+              "location": "src/core/__tests__/sql-query-subquery.test.ts:41:36",
               "rawStrings": [
                 "
                  ",
@@ -1677,7 +1677,7 @@ describe("sql subqueries tests", () => {
               },
               "hashId": "SqlQuery#(["\\n         ","\\n         select ","\\n         from ","\\n         where "," = ",""]|SqlQueryInfo#(label=AccountsWithEmail)|SqlSelectRow#(SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId)))|SqlTable#(main.account)|SqlTableColumn#(account.email)|SqlParam#(email))",
               "id": "SqlQuery#1(label=AccountsWithEmail)",
-              "location": "<anonymous>",
+              "location": "src/core/__tests__/sql-query-subquery.test.ts:41:36",
               "rawStrings": [
                 "
                  ",
@@ -2460,7 +2460,7 @@ describe("sql subqueries tests", () => {
               },
               "hashId": "SqlQuery#(["\\n         ","\\n         select ","\\n         from ","\\n         where "," = ",""]|SqlQueryInfo#(label=AccountsWithEmail)|SqlSelectRow#(SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId)))|SqlTable#(main.account)|SqlTableColumn#(account.email)|SqlParam#(email))",
               "id": "SqlQuery#1(label=AccountsWithEmail)",
-              "location": "<anonymous>",
+              "location": "src/core/__tests__/sql-query-subquery.test.ts:41:36",
               "rawStrings": [
                 "
                  ",
@@ -3243,7 +3243,7 @@ describe("sql subqueries tests", () => {
               },
               "hashId": "SqlQuery#(["\\n         ","\\n         select ","\\n         from ","\\n         where "," = ",""]|SqlQueryInfo#(label=AccountsWithEmail)|SqlSelectRow#(SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId)))|SqlTable#(main.account)|SqlTableColumn#(account.email)|SqlParam#(email))",
               "id": "SqlQuery#1(label=AccountsWithEmail)",
-              "location": "<anonymous>",
+              "location": "src/core/__tests__/sql-query-subquery.test.ts:41:36",
               "rawStrings": [
                 "
                  ",
@@ -4026,7 +4026,7 @@ describe("sql subqueries tests", () => {
               },
               "hashId": "SqlQuery#(["\\n         ","\\n         select ","\\n         from ","\\n         where "," = ",""]|SqlQueryInfo#(label=AccountsWithEmail)|SqlSelectRow#(SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId)))|SqlTable#(main.account)|SqlTableColumn#(account.email)|SqlParam#(email))",
               "id": "SqlQuery#1(label=AccountsWithEmail)",
-              "location": "<anonymous>",
+              "location": "src/core/__tests__/sql-query-subquery.test.ts:41:36",
               "rawStrings": [
                 "
                  ",
@@ -4809,7 +4809,7 @@ describe("sql subqueries tests", () => {
               },
               "hashId": "SqlQuery#(["\\n         ","\\n         select ","\\n         from ","\\n         where "," = ",""]|SqlQueryInfo#(label=AccountsWithEmail)|SqlSelectRow#(SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId)))|SqlTable#(main.account)|SqlTableColumn#(account.email)|SqlParam#(email))",
               "id": "SqlQuery#1(label=AccountsWithEmail)",
-              "location": "<anonymous>",
+              "location": "src/core/__tests__/sql-query-subquery.test.ts:41:36",
               "rawStrings": [
                 "
                  ",
@@ -5592,7 +5592,7 @@ describe("sql subqueries tests", () => {
               },
               "hashId": "SqlQuery#(["\\n         ","\\n         select ","\\n         from ","\\n         where "," = ",""]|SqlQueryInfo#(label=AccountsWithEmail)|SqlSelectRow#(SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId)))|SqlTable#(main.account)|SqlTableColumn#(account.email)|SqlParam#(email))",
               "id": "SqlQuery#1(label=AccountsWithEmail)",
-              "location": "<anonymous>",
+              "location": "src/core/__tests__/sql-query-subquery.test.ts:41:36",
               "rawStrings": [
                 "
                  ",
@@ -6375,7 +6375,7 @@ describe("sql subqueries tests", () => {
               },
               "hashId": "SqlQuery#(["\\n         ","\\n         select ","\\n         from ","\\n         where "," = ",""]|SqlQueryInfo#(label=AccountsWithEmail)|SqlSelectRow#(SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId)))|SqlTable#(main.account)|SqlTableColumn#(account.email)|SqlParam#(email))",
               "id": "SqlQuery#1(label=AccountsWithEmail)",
-              "location": "<anonymous>",
+              "location": "src/core/__tests__/sql-query-subquery.test.ts:41:36",
               "rawStrings": [
                 "
                  ",
