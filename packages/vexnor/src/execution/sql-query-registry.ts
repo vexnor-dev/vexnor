@@ -41,7 +41,7 @@ export type ExecuteQueryArgs = {
    mode: SqlExecuteMode;
    options?: SqlRunOptions;
 };
-const ExecuteQueryKeys: (keyof ExecuteQueryArgs)[] = ["plugin", "hash", "params", "location", "mode"];
+const RequiredExecuteQueryKeys: (keyof ExecuteQueryArgs)[] = ["plugin", "hash", "params", "mode"];
 
 export type SqlQueryRegistryOptions<TContext extends Record<string, unknown> = Record<string, unknown>> =
    SqlQueryPipelineOptions<TContext>;
@@ -115,15 +115,16 @@ export class SqlQueryRegistry<TContext extends Record<string, unknown> = Record<
       }
 
       const result = Object.fromEntries(
-         ExecuteQueryKeys.map((key) => {
+         RequiredExecuteQueryKeys.map((key) => {
             const value = (request as Record<string, unknown>)[key];
-            if (!value)
+            if (value === undefined)
                throw new SqlError(`Missing required parameter in request: ${key}`, {
                   code: SqlErrorCode.QUERY_PARAMETERS_INVALID,
                });
             return [key, value];
          }),
       ) as ExecuteQueryArgs;
+      result.location = ((request as Record<string, unknown>).location as string | null) ?? null;
       const options = (request as { options?: SqlRunOptions }).options;
       if (options !== undefined) result.options = options;
       return result;
