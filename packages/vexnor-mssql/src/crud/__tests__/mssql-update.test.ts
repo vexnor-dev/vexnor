@@ -1,3 +1,4 @@
+// noinspection SqlNoDataSourceInspection,SqlResolve
 import { describe, expect, test } from "vitest";
 import "vexnor-mssql";
 import { Account } from "vexnor/testing";
@@ -8,7 +9,7 @@ import { defaultQueryOptions } from "#/default-query-options.js";
 describe("mssqlTableUpdate()", () => {
    test("basic update", () => {
       const query = mssqlUpdate(Account, {});
-      const { text, values } = query.getSql({ params: { set: { email: "new@b.com" } }, options: defaultQueryOptions });
+      const { text, values } = query.source.getSql({ params: { set: { email: "new@b.com" } }, options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         /* driver: transactsql */
@@ -32,7 +33,7 @@ describe("mssqlTableUpdate()", () => {
    test("with WHERE", () => {
       const params = input<{ id: string }>();
       const query = mssqlUpdate(Account, { WHERE: sql`${Account.$accountId} = ${params.$id}` });
-      const { text } = query.getSql({
+      const { text } = query.source.getSql({
          params: { set: { email: "new@b.com" }, id: "test-id" },
          options: defaultQueryOptions,
       });
@@ -60,8 +61,8 @@ describe("mssqlTableUpdate()", () => {
 
    test("has $$ and row", () => {
       const query = mssqlUpdate(Account, {});
-      expect(query.$$).toBeDefined();
-      expect(query.row).toBeDefined();
-      expect(query.row.$accountId).toBeDefined();
+      expect(query.source.$$).toBeDefined();
+      expect(query.source.row).toBeDefined();
+      expect(query.source.row.$accountId).toBeDefined();
    });
 });

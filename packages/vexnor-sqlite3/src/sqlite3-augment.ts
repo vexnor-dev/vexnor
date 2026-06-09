@@ -18,14 +18,18 @@ declare module "vexnor" {
    }
 }
 
-Object.defineProperty(SqlQuery.prototype, "sqlite", {
-   get: function () {
-      return newSqlQueryHandler(new BetterSqlite3QueryHandler(this));
-   },
-});
+if (!Object.hasOwn(SqlQuery.prototype, "sqlite")) {
+   Object.defineProperty(SqlQuery.prototype, "sqlite", {
+      get: function () {
+         return newSqlQueryHandler(new BetterSqlite3QueryHandler(this));
+      },
+   });
+}
 
-Object.defineProperty(SqlTable.prototype, "sqlite", {
-   get: function () {
-      return newSqlite3TableHandler(this);
-   },
-});
+if (!Object.hasOwn(SqlTable.prototype, "sqlite")) {
+   Object.defineProperty(SqlTable.prototype, "sqlite", {
+      get: function () {
+         return newSqlite3TableHandler(this);
+      },
+   });
+}

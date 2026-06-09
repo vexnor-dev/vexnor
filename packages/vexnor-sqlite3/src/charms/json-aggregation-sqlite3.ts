@@ -1,3 +1,4 @@
+// noinspection SqlNoDataSourceInspection,SqlResolve
 import {
    raw,
    sql,
@@ -7,7 +8,6 @@ import {
    SqlQuery,
    SqlQueryColumn,
    SqlSelectValue,
-   SqlQueryAny,
    JsonRow,
    SqlBuildError,
    quote,
@@ -15,6 +15,7 @@ import {
    row,
    SqlSelectCharm,
    SqlJsonSchema,
+   SqlQueryBaseAny,
 } from "vexnor";
 import { ok } from "vexnor";
 
@@ -28,7 +29,9 @@ export type JsonResultType = "one" | "many";
  * FROM ${Account}
  * WHERE ${Account.$accountId} = ${param("accountId")}
  */
-export class JsonAggregationSqlite3<T extends { Params?: unknown; Row?: unknown; Type?: Array<T["Row"]> | (T["Row"] | null) }> extends SqlCharm<{
+export class JsonAggregationSqlite3<
+   T extends { Params?: unknown; Row?: unknown; Type?: Array<T["Row"]> | (T["Row"] | null) },
+> extends SqlCharm<{
    Params: T["Params"];
 }> {
    static readonly CONFIG: Record<
@@ -133,10 +136,10 @@ export class JsonAggregationSqlite3<T extends { Params?: unknown; Row?: unknown;
  * `.all({ db: database });
  * // result[0].parent: string (JSON — parse to IAccountSelect | null)
  */
-export function jsonOne<T extends SqlQueryAny>(query: T): JsonAggregationResult<T> {
-   return CACHE.get([query.id, `json=one`, "sqlite3"], () => {
-      ok(query.$$, `'query.$$' is required. check if the query does return a row.`);
-      const findOne = sql`select ${row(query.$$)} from ${query.inline()} limit 1`;
+export function jsonOne<T extends SqlQueryBaseAny>(query: T): JsonAggregationResult<T> {
+   return CACHE.get([query.source.id, `json=one`, "sqlite3"], () => {
+      ok(query.source.$$, `'query.$$' is required. check if the query does return a row.`);
+      const findOne = sql`select ${row(query.source.$$)} from ${query.source.inline()} limit 1`;
       return new JsonAggregationSqlite3(findOne, {
          type: "one",
       });
@@ -165,11 +168,11 @@ export function jsonOne<T extends SqlQueryAny>(query: T): JsonAggregationResult<
  * `.all({ db: database });
  * // result[0].orders: string (JSON — parse to IOrderSelect[])
  */
-export function jsonMany<T extends SqlQueryAny>(query: T): JsonAggregationResult<T, []> {
+export function jsonMany<T extends SqlQueryBaseAny>(query: T): JsonAggregationResult<T, []> {
    return CACHE.get(
-      [query.id, `json=many`, "sqlite3"],
+      [query.source.id, `json=many`, "sqlite3"],
       () =>
-         new JsonAggregationSqlite3(query, {
+         new JsonAggregationSqlite3(query.source, {
             type: "many",
          }),
    ) as JsonAggregationResult<T>;

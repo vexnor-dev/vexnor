@@ -5,7 +5,7 @@ import { SqlError } from "#/core/sql-error.js";
 import { SqlErrorCode } from "#/core/sql-error-code.js";
 import type { SqlExecuteMode, SqlRunOptions } from "#/core/query/sql-query-types.js";
 import { isVexnorConnection } from "#/plugin/vexnor-connection.js";
-import type { ExecutionArgs, SqlQueryExecutionPlugin } from "./sql-query-execution-plugin.js";
+import type { SqlPipelineExecutionArgs, SqlQueryPipelinePlugin } from "./sql-query-pipeline-plugin.js";
 import {
    SqlQueryPipeline,
    BeforeQueryEvent,
@@ -15,6 +15,7 @@ import {
    type SqlQueryPipelineOptions,
 } from "./sql-query-pipeline.js";
 import { SqlParamAny } from "#/core/query/sql-param.js";
+import { SqlQueryHandler, SqlQueryHandlerAny } from "#/core/query/sql-query-handler.js";
 
 export type { AuthorizeArgs, AuthorizeHook };
 export { BeforeQueryEvent, AfterQueryEvent };
@@ -31,7 +32,7 @@ export type ConnectionResolver = <TContext extends Record<string, unknown> = Rec
    args: ConnectionResolverArgs<TContext>,
 ) => Promise<unknown>;
 
-export type QueryMap = Record<string, SqlQueryAny>;
+export type QueryMap = Record<string, SqlQueryAny | SqlQueryHandlerAny>;
 
 export type ExecuteQueryArgs = {
    plugin: string;
@@ -39,9 +40,10 @@ export type ExecuteQueryArgs = {
    params: Record<string, unknown>;
    location: string | null;
    mode: SqlExecuteMode;
+   name: string | null;
    options?: SqlRunOptions;
 };
-const RequiredExecuteQueryKeys: (keyof ExecuteQueryArgs)[] = ["plugin", "hash", "params", "mode"];
+const RequiredExecuteQueryKeys: (keyof ExecuteQueryArgs)[] = ["plugin", "hash", "params", "mode", "location", "name"];
 
 export type SqlQueryRegistryOptions<TContext extends Record<string, unknown> = Record<string, unknown>> =
    SqlQueryPipelineOptions<TContext>;
@@ -58,7 +60,7 @@ export class SqlQueryRegistry<TContext extends Record<string, unknown> = Record<
    /**
     * Attaches a query execution plugin to this registry's default pipeline.
     */
-   use(plugin: SqlQueryExecutionPlugin<TContext>): () => void {
+   use(plugin: SqlQueryPipelinePlugin<TContext>): () => void {
       return this.pipeline.use(plugin);
    }
 
@@ -124,7 +126,6 @@ export class SqlQueryRegistry<TContext extends Record<string, unknown> = Record<
             return [key, value];
          }),
       ) as ExecuteQueryArgs;
-      result.location = ((request as Record<string, unknown>).location as string | null) ?? null;
       const options = (request as { options?: SqlRunOptions }).options;
       if (options !== undefined) result.options = options;
       return result;
@@ -138,19 +139,23 @@ export class SqlQueryRegistry<TContext extends Record<string, unknown> = Record<
     * Re-registering the same query is safe and idempotent.
     */
    async register(plugin: VexnorPluginAny, queries: QueryMap): Promise<void> {
-      if (!this.plugins.has(plugin.name)) {
-         this.plugins.set(plugin.name, plugin);
-      }
-      if (!this.maps.has(plugin.name)) {
-         this.maps.set(plugin.name, new Map());
-      }
+      if (!this.plugins.has(plugin.name)) this.plugins.set(plugin.name, plugin);
+
+      if (!this.maps.has(plugin.name)) this.maps.set(plugin.name, new Map());
+
       const map = this.maps.get(plugin.name)!;
       for (const [name, value] of Object.entries(queries)) {
-         if (!(value instanceof SqlQuery)) {
-            console.warn(`[vexnor] QueryRegistry.register: skipping "${name}" — not a SqlQuery instance`);
-            continue;
+         switch (true) {
+            case value instanceof SqlQuery:
+               map.set(await value.hash, { query: value, name });
+               break;
+            case value instanceof SqlQueryHandler:
+               map.set(await value.source.hash, { query: value.source, name });
+               break;
+            default:
+               console.warn(`[vexnor] QueryRegistry.register: skipping "${name}" — not a SqlQuery instance`);
+               break;
          }
-         map.set(await value.hash, { query: value, name });
       }
    }
 
@@ -167,24 +172,25 @@ export class SqlQueryRegistry<TContext extends Record<string, unknown> = Record<
       resolver: ConnectionResolver,
       context: TContext = {} as TContext,
    ): Promise<TResult> {
-      const { hash, params, mode, location, plugin: pluginName, options } = this.getExecutionParams(args);
+      const { hash, params, mode, location, plugin: pluginName, options, name } = this.getExecutionParams(args);
       const entry = this.maps.get(pluginName)?.get(hash);
       if (!entry) {
          throw new SqlError(`Unknown query hash: ${hash} for plugin: ${args.plugin}`, {
             code: SqlErrorCode.QUERY_NOT_FOUND,
          });
       }
-      const { query, name } = entry;
+      const { query } = entry;
 
       const plugin = this.plugins.get(pluginName);
       ok(plugin, `Unknown plugin: ${pluginName}`);
 
       const mergedParams = this.mergeRuntimeParams(query, params, context);
-      const executionArgs: ExecutionArgs<TContext> = {
+      const executionArgs: SqlPipelineExecutionArgs<TContext> = {
+         mode: mode,
          plugin,
          query,
-         name,
-         input: { plugin: pluginName, hash, params, location, mode },
+         name: entry.name,
+         remote: { plugin: pluginName, hash, params, location, mode, name },
          params: mergedParams,
          context,
       };

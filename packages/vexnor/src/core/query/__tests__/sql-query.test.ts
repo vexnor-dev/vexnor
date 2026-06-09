@@ -60,6 +60,7 @@ describe("SqlQuery tests", () => {
           "rawStrings",
           "rawValues",
           "location",
+          "locationUrl",
           "_authorization",
           "_innerQueriesLazy",
           "_dialectsLazy",

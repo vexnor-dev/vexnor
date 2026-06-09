@@ -1,4 +1,4 @@
-import { info, ParamsOfArgs, SqlDeleteArgs, raw, row, SqlTable } from "vexnor";
+import { info, ParamsOfArgs, SqlDeleteArgs, raw, row, SqlTable, SqlQueryColumns } from "vexnor";
 import { ok } from "vexnor";
 import { sql } from "#/postgres-sql.js";
 import { PostgresQueryHandler } from "#/postgres-query-handler.js";
@@ -10,12 +10,13 @@ export type PostgresDeleteResult<
 > = PostgresQueryHandler<{
    Params: ParamsOfArgs<Args>;
    Row: T["Select"];
-}>;
+}> &
+   SqlQueryColumns<T["Select"]>;
 
-export function postgresDelete<
-   T extends { Select: Record<string, unknown>; Delete: true },
-   Args extends SqlDeleteArgs,
->(table: SqlTable<T>, args: Args): PostgresDeleteResult<T, Args> {
+export function postgresDelete<T extends { Select: Record<string, unknown>; Delete: true }, Args extends SqlDeleteArgs>(
+   table: SqlTable<T>,
+   args: Args,
+): PostgresDeleteResult<T, Args> {
    const where = "WHERE" in args ? args.WHERE : undefined;
    if (!where) {
       ok((args as { force?: boolean }).force, "WHERE condition or force required");
@@ -27,5 +28,5 @@ export function postgresDelete<
       from ${table}
       ${where ? sql`where ${where.inline()}`.inline("default") : raw.BLANK}
       returning ${row(table.$$)}
-   ` as unknown as PostgresDeleteResult<T, Args>;
+   `.postgres as unknown as PostgresDeleteResult<T, Args>;
 }

@@ -50,6 +50,6 @@ export class MockPlugin extends VexnorPlugin<{
    newQueryHandler<Args extends { Row?: unknown; Params?: unknown; Read: object; Write: object }>(
       query: SqlQuery<Pick<Args, "Row" | "Params">>,
    ) {
-      return new MockQueryHandler<Args>(query);
+      return new MockQueryHandler<Pick<Args, "Row" | "Params">>(query);
    }
 }

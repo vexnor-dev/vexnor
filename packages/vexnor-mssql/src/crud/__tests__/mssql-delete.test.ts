@@ -1,3 +1,4 @@
+// noinspection SqlNoDataSourceInspection,SqlResolve
 import { describe, expect, test } from "vitest";
 import { Account } from "vexnor/testing";
 import { sql, param } from "vexnor";
@@ -16,7 +17,7 @@ describe("mssqlTableDelete()", () => {
 
    test("with force", () => {
       const query = mssqlDelete(Account, { force: true });
-      const { text } = query.getSql({ options: defaultQueryOptions });
+      const { text } = query.source.getSql({ options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         /* driver: transactsql */
@@ -36,7 +37,7 @@ describe("mssqlTableDelete()", () => {
    test("with WHERE", () => {
       const id = param<{ id: string }>("id");
       const query = mssqlDelete(Account, { WHERE: sql`${Account.$accountId} = ${id}` });
-      const { text } = query.getSql({ params: { id: "test-id" } });
+      const { text } = query.source.getSql({ params: { id: "test-id" } });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         /* driver: transactsql */
@@ -58,8 +59,8 @@ describe("mssqlTableDelete()", () => {
 
    test("has $$ and row", () => {
       const query = mssqlDelete(Account, { force: true });
-      expect(query.$$).toBeDefined();
-      expect(query.row).toBeDefined();
-      expect(query.row.$accountId).toBeDefined();
+      expect(query.source.$$).toBeDefined();
+      expect(query.source.row).toBeDefined();
+      expect(query.source.row.$accountId).toBeDefined();
    });
 });

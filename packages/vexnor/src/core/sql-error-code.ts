@@ -34,4 +34,7 @@ export const enum SqlErrorCode {
 
    /** Registry startup check failed — authorized queries exist but no hook is registered. */
    REGISTRY_NOT_AUTHORIZED = "REGISTRY_NOT_AUTHORIZED",
+
+   /** Database connection is not a valid VexnorConnection or RemoteClient */
+   CONNECTION_NOT_VALID = "CONNECTION_NOT_VALID",
 }

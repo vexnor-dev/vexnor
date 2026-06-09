@@ -1,3 +1,4 @@
+// noinspection SqlNoDataSourceInspection,SqlResolve
 import "vexnor-postgres";
 import { col, expand, param, ParamsOf, raw, row, sql } from "vexnor";
 import { jsonOne } from "vexnor-postgres";

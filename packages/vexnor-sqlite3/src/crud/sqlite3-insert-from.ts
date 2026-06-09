@@ -2,6 +2,7 @@ import { SqlTable, row, ParamsOfArgs, SqlQueryExtended, raw, info, sql } from "v
 import type { SqlInsertFromArgs } from "vexnor";
 import { ok } from "vexnor";
 import { BetterSqlite3QueryHandler } from "#/better-sqlite3-query-handler.js";
+import "#/sqlite3-augment.js";
 
 export type Sqlite3InsertFromResult<
    T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> },

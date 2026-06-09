@@ -29,7 +29,12 @@ describe("parseCallerLocation — browser (Vite/@fs)", () => {
          "    at sql (http://localhost:5173/@fs/Users/adrian/Work/vexnor-dev/packages/vexnor/dist/core/sql.js:33:19)",
          "    at http://localhost:5173/@fs/Users/adrian/Work/vexnor-dev/examples/react-vite-api/shared/queries/postgres.ts:8:23",
       ].join("\n");
-      expect(parseCallerLocation(stack, INTERNAL_URL_BROWSER)).toMatchInlineSnapshot(`"examples/react-vite-api/shared/queries/postgres.ts:8:23"`);
+      expect(parseCallerLocation(stack, INTERNAL_URL_BROWSER)).toMatchInlineSnapshot(`
+        {
+          "location": "examples/react-vite-api/shared/queries/postgres.ts:8:23",
+          "locationUrl": "http://localhost:5173/@fs/Users/adrian/Work/vexnor-dev/examples/react-vite-api/shared/queries/postgres.ts",
+        }
+      `);
    });
 
    test("CRUD select — subquery via jsonOne charm", () => {
@@ -46,7 +51,12 @@ describe("parseCallerLocation — browser (Vite/@fs)", () => {
          "    at handler.select (http://localhost:5173/@fs/Users/adrian/Work/vexnor-dev/packages/vexnor-postgres/dist/crud/postgres-table-handler.js:62:36)",
          "    at http://localhost:5173/@fs/Users/adrian/Work/vexnor-dev/examples/react-vite-api/shared/queries/postgres.ts:20:48",
       ].join("\n");
-      expect(parseCallerLocation(stack, INTERNAL_URL_BROWSER)).toMatchInlineSnapshot(`"examples/react-vite-api/shared/queries/postgres.ts:20:48"`);
+      expect(parseCallerLocation(stack, INTERNAL_URL_BROWSER)).toMatchInlineSnapshot(`
+        {
+          "location": "examples/react-vite-api/shared/queries/postgres.ts:20:48",
+          "locationUrl": "http://localhost:5173/@fs/Users/adrian/Work/vexnor-dev/examples/react-vite-api/shared/queries/postgres.ts",
+        }
+      `);
    });
 
    test("CRUD select — sql`` inside postgresSelect", () => {
@@ -58,7 +68,12 @@ describe("parseCallerLocation — browser (Vite/@fs)", () => {
          "    at handler.select (http://localhost:5173/@fs/Users/adrian/Work/vexnor-dev/packages/vexnor-postgres/dist/crud/postgres-table-handler.js:62:36)",
          "    at http://localhost:5173/@fs/Users/adrian/Work/vexnor-dev/examples/react-vite-api/shared/queries/postgres.ts:20:48",
       ].join("\n");
-      expect(parseCallerLocation(stack, INTERNAL_URL_BROWSER)).toMatchInlineSnapshot(`"examples/react-vite-api/shared/queries/postgres.ts:20:48"`);
+      expect(parseCallerLocation(stack, INTERNAL_URL_BROWSER)).toMatchInlineSnapshot(`
+        {
+          "location": "examples/react-vite-api/shared/queries/postgres.ts:20:48",
+          "locationUrl": "http://localhost:5173/@fs/Users/adrian/Work/vexnor-dev/examples/react-vite-api/shared/queries/postgres.ts",
+        }
+      `);
    });
 
    test("CRUD select — PostgresQueryHandler construction", () => {
@@ -74,7 +89,12 @@ describe("parseCallerLocation — browser (Vite/@fs)", () => {
          "    at handler.select (http://localhost:5173/@fs/Users/adrian/Work/vexnor-dev/packages/vexnor-postgres/dist/crud/postgres-table-handler.js:62:36)",
          "    at http://localhost:5173/@fs/Users/adrian/Work/vexnor-dev/examples/react-vite-api/shared/queries/postgres.ts:20:48",
       ].join("\n");
-      expect(parseCallerLocation(stack, INTERNAL_URL_BROWSER)).toMatchInlineSnapshot(`"examples/react-vite-api/shared/queries/postgres.ts:20:48"`);
+      expect(parseCallerLocation(stack, INTERNAL_URL_BROWSER)).toMatchInlineSnapshot(`
+        {
+          "location": "examples/react-vite-api/shared/queries/postgres.ts:20:48",
+          "locationUrl": "http://localhost:5173/@fs/Users/adrian/Work/vexnor-dev/examples/react-vite-api/shared/queries/postgres.ts",
+        }
+      `);
    });
 
    test("lazy handler construction from React useState — non-/@fs/ frame", () => {
@@ -89,7 +109,12 @@ describe("parseCallerLocation — browser (Vite/@fs)", () => {
          "    at http://localhost:5173/src/pages/postgres-accounts.tsx:36:56",
          "    at mountStateImpl (http://localhost:5173/@fs/Users/adrian/Work/vexnor-dev/examples/react-vite-api/node_modules/.vite/deps/react-dom_client.js?v=a0498a7f:4588:20)",
       ].join("\n");
-      expect(parseCallerLocation(stack, INTERNAL_URL_BROWSER)).toMatchInlineSnapshot(`"/src/pages/postgres-accounts.tsx:36:56"`);
+      expect(parseCallerLocation(stack, INTERNAL_URL_BROWSER)).toMatchInlineSnapshot(`
+        {
+          "location": "/src/pages/postgres-accounts.tsx:36:56",
+          "locationUrl": "http://localhost:5173/src/pages/postgres-accounts.tsx",
+        }
+      `);
    });
 });
 
@@ -103,7 +128,12 @@ describe("parseCallerLocation — server (Node/tsx src)", () => {
          "    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)",
          "    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)",
       ].join("\n");
-      expect(parseCallerLocation(stack, INTERNAL_URL_SERVER)).toMatchInlineSnapshot(`"examples/react-vite-api/shared/queries/postgres.ts:10:20"`);
+      expect(parseCallerLocation(stack, INTERNAL_URL_SERVER)).toMatchInlineSnapshot(`
+        {
+          "location": "examples/react-vite-api/shared/queries/postgres.ts:10:20",
+          "locationUrl": "file:///Users/adrian/Work/vexnor-dev/examples/react-vite-api/shared/queries/postgres.ts",
+        }
+      `);
    });
 
    test("CRUD select factory at module load", () => {
@@ -120,7 +150,12 @@ describe("parseCallerLocation — server (Node/tsx src)", () => {
          "    at <anonymous> (/Users/adrian/Work/vexnor-dev/examples/react-vite-api/shared/queries/postgres.ts:24:48)",
          "    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)",
       ].join("\n");
-      expect(parseCallerLocation(stack, INTERNAL_URL_SERVER)).toMatchInlineSnapshot(`"examples/react-vite-api/shared/queries/postgres.ts:24:48"`);
+      expect(parseCallerLocation(stack, INTERNAL_URL_SERVER)).toMatchInlineSnapshot(`
+        {
+          "location": "examples/react-vite-api/shared/queries/postgres.ts:24:48",
+          "locationUrl": "file:///Users/adrian/Work/vexnor-dev/examples/react-vite-api/shared/queries/postgres.ts",
+        }
+      `);
    });
 
    test("via sql-select-value Object.as", () => {
@@ -133,7 +168,12 @@ describe("parseCallerLocation — server (Node/tsx src)", () => {
          "    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)",
       ].join("\n");
       // find-enums.ts is a plugin-internal file — location should be null
-      expect(parseCallerLocation(stack, INTERNAL_URL_SERVER)).toMatchInlineSnapshot(`null`);
+      expect(parseCallerLocation(stack, INTERNAL_URL_SERVER)).toMatchInlineSnapshot(`
+        {
+          "location": null,
+          "locationUrl": null,
+        }
+      `);
    });
 
    test("registry.execute constructs handler at request time — points to server handler", () => {
@@ -148,7 +188,12 @@ describe("parseCallerLocation — server (Node/tsx src)", () => {
          "    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)",
          "    at async dispatch (file:///Users/adrian/Work/vexnor-dev/node_modules/.pnpm/hono@4.12.23/node_modules/hono/dist/compose.js:22:17)",
       ].join("\n");
-      expect(parseCallerLocation(stack, INTERNAL_URL_SERVER)).toMatchInlineSnapshot(`"examples/react-vite-api/server/src/server.ts:103:42"`);
+      expect(parseCallerLocation(stack, INTERNAL_URL_SERVER)).toMatchInlineSnapshot(`
+        {
+          "location": "examples/react-vite-api/server/src/server.ts:103:42",
+          "locationUrl": "file:///Users/adrian/Work/vexnor-dev/examples/react-vite-api/server/src/server.ts",
+        }
+      `);
    });
 
    test("returns null when all non-node frames are internal", () => {
@@ -160,7 +205,7 @@ describe("parseCallerLocation — server (Node/tsx src)", () => {
          "    at Proxy.build (/Users/adrian/Work/vexnor-dev/packages/vexnor/src/core/sql-base.ts:96:15)",
          "    at Proxy.getSql (/Users/adrian/Work/vexnor-dev/packages/vexnor/src/core/query/sql-query.ts:561:12)",
       ].join("\n");
-      expect(parseCallerLocation(stack, INTERNAL_URL_SERVER)).toBeNull();
+      expect(parseCallerLocation(stack, INTERNAL_URL_SERVER).location).toBeNull();
    });
 });
 
@@ -173,6 +218,11 @@ describe("parseCallerLocation — external user (npm install)", () => {
          "    at Object.<anonymous> (/home/user/my-app/src/queries.ts:5:14)",
          "    at node:internal/modules/esm/module_job:343:25",
       ].join("\n");
-      expect(parseCallerLocation(stack, INTERNAL_URL_SERVER)).toMatchInlineSnapshot(`"/home/user/my-app/src/queries.ts:5:14"`);
+      expect(parseCallerLocation(stack, INTERNAL_URL_SERVER)).toMatchInlineSnapshot(`
+        {
+          "location": "/home/user/my-app/src/queries.ts:5:14",
+          "locationUrl": "file:///home/user/my-app/src/queries.ts",
+        }
+      `);
    });
 });

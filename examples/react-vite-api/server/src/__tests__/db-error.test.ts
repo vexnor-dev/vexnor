@@ -8,6 +8,7 @@ describe("SQL_ERROR_STATUS", () => {
    test("maps codes to correct statuses", () => {
       expect(SQL_ERROR_STATUS).toMatchInlineSnapshot(`
         {
+          "CONNECTION_NOT_VALID": 500,
           "PARAM_VALIDATION_FAILED": 400,
           "QUERY_BUILD_FAILED": 400,
           "QUERY_EXECUTION_FAILED": 500,

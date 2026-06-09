@@ -36,8 +36,8 @@ export class PostgresQueryHandler<T extends { Row?: unknown; Params?: unknown }>
       Write: QueryResult<RowOrDefault<T["Row"]>>;
    }
 > {
-   constructor(readonly query: SqlQuery<Pick<T, "Row" | "Params">>) {
-      super(query, { pluginName: PLUGIN_NAME });
+   constructor(readonly source: SqlQuery<Pick<T, "Row" | "Params">>) {
+      super(source, { pluginName: PLUGIN_NAME });
    }
 
    getOptions(args: SqlRunArgs<{ Connection: PostgresClient; Params: T["Params"] }>) {
@@ -47,15 +47,15 @@ export class PostgresQueryHandler<T extends { Row?: unknown; Params?: unknown }>
             ...args,
             options: {
                ...args.options,
-               tokenizer: new PostgresTokenizer(this.query.id),
+               tokenizer: new PostgresTokenizer(this.source.id),
                dialect: "postgresql",
                paramFormat: (args: { index: number }) => `$${args.index + 1}`,
             },
          };
-         queryInput = this.query.getSql(newArgs);
+         queryInput = this.source.getSql(newArgs);
          return queryInput;
       } catch (err) {
-         throw new SqlRunError(`Error building postgres query '${this.query.id}'`, this.query, {
+         throw new SqlRunError(`Error building postgres query '${this.source.id}'`, this.source, {
             cause: err,
             code: SqlErrorCode.QUERY_BUILD_FAILED,
          });
@@ -97,7 +97,7 @@ export class PostgresQueryHandler<T extends { Row?: unknown; Params?: unknown }>
          const { text, values } = queryInput;
          return await resolvedDb.query({ text, values });
       } catch (err) {
-         throw new SqlRunError(`Error running postgres query '${this.query.id}'`, this.query, {
+         throw new SqlRunError(`Error running postgres query '${this.source.id}'`, this.source, {
             cause: err,
             sql: queryInput?.text,
             code: isRetryablePgError(err) ? SqlErrorCode.QUERY_RETRYABLE_FAILURE : SqlErrorCode.QUERY_EXECUTION_FAILED,

@@ -1,3 +1,4 @@
+// noinspection SqlNoDataSourceInspection,SqlResolve
 import { describe, expect, test } from "vitest";
 import { Account } from "vexnor/testing";
 import { sql, param } from "vexnor";
@@ -15,8 +16,8 @@ describe("postgresDelete()", () => {
    });
 
    test("with force", () => {
-      const query = postgresDelete(Account, { force: true });
-      const { text } = query.getSql({ options: defaultQueryOptions });
+      const deleteAccount = postgresDelete(Account, { force: true });
+      const { text } = deleteAccount.source.getSql({ options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         /* driver: postgres */
@@ -37,8 +38,8 @@ describe("postgresDelete()", () => {
 
    test("with WHERE", () => {
       const id = param<{ id: string }>("id");
-      const query = postgresDelete(Account, { WHERE: sql`${Account.$accountId} = ${id}` });
-      const { text } = query.getSql({ params: { id: "test-id" } });
+      const deleteAccount = postgresDelete(Account, { WHERE: sql`${Account.$accountId} = ${id}` });
+      const { text } = deleteAccount.source.getSql({ params: { id: "test-id" } });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         /* driver: postgres */
@@ -59,9 +60,9 @@ describe("postgresDelete()", () => {
    });
 
    test("has $$ and row", () => {
-      const query = postgresDelete(Account, { force: true });
-      expect(query.$$).toBeDefined();
-      expect(query.row).toBeDefined();
-      expect(query.row.$accountId).toBeDefined();
+      const deleteAccount = postgresDelete(Account, { force: true });
+      expect(deleteAccount.source.$$).toBeDefined();
+      expect(deleteAccount.source.row).toBeDefined();
+      expect(deleteAccount.source.row.$accountId).toBeDefined();
    });
 });

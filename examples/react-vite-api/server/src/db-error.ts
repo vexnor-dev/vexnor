@@ -15,6 +15,7 @@ export const SQL_ERROR_STATUS: Record<SqlErrorCode, ErrorStatus> = {
    QUERY_RETRYABLE_FAILURE: 503,
    QUERY_TIMEOUT: 504,
    QUERY_PARAMETERS_INVALID: 400,
+   CONNECTION_NOT_VALID: 500,
 };
 
 export type DbErrorResponse =

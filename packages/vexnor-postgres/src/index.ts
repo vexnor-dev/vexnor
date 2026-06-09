@@ -7,8 +7,15 @@ export type { PostgresTableHandler } from "#/crud/postgres-table-handler.js";
 export { defaultQueryOptions } from "#/default-query-options.js";
 export type { Point, Circle, Interval } from "#/pg-types.js";
 export { transaction, savepoint } from "#/postgres-transaction.js";
-export type { PostgresTransactionOptions, PostgresIsolationLevel, PostgresAccessMode, PostgresDeferrable } from "#/postgres-transaction.js";
+export type {
+   PostgresTransactionOptions,
+   PostgresIsolationLevel,
+   PostgresAccessMode,
+   PostgresDeferrable,
+} from "#/postgres-transaction.js";
 
 import { vexnorPostgres } from "#/vexnor-postgres.js";
 export default vexnorPostgres;
 export { vexnorPostgres };
+
+import "#/postgres-augment.js";

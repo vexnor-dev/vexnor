@@ -18,7 +18,13 @@ function makeFakeToken(accountId: string, name: string): string {
    return `${header}.${payload}.signature`;
 }
 
-function AccountPickerTable({ promise, onPick }: { promise: Promise<LoginAccount[]>; onPick: (account: LoginAccount) => void }) {
+function AccountPickerTable({
+   promise,
+   onPick,
+}: {
+   promise: Promise<LoginAccount[]>;
+   onPick: (account: LoginAccount) => void;
+}) {
    const accounts = use(promise);
    const [picking, setPicking] = useState<string | null>(null);
 
@@ -44,23 +50,25 @@ function AccountPickerTable({ promise, onPick }: { promise: Promise<LoginAccount
                   <tr className="empty-row">
                      <td colSpan={5}>No accounts found.</td>
                   </tr>
-               ) : accounts.map((account) => (
-                  <tr key={account.accountId}>
-                     <td>{account.email}</td>
-                     <td>{account.firstName}</td>
-                     <td>{account.lastName}</td>
-                     <td>{account.orders.length}</td>
-                     <td>
-                        <button
-                           className="btn btn-primary"
-                           disabled={picking === account.accountId}
-                           onClick={() => handlePick(account)}
-                        >
-                           {picking === account.accountId ? "Signing in…" : "Sign in as"}
-                        </button>
-                     </td>
-                  </tr>
-               ))}
+               ) : (
+                  accounts.map((account) => (
+                     <tr key={account.accountId}>
+                        <td>{account.email}</td>
+                        <td>{account.firstName}</td>
+                        <td>{account.lastName}</td>
+                        <td>{account.orders.length}</td>
+                        <td>
+                           <button
+                              className="btn btn-primary"
+                              disabled={picking === account.accountId}
+                              onClick={() => handlePick(account)}
+                           >
+                              {picking === account.accountId ? "Signing in…" : "Sign in as"}
+                           </button>
+                        </td>
+                     </tr>
+                  ))
+               )}
             </tbody>
          </table>
       </div>
@@ -73,7 +81,7 @@ export default function MssqlLoginPage() {
    const [promise, setPromise] = useState<Promise<LoginAccount[]>>(Promise.resolve([]));
 
    useEffect(() => {
-      setPromise(selectAccountsForLogin.mssql.all({ db: remoteClient }) as Promise<LoginAccount[]>);
+      setPromise(selectAccountsForLogin.all({ db: remoteClient }) as Promise<LoginAccount[]>);
    }, []);
 
    function handlePick(account: LoginAccount) {
@@ -85,8 +93,8 @@ export default function MssqlLoginPage() {
       <div className="page">
          <h1>Sign in — MS SQL Server</h1>
          <p className="login-hint">
-            Pick an account to sign in as. This is a demo — the selected <code>account_id</code> becomes
-            the runtime <code>userId</code> injected server-side into queries that use <code>runtime("userId")</code>.
+            Pick an account to sign in as. This is a demo — the selected <code>account_id</code> becomes the runtime{" "}
+            <code>userId</code> injected server-side into queries that use <code>runtime("userId")</code>.
          </p>
          <Suspense fallback={<p className="loading">Loading accounts…</p>}>
             <AccountPickerTable promise={promise} onPick={handlePick} />

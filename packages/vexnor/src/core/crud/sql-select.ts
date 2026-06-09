@@ -1,4 +1,5 @@
-import { SqlQueryAny, SqlQueryExtended } from "#/core/query/sql-query.js";
+// noinspection SqlNoDataSourceInspection,SqlResolve
+import { SqlQueryBaseAny, SqlQueryAny, SqlQueryExtended } from "#/core/query/sql-query.js";
 import { SqlParam } from "#/core/query/sql-param.js";
 import { Simplify } from "#/core/utils/utility-types.js";
 import { ParamsOfArgs, TypeOf } from "#/core/sql-base.js";
@@ -24,16 +25,16 @@ import { row } from "#/core/query/sql-select-row.js";
  * - `includeOne` / `includeMany` — lateral JSON includes (plugin-dependent support)
  */
 export type SqlSelectArgs = {
-   SELECT?: SqlQueryAny;
-   WHERE?: SqlQueryAny;
-   JOIN?: SqlQueryAny;
-   GROUP_BY?: SqlQueryAny;
-   HAVING?: SqlQueryAny;
-   ORDER_BY?: SqlQueryAny;
+   SELECT?: SqlQueryBaseAny;
+   WHERE?: SqlQueryBaseAny;
+   JOIN?: SqlQueryBaseAny;
+   GROUP_BY?: SqlQueryBaseAny;
+   HAVING?: SqlQueryBaseAny;
+   ORDER_BY?: SqlQueryBaseAny;
    offset?: SqlParam<{ Name: "offset"; Type: number }>;
    limit?: SqlParam<{ Name: "limit"; Type: number }>;
-   includeOne?: Record<string, SqlQueryAny>;
-   includeMany?: Record<string, SqlQueryAny>;
+   includeOne?: Record<string, SqlQueryBaseAny>;
+   includeMany?: Record<string, SqlQueryBaseAny>;
 };
 
 export type SqlSelectResult<
@@ -60,19 +61,22 @@ export function sqlSelect<T extends { Select: Record<string, unknown> }, Args ex
    strictEqual(args.limit, undefined, `'limit' not supported by default SqlTableRead.`);
 
    if (args.JOIN) {
-      ok(args.JOIN.rawStrings[0]?.toLowerCase().includes("join"), `'JOIN' criteria not including SQL keyword 'join'`);
+      ok(
+         args.JOIN.source.rawStrings[0]?.toLowerCase().includes("join"),
+         `'JOIN' criteria not including SQL keyword 'join'`,
+      );
    }
 
    return sql`
          ${info ?? raw.BLANK}
          select
-         ${args.SELECT ? args.SELECT.inline() : row(table.$$)}
+         ${args.SELECT ? args.SELECT.source.inline() : row(table.$$)}
          from ${table}
-         ${args.JOIN ? args.JOIN.inline() : raw.BLANK}
-         ${args.WHERE ? sql`where ${args.WHERE.inline()}`.inline("default") : raw.BLANK}
-         ${args.GROUP_BY ? sql`group by ${args.GROUP_BY.inline()}`.inline("default") : raw.BLANK}
-         ${args.HAVING ? sql`having ${args.HAVING.inline()}`.inline("default") : raw.BLANK}
-         ${args.ORDER_BY ? sql`order by ${args.ORDER_BY.inline()}`.inline("default") : raw.BLANK}
+         ${args.JOIN ? args.JOIN.source.inline() : raw.BLANK}
+         ${args.WHERE ? sql`where ${args.WHERE.source.inline()}`.inline("default") : raw.BLANK}
+         ${args.GROUP_BY ? sql`group by ${args.GROUP_BY.source.inline()}`.inline("default") : raw.BLANK}
+         ${args.HAVING ? sql`having ${args.HAVING.source.inline()}`.inline("default") : raw.BLANK}
+         ${args.ORDER_BY ? sql`order by ${args.ORDER_BY.source.inline()}`.inline("default") : raw.BLANK}
       ` as unknown as SqlSelectResult<T, Args>;
 }
 
@@ -82,11 +86,11 @@ export function expandFromClause<T extends { Select: Record<string, unknown> }>(
 ) {
    return sql`
       from ${table}
-      ${args.JOIN ? args.JOIN.inline() : raw.BLANK}
-      ${args.WHERE ? sql`where ${args.WHERE.inline()}`.inline("default") : raw.BLANK}
-      ${args.GROUP_BY ? sql`group by ${args.GROUP_BY.inline()}`.inline("default") : raw.BLANK}
-      ${args.HAVING ? sql`having ${args.HAVING.inline()}`.inline("default") : raw.BLANK}
-      ${args.ORDER_BY ? sql`order by ${args.ORDER_BY.inline()}`.inline("default") : raw.BLANK}
+      ${args.JOIN ? args.JOIN.source.inline() : raw.BLANK}
+      ${args.WHERE ? sql`where ${args.WHERE.source.inline()}`.inline("default") : raw.BLANK}
+      ${args.GROUP_BY ? sql`group by ${args.GROUP_BY.source.inline()}`.inline("default") : raw.BLANK}
+      ${args.HAVING ? sql`having ${args.HAVING.source.inline()}`.inline("default") : raw.BLANK}
+      ${args.ORDER_BY ? sql`order by ${args.ORDER_BY.source.inline()}`.inline("default") : raw.BLANK}
    `;
 }
 
@@ -96,7 +100,7 @@ export type SqlTableReadRowSelect<
 > = Args["SELECT"] extends SqlQueryAny ? TypeOf<Args["SELECT"]> : T["Select"];
 
 export type SqlTableReadRowIncludeOne<Args> = Args extends {
-   includeOne: Record<string, SqlQueryAny>;
+   includeOne: Record<string, SqlQueryBaseAny>;
 }
    ? {
         [K in keyof Args["includeOne"]]: TypeOf<Args["includeOne"][K]> | null;
@@ -104,7 +108,7 @@ export type SqlTableReadRowIncludeOne<Args> = Args extends {
    : unknown;
 
 export type SqlTableReadRowIncludeMany<Args> = Args extends {
-   includeMany: Record<string, SqlQueryAny>;
+   includeMany: Record<string, SqlQueryBaseAny>;
 }
    ? {
         [K in keyof Args["includeMany"]]: TypeOf<Args["includeMany"][K]>[];

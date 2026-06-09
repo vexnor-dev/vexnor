@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 async function deleteAccountAction(accountId: string) {
    "use server";
-   const result = await deleteAccount.sqlite.run({ db: sqliteDb, params: { accountId } });
+   const result = await deleteAccount.run({ db: sqliteDb, params: { accountId } });
    return {
       deleted: Boolean(result.changes === 1),
       refresh: true,
@@ -17,7 +17,7 @@ async function deleteAccountAction(accountId: string) {
 
 async function createAccountAction(email: string, firstName: string, lastName: string) {
    "use server";
-   await insertAccount.sqlite.run({ db: sqliteDb, params: { rows: [{ email, firstName, lastName }] } });
+   await insertAccount.run({ db: sqliteDb, params: { rows: [{ email, firstName, lastName }] } });
 }
 
 export default async function Sqlite3AccountsPage({ searchParams }: { searchParams: Promise<{ filter?: string }> }) {

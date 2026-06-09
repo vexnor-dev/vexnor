@@ -1,3 +1,4 @@
+// noinspection SqlNoDataSourceInspection,SqlResolve
 import "vexnor-mssql";
 import { row, sql, param, col, ctx } from "vexnor";
 import { Account } from "../codegen/mssql/vexnor_dev.account-table.js";

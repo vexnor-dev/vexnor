@@ -14,7 +14,6 @@ import { getColumnType } from "#/schema/get-column-type.js";
 import { SqlQuery, SqlQueryHandler } from "vexnor";
 import { BetterSqlite3QueryHandler } from "#/better-sqlite3-query-handler.js";
 import pkg from "../package.json" with { type: "json" };
-import "#/sqlite3-augment.js";
 
 export const PLUGIN_NAME = pkg.name;
 

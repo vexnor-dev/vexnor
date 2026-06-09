@@ -1,3 +1,4 @@
+// noinspection SqlNoDataSourceInspection,SqlResolve
 import "vexnor-sqlite3";
 import { describe, expect, test } from "vitest";
 import { Account } from "vexnor/testing";
@@ -8,7 +9,10 @@ import { defaultQueryOptions } from "#/crud/default-query-options.js";
 describe("sqlite3Update()", () => {
    test("basic update", () => {
       const query = sqlite3Update(Account, {});
-      const { text, values } = query.getSql({ params: { set: { email: "new@b.com" } }, options: defaultQueryOptions });
+      const { text, values } = query.source.getSql({
+         params: { set: { email: "new@b.com" } },
+         options: defaultQueryOptions,
+      });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         /* driver: sqlite */
@@ -34,7 +38,7 @@ describe("sqlite3Update()", () => {
    test("with WHERE", () => {
       const params = input<{ id: string }>();
       const query = sqlite3Update(Account, { WHERE: sql`${Account.$accountId} = ${params.$id}` });
-      const { text } = query.getSql({
+      const { text } = query.source.getSql({
          params: { set: { email: "new@b.com" }, id: "test-id" },
          options: defaultQueryOptions,
       });
@@ -64,8 +68,8 @@ describe("sqlite3Update()", () => {
 
    test("has $$ and row", () => {
       const query = sqlite3Update(Account, {});
-      expect(query.$$).toBeDefined();
-      expect(query.row).toBeDefined();
-      expect(query.row.$accountId).toBeDefined();
+      expect(query.source.$$).toBeDefined();
+      expect(query.source.row).toBeDefined();
+      expect(query.source.row.$accountId).toBeDefined();
    });
 });

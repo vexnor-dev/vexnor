@@ -1,6 +1,7 @@
-import type { SqlQueryExecutionPlugin, AfterArgs } from "./sql-query-execution-plugin.js";
+import type { SqlQueryPipelinePlugin, SqlPipelineAfterArgs } from "./sql-query-pipeline-plugin.js";
 
-export type AuditLogArgs<TContext extends Record<string, unknown> = Record<string, unknown>> = AfterArgs<TContext>;
+export type AuditLogArgs<TContext extends Record<string, unknown> = Record<string, unknown>> =
+   SqlPipelineAfterArgs<TContext>;
 
 export type AuditLogPluginOptions<TContext extends Record<string, unknown> = Record<string, unknown>> = {
    /**
@@ -28,14 +29,14 @@ export type AuditLogPluginOptions<TContext extends Record<string, unknown> = Rec
  */
 export class AuditLogPlugin<
    TContext extends Record<string, unknown> = Record<string, unknown>,
-> implements SqlQueryExecutionPlugin<TContext> {
+> implements SqlQueryPipelinePlugin<TContext> {
    readonly name: string;
 
    constructor(public readonly options: AuditLogPluginOptions<TContext>) {
       this.name = options.name ?? "AuditLogPlugin";
    }
 
-   after(args: AfterArgs<TContext>): void {
+   after(args: SqlPipelineAfterArgs<TContext>): void {
       const context = this.options.contextLogResolver?.(args.context) ?? null;
       const log = { ...args, context: context as TContext };
       this.options.onLog(log);

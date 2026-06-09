@@ -1,6 +1,10 @@
 import { SqlRunError } from "#/core/sql-run-error.js";
 import { SqlErrorCode } from "#/core/sql-error-code.js";
-import type { SqlQueryExecutionPlugin, ExecutionArgs, AfterArgs } from "./sql-query-execution-plugin.js";
+import type {
+   SqlQueryPipelinePlugin,
+   SqlPipelineExecutionArgs,
+   SqlPipelineAfterArgs,
+} from "./sql-query-pipeline-plugin.js";
 
 export type QueryMetrics = {
    /** Number of currently executing instances of this query. */
@@ -28,12 +32,13 @@ export type ContextMetrics = {
    lastActivityAt: number;
 };
 
-export type LimitArgs<TContext extends Record<string, unknown> = Record<string, unknown>> = ExecutionArgs<TContext> & {
-   /** Metrics for this query across all contexts at the time of the check. */
-   queryMetrics: QueryMetrics;
-   /** Metrics for this query scoped to the resolved context key, or `null` if no `contextKeyResolver` is configured. */
-   contextMetrics: ContextMetrics | null;
-};
+export type LimitArgs<TContext extends Record<string, unknown> = Record<string, unknown>> =
+   SqlPipelineExecutionArgs<TContext> & {
+      /** Metrics for this query across all contexts at the time of the check. */
+      queryMetrics: QueryMetrics;
+      /** Metrics for this query scoped to the resolved context key, or `null` if no `contextKeyResolver` is configured. */
+      contextMetrics: ContextMetrics | null;
+   };
 
 export type TimeToLiveRateLimiterOptions<TContext extends Record<string, unknown> = Record<string, unknown>> = {
    /**
@@ -78,7 +83,7 @@ export type TimeToLiveRateLimiterOptions<TContext extends Record<string, unknown
 
 export class TimeToLiveRateLimiter<
    TContext extends Record<string, unknown> = Record<string, unknown>,
-> implements SqlQueryExecutionPlugin<TContext> {
+> implements SqlQueryPipelinePlugin<TContext> {
    readonly name: string;
    private readonly now: () => number;
    private readonly _queryMetrics = new Map<string, QueryMetrics>();
@@ -115,17 +120,18 @@ export class TimeToLiveRateLimiter<
       }
    }
 
-   async check(args: ExecutionArgs<TContext>): Promise<void> {
+   async check(args: SqlPipelineExecutionArgs<TContext>): Promise<void> {
       this.sweep();
 
-      const { query, name, input } = args;
-      const qm = this.getOrCreateQueryMetrics(input.hash);
+      const { query, name } = args;
+      const key = query.id;
+      const qm = this.getOrCreateQueryMetrics(key);
       const contextKey = this.options.contextKeyResolver?.(args.context);
-      const cm = contextKey !== undefined ? this.getOrCreateContextMetrics(input.hash, contextKey) : null;
+      const cm = contextKey !== undefined ? this.getOrCreateContextMetrics(key, contextKey) : null;
 
       const { maxConcurrent, maxConcurrentPerContext } = this.options;
 
-      if (maxConcurrent !== undefined && qm.inFlight >= maxConcurrent) {
+      if (maxConcurrent !== undefined && qm && qm.inFlight >= maxConcurrent) {
          throw new SqlRunError(
             `Query "${name}" rejected — concurrency limit of ${maxConcurrent} reached (${qm.inFlight} in flight)`,
             query,
@@ -141,7 +147,7 @@ export class TimeToLiveRateLimiter<
          );
       }
 
-      if (this.options.limit) {
+      if (this.options.limit && qm) {
          try {
             await this.options.limit({ ...args, queryMetrics: { ...qm }, contextMetrics: cm ? { ...cm } : null });
          } catch (err) {
@@ -154,8 +160,11 @@ export class TimeToLiveRateLimiter<
          }
       }
 
-      qm.inFlight++;
-      qm.totalCalls++;
+      if (qm) {
+         qm.inFlight++;
+         qm.totalCalls++;
+      }
+
       if (cm) {
          cm.inFlight++;
          cm.totalCalls++;
@@ -163,11 +172,11 @@ export class TimeToLiveRateLimiter<
       }
    }
 
-   after(args: AfterArgs<TContext>): void {
-      const { input, error, durationMs } = args;
-      const hash = input.hash;
+   after(args: SqlPipelineAfterArgs<TContext>): void {
+      const { query, error, durationMs } = args;
+      const key = query.id;
 
-      const qm = this._queryMetrics.get(hash);
+      const qm = this._queryMetrics.get(key);
       if (!qm) return;
 
       qm.inFlight = Math.max(0, qm.inFlight - 1);
@@ -177,7 +186,7 @@ export class TimeToLiveRateLimiter<
 
       const contextKey = this.options.contextKeyResolver?.(args.context);
       if (contextKey !== undefined) {
-         const cm = this._contextMetrics.get(hash)?.get(contextKey);
+         const cm = this._contextMetrics.get(key)?.get(contextKey);
          if (cm) {
             cm.inFlight = Math.max(0, cm.inFlight - 1);
             const cmCompleted = cm.totalCalls - cm.inFlight;

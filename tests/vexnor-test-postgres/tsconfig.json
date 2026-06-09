@@ -15,6 +15,8 @@
       { "path": "../../packages/vexnor" },
       { "path": "../../packages/vexnor-postgres" },
       { "path": "../../packages/vexnor-drizzle" },
+      { "path": "../../packages/vexnor-prisma" },
+      { "path": "../../packages/vexnor-sequelize" },
       { "path": "../../packages/vexnor-typeorm" }
    ]
 }

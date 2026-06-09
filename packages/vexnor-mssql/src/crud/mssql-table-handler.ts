@@ -1,3 +1,4 @@
+// noinspection SqlNoDataSourceInspection,SqlResolve
 import {
    SqlTable,
    SqlSelectArgs,

@@ -11,7 +11,7 @@ export class MockQueryHandler<T extends { Row?: unknown; Params?: unknown }> ext
       Connection: MockConnection;
    }
 > {
-   constructor(q: SqlQuery<Pick<T, "Row" | "Params">>) {
+   constructor(q: SqlQuery<T>) {
       super(q, { pluginName: "mock" });
    }
 
@@ -26,7 +26,7 @@ export class MockQueryHandler<T extends { Row?: unknown; Params?: unknown }> ext
 
    async execute(args: SqlRunArgs<{ Connection: MockConnection; Params: T["Params"] }>) {
       const db = await args.db;
-      const { text, values } = this.getSql(args);
+      const { text, values } = this.source.getSql(args);
       return await db.query(text, values);
    }
 }

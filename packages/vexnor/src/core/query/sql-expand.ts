@@ -1,3 +1,4 @@
+// noinspection SqlNoDataSourceInspection,SqlResolve
 import { ARGS, PARAMS, ROW, Sql } from "#/core/sql-base.js";
 import { SqlQuery } from "#/core/query/sql-query.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";

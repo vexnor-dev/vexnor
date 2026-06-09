@@ -45,6 +45,7 @@ export declare const TYPE: unique symbol;
 export declare const PARAMS: unique symbol;
 export declare const ARGS: unique symbol;
 export declare const SQL_TOKEN: unique symbol;
+export declare const QUERY: unique symbol;
 
 export type SqlOptions = Pick<Sql, "id" | "hashId"> & Partial<Pick<Sql, "tag">> & { type?: string };
 

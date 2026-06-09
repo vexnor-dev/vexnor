@@ -1,3 +1,4 @@
+// noinspection SqlNoDataSourceInspection,SqlResolve
 import "vexnor-sqlite3";
 import { row, sql, param, col } from "vexnor";
 import { jsonOne } from "vexnor-sqlite3";

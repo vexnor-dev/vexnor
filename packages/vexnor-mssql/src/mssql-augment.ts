@@ -18,14 +18,18 @@ declare module "vexnor" {
    }
 }
 
-Object.defineProperty(SqlQuery.prototype, "mssql", {
-   get: function () {
-      return newSqlQueryHandler(new MssqlQueryHandler(this));
-   },
-});
+if (!Object.hasOwn(SqlQuery.prototype, "mssql")) {
+   Object.defineProperty(SqlQuery.prototype, "mssql", {
+      get: function () {
+         return newSqlQueryHandler(new MssqlQueryHandler(this));
+      },
+   });
+}
 
-Object.defineProperty(SqlTable.prototype, "mssql", {
-   get: function () {
-      return newMssqlTableHandler(this);
-   },
-});
+if (!Object.hasOwn(SqlTable.prototype, "mssql")) {
+   Object.defineProperty(SqlTable.prototype, "mssql", {
+      get: function () {
+         return newMssqlTableHandler(this);
+      },
+   });
+}

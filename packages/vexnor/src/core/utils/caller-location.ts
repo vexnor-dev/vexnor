@@ -17,8 +17,8 @@ function isInternalFrame(frame: string): boolean {
    return /\/vexnor\/(dist|src)\//.test(frame) || /\/@fs\/.*\/vexnor\/(dist|src)\//.test(frame);
 }
 
-export function parseCallerLocation(stack: string | undefined, internalUrl: string): string | null {
-   if (!stack) return null;
+export function parseCallerLocation(stack: string | undefined, internalUrl: string): { location: string | null; locationUrl: string | null } {
+   if (!stack) return { location: null, locationUrl: null };
    const internalPath = stripFileUrl(internalUrl);
    const parts = internalPath.split("/");
    const srcOrDistIndex = Math.max(parts.lastIndexOf("src"), parts.lastIndexOf("dist"));
@@ -33,14 +33,25 @@ export function parseCallerLocation(stack: string | undefined, internalUrl: stri
    // Bottom-up: finds the outermost user call site (best for browser/lazy construction)
    // Fall back to top-down: finds the innermost user call site (best for server module load)
    const caller = [...frames].reverse().find(isUserFrame) ?? frames.find(isUserFrame);
-   if (!caller) return null;
+   if (!caller) return { location: null, locationUrl: null };
    const match = caller.match(/\((.+)\)$/) ?? caller.match(/at (.+)$/);
-   const location = match?.[1]?.trim() ?? null;
-   if (!location) return null;
-   if (location.startsWith(packageRoot)) return location.slice(packageRoot.length);
-   const httpOriginMatch = location.match(/^https?:\/\/[^/]+(\/.*)/s);
-   const resolved = httpOriginMatch ? stripViteFs(httpOriginMatch[1]!) : stripViteFs(location);
-   return resolved.startsWith(packageRoot) ? resolved.slice(packageRoot.length) : resolved;
+   const rawLocation = match?.[1]?.trim() ?? null;
+   if (!rawLocation) return { location: null, locationUrl: null };
+   // Resolve the URL for getQueryName:
+   // - Browser: keep the original http:// URL (Vite can import it), strip line/col
+   // - Node: convert absolute path to file:// URL, strip line/col
+   let locationUrl: string | null;
+   const httpOriginMatch = rawLocation.match(/^(https?:\/\/[^/]+\/[^:?]+)/s);
+   if (httpOriginMatch) {
+      locationUrl = httpOriginMatch[1]!;
+   } else {
+      const absPath = stripViteFs(rawLocation).replace(/:\d+:\d+$/, "");
+      locationUrl = absPath.startsWith("/") ? `file://${absPath}` : null;
+   }
+   const resolved = httpOriginMatch ? stripViteFs(rawLocation.replace(/^https?:\/\/[^/]+/, "")) : stripViteFs(rawLocation);
+   const resolvedNoLineCol = resolved.replace(/:\d+:\d+$/, "");
+   if (resolvedNoLineCol.startsWith(packageRoot)) return { location: resolved.slice(packageRoot.length), locationUrl };
+   return { location: resolved, locationUrl };
 }
 
 function stripViteFs(location: string): string {

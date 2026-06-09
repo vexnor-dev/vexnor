@@ -60,7 +60,7 @@ export function PostgresAccountsGrid({
 
    async function handleDelete(accountId: string) {
       const email = accounts.find((a) => a.accountId === accountId)?.email ?? accountId;
-      const { rowCount } = await deleteAccount.postgres.run({ db: remoteClient, params: { accountId } });
+      const { rowCount } = await deleteAccount.run({ db: remoteClient, params: { accountId } });
       setAlert(`Account ${email} deleted.`);
       refetch(params);
       return {
@@ -96,7 +96,13 @@ export function PostgresAccountsGrid({
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
                >
-                  <path d="M3 5L7 9L11 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  <path
+                     d="M3 5L7 9L11 5"
+                     stroke="currentColor"
+                     strokeWidth="1.5"
+                     strokeLinecap="round"
+                     strokeLinejoin="round"
+                  />
                </svg>
             </div>
          </div>

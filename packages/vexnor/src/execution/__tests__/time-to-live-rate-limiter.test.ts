@@ -2,26 +2,30 @@ import { describe, expect, test, vi } from "vitest";
 import { TimeToLiveRateLimiter } from "#/execution/time-to-live-rate-limiter.js";
 import { SqlRunError } from "#/core/sql-run-error.js";
 import { SqlErrorCode } from "#/core/sql-error-code.js";
-import type { ExecutionArgs, AfterArgs } from "#/execution/sql-query-execution-plugin.js";
+import type { SqlPipelineExecutionArgs, SqlPipelineAfterArgs } from "#/execution/sql-query-pipeline-plugin.js";
 
 // ── minimal stubs ─────────────────────────────────────────────────────────────
 
-const stubPlugin = {} as ExecutionArgs["plugin"];
-const stubQuery = {} as ExecutionArgs["query"];
+const stubPlugin = {} as SqlPipelineExecutionArgs["plugin"];
+const stubQueryA = { id: "query-a" } as SqlPipelineExecutionArgs["query"];
+const stubQueryB = { id: "query-b" } as SqlPipelineExecutionArgs["query"];
+const stubQuery = stubQueryA;
 
 type Ctx = { userId: string };
 
-function execArgs(overrides: Partial<ExecutionArgs> = {}): ExecutionArgs {
+function execArgs(overrides: Partial<SqlPipelineExecutionArgs> = {}): SqlPipelineExecutionArgs {
    return {
       plugin: stubPlugin,
       name: "findAccounts",
       query: stubQuery,
-      input: {
+      mode: "read",
+      remote: {
          plugin: stubPlugin.name,
          hash: "hash-a",
          location: null,
          params: {},
          mode: "read",
+         name: "testQuery",
       },
       params: {},
       context: {},
@@ -29,17 +33,22 @@ function execArgs(overrides: Partial<ExecutionArgs> = {}): ExecutionArgs {
    };
 }
 
-function ctxArgs(userId: string, overrides: Partial<ExecutionArgs<Ctx>> = {}): ExecutionArgs<Ctx> {
+function ctxArgs(
+   userId: string,
+   overrides: Partial<SqlPipelineExecutionArgs<Ctx>> = {},
+): SqlPipelineExecutionArgs<Ctx> {
    return {
       plugin: stubPlugin,
       query: stubQuery,
       name: "findAccounts",
-      input: {
+      mode: "read",
+      remote: {
          plugin: stubPlugin.name,
          hash: "hash-a",
          location: null,
          params: {},
          mode: "read",
+         name: "testQuery",
       },
       params: {},
       context: { userId },
@@ -47,11 +56,11 @@ function ctxArgs(userId: string, overrides: Partial<ExecutionArgs<Ctx>> = {}): E
    };
 }
 
-function afterArgs(overrides: Partial<AfterArgs> = {}): AfterArgs {
+function afterArgs(overrides: Partial<SqlPipelineAfterArgs> = {}): SqlPipelineAfterArgs {
    return { ...execArgs(), durationMs: 10, error: null, ...overrides };
 }
 
-function ctxAfterArgs(userId: string, overrides: Partial<AfterArgs<Ctx>> = {}): AfterArgs<Ctx> {
+function ctxAfterArgs(userId: string, overrides: Partial<SqlPipelineAfterArgs<Ctx>> = {}): SqlPipelineAfterArgs<Ctx> {
    return { ...ctxArgs(userId), durationMs: 10, error: null, ...overrides };
 }
 
@@ -62,7 +71,7 @@ describe("TimeToLiveRateLimiter — metrics tracking", () => {
       const limiter = new TimeToLiveRateLimiter();
       await limiter.check(execArgs());
 
-      expect(limiter.metrics.get("hash-a")).toMatchInlineSnapshot(`
+      expect(limiter.metrics.get("query-a")).toMatchInlineSnapshot(`
         {
           "avgDurationMs": 0,
           "inFlight": 1,
@@ -77,7 +86,7 @@ describe("TimeToLiveRateLimiter — metrics tracking", () => {
       await limiter.check(execArgs());
       await limiter.after(afterArgs({ durationMs: 20 }));
 
-      expect(limiter.metrics.get("hash-a")).toMatchInlineSnapshot(`
+      expect(limiter.metrics.get("query-a")).toMatchInlineSnapshot(`
         {
           "avgDurationMs": 20,
           "inFlight": 0,
@@ -94,7 +103,7 @@ describe("TimeToLiveRateLimiter — metrics tracking", () => {
       await limiter.after(afterArgs({ durationMs: 10 }));
       await limiter.after(afterArgs({ durationMs: 30 }));
 
-      const m = limiter.metrics.get("hash-a")!;
+      const m = limiter.metrics.get("query-a")!;
       expect(m.avgDurationMs).toBe(20);
       expect(m.totalCalls).toBe(2);
       expect(m.inFlight).toBe(0);
@@ -105,29 +114,27 @@ describe("TimeToLiveRateLimiter — metrics tracking", () => {
       await limiter.check(execArgs());
       await limiter.after(afterArgs({ error: new Error("oops") }));
 
-      expect(limiter.metrics.get("hash-a")!.totalErrors).toBe(1);
+      expect(limiter.metrics.get("query-a")!.totalErrors).toBe(1);
    });
 
    test("after() is a no-op when hash is unknown", () => {
       const limiter = new TimeToLiveRateLimiter();
       expect(() =>
-         limiter.after(afterArgs({ input: { plugin: "", hash: "unknown", location: null, params: {}, mode: "read" } })),
+         limiter.after(
+            afterArgs({
+               query: { id: "unknown" } as SqlPipelineExecutionArgs["query"],
+            }),
+         ),
       ).not.toThrow();
    });
 
-   test("tracks separate metrics per query hash", async () => {
+   test("tracks separate metrics per query id", async () => {
       const limiter = new TimeToLiveRateLimiter();
-      await limiter.check(
-         execArgs({ input: { plugin: "", hash: "hash-a", location: null, params: {}, mode: "read" } }),
-      );
-      await limiter.check(
-         execArgs({ input: { plugin: "", hash: "hash-b", location: null, params: {}, mode: "read" } }),
-      );
-      limiter.after(
-         afterArgs({ input: { plugin: "", hash: "hash-a", location: null, params: {}, mode: "read" }, durationMs: 5 }),
-      );
+      await limiter.check(execArgs());
+      await limiter.check(execArgs({ query: stubQueryB }));
+      limiter.after(afterArgs({ durationMs: 5 }));
 
-      expect(limiter.metrics.get("hash-a")).toMatchInlineSnapshot(`
+      expect(limiter.metrics.get("query-a")).toMatchInlineSnapshot(`
         {
           "avgDurationMs": 5,
           "inFlight": 0,
@@ -135,7 +142,7 @@ describe("TimeToLiveRateLimiter — metrics tracking", () => {
           "totalErrors": 0,
         }
       `);
-      expect(limiter.metrics.get("hash-b")).toMatchInlineSnapshot(`
+      expect(limiter.metrics.get("query-b")).toMatchInlineSnapshot(`
         {
           "avgDurationMs": 0,
           "inFlight": 1,
@@ -155,7 +162,7 @@ describe("TimeToLiveRateLimiter — context metrics", () => {
       await limiter.check(ctxArgs("u1"));
       await limiter.after(ctxAfterArgs("u1", { durationMs: 15 }));
 
-      const cm = limiter.contextMetrics.get("hash-a")?.get("u1");
+      const cm = limiter.contextMetrics.get("query-a")?.get("u1");
       expect(cm?.lastActivityAt).toEqual(expect.any(Number));
       expect({ ...cm, lastActivityAt: 0 }).toMatchInlineSnapshot(`
         {
@@ -184,8 +191,8 @@ describe("TimeToLiveRateLimiter — context metrics", () => {
       await limiter.after(ctxAfterArgs("u1", { durationMs: 10 }));
       await limiter.after(ctxAfterArgs("u2", { durationMs: 20 }));
 
-      expect(limiter.contextMetrics.get("hash-a")?.get("u1")?.avgDurationMs).toBe(10);
-      expect(limiter.contextMetrics.get("hash-a")?.get("u2")?.avgDurationMs).toBe(20);
+      expect(limiter.contextMetrics.get("query-a")?.get("u1")?.avgDurationMs).toBe(10);
+      expect(limiter.contextMetrics.get("query-a")?.get("u2")?.avgDurationMs).toBe(20);
    });
 });
 
@@ -316,8 +323,8 @@ describe("TimeToLiveRateLimiter — TTL sweep", () => {
 
       await limiter.check(ctxArgs("u2"));
 
-      expect(limiter.contextMetrics.get("hash-a")?.has("u1")).toBe(false);
-      expect(limiter.contextMetrics.get("hash-a")?.has("u2")).toBe(true);
+      expect(limiter.contextMetrics.get("query-a")?.has("u1")).toBe(false);
+      expect(limiter.contextMetrics.get("query-a")?.has("u2")).toBe(true);
    });
 
    test("in-flight context entries are not evicted by sweep", async () => {
@@ -334,7 +341,7 @@ describe("TimeToLiveRateLimiter — TTL sweep", () => {
 
       await limiter.check(ctxArgs("u2"));
 
-      expect(limiter.contextMetrics.get("hash-a")?.has("u1")).toBe(true);
+      expect(limiter.contextMetrics.get("query-a")?.has("u1")).toBe(true);
    });
 });
 
@@ -344,29 +351,25 @@ describe("TimeToLiveRateLimiter — clearContextMetrics", () => {
    test("clearContextMetrics() with no arg clears all context entries", async () => {
       const limiter = new TimeToLiveRateLimiter<Ctx>({ contextKeyResolver: (ctx) => ctx.userId });
       await limiter.check(ctxArgs("u1"));
-      await limiter.check(
-         ctxArgs("u1", { input: { plugin: "", hash: "hash-b", location: null, params: {}, mode: "read" } }),
-      );
+      await limiter.check(ctxArgs("u1", { query: stubQueryB }));
 
       limiter.clearContextMetrics();
 
-      expect(limiter.contextMetrics.get("hash-a")?.size ?? 0).toBe(0);
-      expect(limiter.contextMetrics.get("hash-b")?.size ?? 0).toBe(0);
+      expect(limiter.contextMetrics.get("query-a")?.size ?? 0).toBe(0);
+      expect(limiter.contextMetrics.get("query-b")?.size ?? 0).toBe(0);
    });
 
    test("clearContextMetrics(key) removes only that key across all hashes", async () => {
       const limiter = new TimeToLiveRateLimiter<Ctx>({ contextKeyResolver: (ctx) => ctx.userId });
       await limiter.check(ctxArgs("u1"));
-      await limiter.check(
-         ctxArgs("u1", { input: { plugin: "", hash: "hash-b", location: null, params: {}, mode: "read" } }),
-      );
+      await limiter.check(ctxArgs("u1", { query: stubQueryB }));
       await limiter.check(ctxArgs("u2"));
 
       limiter.clearContextMetrics("u1");
 
-      expect(limiter.contextMetrics.get("hash-a")?.has("u1")).toBe(false);
-      expect(limiter.contextMetrics.get("hash-b")?.has("u1")).toBe(false);
-      expect(limiter.contextMetrics.get("hash-a")?.has("u2")).toBe(true);
+      expect(limiter.contextMetrics.get("query-a")?.has("u1")).toBe(false);
+      expect(limiter.contextMetrics.get("query-b")?.has("u1")).toBe(false);
+      expect(limiter.contextMetrics.get("query-a")?.has("u2")).toBe(true);
    });
 });
 

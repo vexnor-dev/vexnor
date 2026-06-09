@@ -5,22 +5,29 @@ import { SqlRunError } from "#/core/sql-run-error.js";
 SqlQueryRegistry.prototype.registerOpenTelemetry = function (tracer: Tracer): void {
    this.use({
       name: "opentelemetry",
-      after({ query, name, input, plugin, durationMs, error }) {
+      after({ query, plugin, remote, name, durationMs, error, mode }) {
          const span = tracer.startSpan(`db.query ${name}`, {
             startTime: Date.now() - durationMs,
          });
 
          span.setAttributes({
             "db.system": plugin.driver,
-            "db.operation.name": name ?? query.label ?? query.id,
+            "db.operation.name": name,
+            "db.operation.mode": mode,
             "vexnor.query.id": query.id,
-            "vexnor.query.location": query?.location ? query.location.replace(process.cwd() + "/", "") : "",
+            "vexnor.query.name": name,
+            "vexnor.query.location": query?.location ?? "-",
             "vexnor.plugin": plugin.name,
-            "vexnor.input.plugin": input.plugin,
-            "vexnor.input.hash": input.hash,
-            "vexnor.input.location": input.location ?? "",
-            "vexnor.input.mode": input.mode,
          });
+
+         if (remote) {
+            span.setAttributes({
+               "vexnor.remote.plugin": remote.plugin,
+               "vexnor.remote.hash": remote.hash,
+               "vexnor.remote.location": remote.location ?? "-",
+               "vexnor.remote.mode": remote.mode,
+            });
+         }
 
          switch (true) {
             case error instanceof SqlRunError:

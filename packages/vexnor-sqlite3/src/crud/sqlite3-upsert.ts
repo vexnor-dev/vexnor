@@ -1,3 +1,4 @@
+// noinspection SqlNoDataSourceInspection,SqlResolve
 import {
    Sql,
    SqlTable,
@@ -14,6 +15,7 @@ import {
 } from "vexnor";
 import { SqlInsertRowsParams } from "vexnor";
 import { BetterSqlite3QueryHandler } from "#/better-sqlite3-query-handler.js";
+import "#/sqlite3-augment.js";
 
 /**
  * Arguments for an upsert (INSERT ... ON CONFLICT DO UPDATE) operation.

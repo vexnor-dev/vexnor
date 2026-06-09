@@ -69,6 +69,8 @@ export async function execCommand(queryName: string, options: ExecOptions): Prom
       switch (true) {
          case querySettings.query instanceof SqlQuery:
             return querySettings.query;
+         case querySettings.query instanceof SqlQueryHandler:
+            return querySettings.query.source;
          default:
             throw new SqlExecError(`Unknown query type in config: ${querySettings.query}`);
       }

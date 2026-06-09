@@ -16,3 +16,5 @@ export { transaction, savepoint } from "#/sqlite3-transaction.js";
 export type { Sqlite3TransactionOptions, Sqlite3TransactionBehavior } from "#/sqlite3-transaction.js";
 
 export default new VexnorSqlite3();
+
+import "#/sqlite3-augment.js";

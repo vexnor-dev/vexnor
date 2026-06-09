@@ -5,7 +5,7 @@ import { CreateAccountForm } from "@/app/components/create-account-form";
 
 async function createAccountAction(email: string, firstName: string, lastName: string) {
    "use server";
-   await insertAccount.postgres.run({ db: pgPool, params: { rows: [{ email, firstName, lastName }] } });
+   await insertAccount.run({ db: pgPool, params: { rows: [{ email, firstName, lastName }] } });
 }
 
 export default async function PostgresAccountsPage({
@@ -14,7 +14,9 @@ export default async function PostgresAccountsPage({
    searchParams: Promise<Record<string, string | undefined>>;
 }) {
    const sp = await searchParams;
-   const params = getSelectAccountParams({ searchParams: new URLSearchParams(Object.entries(sp).filter(([, v]) => v != null) as [string, string][]) });
+   const params = getSelectAccountParams({
+      searchParams: new URLSearchParams(Object.entries(sp).filter(([, v]) => v != null) as [string, string][]),
+   });
    const initialAccounts = await selectAccounts.postgres.all({ db: pgPool, params });
 
    return (

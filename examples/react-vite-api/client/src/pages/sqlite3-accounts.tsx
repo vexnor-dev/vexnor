@@ -22,17 +22,17 @@ export default function Sqlite3AccountsPage() {
       Promise.resolve([]),
    );
    const [ordersPromise] = useState<Promise<(typeof selectMyOrders.rowType)[]>>(() =>
-      selectMyOrders.sqlite.all({ db: remoteClient, params: { userId: contextValue } }),
+      selectMyOrders.all({ db: remoteClient, params: { userId: contextValue } }),
    );
 
    useEffect(() => {
       if (tab === "accounts") {
-         setAccountsPromise(selectAccounts.sqlite.all({ db: remoteClient, params: { filter } }));
+         setAccountsPromise(selectAccounts.all({ db: remoteClient, params: { filter } }));
       }
    }, [tab, filter]);
 
    function refresh() {
-      setAccountsPromise(selectAccounts.sqlite.all({ db: remoteClient, params: { filter } }));
+      setAccountsPromise(selectAccounts.all({ db: remoteClient, params: { filter } }));
    }
 
    return (
@@ -61,7 +61,7 @@ export default function Sqlite3AccountsPage() {
             <>
                <CreateAccountForm
                   onCreated={(email, firstName, lastName) =>
-                     insertAccount.sqlite
+                     insertAccount
                         .run({ db: remoteClient, params: { rows: [{ email, firstName, lastName }] } })
                         .then(refresh)
                   }
@@ -71,7 +71,7 @@ export default function Sqlite3AccountsPage() {
                   <AccountGrid
                      promise={accountsPromise}
                      onRefresh={refresh}
-                     onDelete={(accountId) => deleteAccount.sqlite.run({ db: remoteClient, params: { accountId } })}
+                     onDelete={(accountId) => deleteAccount.run({ db: remoteClient, params: { accountId } })}
                   />
                </Suspense>
             </>

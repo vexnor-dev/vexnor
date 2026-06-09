@@ -1,3 +1,4 @@
+// noinspection SqlNoDataSourceInspection,SqlResolve
 import { beforeAll, describe, expect, test } from "vitest";
 import { info, param, row, type RemoteClient } from "vexnor";
 import { SqlQueryRegistry } from "vexnor/execution";
@@ -116,7 +117,7 @@ describe.sequential("postgres remote execution", () => {
             returning ${row(Account.$$)}
       `.one({ db: pool });
 
-      const result = await deleteAccount.postgres.run({
+      const result = await deleteAccount.run({
          db: remoteClient,
          params: { accountId: tempAccount.accountId },
       });

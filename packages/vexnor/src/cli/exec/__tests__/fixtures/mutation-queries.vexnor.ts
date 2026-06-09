@@ -1,3 +1,4 @@
+// noinspection SqlNoDataSourceInspection,SqlResolve
 import { MockPlugin, type MockConnection } from "#/test/mock-plugin.js";
 import { defineQueryConfig } from "#/config/define-query-config.js";
 import { sql } from "#/test/mock-sql.js";
@@ -15,17 +16,17 @@ export default defineQueryConfig({ insertQuery, deleteQuery, dropQuery })({
       insertQuery: {
          profile: "testdb",
          plugin: testPlugin,
-         params: {},
+         params: void 0,
       },
       deleteQuery: {
          profile: "testdb",
          plugin: testPlugin,
-         params: {},
+         params: void 0,
       },
       dropQuery: {
          profile: "testdb",
          plugin: testPlugin,
-         params: {},
+         params: void 0,
       },
    },
 });

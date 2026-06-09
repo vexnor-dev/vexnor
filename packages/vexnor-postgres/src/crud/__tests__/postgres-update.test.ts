@@ -1,3 +1,4 @@
+// noinspection SqlNoDataSourceInspection,SqlResolve
 import { describe, expect, test } from "vitest";
 import { Account } from "vexnor/testing";
 import { sql, input } from "vexnor";
@@ -7,7 +8,10 @@ import { defaultQueryOptions } from "#/default-query-options.js";
 describe("postgresUpdate()", () => {
    test("basic update", () => {
       const query = postgresUpdate(Account, {});
-      const { text, values } = query.getSql({ params: { set: { email: "new@b.com" } }, options: defaultQueryOptions });
+      const { text, values } = query.source.getSql({
+         params: { set: { email: "new@b.com" } },
+         options: defaultQueryOptions,
+      });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         /* driver: postgres */
@@ -32,8 +36,8 @@ describe("postgresUpdate()", () => {
 
    test("with WHERE", () => {
       const params = input<{ id: string }>();
-      const query = postgresUpdate(Account, { WHERE: sql`${Account.$accountId} = ${params.$id}` });
-      const { text } = query.getSql({
+      const update = postgresUpdate(Account, { WHERE: sql`${Account.$accountId} = ${params.$id}` });
+      const { text } = update.source.getSql({
          params: { set: { email: "new@b.com" }, id: "test-id" },
          options: defaultQueryOptions,
       });
@@ -62,9 +66,9 @@ describe("postgresUpdate()", () => {
    });
 
    test("has $$ and row", () => {
-      const query = postgresUpdate(Account, {});
-      expect(query.$$).toBeDefined();
-      expect(query.row).toBeDefined();
-      expect(query.row.$accountId).toBeDefined();
+      const update = postgresUpdate(Account, {});
+      expect(update.source.$$).toBeDefined();
+      expect(update.source.row).toBeDefined();
+      expect(update.source.row.$accountId).toBeDefined();
    });
 });

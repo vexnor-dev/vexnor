@@ -55,10 +55,11 @@ describe("SqlQueryPipeline via connect() — authorization", () => {
       expect(hook).toHaveBeenCalledOnce();
       expect(hook).toHaveBeenCalledWith(
          expect.objectContaining({
-            query: handler,
+            query: handler.source,
             context: { userId: "u1" },
             params: { userId: "u1" },
             plugin: expect.objectContaining({ name: "mock" }),
+            name: findAccountsByOwner.id,
          }),
       );
    });
@@ -102,7 +103,7 @@ describe("SqlQueryPipeline via connect() — authorization", () => {
             params: { userId: "u1" },
          }),
       ).rejects.toMatchInlineSnapshot(
-         `[SqlRunError: Query "MockQueryHandler#1" requires authorization (tag: "admin") but no authorize hook is registered]`,
+         `[SqlRunError: Query "SqlQuery#1" requires authorization (tag: "admin") but no authorize hook is registered]`,
       );
    });
 
@@ -189,9 +190,9 @@ describe("SqlQueryPipeline via connect() — rate limiting", () => {
       });
       await Promise.resolve();
 
-      const hash = await findAccountsByOwner.hash;
-      expect(limiter.metrics.get(hash)?.totalCalls).toBe(1);
-      expect(limiter.metrics.get(hash)?.inFlight).toBe(0);
+      const id = findAccountsByOwner.id;
+      expect(limiter.metrics.get(id)?.totalCalls).toBe(1);
+      expect(limiter.metrics.get(id)?.inFlight).toBe(0);
    });
 });
 

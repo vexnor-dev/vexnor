@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 async function deleteAccountAction(accountId: string) {
    "use server";
    const pool = await getMssqlPool();
-   const { rowsAffected } = await deleteAccount.mssql.run({ db: pool.request(), params: { accountId } });
+   const { rowsAffected } = await deleteAccount.run({ db: pool.request(), params: { accountId } });
    return {
       deleted: Boolean(rowsAffected.length && rowsAffected[0] === 1),
       refresh: true,
@@ -19,7 +19,7 @@ async function deleteAccountAction(accountId: string) {
 async function createAccountAction(email: string, firstName: string, lastName: string) {
    "use server";
    const pool = await getMssqlPool();
-   await insertAccount.mssql.run({ db: pool.request(), params: { rows: [{ email, firstName, lastName }] } });
+   await insertAccount.run({ db: pool.request(), params: { rows: [{ email, firstName, lastName }] } });
 }
 
 export default async function MssqlAccountsPage({ searchParams }: { searchParams: Promise<{ filter?: string }> }) {

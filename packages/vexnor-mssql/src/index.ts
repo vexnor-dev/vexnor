@@ -13,3 +13,4 @@ export { transaction, savepoint } from "#/mssql-transaction.js";
 export type { MssqlTransactionOptions, MssqlIsolationLevel } from "#/mssql-transaction.js";
 
 export default vexnorMssql;
+import "#/mssql-augment.js";

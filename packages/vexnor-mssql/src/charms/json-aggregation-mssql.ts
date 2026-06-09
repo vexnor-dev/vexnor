@@ -1,8 +1,10 @@
+// noinspection SqlNoDataSourceInspection,SqlResolve
 import {
    BuildSqlParams,
    CACHE,
    JsonRow,
    PARAMS,
+   SqlQueryBaseAny,
    quote,
    quoteText,
    raw,
@@ -14,7 +16,6 @@ import {
    SqlCharm,
    SqlJsonSchema,
    SqlQuery,
-   SqlQueryAny,
    SqlSelectCharm,
 } from "vexnor";
 import { ok } from "vexnor";
@@ -124,10 +125,10 @@ export class JsonAggregationMssql<
  * `.all({ db: request });
  * // result[0].parent: IAccountSelect | null
  */
-export function jsonOne<T extends SqlQueryAny>(query: T): JsonAggregationResult<T> {
-   return CACHE.get([query.id, `json=one`, "mssql"], () => {
-      ok(query.$$, `'query.$$' is required. check if the query does return a row.`);
-      const findOne = sql`select top 1 ${row(query.$$)} from ${query.inline()}`;
+export function jsonOne<T extends SqlQueryBaseAny>(query: T): JsonAggregationResult<T> {
+   return CACHE.get([query.source.id, `json=one`, "mssql"], () => {
+      ok(query.source.$$, `'query.$$' is required. check if the query does return a row.`);
+      const findOne = sql`select top 1 ${row(query.source.$$)} from ${query.source.inline()}`;
       return new JsonAggregationMssql(findOne, {
          type: "one",
       }) as JsonAggregationResult<T>;
@@ -156,11 +157,11 @@ export function jsonOne<T extends SqlQueryAny>(query: T): JsonAggregationResult<
  * `.all({ db: request });
  * // result[0].orders: IOrderSelect[]
  */
-export function jsonMany<T extends SqlQueryAny>(query: T): JsonAggregationResult<T, []> {
+export function jsonMany<T extends SqlQueryBaseAny>(query: T): JsonAggregationResult<T, []> {
    return CACHE.get(
-      [query.id, `json=many`, "mssql"],
+      [query.source.id, `json=many`, "mssql"],
       () =>
-         new JsonAggregationMssql(query, {
+         new JsonAggregationMssql(query.source, {
             type: "many",
          }),
    ) as JsonAggregationResult<T>;

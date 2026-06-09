@@ -2,6 +2,8 @@ import {
    BuildSqlParams,
    CACHE,
    info,
+   SqlQueryBase,
+   SqlQueryBaseAny,
    JsonRow,
    quote,
    quoteText,
@@ -14,7 +16,6 @@ import {
    SqlCharm,
    SqlJsonSchema,
    SqlQuery,
-   SqlQueryAny,
    SqlSelectCharm,
 } from "vexnor";
 import { ok } from "vexnor";
@@ -123,10 +124,10 @@ export class JsonAggregationPostgres<
  * `.all({ db: pool });
  * // result[0].parent: IAccountSelect | null
  */
-export function jsonOne<T extends SqlQueryAny>(query: T): JsonAggregationResult<T> {
-   return CACHE.get([query.id, `json=one`, "postgres"], () => {
-      ok(query.$$, `'query.$$' is required. check if the query does return a row.`);
-      const findOne = sql`select ${row(query.$$)} from ${query.inline()} limit 1`;
+export function jsonOne<T extends SqlQueryBaseAny>(query: T): JsonAggregationResult<T> {
+   return CACHE.get([query.source.id, `json=one`, "postgres"], () => {
+      ok(query.source.$$, `'query.$$' is required. check if the query does return a row.`);
+      const findOne = sql`select ${row(query.source.$$)} from ${query.source.inline()} limit 1`;
       return new JsonAggregationPostgres(findOne, {
          type: "one",
       }) as JsonAggregationResult<T>;
@@ -155,18 +156,18 @@ export function jsonOne<T extends SqlQueryAny>(query: T): JsonAggregationResult<
  * `.all({ db: pool });
  * // result[0].orders: IOrderSelect[]
  */
-export function jsonMany<T extends SqlQueryAny>(query: T): JsonAggregationResult<T, []> {
+export function jsonMany<T extends SqlQueryBaseAny>(query: T): JsonAggregationResult<T, []> {
    return CACHE.get(
-      [query.id, `json=many`, "postgres"],
+      [query.source.id, `json=many`, "postgres"],
       () =>
-         new JsonAggregationPostgres(query, {
+         new JsonAggregationPostgres(query.source, {
             type: "many",
          }),
    ) as JsonAggregationResult<T>;
 }
 
 export type JsonAggregationResult<T, R extends object | [] = object> =
-   T extends SqlQuery<infer O extends { Row?: unknown; Params?: unknown }>
+   T extends SqlQueryBase<infer O extends { Row?: unknown; Params?: unknown }>
       ? R extends []
          ? JsonAggregationPostgres<O & { Type: JsonRow<O["Row"]>[] }>
          : JsonAggregationPostgres<O & { Type: JsonRow<O["Row"]> | null }>

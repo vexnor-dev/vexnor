@@ -1,3 +1,4 @@
+// noinspection SqlNoDataSourceInspection,SqlResolve
 import { SqlQueryAny, SqlQueryExtended } from "#/core/query/sql-query.js";
 import { ParamsOfArgs } from "#/core/sql-base.js";
 import { SqlTable } from "#/core/schema/sql-table.js";

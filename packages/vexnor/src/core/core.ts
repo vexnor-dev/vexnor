@@ -13,7 +13,18 @@ export { Sql, type ParamsOf, type RowOf, type TypeOf, type ArgsOf, type ParamsOf
 export { SqlBuildError } from "./sql-build-error.js";
 
 // query
-export { SqlQuery, type SqlQueryAny, type SqlQueryExtended, type SqlQueryExtendedAny } from "./query/sql-query.js";
+export {
+   SqlQuery,
+   type SqlQueryAny,
+   type SqlQueryExtended,
+   type SqlQueryExtendedAny,
+   type SqlQueryBase,
+   type SqlQueryBaseAny,
+   type SqlQueryColumns,
+   type SqlQueryBaseExtended,
+   type SqlQueryBaseExtendedAny,
+} from "./query/sql-query.js";
+export { isQuery, toQuery } from "./query/sql-query.js";
 export { SqlQueryHandler, type SqlQueryHandlerAny, newSqlQueryHandler } from "./query/sql-query-handler.js";
 export { SqlQueryRef, type SqlQueryRefAny, type SqlQueryRefExtended } from "./query/sql-query-ref.js";
 export { ctx, param, SqlParam, type SqlParamAny } from "./query/sql-param.js";
@@ -115,4 +126,4 @@ export { SqlRunError, type SqlRunErrorOptions, type SqlRunQueryRef } from "./sql
 // CACHE
 export { CACHE } from "#/lib/cache.js";
 
-export type { SqlQueryColumns } from "#/core/query/sql-query.js";
+export { getQueryName } from "#/core/query/sql-query-name.js";

@@ -21,14 +21,27 @@ function makeDb(rows: unknown[] = [], capturedParams?: { sql: string; values: un
 
 function executeRegistry<TContext extends Record<string, unknown> = Record<string, unknown>>(
    registry: SqlQueryRegistry<TContext>,
-   plugin: string,
-   hash: string,
-   params: Record<string, unknown>,
-   resolver: ConnectionResolver,
-   context?: TContext,
-   mode: SqlExecuteMode = "read",
+   {
+      plugin,
+      hash,
+      params = {},
+      resolver,
+      context,
+      mode = "read",
+      name = null,
+      location = "test",
+   }: {
+      plugin: string;
+      hash: string;
+      params?: Record<string, unknown>;
+      resolver: ConnectionResolver;
+      context?: TContext;
+      mode?: SqlExecuteMode;
+      name?: string | null;
+      location?: string | null;
+   },
 ) {
-   return registry.execute({ plugin, hash, params, location: "test", mode }, resolver, context);
+   return registry.execute({ plugin, hash, params, location, mode, name }, resolver, context);
 }
 
 // ── tests ─────────────────────────────────────────────────────────────────────
@@ -177,7 +190,7 @@ describe("Context values", () => {
          const captured: { sql: string; values: unknown[] }[] = [];
          const hash = await q.hash;
 
-         await executeRegistry(registry, "mock", hash, {}, async () => makeDb([], captured), { userId: "u-abc" });
+         await executeRegistry(registry, { plugin: "mock", hash, resolver: async () => makeDb([], captured), context: { userId: "u-abc" } });
 
          expect(captured[0]!.values).toMatchInlineSnapshot(`
            [
@@ -199,9 +212,9 @@ describe("Context values", () => {
          const captured: { sql: string; values: unknown[] }[] = [];
          const hash = await q.hash;
 
-         await executeRegistry(registry, "mock", hash, { email: "a@b.com" }, async () => makeDb([], captured), {
+         await executeRegistry(registry, { plugin: "mock", hash, params: { email: "a@b.com" }, resolver: async () => makeDb([], captured), context: {
             userId: "u-abc",
-         });
+         } });
 
          expect(captured[0]!.values).toMatchInlineSnapshot(`
            [
@@ -226,11 +239,7 @@ describe("Context values", () => {
 
          await executeRegistry(
             registry,
-            "mock",
-            hash,
-            { email: "jane@example.com" },
-            async () => makeDb([], captured),
-            { userId: "u-xyz" },
+            { plugin: "mock", hash, params: { email: "jane@example.com" }, resolver: async () => makeDb([], captured), context: { userId: "u-xyz" } },
          );
 
          expect(captured[0]!.values).toMatchInlineSnapshot(`
@@ -254,7 +263,7 @@ describe("Context values", () => {
          const hash = await q.hash;
 
          await expect(
-            executeRegistry(registry, "mock", hash, {}, async () => makeDb([]), { userId: "" }),
+            executeRegistry(registry, { plugin: "mock", hash, resolver: async () => makeDb([]), context: { userId: "" } }),
          ).rejects.toThrow("Invalid param 'userId'");
       });
    });

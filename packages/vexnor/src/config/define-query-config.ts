@@ -1,7 +1,7 @@
 import { QuerySettings, QueryDefaults } from "#/config/config-types.js";
-import { SqlQueryAny } from "#/core/query/sql-query.js";
+import { SqlQueryBaseAny } from "#/core/query/sql-query.js";
 
-export type QueryConfigResult<TQueries extends Record<string, SqlQueryAny>> = <
+export type QueryConfigResult<TQueries extends Record<string, SqlQueryBaseAny>> = <
    TConfig extends {
       queries: { [K in keyof TQueries]: Omit<QuerySettings<TQueries[K]>, "query"> };
       defaults?: QueryDefaults;
@@ -10,7 +10,7 @@ export type QueryConfigResult<TQueries extends Record<string, SqlQueryAny>> = <
    config: TConfig,
 ) => { queries: { [K in keyof TQueries]: QuerySettings<TQueries[K]> }; defaults?: QueryDefaults };
 
-export function defineQueryConfig<TQueries extends Record<string, SqlQueryAny>>(
+export function defineQueryConfig<TQueries extends Record<string, SqlQueryBaseAny>>(
    queries: TQueries,
 ): QueryConfigResult<TQueries> {
    return (config) => {
@@ -30,7 +30,8 @@ export function defineQueryConfig<TQueries extends Record<string, SqlQueryAny>>(
       let result: Partial<{ [K in keyof TQueries]: QuerySettings<TQueries[K]> }> = {};
 
       for (const key of Object.keys(config.queries)) {
-         const query = queries[key]!;
+         const item = queries[key]!;
+         const query = item.source;
          const settings = config.queries[key]!;
          if (!settings.profile) {
             throw new Error(`Query '${key}' missing profile`);

@@ -1,3 +1,4 @@
+// noinspection SqlNoDataSourceInspection,SqlResolve
 import "vexnor-sqlite3";
 import { describe, expect, test } from "vitest";
 import { Account } from "vexnor/testing";
@@ -8,7 +9,7 @@ import { defaultQueryOptions } from "#/crud/default-query-options.js";
 describe("sqlite3Upsert()", () => {
    test("auto SET: generates col = EXCLUDED.col for all non-conflict columns", () => {
       const query = sqlite3Upsert(Account, { CONFLICT_ON: [Account.$accountId] });
-      const { text, values } = query.getSql({
+      const { text, values } = query.source.getSql({
          params: { rows: [{ accountId: "id-1", email: "a@b.com", firstName: "John", lastName: "Doe" }] },
          options: defaultQueryOptions,
       });
@@ -57,7 +58,7 @@ describe("sqlite3Upsert()", () => {
          CONFLICT_ON: [Account.$accountId],
          SET: sql`${Account.$firstName} = ${excluded(Account).$firstName}`,
       });
-      const { text, values } = query.getSql({
+      const { text, values } = query.source.getSql({
          params: { rows: [{ accountId: "id-1", email: "a@b.com", firstName: "John", lastName: "Doe" }] },
          options: defaultQueryOptions,
       });

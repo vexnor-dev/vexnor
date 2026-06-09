@@ -1,3 +1,4 @@
+// noinspection SqlNoDataSourceInspection,SqlResolve
 import { beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
 import { param, row } from "vexnor";
@@ -8,7 +9,6 @@ import { pool } from "./postgres-pool.js";
 import { TestDataManager } from "./test-data-manager.js";
 
 describe.sequential("vexnor postgres CRUD - select", async (ctx) => {
-
    let rootAccount!: IAccountSelect;
    let childAccount!: IAccountSelect;
    let order!: IOrderSelect;
@@ -36,12 +36,14 @@ describe.sequential("vexnor postgres CRUD - select", async (ctx) => {
    test("select: basic select with WHERE", async () => {
       ok(rootAccount, `'rootAccount' is required.`);
       const idParam = param<{ id: string }>("id");
-      const result = await Account.postgres.select({
-         WHERE: sql`${Account.$accountId} = ${idParam}`,
-      }).any({
-         db: pool,
-         params: { id: rootAccount.accountId },
-      });
+      const result = await Account.postgres
+         .select({
+            WHERE: sql`${Account.$accountId} = ${idParam}`,
+         })
+         .any({
+            db: pool,
+            params: { id: rootAccount.accountId },
+         });
       expect(result).toMatchObject(rootAccount);
    });
 
@@ -49,15 +51,17 @@ describe.sequential("vexnor postgres CRUD - select", async (ctx) => {
       ok(rootAccount, `'rootAccount' is required.`);
       const offsetParam = param<{ offset: number }>("offset");
       const limitParam = param<{ limit: number }>("limit");
-      const results = await Account.postgres.select({
-         WHERE: sql`${Account.$accountId} in (${[rootAccount.accountId, childAccount.accountId]})`,
-         ORDER_BY: sql`${Account.$email} asc`,
-         offset: offsetParam,
-         limit: limitParam,
-      }).all({
-         db: pool,
-         params: { offset: 0, limit: 1 },
-      });
+      const results = await Account.postgres
+         .select({
+            WHERE: sql`${Account.$accountId} in (${[rootAccount.accountId, childAccount.accountId]})`,
+            ORDER_BY: sql`${Account.$email} asc`,
+            offset: offsetParam,
+            limit: limitParam,
+         })
+         .all({
+            db: pool,
+            params: { offset: 0, limit: 1 },
+         });
       expect(results).toHaveLength(1);
    });
 
@@ -68,37 +72,43 @@ describe.sequential("vexnor postgres CRUD - select", async (ctx) => {
          where ${Account.as("children").$parentId} = ${Account.out.$accountId}
       `;
 
-      const results = await Account.postgres.select({
-         WHERE: sql`${Account.$accountId} = ${rootAccount.accountId}`,
-         includeMany: { children },
-      }).all({ db: pool });
+      const results = await Account.postgres
+         .select({
+            WHERE: sql`${Account.$accountId} = ${rootAccount.accountId}`,
+            includeMany: { children },
+         })
+         .all({ db: pool });
       expect(results).toHaveLength(1);
       expect(results[0]!.children).toHaveLength(1);
       expect(results[0]!.children[0]!.accountId).toBe(childAccount.accountId);
    });
 
    test("select: includeOne (firstOrder)", async () => {
-      const results = await Account.postgres.select({
-         WHERE: sql`${Account.$accountId} = ${rootAccount.accountId}`,
-         includeOne: {
-            firstOrder: Order.postgres.select({
-               WHERE: sql`${Order.$accountId} = ${Account.out.$accountId} AND ${Order.$orderId} = ${order.orderId}`,
-            }),
-         },
-      }).all({ db: pool });
+      const results = await Account.postgres
+         .select({
+            WHERE: sql`${Account.$accountId} = ${rootAccount.accountId}`,
+            includeOne: {
+               firstOrder: Order.postgres.select({
+                  WHERE: sql`${Order.$accountId} = ${Account.out.$accountId} AND ${Order.$orderId} = ${order.orderId}`,
+               }),
+            },
+         })
+         .all({ db: pool });
       expect(results).toHaveLength(1);
       expect(results[0]!.firstOrder?.orderId).toBe(order.orderId);
    });
 
    test("select: includeOne returns null when no match", async () => {
-      const results = await Account.postgres.select({
-         WHERE: sql`${Account.$accountId} = ${rootAccount.accountId}`,
-         includeOne: {
-            firstOrder: Order.postgres.select({
-               WHERE: sql`${Order.$accountId} = ${Account.out.$accountId} AND ${Order.$orderId} = ${crypto.randomUUID()}`,
-            }),
-         },
-      }).all({ db: pool });
+      const results = await Account.postgres
+         .select({
+            WHERE: sql`${Account.$accountId} = ${rootAccount.accountId}`,
+            includeOne: {
+               firstOrder: Order.postgres.select({
+                  WHERE: sql`${Order.$accountId} = ${Account.out.$accountId} AND ${Order.$orderId} = ${crypto.randomUUID()}`,
+               }),
+            },
+         })
+         .all({ db: pool });
       expect(results).toHaveLength(1);
       expect(results[0]!.firstOrder).toBeNull();
    });
@@ -110,10 +120,12 @@ describe.sequential("vexnor postgres CRUD - select", async (ctx) => {
          where ${Account.as("children").$parentId} = ${Account.out.$accountId}
       `;
 
-      const results = await Account.postgres.select({
-         WHERE: sql`${Account.$accountId} = ${childAccount.accountId}`,
-         includeMany: { children },
-      }).all({ db: pool });
+      const results = await Account.postgres
+         .select({
+            WHERE: sql`${Account.$accountId} = ${childAccount.accountId}`,
+            includeMany: { children },
+         })
+         .all({ db: pool });
       expect(results).toHaveLength(1);
       expect(results[0]!.children).toEqual([]);
    });
@@ -125,15 +137,17 @@ describe.sequential("vexnor postgres CRUD - select", async (ctx) => {
          where ${Account.as("children").$parentId} = ${Account.out.$accountId}
       `;
 
-      const results = await Account.postgres.select({
-         WHERE: sql`${Account.$accountId} = ${rootAccount.accountId}`,
-         includeMany: { children },
-         includeOne: {
-            firstOrder: Order.postgres.select({
-               WHERE: sql`${Order.$accountId} = ${Account.out.$accountId} AND ${Order.$orderId} = ${order.orderId}`,
-            }),
-         },
-      }).all({ db: pool });
+      const results = await Account.postgres
+         .select({
+            WHERE: sql`${Account.$accountId} = ${rootAccount.accountId}`,
+            includeMany: { children },
+            includeOne: {
+               firstOrder: Order.postgres.select({
+                  WHERE: sql`${Order.$accountId} = ${Account.out.$accountId} AND ${Order.$orderId} = ${order.orderId}`,
+               }),
+            },
+         })
+         .all({ db: pool });
       expect(results).toHaveLength(1);
       expect(results[0]!.children).toHaveLength(1);
       expect(results[0]!.children[0]!.accountId).toBe(childAccount.accountId);

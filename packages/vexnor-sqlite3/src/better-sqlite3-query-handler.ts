@@ -37,8 +37,8 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
 > {
    static Formatter = new Sqlite3Formatter();
 
-   constructor(readonly query: SqlQuery<Pick<T, "Row" | "Params">>) {
-      super(query, { pluginName: PLUGIN_NAME });
+   constructor(readonly source: SqlQuery<Pick<T, "Row" | "Params">>) {
+      super(source, { pluginName: PLUGIN_NAME });
    }
 
    // eslint-disable-next-line unused-imports/no-unused-vars
@@ -76,14 +76,14 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
             },
          };
 
-         const { values, text } = this.query.getSql(newArgs);
+         const { values, text } = this.source.getSql(newArgs);
          queryInput = {
             sql: text,
             values,
          };
          return queryInput;
       } catch (err) {
-         throw new SqlRunError(`Error building sqlite query '${this.query.id}'`, this.query, {
+         throw new SqlRunError(`Error building sqlite query '${this.source.id}'`, this.source, {
             cause: err,
             code: SqlErrorCode.QUERY_BUILD_FAILED,
          });
@@ -123,7 +123,7 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
 
          return Promise.resolve(statement.run(queryConfig.values));
       } catch (err) {
-         throw new SqlRunError(`Error running sqlite query '${this.query.id}'`, this.query, {
+         throw new SqlRunError(`Error running sqlite query '${this.source.id}'`, this.source, {
             cause: err,
             sql: queryConfig?.sql,
             code: isRetryableSqliteError(err)

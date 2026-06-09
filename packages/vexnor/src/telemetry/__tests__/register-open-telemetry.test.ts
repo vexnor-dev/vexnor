@@ -23,7 +23,7 @@ function executeRegistry(
    resolver: ConnectionResolver,
    mode: SqlExecuteMode = "read",
 ) {
-   return registry.execute({ plugin, hash, params, location: "test", mode }, resolver);
+   return registry.execute({ plugin, hash, params, location: "test", mode, name: null }, resolver);
 }
 
 // ── mock tracer ───────────────────────────────────────────────────────────────

@@ -9,6 +9,7 @@ import { connect } from "#/plugin/vexnor-connection.js";
 import { ok } from "node:assert";
 import { MockConnection } from "#/test/mock-plugin.js";
 import { mockHandler } from "#/test/mock-query-handler.js";
+import { SqlPipelineExecutionArgs } from "#/execution/sql-query-pipeline-plugin.js";
 
 type MockAccount = { accountId: string; email: string; firstName: string };
 
@@ -135,10 +136,12 @@ describe("SqlQueryHandler mock execution", () => {
          expect.objectContaining({
             plugin: { name: "mock" },
             name: expect.any(String),
-            query: handler,
+            query: handler.source,
             params: { email: "test@example.com", sinceAt: expect.any(Date) },
             context: { sinceAt: expect.any(Date) },
-         }),
+            mode: "read",
+            remote: null,
+         } satisfies SqlPipelineExecutionArgs<{ sinceAt: Date }>),
       );
       expect(after).toHaveBeenCalledWith(
          expect.objectContaining({

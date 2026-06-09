@@ -7,8 +7,8 @@ import { postgresInsertFrom } from "#/crud/postgres-insert-from.js";
 
 describe("postgresInsertRows()", () => {
    test("basic insert", () => {
-      const query = postgresInsertRows(Account);
-      const { text, values } = query.getSql({
+      const insertRows = postgresInsertRows(Account);
+      const { text, values } = insertRows.source.getSql({
          params: { rows: [{ email: "a@b.com", firstName: "John", lastName: "Doe" }] },
          options: defaultQueryOptions,
       });
@@ -36,8 +36,8 @@ describe("postgresInsertRows()", () => {
    });
 
    test("batch insert", () => {
-      const query = postgresInsertRows(Account);
-      const { text, values } = query.getSql({
+      const insertRows = postgresInsertRows(Account);
+      const { text, values } = insertRows.source.getSql({
          params: {
             rows: [
                { email: "a@b.com", firstName: "John", lastName: "Doe" },
@@ -71,11 +71,11 @@ describe("postgresInsertRows()", () => {
    });
 
    test("insert from subquery", () => {
-      const query = postgresInsertFrom(Account, {
+      const insertFrom = postgresInsertFrom(Account, {
          FROM: sql`select ${row(Account.$$)} from ${Account} where ${Account.$status} = 'active'`,
       });
 
-      const { text } = query.getSql({ options: defaultQueryOptions });
+      const { text } = insertFrom.source.getSql({ options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         /* driver: postgres */
@@ -111,9 +111,9 @@ describe("postgresInsertRows()", () => {
    });
 
    test("has $$ and row", () => {
-      const query = postgresInsertRows(Account);
-      expect(query.$$).toBeDefined();
-      expect(query.row).toBeDefined();
-      expect(query.row.$accountId).toBeDefined();
+      const insert = postgresInsertRows(Account);
+      expect(insert.source.$$).toBeDefined();
+      expect(insert.source.row).toBeDefined();
+      expect(insert.source.row.$accountId).toBeDefined();
    });
 });

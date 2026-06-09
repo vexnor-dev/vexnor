@@ -12,7 +12,7 @@ import { Order } from "@test-models/vexnor_dev.order-table.js";
 import { SqlRunError } from "#/core/sql-run-error.js";
 import { SqlErrorCode } from "#/core/sql-error-code.js";
 import { ok } from "node:assert";
-import { AfterArgs } from "#/execution/sql-query-execution-plugin.js";
+import { SqlPipelineAfterArgs } from "#/execution/sql-query-pipeline-plugin.js";
 import { MockConnection, MockPlugin } from "#/test/mock-plugin.js";
 
 // Two distinct plugins
@@ -37,14 +37,27 @@ function makeDb(rows: unknown[] = []): MockConnection {
 
 function executeRegistry<TContext extends Record<string, unknown> = Record<string, unknown>>(
    registry: SqlQueryRegistry<TContext>,
-   plugin: string,
-   hash: string,
-   params: Record<string, unknown>,
-   resolver: ConnectionResolver,
-   context?: TContext,
-   mode: SqlExecuteMode = "read",
+   {
+      plugin,
+      hash,
+      params = {},
+      resolver,
+      context,
+      mode = "read",
+      name = null,
+      location = "test",
+   }: {
+      plugin: string;
+      hash: string;
+      params?: Record<string, unknown>;
+      resolver: ConnectionResolver;
+      context?: TContext;
+      mode?: SqlExecuteMode;
+      name?: string | null;
+      location?: string;
+   },
 ) {
-   return registry.execute({ plugin, hash, params, location: "test", mode }, resolver, context);
+   return registry.execute({ plugin, hash, params, location, mode, name }, resolver, context);
 }
 
 // ── tests ────────────────────────────────────────────────────────────────────
@@ -58,12 +71,17 @@ describe("QueryRegistry", () => {
       const hashA = await findAccounts.hash;
       const hashB = await findOrders.hash;
 
-      const resultA = await executeRegistry(registry, "pluginA", hashA, { email: "a@b.com" }, async () =>
-         makeDb([{ accountId: "1", email: "a@b.com" }]),
-      );
-      const resultB = await executeRegistry(registry, "pluginB", hashB, {}, async () =>
-         makeDb([{ orderId: "o1", status: "pending" }]),
-      );
+      const resultA = await executeRegistry(registry, {
+         plugin: "pluginA",
+         hash: hashA,
+         params: { email: "a@b.com" },
+         resolver: async () => makeDb([{ accountId: "1", email: "a@b.com" }]),
+      });
+      const resultB = await executeRegistry(registry, {
+         plugin: "pluginB",
+         hash: hashB,
+         resolver: async () => makeDb([{ orderId: "o1", status: "pending" }]),
+      });
 
       expect(resultA).toMatchInlineSnapshot(`
         {
@@ -95,7 +113,12 @@ describe("QueryRegistry", () => {
       const hashA = await findAccounts.hash;
 
       await expect(
-         executeRegistry(registry, "pluginB", hashA, { email: "a@b.com" }, async () => makeDb()),
+         executeRegistry(registry, {
+            plugin: "pluginB",
+            hash: hashA,
+            params: { email: "a@b.com" },
+            resolver: async () => makeDb(),
+         }),
       ).rejects.toMatchInlineSnapshot(
          `[SqlError: Unknown query hash: 2ab5ce374f9cecb297f54776cc0b291d6437c554703f3c0a5ecf09782bec890c for plugin: pluginB]`,
       );
@@ -111,13 +134,20 @@ describe("QueryRegistry", () => {
       const hashA = await findAccounts.hash;
       const hashB = await findOrders.hash;
 
-      expect(await executeRegistry(registry, "pluginA", hashA, { email: "x@y.com" }, async () => makeDb([])))
-         .toMatchInlineSnapshot(`
+      expect(
+         await executeRegistry(registry, {
+            plugin: "pluginA",
+            hash: hashA,
+            params: { email: "x@y.com" },
+            resolver: async () => makeDb([]),
+         }),
+      ).toMatchInlineSnapshot(`
            {
              "rows": [],
            }
          `);
-      expect(await executeRegistry(registry, "pluginB", hashB, {}, async () => makeDb([]))).toMatchInlineSnapshot(`
+      expect(await executeRegistry(registry, { plugin: "pluginB", hash: hashB, resolver: async () => makeDb([]) }))
+         .toMatchInlineSnapshot(`
         {
           "rows": [],
         }
@@ -134,7 +164,12 @@ describe("QueryRegistry", () => {
       // Observable: re-registering with a different instance does not break execution
       const hash = await findAccounts.hash;
       await expect(
-         executeRegistry(registry, "pluginA", hash, { email: "a@b.com" }, async () => makeDb([{ accountId: "1" }])),
+         executeRegistry(registry, {
+            plugin: "pluginA",
+            hash,
+            params: { email: "a@b.com" },
+            resolver: async () => makeDb([{ accountId: "1" }]),
+         }),
       ).resolves.toBeDefined();
    });
 
@@ -144,7 +179,9 @@ describe("QueryRegistry", () => {
       await registry.register(pluginB, {});
 
       const hashA = await findAccounts.hash;
-      await expect(executeRegistry(registry, "pluginA", hashA, {}, async () => makeDb())).rejects.toMatchInlineSnapshot(
+      await expect(
+         executeRegistry(registry, { plugin: "pluginA", hash: hashA, resolver: async () => makeDb() }),
+      ).rejects.toMatchInlineSnapshot(
          `[SqlError: Unknown query hash: 2ab5ce374f9cecb297f54776cc0b291d6437c554703f3c0a5ecf09782bec890c for plugin: pluginA]`,
       );
    });
@@ -161,11 +198,22 @@ describe("QueryRegistry", () => {
 
       expect(h1).not.toBe(h2);
 
-      const r1 = await executeRegistry(registry, "pluginA", h1, { email: "a@b.com" }, async () =>
-         makeDb([{ accountId: "1" }]),
-      );
-      const r2 = await executeRegistry(registry, "pluginA", h2, {}, async () => makeDb([{ accountId: "2" }]));
-      const rB = await executeRegistry(registry, "pluginB", hB, {}, async () => makeDb([{ orderId: "o1" }]));
+      const r1 = await executeRegistry(registry, {
+         plugin: "pluginA",
+         hash: h1,
+         params: { email: "a@b.com" },
+         resolver: async () => makeDb([{ accountId: "1" }]),
+      });
+      const r2 = await executeRegistry(registry, {
+         plugin: "pluginA",
+         hash: h2,
+         resolver: async () => makeDb([{ accountId: "2" }]),
+      });
+      const rB = await executeRegistry(registry, {
+         plugin: "pluginB",
+         hash: hB,
+         resolver: async () => makeDb([{ orderId: "o1" }]),
+      });
 
       expect(r1).toMatchInlineSnapshot(`
         {
@@ -202,11 +250,11 @@ describe("QueryRegistry", () => {
       await registry.register(pluginB, { findOrders });
 
       await expect(
-         executeRegistry(registry, "pluginA", "deadbeef", {}, async () => makeDb()),
+         executeRegistry(registry, { plugin: "pluginA", hash: "deadbeef", resolver: async () => makeDb() }),
       ).rejects.toMatchInlineSnapshot(`[SqlError: Unknown query hash: deadbeef for plugin: pluginA]`);
 
       await expect(
-         executeRegistry(registry, "pluginB", "deadbeef", {}, async () => makeDb()),
+         executeRegistry(registry, { plugin: "pluginB", hash: "deadbeef", resolver: async () => makeDb() }),
       ).rejects.toMatchInlineSnapshot(`[SqlError: Unknown query hash: deadbeef for plugin: pluginB]`);
    });
 
@@ -214,7 +262,7 @@ describe("QueryRegistry", () => {
       const registry = new SqlQueryRegistry();
 
       await expect(
-         executeRegistry(registry, "ghost", "deadbeef", {}, async () => makeDb()),
+         executeRegistry(registry, { plugin: "ghost", hash: "deadbeef", resolver: async () => makeDb() }),
       ).rejects.toMatchInlineSnapshot(`[SqlError: Unknown query hash: deadbeef for plugin: ghost]`);
    });
 
@@ -226,12 +274,19 @@ describe("QueryRegistry", () => {
       // findAccounts is registered under pluginA, not pluginB
       const hash = await findAccounts.hash;
       await expect(
-         executeRegistry(registry, "pluginB", hash, { email: "a@b.com" }, async () => makeDb()),
+         executeRegistry(registry, {
+            plugin: "pluginB",
+            hash,
+            params: { email: "a@b.com" },
+            resolver: async () => makeDb(),
+         }),
       ).rejects.toThrow("Unknown query hash");
 
       // pluginB still works with its own hash
       const hashB = await findOrders.hash;
-      await expect(executeRegistry(registry, "pluginB", hashB, {}, async () => makeDb([]))).resolves.toBeDefined();
+      await expect(
+         executeRegistry(registry, { plugin: "pluginB", hash: hashB, resolver: async () => makeDb([]) }),
+      ).resolves.toBeDefined();
    });
 
    test("resolver is called with the correct plugin name for each plugin", async () => {
@@ -245,8 +300,13 @@ describe("QueryRegistry", () => {
       const hashA = await findAccounts.hash;
       const hashB = await findOrders.hash;
 
-      await executeRegistry(registry, "pluginA", hashA, { email: "z@z.com" }, resolverA);
-      await executeRegistry(registry, "pluginB", hashB, {}, resolverB);
+      await executeRegistry(registry, {
+         plugin: "pluginA",
+         hash: hashA,
+         params: { email: "z@z.com" },
+         resolver: resolverA,
+      });
+      await executeRegistry(registry, { plugin: "pluginB", hash: hashB, resolver: resolverB });
 
       expect(resolverA).toHaveBeenCalledOnce();
       expect(resolverA).toHaveBeenCalledWith(
@@ -266,19 +326,27 @@ describe("QueryRegistry", () => {
       registry.use(new AuditLogPlugin({ onLog }));
 
       const hash = await findAccounts.hash;
-      await executeRegistry(registry, "pluginA", hash, { email: "a@b.com" }, async () => makeDb([]));
+      await executeRegistry(registry, {
+         plugin: "pluginA",
+         hash,
+         params: { email: "a@b.com" },
+         resolver: async () => makeDb([]),
+         name: "findAccounts",
+      });
 
       expect(onLog).toHaveBeenCalledWith(
          expect.objectContaining({
             name: "findAccounts",
             query: findAccounts,
-            input: {
+            mode: "read",
+            remote: {
                hash,
                plugin: "pluginA",
                location: "test",
                params: { email: "a@b.com" },
                mode: "read",
-            } satisfies AfterArgs["input"],
+               name: "findAccounts",
+            } satisfies SqlPipelineAfterArgs["remote"],
          }),
       );
    });
@@ -387,11 +455,16 @@ describe("QueryRegistry", () => {
       await registry.register(pluginA, { findAccounts });
 
       const hash = await findAccounts.hash;
-      const err = await executeRegistry(registry, "pluginA", hash, { email: "x" }, async () => ({
-         query: async () => {
-            throw new Error("db failure");
-         },
-      })).catch((e: unknown) => e);
+      const err = await executeRegistry(registry, {
+         plugin: "pluginA",
+         hash,
+         params: { email: "x" },
+         resolver: async () => ({
+            query: async () => {
+               throw new Error("db failure");
+            },
+         }),
+      }).catch((e: unknown) => e);
 
       ok(err instanceof SqlRunError);
       expect(err.queryName).toBe("findAccounts");
@@ -407,7 +480,12 @@ describe("QueryRegistry", () => {
       registry.use(new AuditLogPlugin({ onLog }));
 
       const hash = await findAccounts.hash;
-      await executeRegistry(registry, "pluginA", hash, { email: "a@b.com" }, async () => makeDb([]));
+      await executeRegistry(registry, {
+         plugin: "pluginA",
+         hash,
+         params: { email: "a@b.com" },
+         resolver: async () => makeDb([]),
+      });
 
       expect(onLog).toHaveBeenCalledOnce();
       expect(onLog).toHaveBeenCalledWith(
@@ -431,11 +509,16 @@ describe("QueryRegistry", () => {
 
       const hash = await findAccounts.hash;
       await expect(
-         executeRegistry(registry, "pluginA", hash, { email: "a@b.com" }, async () => ({
-            query: async () => {
-               throw new Error("db failure");
-            },
-         })),
+         executeRegistry(registry, {
+            plugin: "pluginA",
+            hash,
+            params: { email: "a@b.com" },
+            resolver: async () => ({
+               query: async () => {
+                  throw new Error("db failure");
+               },
+            }),
+         }),
       ).rejects.toThrow();
 
       expect(onLog).toHaveBeenCalledOnce();
@@ -451,7 +534,12 @@ describe("QueryRegistry", () => {
       registry.use(new AuditLogPlugin({ name: "audit-2", onLog: () => order.push(2) }));
 
       const hash = await findAccounts.hash;
-      await executeRegistry(registry, "pluginA", hash, { email: "a@b.com" }, async () => makeDb([]));
+      await executeRegistry(registry, {
+         plugin: "pluginA",
+         hash,
+         params: { email: "a@b.com" },
+         resolver: async () => makeDb([]),
+      });
 
       expect(order).toEqual([1, 2]);
    });
@@ -469,7 +557,12 @@ describe("QueryRegistry", () => {
 
       const hash = await taggedQuery.hash;
       await expect(
-         executeRegistry(registry, "pluginA", hash, { email: "a@b.com" }, async () => makeDb([])),
+         executeRegistry(registry, {
+            plugin: "pluginA",
+            hash,
+            params: { email: "a@b.com" },
+            resolver: async () => makeDb([]),
+         }),
       ).rejects.toThrow("denied");
 
       expect(onLog).toHaveBeenCalledOnce();
@@ -487,14 +580,18 @@ describe("QueryRegistry", () => {
       registry.registerAuthorization(hook);
 
       const hash = await taggedQuery.hash;
-      await executeRegistry(registry, "pluginA", hash, { email: "a@b.com" }, async () => makeDb([]));
+      await executeRegistry(registry, {
+         plugin: "pluginA",
+         hash,
+         params: { email: "a@b.com" },
+         resolver: async () => makeDb([]),
+      });
 
       expect(hook).toHaveBeenCalledOnce();
       expect(hook).toHaveBeenCalledWith({
          plugin: pluginA,
          query: taggedQuery,
          name: "taggedQuery",
-         location: "test",
          params: { email: "a@b.com" },
          context: {},
       });
@@ -509,7 +606,12 @@ describe("QueryRegistry", () => {
       registry.registerAuthorization(hook);
 
       const hash = await findAccounts.hash;
-      await executeRegistry(registry, "pluginA", hash, { email: "a@b.com" }, async () => makeDb([]));
+      await executeRegistry(registry, {
+         plugin: "pluginA",
+         hash,
+         params: { email: "a@b.com" },
+         resolver: async () => makeDb([]),
+      });
 
       expect(hook).not.toHaveBeenCalled();
    });
@@ -527,7 +629,7 @@ describe("QueryRegistry", () => {
       const hash = await taggedQuery.hash;
 
       await expect(
-         executeRegistry(registry, "pluginA", hash, { email: "a@b.com" }, resolver),
+         executeRegistry(registry, { plugin: "pluginA", hash, params: { email: "a@b.com" }, resolver }),
       ).rejects.toMatchInlineSnapshot(
          `[SqlRunError: Authorization denied for query "taggedQuery". (Error: Forbidden: admin)]`,
       );
@@ -548,7 +650,12 @@ describe("QueryRegistry", () => {
       });
 
       const hash = await taggedQuery.hash;
-      await executeRegistry(registry, "pluginA", hash, { email: "a@b.com" }, async () => makeDb([]));
+      await executeRegistry(registry, {
+         plugin: "pluginA",
+         hash,
+         params: { email: "a@b.com" },
+         resolver: async () => makeDb([]),
+      });
 
       expect(order).toEqual([1, 2]);
    });
@@ -566,7 +673,12 @@ describe("QueryRegistry", () => {
 
       const hash = await taggedQuery.hash;
       await expect(
-         executeRegistry(registry, "pluginA", hash, { email: "a@b.com" }, async () => makeDb([])),
+         executeRegistry(registry, {
+            plugin: "pluginA",
+            hash,
+            params: { email: "a@b.com" },
+            resolver: async () => makeDb([]),
+         }),
       ).rejects.toMatchInlineSnapshot(`[SqlRunError: Authorization denied for query "taggedQuery". (Error: denied)]`);
       expect(hook2).not.toHaveBeenCalled();
    });
@@ -605,12 +717,13 @@ describe("QueryRegistry", () => {
 
    test("getExecutionParams extracts all required fields from a valid request object", () => {
       const registry = new SqlQueryRegistry();
-      const input = { plugin: "pluginA", hash: "abc", params: {}, location: "test", mode: "read" as const };
+      const input = { plugin: "pluginA", hash: "abc", params: {}, location: "test", mode: "read" as const, name: null };
       expect(registry.getExecutionParams(input)).toMatchInlineSnapshot(`
         {
           "hash": "abc",
           "location": "test",
           "mode": "read",
+          "name": null,
           "params": {},
           "plugin": "pluginA",
         }
@@ -626,13 +739,14 @@ describe("QueryRegistry", () => {
 
    test("getExecutionParams throws QUERY_PARAMETERS_INVALID when a required key is missing", () => {
       const registry = new SqlQueryRegistry();
-      expect(() => registry.getExecutionParams({ hash: "abc", params: {}, location: "test", mode: "read" })).toThrow(
-         "Missing required parameter in request: plugin",
-      );
       expect(() =>
-         registry.getExecutionParams({ plugin: "pluginA", params: {}, location: "test", mode: "read" }),
+         registry.getExecutionParams({ hash: "abc", params: {}, location: "test", mode: "read", name: null }),
+      ).toThrow("Missing required parameter in request: plugin");
+      expect(() =>
+         registry.getExecutionParams({ plugin: "pluginA", params: {}, location: "test", mode: "read", name: null }),
       ).toThrow("Missing required parameter in request: hash");
    });
+
    test("execute throws when tagged query has no authorize hook registered", async () => {
       const taggedQuery = findAccounts.authorize("admin");
       const registry = new SqlQueryRegistry();
@@ -640,7 +754,12 @@ describe("QueryRegistry", () => {
 
       const hash = await taggedQuery.hash;
       await expect(
-         executeRegistry(registry, "pluginA", hash, { email: "a@b.com" }, async () => makeDb([])),
+         executeRegistry(registry, {
+            plugin: "pluginA",
+            hash,
+            params: { email: "a@b.com" },
+            resolver: async () => makeDb([]),
+         }),
       ).rejects.toMatchInlineSnapshot(
          `[SqlRunError: Query "taggedQuery" requires authorization (tag: "admin") but no authorize hook is registered]`,
       );
@@ -660,15 +779,23 @@ describe("QueryRegistry", () => {
          unblock = () => resolve(makeDb([]));
       });
 
-      const first = executeRegistry(registry, "pluginA", hash, { email: "a@b.com" }, async () => blocker);
+      const first = executeRegistry(registry, {
+         plugin: "pluginA",
+         hash,
+         params: { email: "a@b.com" },
+         resolver: async () => blocker,
+      });
 
       // Yield so the first execute increments inFlight before the second starts
       await Promise.resolve();
 
       // Second query arrives while first is still in-flight (inFlight === 1 >= maxConcurrent 1)
-      const secondError = await executeRegistry(registry, "pluginA", hash, { email: "b@b.com" }, async () =>
-         makeDb([]),
-      ).catch((e: unknown) => e);
+      const secondError = await executeRegistry(registry, {
+         plugin: "pluginA",
+         hash,
+         params: { email: "b@b.com" },
+         resolver: async () => makeDb([]),
+      }).catch((e: unknown) => e);
 
       unblock();
       await first;
@@ -685,11 +812,22 @@ describe("QueryRegistry", () => {
       const hash = await findAccounts.hash;
 
       // First query completes normally (inFlight peaks at 1, then drops to 0)
-      await executeRegistry(registry, "pluginA", hash, { email: "a@b.com" }, async () => makeDb([]));
+      await executeRegistry(registry, {
+         plugin: "pluginA",
+         hash,
+         params: { email: "a@b.com" },
+         resolver: async () => makeDb([]),
+      });
 
       // Second query should now succeed (inFlight back to 0, well below limit)
-      await expect(executeRegistry(registry, "pluginA", hash, { email: "b@b.com" }, async () => makeDb([]))).resolves
-         .toMatchInlineSnapshot(`
+      await expect(
+         executeRegistry(registry, {
+            plugin: "pluginA",
+            hash,
+            params: { email: "b@b.com" },
+            resolver: async () => makeDb([]),
+         }),
+      ).resolves.toMatchInlineSnapshot(`
         {
           "rows": [],
         }
@@ -706,9 +844,12 @@ describe("QueryRegistry", () => {
       registry.use(new AuditLogPlugin<{ userId: string; secret: string }>({ onLog }));
 
       const hash = await findAccounts.hash;
-      await executeRegistry(registry, "pluginA", hash, { email: "a@b.com" }, async () => makeDb([]), {
-         userId: "u1",
-         secret: "<secret>",
+      await executeRegistry(registry, {
+         plugin: "pluginA",
+         hash,
+         params: { email: "a@b.com" },
+         resolver: async () => makeDb([]),
+         context: { userId: "u1", secret: "<secret>" },
       });
 
       expect(onLog).toHaveBeenCalledTimes(1);
@@ -734,9 +875,12 @@ describe("QueryRegistry", () => {
       );
 
       const hash = await findAccounts.hash;
-      await executeRegistry(registry, "pluginA", hash, { email: "a@b.com" }, async () => makeDb([]), {
-         userId: "u1",
-         secret: "s3cr3t",
+      await executeRegistry(registry, {
+         plugin: "pluginA",
+         hash,
+         params: { email: "a@b.com" },
+         resolver: async () => makeDb([]),
+         context: { userId: "u1", secret: "s3cr3t" },
       });
 
       expect(onLog.mock.calls[0]![0].context).toMatchInlineSnapshot(`
@@ -761,9 +905,13 @@ describe("QueryRegistry", () => {
       );
 
       const hash = await findAccounts.hash;
-      await executeRegistry(registry, "pluginA", hash, { email: "a@b.com" }, async () => makeDb([]), {
-         userId: "u1",
-         secret: "s3cr3t",
+      await executeRegistry(registry, {
+         plugin: "pluginA",
+         hash,
+         params: { email: "a@b.com" },
+         resolver: async () => makeDb([]),
+         context: { userId: "u1", secret: "s3cr3t" },
+         name: "findAccounts",
       });
 
       expect(onLog).toHaveBeenCalledTimes(1);
@@ -773,13 +921,14 @@ describe("QueryRegistry", () => {
             query: findAccounts,
             plugin: pluginA,
             params: { email: "a@b.com" },
-            input: {
+            remote: {
                hash,
                plugin: "pluginA",
                location: "test",
                params: { email: "a@b.com" },
                mode: "read",
-            } satisfies AfterArgs["input"],
+               name: "findAccounts",
+            } satisfies SqlPipelineAfterArgs["remote"],
             context: { userId: "u1" },
             error: null,
          }),
@@ -801,11 +950,21 @@ describe("QueryRegistry", () => {
          unblock = () => resolve(makeDb([]));
       });
 
-      const first = executeRegistry(registry, "pluginA", hash, { email: "a@b.com" }, async () => blocker);
+      const first = executeRegistry(registry, {
+         plugin: "pluginA",
+         hash,
+         params: { email: "a@b.com" },
+         resolver: async () => blocker,
+      });
       await Promise.resolve();
 
       await expect(
-         executeRegistry(registry, "pluginA", hash, { email: "b@b.com" }, async () => makeDb([])),
+         executeRegistry(registry, {
+            plugin: "pluginA",
+            hash,
+            params: { email: "b@b.com" },
+            resolver: async () => makeDb([]),
+         }),
       ).rejects.toMatchInlineSnapshot(
          `[SqlRunError: Query "findAccounts" rejected — concurrency limit of 1 reached (1 in flight)]`,
       );
@@ -815,8 +974,8 @@ describe("QueryRegistry", () => {
 
       // First call completed — totalCalls=1, inFlight=0
       // Second call was rejected in check() — after() fires but no metrics entry existed for that call
-      expect(limiter.metrics.get(hash)?.totalCalls).toBe(1);
-      expect(limiter.metrics.get(hash)?.inFlight).toBe(0);
+      expect(limiter.metrics.get(findAccounts.id)?.totalCalls).toBe(1);
+      expect(limiter.metrics.get(findAccounts.id)?.inFlight).toBe(0);
    });
 
    test("use() wires TimeToLiveRateLimiter — metrics are updated after successful execution", async () => {
@@ -826,10 +985,20 @@ describe("QueryRegistry", () => {
       registry.use(limiter);
 
       const hash = await findAccounts.hash;
-      await executeRegistry(registry, "pluginA", hash, { email: "a@b.com" }, async () => makeDb([]));
-      await executeRegistry(registry, "pluginA", hash, { email: "b@b.com" }, async () => makeDb([]));
+      await executeRegistry(registry, {
+         plugin: "pluginA",
+         hash,
+         params: { email: "a@b.com" },
+         resolver: async () => makeDb([]),
+      });
+      await executeRegistry(registry, {
+         plugin: "pluginA",
+         hash,
+         params: { email: "b@b.com" },
+         resolver: async () => makeDb([]),
+      });
 
-      const m = limiter.metrics.get(hash)!;
+      const m = limiter.metrics.get(findAccounts.id)!;
       expect(m.totalCalls).toBe(2);
       expect(m.inFlight).toBe(0);
       expect(m.totalErrors).toBe(0);
@@ -849,7 +1018,12 @@ describe("QueryRegistry", () => {
 
       const hash = await findAccounts.hash;
       await expect(
-         executeRegistry(registry, "pluginA", hash, { email: "a@b.com" }, async () => makeDb([])),
+         executeRegistry(registry, {
+            plugin: "pluginA",
+            hash,
+            params: { email: "a@b.com" },
+            resolver: async () => makeDb([]),
+         }),
       ).rejects.toMatchInlineSnapshot(`[SqlRunError: Rate limit exceeded for query "findAccounts". (Error: too busy)]`);
    });
 
@@ -868,9 +1042,14 @@ describe("QueryRegistry", () => {
       });
 
       const hash = await findAccounts.hash;
-      await executeRegistry(registry, "pluginA", hash, { email: "a@b.com" }, async () => {
-         order.push("query");
-         return makeDb([]);
+      await executeRegistry(registry, {
+         plugin: "pluginA",
+         hash,
+         params: { email: "a@b.com" },
+         resolver: async () => {
+            order.push("query");
+            return makeDb([]);
+         },
       });
 
       // yield to let the fire-and-forget before() promise settle
@@ -893,7 +1072,12 @@ describe("QueryRegistry", () => {
 
       const hash = await findAccounts.hash;
       await expect(
-         executeRegistry(registry, "pluginA", hash, { email: "a@b.com" }, async () => makeDb([])),
+         executeRegistry(registry, {
+            plugin: "pluginA",
+            hash,
+            params: { email: "a@b.com" },
+            resolver: async () => makeDb([]),
+         }),
       ).rejects.toThrow();
       await Promise.resolve();
 
@@ -908,7 +1092,12 @@ describe("QueryRegistry", () => {
       registry.use({ name: "observer", after });
 
       const hash = await findAccounts.hash;
-      await executeRegistry(registry, "pluginA", hash, { email: "a@b.com" }, async () => makeDb([]));
+      await executeRegistry(registry, {
+         plugin: "pluginA",
+         hash,
+         params: { email: "a@b.com" },
+         resolver: async () => makeDb([]),
+      });
       await Promise.resolve();
 
       expect(after).toHaveBeenCalledOnce();
@@ -918,13 +1107,15 @@ describe("QueryRegistry", () => {
             query: findAccounts,
             plugin: pluginA,
             params: { email: "a@b.com" },
-            input: {
+            mode: "read",
+            remote: {
                hash,
                plugin: "pluginA",
                location: "test",
                params: { email: "a@b.com" },
                mode: "read",
-            } satisfies AfterArgs["input"],
+               name: null,
+            } satisfies SqlPipelineAfterArgs["remote"],
             error: null,
             durationMs: expect.any(Number),
          }),
@@ -946,7 +1137,12 @@ describe("QueryRegistry", () => {
 
       const hash = await findAccounts.hash;
       await expect(
-         executeRegistry(registry, "pluginA", hash, { email: "a@b.com" }, async () => makeDb([])),
+         executeRegistry(registry, {
+            plugin: "pluginA",
+            hash,
+            params: { email: "a@b.com" },
+            resolver: async () => makeDb([]),
+         }),
       ).rejects.toThrow();
       await Promise.resolve();
 
@@ -974,9 +1170,12 @@ describe("QueryRegistry", () => {
          .mockResolvedValueOnce({ rows: [{ accountId: "1", email: "a@b.com" }] });
 
       const hash = await findAccounts.hash;
-      const result = await executeRegistry(registry, "pluginA", hash, { email: "a@b.com" }, async () => ({
-         query: queryDb,
-      }));
+      const result = await executeRegistry(registry, {
+         plugin: "pluginA",
+         hash,
+         params: { email: "a@b.com" },
+         resolver: async () => ({ query: queryDb }),
+      });
       await Promise.resolve();
 
       expect(result).toMatchInlineSnapshot(`
@@ -1017,6 +1216,7 @@ describe("QueryRegistry", () => {
             params: { email: "a@b.com" },
             location: "test",
             mode: "read",
+            name: null,
             options: { retry: { maxAttempts: 2 } },
          },
          async () => ({ query: queryDb }),
@@ -1048,7 +1248,12 @@ describe("QueryRegistry", () => {
 
       const hash = await findAccounts.hash;
       await expect(
-         executeRegistry(registry, "pluginA", hash, { email: "a@b.com" }, async () => ({ query: queryDb })),
+         executeRegistry(registry, {
+            plugin: "pluginA",
+            hash,
+            params: { email: "a@b.com" },
+            resolver: async () => ({ query: queryDb }),
+         }),
       ).rejects.toMatchInlineSnapshot(`[SqlRunError: permanent failure]`);
 
       expect(queryDb).toHaveBeenCalledOnce();
@@ -1065,8 +1270,14 @@ describe("QueryRegistry", () => {
          .mockResolvedValueOnce({ rows: [] });
 
       const hash = await findAccounts.hash;
-      await expect(executeRegistry(registry, "pluginA", hash, { email: "a@b.com" }, async () => ({ query: queryDb })))
-         .resolves.toMatchInlineSnapshot(`
+      await expect(
+         executeRegistry(registry, {
+            plugin: "pluginA",
+            hash,
+            params: { email: "a@b.com" },
+            resolver: async () => ({ query: queryDb }),
+         }),
+      ).resolves.toMatchInlineSnapshot(`
         {
           "rows": [],
         }
@@ -1100,7 +1311,13 @@ describe("QueryRegistry", () => {
       });
 
       const hash = await findAccounts.hash;
-      await executeRegistry(registry, "pluginA", hash, { email: "a@b.com" }, async () => makeDb([]));
+      await executeRegistry(registry, {
+         plugin: "pluginA",
+         hash,
+         params: { email: "a@b.com" },
+         resolver: async () => makeDb([]),
+         name: "findAccounts",
+      });
       await Promise.resolve();
 
       expect(onError).toHaveBeenCalledOnce();
@@ -1112,13 +1329,15 @@ describe("QueryRegistry", () => {
                query: findAccounts,
                plugin: pluginA,
                params: { email: "a@b.com" },
-               input: {
+               mode: "read",
+               remote: {
                   hash,
                   plugin: "pluginA",
                   location: "test",
                   params: { email: "a@b.com" },
                   mode: "read",
-               } satisfies AfterArgs["input"],
+                  name: "findAccounts",
+               } satisfies SqlPipelineAfterArgs["remote"],
                error: null,
             }),
          }),
@@ -1138,7 +1357,13 @@ describe("QueryRegistry", () => {
       });
 
       const hash = await findAccounts.hash;
-      await executeRegistry(registry, "pluginA", hash, { email: "a@b.com" }, async () => makeDb([]));
+      await executeRegistry(registry, {
+         plugin: "pluginA",
+         hash,
+         params: { email: "a@b.com" },
+         resolver: async () => makeDb([]),
+         name: "findAccounts",
+      });
       await Promise.resolve();
 
       expect(onPluginError).toHaveBeenCalledOnce();
@@ -1151,13 +1376,15 @@ describe("QueryRegistry", () => {
                query: findAccounts,
                plugin: pluginA,
                params: { email: "a@b.com" },
-               input: {
+               mode: "read",
+               remote: {
                   hash,
                   plugin: "pluginA",
                   location: "test",
                   params: { email: "a@b.com" },
                   mode: "read",
-               } satisfies AfterArgs["input"],
+                  name: "findAccounts",
+               } satisfies SqlPipelineAfterArgs["remote"],
                error: null,
             }),
          }),
@@ -1179,7 +1406,12 @@ describe("QueryRegistry", () => {
       });
 
       const hash = await findAccounts.hash;
-      await executeRegistry(registry, "pluginA", hash, { email: "a@b.com" }, async () => makeDb([]));
+      await executeRegistry(registry, {
+         plugin: "pluginA",
+         hash,
+         params: { email: "a@b.com" },
+         resolver: async () => makeDb([]),
+      });
       await Promise.resolve();
 
       expect(onError).toHaveBeenCalledOnce();
@@ -1202,7 +1434,12 @@ describe("QueryRegistry", () => {
       });
 
       const hash = await findAccounts.hash;
-      await executeRegistry(registry, "pluginA", hash, { email: "a@b.com" }, async () => makeDb([]));
+      await executeRegistry(registry, {
+         plugin: "pluginA",
+         hash,
+         params: { email: "a@b.com" },
+         resolver: async () => makeDb([]),
+      });
       await Promise.resolve();
 
       expect(warnSpy).toHaveBeenCalledOnce();

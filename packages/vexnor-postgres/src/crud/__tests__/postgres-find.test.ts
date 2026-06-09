@@ -5,8 +5,8 @@ import { defaultQueryOptions } from "#/default-query-options.js";
 
 describe("Account.postgres.findBy()", () => {
    test("single field", () => {
-      const query = Account.postgres.findBy();
-      const { text, values } = query.getSql({
+      const findAccount = Account.postgres.findBy();
+      const { text, values } = findAccount.source.getSql({
          params: { email: "a@b.com" },
          options: defaultQueryOptions,
       });
@@ -38,8 +38,8 @@ describe("Account.postgres.findBy()", () => {
    });
 
    test("multiple fields", () => {
-      const query = Account.postgres.findBy();
-      const { text, values } = query.getSql({
+      const findAccount = Account.postgres.findBy();
+      const { text, values } = findAccount.source.getSql({
          params: { email: "a@b.com", lastName: "Doe" },
          options: defaultQueryOptions,
       });
@@ -75,8 +75,8 @@ describe("Account.postgres.findBy()", () => {
 
 describe("Account.postgres.findById()", () => {
    test("by PK", () => {
-      const query = Account.postgres.findById();
-      const { text, values } = query.getSql({
+      const findAccount = Account.postgres.findById();
+      const { text, values } = findAccount.source.getSql({
          params: { accountId: "id-1" },
          options: defaultQueryOptions,
       });

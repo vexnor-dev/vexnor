@@ -5,9 +5,10 @@ import { Product, IProductInsert, IProductSelect } from "./codegen/vexnor_dev.pr
 import { sql } from "vexnor-mssql";
 import assert, { ok } from "node:assert";
 import { getTag } from "./tags.js";
-import { row } from "vexnor";
+import { row, SqlQueryAny } from "vexnor";
 import { expect } from "vitest";
 import { ConnectionPool } from "mssql";
+import "vexnor-mssql";
 
 export class TestDataManager {
    readonly rootAccounts: IAccountSelect[] = [];
@@ -162,7 +163,7 @@ export class TestDataManager {
    }
 
    async cleanAll(pool: ConnectionPool) {
-      const queries = [
+      const queries: { type: string; query: SqlQueryAny }[] = [
          {
             type: OrderItem.tableInfo.name,
             query: sql`delete from ${OrderItem}`,
@@ -182,9 +183,9 @@ export class TestDataManager {
          },
       ];
       const results = [];
-      for (const query of queries) {
-         const result = await query.query.mssql.run({ db: pool.request() });
-         results.push({ type: query.type, rowsAffected: result.rowsAffected[0] });
+      for (const { type, query } of queries) {
+         const result = await query.mssql.run({ db: pool.request() });
+         results.push({ type, rowsAffected: result.rowsAffected[0] });
       }
 
       return results;

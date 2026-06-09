@@ -8,27 +8,30 @@ export type SqlQueryExecutionPluginRef = {
 };
 
 /** Identity fields shared by `check`, `before`, and `after`. */
-export type ExecutionArgs<TContext extends Record<string, unknown> = Record<string, unknown>> = {
+export type SqlPipelineExecutionArgs<TContext extends Record<string, unknown> = Record<string, unknown>> = {
    plugin: SqlQueryExecutionPluginRef;
-   name: string;
    query: SqlQueryAny;
+   name: string;
+   mode: SqlExecuteMode;
    params: Record<string, unknown>;
-   input: {
+   remote: {
       plugin: string;
       hash: string;
+      mode: SqlExecuteMode;
       params: Record<string, unknown>;
       location: string | null;
-      mode: SqlExecuteMode;
-   };
+      name: string | null;
+   } | null;
    context: TContext;
 };
 
 /** Args passed to `after()` after a query completes — success or failure. */
-export type AfterArgs<TContext extends Record<string, unknown> = Record<string, unknown>> = ExecutionArgs<TContext> & {
-   durationMs: number;
-   /** `null` on success. */
-   error: unknown | null;
-};
+export type SqlPipelineAfterArgs<TContext extends Record<string, unknown> = Record<string, unknown>> =
+   SqlPipelineExecutionArgs<TContext> & {
+      durationMs: number;
+      /** `null` on success. */
+      error: unknown | null;
+   };
 
 /**
  * A composable plugin that plugs into `QueryRegistry` via `registry.use()`.
@@ -40,11 +43,14 @@ export type AfterArgs<TContext extends Record<string, unknown> = Record<string, 
  * - `after()` — sync observer called after every query completes, success or failure. Fire-and-forget via EventTarget.
  * - `onError()` — called when `before()` or `after()` throws, with the original args for context.
  */
-export interface SqlQueryExecutionPlugin<TContext extends Record<string, unknown> = Record<string, unknown>> {
+export interface SqlQueryPipelinePlugin<TContext extends Record<string, unknown> = Record<string, unknown>> {
    /** Unique name identifying this plugin — used in error messages and warnings. */
    readonly name: string;
-   check?(args: ExecutionArgs<TContext>): void | Promise<void>;
-   before?(args: ExecutionArgs<TContext>): void;
-   after?(args: AfterArgs<TContext>): void;
-   onError?(err: unknown, phase: { before: ExecutionArgs<TContext> } | { after: AfterArgs<TContext> }): void;
+   check?(args: SqlPipelineExecutionArgs<TContext>): void | Promise<void>;
+   before?(args: SqlPipelineExecutionArgs<TContext>): void;
+   after?(args: SqlPipelineAfterArgs<TContext>): void;
+   onError?(
+      err: unknown,
+      phase: { before: SqlPipelineExecutionArgs<TContext> } | { after: SqlPipelineAfterArgs<TContext> },
+   ): void;
 }

@@ -1,3 +1,4 @@
+// noinspection SqlNoDataSourceInspection,SqlResolve
 import { describe, expect, test } from "vitest";
 import { Account } from "vexnor/testing";
 import { sql } from "vexnor";
@@ -7,7 +8,7 @@ import { defaultQueryOptions } from "#/default-query-options.js";
 describe("mssqlUpsert()", () => {
    test("auto SET: generates col = src.col for all non-merge columns", () => {
       const query = mssqlUpsert(Account, { MERGE_ON: [Account.$accountId] });
-      const { text, values } = query.getSql({
+      const { text, values } = query.source.getSql({
          params: { rows: [{ accountId: "id-1", email: "a@b.com", firstName: "John", lastName: "Doe" }] },
          options: defaultQueryOptions,
       });
@@ -62,7 +63,7 @@ describe("mssqlUpsert()", () => {
          MERGE_ON: [Account.$accountId],
          SET: sql`${Account.$firstName} = src.first_name`,
       });
-      const { text, values } = query.getSql({
+      const { text, values } = query.source.getSql({
          params: { rows: [{ accountId: "id-1", email: "a@b.com", firstName: "John", lastName: "Doe" }] },
          options: defaultQueryOptions,
       });
@@ -112,7 +113,7 @@ describe("mssqlUpsert()", () => {
 
    test("batch upsert: multiple rows", () => {
       const query = mssqlUpsert(Account, { MERGE_ON: [Account.$accountId] });
-      const { text, values } = query.getSql({
+      const { text, values } = query.source.getSql({
          params: {
             rows: [
                { accountId: "id-1", email: "a@b.com", firstName: "John", lastName: "Doe" },

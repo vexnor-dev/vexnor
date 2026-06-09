@@ -37,8 +37,8 @@ export class MssqlQueryHandler<T extends { Params?: unknown; Row?: unknown }> ex
       Write: IResult<T["Row"]>;
    }
 > {
-   constructor(readonly query: SqlQuery<Pick<T, "Row" | "Params">>) {
-      super(query, { pluginName: PLUGIN_NAME });
+   constructor(readonly source: SqlQuery<Pick<T, "Row" | "Params">>) {
+      super(source, { pluginName: PLUGIN_NAME });
    }
 
    isReadResult(result: unknown): result is IResult<T["Row"]> {
@@ -57,10 +57,10 @@ export class MssqlQueryHandler<T extends { Params?: unknown; Row?: unknown }> ex
                ...args.options,
             },
          };
-         queryInput = this.query.getSql(newArgs);
+         queryInput = this.source.getSql(newArgs);
          return queryInput;
       } catch (err) {
-         throw new SqlRunError(`Error building mssql query '${this.query.id}'`, this.query, {
+         throw new SqlRunError(`Error building mssql query '${this.source.id}'`, this.source, {
             cause: err,
             code: SqlErrorCode.QUERY_BUILD_FAILED,
          });
@@ -131,7 +131,7 @@ export class MssqlQueryHandler<T extends { Params?: unknown; Row?: unknown }> ex
       try {
          return await request.query(text);
       } catch (err) {
-         throw new SqlRunError(`Error running MSSQL query.\n${text}`, this, {
+         throw new SqlRunError(`Error running MSSQL query.\n${text}`, this.source, {
             cause: err,
             sql: text,
             code: isRetryableMssqlError(err)

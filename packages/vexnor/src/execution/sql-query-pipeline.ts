@@ -5,17 +5,16 @@ import type { SqlQueryAny } from "#/core/query/sql-query.js";
 import { runWithRetry } from "#/core/query/sql-retry.js";
 import type { SqlRetryArgs, SqlRetryOptions, SqlRunOptions } from "#/core/query/sql-query-types.js";
 import type {
-   ExecutionArgs,
-   SqlQueryExecutionPlugin,
-   AfterArgs,
+   SqlPipelineExecutionArgs,
+   SqlQueryPipelinePlugin,
+   SqlPipelineAfterArgs,
    SqlQueryExecutionPluginRef,
-} from "./sql-query-execution-plugin.js";
+} from "./sql-query-pipeline-plugin.js";
 
 export type AuthorizeArgs<TContext extends Record<string, unknown>> = {
    plugin: SqlQueryExecutionPluginRef;
    query: SqlQueryAny;
    name: string;
-   location: string | null;
    params: Record<string, unknown>;
    context: TContext;
 };
@@ -25,13 +24,13 @@ export type AuthorizeHook<TContext extends Record<string, unknown>> = (
 ) => void | Promise<void>;
 
 export class BeforeQueryEvent<TContext extends Record<string, unknown>> extends Event {
-   constructor(public readonly args: ExecutionArgs<TContext>) {
+   constructor(public readonly args: SqlPipelineExecutionArgs<TContext>) {
       super("beforeQuery");
    }
 }
 
 export class AfterQueryEvent<TContext extends Record<string, unknown>> extends Event {
-   constructor(public readonly args: AfterArgs<TContext>) {
+   constructor(public readonly args: SqlPipelineAfterArgs<TContext>) {
       super("afterQuery");
    }
 }
@@ -55,18 +54,22 @@ export type SqlQueryPipelineOptions<TContext extends Record<string, unknown>> = 
     */
    onPluginError?: (
       err: unknown,
-      plugin: SqlQueryExecutionPlugin<TContext>,
-      phase: { before: ExecutionArgs<TContext> } | { after: AfterArgs<TContext> },
+      plugin: SqlQueryPipelinePlugin<TContext>,
+      phase: { before: SqlPipelineExecutionArgs<TContext> } | { after: SqlPipelineAfterArgs<TContext> },
    ) => void;
 };
 
-export type SqlQueryRetryArgs<TContext extends Record<string, unknown>> = SqlRetryArgs<ExecutionArgs<TContext>>;
+export type SqlQueryRetryArgs<TContext extends Record<string, unknown>> = SqlRetryArgs<
+   SqlPipelineExecutionArgs<TContext>
+>;
 
-export type SqlQueryRetryOptions<TContext extends Record<string, unknown>> = SqlRetryOptions<ExecutionArgs<TContext>>;
+export type SqlQueryRetryOptions<TContext extends Record<string, unknown>> = SqlRetryOptions<
+   SqlPipelineExecutionArgs<TContext>
+>;
 
 export class SqlQueryPipeline<T extends { Context: Record<string, unknown> }> extends EventTarget {
    protected readonly authorizeHooks: AuthorizeHook<T["Context"]>[] = [];
-   protected readonly checkPlugins: SqlQueryExecutionPlugin<T["Context"]>[] = [];
+   protected readonly checkPlugins: SqlQueryPipelinePlugin<T["Context"]>[] = [];
    protected readonly options: SqlQueryPipelineOptions<T["Context"]>;
    private inFlight = 0;
 
@@ -84,7 +87,7 @@ export class SqlQueryPipeline<T extends { Context: Record<string, unknown> }> ex
     *
     * Returns an unsubscribe function that removes the plugin's listeners and check hook.
     */
-   use(plugin: SqlQueryExecutionPlugin<T["Context"]>): () => void {
+   use(plugin: SqlQueryPipelinePlugin<T["Context"]>): () => void {
       if (plugin.check) {
          this.checkPlugins.push(plugin);
       }
@@ -196,7 +199,7 @@ export class SqlQueryPipeline<T extends { Context: Record<string, unknown> }> ex
       }
    }
 
-   async runCheckPlugins(args: ExecutionArgs<T["Context"]>): Promise<void> {
+   async runCheckPlugins(args: SqlPipelineExecutionArgs<T["Context"]>): Promise<void> {
       for (const p of this.checkPlugins) {
          if (!p.check) continue;
          try {
@@ -213,7 +216,7 @@ export class SqlQueryPipeline<T extends { Context: Record<string, unknown> }> ex
    }
 
    async execute<TResult>(
-      executionArgs: ExecutionArgs<T["Context"]>,
+      executionArgs: SqlPipelineExecutionArgs<T["Context"]>,
       executeQuery: (attempt: number) => Promise<TResult>,
       options?: SqlRunOptions,
    ): Promise<TResult> {
@@ -228,10 +231,9 @@ export class SqlQueryPipeline<T extends { Context: Record<string, unknown> }> ex
             params,
             context,
             name,
-            location: executionArgs.input.location,
          });
          await this.runCheckPlugins(executionArgs);
-         return await runWithRetry<TResult, ExecutionArgs<T["Context"]>>(
+         return await runWithRetry<TResult, SqlPipelineExecutionArgs<T["Context"]>>(
             options?.retry !== undefined ? options.retry : this.options.retry,
             executionArgs,
             async (attempt) => {
@@ -255,7 +257,7 @@ export class SqlQueryPipeline<T extends { Context: Record<string, unknown> }> ex
          });
       } finally {
          const durationMs = performance.now() - start;
-         const afterArgs: AfterArgs<T["Context"]> = { ...executionArgs, durationMs, error };
+         const afterArgs: SqlPipelineAfterArgs<T["Context"]> = { ...executionArgs, durationMs, error };
          this.dispatchEvent(new AfterQueryEvent(afterArgs));
       }
    }
@@ -272,8 +274,8 @@ export class SqlQueryPipeline<T extends { Context: Record<string, unknown> }> ex
    }
 
    private invokePluginListener(
-      plugin: SqlQueryExecutionPlugin<T["Context"]>,
-      phase: { before: ExecutionArgs<T["Context"]> } | { after: AfterArgs<T["Context"]> },
+      plugin: SqlQueryPipelinePlugin<T["Context"]>,
+      phase: { before: SqlPipelineExecutionArgs<T["Context"]> } | { after: SqlPipelineAfterArgs<T["Context"]> },
       fn: () => void,
    ): void {
       try {
@@ -285,8 +287,8 @@ export class SqlQueryPipeline<T extends { Context: Record<string, unknown> }> ex
 
    private handlePluginError(
       err: unknown,
-      plugin: SqlQueryExecutionPlugin<T["Context"]>,
-      phase: { before: ExecutionArgs<T["Context"]> } | { after: AfterArgs<T["Context"]> },
+      plugin: SqlQueryPipelinePlugin<T["Context"]>,
+      phase: { before: SqlPipelineExecutionArgs<T["Context"]> } | { after: SqlPipelineAfterArgs<T["Context"]> },
    ): void {
       try {
          if (plugin.onError) {

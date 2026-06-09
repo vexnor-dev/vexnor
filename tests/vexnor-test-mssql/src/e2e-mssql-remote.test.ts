@@ -1,3 +1,4 @@
+// noinspection SqlNoDataSourceInspection,SqlResolve
 import { beforeAll, describe, expect, test } from "vitest";
 import { info, param, row, type RemoteClient } from "vexnor";
 import { SqlQueryRegistry } from "vexnor/execution";
@@ -117,7 +118,7 @@ describe.sequential("mssql remote execution", (ctx) => {
             ${Account.insertVals({ email: `remote-run-${TAG}@example.com`, firstName: "Tmp", lastName: "Tmp" })}
       `.mssql.one({ db: pool.request() });
 
-      const result = await deleteAccount.mssql.run({
+      const result = await deleteAccount.run({
          db: remoteClient,
          params: { accountId: tempAccount.accountId },
       });
