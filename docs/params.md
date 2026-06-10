@@ -212,15 +212,15 @@ await myOrders.postgres.all({
 When calling a query with `ctx()` params from the browser via `remoteClient`, the client doesn't know the user's server-side identity. Use the `runtimeValue` sentinel to satisfy the TypeScript type requirement without sending an actual value:
 
 ```typescript
-import { runtimeValue } from 'vexnor';
+import { contextValue } from 'vexnor';
 
 await myOrders.postgres.all({
   db: remoteClient,
-  params: { userId: runtimeValue }, // ← stripped before sending; server injects from context
+  params: { userId: contextValue }, // ← stripped before sending; server injects from context
 });
 ```
 
-`runtimeValue` is a branded sentinel — it is assignable to any param type but is stripped by the remote client before the HTTP request is sent. The real value is injected server-side from the registry context. Passing `runtimeValue` on a direct server execution (without the registry) produces `null`.
+`contextValue` is a branded sentinel — it is assignable to any param type but is stripped by the remote client before the HTTP request is sent. The real value is injected server-side from the registry context. Passing `contextValue` on a direct server execution (without the registry) produces `null`.
 
 ### Validation
 
@@ -254,7 +254,7 @@ const effectiveUserId = ctx<{ effectiveUserId: string }>('effectiveUserId');
 |---|---|---|
 | Value source | Caller-supplied `params` | Registry context (server-injected) |
 | Direct execution | Pass in `params` | Pass in `params` |
-| Isomorphic (remote) execution | Caller sends in request | Use `contextValue` sentinel; stripped before sending |
+| Isomorphic (remote) execution | Caller sends in request | Use `contextValue` sentinel; stripped before sending |}
 | Registry execution | Caller sends in request | Injected from server context |
 | Contributes to `query.hash` | Yes (as param) | Yes (as context, separately keyed) |
 | Validation | Yes | Yes |

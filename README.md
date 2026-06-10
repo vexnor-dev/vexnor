@@ -156,6 +156,22 @@ function useRemoteClient() {
 
 See [Isomorphic SQL](docs/isomorphic-sql.md) for the full picture.
 
+## Transactions
+
+```typescript
+import { transaction, savepoint } from 'vexnor-postgres';
+
+await transaction(pool, async (client) => {
+  await sql`INSERT INTO ${Order} ${Order.insertColsVals(order)}`.one({ db: client });
+
+  const item = await savepoint(client, async (c) => {
+    return sql`INSERT INTO ${OrderItem} ${OrderItem.insertColsVals(item)}`.one({ db: c });
+  });
+});
+```
+
+See [Transactions](docs/transactions.md) for all three drivers and options.
+
 ## Documentation
 
 - [Quickstart](docs/quickstart.md) — full onboarding, all core APIs
