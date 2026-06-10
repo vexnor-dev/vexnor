@@ -357,6 +357,117 @@ const myPlugin: QueryExecutionPlugin = {
 registry.use(myPlugin);
 ```
 
+## Query Pipelines
+
+A `SqlQueryPipeline` is the execution engine behind every query run. It sequences authorization, check plugins, before/after events, concurrency limiting, and retry — in a single composable object.
+
+`QueryRegistry` owns one pipeline internally. Every call to `registry.use()`, `registry.registerAuthorization()`, and the `maxConcurrent` constructor option all configure that pipeline. For most server-side use cases you never touch the pipeline directly — the registry API is sufficient.
+
+Pipelines become useful directly when you want the same authorization, rate-limiting, and audit behaviour on **direct** (non-registry) query executions — for example in a background worker, a migration script, or a test that talks to a real database. You pass the pipeline to `connect()` alongside the DB connection:
+
+```typescript
+import { SqlQueryPipeline, connect } from 'vexnor';
+
+type AppContext = { userId: string };
+
+const pipeline = new SqlQueryPipeline<{ Context: AppContext }>();
+
+// Attach the same plugins you'd attach to a registry
+pipeline.registerAuthorization(({ query, context, name }) => {
+  if (!context.userId) throw new Error(`Unauthorized: ${name}`);
+});
+pipeline.use(new AuditLogPlugin({ onLog: ({ name, durationMs }) => logger.info({ name, durationMs }) }));
+
+// Wrap a connection or pool — the pipeline fires on every query against this db
+const db = connect<AppContext>(pool, { pipeline });
+
+// Runtime context comes from params — ctx() nodes are resolved from it
+const accounts = await selectAccounts.postgres.all({
+  db,
+  params: { userId: currentUser.id },
+});
+```
+
+Context is typed end-to-end: `connect<AppContext>()` produces a `VexnorConnection` whose phantom `_context` type enforces that the query's params include every key the pipeline expects. If `selectAccounts` doesn't declare `userId` as a `ctx()` param, TypeScript rejects the `db` argument at the call site.
+
+### `SqlQueryPipeline` API
+
+```typescript
+const pipeline = new SqlQueryPipeline<{ Context: AppContext }>();
+// Constructor options:
+const pipeline = new SqlQueryPipeline<{ Context: AppContext }>({
+  maxConcurrent: 50,         // reject with QUERY_RATE_LIMITED when exceeded
+  retry: {                   // default retry policy for all queries through this pipeline
+    maxAttempts: 3,
+    delayMs: 100,
+    shouldRetry: ({ error }) => error instanceof SqlRunError && error.retryable,
+  },
+  onPluginError: (err, plugin, phase) => logger.error({ err, plugin: plugin.name }),
+});
+
+pipeline.use(plugin);                   // attach a SqlQueryPipelinePlugin
+pipeline.registerAuthorization(hook);   // add an authorization hook
+pipeline.checkAuthorization(queries);   // validate all tagged queries have a hook
+pipeline.clear();                       // remove all plugins and hooks (test isolation)
+
+// Copy plugins and hooks into a new independent pipeline
+const copy = SqlQueryPipeline.from(pipeline);
+```
+
+`SqlQueryPipeline` extends `EventTarget`. The `BeforeQueryEvent` and `AfterQueryEvent` events are dispatched on every execution and carry the full `SqlPipelineExecutionArgs` / `SqlPipelineAfterArgs` payloads — useful for low-level observability without writing a full plugin.
+
+### `SqlQueryPipelinePlugin` interface
+
+The plugin interface used by both `registry.use()` and `pipeline.use()` is identical:
+
+```typescript
+import type { SqlQueryPipelinePlugin } from 'vexnor';
+
+const myPlugin: SqlQueryPipelinePlugin<AppContext> = {
+  name: 'my-plugin',
+  // Async gate — throw to reject the query before it runs
+  check: async ({ name, context, params }) => { /* ... */ },
+  // Sync observer — fires after checks pass, before the query runs (fire-and-forget)
+  before: ({ name, params }) => { /* ... */ },
+  // Sync observer — fires after every query completes, success or failure (fire-and-forget)
+  after: ({ name, durationMs, error }) => { /* ... */ },
+  // Called when before() or after() throws — falls back to pipeline onPluginError if omitted
+  onError: (err, phase) => { /* ... */ },
+};
+```
+
+`SqlPipelineExecutionArgs` fields available in `check`, `before`, and `after`:
+
+- `plugin` — `{ name, driver?, dialect? }` identifying the vexnor plugin
+- `query` — the `SqlQuery` object
+- `name` — display name used in error messages and audit logs
+- `mode` — `"read"` or `"write"`
+- `params` — merged runtime params (includes values injected from context)
+- `context` — the typed runtime context (`TContext`)
+- `remote` — present when the call came through the registry (contains `hash`, `location`, etc.); `null` for direct `connect()` executions
+
+`after` additionally receives:
+- `durationMs` — wall-clock time from authorization start to query completion
+- `error` — the thrown error, or `null` on success
+
+### Relationship between `QueryRegistry` and `SqlQueryPipeline`
+
+The registry exposes its pipeline as `registry.pipeline`. You can pass it to `connect()` to reuse the exact same plugins and hooks for out-of-band direct executions:
+
+```typescript
+// server/registry.ts
+export const registry = new QueryRegistry<AppContext>();
+registry.use(new AuditLogPlugin({ onLog }));
+registry.registerAuthorization(authHook);
+
+// worker.ts — reuse the registry's pipeline for direct executions
+import { registry, pool } from './registry.js';
+
+const db = connect<AppContext>(pool, { pipeline: registry.pipeline });
+const accounts = await selectAccounts.postgres.all({ db, params: { userId } });
+// ↑ authorization + audit log fire, identical to registry.execute()
+```
+
 ## Security
 
 The server only executes queries that were explicitly registered. An unknown hash returns an error — the client cannot construct or inject arbitrary SQL. The attack surface is limited to the set of queries you register.
