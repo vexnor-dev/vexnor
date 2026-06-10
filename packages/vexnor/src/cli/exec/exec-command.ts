@@ -6,6 +6,7 @@ import { detectQueryType } from "#/cli/exec/detect-query-type.js";
 import { confirmPrompt } from "#/cli/exec/confirm-prompt.js";
 import { isContextValue } from "#/core/query/context-value.js";
 import * as path from "node:path";
+import { glob } from "node:fs/promises";
 import { SqlExecError } from "#/cli/exec/sql-exec-error.js";
 
 export interface ExecOptions {
@@ -27,15 +28,16 @@ export async function execCommand(queryName: string, options: ExecOptions): Prom
       throw new Error("--query-config is required");
    }
 
-   const { glob } = await import("glob");
    const searchPattern = path.isAbsolute(options.queryConfig)
       ? options.queryConfig
       : path.join("**", options.queryConfig);
-   const files = await glob(searchPattern, {
-      cwd: process.cwd(),
-      absolute: true,
-      ignore: ["**/node_modules/**", "**/dist/**", "**/build/**"],
-   });
+   const files = await Array.fromAsync(
+      glob(searchPattern, {
+         cwd: process.cwd(),
+         exclude: (f) => f === "node_modules" || f === "dist" || f === "build",
+      }),
+      (f) => path.resolve(process.cwd(), f),
+   );
 
    if (files.length === 0) {
       throw new Error(`No files found matching: ${options.queryConfig}`);
