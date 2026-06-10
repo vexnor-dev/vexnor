@@ -93,7 +93,6 @@
       "README.md"
    ],
    "dependencies": {
-      "code-block-writer": "^11.0.3",
       "commander": "^9.1.0",
       "pino": "^7.10.0",
       "to-case": "^2.0.0",

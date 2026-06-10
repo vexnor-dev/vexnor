@@ -15,7 +15,6 @@ export async function codegenCommand(options: CodegenCommandOptions) {
       uri,
       schema: schemas,
       omit,
-      pascalCaseTables,
       camelCaseColumns,
       plugin: pluginName,
       host,
@@ -59,7 +58,6 @@ export async function codegenCommand(options: CodegenCommandOptions) {
    const context = new CodegenContextModel({
       outDir,
       plugin,
-      pascalCaseTables,
       camelCaseColumns,
       includeEnums: enums.length > 0,
    });

@@ -1,15 +1,16 @@
-import CodeBlockWriter from "code-block-writer";
+import { CodeWriter } from "#/lib/code-writer.js";
 import { PrintTableArgs, SqlLiteralType } from "#/plugin/plugin.js";
 import { getCodegenContext } from "#/cli/codegen/codegen-context.js";
 
-export function writeTableType(writer: CodeBlockWriter.default, { table }: PrintTableArgs) {
+export function writeTableType(writer: CodeWriter, { table }: PrintTableArgs) {
    const { getTableName, getColumnName, plugin } = getCodegenContext();
    const { table_name, columns, table_schema, primary_keys, table_type } = table;
    const isView = table_type === "view";
    const tableTypeName = getTableName(table_name);
-   const tableTypeSelect = `I${tableTypeName}Select`;
-   const tableTypeInsert = `I${tableTypeName}Insert`;
-   const tableTypeUpdate = `I${tableTypeName}Update`;
+   const tableTypePrefix = `I${tableTypeName}`;
+   const tableTypeSelect = `${tableTypePrefix}Select`;
+   const tableTypeInsert = `${tableTypePrefix}Insert`;
+   const tableTypeUpdate = `${tableTypePrefix}Update`;
 
    const typeParams = isView
       ? `{ Select: ${tableTypeSelect} }`

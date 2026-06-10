@@ -1,4 +1,4 @@
-import { VexnorPlugin, VexnorConnection } from "#/plugin/plugin.js";
+import { VexnorPlugin, VexnorConnection, SqlColumnInfo, SqlColumnType, SqlSchema } from "#/plugin/plugin.js";
 import { SqlQuery } from "#/core/query/sql-query.js";
 import { MockQueryHandler } from "#/test/mock-query-handler.js";
 import { ok } from "node:assert";
@@ -27,11 +27,13 @@ export class MockPlugin extends VexnorPlugin<{
       this.name = name;
    }
 
-   getColumnType(): never {
+   // eslint-disable-next-line unused-imports/no-unused-vars
+   getColumnType(_col: SqlColumnInfo): SqlColumnType {
       throw new Error("Not implemented");
    }
 
-   getSchema(): never {
+   // eslint-disable-next-line unused-imports/no-unused-vars
+   getSchema(_args: { schemas: string[] }): Promise<SqlSchema> {
       throw new Error("Not implemented");
    }
 

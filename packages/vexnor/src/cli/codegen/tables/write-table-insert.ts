@@ -1,16 +1,16 @@
-import CodeBlockWriter from "code-block-writer";
+import { CodeWriter } from "#/lib/code-writer.js";
 import { ok } from "#/lib/assert.js";
 import to from "to-case";
 import { PrintTableArgs, SqlLiteralType } from "#/plugin/plugin.js";
 import { getCodegenContext } from "#/cli/codegen/codegen-context.js";
 
-export function writeTableInsert(writer: CodeBlockWriter.default, { table }: PrintTableArgs) {
+export function writeTableInsert(writer: CodeWriter, { table }: PrintTableArgs) {
    if (table.table_type === "view") return;
    const { getTableName, getColumnName, plugin } = getCodegenContext();
-   const { columns } = table;
-   const tableTypeName = getTableName(table.table_name);
-   const tableTypeInsert = `I${tableTypeName}Insert`;
-   const tableTypeUpdate = `I${tableTypeName}Update`;
+   const { columns, table_name } = table;
+   const tableTypePrefix = `I${getTableName(table_name)}`;
+   const tableTypeInsert = `${tableTypePrefix}Insert`;
+   const tableTypeUpdate = `${tableTypePrefix}Update`;
 
    writer
       .blankLine()

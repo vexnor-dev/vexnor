@@ -35,7 +35,6 @@ main
    )
    .requiredOption("--outDir <directory>", "Output directory to generate the mapping files into")
    .requiredOption("--schema <schema...>", "Database schema(s) to generate mapping code for")
-   .option("--pascalCaseTables", "Use PascalCase for table names")
    .option("--camelCaseColumns", "Use camelCase for column names")
    .option("--omit <tables...>", "Table names to omit from codegen (e.g. migration_vexnor or schema.table_name)")
    .action(async (options: CodegenCommandOptions) => {
