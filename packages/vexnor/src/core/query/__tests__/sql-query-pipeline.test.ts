@@ -260,11 +260,10 @@ describe("SqlQueryPipeline via connect() — audit log", () => {
       });
       await Promise.resolve();
 
-      expect(onLog.mock.calls[0]![0].context).toMatchInlineSnapshot(`
-        {
-          "userId": "u1",
-        }
-      `);
+      expect(onLog).toHaveBeenCalledOnce();
+      expect(onLog).toHaveBeenCalledWith(expect.objectContaining({
+         context: { userId: "u1" },
+      }));
    });
 
    test("AuditLogPlugin fires even when authorization denies execution", async () => {

@@ -883,11 +883,10 @@ describe("QueryRegistry", () => {
          context: { userId: "u1", secret: "s3cr3t" },
       });
 
-      expect(onLog.mock.calls[0]![0].context).toMatchInlineSnapshot(`
-        {
-          "userId": "u1",
-        }
-      `);
+      expect(onLog).toHaveBeenCalledOnce();
+      expect(onLog).toHaveBeenCalledWith(expect.objectContaining({
+         context: { userId: "u1" },
+      }));
    });
 
    test("raw context is not forwarded to onLog — only contextLog is", async () => {
