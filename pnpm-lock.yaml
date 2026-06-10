@@ -356,9 +356,6 @@ importers:
         specifier: ^4.20.6
         version: 4.22.4
     devDependencies:
-      '@types/pg':
-        specifier: ^8.15.5
-        version: 8.20.0
       '@vitest/coverage-v8':
         specifier: ^4.1.5
         version: 4.1.8(vitest@4.1.8)
