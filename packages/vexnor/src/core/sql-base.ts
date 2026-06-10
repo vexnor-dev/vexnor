@@ -63,7 +63,7 @@ export abstract class Sql {
 
    protected constructor(options: SqlOptions) {
       this.id = `${this.constructor.name}#${nextId(this.constructor.name)}`;
-      ok(options.hashId, `Invalid hashId provided for ${options.type ?? this.constructor.name}`);
+      ok(options.hashId, `Invalid hashId '${options.hashId}' provided for ${options.type ?? this.constructor.name}`);
       this.hashId = `${options.type ?? this.constructor.name}#(${options.hashId})`;
 
       if (options.tag || options.id) {

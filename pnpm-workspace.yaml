@@ -6,6 +6,17 @@ packages:
   - '!**/build/**'
   - '!**/deploy/**'
 
+overrides:
+  drizzle-orm: 1.0.0-rc.4-5d5b77c
+  sql-formatter: 15.7.4
+
+peerDependencyRules:
+  ignoreMissing:
+    - '@electric-sql/pglite'
+    - '@types/mssql'
+    - mssql
+    - '@sinclair/typebox'
+
 allowBuilds:
   '@prisma/client': true
   '@prisma/engines': true
