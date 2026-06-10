@@ -18,14 +18,18 @@ declare module "vexnor" {
    }
 }
 
-Object.defineProperty(SqlQuery.prototype, "postgres", {
-   get: function () {
-      return newSqlQueryHandler(new PostgresQueryHandler(this));
-   },
-});
+if (!Object.hasOwn(SqlQuery.prototype, "postgres")) {
+   Object.defineProperty(SqlQuery.prototype, "postgres", {
+      get: function () {
+         return newSqlQueryHandler(new PostgresQueryHandler(this));
+      },
+   });
+}
 
-Object.defineProperty(SqlTable.prototype, "postgres", {
-   get: function () {
-      return newPostgresTableHandler(this);
-   },
-});
+if (!Object.hasOwn(SqlTable.prototype, "postgres")) {
+   Object.defineProperty(SqlTable.prototype, "postgres", {
+      get: function () {
+         return newPostgresTableHandler(this);
+      },
+   });
+}

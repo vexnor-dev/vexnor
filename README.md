@@ -167,6 +167,7 @@ See [Isomorphic SQL](docs/isomorphic-sql.md) for the full picture.
 - [Authorization](docs/authorization.md) — query authorization, audit logging, SOC2/HIPAA
 - [Telemetry](docs/telemetry.md) — OpenTelemetry integration, spans, OTLP exporters
 - [CLI](docs/cli.md) — `codegen`, `exec run`, `exec init`, config reference
+- [Transactions](docs/transactions.md) — `transaction()`, `savepoint()`, isolation levels, all three drivers
 - [Databases](docs/databases.md) — PostgreSQL, MS SQL Server, SQLite — driver setup and dialect notes
 - [Plugins & Adaptors](docs/plugins.md) — Drizzle, Prisma, TypeORM, Sequelize adaptors, building your own plugin
 

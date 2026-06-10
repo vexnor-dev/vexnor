@@ -42,6 +42,12 @@
       "eslint": "^9",
       "eslint-config-next": "16.2.6",
       "tailwindcss": "^4",
-      "typescript": "^5"
+      "@vitejs/plugin-react": "^4.5.2",
+      "@vitest/coverage-v8": "^4.1.7",
+      "jsdom": "^29.1.1",
+      "tsx": "^4.19.4",
+      "typescript": "5.9.3",
+      "vite-tsconfig-paths": "^6.1.1",
+      "vitest": "^4.1.7"
    }
 }
