@@ -42,7 +42,7 @@ describe.sequential("postgres remote execution", () => {
       });
 
       remoteClient = {
-         remoteExecute: (config) => registry.execute({ ...config, params: config.params ?? {} }, async () => pool),
+         remoteExecute: (config) => registry.execute({ ...config, params: config.params ?? {}, mode: config.mode ?? "read" }, async () => pool),
       };
 
       account = await sql`

@@ -44,7 +44,7 @@ describe.sequential("mssql remote execution", (ctx) => {
 
       remoteClient = {
          remoteExecute: (config) =>
-            registry.execute({ ...config, params: config.params ?? {} }, async () => pool.request()),
+            registry.execute({ ...config, params: config.params ?? {}, mode: config.mode ?? "read" }, async () => pool.request()),
       };
 
       account = await sql`

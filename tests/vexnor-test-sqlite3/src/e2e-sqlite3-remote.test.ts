@@ -39,7 +39,7 @@ describe.sequential("sqlite3 remote execution", () => {
       });
 
       remoteClient = {
-         remoteExecute: (config) => registry.execute({ ...config, params: config.params ?? {} }, async () => db),
+         remoteExecute: (config) => registry.execute({ ...config, params: config.params ?? {}, mode: config.mode ?? "read" }, async () => db),
       };
 
       account = await sql`
