@@ -12,7 +12,7 @@ import { SqlQueryAll, SqlQueryRow } from "#/core/query/sql-models.js";
 import { SqlQueryInfo } from "#/core/charms/sql-query-info.js";
 import { findQueryComment } from "#/core/utils/find-query-comment.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
+import { SqlBuildOptions, sqlBuildDefaults } from "#/core/builder/sql-build-options.js";
 import { newSqlQueryRef, SqlQueryRef, SqlQueryRefAny, SqlQueryRefExtended } from "#/core/query/sql-query-ref.js";
 import { SqlBuildError } from "#/core/sql-build-error.js";
 import { Queue } from "#/lib/queue.js";
@@ -357,7 +357,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
          () => {
             const queryName = context.getQueryName(this);
             // TODO: include additional tracing in sql-query.build(): ${this.fragment ? "fragment " : ""}format="${this.format}"
-            context.addStrings(` /* <${queryName}> */ `);
+            if (options?.boundaryComments ?? sqlBuildDefaults.boundaryComments) context.addStrings(` /* <${queryName}> */ `);
             const children = [...this.rawValues];
             let i = -1;
             while (children.length || i < this.rawStrings.length) {
@@ -385,7 +385,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
                }
             }
 
-            context.addStrings(`/* </${queryName}> */`);
+            if (options?.boundaryComments ?? sqlBuildDefaults.boundaryComments) context.addStrings(`/* </${queryName}> */`);
          },
          scope ?? { queryType: "main", cte: false },
       );

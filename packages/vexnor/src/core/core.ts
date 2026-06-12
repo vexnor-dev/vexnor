@@ -86,7 +86,7 @@ export {
    type SqlColumnFormat,
    type SqlSelectFormat,
 } from "./builder/default-formatter.js";
-export { type SqlBuildOptions } from "./builder/sql-build-options.js";
+export { type SqlBuildOptions, sqlBuildDefaults } from "./builder/sql-build-options.js";
 
 // constants
 export { MAJOR_KEYWORDS, SUBQUERY_STARTERS } from "./sql-constants.js";

@@ -2,7 +2,7 @@
 import { ARGS, PARAMS, ROW, Sql } from "#/core/sql-base.js";
 import { SqlQuery } from "#/core/query/sql-query.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
+import { SqlBuildOptions, sqlBuildDefaults } from "#/core/builder/sql-build-options.js";
 import { BuildSqlParams, SqlParam } from "#/core/query/sql-param.js";
 import { ParamValidation } from "#/core/query/sql-param-validation.js";
 
@@ -41,7 +41,7 @@ export class SqlExpand<T extends { Params: Record<string, unknown> }> extends Sq
    write(context: SqlBuildContext, options?: SqlBuildOptions): void {
       if (!context.params) {
          context.addExpand(this);
-         context.addStrings(`/* <${this.id} /> */`);
+         if (options?.boundaryComments ?? sqlBuildDefaults.boundaryComments) context.addStrings(`/* <${this.id} /> */`);
          return;
       }
 
