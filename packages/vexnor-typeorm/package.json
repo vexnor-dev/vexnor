@@ -46,19 +46,19 @@
       "vexnor": "workspace:^"
    },
    "devDependencies": {
-      "@types/better-sqlite3": "^7.6.13",
-      "@vitest/coverage-v8": "^4.1.8",
-      "better-sqlite3": "^12.10.0",
-      "npm-run-all": "^4.1.5",
+      "typeorm": "^0.3.24",
+      "better-sqlite3": "^12.4.1",
       "reflect-metadata": "^0.2.2",
-      "tsc-alias": "^1.8.17",
-      "typeorm": "^0.3.30",
+      "@types/better-sqlite3": "^7.6.13",
+      "@vitest/coverage-v8": "^4.1.5",
+      "npm-run-all": "^4.1.5",
       "typescript": "^5.9.3",
+      "tsc-alias": "^1.8.16",
       "vite-tsconfig-paths": "^6.1.1",
-      "vitest": "^4.1.8"
+      "vitest": "^4.1.5"
    },
    "peerDependencies": {
-      "reflect-metadata": ">=0.1.0",
-      "typeorm": ">=0.3.0"
+      "typeorm": ">=0.3.0",
+      "reflect-metadata": ">=0.1.0"
    }
 }

@@ -20,8 +20,8 @@
       "test1": "env-cmd --no-override -x -r ../../env-dev.json -e mssql vite-node src/test.ts | pino-pretty"
    },
    "dependencies": {
-      "@sinclair/typebox": "^0.34.49",
-      "mssql": "^12.5.5",
+      "@sinclair/typebox": "^0.34.41",
+      "mssql": "^12.5.2",
       "vexnor": "workspace:*",
       "vexnor-drizzle": "workspace:*",
       "vexnor-mssql": "workspace:*",
@@ -33,13 +33,13 @@
       "@prisma/adapter-mssql": "^7.8.0",
       "@prisma/client": "^7.8.0",
       "@types/mssql": "^12.3.0",
-      "@vitest/coverage-v8": "^4.1.8",
-      "drizzle-orm": "1.0.0-rc.4-5d5b77c",
+      "@vitest/coverage-v8": "^4.1.5",
+      "drizzle-orm": "^1.0.0-beta.20",
       "prisma": "^7.8.0",
       "reflect-metadata": "^0.2.2",
-      "sequelize": "^6.37.8",
-      "typeorm": "^0.3.30",
+      "sequelize": "^6.37.7",
+      "typeorm": "^0.3.24",
       "vite-tsconfig-paths": "^6.1.1",
-      "vitest": "^4.1.8"
+      "vitest": "^4.1.7"
    }
 }
