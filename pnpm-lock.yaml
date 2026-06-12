@@ -41,7 +41,7 @@ importers:
         version: 9.1.2(eslint@9.39.4(jiti@2.7.0))
       eslint-plugin-import:
         specifier: ^2.32.0
-        version: 2.32.0(@typescript-eslint/parser@8.61.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.4(jiti@2.7.0))
+        version: 2.32.0(@typescript-eslint/parser@8.61.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4(jiti@2.7.0))
       eslint-plugin-prettier:
         specifier: ^5.5.6
         version: 5.5.6(eslint-config-prettier@9.1.2(eslint@9.39.4(jiti@2.7.0)))(eslint@9.39.4(jiti@2.7.0))(prettier@3.8.4)
@@ -94,7 +94,7 @@ importers:
   examples/postgres-cjs:
     dependencies:
       pg:
-        specifier: ^8.21.0
+        specifier: ^8.16.3
         version: 8.21.0
       vexnor:
         specifier: workspace:^
@@ -104,35 +104,35 @@ importers:
         version: link:../../packages/vexnor-postgres
     devDependencies:
       '@types/pg':
-        specifier: ^8.20.0
+        specifier: ^8.15.5
         version: 8.20.0
       vite-tsconfig-paths:
         specifier: ^6.1.1
         version: 6.1.1(typescript@5.9.3)(vite@8.0.16(@types/node@25.9.3)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
       vitest:
-        specifier: ^4.1.8
+        specifier: ^4.0.18
         version: 4.1.8(@opentelemetry/api@1.9.1)(@types/node@25.9.3)(@vitest/coverage-v8@4.1.8)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.9.3)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
 
   examples/postgres-esm:
     dependencies:
       pg:
-        specifier: ^8.21.0
+        specifier: ^8.16.3
         version: 8.21.0
       vexnor:
-        specifier: workspace:^
+        specifier: workspace:^1.0.0
         version: link:../../packages/vexnor
       vexnor-postgres:
-        specifier: workspace:^
+        specifier: workspace:^1.0.0
         version: link:../../packages/vexnor-postgres
     devDependencies:
       '@types/pg':
-        specifier: ^8.20.0
+        specifier: ^8.15.5
         version: 8.20.0
       vite-tsconfig-paths:
         specifier: ^6.1.1
         version: 6.1.1(typescript@5.9.3)(vite@8.0.16(@types/node@25.9.3)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
       vitest:
-        specifier: ^4.1.8
+        specifier: ^4.0.18
         version: 4.1.8(@opentelemetry/api@1.9.1)(@types/node@25.9.3)(@vitest/coverage-v8@4.1.8)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.9.3)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
 
   examples/react-next-app:
@@ -141,13 +141,13 @@ importers:
         specifier: ^12.10.0
         version: 12.10.0
       mssql:
-        specifier: ^12.5.5
+        specifier: ^12.5.4
         version: 12.5.5
       next:
         specifier: 16.2.6
         version: 16.2.6(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       pg:
-        specifier: ^8.21.0
+        specifier: ^8.16.3
         version: 8.21.0
       react:
         specifier: 19.2.4
@@ -169,7 +169,7 @@ importers:
         version: link:../../packages/vexnor-sqlite3
     devDependencies:
       '@tailwindcss/postcss':
-        specifier: ^4.3.0
+        specifier: ^4
         version: 4.3.0
       '@types/better-sqlite3':
         specifier: ^7.6.13
@@ -178,28 +178,28 @@ importers:
         specifier: ^12.3.0
         version: 12.3.0
       '@types/node':
-        specifier: ^22.19.21
+        specifier: ^22.19.20
         version: 22.19.21
       '@types/pg':
-        specifier: ^8.20.0
+        specifier: ^8.15.5
         version: 8.20.0
       '@types/react':
-        specifier: ^19.2.17
+        specifier: ^19
         version: 19.2.17
       '@types/react-dom':
-        specifier: ^19.2.3
+        specifier: ^19
         version: 19.2.3(@types/react@19.2.17)
       '@vitejs/plugin-react':
-        specifier: ^4.7.0
+        specifier: ^4.5.2
         version: 4.7.0(vite@8.0.16(@types/node@22.19.21)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
       '@vitest/coverage-v8':
-        specifier: ^4.1.8
+        specifier: ^4.1.7
         version: 4.1.8(vitest@4.1.8)
       env-cmd:
         specifier: ^10.1.0
         version: 10.1.0
       eslint:
-        specifier: ^9.39.4
+        specifier: ^9
         version: 9.39.4(jiti@2.7.0)
       eslint-config-next:
         specifier: 16.2.6
@@ -211,13 +211,13 @@ importers:
         specifier: ^4.1.5
         version: 4.1.5
       pino-pretty:
-        specifier: ^13.1.3
+        specifier: ^13.1.1
         version: 13.1.3
       tailwindcss:
-        specifier: ^4.3.0
+        specifier: ^4
         version: 4.3.0
       tsx:
-        specifier: ^4.22.4
+        specifier: ^4.19.4
         version: 4.22.4
       typescript:
         specifier: 5.9.3
@@ -226,7 +226,7 @@ importers:
         specifier: ^6.1.1
         version: 6.1.1(typescript@5.9.3)(vite@8.0.16(@types/node@22.19.21)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
       vitest:
-        specifier: ^4.1.8
+        specifier: ^4.1.7
         version: 4.1.8(@opentelemetry/api@1.9.1)(@types/node@22.19.21)(@vitest/coverage-v8@4.1.8)(jsdom@29.1.1)(vite@8.0.16(@types/node@22.19.21)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
 
   examples/react-vite-api:
@@ -353,10 +353,10 @@ importers:
         specifier: ^1.0.0
         version: 1.9.1
       commander:
-        specifier: ^9.5.0
+        specifier: ^9.1.0
         version: 9.5.0
       pino:
-        specifier: ^7.11.0
+        specifier: ^7.10.0
         version: 7.11.0
       sql-formatter:
         specifier: 15.7.4
@@ -365,20 +365,20 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       tsx:
-        specifier: ^4.22.4
+        specifier: ^4.20.6
         version: 4.22.4
     devDependencies:
       '@vitest/coverage-v8':
-        specifier: ^4.1.8
+        specifier: ^4.1.5
         version: 4.1.8(vitest@4.1.8)
       tsc-alias:
-        specifier: ^1.8.17
+        specifier: ^1.8.16
         version: 1.8.17
       vite-tsconfig-paths:
         specifier: ^6.1.1
         version: 6.1.1(typescript@5.9.3)(vite@8.0.16(@types/node@25.9.3)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
       vitest:
-        specifier: ^4.1.8
+        specifier: ^4.1.5
         version: 4.1.8(@opentelemetry/api@1.9.1)(@types/node@25.9.3)(@vitest/coverage-v8@4.1.8)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.9.3)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
 
   packages/vexnor-drizzle:
@@ -391,7 +391,7 @@ importers:
         specifier: ^12.3.0
         version: 12.3.0
       '@vitest/coverage-v8':
-        specifier: ^4.1.8
+        specifier: ^4.1.5
         version: 4.1.8(vitest@4.1.8)
       drizzle-orm:
         specifier: 1.0.0-rc.4-5d5b77c
@@ -406,7 +406,7 @@ importers:
         specifier: ^6.1.1
         version: 6.1.1(typescript@5.9.3)(vite@8.0.16(@types/node@25.9.3)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
       vitest:
-        specifier: ^4.1.8
+        specifier: ^4.1.5
         version: 4.1.8(@opentelemetry/api@1.9.1)(@types/node@25.9.3)(@vitest/coverage-v8@4.1.8)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.9.3)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
 
   packages/vexnor-mssql:
@@ -422,13 +422,13 @@ importers:
         specifier: ^12.3.0
         version: 12.3.0
       '@vitest/coverage-v8':
-        specifier: ^4.1.8
+        specifier: ^4.1.5
         version: 4.1.8(vitest@4.1.8)
       npm-run-all:
         specifier: ^4.1.5
         version: 4.1.5
       tsc-alias:
-        specifier: ^1.8.17
+        specifier: ^1.8.16
         version: 1.8.17
       typescript:
         specifier: ^5.9.3
@@ -437,7 +437,7 @@ importers:
         specifier: ^6.1.1
         version: 6.1.1(typescript@5.9.3)(vite@8.0.16(@types/node@25.9.3)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
       vitest:
-        specifier: ^4.1.8
+        specifier: ^4.1.5
         version: 4.1.8(@opentelemetry/api@1.9.1)(@types/node@25.9.3)(@vitest/coverage-v8@4.1.8)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.9.3)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
 
   packages/vexnor-postgres:
@@ -450,16 +450,16 @@ importers:
         version: link:../vexnor
     devDependencies:
       '@types/pg':
-        specifier: ^8.20.0
+        specifier: ^8.15.5
         version: 8.20.0
       '@vitest/coverage-v8':
-        specifier: ^4.1.8
+        specifier: ^4.1.5
         version: 4.1.8(vitest@4.1.8)
       npm-run-all:
         specifier: ^4.1.5
         version: 4.1.5
       tsc-alias:
-        specifier: ^1.8.17
+        specifier: ^1.8.16
         version: 1.8.17
       typescript:
         specifier: ^5.9.3
@@ -468,7 +468,7 @@ importers:
         specifier: ^6.1.1
         version: 6.1.1(typescript@5.9.3)(vite@8.0.16(@types/node@25.9.3)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
       vitest:
-        specifier: ^4.1.8
+        specifier: ^4.1.5
         version: 4.1.8(@opentelemetry/api@1.9.1)(@types/node@25.9.3)(@vitest/coverage-v8@4.1.8)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.9.3)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
 
   packages/vexnor-prisma:
@@ -484,7 +484,7 @@ importers:
         specifier: 7.8.0
         version: 7.8.0(prisma@7.8.0(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(better-sqlite3@12.10.0)(magicast@0.5.3)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@5.9.3))(typescript@5.9.3)
       '@vitest/coverage-v8':
-        specifier: ^4.1.8
+        specifier: ^4.1.5
         version: 4.1.8(vitest@4.1.8)
       npm-run-all:
         specifier: ^4.1.5
@@ -499,7 +499,7 @@ importers:
         specifier: ^6.1.1
         version: 6.1.1(typescript@5.9.3)(vite@8.0.16(@types/node@25.9.3)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
       vitest:
-        specifier: ^4.1.8
+        specifier: ^4.1.5
         version: 4.1.8(@opentelemetry/api@1.9.1)(@types/node@25.9.3)(@vitest/coverage-v8@4.1.8)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.9.3)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
 
   packages/vexnor-prisma/src/__tests__/fixtures-v6-client-js/generated: {}
@@ -519,19 +519,19 @@ importers:
         version: link:../vexnor
     devDependencies:
       '@vitest/coverage-v8':
-        specifier: ^4.1.8
+        specifier: ^4.1.5
         version: 4.1.8(vitest@4.1.8)
       npm-run-all:
         specifier: ^4.1.5
         version: 4.1.5
       sequelize:
-        specifier: ^6.37.8
+        specifier: ^6.37.7
         version: 6.37.8(mysql2@3.15.3)(pg@8.21.0)(sqlite3@5.1.7)
       sqlite3:
         specifier: ^5.1.7
         version: 5.1.7
       tsc-alias:
-        specifier: ^1.8.17
+        specifier: ^1.8.16
         version: 1.8.17
       typescript:
         specifier: ^5.9.3
@@ -540,7 +540,7 @@ importers:
         specifier: ^6.1.1
         version: 6.1.1(typescript@5.9.3)(vite@8.0.16(@types/node@25.9.3)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
       vitest:
-        specifier: ^4.1.8
+        specifier: ^4.1.5
         version: 4.1.8(@opentelemetry/api@1.9.1)(@types/node@25.9.3)(@vitest/coverage-v8@4.1.8)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.9.3)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
 
   packages/vexnor-sqlite3:
@@ -556,13 +556,13 @@ importers:
         specifier: ^7.6.13
         version: 7.6.13
       '@vitest/coverage-v8':
-        specifier: ^4.1.8
+        specifier: ^4.1.5
         version: 4.1.8(vitest@4.1.8)
       npm-run-all:
         specifier: ^4.1.5
         version: 4.1.5
       tsc-alias:
-        specifier: ^1.8.17
+        specifier: ^1.8.16
         version: 1.8.17
       typescript:
         specifier: ^5.9.3
@@ -571,7 +571,7 @@ importers:
         specifier: ^6.1.1
         version: 6.1.1(typescript@5.9.3)(vite@8.0.16(@types/node@25.9.3)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
       vitest:
-        specifier: ^4.1.8
+        specifier: ^4.1.5
         version: 4.1.8(@opentelemetry/api@1.9.1)(@types/node@25.9.3)(@vitest/coverage-v8@4.1.8)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.9.3)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
 
   packages/vexnor-typeorm:
@@ -584,10 +584,10 @@ importers:
         specifier: ^7.6.13
         version: 7.6.13
       '@vitest/coverage-v8':
-        specifier: ^4.1.8
+        specifier: ^4.1.5
         version: 4.1.8(vitest@4.1.8)
       better-sqlite3:
-        specifier: ^12.10.0
+        specifier: ^12.4.1
         version: 12.10.0
       npm-run-all:
         specifier: ^4.1.5
@@ -596,10 +596,10 @@ importers:
         specifier: ^0.2.2
         version: 0.2.2
       tsc-alias:
-        specifier: ^1.8.17
+        specifier: ^1.8.16
         version: 1.8.17
       typeorm:
-        specifier: ^0.3.30
+        specifier: ^0.3.24
         version: 0.3.30(better-sqlite3@12.10.0)(mssql@12.5.5)(mysql2@3.15.3)(pg@8.21.0)(sqlite3@5.1.7)
       typescript:
         specifier: ^5.9.3
@@ -608,16 +608,16 @@ importers:
         specifier: ^6.1.1
         version: 6.1.1(typescript@5.9.3)(vite@8.0.16(@types/node@25.9.3)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
       vitest:
-        specifier: ^4.1.8
+        specifier: ^4.1.5
         version: 4.1.8(@opentelemetry/api@1.9.1)(@types/node@25.9.3)(@vitest/coverage-v8@4.1.8)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.9.3)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
 
   tests/vexnor-test-mssql:
     dependencies:
       '@sinclair/typebox':
-        specifier: ^0.34.49
+        specifier: ^0.34.41
         version: 0.34.49
       mssql:
-        specifier: ^12.5.5
+        specifier: ^12.5.2
         version: 12.5.5
       vexnor:
         specifier: workspace:*
@@ -648,7 +648,7 @@ importers:
         specifier: ^12.3.0
         version: 12.3.0
       '@vitest/coverage-v8':
-        specifier: ^4.1.8
+        specifier: ^4.1.5
         version: 4.1.8(vitest@4.1.8)
       drizzle-orm:
         specifier: 1.0.0-rc.4-5d5b77c
@@ -660,16 +660,16 @@ importers:
         specifier: ^0.2.2
         version: 0.2.2
       sequelize:
-        specifier: ^6.37.8
+        specifier: ^6.37.7
         version: 6.37.8(mysql2@3.15.3)(pg@8.21.0)(sqlite3@5.1.7)
       typeorm:
-        specifier: ^0.3.30
+        specifier: ^0.3.24
         version: 0.3.30(better-sqlite3@12.10.0)(mssql@12.5.5)(mysql2@3.15.3)(pg@8.21.0)(sqlite3@5.1.7)
       vite-tsconfig-paths:
         specifier: ^6.1.1
         version: 6.1.1(typescript@5.9.3)(vite@8.0.16(@types/node@25.9.3)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
       vitest:
-        specifier: ^4.1.8
+        specifier: ^4.1.7
         version: 4.1.8(@opentelemetry/api@1.9.1)(@types/node@25.9.3)(@vitest/coverage-v8@4.1.8)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.9.3)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
 
   tests/vexnor-test-postgres:
@@ -713,7 +713,7 @@ importers:
         version: 4.1.8(vitest@4.1.8)
       drizzle-orm:
         specifier: 1.0.0-rc.4-5d5b77c
-        version: 1.0.0-rc.4-5d5b77c(@electric-sql/pglite@0.4.1)(@opentelemetry/api@1.9.1)(@sinclair/typebox@0.34.49)(@types/better-sqlite3@7.6.13)(@types/pg@8.20.0)(better-sqlite3@12.10.0)(mysql2@3.15.3)(pg@8.21.0)(postgres@3.4.7)(sqlite3@5.1.7)(valibot@1.2.0(typescript@5.9.3))(zod@4.4.3)
+        version: 1.0.0-rc.4-5d5b77c(@electric-sql/pglite@0.4.1)(@opentelemetry/api@1.9.1)(@sinclair/typebox@0.34.49)(@types/better-sqlite3@7.6.13)(@types/mssql@12.3.0)(@types/pg@8.20.0)(better-sqlite3@12.10.0)(mssql@12.5.5)(mysql2@3.15.3)(pg@8.21.0)(postgres@3.4.7)(sqlite3@5.1.7)(valibot@1.2.0(typescript@5.9.3))(zod@4.4.3)
       env-cmd:
         specifier: ^10.1.0
         version: 10.1.0
@@ -728,7 +728,7 @@ importers:
         version: 6.37.8(mysql2@3.15.3)(pg@8.21.0)(sqlite3@5.1.7)
       typeorm:
         specifier: ^0.3.30
-        version: 0.3.30(better-sqlite3@12.10.0)(mysql2@3.15.3)(pg@8.21.0)(sqlite3@5.1.7)
+        version: 0.3.30(better-sqlite3@12.10.0)(mssql@12.5.5)(mysql2@3.15.3)(pg@8.21.0)(sqlite3@5.1.7)
       vite-tsconfig-paths:
         specifier: ^6.1.1
         version: 6.1.1(typescript@5.9.3)(vite@8.0.16(@types/node@25.9.3)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
@@ -739,22 +739,22 @@ importers:
   tests/vexnor-test-remote:
     dependencies:
       '@hono/node-server':
-        specifier: ^1.19.14
-        version: 1.19.14(hono@4.12.25)
+        specifier: ^1.14.4
+        version: 1.19.13(hono@4.12.25)
       '@sinclair/typebox':
-        specifier: ^0.34.49
+        specifier: ^0.34.41
         version: 0.34.49
       better-sqlite3:
-        specifier: ^12.10.0
+        specifier: ^12.4.1
         version: 12.10.0
       hono:
-        specifier: ^4.12.25
+        specifier: ^4.7.10
         version: 4.12.25
       mssql:
-        specifier: ^12.5.5
+        specifier: ^12.5.2
         version: 12.5.5
       pg:
-        specifier: ^8.21.0
+        specifier: ^8.16.3
         version: 8.21.0
       vexnor:
         specifier: workspace:*
@@ -776,10 +776,10 @@ importers:
         specifier: ^12.3.0
         version: 12.3.0
       '@types/pg':
-        specifier: ^8.20.0
+        specifier: ^8.15.5
         version: 8.20.0
       '@vitest/coverage-v8':
-        specifier: ^4.1.8
+        specifier: ^4.1.5
         version: 4.1.8(vitest@4.1.8)
       env-cmd:
         specifier: ^10.1.0
@@ -788,22 +788,22 @@ importers:
         specifier: ^4.1.5
         version: 4.1.5
       pino-pretty:
-        specifier: ^13.1.3
+        specifier: ^13.0.0
         version: 13.1.3
       vite-tsconfig-paths:
         specifier: ^6.1.1
         version: 6.1.1(typescript@5.9.3)(vite@8.0.16(@types/node@25.9.3)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
       vitest:
-        specifier: ^4.1.8
+        specifier: ^4.1.5
         version: 4.1.8(@opentelemetry/api@1.9.1)(@types/node@25.9.3)(@vitest/coverage-v8@4.1.8)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.9.3)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
 
   tests/vexnor-test-sqlite3:
     dependencies:
       '@sinclair/typebox':
-        specifier: ^0.34.49
+        specifier: ^0.34.41
         version: 0.34.49
       better-sqlite3:
-        specifier: ^12.10.0
+        specifier: ^12.4.1
         version: 12.10.0
       vexnor:
         specifier: workspace:*
@@ -834,7 +834,7 @@ importers:
         specifier: ^7.6.13
         version: 7.6.13
       '@vitest/coverage-v8':
-        specifier: ^4.1.8
+        specifier: ^4.1.5
         version: 4.1.8(vitest@4.1.8)
       drizzle-orm:
         specifier: 1.0.0-rc.4-5d5b77c
@@ -846,16 +846,16 @@ importers:
         specifier: ^0.2.2
         version: 0.2.2
       sequelize:
-        specifier: ^6.37.8
+        specifier: ^6.37.7
         version: 6.37.8(mysql2@3.15.3)(pg@8.21.0)(sqlite3@5.1.7)
       typeorm:
-        specifier: ^0.3.30
+        specifier: ^0.3.24
         version: 0.3.30(better-sqlite3@12.10.0)(mssql@12.5.5)(mysql2@3.15.3)(pg@8.21.0)(sqlite3@5.1.7)
       vite-tsconfig-paths:
         specifier: ^6.1.1
         version: 6.1.1(typescript@5.9.3)(vite@8.0.16(@types/node@25.9.3)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
       vitest:
-        specifier: ^4.1.8
+        specifier: ^4.1.5
         version: 4.1.8(@opentelemetry/api@1.9.1)(@types/node@25.9.3)(@vitest/coverage-v8@4.1.8)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.9.3)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
 
 packages:
@@ -1323,12 +1323,6 @@ packages:
 
   '@hono/node-server@1.19.13':
     resolution: {integrity: sha512-TsQLe4i2gvoTtrHje625ngThGBySOgSK3Xo2XRYOdqGN1teR8+I7vchQC46uLJi8OF62YTYA3AhSpumtkhsaKQ==}
-    engines: {node: '>=18.14.1'}
-    peerDependencies:
-      hono: ^4
-
-  '@hono/node-server@1.19.14':
-    resolution: {integrity: sha512-GwtvgtXxnWsucXvbQXkRgqksiH2Qed37H9xHZocE5sA3N8O8O8/8FA3uclQXxXVzc9XBZuEOMK7+r02FmSpHtw==}
     engines: {node: '>=18.14.1'}
     peerDependencies:
       hono: ^4
@@ -6499,10 +6493,6 @@ snapshots:
     dependencies:
       hono: 4.12.25
 
-  '@hono/node-server@1.19.14(hono@4.12.25)':
-    dependencies:
-      hono: 4.12.25
-
   '@humanfs/core@0.19.2':
     dependencies:
       '@humanfs/types': 0.15.0
@@ -7424,7 +7414,7 @@ snapshots:
 
   '@types/better-sqlite3@7.6.13':
     dependencies:
-      '@types/node': 25.9.3
+      '@types/node': 22.19.21
 
   '@types/chai@5.2.3':
     dependencies:
@@ -7460,10 +7450,11 @@ snapshots:
   '@types/node@25.9.3':
     dependencies:
       undici-types: 7.24.6
+    optional: true
 
   '@types/pg@8.20.0':
     dependencies:
-      '@types/node': 25.9.3
+      '@types/node': 22.19.21
       pg-protocol: 1.14.0
       pg-types: 2.2.0
 
@@ -7674,7 +7665,7 @@ snapshots:
       obug: 2.1.2
       std-env: 4.1.0
       tinyrainbow: 3.1.0
-      vitest: 4.1.8(@opentelemetry/api@1.9.1)(@types/node@25.9.3)(@vitest/coverage-v8@4.1.8)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.9.3)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
+      vitest: 4.1.8(@opentelemetry/api@1.9.1)(@types/node@22.19.21)(@vitest/coverage-v8@4.1.8)(jsdom@29.1.1)(vite@8.0.16(@types/node@22.19.21)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
 
   '@vitest/expect@4.1.8':
     dependencies:
@@ -8337,21 +8328,6 @@ snapshots:
       valibot: 1.2.0(typescript@5.9.3)
       zod: 4.4.3
 
-  drizzle-orm@1.0.0-rc.4-5d5b77c(@electric-sql/pglite@0.4.1)(@opentelemetry/api@1.9.1)(@sinclair/typebox@0.34.49)(@types/better-sqlite3@7.6.13)(@types/pg@8.20.0)(better-sqlite3@12.10.0)(mysql2@3.15.3)(pg@8.21.0)(postgres@3.4.7)(sqlite3@5.1.7)(valibot@1.2.0(typescript@5.9.3))(zod@4.4.3):
-    optionalDependencies:
-      '@electric-sql/pglite': 0.4.1
-      '@opentelemetry/api': 1.9.1
-      '@sinclair/typebox': 0.34.49
-      '@types/better-sqlite3': 7.6.13
-      '@types/pg': 8.20.0
-      better-sqlite3: 12.10.0
-      mysql2: 3.15.3
-      pg: 8.21.0
-      postgres: 3.4.7
-      sqlite3: 5.1.7
-      valibot: 1.2.0(typescript@5.9.3)
-      zod: 4.4.3
-
   dunder-proto@1.0.1:
     dependencies:
       call-bind-apply-helpers: 1.0.2
@@ -8617,16 +8593,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-module-utils@2.13.0(@typescript-eslint/parser@8.61.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-node@0.3.10)(eslint@9.39.4(jiti@2.7.0)):
-    dependencies:
-      debug: 3.2.7
-    optionalDependencies:
-      '@typescript-eslint/parser': 8.61.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
-      eslint: 9.39.4(jiti@2.7.0)
-      eslint-import-resolver-node: 0.3.10
-    transitivePeerDependencies:
-      - supports-color
-
   eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.61.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4(jiti@2.7.0)):
     dependencies:
       '@rtsao/scc': 1.1.0
@@ -8639,35 +8605,6 @@ snapshots:
       eslint: 9.39.4(jiti@2.7.0)
       eslint-import-resolver-node: 0.3.10
       eslint-module-utils: 2.13.0(@typescript-eslint/parser@8.61.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-node@0.3.10)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.61.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.4(jiti@2.7.0)))(eslint@9.39.4(jiti@2.7.0)))(eslint@9.39.4(jiti@2.7.0))
-      hasown: 2.0.4
-      is-core-module: 2.16.2
-      is-glob: 4.0.3
-      minimatch: 3.1.5
-      object.fromentries: 2.0.8
-      object.groupby: 1.0.3
-      object.values: 1.2.1
-      semver: 6.3.1
-      string.prototype.trimend: 1.0.10
-      tsconfig-paths: 3.15.0
-    optionalDependencies:
-      '@typescript-eslint/parser': 8.61.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
-    transitivePeerDependencies:
-      - eslint-import-resolver-typescript
-      - eslint-import-resolver-webpack
-      - supports-color
-
-  eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.61.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.4(jiti@2.7.0)):
-    dependencies:
-      '@rtsao/scc': 1.1.0
-      array-includes: 3.1.9
-      array.prototype.findlastindex: 1.2.6
-      array.prototype.flat: 1.3.3
-      array.prototype.flatmap: 1.3.3
-      debug: 3.2.7
-      doctrine: 2.1.0
-      eslint: 9.39.4(jiti@2.7.0)
-      eslint-import-resolver-node: 0.3.10
-      eslint-module-utils: 2.13.0(@typescript-eslint/parser@8.61.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint-import-resolver-node@0.3.10)(eslint@9.39.4(jiti@2.7.0))
       hasown: 2.0.4
       is-core-module: 2.16.2
       is-glob: 4.0.3
@@ -11163,32 +11100,6 @@ snapshots:
       - babel-plugin-macros
       - supports-color
 
-  typeorm@0.3.30(better-sqlite3@12.10.0)(mysql2@3.15.3)(pg@8.21.0)(sqlite3@5.1.7):
-    dependencies:
-      '@sqltools/formatter': 1.2.5
-      ansis: 4.3.1
-      app-root-path: 3.1.0
-      buffer: 6.0.3
-      dayjs: 1.11.21
-      debug: 4.4.3
-      dedent: 1.7.2
-      dotenv: 16.6.1
-      glob: 10.5.0
-      reflect-metadata: 0.2.2
-      sha.js: 2.4.12
-      sql-highlight: 6.1.0
-      tslib: 2.8.1
-      uuid: 11.1.1
-      yargs: 17.7.2
-    optionalDependencies:
-      better-sqlite3: 12.10.0
-      mysql2: 3.15.3
-      pg: 8.21.0
-      sqlite3: 5.1.7
-    transitivePeerDependencies:
-      - babel-plugin-macros
-      - supports-color
-
   typescript-eslint@8.61.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3):
     dependencies:
       '@typescript-eslint/eslint-plugin': 8.61.0(@typescript-eslint/parser@8.61.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
@@ -11213,7 +11124,8 @@ snapshots:
 
   undici-types@6.21.0: {}
 
-  undici-types@7.24.6: {}
+  undici-types@7.24.6:
+    optional: true
 
   undici@7.27.2: {}
 
@@ -11476,7 +11388,7 @@ snapshots:
 
   wkx@0.5.0:
     dependencies:
-      '@types/node': 25.9.3
+      '@types/node': 22.19.21
 
   word-wrap@1.2.5: {}
 
