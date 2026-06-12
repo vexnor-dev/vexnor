@@ -19,8 +19,8 @@
       "build": "tsc -b"
    },
    "dependencies": {
-      "@sinclair/typebox": "^0.34.41",
-      "better-sqlite3": "^12.4.1",
+      "@sinclair/typebox": "^0.34.49",
+      "better-sqlite3": "^12.10.0",
       "vexnor": "workspace:*",
       "vexnor-drizzle": "workspace:*",
       "vexnor-prisma": "workspace:*",
@@ -29,16 +29,16 @@
       "vexnor-typeorm": "workspace:*"
    },
    "devDependencies": {
-      "@prisma/client": "^7.8.0",
       "@prisma/adapter-better-sqlite3": "^7.8.0",
+      "@prisma/client": "^7.8.0",
       "@types/better-sqlite3": "^7.6.13",
-      "@vitest/coverage-v8": "^4.1.5",
-      "drizzle-orm": "^1.0.0-beta.20",
+      "@vitest/coverage-v8": "^4.1.8",
+      "drizzle-orm": "1.0.0-rc.4-5d5b77c",
       "prisma": "^7.8.0",
       "reflect-metadata": "^0.2.2",
-      "sequelize": "^6.37.7",
-      "typeorm": "^0.3.24",
+      "sequelize": "^6.37.8",
+      "typeorm": "^0.3.30",
       "vite-tsconfig-paths": "^6.1.1",
-      "vitest": "^4.1.5"
+      "vitest": "^4.1.8"
    }
 }

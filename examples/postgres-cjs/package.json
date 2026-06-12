@@ -17,13 +17,13 @@
    "author": "",
    "license": "ISC",
    "dependencies": {
-      "pg": "^8.16.3",
+      "pg": "^8.21.0",
       "vexnor": "workspace:^",
       "vexnor-postgres": "workspace:^"
    },
    "devDependencies": {
-      "@types/pg": "^8.15.5",
+      "@types/pg": "^8.20.0",
       "vite-tsconfig-paths": "^6.1.1",
-      "vitest": "^4.0.18"
+      "vitest": "^4.1.8"
    }
 }
