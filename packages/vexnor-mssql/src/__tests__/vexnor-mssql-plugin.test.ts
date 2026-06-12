@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { VexnorMssql } from "#/vexnor-mssql.js";
 import { sql } from "#/mssql-sql.js";
 
@@ -113,5 +113,58 @@ describe("VexnorMssql plugin class", () => {
             config: { host: "", database: "", user: "" } as never,
          }),
       ).rejects.toThrow("Invalid database connection parameters");
+   });
+});
+
+describe("VexnorMssql.getSchema()", () => {
+   test("returns tables and views from mocked connection", async () => {
+      const plugin = new VexnorMssql();
+      const mockTableResult = {
+         recordsets: [[
+            { table_name: "account", table_schema: "dbo", table_columns: JSON.stringify([{ column_name: "id", udt_name: "int" }]), primary_key: "id" },
+         ]],
+         recordset: [{ table_name: "account", table_schema: "dbo", table_columns: JSON.stringify([{ column_name: "id", udt_name: "int" }]), primary_key: "id" }],
+         rowsAffected: [1],
+         output: {},
+      };
+      const mockViewResult = {
+         recordsets: [[
+            { table_name: "account_summary", table_schema: "dbo", table_columns: JSON.stringify([{ column_name: "total", udt_name: "int" }]) },
+         ]],
+         recordset: [{ table_name: "account_summary", table_schema: "dbo", table_columns: JSON.stringify([{ column_name: "total", udt_name: "int" }]) }],
+         rowsAffected: [1],
+         output: {},
+      };
+
+      let callCount = 0;
+      const mockRequest = {
+         input: vi.fn().mockReturnThis(),
+         query: vi.fn().mockImplementation(() => {
+            callCount++;
+            return Promise.resolve(callCount === 1 ? mockTableResult : mockViewResult);
+         }),
+      };
+      const mockPool = {
+         request: () => mockRequest,
+         driver: "tedious",
+         close: vi.fn(),
+      };
+
+      const createSpy = vi.spyOn(plugin, "createConnection").mockResolvedValue({
+         db: mockPool,
+         close: vi.fn(),
+      } as never);
+
+      try {
+         const schema = await plugin.getSchema({ schemas: ["dbo"], host: "localhost", database: "test", user: "sa", password: "pass" } as never);
+         expect(schema.tables).toHaveLength(2);
+         expect(schema.tables[0]!.table_type).toBe("table");
+         expect(schema.tables[0]!.table_name).toBe("account");
+         expect(schema.tables[1]!.table_type).toBe("view");
+         expect(schema.tables[1]!.table_name).toBe("account_summary");
+         expect(schema.enums).toMatchInlineSnapshot(`[]`);
+      } finally {
+         createSpy.mockRestore();
+      }
    });
 });

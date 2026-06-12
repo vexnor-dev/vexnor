@@ -189,4 +189,42 @@ describe("MssqlQueryHandler.execute()", () => {
          handler.source.getSql = original;
       }
    });
+
+   test("isRetryableMssqlError returns false for null/string errors", async () => {
+      const handler = new MssqlQueryHandler(simpleQuery.source);
+      const mockRequest = {
+         input: vi.fn(),
+         query: vi.fn().mockRejectedValue(null),
+      };
+      const mockPool = { request: () => mockRequest };
+
+      try {
+         await handler.execute({ db: mockPool as never });
+         expect.fail("should have thrown");
+      } catch (err) {
+         expect(err).toBeInstanceOf(SqlRunError);
+         expect((err as SqlRunError).retryable).toBe(false);
+      }
+   });
+
+   test("handles Uint8Array values as VarBinary input", async () => {
+      const handler = new MssqlQueryHandler(simpleQuery.source);
+      const mockRequest = {
+         input: vi.fn(),
+         query: vi.fn().mockResolvedValue({ recordsets: [[]], recordset: [], rowsAffected: [0], output: {} }),
+      };
+      const mockPool = { request: () => mockRequest };
+
+      const original = handler.source.getSql;
+      handler.source.getSql = () => ({ text: "SELECT 1", values: [new Uint8Array([1, 2, 3]), "normal"] }) as never;
+
+      try {
+         await handler.execute({ db: mockPool as never });
+         expect(mockRequest.input).toHaveBeenCalledTimes(2);
+         expect(mockRequest.input.mock.calls[0]![2]).toBeInstanceOf(Buffer);
+      } finally {
+         handler.source.getSql = original;
+      }
+   });
+
 });

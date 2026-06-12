@@ -96,10 +96,11 @@ app.get("/api/health", async (c) => {
 });
 
 app.post("/api/db", async (c) => {
-   const args = await c.req.json();
+   const body = await c.req.json();
    const token = c.req.header("Authorization")?.replace("Bearer ", "") ?? null;
    const userId = decodeUserId(token);
    try {
+      const args = queryRegistry.getExecutionArgs(body);
       const result = await queryRegistry.execute(
          args,
          async ({ plugin }) => {
@@ -118,7 +119,7 @@ app.post("/api/db", async (c) => {
       );
       return c.json(result);
    } catch (err) {
-      return handleDbError(c, err, args);
+      return handleDbError(c, err, body);
    }
 });
 

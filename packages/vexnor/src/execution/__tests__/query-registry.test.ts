@@ -713,12 +713,12 @@ describe("QueryRegistry", () => {
       expect(registry.getRegisteredQueries()).toEqual([]);
    });
 
-   // ── getExecutionParams ────────────────────────────────────────────────────
+   // ── getExecutionArgs ────────────────────────────────────────────────────
 
-   test("getExecutionParams extracts all required fields from a valid request object", () => {
+   test("getExecutionArgs extracts all required fields from a valid request object", () => {
       const registry = new SqlQueryRegistry();
       const input = { plugin: "pluginA", hash: "abc", params: {}, location: "test", mode: "read" as const, name: null };
-      expect(registry.getExecutionParams(input)).toMatchInlineSnapshot(`
+      expect(registry.getExecutionArgs(input)).toMatchInlineSnapshot(`
         {
           "hash": "abc",
           "location": "test",
@@ -730,20 +730,20 @@ describe("QueryRegistry", () => {
       `);
    });
 
-   test("getExecutionParams throws QUERY_PARAMETERS_INVALID when request is not an object", () => {
+   test("getExecutionArgs throws QUERY_PARAMETERS_INVALID when request is not an object", () => {
       const registry = new SqlQueryRegistry();
-      expect(() => registry.getExecutionParams(null)).toThrow("Expected request object");
-      expect(() => registry.getExecutionParams("string")).toThrow("Expected request object");
-      expect(() => registry.getExecutionParams(42)).toThrow("Expected request object");
+      expect(() => registry.getExecutionArgs(null)).toThrow("Expected request object");
+      expect(() => registry.getExecutionArgs("string")).toThrow("Expected request object");
+      expect(() => registry.getExecutionArgs(42)).toThrow("Expected request object");
    });
 
-   test("getExecutionParams throws QUERY_PARAMETERS_INVALID when a required key is missing", () => {
+   test("getExecutionArgs throws QUERY_PARAMETERS_INVALID when a required key is missing", () => {
       const registry = new SqlQueryRegistry();
       expect(() =>
-         registry.getExecutionParams({ hash: "abc", params: {}, location: "test", mode: "read", name: null }),
+         registry.getExecutionArgs({ hash: "abc", params: {}, location: "test", mode: "read", name: null }),
       ).toThrow("Missing required parameter in request: plugin");
       expect(() =>
-         registry.getExecutionParams({ plugin: "pluginA", params: {}, location: "test", mode: "read", name: null }),
+         registry.getExecutionArgs({ plugin: "pluginA", params: {}, location: "test", mode: "read", name: null }),
       ).toThrow("Missing required parameter in request: hash");
    });
 

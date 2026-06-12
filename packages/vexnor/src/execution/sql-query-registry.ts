@@ -109,7 +109,7 @@ export class SqlQueryRegistry<TContext extends Record<string, unknown> = Record<
       return result;
    }
 
-   getExecutionParams(request: unknown): ExecuteQueryArgs {
+   getExecutionArgs(request: unknown): ExecuteQueryArgs {
       if (!request || typeof request !== "object") {
          throw new SqlError("Expected request object with query name and params", {
             code: SqlErrorCode.QUERY_PARAMETERS_INVALID,
@@ -168,14 +168,14 @@ export class SqlQueryRegistry<TContext extends Record<string, unknown> = Record<
     * `after()` always fires — including auth/check rejections.
     */
    async execute<TResult = unknown>(
-      args: ExecuteQueryArgs | Record<string, unknown>,
+      args: ExecuteQueryArgs,
       resolver: ConnectionResolver,
       context: TContext = {} as TContext,
    ): Promise<TResult> {
-      const { hash, params, mode, location, plugin: pluginName, options, name } = this.getExecutionParams(args);
+      const { hash, params, mode, location, plugin: pluginName, options, name } = args;
       const entry = this.maps.get(pluginName)?.get(hash);
       if (!entry) {
-         throw new SqlError(`Unknown query hash: ${hash} for plugin: ${args.plugin}`, {
+         throw new SqlError(`Unknown query hash: ${hash} for plugin: ${pluginName}`, {
             code: SqlErrorCode.QUERY_NOT_FOUND,
          });
       }
