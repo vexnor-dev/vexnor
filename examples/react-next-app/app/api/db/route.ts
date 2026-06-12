@@ -33,6 +33,7 @@ export async function POST(request: Request) {
       plugin: string;
       hash: string;
       params: Record<string, unknown>;
+      name: string | null;
       location: string | null;
       mode: SqlExecuteMode;
    };
