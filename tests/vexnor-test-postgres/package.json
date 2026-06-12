@@ -19,28 +19,27 @@
       "build": "tsc -b"
    },
    "dependencies": {
-      "@sinclair/typebox": "^0.34.41",
-      "pg": "^8.16.3",
+      "@sinclair/typebox": "^0.34.49",
+      "pg": "^8.21.0",
       "vexnor": "workspace:*",
       "vexnor-drizzle": "workspace:*",
       "vexnor-postgres": "workspace:*",
-      "vexnor-sequelize": "workspace:*",
       "vexnor-prisma": "workspace:*",
+      "vexnor-sequelize": "workspace:*",
       "vexnor-typeorm": "workspace:*"
    },
    "devDependencies": {
-      "@prisma/client": "^7.8.0",
       "@prisma/adapter-pg": "^7.8.0",
-      "@types/pg": "^8.15.5",
-      "@vitest/coverage-v8": "^4.1.5",
-      "drizzle-orm": "^1.0.0-beta.20",
-      "reflect-metadata": "^0.2.2",
-      "sequelize": "^6.37.7",
-      "typeorm": "^0.3.24",
+      "@prisma/client": "^7.8.0",
+      "@types/pg": "^8.20.0",
+      "@vitest/coverage-v8": "^4.1.8",
+      "drizzle-orm": "1.0.0-rc.4-5d5b77c",
       "env-cmd": "^10.1.0",
       "prisma": "^7.8.0",
-      "vite-node": "^2.1.8",
+      "reflect-metadata": "^0.2.2",
+      "sequelize": "^6.37.8",
+      "typeorm": "^0.3.30",
       "vite-tsconfig-paths": "^6.1.1",
-      "vitest": "^4.1.5"
+      "vitest": "^4.1.8"
    }
 }
