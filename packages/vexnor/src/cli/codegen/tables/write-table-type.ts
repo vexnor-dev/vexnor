@@ -12,34 +12,40 @@ export function writeTableType(writer: CodeWriter, { table }: PrintTableArgs) {
    const tableTypeInsert = `${tableTypePrefix}Insert`;
    const tableTypeUpdate = `${tableTypePrefix}Update`;
 
-   const typeParams = isView
-      ? `{ Select: ${tableTypeSelect} }`
-      : `{ Select: ${tableTypeSelect}, Insert: ${tableTypeInsert}, Update: ${tableTypeUpdate}; Delete: true }`;
-
    writer
-      .write(`export const ${tableTypeName} = vexnor.newSqlTable<${typeParams}>(`)
+      .write(`export const ${tableTypeName} = vexnor.newSqlTable`)
+      .genericBlock(() => {
+         writer.writeLine(`Select: ${tableTypeSelect};`);
+         if (!isView) {
+            writer.writeLine(`Insert: ${tableTypeInsert};`);
+            writer.writeLine(`Update: ${tableTypeUpdate};`);
+            writer.writeLine(`Delete: true;`);
+         }
+      })
+      .write(`(`)
       .inlineBlock(() => {
          writer
-            .writeLine(`crud:`)
+            .write(`crud:`)
             .inlineBlock(() => {
-               writer.writeLine(`select: true, `);
-               writer.writeLine(`insert: ${!isView}, `);
-               writer.writeLine(`update: ${!isView}, `);
-               writer.writeLine(`delete: ${!isView}, `);
+               writer.writeLine(`select: true,`);
+               writer.writeLine(`insert: ${!isView},`);
+               writer.writeLine(`update: ${!isView},`);
+               writer.writeLine(`delete: ${!isView},`);
             })
-            .write(",")
-            .writeLine("tableInfo:")
+            .writeLine(",");
+         writer
+            .write("tableInfo:")
             .inlineBlock(() => {
                writer.writeLine(`name: "${table_name}",`);
                writer.writeLine(`schema: "${table_schema}",`);
             })
-            .write(",");
+            .writeLine(",");
          writer.writeLine(
-            `pk: [${primary_keys.length ? `"${primary_keys.map((pk) => getColumnName(pk.column_name)).join('","')}"` : ""}], `,
+            `pk: [${primary_keys.length ? `"${primary_keys.map((pk) => getColumnName(pk.column_name)).join('","')}"` : ""}],`,
          );
          writer.writeLine(`dialect: "${getCodegenContext().plugin.dialect}",`);
          writer
-            .writeLine(`columns:`)
+            .write(`columns:`)
             .inlineBlock(() => {
                columns.forEach((col) => {
                   const colAlias = getColumnName(col.column_name);
@@ -47,20 +53,23 @@ export function writeTableType(writer: CodeWriter, { table }: PrintTableArgs) {
                   writer
                      .writeLine(`/**`)
                      .write(` * ${col.column_name} ${col.udt_name}`)
-                     .write(col.is_nullable ? "" : "not null")
                      .write(col.column_default ? ` default ${col.column_default}` : "")
-                     .writeLine(`*/`)
+                     .newLine()
+                     .writeLine(` */`)
                      .writeLine(`${colAlias}: "${col.column_name}",`);
                });
             })
-            .write(",");
+            .writeLine(",");
          const dateColumns = columns.filter((col) => plugin.getColumnType(col).type === SqlLiteralType.Date);
          if (dateColumns.length) {
-            writer.writeLine(`jsonSchema:`).inlineBlock(() => {
-               dateColumns.forEach((col) => {
-                  writer.writeLine(`${getColumnName(col.column_name)}: "Date",`);
-               });
-            });
+            writer
+               .write(`jsonSchema:`)
+               .inlineBlock(() => {
+                  dateColumns.forEach((col) => {
+                     writer.writeLine(`${getColumnName(col.column_name)}: "Date",`);
+                  });
+               })
+               .writeLine(",");
          }
       })
       .write(");");

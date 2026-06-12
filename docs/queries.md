@@ -33,6 +33,19 @@ const result = await sql`
 `.postgres.all({ db: pool });
 ```
 
+### EXISTS
+
+```typescript
+const result = await sql`
+  SELECT ${row(Account.$$)}
+  FROM ${Account}
+  WHERE EXISTS (
+    SELECT 1 FROM ${Order}
+    WHERE ${Order.$accountId} = ${Account.$accountId}
+  )
+`.postgres.all({ db: pool });
+```
+
 ### Accessing Subquery Columns
 
 Columns from a subquery are accessible via `.row.$columnName` and can be passed to `row()` in a parent query:
@@ -49,6 +62,22 @@ const query = sql`
   ORDER BY ${sub.row.$email}
 `;
 ```
+
+### `out` — Referencing a Query Without Re-expanding
+
+Use `.out` to reference a query's output columns without inlining it as a subquery. This is used for correlating a subquery to a parent table:
+
+```typescript
+const OrderItems = sql`
+  SELECT ${row(OrderItem.$$)}
+  FROM ${OrderItem}
+  WHERE ${OrderItem.$orderId} = ${Order.out.$orderId}
+`;
+```
+
+`Order.out.$orderId` emits just the column reference — it does not re-render the `Order` query.
+
+---
 
 ## CTEs
 
@@ -85,6 +114,8 @@ const result = await sql`
 `.postgres.all({ db: pool });
 ```
 
+---
+
 ## Recursive CTEs
 
 Use `anchor.out` inside the recursive branch to reference the CTE by name rather than re-expanding it as a subquery.
@@ -113,6 +144,37 @@ const result = await sql`
 // result: (IAccountSelect & { depth: number })[]
 ```
 
+---
+
+## UNION / UNION ALL
+
+Combine queries using SQL `UNION` or `UNION ALL`:
+
+```typescript
+const activeAccounts = sql`
+  SELECT ${row(Account.$accountId, Account.$email)}
+  FROM ${Account}
+  WHERE ${Account.$status} = 'ACTIVE'
+`;
+
+const inactiveAccounts = sql`
+  SELECT ${row(Account.$accountId, Account.$email)}
+  FROM ${Account}
+  WHERE ${Account.$status} = 'INACTIVE'
+`;
+
+const allAccounts = sql`
+  ${activeAccounts}
+  UNION ALL
+  ${inactiveAccounts}
+`;
+
+const result = await allAccounts.postgres.all({ db: pool });
+// result: { accountId: string; email: string }[]
+```
+
+---
+
 ## Table Aliases
 
 Use `.as(alias)` to reference the same table multiple times in a query:
@@ -127,7 +189,65 @@ const result = await sql`
   FROM ${Parent}
   JOIN ${Child} ON ${Child.$parentId} = ${Parent.$accountId}
 `.postgres.all({ db: pool });
+// result: { accountId: string; email: string; childId: string; childEmail: string }[]
 ```
+
+### Self-Joins
+
+The same pattern works for self-joins of any depth:
+
+```typescript
+const Manager = Account.as('manager');
+const Employee = Account.as('employee');
+
+const result = await sql`
+  SELECT ${row(
+    Employee.$email.as('employeeEmail'),
+    Manager.$email.as('managerEmail')
+  )}
+  FROM ${Employee}
+  LEFT JOIN ${Manager} ON ${Manager.$accountId} = ${Employee.$managerId}
+`.postgres.all({ db: pool });
+```
+
+---
+
+## Aliased Columns
+
+Use `.as(name)` on a column to rename it in the output:
+
+```typescript
+const result = await sql`
+  SELECT ${row(
+    Account.$accountId.as('id'),
+    Account.$email.as('emailAddress')
+  )}
+  FROM ${Account}
+`.postgres.all({ db: pool });
+// result: { id: string; emailAddress: string }[]
+```
+
+---
+
+## Custom Typed Columns with `col<T>()`
+
+Use `col<T>()` to introduce a typed column for expressions that are not table columns (aggregates, functions, computed values):
+
+```typescript
+import { col } from 'vexnor';
+
+const result = await sql`
+  SELECT ${row(Account.$accountId)},
+         count(*) as ${col<{ total: number }>('total')},
+         max(${Order.$createdAt}) as ${col<{ lastOrder: Date }>('lastOrder')}
+  FROM ${Account}
+  JOIN ${Order} ON ${Order.$accountId} = ${Account.$accountId}
+  GROUP BY ${Account.$accountId}
+`.postgres.all({ db: pool });
+// result: { accountId: string; total: number; lastOrder: Date }[]
+```
+
+---
 
 ## Window Functions
 
@@ -147,6 +267,50 @@ const result = await sql`
 // result: { orderId: string; accountId: string; createdAt: Date; rn: number }[]
 ```
 
+### Ranking / DENSE_RANK
+
+```typescript
+const result = await sql`
+  SELECT
+    ${row(Order.$orderId, Order.$accountId, Order.$totalAmount)},
+    dense_rank() over (
+      partition by ${Order.$accountId}
+      order by ${Order.$totalAmount} desc
+    ) as ${col<{ rank: number }>('rank')}
+  FROM ${Order}
+`.postgres.all({ db: pool });
+```
+
+---
+
+## JSON Aggregation (`jsonMany` / `jsonOne`)
+
+Each driver package exports `jsonMany` and `jsonOne` to embed related rows as typed JSON arrays or objects:
+
+```typescript
+import { jsonMany, jsonOne } from 'vexnor-postgres';
+
+const OrderItems = sql`
+  SELECT ${row(OrderItem.$$)}
+  FROM ${OrderItem}
+  WHERE ${OrderItem.$orderId} = ${Order.out.$orderId}
+`;
+
+const result = await sql`
+  SELECT ${row(Order.$orderId, Order.$status)},
+         ${jsonMany(OrderItems).as('items')}
+  FROM ${Order} ${jsonMany(OrderItems)}
+`.postgres.all({ db: pool });
+// result: { orderId: string; status: string; items: IOrderItemSelect[] }[]
+```
+
+`jsonMany` → `T[]` (empty array when no matches).  
+`jsonOne` → `T | null` (null when no match).
+
+See [Databases](databases.md) for how each driver implements JSON aggregation.
+
+---
+
 ## Query Labeling with `info()`
 
 Use `info()` to attach a label to a query. The label appears as a SQL comment and is used as the CTE name when the query is used in a `WITH` clause.
@@ -163,3 +327,311 @@ const ActiveAccounts = sql`
 ```
 
 Useful for identifying queries in database logs and query plans.
+
+---
+
+## Inline Rendering with `.inline()`
+
+Force a query to render inline (without wrapping in a subquery or CTE):
+
+```typescript
+const whereClause = sql`${Account.$status} = 'ACTIVE' AND ${Account.$email} IS NOT NULL`;
+
+const result = await sql`
+  SELECT ${row(Account.$$)}
+  FROM ${Account}
+  WHERE ${whereClause.inline()}
+`.postgres.all({ db: pool });
+```
+
+---
+
+## Rendering Control with `.render()`
+
+Control the SQL format when a query is embedded:
+
+```typescript
+const subquery = sql`
+  SELECT ${row(Account.$accountId)}
+  FROM ${Account}
+  WHERE ${Account.$status} = 'ACTIVE'
+`;
+
+// Force rendering as a CTE
+const result = await sql`
+  WITH ${subquery.render('with')}
+  SELECT ${row(subquery.$$)}
+  FROM ${subquery}
+`.postgres.all({ db: pool });
+```
+
+---
+
+## Getting Raw SQL with `getSql()`
+
+Extract the compiled SQL text and parameter values without executing:
+
+```typescript
+const query = sql`
+  SELECT ${row(Account.$$)}
+  FROM ${Account}
+  WHERE ${Account.$accountId} = ${param<{ accountId: string }>('accountId')}
+`;
+
+const { text, values } = query.getSql({ params: { accountId: '123' } });
+// text: "SELECT ... FROM account WHERE account.account_id = $1"
+// values: ['123']
+```
+
+Useful for debugging, logging, and the CLI `--dry-run` mode.
+
+---
+
+## Query Composition Patterns
+
+### Reusable Fragments
+
+```typescript
+const ActiveFilter = sql`${Account.$status} = ${AccountStatusUdt.ACTIVE}`;
+
+const findActiveByEmail = sql`
+  SELECT ${row(Account.$$)}
+  FROM ${Account}
+  WHERE ${ActiveFilter.inline()} AND ${Account.$email} = ${param<{ email: string }>('email')}
+`;
+```
+
+### Building Queries from Shared Subqueries
+
+Subqueries are composable objects — use the same subquery in multiple parent queries:
+
+```typescript
+const OrderItems = sql`
+  SELECT ${row(OrderItem.$$)}
+  FROM ${OrderItem}
+  WHERE ${OrderItem.$orderId} = ${Order.out.$orderId}
+`;
+
+// Used as a lateral join in select()
+const ordersWithItems = Account.postgres.select({
+  includeMany: { orders: sql`
+    SELECT ${row(Order.$$)}, ${jsonMany(OrderItems).as('items')}
+    FROM ${Order} ${jsonMany(OrderItems)}
+    WHERE ${Order.$accountId} = ${Account.out.$accountId}
+  ` },
+});
+
+// Also usable directly
+const singleOrder = sql`
+  SELECT ${row(Order.$$)}, ${jsonMany(OrderItems).as('items')}
+  FROM ${Order} ${jsonMany(OrderItems)}
+  WHERE ${Order.$orderId} = ${param<{ orderId: string }>('orderId')}
+`;
+```
+
+---
+
+## Authorization
+
+Tag a query with `.authorize()` to require authorization before execution:
+
+```typescript
+const deleteAccount = sql`
+  DELETE FROM ${Account}
+  WHERE ${Account.$accountId} = ${param<{ accountId: string }>('accountId')}
+`.authorize('admin');
+```
+
+See [Authorization](authorization.md) for hooks, audit logging, and compliance.
+
+---
+
+## Execution Methods
+
+All queries share four execution methods:
+
+| Method | Returns | Throws if empty |
+|--------|---------|-----------------|
+| `.one({ db, params? })` | `T` | yes |
+| `.any({ db, params? })` | `T \| null` | no |
+| `.all({ db, params? })` | `T[]` | no |
+| `.run({ db, params? })` | void | no |
+
+```typescript
+// Direct execution
+const accounts = await findActiveAccounts.postgres.all({ db: pool });
+
+// Remote execution (same API)
+const accounts = await findActiveAccounts.postgres.all({ db: remoteClient });
+```
+
+See [Isomorphic SQL](isomorphic-sql.md) for remote execution patterns.
+
+---
+
+## Run Options
+
+Pass `options` to control timeout and retry behavior:
+
+```typescript
+const result = await findAccounts.postgres.all({
+  db: pool,
+  params: { status: 'ACTIVE' },
+  options: {
+    timeout: 5000, // abort after 5s
+    retry: {
+      maxAttempts: 3,
+      delayMs: 100,
+      shouldRetry: ({ error }) => error instanceof SqlRunError && error.retryable,
+    },
+  },
+});
+```
+
+| Option | Type | Description |
+|--------|------|-------------|
+| `timeout` | `number` | Abort after this many ms; throws `SqlRunError` with code `QUERY_TIMEOUT` |
+| `retryable` | `"default" \| true \| false` | Override automatic retryable detection |
+| `retry` | `SqlRetryOptions \| false` | Retry policy (see below) |
+
+### `SqlRetryOptions`
+
+| Field | Type | Default |
+|-------|------|---------|
+| `maxAttempts` | `number` | `1` (no retry) |
+| `delayMs` | `number \| (args) => number` | `0` |
+| `shouldRetry` | `(args) => boolean` | Retries only `SqlRunError` with `retryable: true` |
+
+## `val` — Computed Subquery Columns
+
+`val` creates a named, typed column from an inline SQL expression or an existing subquery. Use it when `col` isn't enough — when the expression is multi-token or wraps a subquery.
+
+```typescript
+import { sql, row, val } from 'vexnor';
+
+// Inline expression
+const query = sql`
+  SELECT ${row(Account.$accountId)},
+         ${val`COALESCE(${Account.$notes}, 'N/A')`.as<{ notes: string }>('notes')}
+  FROM ${Account}
+`;
+// result: { accountId: string; notes: string }
+
+// Wrapping an existing subquery
+const OrderCount = sql`SELECT count(*) FROM ${Order} WHERE ${Order.$accountId} = ${Account.out.$accountId}`;
+
+const query2 = sql`
+  SELECT ${row(Account.$accountId, Account.$email)},
+         ${val(OrderCount).as<{ orderCount: number }>('orderCount')}
+  FROM ${Account}
+`;
+// result: { accountId: string; email: string; orderCount: number }
+```
+
+## `excluded(table)` — Upsert EXCLUDED References
+
+For manual `ON CONFLICT ... DO UPDATE SET` statements, `excluded(table)` gives you typed column references to the `EXCLUDED` pseudo-table:
+
+```typescript
+import { sql, row, excluded } from 'vexnor';
+
+const upsert = sql`
+  INSERT INTO ${Account}
+    ${Account.insertColsVals({ accountId: id, email, firstName })}
+  ON CONFLICT (${Account.$accountId}) DO UPDATE SET
+    ${Account.$email} = ${excluded(Account).$email},
+    ${Account.$firstName} = ${excluded(Account).$firstName}
+  RETURNING ${row(Account.$$)}
+`;
+```
+
+`excluded(Account).$email` emits `EXCLUDED."email"` in the SQL output. The result is cached per table.
+
+## `DEFAULT` — SQL DEFAULT Keyword
+
+Use `DEFAULT` in insert or update values to explicitly apply a column's database default:
+
+```typescript
+import { sql, DEFAULT } from 'vexnor';
+
+const insert = sql`
+  INSERT INTO ${Account}
+    ${Account.insertColsVals({
+      email: 'jane@example.com',
+      firstName: 'Jane',
+      lastName: 'Doe',
+      createdAt: DEFAULT,   // uses the column's database default (e.g. NOW())
+      modifiedAt: DEFAULT,
+    })}
+  RETURNING ${row(Account.$$)}
+`;
+```
+
+## `info()` — Query Metadata
+
+Attach a label and metadata to a query for debugging, audit logging, and telemetry:
+
+```typescript
+import { sql, row, info } from 'vexnor';
+
+const findActiveAccounts = sql`
+  ${info({ label: 'findActiveAccounts' })}
+  SELECT ${row(Account.$$)}
+  FROM ${Account}
+  WHERE ${Account.$status} = 'ACTIVE'
+`;
+```
+
+The label appears in:
+- Error messages (`SqlRunError.queryName`)
+- Audit log entries (`AuditLogPlugin` `onLog` callback)
+- OpenTelemetry span names
+- Pipeline execution args (`args.name`)
+
+Options:
+- `label: string` — human-readable query name
+- `driver: string` — restrict to a specific plugin driver (rarely needed)
+
+## Dynamic Column Expansion
+
+For CRUD factories that build INSERT/UPDATE SQL dynamically from runtime params, vexnor provides expansion helpers:
+
+### `expandInsertColumns(table)` / `expandInsertValues(table)`
+
+Build the column list and VALUES clause from a `{ rows: [...] }` param at execution time:
+
+```typescript
+import { sql, row, expandInsertColumns, expandInsertValues } from 'vexnor';
+
+const insertAccounts = sql`
+  INSERT INTO ${Account} (${expandInsertColumns(Account)})
+  VALUES ${expandInsertValues(Account)}
+  RETURNING ${row(Account.$$)}
+`;
+
+// At execution time, columns and values are derived from the rows param
+await insertAccounts.postgres.all({
+  db: pool,
+  params: { rows: [{ email: 'a@b.com', firstName: 'Alice' }] },
+});
+```
+
+### `buildUpdateSetExpand(table)`
+
+Build the `SET col = ?, col = ?` clause from a `{ set: {...} }` param at execution time:
+
+```typescript
+import { sql, row, buildUpdateSetExpand, param } from 'vexnor';
+
+const updateAccount = sql`
+  UPDATE ${Account}
+  ${buildUpdateSetExpand(Account)}
+  WHERE ${Account.$accountId} = ${param<{ accountId: string }>('accountId')}
+  RETURNING ${row(Account.$$)}
+`;
+
+await updateAccount.postgres.one({
+  db: pool,
+  params: { accountId: '...', set: { firstName: 'Jane', email: 'jane@new.com' } },
+});
+```

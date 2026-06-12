@@ -12,6 +12,8 @@ All queries share four execution methods:
 | `.all({ db, params? })` | `T[]` | no |
 | `.run({ db, params? })` | void | no |
 
+---
+
 ## `findById()`
 
 Returns a query parameterized by the table's primary key fields.
@@ -24,9 +26,20 @@ const account = await Account.postgres.findById().any({
 // account: IAccountSelect | null
 ```
 
+For composite primary keys, pass all key columns:
+
+```typescript
+const item = await OrderItem.postgres.findById().any({
+  db: pool,
+  params: { orderId: '...', productId: '...' },
+});
+```
+
+---
+
 ## `findBy()`
 
-Returns a query parameterized by any subset of columns.
+Returns a query parameterized by any subset of columns. All provided columns are ANDed in the WHERE clause.
 
 ```typescript
 const account = await Account.postgres.findBy().any({
@@ -35,6 +48,27 @@ const account = await Account.postgres.findBy().any({
 });
 // account: IAccountSelect | null
 ```
+
+Multiple columns:
+
+```typescript
+const account = await Account.postgres.findBy().any({
+  db: pool,
+  params: { email: 'jane@example.com', status: 'ACTIVE' },
+});
+```
+
+Use `.all()` to get all matching rows:
+
+```typescript
+const accounts = await Account.postgres.findBy().all({
+  db: pool,
+  params: { status: 'ACTIVE' },
+});
+// accounts: IAccountSelect[]
+```
+
+---
 
 ## `select()`
 
@@ -52,7 +86,52 @@ const accounts = await Account.postgres.select({
 });
 ```
 
-Available clauses: `SELECT`, `WHERE`, `JOIN`, `GROUP_BY`, `HAVING`, `ORDER_BY`, `limit`, `offset`.
+### Available Clauses
+
+| Clause | Type | Description |
+|--------|------|-------------|
+| `SELECT` | `SqlQueryBaseAny` | Override default `SELECT *` with custom columns |
+| `WHERE` | `SqlQueryBaseAny` | Filter condition (without `WHERE` keyword) |
+| `JOIN` | `SqlQueryBaseAny` | One or more JOIN clauses (must include `JOIN` keyword) |
+| `GROUP_BY` | `SqlQueryBaseAny` | Grouping (without `GROUP BY` keyword) |
+| `HAVING` | `SqlQueryBaseAny` | Group filter (without `HAVING` keyword) |
+| `ORDER_BY` | `SqlQueryBaseAny` | Sort order (without `ORDER BY` keyword) |
+| `limit` | `SqlParam` | Pagination limit |
+| `offset` | `SqlParam` | Pagination offset |
+| `includeMany` | `Record<string, SqlQueryBaseAny>` | Attach related rows as JSON arrays |
+| `includeOne` | `Record<string, SqlQueryBaseAny>` | Attach a related row as JSON object |
+
+### Custom SELECT Columns
+
+```typescript
+const accounts = await Account.postgres.select({
+  SELECT: sql`${row(Account.$accountId, Account.$email)}`,
+  WHERE: sql`${Account.$status} = 'ACTIVE'`,
+}).all({ db: pool });
+// accounts: { accountId: string; email: string }[]
+```
+
+### JOIN
+
+```typescript
+const results = await Account.postgres.select({
+  JOIN: sql`JOIN ${Order} ON ${Order.$accountId} = ${Account.$accountId}`,
+  GROUP_BY: sql`${Account.$accountId}`,
+}).all({ db: pool });
+```
+
+### Pagination
+
+```typescript
+const accounts = await Account.postgres.select({
+  ORDER_BY: sql`${Account.$createdAt} DESC`,
+  limit: param<{ limit: number }>('limit'),
+  offset: param<{ offset: number }>('offset'),
+}).all({
+  db: pool,
+  params: { limit: 20, offset: 40 },
+});
+```
 
 ### `includeMany` and `includeOne`
 
@@ -83,6 +162,8 @@ const accounts = await Account.postgres.select({
 
 `includeMany` → `T[]`, `includeOne` → `T | null`. The key name becomes the result property.
 
+---
+
 ## `insertRows()`
 
 Typed multi-row INSERT returning all inserted rows.
@@ -100,6 +181,10 @@ const inserted = await Account.postgres.insertRows().all({
 // inserted: IAccountSelect[]
 ```
 
+The `rows` param type is derived from the table's `Insert` type — only non-generated, non-defaulted columns are required. Columns with defaults (e.g. `createdAt`, auto-generated PKs) are optional.
+
+---
+
 ## `insertFrom()`
 
 INSERT from a SELECT subquery. The subquery's row type must match the table's `Insert` type.
@@ -112,7 +197,10 @@ const sourceQuery = sql`
 `;
 
 const result = await Account.postgres.insertFrom({ FROM: sourceQuery }).all({ db: pool });
+// result: IAccountSelect[]
 ```
+
+---
 
 ## `update()`
 
@@ -131,6 +219,21 @@ const updated = await Account.postgres.update({
 // updated: IAccountSelect[]
 ```
 
+The `set` type is the table's `Update` type — all columns are optional (you only set what you need to change):
+
+```typescript
+const updated = await Account.postgres.update({
+  WHERE: sql`${Account.$status} = 'PENDING'`,
+}).all({
+  db: pool,
+  params: {
+    set: { status: 'ACTIVE', confirmedAt: new Date() },
+  },
+});
+```
+
+---
+
 ## `delete()`
 
 Typed DELETE. Requires either a `WHERE` clause or `{ force: true }` for a full-table delete.
@@ -144,6 +247,10 @@ await Account.postgres.delete({
 // Full-table delete — force: true required to prevent accidents
 await Account.postgres.delete({ force: true }).run({ db: pool });
 ```
+
+The `force: true` guard prevents accidental unfiltered deletes — you cannot pass an empty `WHERE`.
+
+---
 
 ## `upsert()` (PostgreSQL / MS SQL Server / SQLite)
 
@@ -159,6 +266,7 @@ const result = await Account.postgres.upsert({
   db: pool,
   params: { rows: [{ email: 'jane@example.com', firstName: 'Jane', lastName: 'Doe' }] },
 });
+// result: IAccountSelect[]
 ```
 
 **MS SQL Server** — uses `MERGE`:
@@ -178,12 +286,13 @@ const result = await Account.mssql.upsert({
 ```typescript
 const result = await Account.sqlite.upsert({
   CONFLICT_ON: [Account.$email],
-  // SET is optional — defaults to updating all non-conflict columns with EXCLUDED values
 }).all({
   db,
   params: { rows: [{ email: 'jane@example.com', firstName: 'Jane', lastName: 'Doe' }] },
 });
 ```
+
+---
 
 ## Raw SQL with `insertColsVals` and `updateSet`
 
@@ -205,3 +314,32 @@ const updated = await sql`
   RETURNING ${row(Account.$$)}
 `.postgres.one({ db: pool });
 ```
+
+---
+
+## Type Inference
+
+All CRUD factories infer their result type from the table's generated types:
+
+- `IAccountSelect` — the full row type (all columns as they come from SELECT)
+- `IAccountInsert` — the insert type (required columns + optional defaults)
+- `IAccountUpdate` — the update type (all columns optional)
+
+When using `select()` with custom `SELECT` or `includeMany`/`includeOne`, the result type is composed from exactly what you selected:
+
+```typescript
+const result = await Account.postgres.select({
+  SELECT: sql`${row(Account.$accountId, Account.$email)}`,
+  includeMany: { orders: OrderSubquery },
+}).all({ db: pool });
+// result: { accountId: string; email: string; orders: { orderId: string; ... }[] }[]
+```
+
+---
+
+## Cross-Reference
+
+- [Queries](queries.md) — composing subqueries, CTEs, JSON aggregation
+- [Params](params.md) — `param()`, `expand()`, runtime validation
+- [Transactions](transactions.md) — using CRUD queries within transactions
+- [Databases](databases.md) — per-driver dialect notes

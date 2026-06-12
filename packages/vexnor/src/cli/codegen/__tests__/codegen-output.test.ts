@@ -103,12 +103,11 @@ describe("codegenCommand output", () => {
          `);
 
          expect(files["public-enums.ts"]).toMatchInlineSnapshot(`
-           "export type AccountStatusUdt_ = 'active' | 'suspended'
-           export enum AccountStatusUdt {
-              ACTIVE = 'active', 
-              SUSPENDED = 'suspended', 
-           }
-
+           "export const AccountStatusUdt = {
+              ACTIVE: 'active',
+              SUSPENDED: 'suspended',
+           } as const;
+           export type AccountStatusUdt = (typeof AccountStatusUdt)[keyof typeof AccountStatusUdt];
            "
          `);
          expect(files["public.account-table.ts"]).toMatchInlineSnapshot(`
@@ -118,54 +117,65 @@ describe("codegenCommand output", () => {
            import * as vexnor from "vexnor";
            import * as udt from "./public-enums.js";
 
-
-           export const Account = vexnor.newSqlTable<{ Select: IAccountSelect, Insert: IAccountInsert, Update: IAccountUpdate; Delete: true }>({
-              crud:
-              {
-                 select: true, 
-                 insert: true, 
-                 update: true, 
-                 delete: true, 
-              },tableInfo:
-              {
+           export const Account = vexnor.newSqlTable<{
+              Select: IAccountSelect;
+              Insert: IAccountInsert;
+              Update: IAccountUpdate;
+              Delete: true;
+           }>( {
+              crud: {
+                 select: true,
+                 insert: true,
+                 update: true,
+                 delete: true,
+              },
+              tableInfo: {
                  name: "account",
                  schema: "public",
-              },pk: ["accountId"], 
+              },
+              pk: ["accountId"],
               dialect: "postgres",
-              columns:
-              {
+              columns: {
 
                  /**
-                  * account_id uuid*/
+                  * account_id uuid
+                  */
                  accountId: "account_id",
 
                  /**
-                  * email text*/
+                  * email text
+                  */
                  email: "email",
 
                  /**
-                  * status account_status default 'active'*/
+                  * status account_status default 'active'
+                  */
                  status: "status",
 
                  /**
-                  * created_at timestamptz default now()*/
+                  * created_at timestamptz default now()
+                  */
                  createdAt: "created_at",
 
                  /**
-                  * score int4*/
+                  * score int4
+                  */
                  score: "score",
 
                  /**
-                  * is_active bool*/
+                  * is_active bool
+                  */
                  isActive: "is_active",
 
                  /**
-                  * metadata jsonb*/
+                  * metadata jsonb
+                  */
                  metadata: "metadata",
-              },jsonSchema:
-              {
+              },
+              jsonSchema: {
                  createdAt: "Date",
-              }});
+              },
+           });
            export type IAccountInsert = {
               accountId: string;
               email: string;
@@ -174,18 +184,20 @@ describe("codegenCommand output", () => {
               score?: number | null;
               isActive: boolean;
               metadata?: unknown | null;
-           }
+           };
+
            export type IAccountUpdate = Partial<IAccountInsert>;
 
            export type IAccountSelect = {
-              accountId: string
-              email: string
-              status: udt.AccountStatusUdt
-              createdAt: Date
-              score: number | null
-              isActive: boolean
-              metadata: unknown | null
-           }
+              accountId: string;
+              email: string;
+              status: udt.AccountStatusUdt;
+              createdAt: Date;
+              score: number | null;
+              isActive: boolean;
+              metadata: unknown | null;
+           };
+
            export type IAccountJson = vexnor.JsonRow<IAccountSelect>;"
          `);
          expect(files["public.schema.ts"]).toMatchInlineSnapshot(`
@@ -221,54 +233,65 @@ describe("codegenCommand output", () => {
            import * as vexnor from "vexnor";
            import * as udt from "./public-enums.js";
 
-
-           export const Account = vexnor.newSqlTable<{ Select: IAccountSelect, Insert: IAccountInsert, Update: IAccountUpdate; Delete: true }>({
-              crud:
-              {
-                 select: true, 
-                 insert: true, 
-                 update: true, 
-                 delete: true, 
-              },tableInfo:
-              {
+           export const Account = vexnor.newSqlTable<{
+              Select: IAccountSelect;
+              Insert: IAccountInsert;
+              Update: IAccountUpdate;
+              Delete: true;
+           }>( {
+              crud: {
+                 select: true,
+                 insert: true,
+                 update: true,
+                 delete: true,
+              },
+              tableInfo: {
                  name: "account",
                  schema: "public",
-              },pk: ["account_id"], 
+              },
+              pk: ["account_id"],
               dialect: "postgres",
-              columns:
-              {
+              columns: {
 
                  /**
-                  * account_id uuid*/
+                  * account_id uuid
+                  */
                  account_id: "account_id",
 
                  /**
-                  * email text*/
+                  * email text
+                  */
                  email: "email",
 
                  /**
-                  * status account_status default 'active'*/
+                  * status account_status default 'active'
+                  */
                  status: "status",
 
                  /**
-                  * created_at timestamptz default now()*/
+                  * created_at timestamptz default now()
+                  */
                  created_at: "created_at",
 
                  /**
-                  * score int4*/
+                  * score int4
+                  */
                  score: "score",
 
                  /**
-                  * is_active bool*/
+                  * is_active bool
+                  */
                  is_active: "is_active",
 
                  /**
-                  * metadata jsonb*/
+                  * metadata jsonb
+                  */
                  metadata: "metadata",
-              },jsonSchema:
-              {
+              },
+              jsonSchema: {
                  created_at: "Date",
-              }});
+              },
+           });
            export type IAccountInsert = {
               account_id: string;
               email: string;
@@ -277,18 +300,20 @@ describe("codegenCommand output", () => {
               score?: number | null;
               is_active: boolean;
               metadata?: unknown | null;
-           }
+           };
+
            export type IAccountUpdate = Partial<IAccountInsert>;
 
            export type IAccountSelect = {
-              account_id: string
-              email: string
-              status: udt.AccountStatusUdt
-              created_at: Date
-              score: number | null
-              is_active: boolean
-              metadata: unknown | null
-           }
+              account_id: string;
+              email: string;
+              status: udt.AccountStatusUdt;
+              created_at: Date;
+              score: number | null;
+              is_active: boolean;
+              metadata: unknown | null;
+           };
+
            export type IAccountJson = vexnor.JsonRow<IAccountSelect>;"
          `);
       } finally {

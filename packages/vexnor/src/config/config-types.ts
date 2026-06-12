@@ -21,6 +21,7 @@ export interface GenerateConfig {
    outDir: string;
    pascalCaseTables?: boolean;
    camelCaseColumns?: boolean;
+   schemas?: Record<string, unknown>;
 }
 
 export interface ExecConfig {

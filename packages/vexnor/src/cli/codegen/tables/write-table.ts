@@ -15,8 +15,6 @@ export function writeTable({ table }: PrintTableArgs): string {
    }
    writer.writeLine("##import-plugin##");
 
-   writer.blankLine();
-
    writeTableType(writer, { table });
    writeTableInsert(writer, { table });
    writeTableSelect(writer, { table });

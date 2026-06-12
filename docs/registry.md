@@ -43,13 +43,13 @@ export const insertAccount = Account.postgres.insertRows();
 
 ```typescript
 // server/registry.ts
-import { QueryRegistry } from 'vexnor/registry';
+import { SqlQueryRegistry } from 'vexnor/execution';
 import * as accountQueries from '../shared/queries/accounts.js';
 import vexnorPostgres from 'vexnor-postgres';
 import { Pool } from 'pg';
 
 export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-export const registry = new QueryRegistry();
+export const registry = new SqlQueryRegistry();
 
 await registry.register(vexnorPostgres, accountQueries);
 ```
@@ -60,7 +60,7 @@ Passing the module namespace directly registers all `SqlQuery` exports under the
 
 ```typescript
 // server/app.ts
-import { SqlError, SqlRunError } from 'vexnor/registry';
+import { SqlError, SqlRunError } from 'vexnor/execution';
 import { registry, pool } from './registry.js';
 
 app.post('/api/db', async (c) => {
@@ -87,7 +87,7 @@ app.post('/api/db', async (c) => {
 Map `SqlErrorCode` values to HTTP status codes so clients can handle errors programmatically:
 
 ```typescript
-import { SqlError, SqlRunError } from 'vexnor/registry';
+import { SqlError, SqlRunError } from 'vexnor/execution';
 
 const SQL_ERROR_STATUS: Record<string, number> = {
   QUERY_NOT_FOUND: 400,
@@ -210,11 +210,11 @@ export function AccountsGrid({ initialAccounts, initialParams }) {
 }
 ```
 
-**The `/api/db` route** — same `QueryRegistry` endpoint as the Hono example:
+**The `/api/db` route** — same `SqlQueryRegistry` endpoint as the Hono example:
 
 ```typescript
 // app/api/db/route.ts
-import { SqlError, SqlRunError } from 'vexnor/registry';
+import { SqlError, SqlRunError } from 'vexnor/execution';
 
 export async function POST(request: Request) {
   const args = await request.json();
@@ -250,15 +250,15 @@ When `.postgres.all({ db: remoteClient })` is called:
 
 The hash is a stable SHA-256 of the query's template strings — it never changes unless the SQL itself changes. `name` and `location` are forwarded for error messages and audit logs.
 
-## QueryRegistry API
+## SqlQueryRegistry API
 
 ```typescript
-const registry = new QueryRegistry();
+const registry = new SqlQueryRegistry();
 // With options:
-const registry = new QueryRegistry({ maxConcurrent: 50 });
+const registry = new SqlQueryRegistry({ maxConcurrent: 50 });
 // With typed runtime context (for ctx() params and authorization hooks):
 type AppRuntime = { userId: string; tenantId: string };
-const registry = new QueryRegistry<AppRuntime>();
+const registry = new SqlQueryRegistry<AppRuntime>();
 
 // Register queries — pass a module namespace or explicit object
 await registry.register(plugin, queries);
@@ -301,7 +301,7 @@ Multiple plugins accumulate and all run on every execution.
 The built-in `TimeToLiveRateLimiter` covers the most common rate-limiting cases:
 
 ```typescript
-import { TimeToLiveRateLimiter } from 'vexnor/registry';
+import { TimeToLiveRateLimiter } from 'vexnor/execution';
 
 const limiter = new TimeToLiveRateLimiter({
   contextKeyResolver: (ctx) => ctx.userId,   // enables per-user metrics
@@ -325,7 +325,7 @@ limiter.clearContextMetrics(userId); // eager eviction on logout
 The built-in `AuditLogPlugin` covers audit logging:
 
 ```typescript
-import { AuditLogPlugin } from 'vexnor/registry';
+import { AuditLogPlugin } from 'vexnor/execution';
 
 registry.use(new AuditLogPlugin({
   contextLogResolver: ({ userId }) => ({ userId }), // opt-in — never logs raw context
@@ -338,7 +338,7 @@ registry.use(new AuditLogPlugin({
 For a fully custom plugin, implement the `QueryExecutionPlugin` interface directly:
 
 ```typescript
-import type { QueryExecutionPlugin } from 'vexnor/registry';
+import type { QueryExecutionPlugin } from 'vexnor/execution';
 
 const myPlugin: QueryExecutionPlugin = {
   name: 'my-plugin',
@@ -361,12 +361,13 @@ registry.use(myPlugin);
 
 A `SqlQueryPipeline` is the execution engine behind every query run. It sequences authorization, check plugins, before/after events, concurrency limiting, and retry — in a single composable object.
 
-`QueryRegistry` owns one pipeline internally. Every call to `registry.use()`, `registry.registerAuthorization()`, and the `maxConcurrent` constructor option all configure that pipeline. For most server-side use cases you never touch the pipeline directly — the registry API is sufficient.
+`SqlQueryRegistry` owns one pipeline internally. Every call to `registry.use()`, `registry.registerAuthorization()`, and the `maxConcurrent` constructor option all configure that pipeline. For most server-side use cases you never touch the pipeline directly — the registry API is sufficient.
 
 Pipelines become useful directly when you want the same authorization, rate-limiting, and audit behaviour on **direct** (non-registry) query executions — for example in a background worker, a migration script, or a test that talks to a real database. You pass the pipeline to `connect()` alongside the DB connection:
 
 ```typescript
-import { SqlQueryPipeline, connect } from 'vexnor';
+import { connect } from 'vexnor';
+import { SqlQueryPipeline } from 'vexnor/execution';
 
 type AppContext = { userId: string };
 
@@ -450,13 +451,13 @@ const myPlugin: SqlQueryPipelinePlugin<AppContext> = {
 - `durationMs` — wall-clock time from authorization start to query completion
 - `error` — the thrown error, or `null` on success
 
-### Relationship between `QueryRegistry` and `SqlQueryPipeline`
+### Relationship between `SqlQueryRegistry` and `SqlQueryPipeline`
 
 The registry exposes its pipeline as `registry.pipeline`. You can pass it to `connect()` to reuse the exact same plugins and hooks for out-of-band direct executions:
 
 ```typescript
 // server/registry.ts
-export const registry = new QueryRegistry<AppContext>();
+export const registry = new SqlQueryRegistry<AppContext>();
 registry.use(new AuditLogPlugin({ onLog }));
 registry.registerAuthorization(authHook);
 

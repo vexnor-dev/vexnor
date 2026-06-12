@@ -14,7 +14,7 @@ export function writeTableInsert(writer: CodeWriter, { table }: PrintTableArgs) 
 
    writer
       .blankLine()
-      .write(`export type ${tableTypeInsert} = `)
+      .write(`export type ${tableTypeInsert} =`)
       .inlineBlock(() => {
          columns.forEach((col) => {
             const isNullable = col.is_nullable.toUpperCase() === "YES";
@@ -61,6 +61,7 @@ export function writeTableInsert(writer: CodeWriter, { table }: PrintTableArgs) 
             writer.write(";").newLine();
          });
       })
+      .writeLine(";")
       .blankLine();
 
    writer.writeLine(`export type ${tableTypeUpdate} = Partial<${tableTypeInsert}>;`);

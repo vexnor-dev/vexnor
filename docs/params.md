@@ -149,7 +149,7 @@ Without a `default`, an invalid value throws `SqlBuildError` with code `PARAM_VA
 
 ## Context Params with `ctx()`
 
-`ctx()` declares a named parameter whose value is **server-injected** rather than caller-supplied. It is identical to `param()` at the SQL level — it emits a placeholder at build time — but the `QueryRegistry` fills it automatically from the trusted context object passed to `registry.execute()` instead of accepting it from the caller's `params`.
+`ctx()` declares a named parameter whose value is **server-injected** rather than caller-supplied. It is identical to `param()` at the SQL level — it emits a placeholder at build time — but the `SqlQueryRegistry` fills it automatically from the trusted context object passed to `registry.execute()` instead of accepting it from the caller's `params`.
 
 This is the correct mechanism for row-level access control: bake the restriction into the query itself so it cannot be bypassed, rather than relying on the authorization callback to check it after the fact.
 
@@ -169,12 +169,12 @@ When this query runs through the registry, `userId` is pulled from the server-si
 
 ### Registry setup
 
-Type the `QueryRegistry` with the shape of your context. Every field available in the context is a candidate for `ctx()` params:
+Type the `SqlQueryRegistry` with the shape of your context. Every field available in the context is a candidate for `ctx()` params:
 
 ```typescript
 type AppRuntime = { userId: string; tenantId: string };
 
-const registry = new QueryRegistry<AppRuntime>();
+const registry = new SqlQueryRegistry<AppRuntime>();
 await registry.register(vexnorPostgres, { myOrders });
 ```
 

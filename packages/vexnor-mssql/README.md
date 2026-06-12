@@ -213,7 +213,7 @@ npx vexnor codegen \
   --schema dbo \
   --uri $MSSQL_CONNECTION_STRING \
   --outDir src/models \
-  --pascalCaseTables \
+   \
   --camelCaseColumns
 ```
 

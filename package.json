@@ -19,6 +19,7 @@
       "db-migrate:mssql": "env-cmd --no-override -x -r ./env-dev.json -e mssql postgrator --username \\$MSSQL_USER --password \\$MSSQL_PASSWORD --config @db-mssql/migrate-local.json",
       "clean:1-build": "pnpm -r --parallel exec rimraf dist deploy tsconfig.tsbuildinfo",
       "clean:1-lock-file": "pnpm exec rimraf pnpm-lock.yaml",
+      "clean:1-coverage": "pnpm -r --parallel exec rimraf coverage",
       "clean:1-dependencies-r": "pnpm -r --parallel exec rimraf node_modules",
       "clean:1-dependencies-w": "pnpm exec rimraf node_modules",
       "clean:1-test": "pnpm -r --parallel exec rimraf dist deploy tsconfig.tsbuildinfo",

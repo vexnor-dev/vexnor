@@ -1,6 +1,6 @@
 # Telemetry
 
-`vexnor/telemetry` integrates `QueryRegistry` with OpenTelemetry, creating a span for every query execution — success or failure.
+`vexnor/telemetry` integrates `SqlQueryRegistry` with OpenTelemetry, creating a span for every query execution — success or failure.
 
 ## Setup
 
@@ -33,10 +33,10 @@ Then in your server entry point:
 ```typescript
 import 'vexnor/telemetry';
 import { trace } from '@opentelemetry/api';
-import { QueryRegistry } from 'vexnor/registry';
+import { SqlQueryRegistry } from 'vexnor/execution';
 
 const tracer = trace.getTracer('my-service');
-const registry = new QueryRegistry();
+const registry = new SqlQueryRegistry();
 
 await registry.register(vexnorPostgres, queries);
 
@@ -49,31 +49,58 @@ If you use `tsx` or a similar loader, pass the telemetry file via `--import` to 
 node --import tsx/esm --import ./telemetry.ts ./server.ts
 ```
 
+---
+
 ## Span Shape
 
 Each query execution produces one span:
 
-| Field | Value |
-|-------|-------|
+| Attribute | Value |
+|-----------|-------|
 | `name` | `db.query <queryName>` |
 | `db.system` | Driver name (e.g. `postgres`, `mssql`, `sqlite3`) |
 | `db.operation.name` | Query name as registered |
-| `vexnor.query.id` | Internal query instance id |
+| `db.operation.mode` | Execution mode (`read` or `write`) |
+| `vexnor.query.id` | Internal query instance ID |
+| `vexnor.query.name` | Query name |
 | `vexnor.query.location` | Source file and line where the query was defined (relative to cwd) |
 | `vexnor.plugin` | Plugin name (e.g. `vexnor-postgres`) |
-| `vexnor.input.plugin` | Plugin name from the raw request |
-| `vexnor.input.hash` | Query hash from the raw request |
-| `vexnor.input.location` | Source location from the raw request |
-| `vexnor.input.mode` | Execution mode (`query` or `mutation`) |
-| `status` | `OK` on success, `ERROR` on failure |
 
-On failure, the span status is set to `ERROR` with the error message, and `span.recordException(error)` is called. For `SqlRunError`, additional attributes are set:
+### Remote Execution Attributes
 
-| Field | Value |
-|-------|-------|
+When the query originates from a remote client (browser, cross-service), these additional attributes are set:
+
+| Attribute | Value |
+|-----------|-------|
+| `vexnor.remote.plugin` | Plugin name from the remote request |
+| `vexnor.remote.hash` | Query hash from the remote request |
+| `vexnor.remote.location` | Source location from the remote request |
+| `vexnor.remote.mode` | Execution mode from the remote request |
+
+### Error Attributes
+
+On failure, the span status is set to `ERROR` with the error message, and `span.recordException(error)` is called:
+
+| Attribute | Value |
+|-----------|-------|
 | `vexnor.error.code` | The `SqlErrorCode` (e.g. `QUERY_EXECUTION_FAILED`) |
 | `vexnor.error.name` | Error name |
 | `vexnor.query.sql` | The SQL text that failed (if available) |
+
+### Error Codes
+
+Common error codes that appear in spans:
+
+| Code | Meaning |
+|------|---------|
+| `QUERY_EXECUTION_FAILED` | Driver error, connection failure |
+| `QUERY_NOT_AUTHORIZED` | Authorization hook denied execution |
+| `QUERY_RATE_LIMITED` | Concurrency or rate limit exceeded |
+| `QUERY_TIMEOUT` | Query exceeded configured timeout |
+| `QUERY_NOT_FOUND` | Hash not registered in the registry |
+| `QUERY_RETRYABLE_FAILURE` | Transient error, may be retried |
+
+---
 
 ## Sending to a Collector
 
@@ -90,12 +117,27 @@ const sdk = new NodeSDK({
 });
 ```
 
+### gRPC Exporter
+
+```typescript
+import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc';
+
+const sdk = new NodeSDK({
+  serviceName: 'my-service',
+  traceExporter: new OTLPTraceExporter({
+    url: 'http://localhost:4317',
+  }),
+});
+```
+
+---
+
 ## Combining with Audit Logging
 
 `registerOpenTelemetry` is built on the `use()` plugin system. You can attach additional `AuditLogPlugin` instances alongside it:
 
 ```typescript
-import { AuditLogPlugin } from 'vexnor/registry';
+import { AuditLogPlugin } from 'vexnor/execution';
 
 registry.registerOpenTelemetry(tracer);
 
@@ -111,10 +153,22 @@ registry.use(new AuditLogPlugin({
 }));
 ```
 
-Both receive every event independently.
+Both receive every event independently — telemetry spans and audit logs are complementary, not exclusive.
+
+---
+
+## Implementation
+
+`registerOpenTelemetry` adds a pipeline plugin via `registry.use()`. The plugin implements `after()` — it receives the query execution result (including timing and errors) and creates a completed span covering the execution duration.
+
+The plugin is implemented in `vexnor/telemetry` and extends `SqlQueryRegistry.prototype` with the `registerOpenTelemetry` method when imported.
+
+---
 
 ## Notes
 
 - `vexnor/telemetry` is a Node-only subpath export. Do not import it in browser bundles.
 - `@opentelemetry/api` is an optional peer dependency — vexnor will not fail to load if it is not installed.
 - `vexnor.query.location` strips the process working directory prefix so paths are relative and portable across environments.
+- Spans capture timing from before authorization through completion — the `durationMs` includes auth, check plugins, and query execution.
+- Authorization denials and rate limit rejections still produce spans with `ERROR` status.

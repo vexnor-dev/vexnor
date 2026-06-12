@@ -3,70 +3,67 @@
 */
 import * as vexnor from "vexnor";
 
-
-export const AccountOrderSummary = vexnor.newSqlTable<{ Select: IAccountOrderSummarySelect }>({
-   crud:
-   {
-      select: true, 
-      insert: false, 
-      update: false, 
-      delete: false, 
+export const AccountOrderSummary = vexnor.newSqlTable<{
+   Select: IAccountOrderSummarySelect;
+}>( {
+   crud: {
+      select: true,
+      insert: false,
+      update: false,
+      delete: false,
    },
-   tableInfo:
-   {
+   tableInfo: {
       name: "account_order_summary",
       schema: "main",
    },
-   pk: [], 
+   pk: [],
    dialect: "sqlite",
-   columns:
-   {
+   columns: {
 
       /**
        * account_id TEXT
-      */
+       */
       accountId: "account_id",
 
       /**
        * email TEXT
-      */
+       */
       email: "email",
 
       /**
        * first_name TEXT
-      */
+       */
       firstName: "first_name",
 
       /**
        * last_name TEXT
-      */
+       */
       lastName: "last_name",
 
       /**
        * status TEXT
-      */
+       */
       status: "status",
 
       /**
        * order_count 
-      */
+       */
       orderCount: "order_count",
 
       /**
        * latest_order_at 
-      */
+       */
       latestOrderAt: "latest_order_at",
    },
 });
-
 export type IAccountOrderSummarySelect = {
-   accountId: string | null
-   email: string | null
-   firstName: string | null
-   lastName: string | null
-   status: string | null
-   orderCount: string | null
-   latestOrderAt: string | null
-}
+   accountId: string | null;
+   email: string | null;
+   firstName: string | null;
+   lastName: string | null;
+   status: string | null;
+   orderCount: string | null;
+   latestOrderAt: string | null;
+};
 
 export type IAccountOrderSummaryJson = vexnor.JsonRow<IAccountOrderSummarySelect>;

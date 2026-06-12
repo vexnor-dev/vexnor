@@ -3,73 +3,72 @@
 */
 import * as vexnor from "vexnor";
 
-
-export const Order = vexnor.newSqlTable<{ Select: IOrderSelect, Insert: IOrderInsert, Update: IOrderUpdate; Delete: true }>({
-   crud:
-   {
-      select: true, 
-      insert: true, 
-      update: true, 
-      delete: true, 
+export const Order = vexnor.newSqlTable<{
+   Select: IOrderSelect;
+   Insert: IOrderInsert;
+   Update: IOrderUpdate;
+   Delete: true;
+}>( {
+   crud: {
+      select: true,
+      insert: true,
+      update: true,
+      delete: true,
    },
-   tableInfo:
-   {
+   tableInfo: {
       name: "order",
       schema: "vexnor_dev",
    },
-   pk: ["orderId"], 
+   pk: ["orderId"],
    dialect: "tsql",
-   columns:
-   {
+   columns: {
 
       /**
        * order_id uniqueidentifier default (newid())
-      */
+       */
       orderId: "order_id",
 
       /**
        * status varchar default ('created')
-      */
+       */
       status: "status",
 
       /**
        * created_at datetimeoffset default (sysdatetimeoffset())
-      */
+       */
       createdAt: "created_at",
 
       /**
        * modified_at datetimeoffset default (sysdatetimeoffset())
-      */
+       */
       modifiedAt: "modified_at",
 
       /**
        * account_id uniqueidentifier
-      */
+       */
       accountId: "account_id",
    },
-   jsonSchema:
-   {
+   jsonSchema: {
       createdAt: "Date",
       modifiedAt: "Date",
-   }
+   },
 });
-
 export type IOrderInsert = {
    orderId?: string;
    status?: string;
    createdAt?: Date;
    modifiedAt?: Date;
    accountId: string;
-}
+};
 
 export type IOrderUpdate = Partial<IOrderInsert>;
 
 export type IOrderSelect = {
-   orderId: string
-   status: string
-   createdAt: Date
-   modifiedAt: Date
-   accountId: string
-}
+   orderId: string;
+   status: string;
+   createdAt: Date;
+   modifiedAt: Date;
+   accountId: string;
+};
 
 export type IOrderJson = vexnor.JsonRow<IOrderSelect>;

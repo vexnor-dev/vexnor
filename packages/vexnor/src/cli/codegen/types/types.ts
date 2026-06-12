@@ -10,4 +10,6 @@ export interface CodegenCommandOptions {
    user?: string;
    password?: string;
    port?: number;
+   config?: string;
+   profile?: string;
 }

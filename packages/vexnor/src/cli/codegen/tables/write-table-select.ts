@@ -11,7 +11,7 @@ export function writeTableSelect(writer: CodeWriter, { table }: PrintTableArgs) 
 
    writer
       .blankLine()
-      .write(`export type ${tableTypePrefix}Select = `)
+      .write(`export type ${tableTypePrefix}Select =`)
       .inlineBlock(() => {
          columns.forEach((col) => {
             const isNullable = col.is_nullable === "YES";
@@ -44,9 +44,10 @@ export function writeTableSelect(writer: CodeWriter, { table }: PrintTableArgs) 
                   writer.write(`${type}`);
                   break;
             }
-            writer.write(`${isNullable ? " | null" : ""}`).newLine();
+            writer.write(`${isNullable ? " | null" : ""};`).newLine();
          });
       })
+      .writeLine(";")
       .blankLine()
       .write(`export type ${tableTypePrefix}Json = vexnor.JsonRow<${tableTypePrefix}Select>;`);
 }

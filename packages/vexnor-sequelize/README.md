@@ -52,6 +52,49 @@ const Account = fromSequelizeTable(AccountModel, 'public');
 const AccountOrderSummary = fromSequelizeView(AccountOrderSummaryModel, 'public');
 ```
 
+## Composing Queries
+
+The adapted table works identically to a codegen-produced table — compose subqueries, use CTEs, and mix with other tables:
+
+```typescript
+import { OrderModel } from './order.model.js';
+import { col } from 'vexnor';
+
+const Order = fromSequelizeTable(OrderModel);
+
+const activeAccountsWithOrders = sql`
+  SELECT ${row(Account.$accountId, Account.$email)},
+         count(${Order.$orderId}) as ${col<{ orderCount: number }>('orderCount')}
+  FROM ${Account}
+  JOIN ${Order} ON ${Order.$accountId} = ${Account.$accountId}
+  GROUP BY ${Account.$accountId}, ${Account.$email}
+  HAVING count(${Order.$orderId}) > 0
+`;
+```
+
+## CRUD Query Factories
+
+Adapted tables support the same typed CRUD factories as codegen tables:
+
+```typescript
+// SELECT with WHERE
+const accounts = await Account.postgres.select({
+  WHERE: sql`${Account.$status} = 'active'`,
+}).all({ db: pool });
+
+// INSERT
+const inserted = await Account.postgres.insertRows().all({
+  db: pool,
+  params: { rows: [{ email: 'new@example.com', firstName: 'New' }] },
+});
+
+// Find by columns
+const found = await Account.postgres.findBy().any({
+  db: pool,
+  params: { email: 'jane@example.com' },
+});
+```
+
 ## Supported Databases
 
 Dialect is inferred automatically from the Sequelize instance dialect:

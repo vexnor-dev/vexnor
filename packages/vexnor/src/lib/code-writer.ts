@@ -64,11 +64,20 @@ export class CodeWriter {
    }
 
    inlineBlock(writeBody: () => void): this {
-      this.write("{").newLine();
+      this.write(" {").newLine();
       this.indentLevel++;
       writeBody();
       this.indentLevel--;
       this.write("}");
+      return this;
+   }
+
+   genericBlock(writeBody: () => void): this {
+      this.write("<{").newLine();
+      this.indentLevel++;
+      writeBody();
+      this.indentLevel--;
+      this.write("}>");
       return this;
    }
 

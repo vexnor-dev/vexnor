@@ -3,77 +3,76 @@
 */
 import * as vexnor from "vexnor";
 
-
-export const Product = vexnor.newSqlTable<{ Select: IProductSelect, Insert: IProductInsert, Update: IProductUpdate; Delete: true }>({
-   crud:
-   {
-      select: true, 
-      insert: true, 
-      update: true, 
-      delete: true, 
+export const Product = vexnor.newSqlTable<{
+   Select: IProductSelect;
+   Insert: IProductInsert;
+   Update: IProductUpdate;
+   Delete: true;
+}>( {
+   crud: {
+      select: true,
+      insert: true,
+      update: true,
+      delete: true,
    },
-   tableInfo:
-   {
+   tableInfo: {
       name: "product",
       schema: "vexnor_dev",
    },
-   pk: ["productId"], 
+   pk: ["productId"],
    dialect: "tsql",
-   columns:
-   {
+   columns: {
 
       /**
        * product_id uniqueidentifier default (newid())
-      */
+       */
       productId: "product_id",
 
       /**
        * created_at datetimeoffset default (sysdatetimeoffset())
-      */
+       */
       createdAt: "created_at",
 
       /**
        * modified_at datetimeoffset default (sysdatetimeoffset())
-      */
+       */
       modifiedAt: "modified_at",
 
       /**
        * label varchar
-      */
+       */
       label: "label",
 
       /**
        * price decimal
-      */
+       */
       price: "price",
 
       /**
        * discount decimal
-      */
+       */
       discount: "discount",
 
       /**
        * is_available bit default ((1))
-      */
+       */
       isAvailable: "is_available",
 
       /**
        * is_published bit default ((0))
-      */
+       */
       isPublished: "is_published",
 
       /**
        * metadata nvarchar
-      */
+       */
       metadata: "metadata",
    },
-   jsonSchema:
-   {
+   jsonSchema: {
       createdAt: "Date",
       modifiedAt: "Date",
-   }
+   },
 });
-
 export type IProductInsert = {
    productId?: string;
    createdAt?: Date;
@@ -84,20 +83,20 @@ export type IProductInsert = {
    isAvailable?: boolean;
    isPublished?: boolean;
    metadata?: string | null;
-}
+};
 
 export type IProductUpdate = Partial<IProductInsert>;
 
 export type IProductSelect = {
-   productId: string
-   createdAt: Date
-   modifiedAt: Date
-   label: string
-   price: number
-   discount: number | null
-   isAvailable: boolean
-   isPublished: boolean
-   metadata: string | null
-}
+   productId: string;
+   createdAt: Date;
+   modifiedAt: Date;
+   label: string;
+   price: number;
+   discount: number | null;
+   isAvailable: boolean;
+   isPublished: boolean;
+   metadata: string | null;
+};
 
 export type IProductJson = vexnor.JsonRow<IProductSelect>;

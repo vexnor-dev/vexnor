@@ -32,6 +32,9 @@ const env = await GetEnvVars({
 type Config = Exclude<Awaited<Parameters<typeof vitest.defineConfig>[0]>, Function>;
 
 export const sharedConfig: Config = {
+   resolve: {
+      tsconfigPaths: true,
+   },
    test: {
       setupFiles: [path.resolve(__dirname, "vitest.setup.ts")],
       include: ["./**/*.{test,spec}.{ts,js}"],
@@ -43,20 +46,6 @@ export const sharedConfig: Config = {
       typecheck: {
          enabled: true,
          checker: "tsc",
-      },
-      coverage: {
-         provider: "v8",
-         reportsDirectory: "./coverage",
-         reporter: ["text", "html", "json", "json-summary", "clover"],
-         include: ["**/src/**/*"],
-         exclude: [
-            "**/__tests__/**",
-            "**/test/**",
-            "**/coverage/**",
-            "**/node_modules/**",
-            "**/dist/**",
-            "**/build/**",
-         ],
       },
    },
 };

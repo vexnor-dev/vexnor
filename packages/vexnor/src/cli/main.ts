@@ -37,6 +37,8 @@ main
    .requiredOption("--schema <schema...>", "Database schema(s) to generate mapping code for")
    .option("--camelCaseColumns", "Use camelCase for column names")
    .option("--omit <tables...>", "Table names to omit from codegen (e.g. migration_vexnor or schema.table_name)")
+   .option("-c, --config <path>", "Path to vexnor.config.ts", "vexnor.config.ts")
+   .option("-p, --profile <profile>", "Profile to use from vexnor.config.ts")
    .action(async (options: CodegenCommandOptions) => {
       await codegenCommand(options);
    });

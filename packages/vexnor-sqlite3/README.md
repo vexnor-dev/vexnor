@@ -212,7 +212,7 @@ npx vexnor codegen \
   --schema main \
   --uri $SQLITE_PATH \
   --outDir src/models \
-  --pascalCaseTables \
+   \
   --camelCaseColumns
 ```
 

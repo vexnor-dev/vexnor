@@ -13,6 +13,7 @@ export default defineConfig({
          provider: "v8",
          reportsDirectory: "./coverage",
          reporter: ["text", "html", "json", "json-summary", "clover"],
+         reportOnFailure: true,
          include: ["**/src/**/*"],
          exclude: [
             "**/__tests__/**",
@@ -21,6 +22,7 @@ export default defineConfig({
             "**/node_modules/**",
             "**/dist/**",
             "**/build/**",
+            "examples/**",
          ],
       },
    },

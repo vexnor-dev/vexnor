@@ -222,7 +222,7 @@ npx vexnor codegen \
   --schema public \
   --uri $DATABASE_URL \
   --outDir src/models \
-  --pascalCaseTables \
+   \
   --camelCaseColumns
 ```
 

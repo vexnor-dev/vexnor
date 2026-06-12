@@ -4,77 +4,76 @@
 import * as vexnor from "vexnor";
 import * as udt from "./vexnor_dev-enums.js";
 
-
-export const Account = vexnor.newSqlTable<{ Select: IAccountSelect, Insert: IAccountInsert, Update: IAccountUpdate; Delete: true }>({
-   crud:
-   {
-      select: true, 
-      insert: true, 
-      update: true, 
-      delete: true, 
+export const Account = vexnor.newSqlTable<{
+   Select: IAccountSelect;
+   Insert: IAccountInsert;
+   Update: IAccountUpdate;
+   Delete: true;
+}>( {
+   crud: {
+      select: true,
+      insert: true,
+      update: true,
+      delete: true,
    },
-   tableInfo:
-   {
+   tableInfo: {
       name: "account",
       schema: "vexnor_dev",
    },
-   pk: ["accountId"], 
+   pk: ["accountId"],
    dialect: "postgresql",
-   columns:
-   {
+   columns: {
 
       /**
        * account_id uuid default gen_random_uuid()
-      */
+       */
       accountId: "account_id",
 
       /**
        * status account_status default 'created'::vexnor_dev.account_status
-      */
+       */
       status: "status",
 
       /**
        * email varchar
-      */
+       */
       email: "email",
 
       /**
        * first_name varchar
-      */
+       */
       firstName: "first_name",
 
       /**
        * last_name varchar
-      */
+       */
       lastName: "last_name",
 
       /**
        * notes text
-      */
+       */
       notes: "notes",
 
       /**
        * created_at timestamptz default now()
-      */
+       */
       createdAt: "created_at",
 
       /**
        * modified_at timestamptz default now()
-      */
+       */
       modifiedAt: "modified_at",
 
       /**
        * parent_id uuid
-      */
+       */
       parentId: "parent_id",
    },
-   jsonSchema:
-   {
+   jsonSchema: {
       createdAt: "Date",
       modifiedAt: "Date",
-   }
+   },
 });
-
 export type IAccountInsert = {
    accountId?: string;
    status?: udt.AccountStatusUdt;
@@ -85,20 +84,20 @@ export type IAccountInsert = {
    createdAt?: Date;
    modifiedAt?: Date;
    parentId?: string | null;
-}
+};
 
 export type IAccountUpdate = Partial<IAccountInsert>;
 
 export type IAccountSelect = {
-   accountId: string
-   status: udt.AccountStatusUdt
-   email: string
-   firstName: string
-   lastName: string
-   notes: string | null
-   createdAt: Date
-   modifiedAt: Date
-   parentId: string | null
-}
+   accountId: string;
+   status: udt.AccountStatusUdt;
+   email: string;
+   firstName: string;
+   lastName: string;
+   notes: string | null;
+   createdAt: Date;
+   modifiedAt: Date;
+   parentId: string | null;
+};
 
 export type IAccountJson = vexnor.JsonRow<IAccountSelect>;

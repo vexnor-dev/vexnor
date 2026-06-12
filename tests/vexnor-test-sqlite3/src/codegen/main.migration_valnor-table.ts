@@ -3,61 +3,61 @@
 */
 import * as vexnor from "vexnor";
 
-
-export const MigrationValnor = vexnor.newSqlTable<{ Select: IMigrationValnorSelect, Insert: IMigrationValnorInsert, Update: IMigrationValnorUpdate; Delete: true }>({
-   crud:
-   {
-      select: true, 
-      insert: true, 
-      update: true, 
-      delete: true, 
+export const MigrationValnor = vexnor.newSqlTable<{
+   Select: IMigrationValnorSelect;
+   Insert: IMigrationValnorInsert;
+   Update: IMigrationValnorUpdate;
+   Delete: true;
+}>( {
+   crud: {
+      select: true,
+      insert: true,
+      update: true,
+      delete: true,
    },
-   tableInfo:
-   {
+   tableInfo: {
       name: "migration_valnor",
       schema: "main",
    },
-   pk: ["version"], 
+   pk: ["version"],
    dialect: "sqlite",
-   columns:
-   {
+   columns: {
 
       /**
        * version INTEGER
-      */
+       */
       version: "version",
 
       /**
        * name TEXT
-      */
+       */
       name: "name",
 
       /**
        * md5 TEXT
-      */
+       */
       md5: "md5",
 
       /**
        * run_at TIMESTAMP WITH TIME ZONE
-      */
+       */
       runAt: "run_at",
    },
 });
-
 export type IMigrationValnorInsert = {
    version?: number | null;
    name?: string | null;
    md5?: string | null;
    runAt?: string | null;
-}
+};
 
 export type IMigrationValnorUpdate = Partial<IMigrationValnorInsert>;
 
 export type IMigrationValnorSelect = {
-   version: number | null
-   name: string | null
-   md5: string | null
-   runAt: string | null
-}
+   version: number | null;
+   name: string | null;
+   md5: string | null;
+   runAt: string | null;
+};
 
 export type IMigrationValnorJson = vexnor.JsonRow<IMigrationValnorSelect>;

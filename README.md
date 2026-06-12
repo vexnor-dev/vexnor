@@ -30,7 +30,7 @@ npx vexnor codegen \
   --schema public \
   --uri $DATABASE_URL \
   --outDir src/models \
-  --pascalCaseTables \
+   \
   --camelCaseColumns
 ```
 
@@ -174,11 +174,11 @@ See [Transactions](docs/transactions.md) for all three drivers and options.
 
 ## Query Pipelines
 
-Every query execution flows through a `SqlQueryPipeline` — a composable object that sequences authorization, rate limiting, audit logging, and observability in a single place. `QueryRegistry` owns one by default; you can also attach a pipeline directly to any connection via `connect()` for background workers, scripts, or tests.
+Every query execution flows through a `SqlQueryPipeline` — a composable object that sequences authorization, rate limiting, audit logging, and observability in a single place. `SqlQueryRegistry` owns one by default; you can also attach a pipeline directly to any connection via `connect()` for background workers, scripts, or tests.
 
 ```typescript
-import { SqlQueryPipeline, connect } from 'vexnor';
-import { AuditLogPlugin, TimeToLiveRateLimiter } from 'vexnor/registry';
+import { connect } from 'vexnor';
+import { SqlQueryPipeline, AuditLogPlugin, TimeToLiveRateLimiter, SqlQueryRegistry } from 'vexnor/execution';
 
 type AppContext = { userId: string; roles: string[] };
 
@@ -206,8 +206,8 @@ pipeline.use(new AuditLogPlugin({
   },
 }));
 
-// Use with QueryRegistry
-const registry = new QueryRegistry<AppContext>();
+// Use with SqlQueryRegistry
+const registry = new SqlQueryRegistry<AppContext>();
 registry.use(auditPlugin);
 registry.registerAuthorization(authHook);
 
@@ -263,7 +263,7 @@ See [Telemetry](docs/telemetry.md) — span shape, OTLP exporters, combining wit
 - [Params](docs/params.md) — inline injection, `param()`, `expand()`, runtime validation
 - [CRUD](docs/crud.md) — typed query factories, execution methods
 - [Isomorphic SQL](docs/isomorphic-sql.md) — same query on server and client, how it works, comparison with REST/tRPC/GraphQL
-- [Registry](docs/registry.md) — QueryRegistry, query pipelines, `connect()`, isomorphic SQL, remote execution
+- [Registry](docs/registry.md) — SqlQueryRegistry, query pipelines, `connect()`, isomorphic SQL, remote execution
 - [Authorization](docs/authorization.md) — query authorization, audit logging, SOC2/HIPAA
 - [Telemetry](docs/telemetry.md) — OpenTelemetry integration, spans, OTLP exporters
 - [CLI](docs/cli.md) — `codegen`, `exec run`, `exec init`, config reference
@@ -279,7 +279,7 @@ Working examples are in the [`examples/`](examples/) directory:
 |---|---|
 | [`postgres-esm`](examples/postgres-esm) | Minimal Node.js ESM script — insert, select, update with PostgreSQL |
 | [`postgres-cjs`](examples/postgres-cjs) | Same as above using CommonJS |
-| [`react-vite-api`](examples/react-vite-api) | React + Vite + Hono — isomorphic queries, `QueryRegistry`, `HttpRemoteClient`, PostgreSQL + MSSQL + SQLite3 |
+| [`react-vite-api`](examples/react-vite-api) | React + Vite + Hono — isomorphic queries, `SqlQueryRegistry`, `HttpRemoteClient`, PostgreSQL + MSSQL + SQLite3 |
 | [`react-next-app`](examples/react-next-app) | Next.js App Router — React Server Components, Server Actions, same isomorphic pattern |
 
 ## Requirements

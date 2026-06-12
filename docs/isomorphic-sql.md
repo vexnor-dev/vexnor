@@ -36,7 +36,7 @@ When vexnor detects a `RemoteClient` as the `db` argument:
 1. It computes the query's stable SHA-256 hash from its SQL template strings
 2. It calls `remoteClient.remoteExecute({ plugin, hash, params, name, location, mode })`
 3. The server receives `{ plugin, hash, params, name, location, mode }` — no SQL, just a hash
-4. The server looks up the query by hash in its `QueryRegistry`
+4. The server looks up the query by hash in its `SqlQueryRegistry`
 5. The query executes against the real database connection on the server
 6. The result is serialized and returned to the client
 7. Vexnor deserializes the result (restoring `Date` objects, nested JSON, etc.)
@@ -45,11 +45,11 @@ The client never sends SQL. It sends a hash that identifies a pre-registered que
 
 ## Execution Contexts
 
-The same query works across all three contexts:
+The same query works in any server or client context — the pattern is identical regardless of framework:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  shared/queries/postgres.ts                                  │
+│  shared/queries.ts                                           │
 │                                                              │
 │  export const selectAccounts = sql`                          │
 │    SELECT ${row(Account.$$)}, ...                            │
@@ -65,7 +65,9 @@ The same query works across all three contexts:
   execution      execution        → /api/db → pool
 ```
 
-### Server-side (Node.js / Hono)
+### Server-side (any Node.js framework)
+
+Works with Hono, Express, Fastify, Next.js API routes, or plain Node.js scripts:
 
 ```typescript
 // server/src/server.ts
@@ -75,7 +77,9 @@ const accounts = await selectAccounts.postgres.all({
 });
 ```
 
-### React Server Components (Next.js)
+### React Server Components (Next.js App Router)
+
+RSC execute on the server — queries run directly against the database with no HTTP round-trip:
 
 ```typescript
 // app/postgres/accounts/page.tsx
@@ -89,7 +93,7 @@ export default async function AccountsPage({ searchParams }) {
 }
 ```
 
-### Browser (React client component)
+### Browser — React client component (Vite, Next.js, or any bundler)
 
 ```typescript
 // client/src/pages/postgres-accounts.tsx
@@ -172,7 +176,7 @@ const result = await registry.execute(
 The `/api/db` endpoint should map `SqlErrorCode` values to appropriate HTTP status codes so clients get structured error responses:
 
 ```typescript
-import { SqlError, SqlRunError } from 'vexnor/registry';
+import { SqlError, SqlRunError } from 'vexnor/execution';
 
 // QUERY_NOT_FOUND → 400, QUERY_NOT_AUTHORIZED → 403,
 // QUERY_RATE_LIMITED → 429, QUERY_TIMEOUT → 504, etc.
@@ -186,7 +190,7 @@ For additional access control, queries can be tagged with `.authorize()` and val
 
 ## Further Reading
 
-- [Registry & Setup](registry.md) — step-by-step setup, `QueryRegistry` API, Next.js, multiple databases
+- [Registry & Setup](registry.md) — step-by-step setup, `SqlQueryRegistry` API, Next.js, multiple databases
 - [Authorization](authorization.md) — per-query authorization hooks, audit logging
 - [Examples: react-vite-api](../examples/react-vite-api) — React + Vite + Hono, full isomorphic setup
 - [Examples: react-next-app](../examples/react-next-app) — Next.js App Router, RSC + Server Actions + remoteClient

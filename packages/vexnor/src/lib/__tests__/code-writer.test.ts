@@ -4,7 +4,7 @@ import { CodeWriter } from "#/lib/code-writer.js";
 describe("CodeWriter", () => {
    test("writes lines and blocks with indentation", () => {
       const writer = new CodeWriter({ indentNumberOfSpaces: 2, useSingleQuote: true });
-      writer.write("const x =").space().inlineBlock(() => {
+      writer.write("const x =").inlineBlock(() => {
          writer.writeLine("a: 1,");
       });
 
@@ -28,5 +28,20 @@ describe("CodeWriter", () => {
       });
 
       expect(writer.toString()).toBe("if (ok) {\n   run();\n}\n");
+   });
+
+   test("genericBlock writes <{ ... }> with indentation", () => {
+      const writer = new CodeWriter({ indentNumberOfSpaces: 3 });
+      writer.write("newSqlTable").genericBlock(() => {
+         writer.writeLine("Select: IFooSelect;");
+         writer.writeLine("Insert: IFooInsert;");
+      }).write("(");
+
+      expect(writer.toString()).toMatchInlineSnapshot(`
+        "newSqlTable<{
+           Select: IFooSelect;
+           Insert: IFooInsert;
+        }>("
+      `);
    });
 });
