@@ -11,8 +11,8 @@ const INTERNAL_FILES = [
 
 function isInternalFrame(frame: string): boolean {
    if (INTERNAL_FILES.some((f) => frame.includes(f))) return true;
-   // Plugin packages: vexnor-postgres, vexnor-mssql, vexnor-sqlite3, etc. (src or dist)
-   if (/\/vexnor-[^/]+\/(dist|src)\//.test(frame) || /\/@fs\/.*\/vexnor-[^/]+\/(dist|src)\//.test(frame)) return true;
+   // Plugin/ORM packages: plugins/postgres, orms/prisma, etc. (src or dist)
+   if (/\/(plugins|orms)\/[^/]+\/(dist|src)\//.test(frame) || /\/@fs\/.*\/(plugins|orms)\/[^/]+\/(dist|src)\//.test(frame)) return true;
    // Core vexnor package src/dist (e.g. sql-base.ts, builder/, execution/)
    return /\/vexnor\/(dist|src)\//.test(frame) || /\/@fs\/.*\/vexnor\/(dist|src)\//.test(frame);
 }

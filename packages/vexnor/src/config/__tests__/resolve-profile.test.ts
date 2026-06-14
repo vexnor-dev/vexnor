@@ -31,7 +31,7 @@ describe("resolveProfile", () => {
 
    test("throws for ProfileConfig not in config", () => {
       const orphanProfile = {
-         plugin: "vexnor-postgres",
+         plugin: "@vexnor/postgres",
          connection: { uri: "postgres://localhost" },
          generate: { schema: ["public"], outDir: "./out" },
       };

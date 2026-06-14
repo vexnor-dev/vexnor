@@ -4,7 +4,7 @@ import { ok } from "node:assert";
 import { Account, AccountStatusUdt, Order, OrderStatusUdt } from "./codegen/vexnor_dev.schema.js";
 import { row, sql } from "vexnor";
 import { Pool } from "pg";
-import "vexnor-postgres";
+import "@vexnor/postgres";
 
 const pool = new Pool({
    host: "localhost",

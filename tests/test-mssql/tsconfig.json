@@ -1,0 +1,22 @@
+{
+   "extends": "../../tsconfig.json",
+   "compilerOptions": {
+      "outDir": "./dist",
+      "rootDir": ".",
+      "declaration": true,
+      "declarationMap": true,
+      "composite": true,
+      "experimentalDecorators": true,
+      "emitDecoratorMetadata": true
+   },
+   "include": ["src/**/*", "prisma/generated/**/*"],
+   "exclude": ["dist", "node_modules"],
+   "references": [
+      { "path": "../../packages/vexnor" },
+      { "path": "../../plugins/mssql" },
+      { "path": "../../orms/drizzle" },
+      { "path": "../../orms/prisma" },
+      { "path": "../../orms/sequelize" },
+      { "path": "../../orms/typeorm" }
+   ]
+}

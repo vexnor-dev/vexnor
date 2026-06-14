@@ -3,7 +3,7 @@
 */
 import * as vexnor from "vexnor";
 
-import type * as vexnorPostgres from "vexnor-postgres";
+import type * as vexnorPostgres from "@vexnor/postgres";
 export const TypeCoverage = vexnor.newSqlTable<{
    Select: ITypeCoverageSelect;
    Insert: ITypeCoverageInsert;

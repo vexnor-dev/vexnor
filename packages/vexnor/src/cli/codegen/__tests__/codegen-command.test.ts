@@ -9,7 +9,7 @@ vi.mock("../../../load-plugin.js");
 const FIXTURE_CONFIG = resolve(import.meta.dirname, "./fixtures/codegen.config.ts");
 
 const baseOptions = {
-   plugin: "vexnor-sqlite3",
+   plugin: "@vexnor/sqlite3",
    schema: ["main"],
    camelCaseColumns: true,
 };

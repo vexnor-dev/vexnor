@@ -1,4 +1,4 @@
-import "vexnor-postgres";
+import "@vexnor/postgres";
 import { Suspense, useEffect, useState } from "react";
 import { useSearch, useNavigate } from "@tanstack/react-router";
 import { contextValue } from "vexnor";

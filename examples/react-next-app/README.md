@@ -48,7 +48,7 @@ This runs codegen for all three databases in parallel. Requires the databases to
 pnpm dev
 ```
 
-This builds all referenced workspace packages (`vexnor`, `vexnor-postgres`, `vexnor-mssql`, `vexnor-sqlite3`) via `tsc -b` before starting Next.js.
+This builds all referenced workspace packages (`vexnor`, `@vexnor/postgres`, `@vexnor/mssql`, `@vexnor/sqlite3`) via `tsc -b` before starting Next.js.
 
 Open [http://localhost:3000](http://localhost:3000).
 

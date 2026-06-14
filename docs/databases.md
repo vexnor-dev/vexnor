@@ -2,18 +2,18 @@
 
 ## PostgreSQL
 
-**Package:** `vexnor-postgres`  
+**Package:** `@vexnor/postgres`  
 **Driver:** `pg` (node-postgres) — `Pool` / `PoolClient`  
 **Dialect:** `postgresql`
 
 ```bash
-npm install vexnor vexnor-postgres pg
+npm install vexnor @vexnor/postgres pg
 ```
 
 ### Connection Setup
 
 ```typescript
-import 'vexnor-postgres';
+import '@vexnor/postgres';
 import { Pool } from 'pg';
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
@@ -71,7 +71,7 @@ process.on('SIGTERM', async () => {
 `jsonOne` uses `to_jsonb` with a `LEFT JOIN LATERAL`. Returns `null` when no row matches.
 
 ```typescript
-import { jsonMany, jsonOne } from 'vexnor-postgres';
+import { jsonMany, jsonOne } from '@vexnor/postgres';
 ```
 
 ### Enum Support
@@ -89,25 +89,25 @@ export type AccountStatusUdt = (typeof AccountStatusUdt)[keyof typeof AccountSta
 PostgreSQL geometric and interval types are exported:
 
 ```typescript
-import type { Point, Circle, Interval } from 'vexnor-postgres';
+import type { Point, Circle, Interval } from '@vexnor/postgres';
 ```
 
 ---
 
 ## MS SQL Server
 
-**Package:** `vexnor-mssql`  
+**Package:** `@vexnor/mssql`  
 **Driver:** `mssql` (tedious)  
 **Dialect:** `tsql`
 
 ```bash
-npm install vexnor vexnor-mssql mssql
+npm install vexnor @vexnor/mssql mssql
 ```
 
 ### Connection Setup
 
 ```typescript
-import 'vexnor-mssql';
+import '@vexnor/mssql';
 import * as mssql from 'mssql';
 
 const pool = await mssql.connect(process.env.MSSQL_CONNECTION_STRING!);
@@ -164,7 +164,7 @@ process.on('SIGTERM', async () => {
 `jsonOne` uses `FOR JSON PATH, WITHOUT_ARRAY_WRAPPER`. Returns `null` when no row matches.
 
 ```typescript
-import { jsonMany, jsonOne } from 'vexnor-mssql';
+import { jsonMany, jsonOne } from '@vexnor/mssql';
 ```
 
 ### Notes
@@ -177,18 +177,18 @@ import { jsonMany, jsonOne } from 'vexnor-mssql';
 
 ## SQLite
 
-**Package:** `vexnor-sqlite3`  
+**Package:** `@vexnor/sqlite3`  
 **Driver:** `better-sqlite3` (synchronous)  
 **Dialect:** `sqlite`
 
 ```bash
-npm install vexnor vexnor-sqlite3 better-sqlite3
+npm install vexnor @vexnor/sqlite3 better-sqlite3
 ```
 
 ### Connection Setup
 
 ```typescript
-import 'vexnor-sqlite3';
+import '@vexnor/sqlite3';
 import Database from 'better-sqlite3';
 
 const db = new Database('mydb.sqlite');
@@ -226,7 +226,7 @@ process.on('SIGTERM', () => {
 `jsonOne` uses `json_object`. Returns `null` when no row matches.
 
 ```typescript
-import { jsonMany, jsonOne } from 'vexnor-sqlite3';
+import { jsonMany, jsonOne } from '@vexnor/sqlite3';
 ```
 
 ### Notes

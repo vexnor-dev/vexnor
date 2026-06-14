@@ -5,7 +5,7 @@ Each driver package exports a `transaction()` function and a `savepoint()` funct
 ## PostgreSQL
 
 ```typescript
-import { transaction, savepoint } from 'vexnor-postgres';
+import { transaction, savepoint } from '@vexnor/postgres';
 ```
 
 ### `transaction(pool, callback, options?)`
@@ -107,7 +107,7 @@ await transaction(pool, async (client) => {
 ## MS SQL Server
 
 ```typescript
-import { transaction, savepoint } from 'vexnor-mssql';
+import { transaction, savepoint } from '@vexnor/mssql';
 ```
 
 ### `transaction(pool, callback, options?)`
@@ -162,7 +162,7 @@ await savepoint(tx, 'insert_item', async (request) => { /* ... */ });
 ## SQLite
 
 ```typescript
-import { transaction, savepoint } from 'vexnor-sqlite3';
+import { transaction, savepoint } from '@vexnor/sqlite3';
 ```
 
 ### `transaction(db, callback, options?)`

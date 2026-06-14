@@ -64,7 +64,7 @@ Each query execution produces one span:
 | `vexnor.query.id` | Internal query instance ID |
 | `vexnor.query.name` | Query name |
 | `vexnor.query.location` | Source file and line where the query was defined (relative to cwd) |
-| `vexnor.plugin` | Plugin name (e.g. `vexnor-postgres`) |
+| `vexnor.plugin` | Plugin name (e.g. `@vexnor/postgres`) |
 
 ### Remote Execution Attributes
 

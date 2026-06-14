@@ -4,13 +4,13 @@
 
 ```bash
 # PostgreSQL
-npm install vexnor vexnor-postgres pg
+npm install vexnor @vexnor/postgres pg
 
 # MS SQL Server
-npm install vexnor vexnor-mssql mssql
+npm install vexnor @vexnor/mssql mssql
 
 # SQLite
-npm install vexnor vexnor-sqlite3 better-sqlite3
+npm install vexnor @vexnor/sqlite3 better-sqlite3
 ```
 
 ## Generate Types
@@ -19,7 +19,7 @@ Connect to your database and generate TypeScript types:
 
 ```bash
 npx vexnor codegen \
-  --plugin vexnor-postgres \
+  --plugin @vexnor/postgres \
   --schema public \
   --uri $DATABASE_URL \
   --outDir src/models \
@@ -52,7 +52,7 @@ Column naming convention: `account_id` → `Account.$accountId`, `first_name` �
 ```typescript
 import { Account } from './models/public.account-table.js';
 import { sql, row, param } from 'vexnor';
-import 'vexnor-postgres';
+import '@vexnor/postgres';
 import { Pool } from 'pg';
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
@@ -155,7 +155,7 @@ const updated = await sql`
 `jsonMany` and `jsonOne` aggregate related rows into typed JSON arrays or objects using a lateral join — no manual SQL needed.
 
 ```typescript
-import { jsonMany, jsonOne } from 'vexnor-postgres';
+import { jsonMany, jsonOne } from '@vexnor/postgres';
 
 const RecentOrders = sql`
   SELECT ${row(Order.$orderId, Order.$status, Order.$createdAt)}
@@ -230,7 +230,7 @@ Define queries in a shared module imported by both server and client:
 // shared/queries.ts
 import { Account } from './models/public.account-table.js';
 import { sql, row, param } from 'vexnor';
-import 'vexnor-postgres';
+import '@vexnor/postgres';
 
 export const selectAccounts = sql`
   SELECT ${row(Account.$$)}
@@ -270,7 +270,7 @@ The client sends a stable hash (not SQL). The server looks it up in a `SqlQueryR
 
 ```typescript
 import { SqlQueryRegistry } from 'vexnor/execution';
-import { vexnorPostgres } from 'vexnor-postgres';
+import { vexnorPostgres } from '@vexnor/postgres';
 import { selectAccounts } from '../shared/queries.js';
 
 const registry = new SqlQueryRegistry();

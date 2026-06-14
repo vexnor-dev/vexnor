@@ -7,7 +7,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
    profiles: {
       sqlite3: {
-         plugin: "vexnor-sqlite3",
+         plugin: "@vexnor/sqlite3",
          connection: {
             uri: path.resolve(__dirname, process.env.SQLITE_PATH ?? "../../@db-sqlite3/vexnor-dev.sqlite"),
          },
@@ -19,7 +19,7 @@ export default defineConfig({
          },
       },
       postgres: {
-         plugin: "vexnor-postgres",
+         plugin: "@vexnor/postgres",
          connection: {
             host: process.env.POSTGRES_HOST ?? "localhost",
             port: Number(process.env.POSTGRES_PORT ?? 5432),
@@ -35,7 +35,7 @@ export default defineConfig({
          },
       },
       mssql: {
-         plugin: "vexnor-mssql",
+         plugin: "@vexnor/mssql",
          connection: {
             host: process.env.MSSQL_HOST ?? "localhost",
             port: Number(process.env.MSSQL_PORT ?? 1433),

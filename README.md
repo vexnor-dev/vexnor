@@ -121,20 +121,20 @@ See [Isomorphic SQL](docs/isomorphic-sql.md) for the full picture and comparison
 
 ```bash
 # PostgreSQL
-npm install vexnor vexnor-postgres pg
+npm install vexnor @vexnor/postgres pg
 
 # MS SQL Server
-npm install vexnor vexnor-mssql mssql
+npm install vexnor @vexnor/mssql mssql
 
 # SQLite
-npm install vexnor vexnor-sqlite3 better-sqlite3
+npm install vexnor @vexnor/sqlite3 better-sqlite3
 ```
 
 Generate types from your database schema:
 
 ```bash
 npx vexnor codegen \
-  --plugin vexnor-postgres \
+  --plugin @vexnor/postgres \
   --schema public \
   --uri $DATABASE_URL \
   --outDir src/models \
@@ -149,8 +149,8 @@ Real SQL. Full type inference from what you select. Composable subqueries.
 ```typescript
 import { Account, AccountStatusUdt, Order, OrderItem } from './models/vexnor_dev.schema.js';
 import { sql, row, param, col } from 'vexnor';
-import { jsonMany } from 'vexnor-postgres';
-import 'vexnor-postgres';
+import { jsonMany } from '@vexnor/postgres';
+import '@vexnor/postgres';
 
 // A typed, reusable subquery
 const OrderItems = sql`
@@ -232,7 +232,7 @@ const found = await Account.postgres.findBy().any({
 ## Transactions
 
 ```typescript
-import { transaction, savepoint } from 'vexnor-postgres';
+import { transaction, savepoint } from '@vexnor/postgres';
 
 await transaction(pool, async (client) => {
   await sql`INSERT INTO ${Order} ${Order.insertColsVals(order)}`.one({ db: client });

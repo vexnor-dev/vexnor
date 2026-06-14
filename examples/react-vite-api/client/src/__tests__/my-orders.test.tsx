@@ -1,7 +1,7 @@
 import { describe, test, expect, vi } from "vitest";
 import { render, screen, waitFor, act } from "@testing-library/react";
 import { Suspense } from "react";
-import "vexnor-sqlite3";
+import "@vexnor/sqlite3";
 import { AuthProvider } from "#/auth-context.js";
 
 vi.mock("#/use-remote-client.js", () => ({

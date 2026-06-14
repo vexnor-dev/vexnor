@@ -22,7 +22,7 @@ The client never sends SQL. It sends a hash that identifies a pre-registered que
 
 ```typescript
 // shared/queries/accounts.ts
-import 'vexnor-postgres';
+import '@vexnor/postgres';
 import { sql, row, param } from 'vexnor';
 import { Account } from '../codegen/postgres/account-table.js';
 
@@ -45,7 +45,7 @@ export const insertAccount = Account.postgres.insertRows();
 // server/registry.ts
 import { SqlQueryRegistry } from 'vexnor/execution';
 import * as accountQueries from '../shared/queries/accounts.js';
-import vexnorPostgres from 'vexnor-postgres';
+import vexnorPostgres from '@vexnor/postgres';
 import { Pool } from 'pg';
 
 export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
@@ -242,7 +242,7 @@ export async function POST(request: Request) {
 When `.postgres.all({ db: remoteClient })` is called:
 
 1. Vexnor detects that `db` is a `RemoteClient` (not a real connection pool)
-2. It calls `remoteClient.remoteExecute({ plugin: 'vexnor-postgres', hash, params, name, location })`
+2. It calls `remoteClient.remoteExecute({ plugin: '@vexnor/postgres', hash, params, name, location })`
 3. The server receives the request, looks up the query by hash in the registry
 4. The query executes against the real DB connection on the server
 5. The result is serialized and returned
@@ -496,4 +496,4 @@ await registry.register(vexnorMssql, mssqlQueries);
 await registry.register(vexnorSqlite3, sqlite3Queries);
 ```
 
-The client selects the database by passing the plugin name in the request. Each plugin's queries are scoped independently — a hash registered under `vexnor-postgres` cannot be executed under `vexnor-mssql`.
+The client selects the database by passing the plugin name in the request. Each plugin's queries are scoped independently — a hash registered under `@vexnor/postgres` cannot be executed under `@vexnor/mssql`.

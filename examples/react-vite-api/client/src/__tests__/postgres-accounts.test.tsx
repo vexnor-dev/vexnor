@@ -2,7 +2,7 @@ import { describe, test, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Suspense } from "react";
-import "vexnor-postgres";
+import "@vexnor/postgres";
 import { AccountStatusUdt } from "#shared/codegen/postgres/vexnor_dev-enums";
 import type { IAccountSelect } from "#shared/codegen/postgres/vexnor_dev.account-table";
 import { AuthProvider } from "#/auth-context.js";
@@ -272,7 +272,7 @@ describe("PostgresAccountsPage", () => {
       await act(async () => user.click(screen.getByRole("button", { name: "Accounts" })));
       await waitFor(() => screen.getByText("alice@example.com"));
       expect(vi.mocked(mockRemoteExecute)).toHaveBeenCalledWith(
-         expect.objectContaining({ plugin: "vexnor-postgres" }),
+         expect.objectContaining({ plugin: "@vexnor/postgres" }),
       );
    });
 

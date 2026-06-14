@@ -44,7 +44,7 @@ describe("defineConfig", () => {
          defineConfig({
             profiles: {
                postgres: {
-                  plugin: "vexnor-postgres",
+                  plugin: "@vexnor/postgres",
                   connection: { uri: "postgres://localhost" },
                },
             },
@@ -57,7 +57,7 @@ describe("defineConfig", () => {
          defineConfig({
             profiles: {
                postgres: {
-                  plugin: "vexnor-postgres",
+                  plugin: "@vexnor/postgres",
                   connection: { uri: "postgres://localhost" },
                   generate: { schema: ["public"], outDir: "./out" },
                },
@@ -70,7 +70,7 @@ describe("defineConfig", () => {
       ).toMatchObject({
          profiles: {
             postgres: {
-               plugin: "vexnor-postgres",
+               plugin: "@vexnor/postgres",
                connection: { uri: "postgres://localhost" },
                generate: { schema: ["public"], outDir: "./out" },
             },
@@ -86,14 +86,14 @@ describe("defineConfig", () => {
       const config = defineConfig({
          profiles: {
             postgres: {
-               plugin: "vexnor-postgres",
+               plugin: "@vexnor/postgres",
                connection: { uri: "postgres://localhost" },
                generate: { schema: ["public"], outDir: "./out" },
             },
          },
       });
 
-      expect(config.profiles.postgres?.plugin).toBe("vexnor-postgres");
+      expect(config.profiles.postgres?.plugin).toBe("@vexnor/postgres");
       expect(config.profiles.postgres?.connection.uri).toBe("postgres://localhost");
       expect(config.profiles.postgres?.generate.schema).toEqual(["public"]);
    });
@@ -102,7 +102,7 @@ describe("defineConfig", () => {
       const config = defineConfig({
          profiles: {
             postgres: {
-               plugin: "vexnor-postgres",
+               plugin: "@vexnor/postgres",
                connection: { host: "localhost", port: 5432, database: "test", user: "user", password: "pass" },
                generate: { schema: ["public"], outDir: "./out" },
             },
@@ -115,7 +115,7 @@ describe("defineConfig", () => {
       });
 
       expect(Object.keys(config.profiles)).toHaveLength(2);
-      expect(config.profiles.postgres?.plugin).toBe("vexnor-postgres");
+      expect(config.profiles.postgres?.plugin).toBe("@vexnor/postgres");
       expect(config.profiles.mysql?.plugin).toBe("vexnor-mysql");
    });
 

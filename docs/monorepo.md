@@ -7,13 +7,13 @@ This repository is a `pnpm` monorepo.
 ```text
 packages/
   vexnor/              — Core library: sql tag, query builder, pipeline, registry, CLI, telemetry
-  vexnor-postgres/     — PostgreSQL plugin (pg driver)
-  vexnor-mssql/        — MS SQL Server plugin (mssql/tedious driver)
-  vexnor-sqlite3/      — SQLite plugin (better-sqlite3 driver)
-  vexnor-drizzle/      — Drizzle ORM adaptor
-  vexnor-prisma/       — Prisma adaptor
-  vexnor-typeorm/      — TypeORM adaptor
-  vexnor-sequelize/    — Sequelize adaptor
+  @vexnor/postgres/     — PostgreSQL plugin (pg driver)
+  @vexnor/mssql/        — MS SQL Server plugin (mssql/tedious driver)
+  @vexnor/sqlite3/      — SQLite plugin (better-sqlite3 driver)
+  @vexnor/drizzle/      — Drizzle ORM adaptor
+  @vexnor/prisma/       — Prisma adaptor
+  @vexnor/typeorm/      — TypeORM adaptor
+  @vexnor/sequelize/    — Sequelize adaptor
 
 tests/
   vexnor-test-postgres/ — Integration tests against a real PostgreSQL database
@@ -81,7 +81,7 @@ pnpm --filter vexnor test
 pnpm --filter vexnor test -- --coverage
 
 # Run a specific test file
-pnpm --filter vexnor-postgres test -- src/__tests__/postgres-transaction.test.ts
+pnpm --filter @vexnor/postgres test -- src/__tests__/postgres-transaction.test.ts
 ```
 
 ### Integration Tests
@@ -103,7 +103,7 @@ pnpm --filter vexnor-test-sqlite3 test
 Each package follows the same structure:
 
 ```text
-packages/vexnor-postgres/
+packages/@vexnor/postgres/
   src/
     __tests__/           — Unit tests
     crud/                — CRUD query factories
@@ -114,7 +114,7 @@ packages/vexnor-postgres/
     postgres-transaction.ts
     postgres-query-handler.ts
     postgres-tokenizer.ts
-    vexnor-postgres.ts   — Plugin class
+    @vexnor/postgres.ts   — Plugin class
   package.json
   tsconfig.json
   vitest.config.ts
@@ -123,7 +123,7 @@ packages/vexnor-postgres/
 The core `vexnor` package is larger:
 
 ```text
-packages/vexnor/
+packages/core/
   src/
     core/
       query/             — SqlQuery, params, execution, types

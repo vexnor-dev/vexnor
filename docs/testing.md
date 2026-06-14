@@ -10,8 +10,8 @@ Vexnor queries execute through a `db` connection passed at call time. This makes
 
 ```typescript
 import { sql, row } from 'vexnor';
-import 'vexnor-postgres';
-import type { PostgresClient } from 'vexnor-postgres';
+import '@vexnor/postgres';
+import type { PostgresClient } from '@vexnor/postgres';
 import { Account } from './models/account-table.js';
 
 const findAccounts = sql`
@@ -162,7 +162,7 @@ test('calls remoteExecute with correct plugin', async () => {
   await waitFor(() => screen.getByText('alice@example.com'));
 
   expect(vi.mocked(remoteClient.remoteExecute)).toHaveBeenCalledWith(
-    expect.objectContaining({ plugin: 'vexnor-postgres' }),
+    expect.objectContaining({ plugin: '@vexnor/postgres' }),
   );
 });
 ```
@@ -195,7 +195,7 @@ Test authorization and audit logging by creating a registry in your test:
 ```typescript
 import { describe, test, expect, vi } from 'vitest';
 import { SqlQueryRegistry, AuditLogPlugin } from 'vexnor/execution';
-import vexnorPostgres from 'vexnor-postgres';
+import vexnorPostgres from '@vexnor/postgres';
 
 describe('SqlQueryRegistry authorization', () => {
   test('denies unauthorized queries', async () => {
@@ -210,7 +210,7 @@ describe('SqlQueryRegistry authorization', () => {
 
     await expect(
       registry.execute(
-        { plugin: 'vexnor-postgres', hash: await deleteAccount.hash, params: {}, mode: 'write', location: null, name: 'deleteAccount' },
+        { plugin: '@vexnor/postgres', hash: await deleteAccount.hash, params: {}, mode: 'write', location: null, name: 'deleteAccount' },
         async () => pool,
         { roles: ['viewer'] },
       ),
@@ -230,7 +230,7 @@ test('audit log fires on execution', async () => {
   await registry.register(vexnorPostgres, { findAccounts });
 
   await registry.execute(
-    { plugin: 'vexnor-postgres', hash: await findAccounts.hash, params: {}, mode: 'read', location: null, name: 'findAccounts' },
+    { plugin: '@vexnor/postgres', hash: await findAccounts.hash, params: {}, mode: 'read', location: null, name: 'findAccounts' },
     async () => mockDb,
   );
 
@@ -274,7 +274,7 @@ For full integration tests against a real database, use the same pattern as prod
 
 ```typescript
 import { Pool } from 'pg';
-import { transaction } from 'vexnor-postgres';
+import { transaction } from '@vexnor/postgres';
 
 const testPool = new Pool({ connectionString: process.env.TEST_DATABASE_URL });
 

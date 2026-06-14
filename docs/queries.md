@@ -288,7 +288,7 @@ const result = await sql`
 Each driver package exports `jsonMany` and `jsonOne` to embed related rows as typed JSON arrays or objects:
 
 ```typescript
-import { jsonMany, jsonOne } from 'vexnor-postgres';
+import { jsonMany, jsonOne } from '@vexnor/postgres';
 
 const OrderItems = sql`
   SELECT ${row(OrderItem.$$)}

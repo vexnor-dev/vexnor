@@ -1,4 +1,4 @@
-import "vexnor-sqlite3";
+import "@vexnor/sqlite3";
 import { Suspense, useEffect, useState } from "react";
 import { useSearch, useNavigate } from "@tanstack/react-router";
 import { contextValue } from "vexnor";

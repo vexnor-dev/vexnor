@@ -1,4 +1,4 @@
-import "vexnor-mssql";
+import "@vexnor/mssql";
 import { Suspense, use, useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { selectAccountsForLogin } from "#shared/queries/mssql";

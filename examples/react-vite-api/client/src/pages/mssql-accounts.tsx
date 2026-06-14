@@ -1,4 +1,4 @@
-import "vexnor-mssql";
+import "@vexnor/mssql";
 import { Suspense, useEffect, useState } from "react";
 import { useSearch, useNavigate } from "@tanstack/react-router";
 import { contextValue } from "vexnor";

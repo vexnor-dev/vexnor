@@ -10,7 +10,7 @@
          "path": "../../packages/vexnor"
       },
       {
-         "path": "../../packages/vexnor-postgres"
+         "path": "../../plugins/postgres"
       }
    ]
 }

@@ -1,5 +1,5 @@
 // noinspection SqlNoDataSourceInspection,SqlResolve
-import "vexnor-sqlite3";
+import "@vexnor/sqlite3";
 import { col, param, row, ctx, sql } from "vexnor";
 import { Account } from "../codegen/sqlite3/main.account-table.js";
 import { Order } from "../codegen/sqlite3/main.order-table.js";
