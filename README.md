@@ -19,10 +19,14 @@ const selectAccounts = sql`
 
 // Server — direct DB execution
 const accounts = await selectAccounts.postgres.all({ db: pool });
+// accounts: { accountId: string; email: string }[] — inferred from row()
 
 // Browser — dispatched over HTTP, same call site
 const accounts = await selectAccounts.postgres.all({ db: remoteClient });
+// Same type, same code — no API layer in between
 ```
+
+Result types and required params are **inferred at compile time** from what you select — no manual type annotations, no codegen step after schema changes.
 
 Mix raw SQL with CRUD — compose subqueries into typed includes:
 
