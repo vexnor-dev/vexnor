@@ -6,13 +6,13 @@ import {
    sqlSelect,
    SqlSelectArgs,
    ParamsOfArgs,
-   SqlQueryExtended,
    SqlSelectResultRow,
    info,
+   SqlQueryColumns,
 } from "vexnor";
 import { jsonMany, jsonOne } from "#/charms/json-aggregation-postgres.js";
 import { PostgresQueryHandler } from "#/postgres-query-handler.js";
-import "#/vexnor-postgres.js";
+import "#/postgres-augment.js";
 
 export type PostgresSelectResult<
    T extends { Select: Record<string, unknown> },
@@ -21,7 +21,7 @@ export type PostgresSelectResult<
    Row: SqlSelectResultRow<T, Args>;
    Params: ParamsOfArgs<Args>;
 }> &
-   SqlQueryExtended<{ Row: SqlSelectResultRow<T, Args>; Params: ParamsOfArgs<Args> }>;
+   SqlQueryColumns<SqlSelectResultRow<T, Args>>;
 
 export function postgresSelect<T extends { Select: Record<string, unknown> }, Args extends SqlSelectArgs>(
    table: SqlTable<T>,
@@ -44,13 +44,13 @@ export function postgresSelect<T extends { Select: Record<string, unknown> }, Ar
 
    const result = sql`
       ${info({ driver: "postgres" }) ?? raw.BLANK}
-      select ${args.SELECT?.$$ ? row(args.SELECT.$$) : row(table.$$)}
+      select ${args.SELECT ? args.SELECT.source.inline("default") : row(table.$$)}
                 ${includes.length > 0 ? raw(", ") : raw.BLANK} ${includes}
-      from ${table} ${ones.map(({ charm }) => charm)} ${manys.map(({ charm }) => charm)} ${baseArgs.JOIN ? baseArgs.JOIN.inline() : raw.BLANK}
-         ${baseArgs.WHERE ? sql`where ${baseArgs.WHERE.inline()}`.inline("default") : raw.BLANK}
-         ${baseArgs.GROUP_BY ? sql`group by ${baseArgs.GROUP_BY.inline()}`.inline("default") : raw.BLANK}
-         ${baseArgs.HAVING ? sql`having ${baseArgs.HAVING.inline()}`.inline("default") : raw.BLANK}
-         ${baseArgs.ORDER_BY ? sql`order by ${baseArgs.ORDER_BY.inline()}`.inline("default") : raw.BLANK}
+      from ${table} ${ones.map(({ charm }) => charm)} ${manys.map(({ charm }) => charm)} ${baseArgs.JOIN ? baseArgs.JOIN.source.inline() : raw.BLANK}
+         ${baseArgs.WHERE ? sql`where ${baseArgs.WHERE.source.inline()}`.inline("default") : raw.BLANK}
+         ${baseArgs.GROUP_BY ? sql`group by ${baseArgs.GROUP_BY.source.inline()}`.inline("default") : raw.BLANK}
+         ${baseArgs.HAVING ? sql`having ${baseArgs.HAVING.source.inline()}`.inline("default") : raw.BLANK}
+         ${baseArgs.ORDER_BY ? sql`order by ${baseArgs.ORDER_BY.source.inline()}`.inline("default") : raw.BLANK}
          ${limit ? sql`limit ${limit}`.inline("default") : raw.BLANK}
          ${offset ? sql`offset ${offset}`.inline("default") : raw.BLANK}
    `.postgres;

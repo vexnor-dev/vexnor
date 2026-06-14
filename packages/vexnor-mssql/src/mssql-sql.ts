@@ -1,4 +1,4 @@
-import { SqlQuery, SqlQueryToken, SqlParams, SqlRow, SqlQueryExtended, newSqlQueryHandler } from "vexnor";
+import { SqlQuery, SqlQueryToken, SqlParams, SqlRow, SqlQueryExtended, newSqlQueryHandler, sqlBuildDefaults } from "vexnor";
 import { MssqlQueryHandler } from "#/mssql-query-handler.js";
 
 export type MssqlQueryExtended<T extends { Row?: unknown; Params?: unknown }> = MssqlQueryHandler<T> &
@@ -54,4 +54,12 @@ export function sql<Token extends SqlQueryToken = SqlQueryToken, Tokens extends 
       Params: SqlParams<typeof rawValues>;
       Row: SqlRow<typeof rawValues>;
    }>;
+}
+
+/** Global build defaults. Set properties at app start to change defaults for all queries. */
+Object.defineProperty(sql, "defaults", { value: sqlBuildDefaults, writable: false });
+
+// eslint-disable-next-line @typescript-eslint/no-namespace
+export declare namespace sql {
+   export const defaults: typeof sqlBuildDefaults;
 }

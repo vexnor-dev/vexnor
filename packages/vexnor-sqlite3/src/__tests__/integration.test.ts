@@ -1,3 +1,4 @@
+// noinspection SqlNoDataSourceInspection,SqlResolve
 import { describe, expect, test, beforeAll, afterAll } from "vitest";
 import { VexnorSqlite3 } from "#/vexnor-sqlite3.js";
 import BetterSqlite3 from "better-sqlite3";
@@ -5,6 +6,7 @@ import { sql, param, row } from "vexnor";
 import { Account } from "vexnor/testing";
 import { jsonOne, jsonMany } from "#/charms/json-aggregation-sqlite3.js";
 import "../vexnor-sqlite3.js";
+import "#/sqlite3-augment.js";
 
 describe("integration tests", () => {
    let db: BetterSqlite3.Database;
@@ -33,7 +35,7 @@ describe("integration tests", () => {
 
    test("should connect to SQLite database", async () => {
       const plugin = new VexnorSqlite3();
-      const connection = await plugin.createConnection({ uri: dbPath });
+      const connection = await plugin.createConnection({ config: { uri: dbPath } });
       expect(connection).toBeDefined();
    });
 
@@ -120,7 +122,7 @@ describe("integration tests", () => {
       const result = await query.sqlite.any({ db, params: { id: parentId } });
       expect(result).toBeDefined();
       expect(result?.children).toBeDefined();
-      const children = JSON.parse(result!.children as unknown as string);
+      const children = result!.children;
       expect(Array.isArray(children)).toBe(true);
       expect(children.length).toBe(2);
    });
@@ -142,8 +144,10 @@ describe("integration tests", () => {
       const result = await query.sqlite.any({ db });
       if (result) {
          expect(result.parent).toBeDefined();
-         const parent = JSON.parse(result.parent as unknown as string);
-         expect(parent.accountId).toBe(result.parentId);
+         const parent = result.parent;
+         if (parent) {
+            expect(parent.accountId).toBe(result.parentId);
+         }
       }
    });
 });

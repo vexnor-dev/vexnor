@@ -57,7 +57,9 @@ describe("fromTypeORM — decorator entities", () => {
           "$accountId": SqlTableColumn {
             "columnName": "account_id",
             "format": null,
+            "hashId": "SqlTableColumn#(account.account_id as accountId)",
             "id": "SqlTableColumn#1(account.account_id as accountId)",
+            "jsonType": null,
             "key": "accountId",
             "tableInfo": {
               "name": "account",
@@ -69,7 +71,9 @@ describe("fromTypeORM — decorator entities", () => {
           "$email": SqlTableColumn {
             "columnName": "email",
             "format": null,
+            "hashId": "SqlTableColumn#(account.email)",
             "id": "SqlTableColumn#2(account.email)",
+            "jsonType": null,
             "key": "email",
             "tableInfo": {
               "name": "account",
@@ -81,7 +85,9 @@ describe("fromTypeORM — decorator entities", () => {
           "$firstName": SqlTableColumn {
             "columnName": "first_name",
             "format": null,
+            "hashId": "SqlTableColumn#(account.first_name as firstName)",
             "id": "SqlTableColumn#3(account.first_name as firstName)",
+            "jsonType": null,
             "key": "firstName",
             "tableInfo": {
               "name": "account",
@@ -93,7 +99,9 @@ describe("fromTypeORM — decorator entities", () => {
           "$parentId": SqlTableColumn {
             "columnName": "parent_id",
             "format": null,
+            "hashId": "SqlTableColumn#(account.parent_id as parentId)",
             "id": "SqlTableColumn#4(account.parent_id as parentId)",
+            "jsonType": null,
             "key": "parentId",
             "tableInfo": {
               "name": "account",
@@ -113,7 +121,9 @@ describe("fromTypeORM — decorator entities", () => {
               "$accountId": SqlTableColumn {
                 "columnName": "account_id",
                 "format": null,
+                "hashId": "SqlTableColumn#(account.account_id as accountId)",
                 "id": "SqlTableColumn#1(account.account_id as accountId)",
+                "jsonType": null,
                 "key": "accountId",
                 "tableInfo": {
                   "name": "account",
@@ -125,7 +135,9 @@ describe("fromTypeORM — decorator entities", () => {
               "$email": SqlTableColumn {
                 "columnName": "email",
                 "format": null,
+                "hashId": "SqlTableColumn#(account.email)",
                 "id": "SqlTableColumn#2(account.email)",
+                "jsonType": null,
                 "key": "email",
                 "tableInfo": {
                   "name": "account",
@@ -137,7 +149,9 @@ describe("fromTypeORM — decorator entities", () => {
               "$firstName": SqlTableColumn {
                 "columnName": "first_name",
                 "format": null,
+                "hashId": "SqlTableColumn#(account.first_name as firstName)",
                 "id": "SqlTableColumn#3(account.first_name as firstName)",
+                "jsonType": null,
                 "key": "firstName",
                 "tableInfo": {
                   "name": "account",
@@ -149,7 +163,9 @@ describe("fromTypeORM — decorator entities", () => {
               "$parentId": SqlTableColumn {
                 "columnName": "parent_id",
                 "format": null,
+                "hashId": "SqlTableColumn#(account.parent_id as parentId)",
                 "id": "SqlTableColumn#4(account.parent_id as parentId)",
+                "jsonType": null,
                 "key": "parentId",
                 "tableInfo": {
                   "name": "account",
@@ -172,8 +188,10 @@ describe("fromTypeORM — decorator entities", () => {
             "_value": null,
             "callback": [Function],
           },
+          "columnTypes": {},
           "dialect": "sqlite",
           "format": null,
+          "hashId": "SqlTable#(main.account)",
           "id": "SqlTable#2(main.account)",
           "pk": [
             "accountId",

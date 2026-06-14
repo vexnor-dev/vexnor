@@ -1,6 +1,7 @@
-import { describe, expect, test } from "vitest";
-import { Account, Order, OrderItem } from "vexnor/testing";
-import { sql, row, param, input } from "vexnor";
+// noinspection SqlNoDataSourceInspection,SqlResolve
+import { assertType, describe, expect, test } from "vitest";
+import { Account, Order, OrderItem, AccountStatusUdt } from "vexnor/testing";
+import { sql, row, col, param, input, ParamsOf, TypeOf } from "vexnor";
 import { jsonMany } from "#/charms/json-aggregation-postgres.js";
 import { postgresSelect } from "#/crud/postgres-select.js";
 import { defaultQueryOptions } from "#/default-query-options.js";
@@ -8,7 +9,7 @@ import { defaultQueryOptions } from "#/default-query-options.js";
 describe("postgresSelect()", () => {
    test("basic select", () => {
       const query = postgresSelect(Account, {});
-      const { text } = query.getSql({ options: defaultQueryOptions });
+      const { text } = query.source.getSql({ options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         SELECT
@@ -29,15 +30,15 @@ describe("postgresSelect()", () => {
 
    test("basic select - has $$ and row", () => {
       const query = postgresSelect(Account, {});
-      expect(query.$$).toBeDefined();
-      expect(query.row).toBeDefined();
-      expect(query.row.$accountId).toBeDefined();
+      expect(query.source.$$).toBeDefined();
+      expect(query.source.row).toBeDefined();
+      expect(query.source.row.$accountId).toBeDefined();
    });
 
    test("with WHERE", () => {
       const params = input<{ id: string }>();
       const query = postgresSelect(Account, { WHERE: sql`${Account.$accountId} = ${params.$id}` });
-      const { text } = query.getSql({ params: { id: "test-id" }, options: defaultQueryOptions });
+      const { text } = query.source.getSql({ params: { id: "test-id" }, options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         SELECT
@@ -67,7 +68,7 @@ describe("postgresSelect()", () => {
          offset: offsetParam,
          limit: limitParam,
       });
-      const { text, values } = query.getSql({ params: { offset: 0, limit: 10 }, options: defaultQueryOptions });
+      const { text, values } = query.source.getSql({ params: { offset: 0, limit: 10 }, options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         /* driver: postgres */
@@ -104,7 +105,7 @@ describe("postgresSelect()", () => {
          where ${Account.as("children").$parentId} = ${Account.$accountId}
       `;
       const query = postgresSelect(Account, { includeMany: { children } });
-      const { text } = query.getSql({ options: defaultQueryOptions });
+      const { text } = query.source.getSql({ options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         /* driver: postgres */
@@ -157,9 +158,9 @@ describe("postgresSelect()", () => {
          where ${Account.as("children").$parentId} = ${Account.$accountId}
       `;
       const query = postgresSelect(Account, { includeMany: { children } });
-      expect(query.$$).toBeDefined();
-      expect(query.row).toBeDefined();
-      expect(query.row.$accountId).toBeDefined();
+      expect(query.source.$$).toBeDefined();
+      expect(query.source.row).toBeDefined();
+      expect(query.source.row.$accountId).toBeDefined();
    });
 
    test("with includeOne", () => {
@@ -169,7 +170,7 @@ describe("postgresSelect()", () => {
          where ${Order.$accountId} = ${Account.$accountId}
       `;
       const query = postgresSelect(Account, { includeOne: { firstOrder } });
-      const { text } = query.getSql({});
+      const { text } = query.source.getSql({});
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         /* driver: postgres */
@@ -226,10 +227,10 @@ describe("postgresSelect()", () => {
          where ${Order.$accountId} = ${Account.$accountId}
       `;
       const query = postgresSelect(Account, { includeOne: { firstOrder } });
-      expect(query.$$).toBeDefined();
-      expect(query.row).toBeDefined();
-      expect(query.row.$accountId).toBeDefined();
-      expect(query.row.$firstOrder).toBeDefined();
+      expect(query.source.$$).toBeDefined();
+      expect(query.source.row).toBeDefined();
+      expect(query.source.row.$accountId).toBeDefined();
+      expect(query.source.row.$firstOrder).toBeDefined();
    });
 
    test("with includeOne + includeMany combined", () => {
@@ -243,8 +244,8 @@ describe("postgresSelect()", () => {
          from ${Account.as("children")}
          where ${Account.as("children").$parentId} = ${Account.$accountId}
       `;
-      const query = postgresSelect(Account, { includeOne: { firstOrder }, includeMany: { children } });
-      const { text } = query.getSql({ options: defaultQueryOptions });
+      const select = postgresSelect(Account, { includeOne: { firstOrder }, includeMany: { children } });
+      const { text } = select.source.getSql({ options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         /* driver: postgres */
@@ -332,8 +333,8 @@ describe("postgresSelect()", () => {
          from ${Order} ${jsonMany(orderItems)}
          where ${Order.$accountId} = ${Account.$accountId}
       `;
-      const query = postgresSelect(Account, { includeMany: { orders: ordersWithItems } });
-      const { text } = query.getSql({});
+      const select = postgresSelect(Account, { includeMany: { orders: ordersWithItems } });
+      const { text } = select.source.getSql({});
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         /* driver: postgres */
@@ -398,5 +399,153 @@ describe("postgresSelect()", () => {
           /* </query_2> */
           /* </query_0> */"
       `);
+   });
+
+   test("with SELECT override — full subquery inlines into SELECT clause", () => {
+      const orderCount = col<{ orderCount: number }>("orderCount");
+      const select = postgresSelect(Account, {
+         SELECT: sql`${row(Account.$$)}, (select count(*) from ${Order} where ${Order.$accountId} = ${Account.$accountId}) as ${orderCount}`,
+      });
+      const { text } = select.source.getSql({ options: defaultQueryOptions });
+      expect(text).toMatchInlineSnapshot(`
+        "/* <query_0> */
+        SELECT
+          (
+            /* <query_1> */ "a_1"."account_id",
+            "a_1"."status",
+            "a_1"."email",
+            "a_1"."first_name",
+            "a_1"."last_name",
+            "a_1"."notes",
+            "a_1"."created_at",
+            "a_1"."modified_at",
+            "a_1"."parent_id",
+            (
+              SELECT
+                count(*)
+              FROM
+                "main"."order" AS "o_2"
+              WHERE
+                "o_2"."account_id" = "a_1"."account_id"
+            ) AS "orderCount" /* </query_1> */
+          ) AS "query_1"
+        FROM
+          "main"."account" AS "a_3"
+          /* </query_0> */"
+      `);
+   });
+
+   describe("row type inference", () => {
+      test("SELECT override with row(Account.$$) + col produces base columns plus extra in result row", () => {
+         const orderCount = col<{ orderCount: number }>("orderCount");
+         // eslint-disable-next-line unused-imports/no-unused-vars
+         const query = postgresSelect(Account, {
+            SELECT: sql`${row(Account.$$)}, (select count(*) from orders) as ${orderCount}`,
+         });
+         type Row = TypeOf<typeof query>;
+         assertType<Row>({
+            accountId: "",
+            email: "",
+            firstName: "",
+            lastName: "",
+            status: AccountStatusUdt.CREATED,
+            notes: null,
+            createdAt: new Date(),
+            modifiedAt: new Date(),
+            parentId: null,
+            orderCount: 0,
+            // @ts-expect-error not in result
+            other: "",
+         });
+      });
+
+      test("SELECT + includeOne + includeMany row type includes all three contributions", () => {
+         const orderCount = col<{ orderCount: number }>("orderCount");
+         const firstOrder = sql`
+            select ${row(Order.$$)}
+            from ${Order}
+            where ${Order.$accountId} = ${Account.out.$accountId}
+         `;
+         const children = sql`
+            select ${row(Account.as("children").$$)}
+            from ${Account.as("children")}
+            where ${Account.as("children").$parentId} = ${Account.$accountId}
+         `;
+         // eslint-disable-next-line unused-imports/no-unused-vars
+         const query = postgresSelect(Account, {
+            SELECT: sql`${row(Account.$$)}, (select count(*) from orders) as ${orderCount}`,
+            includeOne: { firstOrder },
+            includeMany: { children },
+         });
+         type Row = TypeOf<typeof query>;
+         assertType<Row>({
+            accountId: "",
+            email: "",
+            firstName: "",
+            lastName: "",
+            status: AccountStatusUdt.CREATED,
+            notes: null,
+            createdAt: new Date(),
+            modifiedAt: new Date(),
+            parentId: null,
+            orderCount: 0,
+            firstOrder: null,
+            children: [],
+            // @ts-expect-error not in result
+            other: "",
+         });
+      });
+   });
+
+   describe("param propagation through SqlSelectArgs clauses", () => {
+      const emailParam = param<{ email: string }>("email");
+      const dirParam = param<{ dir: string }>("dir");
+      const limitParam = param<{ limit: number }>("limit");
+
+      test("param in includeMany subquery propagates to ParamsOf query", () => {
+         const orders = sql`
+            select ${row(Order.$$)}
+            from ${Order}
+            where ${Order.$accountId} = ${Account.out.$accountId}
+            limit ${limitParam}
+         `;
+         // eslint-disable-next-line unused-imports/no-unused-vars
+         const query = postgresSelect(Account, {
+            WHERE: sql`${Account.$email} = ${emailParam}`,
+            ORDER_BY: sql`${Account.$createdAt} ${dirParam}`,
+            includeMany: { orders },
+         });
+         type Params = ParamsOf<typeof query>;
+         assertType<Params>({
+            email: "a@b.com",
+            dir: "desc",
+            limit: 5,
+            // @ts-expect-error not declared
+            other: "x",
+         });
+      });
+
+      test("param in includeOne subquery propagates to ParamsOf query", () => {
+         const lastOrder = sql`
+            select ${row(Order.$$)}
+            from ${Order}
+            where ${Order.$accountId} = ${Account.out.$accountId}
+            limit ${limitParam}
+         `;
+         // eslint-disable-next-line unused-imports/no-unused-vars
+         const query = postgresSelect(Account, {
+            WHERE: sql`${Account.$email} = ${emailParam}`,
+            ORDER_BY: sql`${Account.$createdAt} ${dirParam}`,
+            includeOne: { lastOrder },
+         });
+         type Params = ParamsOf<typeof query>;
+         assertType<Params>({
+            email: "a@b.com",
+            dir: "desc",
+            limit: 1,
+            // @ts-expect-error not declared
+            other: "x",
+         });
+      });
    });
 });

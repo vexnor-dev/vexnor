@@ -13,6 +13,8 @@ import { SqlQuery } from "#/core/query/sql-query.js";
 export type VexnorPluginAny = VexnorPlugin<any>;
 
 export abstract class VexnorPlugin<T extends { Connection: unknown; Config: unknown }> {
+   abstract readonly name: string;
+
    abstract dialect: string;
 
    abstract readonly driver: string;
@@ -23,11 +25,13 @@ export abstract class VexnorPlugin<T extends { Connection: unknown; Config: unkn
 
    abstract getLibrary(): LibraryOutputFile[];
 
-   abstract createConnection(config: T["Config"]): Promise<VexnorConnection<T["Connection"]>>;
+   abstract createConnection<TContext extends Record<string, unknown> = Record<string, unknown>>(args: {
+      config: T["Config"];
+   }): Promise<VexnorConnection<{ Connection: T["Connection"]; Context: TContext }>>;
 
-   abstract newQueryHandler<T extends { Row?: unknown; Params?: unknown; QueryResult: object; Connection: unknown }>(
-      query: SqlQuery<{ Params: T["Params"]; Row: T["Row"] }>,
-   ): SqlQueryHandler<T>;
+   abstract newQueryHandler<Args extends { Row?: unknown; Params?: unknown; Read: object; Write: object }>(
+      query: SqlQuery<Pick<Args, "Row" | "Params">>,
+   ): SqlQueryHandler<Pick<Args, "Row" | "Params" | "Read" | "Write"> & Pick<T, "Connection">>;
 }
 
 export type GetSchemaArgs<T> = { schemas: string[] } & T;

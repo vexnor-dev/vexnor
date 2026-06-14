@@ -151,6 +151,61 @@ For full Prisma adaptor details see `packages/vexnor-prisma/README.md`.
 
 ---
 
+## Custom Query Namespace
+
+You can expose a project-specific accessor (e.g. `sql`...`.myProject`) that works identically to the built-in `.postgres` / `.mssql` / `.sqlite` accessors. This is the same mechanism the plugins themselves use — there is nothing special about `.postgres`.
+
+Create a side-effect module (e.g. `src/db.ts`) that does two things:
+
+1. Augments the `SqlQuery` and `SqlTable` interfaces so TypeScript knows about the new property
+2. Attaches the getter to the prototype at runtime
+
+```typescript
+// src/db.ts
+import { SqlQuery, SqlTable, newSqlQueryHandler } from 'vexnor';
+import { PostgresQueryHandler, newPostgresTableHandler, type PostgresTableHandler } from 'vexnor-postgres';
+import 'vexnor-postgres';
+
+declare module 'vexnor' {
+  interface SqlQuery<T extends { Row?: unknown; Params?: unknown }> {
+    readonly myProject: PostgresQueryHandler<T>;
+  }
+  interface SqlTable<T extends {
+    Select: Record<string, unknown>;
+    Insert?: Record<string, unknown>;
+    Update?: Record<string, unknown>;
+    Delete?: boolean;
+  }> {
+    readonly myProject: PostgresTableHandler<T>;
+  }
+}
+
+Object.defineProperty(SqlQuery.prototype, 'myProject', {
+  get: function () {
+    return newSqlQueryHandler(new PostgresQueryHandler(this));
+  },
+});
+
+Object.defineProperty(SqlTable.prototype, 'myProject', {
+  get: function () {
+    return newPostgresTableHandler(this);
+  },
+});
+```
+
+Import this file once at your entry point — after that, `.myProject` is available on every query and table:
+
+```typescript
+import './db.js';
+
+const accounts = await findActiveAccounts.myProject.all({ db: pool });
+const account = await Account.myProject.findBy().any({ db: pool, params: { email: 'jane@example.com' } });
+```
+
+This is exactly what `import 'vexnor-postgres'` does internally. There is no difference between a plugin namespace and a custom one — they use the same mechanism.
+
+---
+
 ## Building a Custom Plugin
 
 Implement the `VexnorPlugin` interface from `vexnor/plugin`:
@@ -172,10 +227,14 @@ class MyPlugin extends VexnorPlugin<{ Connection: MyConnection; Config: MyConfig
   getLibrary(): LibraryOutputFile[] { return []; }
 
   // Connection factory
-  async createConnection(config: MyConfig): Promise<VexnorConnection<MyConnection>> { ... }
+  async createConnection<TContext extends Record<string, unknown>>({ config }: {
+    config: MyConfig;
+  }): Promise<VexnorConnection<{ Connection: MyConnection; Context: TContext }>> { ... }
 
   // Query handler factory — called per query at runtime
-  newQueryHandler<T>(query: SqlQuery<T>): SqlQueryHandler<T> { ... }
+  newQueryHandler<Args extends { Row?: unknown; Params?: unknown; Context?: unknown; Read: object; Write: object }>(
+    query: SqlQuery<Pick<Args, 'Row' | 'Params' | 'Context'>>,
+  ): SqlQueryHandler<Pick<Args, 'Row' | 'Params' | 'Context' | 'Read' | 'Write'> & { Connection: MyConnection }> { ... }
 }
 ```
 

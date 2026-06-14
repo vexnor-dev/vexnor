@@ -1,7 +1,9 @@
-import { assertType, describe, expect, test } from "vitest";
+import { assertType, beforeEach, describe, expect, test } from "vitest";
 import { param, row, sql, SqlBuildContext, SqlCharm, SqlParam } from "vexnor";
 import { jsonOne } from "#/charms/json-aggregation-sqlite3.js";
-import { Account } from "vexnor/testing";
+import { Account, resetAll } from "vexnor/testing";
+
+beforeEach(() => resetAll());
 
 describe("json-one-sqlite3 tests", () => {
    test("should render select w/o alias", () => {
@@ -116,10 +118,7 @@ describe("json-one-sqlite3 tests", () => {
          sql`select ${row(Account.as("parent").$$)} from ${Account.as("parent")} where ${Account.as("parent").$accountId} = ${Account.$parentId}`,
       );
       expect(() => target.build(context, {})).toThrowErrorMatchingInlineSnapshot(
-         `
-        [TypeError: Error building 'JsonAggregationSqlite3#3(SqlQuery#8)' in query '-'
-        Cannot use json aggregation with SQL keyword 'from']
-      `,
+         `[TypeError: Error building 'JsonAggregationSqlite3#1(SqlQuery#2)' in query '-'\\nCannot use json aggregation with SQL keyword 'from']`,
       );
    });
 

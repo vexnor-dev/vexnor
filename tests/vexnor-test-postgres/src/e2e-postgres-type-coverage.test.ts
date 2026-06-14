@@ -70,15 +70,12 @@ describe("postgres type coverage", () => {
           "colBool": true,
           "colBox": "(1,1),(0,0)",
           "colBpchar": "char      ",
-          "colBytea": {
-            "data": [
-              1,
-              2,
-              3,
-              4,
-            ],
-            "type": "Buffer",
-          },
+          "colBytea": Uint8Array [
+            1,
+            2,
+            3,
+            4,
+          ],
           "colCidr": "192.168.1.0/24",
           "colCircle": {
             "radius": 5,
@@ -91,7 +88,7 @@ describe("postgres type coverage", () => {
           "colInt2": 32767,
           "colInt4": 2147483647,
           "colInt8": "9223372036854775807",
-          "colInterval": PostgresInterval {
+          "colInterval": {
             "months": 2,
             "years": 1,
           },
@@ -195,15 +192,12 @@ describe("postgres type coverage", () => {
           "colBool": false,
           "colBox": "(2,2),(1,1)",
           "colBpchar": "upd       ",
-          "colBytea": {
-            "data": [
-              5,
-              6,
-              7,
-              8,
-            ],
-            "type": "Buffer",
-          },
+          "colBytea": Uint8Array [
+            5,
+            6,
+            7,
+            8,
+          ],
           "colCidr": "10.0.0.0/8",
           "colCircle": {
             "radius": 10,
@@ -216,7 +210,7 @@ describe("postgres type coverage", () => {
           "colInt2": 100,
           "colInt4": 42,
           "colInt8": "9223372036854775806",
-          "colInterval": PostgresInterval {
+          "colInterval": {
             "months": 3,
             "years": 2,
           },

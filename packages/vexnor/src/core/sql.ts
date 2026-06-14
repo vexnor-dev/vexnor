@@ -1,6 +1,7 @@
 import { newSqlQuery, SqlQuery, SqlQueryExtended } from "#/core/query/sql-query.js";
 import { ParamsOf, RowOf, Sql } from "#/core/sql-base.js";
 import { Void } from "#/core/utils/utility-types.js";
+import { sqlBuildDefaults } from "#/core/builder/sql-build-options.js";
 
 type _SqlInlineValue_ = Sql | string | number | boolean | null | undefined | Date | bigint | Uint8Array;
 export type SqlQueryToken = _SqlInlineValue_ | _SqlInlineValue_[];
@@ -47,6 +48,14 @@ export function sql<Token extends SqlQueryToken = SqlQueryToken, Tokens extends 
       Row: SqlRow<typeof rawValues>;
    }>({ rawStrings, rawValues });
    return newSqlQuery(query);
+}
+
+Object.defineProperty(sql, "defaults", { value: sqlBuildDefaults, writable: false });
+
+// eslint-disable-next-line @typescript-eslint/no-namespace
+export declare namespace sql {
+   /** Global build defaults. Set properties at app start to change defaults for all queries. */
+   export const defaults: typeof sqlBuildDefaults;
 }
 
 export type SqlRow<T> = Void<BuildSqlRow<T>>;

@@ -1,4 +1,6 @@
+// noinspection SqlNoDataSourceInspection,SqlResolve
 import { describe, expect, test } from "vitest";
+import "vexnor-mssql";
 import { Account, Order, OrderItem } from "vexnor/testing";
 import { sql, row, param, input } from "vexnor";
 import { jsonMany } from "#/charms/json-aggregation-mssql.js";
@@ -8,7 +10,7 @@ import { defaultQueryOptions } from "#/default-query-options.js";
 describe("mssqlTableRead()", () => {
    test("basic select", () => {
       const query = mssqlSelect(Account, {});
-      const { text } = query.getSql({ options: defaultQueryOptions });
+      const { text } = query.source.getSql({ options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         SELECT
@@ -29,15 +31,15 @@ describe("mssqlTableRead()", () => {
 
    test("basic select - has $$ and row", () => {
       const query = mssqlSelect(Account, {});
-      expect(query.$$).toBeDefined();
-      expect(query.row).toBeDefined();
-      expect(query.row.$accountId).toBeDefined();
+      expect(query.source.$$).toBeDefined();
+      expect(query.source.row).toBeDefined();
+      expect(query.source.row.$accountId).toBeDefined();
    });
 
    test("with WHERE", () => {
       const params = input<{ id: string }>();
       const query = mssqlSelect(Account, { WHERE: sql`${Account.$accountId} = ${params.$id}` });
-      const { text } = query.getSql({ params: { id: "test-id" }, options: defaultQueryOptions });
+      const { text } = query.source.getSql({ params: { id: "test-id" }, options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         SELECT
@@ -67,7 +69,7 @@ describe("mssqlTableRead()", () => {
          offset: offsetParam,
          limit: limitParam,
       });
-      const { text, values } = query.getSql({ params: { offset: 0, limit: 10 }, options: defaultQueryOptions });
+      const { text, values } = query.source.getSql({ params: { offset: 0, limit: 10 }, options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         /* driver: transactsql */
@@ -104,7 +106,7 @@ describe("mssqlTableRead()", () => {
          where ${Account.as("children").$parentId} = ${Account.$accountId}
       `;
       const query = mssqlSelect(Account, { includeMany: { children } });
-      const { text } = query.getSql({ options: defaultQueryOptions });
+      const { text } = query.source.getSql({ options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         /* driver: transactsql */
@@ -159,8 +161,8 @@ describe("mssqlTableRead()", () => {
          where ${Account.as("children").$parentId} = ${Account.$accountId}
       `;
       const query = mssqlSelect(Account, { includeMany: { children } });
-      expect(query.$$).toBeDefined();
-      expect(query.row).toBeDefined();
+      expect(query.source.$$).toBeDefined();
+      expect(query.source.row).toBeDefined();
       expect(query.$accountId).toBeDefined();
       expect(query.$accountId).toBeDefined();
    });
@@ -172,7 +174,7 @@ describe("mssqlTableRead()", () => {
          where ${Order.$accountId} = ${Account.$accountId}
       `;
       const query = mssqlSelect(Account, { includeOne: { firstOrder } });
-      const { text } = query.getSql({});
+      const { text } = query.source.getSql({});
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         /* driver: transactsql */
@@ -227,8 +229,8 @@ describe("mssqlTableRead()", () => {
          where ${Order.$accountId} = ${Account.$accountId}
       `;
       const query = mssqlSelect(Account, { includeOne: { firstOrder } });
-      expect(query.$$).toBeDefined();
-      expect(query.row).toBeDefined();
+      expect(query.source.$$).toBeDefined();
+      expect(query.source.row).toBeDefined();
       expect(query.$accountId).toBeDefined();
       expect(query.$firstOrder).toBeDefined();
    });
@@ -245,7 +247,7 @@ describe("mssqlTableRead()", () => {
          where ${Order.$accountId} = ${Account.$accountId}
       `;
       const query = mssqlSelect(Account, { includeOne: { firstOrder }, includeMany: { children } });
-      const { text } = query.getSql({});
+      const { text } = query.source.getSql({});
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         /* driver: transactsql */
@@ -331,7 +333,7 @@ describe("mssqlTableRead()", () => {
          where ${Order.$accountId} = ${Account.$accountId}
       `;
       const query = mssqlSelect(Account, { includeMany: { orders: ordersWithItems } });
-      const { text } = query.getSql({});
+      const { text } = query.source.getSql({});
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         /* driver: transactsql */

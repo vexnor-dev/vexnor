@@ -1,25 +1,29 @@
-import "./test-driver-setup.js";
+import "../../../test/mock-query-handler.js";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { execCommand } from "#/cli/exec/exec-command.js";
-import { loadPlugin } from "#/load-plugin.js";
 import { join } from "path";
-import { setTestMockData } from "#/cli/exec/__tests__/test-driver-setup.js";
-import testPlugin from "#/cli/exec/__tests__/test-plugin.js";
 import * as confirmPromptModule from "#/cli/exec/confirm-prompt.js";
+import type { MockResult } from "#/test/mock-plugin.js";
+import { testPlugin as queriesPlugin, mockDb } from "./fixtures/queries.vexnor.js";
+import { testPlugin as mutationPlugin } from "./fixtures/mutation-queries.vexnor.js";
+import { testPlugin as runtimePlugin } from "./fixtures/runtime-queries.vexnor.js";
 
-vi.mock("../../../load-plugin.js");
 vi.mock("../confirm-prompt.js");
 
+function setTestMockData(rows: unknown[]) {
+   vi.mocked(mockDb.query).mockResolvedValueOnce({ rows } as MockResult<unknown>);
+}
+
 describe("execCommand", () => {
-   const mockLoadPlugin = vi.mocked(loadPlugin);
-   const mockCreateConnection = vi.spyOn(testPlugin, "createConnection");
+   const mockCreateConnection = vi.spyOn(queriesPlugin, "createConnection");
+   const mockMutationCreateConnection = vi.spyOn(mutationPlugin, "createConnection");
+   const mockRuntimeCreateConnection = vi.spyOn(runtimePlugin, "createConnection");
    const mockConfirmPrompt = vi.mocked(confirmPromptModule.confirmPrompt);
 
    let consoleOutput: string[] = [];
 
    beforeEach(() => {
       vi.clearAllMocks();
-      mockLoadPlugin.mockResolvedValue({ plugin: testPlugin, path: "test-plugin" });
       mockConfirmPrompt.mockResolvedValue(true);
       consoleOutput = [];
       vi.spyOn(console, "log").mockImplementation((...args) => {
@@ -70,7 +74,7 @@ describe("execCommand", () => {
          queryConfig: queryConfigPath,
       });
 
-      expect(mockCreateConnection).toHaveBeenCalledWith({ uri: "test://localhost" });
+      expect(mockCreateConnection).toHaveBeenCalledWith({ config: { uri: "test://localhost" } });
    });
 
    test("dry run mode outputs SQL without executing", async () => {
@@ -202,7 +206,63 @@ describe("execCommand", () => {
          queryConfig: queryConfigPath,
       });
 
-      expect(mockCreateConnection).not.toHaveBeenCalled();
+      expect(mockMutationCreateConnection).not.toHaveBeenCalled();
       expect(consoleOutput.join("\n")).toContain("Operation cancelled");
+   });
+
+   // ── --context flag ───────────────────────────────────────────────────
+
+   test("--context substitutes contextValue sentinel with provided value", async () => {
+      const configPath = join(__dirname, "fixtures", "vexnor.config.ts");
+      const queryConfigPath = join(__dirname, "fixtures", "runtime-queries.vexnor.ts");
+
+      await execCommand("selectMyOrders", {
+         config: configPath,
+         queryConfig: queryConfigPath,
+         context: ["userId=u-abc"],
+      });
+
+      expect(mockRuntimeCreateConnection).toHaveBeenCalled();
+   });
+
+   test("--context dry-run shows substituted value in SQL output", async () => {
+      const configPath = join(__dirname, "fixtures", "vexnor.config.ts");
+      const queryConfigPath = join(__dirname, "fixtures", "runtime-queries.vexnor.ts");
+
+      await execCommand("selectMyOrders", {
+         config: configPath,
+         queryConfig: queryConfigPath,
+         context: ["userId=u-abc"],
+         dryRun: true,
+      });
+
+      expect(consoleOutput.join("\n")).toContain("u-abc");
+      expect(mockRuntimeCreateConnection).not.toHaveBeenCalled();
+   });
+
+   test("throws when context param has contextValue but no --context override provided", async () => {
+      const configPath = join(__dirname, "fixtures", "vexnor.config.ts");
+      const queryConfigPath = join(__dirname, "fixtures", "runtime-queries.vexnor.ts");
+
+      await expect(
+         execCommand("selectMyOrders", {
+            config: configPath,
+            queryConfig: queryConfigPath,
+            // no context: [] provided
+         }),
+      ).rejects.toThrow("Context param 'userId' has no value");
+   });
+
+   test("throws on malformed --context entry (missing =)", async () => {
+      const configPath = join(__dirname, "fixtures", "vexnor.config.ts");
+      const queryConfigPath = join(__dirname, "fixtures", "runtime-queries.vexnor.ts");
+
+      await expect(
+         execCommand("selectMyOrders", {
+            config: configPath,
+            queryConfig: queryConfigPath,
+            context: ["userIdNoEquals"],
+         }),
+      ).rejects.toThrow("Invalid --context value 'userIdNoEquals': expected key=value");
    });
 });

@@ -3,7 +3,6 @@ export interface CodegenCommandOptions {
    uri?: string;
    schema: string[];
    omit?: string[];
-   pascalCaseTables?: boolean;
    camelCaseColumns?: boolean;
    plugin: string;
    host?: string;
@@ -11,4 +10,6 @@ export interface CodegenCommandOptions {
    user?: string;
    password?: string;
    port?: number;
+   config?: string;
+   profile?: string;
 }

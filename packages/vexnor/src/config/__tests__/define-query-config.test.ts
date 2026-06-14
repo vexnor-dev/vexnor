@@ -1,9 +1,11 @@
-import "../../cli/exec/__tests__/test-driver-setup.js";
+import "../../test/mock-query-handler.js";
 import { describe, expect, test } from "vitest";
 import { defineQueryConfig } from "#/config/define-query-config.js";
 import { defineConfig } from "#/config/define-config.js";
-import { findAccountById, findAccountByEmail } from "#/config/__tests__/test-queries.js";
-import testPlugin from "#/cli/exec/__tests__/test-plugin.js";
+import { findAccountById, findAccountByEmail, listAccounts } from "#/config/__tests__/test-queries.js";
+import { MockPlugin } from "#/test/mock-plugin.js";
+
+const testPlugin = new MockPlugin({ name: "test-plugin" });
 
 describe("defineQueryConfig", () => {
    test("validates config has queries", () => {
@@ -201,6 +203,20 @@ describe("defineQueryConfig", () => {
       ).toThrow("Query 'findAccountById' missing params");
    });
 
+   test("query with no params does not require params in config", () => {
+      expect(() =>
+         defineQueryConfig({ listAccounts })({
+            queries: {
+               listAccounts: {
+                  profile: "postgres",
+                  plugin: testPlugin,
+                  params: void 0,
+               },
+            },
+         }),
+      ).not.toThrow();
+   });
+
    test("validates params mismatch - missing param", () => {
       expect(() =>
          defineQueryConfig({ findAccountById })({
@@ -208,7 +224,7 @@ describe("defineQueryConfig", () => {
                findAccountById: {
                   profile: "postgres",
                   plugin: testPlugin,
-                  // @ts-expect-error - Testing param validation
+                  // @ts-expect-error - Testing runtime validation of missing query in config
                   params: { accountId: "1" },
                },
             },

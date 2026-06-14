@@ -8,7 +8,7 @@ import { mssqlInsertFrom } from "#/crud/mssql-insert-from.js";
 describe("mssqlTableCreate()", () => {
    test("basic insert", () => {
       const query = mssqlInsertRows(Account);
-      const { text, values } = query.getSql({
+      const { text, values } = query.source.getSql({
          params: { rows: [{ email: "a@b.com", firstName: "John", lastName: "Doe" }] },
          options: defaultQueryOptions,
       });
@@ -35,7 +35,7 @@ describe("mssqlTableCreate()", () => {
 
    test("batch insert", () => {
       const query = mssqlInsertRows(Account);
-      const { text, values } = query.getSql({
+      const { text, values } = query.source.getSql({
          params: {
             rows: [
                { email: "a@b.com", firstName: "John", lastName: "Doe" },
@@ -71,7 +71,7 @@ describe("mssqlTableCreate()", () => {
          FROM: sql`select ${row(Account.$$)} from ${Account} where ${Account.$status} = 'active'`,
       });
 
-      const { text } = query.getSql({ options: defaultQueryOptions });
+      const { text } = query.source.getSql({ options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         /* driver: transactsql */
@@ -106,8 +106,8 @@ describe("mssqlTableCreate()", () => {
 
    test("has $$ and row", () => {
       const query = mssqlInsertRows(Account);
-      expect(query.$$).toBeDefined();
-      expect(query.row).toBeDefined();
-      expect(query.row.$accountId).toBeDefined();
+      expect(query.source.$$).toBeDefined();
+      expect(query.source.row).toBeDefined();
+      expect(query.source.row.$accountId).toBeDefined();
    });
 });

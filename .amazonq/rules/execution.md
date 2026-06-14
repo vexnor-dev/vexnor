@@ -20,8 +20,39 @@ This is a serious, high-quality codebase. No shortcuts. No lazy work. Ever.
 ## Correctness before speed
 
 - Read the relevant files before making changes. Do not assume.
+- Always read the **full current file state** before editing — not just the sections that seem relevant.
+- **Never use a cached or previously seen version of a file when updating it. Always reload from the filesystem first.**
+- **When rewriting a file in full, always read the current file from disk first and carry forward every change the user has made since the last known state.**
 - When fixing a bug, identify the exact root cause before touching code.
 - After making changes, always verify with a full build and test run.
+
+## Answering "why"
+
+- When asked "why" about a mistake or decision, give only the real, direct reason. No padding, no apology, no explanation of what the rule should have been.
+
+## Do not remove existing code
+
+- Never remove comments, JSDoc, or documentation unless explicitly asked.
+- Never remove code structure, exports, or logic unless explicitly asked.
+- When editing a file, preserve everything that is not directly related to the change.
+
+## Know when to stop and ask
+
+- If a fix attempt fails twice, stop. Explain the root cause clearly before trying again.
+- If the root cause is unclear, say so explicitly and ask for direction — never guess.
+- Never make speculative changes to recover from a failed fix.
+- If a task involves unfamiliar interactions between components, ask for clarification until the full picture is clear before writing any code.
+- It is always better to ask one more question than to make one wrong change.
+- **If you cannot solve a problem without reverting to a solution the user already rejected — whether explicitly or by updating a file after you — stop immediately and ask for clarification. Never silently revert.**
+
+## No speculative fixes
+
+- Do not touch things that have not been confirmed broken.
+- Do not make "while I'm here" changes.
+- If something looks wrong but wasn't mentioned, flag it — do not silently fix it.
+- Do not rename, restructure, or reformat existing code unless explicitly asked. Names, field names, and signatures must be preserved exactly as-is.
+- **Never change an agreed API or DX without explicit instruction. If a constraint blocks the implementation, stop and ask — do not invent a workaround.**
+- **Never introduce new exports, types, or abstractions to work around a problem unless explicitly asked. Identify the root cause and ask for direction.**
 
 ## No half-measures
 

@@ -1,17 +1,17 @@
-import CodeBlockWriter from "code-block-writer";
+import { CodeWriter } from "#/lib/code-writer.js";
 import { ok } from "#/lib/assert.js";
 import to from "to-case";
 import { PrintTableArgs, SqlLiteralType } from "#/plugin/plugin.js";
 import { getCodegenContext } from "#/cli/codegen/codegen-context.js";
 
-export function writeTableSelect(writer: CodeBlockWriter.default, { table }: PrintTableArgs) {
+export function writeTableSelect(writer: CodeWriter, { table }: PrintTableArgs) {
    const { table_name, columns } = table;
    const { getTableName, getColumnName, plugin } = getCodegenContext();
-   const tableTypeName = getTableName(table_name);
+   const tableTypePrefix = `I${getTableName(table_name)}`;
 
    writer
       .blankLine()
-      .write(`export type I${tableTypeName}Select = `)
+      .write(`export type ${tableTypePrefix}Select =`)
       .inlineBlock(() => {
          columns.forEach((col) => {
             const isNullable = col.is_nullable === "YES";
@@ -44,9 +44,10 @@ export function writeTableSelect(writer: CodeBlockWriter.default, { table }: Pri
                   writer.write(`${type}`);
                   break;
             }
-            writer.write(`${isNullable ? " | null" : ""}`).newLine();
+            writer.write(`${isNullable ? " | null" : ""};`).newLine();
          });
       })
+      .writeLine(";")
       .blankLine()
-      .write(`export type I${tableTypeName}Json = vexnor.JsonRow<I${tableTypeName}Select>;`);
+      .write(`export type ${tableTypePrefix}Json = vexnor.JsonRow<${tableTypePrefix}Select>;`);
 }

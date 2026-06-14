@@ -2,6 +2,8 @@ import {
    BuildSqlParams,
    CACHE,
    info,
+   SqlQueryBase,
+   SqlQueryBaseAny,
    JsonRow,
    quote,
    quoteText,
@@ -12,11 +14,11 @@ import {
    SqlBuildError,
    SqlBuildOptions,
    SqlCharm,
+   SqlJsonSchema,
    SqlQuery,
-   SqlQueryAny,
    SqlSelectCharm,
 } from "vexnor";
-import { ok } from "vexnor/plugin";
+import { ok } from "vexnor";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type JsonAggregationPostgresAny = JsonAggregationPostgres<any>;
@@ -44,8 +46,10 @@ export class JsonAggregationPostgres<
       { type }: { type: JsonResultType },
    ) {
       super({
+         type: "JsonAggregationPostgres",
          id: query.id,
          params: query.params,
+         hashId: `${type}:${query.hashId}`,
       });
       this.type = type;
    }
@@ -84,9 +88,12 @@ export class JsonAggregationPostgres<
     */
    as<Key extends string>(key: Key): SqlSelectCharm<{ Key: Key; Type: T["Type"]; Params: T["Params"] }> {
       const query = this.query;
+      const innerSchema = query.jsonSchema;
+      const jsonSchema: SqlJsonSchema = { [key]: this.type === "one" ? innerSchema : [innerSchema] } as SqlJsonSchema;
       return new SqlSelectCharm<{ Key: Key; Type: T["Type"]; Params: T["Params"] }>({
          key,
          params: this.params as BuildSqlParams<T["Params"]>,
+         jsonSchema,
          write(context: SqlBuildContext) {
             const queryName = context.getQueryName(query);
             context.addStrings(`"${queryName}_result" as ${quoteText(this.key)}`);
@@ -117,10 +124,10 @@ export class JsonAggregationPostgres<
  * `.all({ db: pool });
  * // result[0].parent: IAccountSelect | null
  */
-export function jsonOne<T extends SqlQueryAny>(query: T): JsonAggregationResult<T> {
-   return CACHE.get([query.id, `json=one`, "postgres"], () => {
-      ok(query.$$, `'query.$$' is required. check if the query does return a row.`);
-      const findOne = sql`select ${row(query.$$)} from ${query.inline()} limit 1`;
+export function jsonOne<T extends SqlQueryBaseAny>(query: T): JsonAggregationResult<T> {
+   return CACHE.get([query.source.id, `json=one`, "postgres"], () => {
+      ok(query.source.$$, `'query.$$' is required. check if the query does return a row.`);
+      const findOne = sql`select ${row(query.source.$$)} from ${query.source.inline()} limit 1`;
       return new JsonAggregationPostgres(findOne, {
          type: "one",
       }) as JsonAggregationResult<T>;
@@ -149,18 +156,18 @@ export function jsonOne<T extends SqlQueryAny>(query: T): JsonAggregationResult<
  * `.all({ db: pool });
  * // result[0].orders: IOrderSelect[]
  */
-export function jsonMany<T extends SqlQueryAny>(query: T): JsonAggregationResult<T, []> {
+export function jsonMany<T extends SqlQueryBaseAny>(query: T): JsonAggregationResult<T, []> {
    return CACHE.get(
-      [query.id, `json=many`, "postgres"],
+      [query.source.id, `json=many`, "postgres"],
       () =>
-         new JsonAggregationPostgres(query, {
+         new JsonAggregationPostgres(query.source, {
             type: "many",
          }),
    ) as JsonAggregationResult<T>;
 }
 
 export type JsonAggregationResult<T, R extends object | [] = object> =
-   T extends SqlQuery<infer O extends { Row?: unknown; Params?: unknown }>
+   T extends SqlQueryBase<infer O extends { Row?: unknown; Params?: unknown }>
       ? R extends []
          ? JsonAggregationPostgres<O & { Type: JsonRow<O["Row"]>[] }>
          : JsonAggregationPostgres<O & { Type: JsonRow<O["Row"]> | null }>

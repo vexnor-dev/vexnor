@@ -91,7 +91,7 @@ describe.sequential("jsonMany() tests", (ctx) => {
       `;
       const results = await query.mssql.all({ db: pool.request(), params: { limit: 10 } });
       expect(results).toHaveLength(1);
-      const parsed = JSON.parse(results[0]!.orders as unknown as string) as IOrderSelect[];
+      const parsed = results[0]!.orders;
       expect(parsed).toHaveLength(2);
    });
 
@@ -104,7 +104,7 @@ describe.sequential("jsonMany() tests", (ctx) => {
       `;
       const results = await query.mssql.all({ db: pool.request(), params: { limit: 1 } });
       expect(results).toHaveLength(1);
-      const parsed = JSON.parse(results[0]!.orders as unknown as string) as IOrderSelect[];
+      const parsed = results[0]!.orders;
       expect(parsed).toHaveLength(1);
    });
 
@@ -117,7 +117,7 @@ describe.sequential("jsonMany() tests", (ctx) => {
 
       const results = await query.mssql.all({ db: pool.request(), params: { limit: 10 } });
       expect(results).toHaveLength(1);
-      const parsedOrders = JSON.parse(results[0]!.orders as unknown as string) as IOrderSelect[];
+      const parsedOrders = results[0]!.orders;
       expect(parsedOrders).toHaveLength(2);
       expect(parsedOrders.map((o) => o.orderId)).toEqual(expect.arrayContaining(orders.map((o) => o.orderId)));
    });
@@ -138,7 +138,7 @@ describe.sequential("jsonMany() tests", (ctx) => {
 
       const results = await query.mssql.all({ db: pool.request(), params: { limit: 10 } });
       expect(results).toHaveLength(1);
-      const parsedOrders = JSON.parse(results[0]!.orders as unknown as string) as IOrderSelect[];
+      const parsedOrders = results[0]!.orders;
       expect(parsedOrders).toEqual([]);
    });
 });

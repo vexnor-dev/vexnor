@@ -30,6 +30,25 @@ runs:
         restore-keys: |
           ${{ runner.os }}-pnpm-
 
+    - name: Setup build cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          packages/*/dist
+          packages/*/tsconfig.tsbuildinfo
+          tests/*/dist
+          tests/*/tsconfig.tsbuildinfo
+          examples/*/dist
+          examples/*/tsconfig.tsbuildinfo
+          packages/vexnor-prisma/src/__tests__/fixtures-v6-client/generated
+          packages/vexnor-prisma/src/__tests__/fixtures-v6-client-js/generated
+          packages/vexnor-prisma/src/__tests__/fixtures-v7-client/generated
+          packages/vexnor-prisma/src/__tests__/fixtures-v7-client-js/generated
+          tests/*/prisma/generated
+        key: ${{ runner.os }}-build-${{ hashFiles('packages/*/src/**', 'tests/*/src/**', 'packages/*/tsconfig.json', 'tests/*/tsconfig.json') }}
+        restore-keys: |
+          ${{ runner.os }}-build-
+
     - name: Install dependencies
       shell: bash
       run: pnpm install --frozen-lockfile
@@ -59,8 +78,15 @@ runs:
         files: ./coverage/clover.xml
         fail_ci_if_error: false
 
+    - name: Codecov summary link
+      shell: bash
+      run: |
+        echo "### Coverage" >> $GITHUB_STEP_SUMMARY
+        echo "[View on Codecov](https://app.codecov.io/github/vexnor-dev/vexnor/commit/${GITHUB_SHA})" >> $GITHUB_STEP_SUMMARY
+
     - name: Test summary
       uses: davelosert/vitest-coverage-report-action@v2
       with:
         json-summary-path: ./coverage/coverage-summary.json
         github-token: ${{ inputs.GITHUB_TOKEN }}
+        comment-on: pr,commit

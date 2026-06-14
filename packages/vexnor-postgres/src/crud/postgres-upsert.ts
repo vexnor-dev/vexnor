@@ -1,3 +1,4 @@
+// noinspection SqlNoDataSourceInspection,SqlResolve
 import {
    Sql,
    SqlTable,
@@ -10,10 +11,12 @@ import {
    SqlQueryAny,
    SqlTableColumnAny,
    excluded,
+   SqlQueryColumns,
 } from "vexnor";
 import { sql } from "#/postgres-sql.js";
 import { SqlInsertRowsParams } from "vexnor";
 import { PostgresQueryHandler } from "#/postgres-query-handler.js";
+import "#/postgres-augment.js";
 
 /**
  * Arguments for an upsert (INSERT ... ON CONFLICT DO UPDATE) operation.
@@ -30,7 +33,8 @@ export type PostgresUpsertResult<T extends { Select: Record<string, unknown>; In
    PostgresQueryHandler<{
       Params: SqlInsertRowsParams<T>;
       Row: T["Select"];
-   }>;
+   }> &
+      SqlQueryColumns<T["Select"]>;
 
 export function postgresUpsert<T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> }>(
    table: SqlTable<T>,

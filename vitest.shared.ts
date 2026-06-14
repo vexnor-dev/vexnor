@@ -11,8 +11,6 @@ const paths = {
    VEXNOR_SQLITE_PATH: path.resolve(__dirname, "./@db-sqlite3/vexnor-dev.sqlite"),
 };
 
-console.log("Test environment", paths);
-
 for (const [key, value] of Object.entries(paths)) {
    if (value) {
       await fs.access(value).catch((err) => {
@@ -27,19 +25,20 @@ const env = await GetEnvVars({
       environments: ["db"],
       filePath: paths.VEXNOR_ENV_PATH,
    },
-   verbose: true,
+   verbose: false,
 });
-
-console.log("Vitest env:", env);
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 type Config = Exclude<Awaited<Parameters<typeof vitest.defineConfig>[0]>, Function>;
 
 export const sharedConfig: Config = {
+   resolve: {
+      tsconfigPaths: true,
+   },
    test: {
       setupFiles: [path.resolve(__dirname, "vitest.setup.ts")],
       include: ["./**/*.{test,spec}.{ts,js}"],
-      exclude: ["**/node_modules/**", "**/dist/**"],
+      exclude: ["**/node_modules/**", "**/dist/**", "**/coverage/**"],
       env: {
          ...paths,
          ...env,
@@ -47,13 +46,6 @@ export const sharedConfig: Config = {
       typecheck: {
          enabled: true,
          checker: "tsc",
-      },
-      coverage: {
-         provider: "v8",
-         reportsDirectory: "./coverage",
-         reporter: ["text", "html", "json", "json-summary", "clover"],
-         include: ["**/src/**/*"],
-         exclude: ["**/__tests__/**", "**/test/**"],
       },
    },
 };

@@ -36,7 +36,9 @@ describe("fromDrizzleView (mssql) — metadata", () => {
           "$accountId": SqlTableColumn {
             "columnName": "account_id",
             "format": null,
+            "hashId": "SqlTableColumn#(account_order_summary.account_id as accountId)",
             "id": "SqlTableColumn#1(account_order_summary.account_id as accountId)",
+            "jsonType": null,
             "key": "accountId",
             "tableInfo": {
               "name": "account_order_summary",
@@ -48,7 +50,9 @@ describe("fromDrizzleView (mssql) — metadata", () => {
           "$email": SqlTableColumn {
             "columnName": "email",
             "format": null,
+            "hashId": "SqlTableColumn#(account_order_summary.email)",
             "id": "SqlTableColumn#2(account_order_summary.email)",
+            "jsonType": null,
             "key": "email",
             "tableInfo": {
               "name": "account_order_summary",
@@ -60,7 +64,9 @@ describe("fromDrizzleView (mssql) — metadata", () => {
           "$firstName": SqlTableColumn {
             "columnName": "first_name",
             "format": null,
+            "hashId": "SqlTableColumn#(account_order_summary.first_name as firstName)",
             "id": "SqlTableColumn#3(account_order_summary.first_name as firstName)",
+            "jsonType": null,
             "key": "firstName",
             "tableInfo": {
               "name": "account_order_summary",
@@ -72,7 +78,9 @@ describe("fromDrizzleView (mssql) — metadata", () => {
           "$orderCount": SqlTableColumn {
             "columnName": "order_count",
             "format": null,
+            "hashId": "SqlTableColumn#(account_order_summary.order_count as orderCount)",
             "id": "SqlTableColumn#4(account_order_summary.order_count as orderCount)",
+            "jsonType": null,
             "key": "orderCount",
             "tableInfo": {
               "name": "account_order_summary",
@@ -92,7 +100,9 @@ describe("fromDrizzleView (mssql) — metadata", () => {
               "$accountId": SqlTableColumn {
                 "columnName": "account_id",
                 "format": null,
+                "hashId": "SqlTableColumn#(account_order_summary.account_id as accountId)",
                 "id": "SqlTableColumn#1(account_order_summary.account_id as accountId)",
+                "jsonType": null,
                 "key": "accountId",
                 "tableInfo": {
                   "name": "account_order_summary",
@@ -104,7 +114,9 @@ describe("fromDrizzleView (mssql) — metadata", () => {
               "$email": SqlTableColumn {
                 "columnName": "email",
                 "format": null,
+                "hashId": "SqlTableColumn#(account_order_summary.email)",
                 "id": "SqlTableColumn#2(account_order_summary.email)",
+                "jsonType": null,
                 "key": "email",
                 "tableInfo": {
                   "name": "account_order_summary",
@@ -116,7 +128,9 @@ describe("fromDrizzleView (mssql) — metadata", () => {
               "$firstName": SqlTableColumn {
                 "columnName": "first_name",
                 "format": null,
+                "hashId": "SqlTableColumn#(account_order_summary.first_name as firstName)",
                 "id": "SqlTableColumn#3(account_order_summary.first_name as firstName)",
+                "jsonType": null,
                 "key": "firstName",
                 "tableInfo": {
                   "name": "account_order_summary",
@@ -128,7 +142,9 @@ describe("fromDrizzleView (mssql) — metadata", () => {
               "$orderCount": SqlTableColumn {
                 "columnName": "order_count",
                 "format": null,
+                "hashId": "SqlTableColumn#(account_order_summary.order_count as orderCount)",
                 "id": "SqlTableColumn#4(account_order_summary.order_count as orderCount)",
+                "jsonType": null,
                 "key": "orderCount",
                 "tableInfo": {
                   "name": "account_order_summary",
@@ -151,8 +167,10 @@ describe("fromDrizzleView (mssql) — metadata", () => {
             "_value": null,
             "callback": [Function],
           },
+          "columnTypes": {},
           "dialect": "tsql",
           "format": null,
+          "hashId": "SqlTable#(vexnor_dev.account_order_summary)",
           "id": "SqlTable#3(vexnor_dev.account_order_summary)",
           "pk": [],
           "tableInfo": {

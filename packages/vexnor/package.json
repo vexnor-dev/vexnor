@@ -6,10 +6,14 @@
    "main": "./dist/core/index.js",
    "types": "./dist/core/index.d.ts",
    "module": "./dist/core/index.js",
+   "imports": {
+      "#/*": "./dist/*"
+   },
    "exports": {
       ".": {
-         "import": "./dist/core/core.js",
          "types": "./dist/core/core.d.ts",
+         "browser": "./dist/core/core.browser.js",
+         "import": "./dist/core/core.js",
          "require": "./dist/core/core.js"
       },
       "./format": {
@@ -27,10 +31,20 @@
          "types": "./dist/config/config.d.ts",
          "require": "./dist/config/config.js"
       },
+      "./execution": {
+         "import": "./dist/execution/execution.js",
+         "types": "./dist/execution/execution.d.ts",
+         "require": "./dist/execution/execution.js"
+      },
       "./testing": {
          "import": "./dist/test/testing.js",
          "types": "./dist/test/testing.d.ts",
          "require": "./dist/test/testing.js"
+      },
+      "./telemetry": {
+         "import": "./dist/telemetry/telemetry.js",
+         "types": "./dist/telemetry/telemetry.d.ts",
+         "require": "./dist/telemetry/telemetry.js"
       }
    },
    "keywords": [
@@ -64,9 +78,8 @@
    },
    "scripts": {
       "clean": "rimraf dist tsconfig.tsbuildinfo",
-      "build": "run-s 'build:*'",
-      "build:1-tsc": "tsc -b",
-      "build:2-alias": "tsc-alias",
+      "build": "tsc -b",
+      "postbuild": "tsc-alias",
       "prepack:1-copy-readme": "copyfiles -f \"../../README.md\" .",
       "prepack": "run-s 'build' 'prepack:*'",
       "pretest": "run-s 'build'",
@@ -80,23 +93,24 @@
       "README.md"
    ],
    "dependencies": {
-      "code-block-writer": "^11.0.3",
       "commander": "^9.1.0",
-      "glob": "^13.0.0",
       "pino": "^7.10.0",
       "to-case": "^2.0.0",
       "tsx": "^4.20.6"
    },
    "peerDependencies": {
+      "@opentelemetry/api": "^1.0.0",
       "sql-formatter": "^15.7.0"
    },
    "peerDependenciesMeta": {
       "sql-formatter": {
          "optional": true
+      },
+      "@opentelemetry/api": {
+         "optional": true
       }
    },
    "devDependencies": {
-      "@types/pg": "^8.15.5",
       "@vitest/coverage-v8": "^4.1.5",
       "tsc-alias": "^1.8.16",
       "vite-tsconfig-paths": "^6.1.1",

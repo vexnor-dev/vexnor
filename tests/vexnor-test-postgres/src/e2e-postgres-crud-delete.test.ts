@@ -1,3 +1,4 @@
+// noinspection SqlNoDataSourceInspection,SqlResolve
 import { beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
 import { param } from "vexnor";
@@ -33,31 +34,37 @@ describe.sequential("vexnor postgres CRUD - delete", async (ctx) => {
    });
 
    test("delete: delete order", async () => {
-      const deleted = await Order.postgres.delete({
-         WHERE: sql`${Order.$orderId} = ${param<{ id: string }>("id")}`,
-      }).all({
-         db: pool,
-         params: { id: order.orderId },
-      });
+      const deleted = await Order.postgres
+         .delete({
+            WHERE: sql`${Order.$orderId} = ${param<{ id: string }>("id")}`,
+         })
+         .all({
+            db: pool,
+            params: { id: order.orderId },
+         });
       expect(deleted).toHaveLength(1);
       expect(deleted[0]!.orderId).toBe(order.orderId);
       order = undefined!;
    });
 
    test("delete: delete child account", async () => {
-      await Order.postgres.delete({
-         WHERE: sql`${Order.$accountId} = ${param<{ accountId: string }>("accountId")}`,
-      }).postgres.run({
-         db: pool,
-         params: { accountId: childAccount.accountId },
-      });
+      await Order.postgres
+         .delete({
+            WHERE: sql`${Order.$accountId} = ${param<{ accountId: string }>("accountId")}`,
+         })
+         .run({
+            db: pool,
+            params: { accountId: childAccount.accountId },
+         });
 
-      const deleted = await Account.postgres.delete({
-         WHERE: sql`${Account.$accountId} = ${param<{ id: string }>("id")}`,
-      }).all({
-         db: pool,
-         params: { id: childAccount.accountId },
-      });
+      const deleted = await Account.postgres
+         .delete({
+            WHERE: sql`${Account.$accountId} = ${param<{ id: string }>("id")}`,
+         })
+         .all({
+            db: pool,
+            params: { id: childAccount.accountId },
+         });
       expect(deleted).toHaveLength(1);
       expect(deleted[0]!.accountId).toBe(childAccount.accountId);
       childAccount = undefined!;
@@ -65,19 +72,23 @@ describe.sequential("vexnor postgres CRUD - delete", async (ctx) => {
 
    test("delete: delete root account", async () => {
       ok(rootAccount, `'rootAccount' is required.`);
-      await Order.postgres.delete({
-         WHERE: sql`${Order.$accountId} = ${param<{ accountId: string }>("accountId")}`,
-      }).postgres.run({
-         db: pool,
-         params: { accountId: rootAccount.accountId },
-      });
+      await Order.postgres
+         .delete({
+            WHERE: sql`${Order.$accountId} = ${param<{ accountId: string }>("accountId")}`,
+         })
+         .run({
+            db: pool,
+            params: { accountId: rootAccount.accountId },
+         });
 
-      const deleted = await Account.postgres.delete({
-         WHERE: sql`${Account.$accountId} = ${param<{ id: string }>("id")}`,
-      }).all({
-         db: pool,
-         params: { id: rootAccount.accountId },
-      });
+      const deleted = await Account.postgres
+         .delete({
+            WHERE: sql`${Account.$accountId} = ${param<{ id: string }>("id")}`,
+         })
+         .all({
+            db: pool,
+            params: { id: rootAccount.accountId },
+         });
       expect(deleted).toHaveLength(1);
       expect(deleted[0]!.accountId).toBe(rootAccount.accountId);
       rootAccount = undefined!;

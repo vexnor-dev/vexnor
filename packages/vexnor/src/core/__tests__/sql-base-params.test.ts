@@ -176,3 +176,15 @@ describe("SqlBase tests", () => {
       });
    });
 });
+
+   test("ParamsOfArgs: param in WHERE + void-param subquery in includeMany", () => {
+      const withParam = sql`${param<{ userId: string }>("userId")}`;
+      const noParam = sql`${Account}`;
+      type Args = {
+         WHERE: typeof withParam;
+         includeMany: { items: typeof noParam };
+      };
+      type P = ParamsOfArgs<Args>;
+      // must be { userId: string }, not void
+      assertType<P>({ userId: "abc" });
+   });

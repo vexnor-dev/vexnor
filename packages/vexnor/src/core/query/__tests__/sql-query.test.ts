@@ -56,16 +56,24 @@ describe("SqlQuery tests", () => {
           "id",
           "type",
           "tag",
+          "hashId",
           "rawStrings",
           "rawValues",
+          "location",
+          "locationUrl",
+          "_authorization",
           "_innerQueriesLazy",
+          "_authorizationLazy",
           "_dialectsLazy",
           "_paramsLazy",
+          "_contextLazy",
           "_rowLazy",
           "_$$Lazy",
           "_labelLazy",
           "_infoLazy",
           "_outLazy",
+          "_hashLazy",
+          "_jsonSchemaLazy",
           "$accountId",
           "$status",
           "$email",
@@ -139,11 +147,11 @@ describe("SqlQuery tests", () => {
       expect(query.getSql({}).text).toMatchInlineSnapshot(`
         "/* <query_0> */
         SELECT
-          \"a_1\".\"account_id\" AS \"accountId\",
-          \"a_1\".\"status\",
-          \"a_1\".\"email\"
+          "a_1"."account_id" AS "accountId",
+          "a_1"."status",
+          "a_1"."email"
         FROM
-          \"main\".\"account\" AS \"a_1\"
+          "main"."account" AS "a_1"
           /* </query_0> */"
       `);
    });

@@ -4,13 +4,16 @@ import { SqlQueryHandler, SqlQueryHandlerAny } from "#/core/query/sql-query-hand
 import { SqlQuery } from "#/core/query/sql-query.js";
 import { detectQueryType } from "#/cli/exec/detect-query-type.js";
 import { confirmPrompt } from "#/cli/exec/confirm-prompt.js";
+import { isContextValue } from "#/core/query/context-value.js";
 import * as path from "node:path";
+import { glob } from "node:fs/promises";
 import { SqlExecError } from "#/cli/exec/sql-exec-error.js";
 
 export interface ExecOptions {
    config: string;
    queryConfig?: string;
    env?: string;
+   context?: string[];
    format?: "table" | "json" | "csv";
    limit?: number;
    dryRun?: boolean;
@@ -25,15 +28,16 @@ export async function execCommand(queryName: string, options: ExecOptions): Prom
       throw new Error("--query-config is required");
    }
 
-   const { glob } = await import("glob");
    const searchPattern = path.isAbsolute(options.queryConfig)
       ? options.queryConfig
       : path.join("**", options.queryConfig);
-   const files = await glob(searchPattern, {
-      cwd: process.cwd(),
-      absolute: true,
-      ignore: ["**/node_modules/**", "**/dist/**", "**/build/**"],
-   });
+   const files = await Array.fromAsync(
+      glob(searchPattern, {
+         cwd: process.cwd(),
+         exclude: (f) => f === "node_modules" || f === "dist" || f === "build",
+      }),
+      (f) => path.resolve(process.cwd(), f),
+   );
 
    if (files.length === 0) {
       throw new Error(`No files found matching: ${options.queryConfig}`);
@@ -67,6 +71,8 @@ export async function execCommand(queryName: string, options: ExecOptions): Prom
       switch (true) {
          case querySettings.query instanceof SqlQuery:
             return querySettings.query;
+         case querySettings.query instanceof SqlQueryHandler:
+            return querySettings.query.source;
          default:
             throw new SqlExecError(`Unknown query type in config: ${querySettings.query}`);
       }
@@ -77,10 +83,30 @@ export async function execCommand(queryName: string, options: ExecOptions): Prom
          ? querySettings.environments[options.env]
          : querySettings.params;
 
+   // Parse --context key=value pairs and substitute contextValue sentinels
+   const runtimeOverrides: Record<string, string> = {};
+   for (const entry of options.context ?? []) {
+      const eq = entry.indexOf("=");
+      if (eq === -1) throw new Error(`Invalid --context value '${entry}': expected key=value`);
+      runtimeOverrides[entry.slice(0, eq)] = entry.slice(eq + 1);
+   }
+
+   const resolvedParams: Record<string, unknown> = {};
+   for (const [key, value] of Object.entries(params ?? {})) {
+      if (isContextValue(value)) {
+         if (!(key in runtimeOverrides)) {
+            throw new Error(`Context param '${key}' has no value. Provide it with: --context ${key}=<value>`);
+         }
+         resolvedParams[key] = runtimeOverrides[key];
+      } else {
+         resolvedParams[key] = value;
+      }
+   }
+
    const format = options.format || querySettings.format || rootConfig.exec?.format || "json";
    const limit = options.limit ?? querySettings.limit ?? rootConfig.exec?.limit;
 
-   const { text, values } = query.getSql({ params });
+   const { text, values } = query.getSql({ params: resolvedParams });
    if (options.dryRun) {
       console.log("SQL:", text);
       console.log("Values:", values);
@@ -115,7 +141,7 @@ export async function execCommand(queryName: string, options: ExecOptions): Prom
 
    let connection;
    try {
-      connection = await plugin.createConnection(profile.connection);
+      connection = await plugin.createConnection({ config: profile.connection });
    } catch (err) {
       throw new Error(
          `Failed to connect using profile '${profileName}': ${err instanceof Error ? err.message : String(err)}`,
@@ -137,13 +163,13 @@ export async function execCommand(queryName: string, options: ExecOptions): Prom
 
       let result: unknown[];
       try {
-         result = (await queryHandler.all({ db: connection.db, params })) as unknown[];
+         result = (await queryHandler.all({ db: connection.db, params: resolvedParams })) as unknown[];
       } catch (err) {
          const errorMsg = err instanceof Error ? err.message : String(err);
          throw new Error(
             `Query execution failed for '${queryName}':\n` +
                `SQL: ${text}\n` +
-               `Params: ${JSON.stringify(params)}\n` +
+               `Params: ${JSON.stringify(resolvedParams)}\n` +
                `Error: ${errorMsg}`,
          );
       }

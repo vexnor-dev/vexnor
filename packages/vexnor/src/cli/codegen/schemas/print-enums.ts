@@ -19,30 +19,22 @@ export async function printEnums({ enums }: WriteEnumsAgs): Promise<SqlOutputFil
       ok(enums?.length, `No enums found for schema: ${schema}`);
       const writer = newWriter();
       for (const { enum_name, enum_values } of enums) {
-         const enumTypeName = `${to.pascal(enum_name)}Udt_`;
-         writer.write(`export type ${enumTypeName} = `);
-         enum_values.forEach(({ enum_label }, i) => {
-            if (i > 0) writer.write(" | ");
-            writer.quote();
-            writer.write(enum_label);
-            writer.quote();
-         });
-         writer.blankLine();
-
-         writer.write(`export enum ${to.pascal(enum_name)}Udt`).block(() => {
+         const udtName = `${to.pascal(enum_name)}Udt`;
+         writer.write(`export const ${udtName} =`).inlineBlock(() => {
             enum_values.forEach(({ enum_label }) => {
                writer
                   .write(enum_label.toUpperCase())
-                  .space()
-                  .write("=")
-                  .space()
+                  .write(": ")
                   .quote()
                   .write(enum_label)
                   .quote()
-                  .write(", ")
+                  .write(",")
                   .newLine();
             });
          });
+         writer.write(" as const;");
+         writer.blankLine();
+         writer.write(`export type ${udtName} = (typeof ${udtName})[keyof typeof ${udtName}];`);
          writer.blankLine();
       }
 

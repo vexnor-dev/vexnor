@@ -1,16 +1,14 @@
 import { BuildSqlParams } from "#/core/query/sql-param.js";
 import { PARAMS, ROW, Sql, SqlOptions, TYPE } from "#/core/sql-base.js";
-import { hasParams } from "#/core/query/sql-query-types.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
 import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
+import { SqlJsonSchema } from "#/core/utils/sql-json-schema.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlCharmAny = SqlCharm<any>;
 
 export type ExtractCharmParams<T> =
-   T extends SqlCharm<infer Options extends { Params: Record<string, unknown>; Type?: unknown }>
-      ? Options["Params"]
-      : void;
+   T extends SqlCharm<infer Options extends { Params: Record<string, unknown> }> ? Options["Params"] : void;
 
 export abstract class SqlCharm<T extends { Params?: unknown; Type?: unknown }> extends Sql {
    declare readonly [PARAMS]: T["Params"];
@@ -19,7 +17,9 @@ export abstract class SqlCharm<T extends { Params?: unknown; Type?: unknown }> e
    readonly params: BuildSqlParams<T["Params"]>;
 
    protected constructor(options: SqlOptions & { params: BuildSqlParams<T["Params"]> }) {
-      super(options);
+      super({
+         ...options,
+      });
       this.params = options.params;
    }
 }
@@ -28,6 +28,8 @@ export type SqlSelectCharmArgs<T extends { Key: string; Type: unknown; Params?: 
    key: T["Key"];
    write: Sql["write"];
    params: BuildSqlParams<T["Params"]>;
+   decode?: (row: Record<string, unknown>) => Record<string, unknown>;
+   jsonSchema?: SqlJsonSchema;
 };
 
 export class SqlSelectCharm<T extends { Key: string; Type: unknown; Params?: unknown }> extends Sql {
@@ -37,14 +39,22 @@ export class SqlSelectCharm<T extends { Key: string; Type: unknown; Params?: unk
 
    readonly key: T["Key"];
    readonly params: BuildSqlParams<T["Params"]>;
+   private readonly _jsonSchema?: SqlJsonSchema;
 
-   constructor({ key, write, ...args }: SqlSelectCharmArgs<T>) {
+   get jsonSchema(): SqlJsonSchema {
+      return this._jsonSchema ?? {};
+   }
+
+   constructor({ key, write, jsonSchema, params }: SqlSelectCharmArgs<T>) {
       super({
+         type: "SqlSelectCharm",
          id: `${key}`,
+         hashId: `${key}:${JSON.stringify(jsonSchema ?? {})}|${Object.keys(params ?? {}).join(",")}`,
       });
       this.write = write;
       this.key = key;
-      this.params = (hasParams(args) ? args.params : null) as BuildSqlParams<T["Params"]>;
+      this._jsonSchema = jsonSchema;
+      this.params = (params ?? null) as BuildSqlParams<T["Params"]>;
    }
 
    // eslint-disable-next-line unused-imports/no-unused-vars

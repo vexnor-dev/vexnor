@@ -6,7 +6,7 @@ import { defaultQueryOptions } from "#/default-query-options.js";
 describe("Account.mssql.findBy()", () => {
    test("single field", () => {
       const query = Account.mssql.findBy();
-      const { text, values } = query.getSql({
+      const { text, values } = query.source.getSql({
          params: { email: "a@b.com" },
          options: defaultQueryOptions,
       });
@@ -39,7 +39,7 @@ describe("Account.mssql.findBy()", () => {
 
    test("multiple fields", () => {
       const query = Account.mssql.findBy();
-      const { text, values } = query.getSql({
+      const { text, values } = query.source.getSql({
          params: { email: "a@b.com", lastName: "Doe" },
          options: defaultQueryOptions,
       });
@@ -76,7 +76,7 @@ describe("Account.mssql.findBy()", () => {
 describe("Account.mssql.findById()", () => {
    test("by PK", () => {
       const query = Account.mssql.findById();
-      const { text, values } = query.getSql({
+      const { text, values } = query.source.getSql({
          params: { accountId: "id-1" },
          options: defaultQueryOptions,
       });

@@ -10,9 +10,16 @@ export class SqlQueryInfo extends Sql {
 
    constructor(public readonly options: SqlQueryInfoOptions) {
       super({
-         id: Object.entries(options)
-            .map(([k, v]) => `${k}=${v}`)
-            .join(", "),
+         type: "SqlQueryInfo",
+         ...(() => {
+            const hashId = Object.entries(options)
+               .map(([k, v]) => `${k}=${v}`)
+               .join(", ");
+            return {
+               id: hashId,
+               hashId: hashId,
+            };
+         })(),
       });
       this.label = options.label ?? null;
       this.driver = options.driver ?? null;

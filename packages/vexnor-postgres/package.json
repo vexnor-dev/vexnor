@@ -6,9 +6,13 @@
    "module": "dist/index.js",
    "main": "dist/index.js",
    "types": "dist/index.d.ts",
+   "imports": {
+      "#/*": "./dist/*"
+   },
    "exports": {
       ".": {
          "types": "./dist/index.d.ts",
+         "browser": "./dist/index.browser.js",
          "import": "./dist/index.js",
          "require": "./dist/index.js"
       }
@@ -28,15 +32,18 @@
    "license": "Apache-2.0",
    "repository": "https://github.com/vexnor-dev/vexnor",
    "sideEffects": [
-      "./dist/vexnor-postgres.js"
+      "./dist/index.js",
+      "./dist/index.browser.js",
+      "./dist/vexnor-postgres.js",
+      "./dist/postgres-augment.js"
    ],
    "publishConfig": {
       "access": "public"
    },
    "scripts": {
-      "build": "run-s 'build:*'",
-      "build:1-tsc": "tsc -b",
-      "build:2-alias": "tsc-alias",
+      "clean": "rimraf dist tsconfig.tsbuildinfo",
+      "build": "tsc -b",
+      "postbuild": "tsc-alias",
       "pretest": "run-s 'build'",
       "test": "vitest --coverage run",
       "test:watch": "vitest --watch",
@@ -55,8 +62,8 @@
       "@types/pg": "^8.15.5",
       "@vitest/coverage-v8": "^4.1.5",
       "npm-run-all": "^4.1.5",
-      "tsc-alias": "^1.8.16",
       "typescript": "^5.9.3",
+      "tsc-alias": "^1.8.16",
       "vite-tsconfig-paths": "^6.1.1",
       "vitest": "^4.1.5"
    },

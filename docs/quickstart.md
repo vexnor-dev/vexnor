@@ -23,7 +23,7 @@ npx vexnor codegen \
   --schema public \
   --uri $DATABASE_URL \
   --outDir src/models \
-  --pascalCaseTables \
+   \
   --camelCaseColumns
 ```
 
@@ -201,15 +201,141 @@ All queries expose four execution methods:
 | `.one({ db, params? })` | `T` | yes |
 | `.any({ db, params? })` | `T \| null` | no |
 | `.all({ db, params? })` | `T[]` | no |
-| `.run({ db, params? })` | void | no |
+| `.run({ db, params? })` | `RunResult` | no |
 
 Works the same across all databases — swap `.postgres` for `.mssql` or `.sqlite`.
+
+All methods accept an optional `options` object:
+
+```typescript
+await query.postgres.all({
+  db: pool,
+  params: { ... },
+  options: {
+    timeout: 5000,     // abort after 5 s; throws SqlRunError with code QUERY_TIMEOUT
+    retryable: false,  // override the plugin's automatic retryable detection
+  },
+});
+```
+
+## Isomorphic SQL (Server + Client)
+
+The same query object works on the server (direct DB access) and in the browser (dispatched over HTTP). No REST endpoints to define, no API types to maintain.
+
+### Shared query definition
+
+Define queries in a shared module imported by both server and client:
+
+```typescript
+// shared/queries.ts
+import { Account } from './models/public.account-table.js';
+import { sql, row, param } from 'vexnor';
+import 'vexnor-postgres';
+
+export const selectAccounts = sql`
+  SELECT ${row(Account.$$)}
+  FROM ${Account}
+  WHERE (${param<{ filter?: string }>('filter')}::text IS NULL
+     OR ${Account.$email} ILIKE '%' || ${param<{ filter?: string }>('filter')} || '%')
+`;
+```
+
+### Server — direct execution
+
+```typescript
+// Works in any Node.js server (Hono, Express, Fastify, Next.js API routes, etc.)
+const accounts = await selectAccounts.postgres.all({
+  db: pool,
+  params: { filter: 'jane' },
+});
+```
+
+### Browser — remote execution
+
+```typescript
+import { HttpRemoteClient } from 'vexnor';
+
+const remoteClient = new HttpRemoteClient({ targetUrl: '/api/db' });
+
+// Same query, same call signature, same result type
+const accounts = await selectAccounts.postgres.all({
+  db: remoteClient,
+  params: { filter: 'jane' },
+});
+```
+
+The client sends a stable hash (not SQL). The server looks it up in a `SqlQueryRegistry`, executes it, and returns typed results.
+
+### Server endpoint (any framework)
+
+```typescript
+import { SqlQueryRegistry } from 'vexnor/execution';
+import { vexnorPostgres } from 'vexnor-postgres';
+import { selectAccounts } from '../shared/queries.js';
+
+const registry = new SqlQueryRegistry();
+await registry.register(vexnorPostgres, { selectAccounts });
+
+// Hono example — same pattern applies to Express, Fastify, Next.js API routes
+app.post('/api/db', async (c) => {
+  const body = await c.req.json();
+  const result = await registry.execute(body, async () => pool);
+  return c.json(result);
+});
+```
+
+### React Server Components (Next.js)
+
+In RSC, queries execute directly on the server — no HTTP round-trip, no loading state:
+
+```typescript
+// app/accounts/page.tsx (server component)
+import { selectAccounts } from '@/shared/queries';
+import { pgPool } from '@/lib/db';
+
+export default async function AccountsPage({ searchParams }) {
+  const { filter } = await searchParams;
+  const accounts = await selectAccounts.postgres.all({
+    db: pgPool,
+    params: { filter },
+  });
+
+  return (
+    <ul>
+      {accounts.map(a => <li key={a.accountId}>{a.email}</li>)}
+    </ul>
+  );
+}
+```
+
+### Client components (React — any framework)
+
+For client components that need data, use the same query via `remoteClient`:
+
+```typescript
+// components/account-list.tsx (client component)
+'use client'; // Next.js — or just a regular React component in Vite
+
+import { selectAccounts } from '@/shared/queries';
+import { useRemoteClient } from '@/hooks/use-remote-client';
+import { use, Suspense } from 'react';
+
+function AccountList({ filter }: { filter?: string }) {
+  const db = useRemoteClient();
+  const accounts = use(selectAccounts.postgres.all({ db, params: { filter } }));
+
+  return <ul>{accounts.map(a => <li key={a.accountId}>{a.email}</li>)}</ul>;
+}
+```
+
+See [Isomorphic SQL](isomorphic-sql.md) for the full architecture, security model, and comparison with REST/tRPC/GraphQL.
 
 ## Next Steps
 
 - [Queries](queries.md) — subqueries, CTEs, recursive CTEs, window functions
-- [Params](params.md) — `param()` validation rules, inline injection
+- [Params](params.md) — `param()`, `expand()`, validation rules, inline injection
 - [CRUD](crud.md) — typed query factories (`findBy`, `select`, `insertRows`, `upsert`, ...)
+- [Registry](registry.md) — SqlQueryRegistry, isomorphic SQL, remote execution
 - [CLI](cli.md) — `exec run`, `exec init`, config reference
 - [Databases](databases.md) — per-DB driver setup and dialect notes
 - [Plugins & Adaptors](plugins.md) — Drizzle, Prisma, TypeORM, Sequelize

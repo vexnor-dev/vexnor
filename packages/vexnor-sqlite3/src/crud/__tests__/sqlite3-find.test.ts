@@ -6,7 +6,7 @@ import { defaultQueryOptions } from "#/crud/default-query-options.js";
 describe("Account.sqlite.findBy()", () => {
    test("single field", () => {
       const query = Account.sqlite.findBy();
-      const { text, values } = query.getSql({
+      const { text, values } = query.source.getSql({
          params: { email: "a@b.com" },
          options: defaultQueryOptions,
       });
@@ -39,7 +39,7 @@ describe("Account.sqlite.findBy()", () => {
 
    test("multiple fields", () => {
       const query = Account.sqlite.findBy();
-      const { text, values } = query.getSql({
+      const { text, values } = query.source.getSql({
          params: { email: "a@b.com", lastName: "Doe" },
          options: defaultQueryOptions,
       });
@@ -76,7 +76,7 @@ describe("Account.sqlite.findBy()", () => {
 describe("Account.sqlite.findById()", () => {
    test("by PK", () => {
       const query = Account.sqlite.findById();
-      const { text, values } = query.getSql({
+      const { text, values } = query.source.getSql({
          params: { accountId: "id-1" },
          options: defaultQueryOptions,
       });

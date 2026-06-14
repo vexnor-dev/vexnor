@@ -4,67 +4,71 @@
 import * as vexnor from "vexnor";
 
 
-
-export const OrderItem = vexnor.newSqlTable<{ Select: IOrderItemSelect, Insert: IOrderItemInsert, Update: IOrderItemUpdate; Delete: true }>({
-   crud:
-   {
-      select: true, 
-      insert: true, 
-      update: true, 
-      delete: true, 
+export const OrderItem = vexnor.newSqlTable<{
+   Select: IOrderItemSelect;
+   Insert: IOrderItemInsert;
+   Update: IOrderItemUpdate;
+   Delete: true;
+}>( {
+   crud: {
+      select: true,
+      insert: true,
+      update: true,
+      delete: true,
    },
-   tableInfo:
-   {
+   tableInfo: {
       name: "order_item",
       schema: "vexnor_dev",
    },
-   pk: ["orderId","productId"], 
+   pk: ["orderId","productId"],
    dialect: "postgresql",
-   columns:
-   {
+   columns: {
 
       /**
        * order_id uuid
-      */
+       */
       orderId: "order_id",
 
       /**
        * product_id uuid
-      */
+       */
       productId: "product_id",
 
       /**
        * created_at timestamptz default now()
-      */
+       */
       createdAt: "created_at",
 
       /**
        * modified_at timestamptz default now()
-      */
+       */
       modifiedAt: "modified_at",
 
       /**
        * product_price numeric
-      */
+       */
       productPrice: "product_price",
 
       /**
        * discount_price numeric
-      */
+       */
       discountPrice: "discount_price",
 
       /**
        * quantity int4
-      */
+       */
       quantity: "quantity",
 
       /**
        * metadata jsonb
-      */
+       */
       metadata: "metadata",
-   }
+   },
+   jsonSchema: {
+      createdAt: "Date",
+      modifiedAt: "Date",
+   },
 });
-
 export type IOrderItemInsert = {
    orderId: string;
    productId: string;
@@ -74,19 +78,19 @@ export type IOrderItemInsert = {
    discountPrice?: string | null;
    quantity: number;
    metadata?: unknown | null;
-}
+};
 
 export type IOrderItemUpdate = Partial<IOrderItemInsert>;
 
 export type IOrderItemSelect = {
-   orderId: string
-   productId: string
-   createdAt: Date
-   modifiedAt: Date
-   productPrice: string
-   discountPrice: string | null
-   quantity: number
-   metadata: unknown | null
-}
+   orderId: string;
+   productId: string;
+   createdAt: Date;
+   modifiedAt: Date;
+   productPrice: string;
+   discountPrice: string | null;
+   quantity: number;
+   metadata: unknown | null;
+};
 
 export type IOrderItemJson = vexnor.JsonRow<IOrderItemSelect>;

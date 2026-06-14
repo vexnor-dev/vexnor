@@ -9,13 +9,14 @@ import { printSchemas } from "#/cli/codegen/schemas/print-schema.js";
 import { printTables } from "#/cli/codegen/tables/print-tables.js";
 import { writeLibrary } from "#/cli/codegen/library/write-library.js";
 import { writeIndex } from "#/cli/codegen/write-index.js";
+import { loadConfig } from "#/config/load-config.js";
+import { GenerateConfig } from "#/config/config-types.js";
 
 export async function codegenCommand(options: CodegenCommandOptions) {
    const {
       uri,
       schema: schemas,
       omit,
-      pascalCaseTables,
       camelCaseColumns,
       plugin: pluginName,
       host,
@@ -25,6 +26,8 @@ export async function codegenCommand(options: CodegenCommandOptions) {
       password,
    } = options;
    const outDir = path.resolve(options.outDir);
+
+   const generate = await resolveGenerateConfig(options);
    const stat = await fs.stat(outDir);
    if (!stat.isDirectory()) {
       throw new Error(`${outDir} is not a valid output directory`);
@@ -59,9 +62,9 @@ export async function codegenCommand(options: CodegenCommandOptions) {
    const context = new CodegenContextModel({
       outDir,
       plugin,
-      pascalCaseTables,
       camelCaseColumns,
       includeEnums: enums.length > 0,
+      generate,
    });
 
    const files = await fs.readdir(outDir);
@@ -88,4 +91,16 @@ export async function codegenCommand(options: CodegenCommandOptions) {
          schemaFiles,
       });
    });
+}
+
+export async function resolveGenerateConfig(options: CodegenCommandOptions): Promise<GenerateConfig | null> {
+   const configPath = path.resolve(options.config ?? "vexnor.config.ts");
+   try {
+      const config = await loadConfig(configPath);
+      const profileName = options.profile ?? config.defaultProfile;
+      if (!profileName) return null;
+      return config.profiles[profileName]?.generate ?? null;
+   } catch {
+      return null;
+   }
 }

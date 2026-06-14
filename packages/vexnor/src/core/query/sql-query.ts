@@ -7,13 +7,12 @@ import {
 } from "#/core/query/sql-query-types.js";
 import { ARGS, PARAMS, Sql, TYPE } from "#/core/sql-base.js";
 import { Lazy } from "#/lib/lazy.js";
-import { BuildSqlParams, SqlParam } from "#/core/query/sql-param.js";
-import { validateParamValue } from "#/core/query/sql-param-validation.js";
+import { BuildSqlParams, SqlParam, SqlParamAny } from "#/core/query/sql-param.js";
 import { SqlQueryAll, SqlQueryRow } from "#/core/query/sql-models.js";
 import { SqlQueryInfo } from "#/core/charms/sql-query-info.js";
 import { findQueryComment } from "#/core/utils/find-query-comment.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
+import { SqlBuildOptions, sqlBuildDefaults } from "#/core/builder/sql-build-options.js";
 import { newSqlQueryRef, SqlQueryRef, SqlQueryRefAny, SqlQueryRefExtended } from "#/core/query/sql-query-ref.js";
 import { SqlBuildError } from "#/core/sql-build-error.js";
 import { Queue } from "#/lib/queue.js";
@@ -28,7 +27,11 @@ import { SqlTable } from "#/core/schema/sql-table.js";
 import { ok } from "#/lib/assert.js";
 import { isSqlLanguage } from "#/core/query/lib/is-sql-language.js";
 import { isPrimitive } from "#/lib/primitive.js";
+import { SqlExpand } from "#/core/query/sql-expand.js";
+import { isContextValue } from "#/core/query/context-value.js";
 import { getDefaultParamFormat } from "#/core/query/default-param-format.js";
+import { SqlJsonSchema } from "#/core/utils/sql-json-schema.js";
+import { parseCallerLocation } from "#/core/utils/caller-location.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlQueryAny = SqlQuery<any>;
@@ -40,53 +43,131 @@ export type SqlQueryColumns<Row> = Row extends Record<string, unknown> ? InferSe
 
 export type SqlQueryExtended<T extends { Row?: unknown; Params?: unknown }> = SqlQuery<T> & SqlQueryColumns<T["Row"]>;
 
-export declare const QUERY: unique symbol;
-
 export type SqlQueryArgs = Pick<SqlQueryAny, "rawStrings" | "rawValues"> &
-   Partial<Pick<SqlQueryAny, "info" | "tag" | "label">>;
+   Partial<Pick<SqlQueryAny, "info" | "tag" | "label" | "location" | "locationUrl">> & {
+      authorization?: string[] | null;
+   };
 
-export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql {
-   declare readonly [QUERY]: SqlQuery<Pick<T, "Row" | "Params">>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type SqlQueryBaseAny = SqlQueryBase<any>;
+
+export interface SqlQueryBase<T extends { Row?: unknown; Params?: unknown }> {
+   source: SqlQuery<T>;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type SqlQueryBaseExtendedAny = SqlQueryBaseExtended<any>;
+
+export type SqlQueryBaseExtended<T extends { Row?: unknown; Params?: unknown }> = SqlQueryBase<T> &
+   SqlQueryColumns<T["Row"]>;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const _registeredHandlerClasses = new Set<abstract new (...args: any[]) => SqlQueryBaseAny>();
+
+function isRegisteredHandler(value: unknown): value is SqlQueryBaseAny {
+   for (const cls of _registeredHandlerClasses) {
+      if (value instanceof cls) return true;
+   }
+   return false;
+}
+
+export function isQuery(value: unknown): value is SqlQueryBaseAny {
+   if (value instanceof SqlQuery) return true;
+   return isRegisteredHandler(value);
+}
+
+export function toQuery(value: unknown): SqlQueryAny | null {
+   if (value instanceof SqlQuery) return value;
+   if (isRegisteredHandler(value)) return value.source;
+   return null;
+}
+
+export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql implements SqlQueryBase<T> {
    declare readonly [TYPE]: T["Row"];
    declare readonly [PARAMS]: T["Params"];
    declare readonly [ARGS]: T["Params"];
 
    readonly rawStrings: TemplateStringsArray;
    readonly rawValues: unknown[];
+   readonly location: string | null;
+   readonly locationUrl: string | null;
+   protected _authorization: string[];
 
    private readonly _innerQueriesLazy = new Lazy<SqlQueryAny[]>(this.initInnerQueries.bind(this));
+   private _authorizationLazy = new Lazy<string[]>(this.initAuthorization.bind(this));
    private readonly _dialectsLazy = new Lazy<Set<string>>(this.initDialects.bind(this));
    private readonly _paramsLazy = new Lazy<BuildSqlParams<T["Params"]>>(this.initParams.bind(this));
+   private readonly _contextLazy = new Lazy<Partial<BuildSqlParams<T["Params"]>>>(this.initContext.bind(this));
    private readonly _rowLazy = new Lazy<SqlQueryRow<T>>(this.initRow.bind(this));
    private readonly _$$Lazy = new Lazy<SqlQueryAll<T["Row"]>>(this.initSelectAll$$.bind(this));
    private readonly _labelLazy: Lazy<string> = new Lazy(this.initLabel.bind(this));
    private readonly _infoLazy: Lazy<SqlQueryInfo | null> = new Lazy(this.initInfo.bind(this));
    private readonly _outLazy = new Lazy(this.initOut.bind(this));
+   private readonly _hashLazy = new Lazy<Promise<string>>(this.initHash.bind(this));
+   private readonly _jsonSchemaLazy = new Lazy<SqlJsonSchema>(this.initJsonSchema.bind(this));
 
-   constructor({ rawStrings, rawValues, ...args }: SqlQueryArgs) {
+   constructor(args: SqlQueryArgs) {
       super({
+         type: "SqlQuery",
          id: (() => {
-            const comment = findQueryComment(rawStrings);
+            const comment = findQueryComment(args.rawStrings);
             if (comment) return comment;
 
-            const info = args.info ?? rawValues.find((z) => z instanceof SqlQueryInfo);
+            const info = args.info ?? args.rawValues.find((z) => z instanceof SqlQueryInfo);
             if (!info) return "";
 
             return Object.entries(info.options)
                .map(([k, v]) => `${k}=${v}`)
                .join(", ");
          })(),
+         hashId:
+            JSON.stringify(Array.from(args.rawStrings)) +
+            "|" +
+            args.rawValues
+               .map((v) => {
+                  if (v instanceof Sql) return v.hashId;
+                  if (Array.isArray(v))
+                     return v.map((item) => (item instanceof Sql ? item.hashId : String(item))).join(",");
+                  return String(v);
+               })
+               .join("|"),
          tag: args.tag,
       });
 
-      this.rawStrings = rawStrings;
-      this.rawValues = rawValues;
+      this.rawStrings = args.rawStrings;
+      this.rawValues = args.rawValues;
+      if (!args.locationUrl || !args.location) {
+         const { location, locationUrl } = parseCallerLocation(new Error().stack, import.meta.url);
+         this.location = location;
+         this.locationUrl = locationUrl;
+      } else {
+         this.locationUrl = args.locationUrl ?? null;
+         this.location = args.location ?? null;
+      }
+
+      this._authorization = args.authorization ?? [];
    }
 
+   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   static register(cls: abstract new (...args: any[]) => SqlQueryBaseAny) {
+      _registeredHandlerClasses.add(cls);
+   }
+
+   get source() {
+      return this;
+   }
+
+   /** Query authorization tags — includes tags inherited from subqueries */
+   get authorization(): string[] {
+      return this._authorizationLazy.value;
+   }
+
+   /** Query info */
    get info(): SqlQueryInfo | null {
       return this._infoLazy.value;
    }
 
+   /** Query label */
    get label(): string {
       return this._labelLazy.value;
    }
@@ -94,6 +175,11 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
    /** Named parameter accessors for this query, keyed as `$paramName`. */
    get params(): BuildSqlParams<T["Params"]> {
       return this._paramsLazy.value;
+   }
+
+   /** Named parameter accessors for this query, keyed as `$paramName`. */
+   get context(): Partial<BuildSqlParams<T["Params"]>> {
+      return this._contextLazy.value;
    }
 
    /** Column accessors for the result row of this query, keyed as `$columnName`. Used to reference this query's output columns in a parent query. */
@@ -124,6 +210,49 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
     */
    get out(): SqlQueryRefExtended<T> {
       return this._outLazy.value;
+   }
+
+   /** Stable SHA-256 hash of this query's template strings — used to identify the query for remote execution. */
+   get hash(): Promise<string> {
+      return this._hashLazy.value;
+   }
+
+   /** JSON schema describing the type structure of this query's result row — used for deserialization. */
+   get jsonSchema(): SqlJsonSchema {
+      return this._jsonSchemaLazy.value;
+   }
+
+   initJsonSchema(): SqlJsonSchema {
+      const row = this.row as Record<string, Sql> | null;
+      if (!row) return {};
+      const schema: SqlJsonSchema = {};
+      for (const col of Object.values(row)) {
+         Object.assign(schema, col.jsonSchema);
+      }
+      return schema;
+   }
+
+   async initHash(): Promise<string> {
+      const params = (this.params as Record<string, SqlParam<{ Name: string; Type: unknown }>> | null) ?? {};
+      const paramNames = Object.entries(params)
+         .filter(([, v]) => !v.isContext)
+         .map(([k]) => k)
+         .sort()
+         .join(",");
+      const contextNames = Object.entries(params)
+         .filter(([, v]) => v.isContext)
+         .map(([k]) => k)
+         .sort()
+         .join(",");
+      const input =
+         contextNames.length > 0
+            ? this.hashId + "|" + paramNames + "|context:" + contextNames
+            : this.hashId + "|" + paramNames;
+      const encoded = new TextEncoder().encode(input);
+      const buf = await crypto.subtle.digest("SHA-256", encoded);
+      return Array.from(new Uint8Array(buf))
+         .map((b) => b.toString(16).padStart(2, "0"))
+         .join("");
    }
 
    static buildInnerQueryRef(
@@ -201,9 +330,11 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
 
    static buildInnerToken(token: unknown, context: SqlBuildContext, options?: SqlBuildOptions | null) {
       switch (true) {
-         case token instanceof SqlQuery:
          case token instanceof SqlQueryRef:
             this.buildInnerQueryRef(token, context, options);
+            break;
+         case token instanceof Sql && isQuery(token):
+            this.buildInnerQueryRef(token.source, context, options);
             break;
          case token instanceof Sql:
             token.build(context, options ?? undefined);
@@ -227,7 +358,8 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
          () => {
             const queryName = context.getQueryName(this);
             // TODO: include additional tracing in sql-query.build(): ${this.fragment ? "fragment " : ""}format="${this.format}"
-            context.addStrings(` /* <${queryName}> */ `);
+            if (options?.boundaryComments ?? sqlBuildDefaults.boundaryComments)
+               context.addStrings(` /* <${queryName}> */ `);
             const children = [...this.rawValues];
             let i = -1;
             while (children.length || i < this.rawStrings.length) {
@@ -255,7 +387,8 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
                }
             }
 
-            context.addStrings(`/* </${queryName}> */`);
+            if (options?.boundaryComments ?? sqlBuildDefaults.boundaryComments)
+               context.addStrings(`/* </${queryName}> */`);
          },
          scope ?? { queryType: "main", cte: false },
       );
@@ -294,10 +427,12 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
                   switch (true) {
                      case rawValue === null:
                         return rawString;
-                     case rawValue instanceof SqlQuery:
-                        return `${rawString} (${rawValue.label})`;
+                     case isQuery(rawValue):
+                        return `${rawString} (${rawValue.source.label})`;
                      case rawValue instanceof SqlQueryRef:
                         return `${rawString} (${rawValue.innerQuery.label})`;
+                     case rawValue instanceof SqlParam && rawValue.isContext:
+                        return `${rawString} $runtime:${rawValue.name}`;
                      case rawValue instanceof SqlParam:
                         return `${rawString} $${rawValue.name}`;
                      case rawValue instanceof Sql:
@@ -308,6 +443,16 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
                })
                .join(" ")
       );
+   }
+
+   initAuthorization(authorization = this._authorization): string[] {
+      const tags = new Set<string>(authorization);
+      for (const inner of this.innerQueries) {
+         for (const tag of inner._authorization) {
+            tags.add(tag);
+         }
+      }
+      return [...tags];
    }
 
    initDialects(rawValues = this.rawValues): Set<string> {
@@ -321,8 +466,8 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
             case rawValue instanceof SqlTable:
                result.add(rawValue.dialect);
                break;
-            case rawValue instanceof SqlQuery:
-               for (const d of rawValue.dialects) result.add(d);
+            case isQuery(rawValue):
+               for (const d of rawValue.source.dialects) result.add(d);
                break;
             case rawValue instanceof SqlSelectRow:
                for (const item of Object.values(rawValue.getRow({ query: this }))) q.push(item);
@@ -346,10 +491,12 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
             case Array.isArray(rawValue):
                q.push(...rawValue);
                break;
-            case rawValue instanceof SqlQuery:
-               results.push(rawValue);
-               results.push(...rawValue.innerQueries);
+            case isQuery(rawValue): {
+               const src = rawValue.source;
+               results.push(src);
+               results.push(...src.innerQueries);
                break;
+            }
             case rawValue instanceof SqlSelectValue:
                results.push(rawValue.innerQuery);
                break;
@@ -359,7 +506,6 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
                   results.push(rawValue.query.innerQuery);
                   break;
                }
-
                results.push(rawValue.query);
                break;
             case rawValue instanceof SqlSelectRow:
@@ -414,6 +560,16 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
             case Array.isArray(rawValue):
                q.push(...rawValue);
                break;
+            case rawValue instanceof SqlExpand:
+               if (rawValue.params)
+                  params = {
+                     ...(params ?? {}),
+                     ...(rawValue.params as Record<string, SqlParam<{ Name: string; Type: unknown }>>),
+                  };
+               break;
+            case rawValue instanceof SqlParam && rawValue.isContext:
+               params = { ...(params ?? {}), [rawValue.name]: rawValue };
+               break;
             case rawValue instanceof SqlParam:
                params = { ...(params ?? {}), [rawValue.name]: rawValue };
                break;
@@ -427,6 +583,15 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
       }
 
       return params as BuildSqlParams<T["Params"]>;
+   }
+
+   initContext(params = this.params): Partial<BuildSqlParams<T["Params"]>> {
+      if (!params || typeof params !== "object") return null as BuildSqlParams<T["Params"]>;
+
+      return Object.fromEntries(
+         // eslint-disable-next-line unused-imports/no-unused-vars
+         Object.entries(params).filter(([_k, v]: [string, SqlParamAny]) => v.isContext),
+      ) as BuildSqlParams<T["Params"]>;
    }
 
    initOut(): SqlQueryRefExtended<T> {
@@ -447,7 +612,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
     *
     * @example
     * const { text, values } = findById.getSql({ params: { id: "123" } });
-    * console.log(text);   // SELECT ... WHERE "account_id" = $1
+    * console.log(text); // SELECT ... WHERE "account_id" = $1
     * console.log(values); // ["123"]
     */
    getSql({ options, ...args }: SqlInputArgs<T["Params"]>): { text: string; values: unknown[] } {
@@ -487,9 +652,10 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
                const paramToken = this.params?.[token.name as keyof NonNullable<typeof this.params>] as
                   | SqlParam<{ Name: string; Type: unknown }>
                   | undefined;
+               ok(paramToken, `Param token not found for token: ${token.name}`);
+
                const rawValue = args.params[token.name];
-               const value = rawValue === undefined ? null : rawValue;
-               validateParamValue(token.name, value, paramToken?.validation ?? null);
+               const value = isContextValue(rawValue) ? null : (paramToken.valueOrDefault(rawValue) ?? null);
 
                if (Array.isArray(value)) {
                   for (let i = 0; i < value.length; i++) {
@@ -540,10 +706,26 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
    }
 
    /**
+    * Tags this query with an authorization label.
+    *
+    * When a `QueryRegistry.registerAuthorization()` hook is registered, the hook is called
+    * with this tag before the query executes. Throw inside the hook to deny
+    * execution.
+    *
+    * @param tags authorization tags
+    */
+   authorize(...tags: string[]): this {
+      const clone = Object.create(this) as this;
+      clone._authorization = [...this._authorization, ...tags];
+      clone._authorizationLazy = new Lazy(() => clone.initAuthorization());
+      return clone;
+   }
+
+   /**
     * Returns a reference to this query rendered in a specific SQL format.
     *
     * Use this to control how the query is embedded when it appears as a
-    * subquery — for example forcing it to render as a CTE (`"with"`) or
+    * subquery — for example, forcing it to render as a CTE (`"with"`) or
     * as an inline subquery (`"select"`, `"from"`).
     *
     * @param queryFormat - The SQL context in which to render this query.
@@ -563,6 +745,30 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
     */
    inline(queryFormat?: SqlQueryFormat | null): SqlQueryRefExtended<T> {
       return newSqlQueryRef(this, { queryType: "inline", queryFormat });
+   }
+
+   /**
+    * Getter method to retrieve the type of the row.
+    *
+    * @return T["Row"] The type definition for the row.
+    */
+   get rowType(): T["Row"] {
+      throw new Error("this property is only for fetching the row type");
+   }
+
+   /**
+    * Retrieves the filtered context from the given arguments based on the parameters.
+    *
+    * @param args - The input arguments used to determine the relevant context.
+    * @return {Record<string, unknown>} A record containing filtered key-value pairs from the arguments that match the context parameters.
+    */
+   getContext(args: T["Params"]): Record<string, unknown> {
+      ok(typeof this.params === "object" && this.params !== null, `Cannot get context for query with no parameters`);
+      ok(args, `Cannot get context for query with no arguments`);
+      // eslint-disable-next-line unused-imports/no-unused-vars
+      const ctx = new Map(Object.entries(this.params).filter(([_k, v]: [string, SqlParamAny]) => v.isContext));
+
+      return Object.fromEntries(Object.entries(args).filter(([key]) => ctx.has(key)));
    }
 }
 

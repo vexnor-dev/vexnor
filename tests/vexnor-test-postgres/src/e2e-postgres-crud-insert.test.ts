@@ -68,7 +68,7 @@ describe.sequential("vexnor postgres CRUD - insert", async (ctx) => {
             where ${Account.as("src").$accountId} = ${source.accountId}
          `,
          })
-         .postgres.one({ db: pool });
+         .one({ db: pool });
 
       expect(inserted.email).toMatchInlineSnapshot(`"insertfrom-source@test.com"`);
       expect(inserted.firstName).toMatchInlineSnapshot(`"Source"`);

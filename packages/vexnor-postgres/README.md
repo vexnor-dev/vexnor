@@ -208,9 +208,13 @@ const result = await Account.postgres.upsert({
 
 Available `select()` clauses: `SELECT`, `WHERE`, `JOIN`, `GROUP_BY`, `HAVING`, `ORDER_BY`, `limit`, `offset`, `includeMany`, `includeOne`.
 
-## Codegen
+## Bundler Notes
 
-Generate TypeScript types from your PostgreSQL schema:
+The `sideEffects` field in `package.json` explicitly marks `dist/index.js`, `dist/vexnor-postgres.js`, and `dist/postgres-augment.js` as having side effects. This is required for bundlers (Turbopack, webpack, esbuild) that perform tree-shaking — without it, the prototype augmentation that registers `.postgres` on all queries gets dropped, causing runtime errors.
+
+Do not remove or narrow the `sideEffects` field.
+
+## Codegen
 
 ```bash
 npx vexnor codegen \
@@ -218,7 +222,7 @@ npx vexnor codegen \
   --schema public \
   --uri $DATABASE_URL \
   --outDir src/models \
-  --pascalCaseTables \
+   \
   --camelCaseColumns
 ```
 

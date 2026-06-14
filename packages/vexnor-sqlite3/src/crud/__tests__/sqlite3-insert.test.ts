@@ -1,3 +1,4 @@
+import "vexnor-sqlite3";
 import { describe, expect, test } from "vitest";
 import { Account } from "vexnor/testing";
 import { sql, row } from "vexnor";
@@ -8,7 +9,7 @@ import { defaultQueryOptions } from "#/crud/default-query-options.js";
 describe("sqlite3InsertRows()", () => {
    test("basic insert", () => {
       const query = sqlite3InsertRows(Account);
-      const { text, values } = query.getSql({
+      const { text, values } = query.source.getSql({
          params: { rows: [{ email: "a@b.com", firstName: "John", lastName: "Doe" }] },
          options: defaultQueryOptions,
       });
@@ -37,7 +38,7 @@ describe("sqlite3InsertRows()", () => {
 
    test("batch insert", () => {
       const query = sqlite3InsertRows(Account);
-      const { text, values } = query.getSql({
+      const { text, values } = query.source.getSql({
          params: {
             rows: [
                { email: "a@b.com", firstName: "John", lastName: "Doe" },
@@ -111,8 +112,8 @@ describe("sqlite3InsertRows()", () => {
 
    test("has $$ and row", () => {
       const query = sqlite3InsertRows(Account);
-      expect(query.$$).toBeDefined();
-      expect(query.row).toBeDefined();
-      expect(query.row.$accountId).toBeDefined();
+      expect(query.source.$$).toBeDefined();
+      expect(query.source.row).toBeDefined();
+      expect(query.source.row.$accountId).toBeDefined();
    });
 });

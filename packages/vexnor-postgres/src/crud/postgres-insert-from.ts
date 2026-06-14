@@ -1,15 +1,18 @@
-import { SqlTable, row, ParamsOfArgs, SqlQueryExtended, raw, info } from "vexnor";
+import { SqlTable, row, ParamsOfArgs, raw, info, SqlQueryColumns } from "vexnor";
 import type { SqlInsertFromArgs } from "vexnor";
 import { sql } from "#/postgres-sql.js";
-import { ok } from "vexnor/plugin";
+import { ok } from "vexnor";
+import { PostgresQueryHandler } from "#/postgres-query-handler.js";
+import "#/postgres-augment.js";
 
 export type PostgresInsertFromResult<
    T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> },
    Args extends SqlInsertFromArgs<T>,
-> = SqlQueryExtended<{
+> = PostgresQueryHandler<{
    Row: T["Select"];
    Params: ParamsOfArgs<Args>;
-}>;
+}> &
+   SqlQueryColumns<T["Select"]>;
 
 export function postgresInsertFrom<
    T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> },
@@ -22,5 +25,5 @@ export function postgresInsertFrom<
       insert into ${table}
             ${args.FROM}
             returning ${row(table.$$)}
-   ` as unknown as PostgresInsertFromResult<T, Args>;
+   `.postgres as unknown as PostgresInsertFromResult<T, Args>;
 }

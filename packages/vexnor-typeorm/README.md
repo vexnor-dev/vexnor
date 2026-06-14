@@ -54,6 +54,49 @@ const summaries = await sql`
 `.postgres.all({ db: pool });
 ```
 
+## Composing Queries
+
+The adapted table works identically to a codegen-produced table — compose subqueries, use CTEs, and mix with other tables:
+
+```typescript
+import { Order } from './order.entity.js';
+import { col } from 'vexnor';
+
+const OrderTable = fromTypeORM(dataSource.getRepository(Order));
+
+const activeAccountsWithOrders = sql`
+  SELECT ${row(Account.$accountId, Account.$email)},
+         count(${OrderTable.$orderId}) as ${col<{ orderCount: number }>('orderCount')}
+  FROM ${Account}
+  JOIN ${OrderTable} ON ${OrderTable.$accountId} = ${Account.$accountId}
+  GROUP BY ${Account.$accountId}, ${Account.$email}
+  HAVING count(${OrderTable.$orderId}) > 0
+`;
+```
+
+## CRUD Query Factories
+
+Adapted tables support the same typed CRUD factories as codegen tables:
+
+```typescript
+// SELECT with WHERE
+const accounts = await Account.postgres.select({
+  WHERE: sql`${Account.$status} = 'active'`,
+}).all({ db: pool });
+
+// INSERT
+const inserted = await Account.postgres.insertRows().all({
+  db: pool,
+  params: { rows: [{ email: 'new@example.com', firstName: 'New' }] },
+});
+
+// Find by columns
+const found = await Account.postgres.findBy().any({
+  db: pool,
+  params: { email: 'jane@example.com' },
+});
+```
+
 ## Supported Databases
 
 Dialect is inferred automatically from the TypeORM connection type:

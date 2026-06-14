@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import { ok } from "node:assert";
 import { param, row, sql } from "vexnor";
 import { jsonMany } from "vexnor-mssql";
-import { Account, IAccountJson, IAccountSelect } from "./codegen/vexnor_dev.schema.js";
+import { Account, IAccountSelect } from "./codegen/vexnor_dev.schema.js";
 import { pool } from "./mssql-pool.js";
 import { TestDataManager } from "./test-data-manager.js";
 
@@ -104,18 +104,7 @@ describe.sequential("vexnor mssql e2e tests", async (ctx) => {
          order by ${Account.$email}
       `;
 
-      const actual = await query.mssql.all({ db: pool.request() }).then((accounts) =>
-         accounts.map((account) => {
-            return {
-               ...account,
-               children: (JSON.parse(account.children) as IAccountJson[]).map((child) => ({
-                  ...child,
-                  createdAt: new Date(child.createdAt),
-                  modifiedAt: new Date(child.modifiedAt),
-               })),
-            };
-         }),
-      );
+      const actual = await query.mssql.all({ db: pool.request() });
 
       const childrenByParentId = (() => {
          const result = new Map<string, IAccountSelect[]>();

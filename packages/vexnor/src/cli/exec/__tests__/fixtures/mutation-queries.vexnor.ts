@@ -1,7 +1,11 @@
-import { defineQueryConfig } from "../../../../config/config.js";
+// noinspection SqlNoDataSourceInspection,SqlResolve
+import { MockPlugin, type MockConnection } from "#/test/mock-plugin.js";
+import { defineQueryConfig } from "#/config/define-query-config.js";
+import { sql } from "#/test/mock-sql.js";
+import { vi } from "vitest";
 
-import testPlugin from "../test-plugin.js";
-import { sql } from "../test-driver-setup.js";
+const mockDb: MockConnection = { query: vi.fn().mockResolvedValue({ rows: [] }) };
+export const testPlugin = new MockPlugin({ name: "test" }, mockDb);
 
 const insertQuery = sql`INSERT INTO accounts (name) VALUES ('test')`;
 const deleteQuery = sql`DELETE FROM accounts WHERE id = 1`;
@@ -12,17 +16,17 @@ export default defineQueryConfig({ insertQuery, deleteQuery, dropQuery })({
       insertQuery: {
          profile: "testdb",
          plugin: testPlugin,
-         params: {},
+         params: void 0,
       },
       deleteQuery: {
          profile: "testdb",
          plugin: testPlugin,
-         params: {},
+         params: void 0,
       },
       dropQuery: {
          profile: "testdb",
          plugin: testPlugin,
-         params: {},
+         params: void 0,
       },
    },
 });

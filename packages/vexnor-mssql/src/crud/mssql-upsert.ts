@@ -1,3 +1,4 @@
+// noinspection SqlNoDataSourceInspection,SqlResolve
 import {
    Sql,
    SqlTable,
@@ -10,9 +11,11 @@ import {
    SqlQueryAny,
    SqlTableColumnAny,
    SqlInsertRowsParams,
+   sql,
+   SqlQueryColumns,
 } from "vexnor";
-import { sql } from "#/mssql-sql.js";
 import { MssqlQueryHandler } from "#/mssql-query-handler.js";
+import "#/mssql-augment.js";
 
 /**
  * Arguments for an upsert (MERGE) operation.
@@ -29,7 +32,8 @@ export type MssqlUpsertResult<T extends { Select: Record<string, unknown>; Inser
    MssqlQueryHandler<{
       Params: SqlInsertRowsParams<T>;
       Row: T["Select"];
-   }>;
+   }> &
+      SqlQueryColumns<T["Select"]>;
 
 export function mssqlUpsert<T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> }>(
    table: SqlTable<T>,
@@ -51,7 +55,7 @@ export function mssqlUpsert<T extends { Select: Record<string, unknown>; Insert:
       return sql`${tgt} = ${src}`.inline();
    }).reduce((acc, clause) => sql`${acc} and ${clause}`.inline());
 
-   const autoSetExpand = expand<SqlInsertRowsParams<T>>((params) => {
+   const autoSetExpand = expand<SqlInsertRowsParams<T>>({ rows: null }, (params) => {
       if (!params?.rows?.length) return null;
       const insertKeySet = new Set(Object.keys(params.rows[0]!));
       const mergeColNames = new Set<string>(args.MERGE_ON.map((col) => col.columnName));
@@ -71,8 +75,7 @@ export function mssqlUpsert<T extends { Select: Record<string, unknown>; Insert:
    });
    const setClause: Sql = args.SET?.inline() ?? autoSetExpand;
 
-   // plain quoted column names for INSERT (...) and AS src(...)
-   const plainCols = expand<SqlInsertRowsParams<T>>((params) => {
+   const plainCols = expand<SqlInsertRowsParams<T>>({ rows: null }, (params) => {
       if (!params?.rows?.length) return null;
       const insertKeySet = new Set(Object.keys(params.rows[0]!));
       return Object.keys(table.cols)
@@ -90,7 +93,7 @@ export function mssqlUpsert<T extends { Select: Record<string, unknown>; Insert:
    });
 
    // src.col references for INSERT ... VALUES (src.col1, src.col2, ...)
-   const srcValueCols = expand<SqlInsertRowsParams<T>>((params) => {
+   const srcValueCols = expand<SqlInsertRowsParams<T>>({ rows: null }, (params) => {
       if (!params?.rows?.length) return null;
       const insertKeySet = new Set(Object.keys(params.rows[0]!));
       return Object.keys(table.cols)
@@ -118,5 +121,5 @@ export function mssqlUpsert<T extends { Select: Record<string, unknown>; Insert:
          insert (${plainCols})
          values (${srcValueCols})
       output ${row(table.as`inserted`.$$)};
-   ` as unknown as MssqlUpsertResult<T>;
+   `.mssql as unknown as MssqlUpsertResult<T>;
 }

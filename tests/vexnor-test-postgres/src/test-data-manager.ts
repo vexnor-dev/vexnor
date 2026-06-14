@@ -170,9 +170,9 @@ export class TestDataManager {
          },
       ];
       const results = [];
-      for (const query of queries) {
-         const result = await query.query.postgres.run({ db: pool });
-         results.push({ type: query.type, rowsAffected: result.rowCount });
+      for (const { type, query } of queries) {
+         const result = await query.postgres.run({ db: pool });
+         results.push({ type, rowsAffected: result.rowCount });
       }
 
       return results;

@@ -1,13 +1,15 @@
-import { SqlTable, expandInsertColumns, expandInsertValues, row, raw, info } from "vexnor";
+import { SqlTable, expandInsertColumns, expandInsertValues, row, raw, info, SqlQueryColumns } from "vexnor";
 import { sql } from "#/mssql-sql.js";
 import { SqlInsertRowsParams } from "vexnor";
 import { MssqlQueryHandler } from "#/mssql-query-handler.js";
+import "#/mssql-augment.js";
 
 export type MssqlInsertRowsResult<T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> }> =
    MssqlQueryHandler<{
       Params: SqlInsertRowsParams<T>;
       Row: T["Select"];
-   }>;
+   }> &
+      SqlQueryColumns<T["Select"]>;
 
 export function mssqlInsertRows<T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> }>(
    table: SqlTable<T>,
@@ -19,5 +21,5 @@ export function mssqlInsertRows<T extends { Select: Record<string, unknown>; Ins
       output ${row(table.as`inserted`.$$)}
       values
       ${expandInsertValues(table)}
-   ` as unknown as MssqlInsertRowsResult<T>;
+   `.mssql as unknown as MssqlInsertRowsResult<T>;
 }

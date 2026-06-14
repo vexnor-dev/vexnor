@@ -1,7 +1,7 @@
-import CodeBlockWriter from "code-block-writer";
+import { CodeWriter } from "#/lib/code-writer.js";
 import { SqlOutputFile } from "#/plugin/plugin.js";
 
-export function writeSchemaImports(writer: CodeBlockWriter.default, files: SqlOutputFile[]) {
+export function writeSchemaImports(writer: CodeWriter, files: SqlOutputFile[]) {
    files.forEach(({ fileName }) => {
       writer.writeLine(`export * from "./${fileName}.js";`);
    });

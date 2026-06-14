@@ -22,7 +22,9 @@ describe("SqlTable tests", () => {
           "$accountId": SqlTableColumn {
             "columnName": "account_id",
             "format": null,
+            "hashId": "SqlTableColumn#(account.account_id as accountId)",
             "id": "SqlTableColumn#1(account.account_id as accountId)",
+            "jsonType": null,
             "key": "accountId",
             "tableInfo": {
               "alias": null,
@@ -36,7 +38,9 @@ describe("SqlTable tests", () => {
           "$createdAt": SqlTableColumn {
             "columnName": "created_at",
             "format": null,
+            "hashId": "SqlTableColumn#(account.created_at as createdAt)",
             "id": "SqlTableColumn#7(account.created_at as createdAt)",
+            "jsonType": "Date",
             "key": "createdAt",
             "tableInfo": {
               "alias": null,
@@ -50,7 +54,9 @@ describe("SqlTable tests", () => {
           "$email": SqlTableColumn {
             "columnName": "email",
             "format": null,
+            "hashId": "SqlTableColumn#(account.email)",
             "id": "SqlTableColumn#3(account.email)",
+            "jsonType": null,
             "key": "email",
             "tableInfo": {
               "alias": null,
@@ -64,7 +70,9 @@ describe("SqlTable tests", () => {
           "$firstName": SqlTableColumn {
             "columnName": "first_name",
             "format": null,
+            "hashId": "SqlTableColumn#(account.first_name as firstName)",
             "id": "SqlTableColumn#4(account.first_name as firstName)",
+            "jsonType": null,
             "key": "firstName",
             "tableInfo": {
               "alias": null,
@@ -78,7 +86,9 @@ describe("SqlTable tests", () => {
           "$lastName": SqlTableColumn {
             "columnName": "last_name",
             "format": null,
+            "hashId": "SqlTableColumn#(account.last_name as lastName)",
             "id": "SqlTableColumn#5(account.last_name as lastName)",
+            "jsonType": null,
             "key": "lastName",
             "tableInfo": {
               "alias": null,
@@ -92,7 +102,9 @@ describe("SqlTable tests", () => {
           "$modifiedAt": SqlTableColumn {
             "columnName": "modified_at",
             "format": null,
+            "hashId": "SqlTableColumn#(account.modified_at as modifiedAt)",
             "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
+            "jsonType": "Date",
             "key": "modifiedAt",
             "tableInfo": {
               "alias": null,
@@ -106,7 +118,9 @@ describe("SqlTable tests", () => {
           "$notes": SqlTableColumn {
             "columnName": "notes",
             "format": null,
+            "hashId": "SqlTableColumn#(account.notes)",
             "id": "SqlTableColumn#6(account.notes)",
+            "jsonType": null,
             "key": "notes",
             "tableInfo": {
               "alias": null,
@@ -120,7 +134,9 @@ describe("SqlTable tests", () => {
           "$parentId": SqlTableColumn {
             "columnName": "parent_id",
             "format": null,
+            "hashId": "SqlTableColumn#(account.parent_id as parentId)",
             "id": "SqlTableColumn#9(account.parent_id as parentId)",
+            "jsonType": null,
             "key": "parentId",
             "tableInfo": {
               "alias": null,
@@ -134,7 +150,9 @@ describe("SqlTable tests", () => {
           "$status": SqlTableColumn {
             "columnName": "status",
             "format": null,
+            "hashId": "SqlTableColumn#(account.status)",
             "id": "SqlTableColumn#2(account.status)",
+            "jsonType": null,
             "key": "status",
             "tableInfo": {
               "alias": null,
@@ -156,7 +174,9 @@ describe("SqlTable tests", () => {
               "$accountId": SqlTableColumn {
                 "columnName": "account_id",
                 "format": null,
+                "hashId": "SqlTableColumn#(account.account_id as accountId)",
                 "id": "SqlTableColumn#1(account.account_id as accountId)",
+                "jsonType": null,
                 "key": "accountId",
                 "tableInfo": {
                   "alias": null,
@@ -170,7 +190,9 @@ describe("SqlTable tests", () => {
               "$createdAt": SqlTableColumn {
                 "columnName": "created_at",
                 "format": null,
+                "hashId": "SqlTableColumn#(account.created_at as createdAt)",
                 "id": "SqlTableColumn#7(account.created_at as createdAt)",
+                "jsonType": "Date",
                 "key": "createdAt",
                 "tableInfo": {
                   "alias": null,
@@ -184,7 +206,9 @@ describe("SqlTable tests", () => {
               "$email": SqlTableColumn {
                 "columnName": "email",
                 "format": null,
+                "hashId": "SqlTableColumn#(account.email)",
                 "id": "SqlTableColumn#3(account.email)",
+                "jsonType": null,
                 "key": "email",
                 "tableInfo": {
                   "alias": null,
@@ -198,7 +222,9 @@ describe("SqlTable tests", () => {
               "$firstName": SqlTableColumn {
                 "columnName": "first_name",
                 "format": null,
+                "hashId": "SqlTableColumn#(account.first_name as firstName)",
                 "id": "SqlTableColumn#4(account.first_name as firstName)",
+                "jsonType": null,
                 "key": "firstName",
                 "tableInfo": {
                   "alias": null,
@@ -212,7 +238,9 @@ describe("SqlTable tests", () => {
               "$lastName": SqlTableColumn {
                 "columnName": "last_name",
                 "format": null,
+                "hashId": "SqlTableColumn#(account.last_name as lastName)",
                 "id": "SqlTableColumn#5(account.last_name as lastName)",
+                "jsonType": null,
                 "key": "lastName",
                 "tableInfo": {
                   "alias": null,
@@ -226,7 +254,9 @@ describe("SqlTable tests", () => {
               "$modifiedAt": SqlTableColumn {
                 "columnName": "modified_at",
                 "format": null,
+                "hashId": "SqlTableColumn#(account.modified_at as modifiedAt)",
                 "id": "SqlTableColumn#8(account.modified_at as modifiedAt)",
+                "jsonType": "Date",
                 "key": "modifiedAt",
                 "tableInfo": {
                   "alias": null,
@@ -240,7 +270,9 @@ describe("SqlTable tests", () => {
               "$notes": SqlTableColumn {
                 "columnName": "notes",
                 "format": null,
+                "hashId": "SqlTableColumn#(account.notes)",
                 "id": "SqlTableColumn#6(account.notes)",
+                "jsonType": null,
                 "key": "notes",
                 "tableInfo": {
                   "alias": null,
@@ -254,7 +286,9 @@ describe("SqlTable tests", () => {
               "$parentId": SqlTableColumn {
                 "columnName": "parent_id",
                 "format": null,
+                "hashId": "SqlTableColumn#(account.parent_id as parentId)",
                 "id": "SqlTableColumn#9(account.parent_id as parentId)",
+                "jsonType": null,
                 "key": "parentId",
                 "tableInfo": {
                   "alias": null,
@@ -268,7 +302,9 @@ describe("SqlTable tests", () => {
               "$status": SqlTableColumn {
                 "columnName": "status",
                 "format": null,
+                "hashId": "SqlTableColumn#(account.status)",
                 "id": "SqlTableColumn#2(account.status)",
+                "jsonType": null,
                 "key": "status",
                 "tableInfo": {
                   "alias": null,
@@ -293,8 +329,13 @@ describe("SqlTable tests", () => {
             "_value": null,
             "callback": [Function],
           },
+          "columnTypes": {
+            "createdAt": "Date",
+            "modifiedAt": "Date",
+          },
           "dialect": "sql",
           "format": null,
+          "hashId": "SqlTable#(main.account)",
           "id": "SqlTable#1(main.account)",
           "pk": [
             "accountId",
@@ -317,7 +358,9 @@ describe("SqlTable tests", () => {
           "$accountId": SqlTableColumn {
             "columnName": "account_id",
             "format": null,
+            "hashId": "SqlTableColumn#(parent.account_id as accountId)",
             "id": "SqlTableColumn#1(parent.account_id as accountId)",
+            "jsonType": null,
             "key": "accountId",
             "tableInfo": {
               "alias": "parent",
@@ -331,7 +374,9 @@ describe("SqlTable tests", () => {
           "$createdAt": SqlTableColumn {
             "columnName": "created_at",
             "format": null,
+            "hashId": "SqlTableColumn#(parent.created_at as createdAt)",
             "id": "SqlTableColumn#7(parent.created_at as createdAt)",
+            "jsonType": "Date",
             "key": "createdAt",
             "tableInfo": {
               "alias": "parent",
@@ -345,7 +390,9 @@ describe("SqlTable tests", () => {
           "$email": SqlTableColumn {
             "columnName": "email",
             "format": null,
+            "hashId": "SqlTableColumn#(parent.email)",
             "id": "SqlTableColumn#3(parent.email)",
+            "jsonType": null,
             "key": "email",
             "tableInfo": {
               "alias": "parent",
@@ -359,7 +406,9 @@ describe("SqlTable tests", () => {
           "$firstName": SqlTableColumn {
             "columnName": "first_name",
             "format": null,
+            "hashId": "SqlTableColumn#(parent.first_name as firstName)",
             "id": "SqlTableColumn#4(parent.first_name as firstName)",
+            "jsonType": null,
             "key": "firstName",
             "tableInfo": {
               "alias": "parent",
@@ -373,7 +422,9 @@ describe("SqlTable tests", () => {
           "$lastName": SqlTableColumn {
             "columnName": "last_name",
             "format": null,
+            "hashId": "SqlTableColumn#(parent.last_name as lastName)",
             "id": "SqlTableColumn#5(parent.last_name as lastName)",
+            "jsonType": null,
             "key": "lastName",
             "tableInfo": {
               "alias": "parent",
@@ -387,7 +438,9 @@ describe("SqlTable tests", () => {
           "$modifiedAt": SqlTableColumn {
             "columnName": "modified_at",
             "format": null,
+            "hashId": "SqlTableColumn#(parent.modified_at as modifiedAt)",
             "id": "SqlTableColumn#8(parent.modified_at as modifiedAt)",
+            "jsonType": "Date",
             "key": "modifiedAt",
             "tableInfo": {
               "alias": "parent",
@@ -401,7 +454,9 @@ describe("SqlTable tests", () => {
           "$notes": SqlTableColumn {
             "columnName": "notes",
             "format": null,
+            "hashId": "SqlTableColumn#(parent.notes)",
             "id": "SqlTableColumn#6(parent.notes)",
+            "jsonType": null,
             "key": "notes",
             "tableInfo": {
               "alias": "parent",
@@ -415,7 +470,9 @@ describe("SqlTable tests", () => {
           "$parentId": SqlTableColumn {
             "columnName": "parent_id",
             "format": null,
+            "hashId": "SqlTableColumn#(parent.parent_id as parentId)",
             "id": "SqlTableColumn#9(parent.parent_id as parentId)",
+            "jsonType": null,
             "key": "parentId",
             "tableInfo": {
               "alias": "parent",
@@ -429,7 +486,9 @@ describe("SqlTable tests", () => {
           "$status": SqlTableColumn {
             "columnName": "status",
             "format": null,
+            "hashId": "SqlTableColumn#(parent.status)",
             "id": "SqlTableColumn#2(parent.status)",
+            "jsonType": null,
             "key": "status",
             "tableInfo": {
               "alias": "parent",
@@ -451,7 +510,9 @@ describe("SqlTable tests", () => {
               "$accountId": SqlTableColumn {
                 "columnName": "account_id",
                 "format": null,
+                "hashId": "SqlTableColumn#(parent.account_id as accountId)",
                 "id": "SqlTableColumn#1(parent.account_id as accountId)",
+                "jsonType": null,
                 "key": "accountId",
                 "tableInfo": {
                   "alias": "parent",
@@ -465,7 +526,9 @@ describe("SqlTable tests", () => {
               "$createdAt": SqlTableColumn {
                 "columnName": "created_at",
                 "format": null,
+                "hashId": "SqlTableColumn#(parent.created_at as createdAt)",
                 "id": "SqlTableColumn#7(parent.created_at as createdAt)",
+                "jsonType": "Date",
                 "key": "createdAt",
                 "tableInfo": {
                   "alias": "parent",
@@ -479,7 +542,9 @@ describe("SqlTable tests", () => {
               "$email": SqlTableColumn {
                 "columnName": "email",
                 "format": null,
+                "hashId": "SqlTableColumn#(parent.email)",
                 "id": "SqlTableColumn#3(parent.email)",
+                "jsonType": null,
                 "key": "email",
                 "tableInfo": {
                   "alias": "parent",
@@ -493,7 +558,9 @@ describe("SqlTable tests", () => {
               "$firstName": SqlTableColumn {
                 "columnName": "first_name",
                 "format": null,
+                "hashId": "SqlTableColumn#(parent.first_name as firstName)",
                 "id": "SqlTableColumn#4(parent.first_name as firstName)",
+                "jsonType": null,
                 "key": "firstName",
                 "tableInfo": {
                   "alias": "parent",
@@ -507,7 +574,9 @@ describe("SqlTable tests", () => {
               "$lastName": SqlTableColumn {
                 "columnName": "last_name",
                 "format": null,
+                "hashId": "SqlTableColumn#(parent.last_name as lastName)",
                 "id": "SqlTableColumn#5(parent.last_name as lastName)",
+                "jsonType": null,
                 "key": "lastName",
                 "tableInfo": {
                   "alias": "parent",
@@ -521,7 +590,9 @@ describe("SqlTable tests", () => {
               "$modifiedAt": SqlTableColumn {
                 "columnName": "modified_at",
                 "format": null,
+                "hashId": "SqlTableColumn#(parent.modified_at as modifiedAt)",
                 "id": "SqlTableColumn#8(parent.modified_at as modifiedAt)",
+                "jsonType": "Date",
                 "key": "modifiedAt",
                 "tableInfo": {
                   "alias": "parent",
@@ -535,7 +606,9 @@ describe("SqlTable tests", () => {
               "$notes": SqlTableColumn {
                 "columnName": "notes",
                 "format": null,
+                "hashId": "SqlTableColumn#(parent.notes)",
                 "id": "SqlTableColumn#6(parent.notes)",
+                "jsonType": null,
                 "key": "notes",
                 "tableInfo": {
                   "alias": "parent",
@@ -549,7 +622,9 @@ describe("SqlTable tests", () => {
               "$parentId": SqlTableColumn {
                 "columnName": "parent_id",
                 "format": null,
+                "hashId": "SqlTableColumn#(parent.parent_id as parentId)",
                 "id": "SqlTableColumn#9(parent.parent_id as parentId)",
+                "jsonType": null,
                 "key": "parentId",
                 "tableInfo": {
                   "alias": "parent",
@@ -563,7 +638,9 @@ describe("SqlTable tests", () => {
               "$status": SqlTableColumn {
                 "columnName": "status",
                 "format": null,
+                "hashId": "SqlTableColumn#(parent.status)",
                 "id": "SqlTableColumn#2(parent.status)",
+                "jsonType": null,
                 "key": "status",
                 "tableInfo": {
                   "alias": "parent",
@@ -588,8 +665,13 @@ describe("SqlTable tests", () => {
             "_value": null,
             "callback": [Function],
           },
+          "columnTypes": {
+            "createdAt": "Date",
+            "modifiedAt": "Date",
+          },
           "dialect": "sql",
           "format": null,
+          "hashId": "SqlTable#(main.account as parent)",
           "id": "SqlTable#1(main.account as parent)",
           "pk": [
             "accountId",
@@ -611,7 +693,9 @@ describe("SqlTable tests", () => {
         SqlTableColumn {
           "columnName": "account_id",
           "format": null,
+          "hashId": "SqlTableColumn#(parent.account_id as accountId)",
           "id": "SqlTableColumn#1(parent.account_id as accountId)",
+          "jsonType": null,
           "key": "accountId",
           "tableInfo": {
             "alias": "parent",
@@ -628,12 +712,15 @@ describe("SqlTable tests", () => {
    test("SqlTable alias should return new SqlTable instance with respective $$ columns", () => {
       expect(Account.as`inserted`.$$).toMatchInlineSnapshot(`
         SqlTableAll {
+          "hashId": "SqlTableAll#(SqlTableColumn#(inserted.account_id as accountId),SqlTableColumn#(inserted.status),SqlTableColumn#(inserted.email),SqlTableColumn#(inserted.first_name as firstName),SqlTableColumn#(inserted.last_name as lastName),SqlTableColumn#(inserted.notes),SqlTableColumn#(inserted.created_at as createdAt),SqlTableColumn#(inserted.modified_at as modifiedAt),SqlTableColumn#(inserted.parent_id as parentId))",
           "id": "SqlTableAll#1($accountId, $status, $email, $firstName, $lastName, $notes, $createdAt, $modifiedAt, $parentId)",
           "row": {
             "$accountId": SqlTableColumn {
               "columnName": "account_id",
               "format": null,
+              "hashId": "SqlTableColumn#(inserted.account_id as accountId)",
               "id": "SqlTableColumn#1(inserted.account_id as accountId)",
+              "jsonType": null,
               "key": "accountId",
               "tableInfo": {
                 "alias": "inserted",
@@ -647,7 +734,9 @@ describe("SqlTable tests", () => {
             "$createdAt": SqlTableColumn {
               "columnName": "created_at",
               "format": null,
+              "hashId": "SqlTableColumn#(inserted.created_at as createdAt)",
               "id": "SqlTableColumn#7(inserted.created_at as createdAt)",
+              "jsonType": "Date",
               "key": "createdAt",
               "tableInfo": {
                 "alias": "inserted",
@@ -661,7 +750,9 @@ describe("SqlTable tests", () => {
             "$email": SqlTableColumn {
               "columnName": "email",
               "format": null,
+              "hashId": "SqlTableColumn#(inserted.email)",
               "id": "SqlTableColumn#3(inserted.email)",
+              "jsonType": null,
               "key": "email",
               "tableInfo": {
                 "alias": "inserted",
@@ -675,7 +766,9 @@ describe("SqlTable tests", () => {
             "$firstName": SqlTableColumn {
               "columnName": "first_name",
               "format": null,
+              "hashId": "SqlTableColumn#(inserted.first_name as firstName)",
               "id": "SqlTableColumn#4(inserted.first_name as firstName)",
+              "jsonType": null,
               "key": "firstName",
               "tableInfo": {
                 "alias": "inserted",
@@ -689,7 +782,9 @@ describe("SqlTable tests", () => {
             "$lastName": SqlTableColumn {
               "columnName": "last_name",
               "format": null,
+              "hashId": "SqlTableColumn#(inserted.last_name as lastName)",
               "id": "SqlTableColumn#5(inserted.last_name as lastName)",
+              "jsonType": null,
               "key": "lastName",
               "tableInfo": {
                 "alias": "inserted",
@@ -703,7 +798,9 @@ describe("SqlTable tests", () => {
             "$modifiedAt": SqlTableColumn {
               "columnName": "modified_at",
               "format": null,
+              "hashId": "SqlTableColumn#(inserted.modified_at as modifiedAt)",
               "id": "SqlTableColumn#8(inserted.modified_at as modifiedAt)",
+              "jsonType": "Date",
               "key": "modifiedAt",
               "tableInfo": {
                 "alias": "inserted",
@@ -717,7 +814,9 @@ describe("SqlTable tests", () => {
             "$notes": SqlTableColumn {
               "columnName": "notes",
               "format": null,
+              "hashId": "SqlTableColumn#(inserted.notes)",
               "id": "SqlTableColumn#6(inserted.notes)",
+              "jsonType": null,
               "key": "notes",
               "tableInfo": {
                 "alias": "inserted",
@@ -731,7 +830,9 @@ describe("SqlTable tests", () => {
             "$parentId": SqlTableColumn {
               "columnName": "parent_id",
               "format": null,
+              "hashId": "SqlTableColumn#(inserted.parent_id as parentId)",
               "id": "SqlTableColumn#9(inserted.parent_id as parentId)",
+              "jsonType": null,
               "key": "parentId",
               "tableInfo": {
                 "alias": "inserted",
@@ -745,7 +846,9 @@ describe("SqlTable tests", () => {
             "$status": SqlTableColumn {
               "columnName": "status",
               "format": null,
+              "hashId": "SqlTableColumn#(inserted.status)",
               "id": "SqlTableColumn#2(inserted.status)",
+              "jsonType": null,
               "key": "status",
               "tableInfo": {
                 "alias": "inserted",

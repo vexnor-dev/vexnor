@@ -1,9 +1,9 @@
+export { SqlError } from "#/core/sql-error.js";
+export { SqlErrorCode } from "#/core/sql-error-code.js";
+
 // format
 export { type SqlLanguage, SQL_LANGUAGES } from "#/format/sql-language.js";
 export { type SqlFormatterFn, type RegisterFormatterOptions, getFormatter } from "#/format/formatter-registry.js";
-
-// logger
-export { logger } from "#/logger.js";
 
 // sql template tag & types
 export { sql, type SqlRow, type SqlParams, type SqlQueryToken } from "./sql.js";
@@ -13,10 +13,22 @@ export { Sql, type ParamsOf, type RowOf, type TypeOf, type ArgsOf, type ParamsOf
 export { SqlBuildError } from "./sql-build-error.js";
 
 // query
-export { SqlQuery, type SqlQueryAny, type SqlQueryExtended, type SqlQueryExtendedAny } from "./query/sql-query.js";
+export {
+   SqlQuery,
+   type SqlQueryAny,
+   type SqlQueryExtended,
+   type SqlQueryExtendedAny,
+   type SqlQueryBase,
+   type SqlQueryBaseAny,
+   type SqlQueryColumns,
+   type SqlQueryBaseExtended,
+   type SqlQueryBaseExtendedAny,
+} from "./query/sql-query.js";
+export { isQuery, toQuery } from "./query/sql-query.js";
 export { SqlQueryHandler, type SqlQueryHandlerAny, newSqlQueryHandler } from "./query/sql-query-handler.js";
 export { SqlQueryRef, type SqlQueryRefAny, type SqlQueryRefExtended } from "./query/sql-query-ref.js";
-export { param, SqlParam, type SqlParamAny } from "./query/sql-param.js";
+export { ctx, param, SqlParam, type SqlParamAny } from "./query/sql-param.js";
+export { contextValue, type ContextValue, isContextValue } from "./query/context-value.js";
 export { row, SqlSelectRow, type SqlSelectRowAny } from "./query/sql-select-row.js";
 export { val, SqlSelectValue, type SqlSelectValueAny } from "./query/sql-select-value.js";
 export { raw, quote, SqlRaw } from "./query/sql-raw.js";
@@ -30,8 +42,19 @@ export {
    type SqlQueryScope,
    type SqlQueryOptions,
    type SqlRunArgs,
+   type SqlRunOptions,
+   type SqlRetryOptions,
+   type SqlRetryArgs,
    type SqlInputArgs,
+   type RemoteClient,
+   type SqlExecuteMode,
+   isRemoteClient,
 } from "./query/sql-query-types.js";
+export {
+   HttpRemoteClient,
+   type HttpRemoteClientOptions,
+   type HttpRemoteClientHeaderResolver,
+} from "./query/http-remote-client.js";
 export { type SqlBuildToken, type SqlParamFormat, type SqlQueryRow, type SqlQueryAll } from "./query/sql-models.js";
 
 // schema
@@ -63,7 +86,7 @@ export {
    type SqlColumnFormat,
    type SqlSelectFormat,
 } from "./builder/default-formatter.js";
-export { type SqlBuildOptions } from "./builder/sql-build-options.js";
+export { type SqlBuildOptions, sqlBuildDefaults } from "./builder/sql-build-options.js";
 
 // constants
 export { MAJOR_KEYWORDS, SUBQUERY_STARTERS } from "./sql-constants.js";
@@ -71,6 +94,7 @@ export { MAJOR_KEYWORDS, SUBQUERY_STARTERS } from "./sql-constants.js";
 // utils
 export { quoteText } from "./utils/quote-text.js";
 export { Void } from "./utils/utility-types.js";
+export { deserialize, type SqlJsonSchema, type SqlJsonType } from "./utils/sql-json-schema.js";
 
 export { getDefaultParamFormat } from "./query/default-param-format.js";
 // param internals
@@ -95,10 +119,11 @@ export {
 export type { SqlCrudCommands } from "./crud/sql-crud-commands.js";
 export { isPrimitive, type Primitive } from "#/lib/primitive.js";
 export { isError } from "#/lib/is-error.js";
+export { ok } from "#/lib/assert.js";
 export type { Bit } from "#/lib/bit.js";
-export { SqlRunError } from "./sql-run-error.js";
+export { SqlRunError, type SqlRunErrorOptions, type SqlRunQueryRef } from "./sql-run-error.js";
 
 // CACHE
 export { CACHE } from "#/lib/cache.js";
 
-export type { SqlQueryColumns } from "#/core/query/sql-query.js";
+export { getQueryName } from "#/core/query/sql-query-name.js";

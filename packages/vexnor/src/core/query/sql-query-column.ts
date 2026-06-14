@@ -5,6 +5,7 @@ import { SqlQueryAny } from "#/core/query/sql-query.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
 import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
 import { SqlQueryRefAny } from "#/core/query/sql-query-ref.js";
+import { SqlJsonSchema } from "#/core/utils/sql-json-schema.js";
 
 export type SqlQueryColumnArgs<
    T extends {
@@ -32,12 +33,22 @@ export class SqlQueryColumn<
 
    constructor({ key, format, target, query }: SqlQueryColumnArgs<T>) {
       super({
+         type: "SqlQueryColumn",
          id: `${query.id}/${target.id}`,
+         hashId: target.hashId,
       });
       this.key = key;
       this.format = format ?? null;
       this.target = target;
       this.query = query;
+   }
+
+   get jsonSchema(): SqlJsonSchema {
+      const inner = this.target.jsonSchema;
+      const value = inner[this.target.key];
+      if (!value) return {};
+      if (this.key === this.target.key) return inner;
+      return { [this.key]: value };
    }
 
    /**

@@ -21,4 +21,11 @@ export interface SqlBuildOptions {
    dialect?: SqlLanguage;
    paramFormat?: SqlParamFormat;
    format?: boolean | "auto";
+   /** Emit `/* <query_N> *\/` boundary comments around each query fragment. Defaults to `false`. */
+   boundaryComments?: boolean;
 }
+
+/** Global build defaults — mutable at app start via `sql.config`. */
+export const sqlBuildDefaults: Pick<SqlBuildOptions, "boundaryComments"> = {
+   boundaryComments: false,
+};

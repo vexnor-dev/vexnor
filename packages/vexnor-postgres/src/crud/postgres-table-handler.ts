@@ -1,3 +1,4 @@
+// noinspection SqlNoDataSourceInspection,SqlResolve
 import {
    SqlTable,
    SqlSelectArgs,
@@ -11,7 +12,7 @@ import {
    row,
    info,
 } from "vexnor";
-import { ok } from "vexnor/plugin";
+import { ok } from "vexnor";
 import { postgresSelect, PostgresSelectResult } from "./postgres-select.js";
 import { postgresInsertRows, PostgresInsertRowsResult } from "./postgres-insert-rows.js";
 import { postgresInsertFrom, PostgresInsertFromResult } from "./postgres-insert-from.js";
@@ -103,7 +104,9 @@ function buildFindByExpand<T extends { Select: Record<string, unknown> }>(
 function postgresFind<T extends { Select: Record<string, unknown> }, Params extends Partial<T["Select"]>>(
    table: SqlTable<T>,
 ): PostgresQueryHandler<{ Params: Params; Row: T["Select"] }> {
-   const whereExpand = expand<Params>((params) => {
+   const whereExpand = expand<Params>(
+      Object.fromEntries(Object.values(table.cols).map((col) => [col.key, null])) as Record<keyof Params, null>,
+      (params) => {
       if (!params) return null;
       return buildFindByExpand(table, params as Partial<T["Select"]>) as ReturnType<typeof buildFindByExpand>;
    });

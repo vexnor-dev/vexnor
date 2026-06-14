@@ -1,3 +1,4 @@
+// noinspection SqlNoDataSourceInspection,SqlResolve
 import { describe, expect, test } from "vitest";
 import { Account } from "vexnor/testing";
 import { excluded, sql } from "vexnor";
@@ -6,8 +7,8 @@ import { defaultQueryOptions } from "#/default-query-options.js";
 
 describe("postgresUpsert()", () => {
    test("auto SET: generates col = EXCLUDED.col for all non-conflict columns", () => {
-      const query = postgresUpsert(Account, { CONFLICT_ON: [Account.$accountId] });
-      const { text, values } = query.getSql({
+      const handler = postgresUpsert(Account, { CONFLICT_ON: [Account.$accountId] });
+      const { text, values } = handler.source.getSql({
          params: { rows: [{ accountId: "id-1", email: "a@b.com", firstName: "John", lastName: "Doe" }] },
          options: defaultQueryOptions,
       });
@@ -52,11 +53,11 @@ describe("postgresUpsert()", () => {
    });
 
    test("custom SET: uses provided SET clause with excluded()", () => {
-      const query = postgresUpsert(Account, {
+      const upsert = postgresUpsert(Account, {
          CONFLICT_ON: [Account.$accountId],
          SET: sql`${Account.$firstName} = ${excluded(Account).$firstName}`,
       });
-      const { text, values } = query.getSql({
+      const { text, values } = upsert.source.getSql({
          params: { rows: [{ accountId: "id-1", email: "a@b.com", firstName: "John", lastName: "Doe" }] },
          options: defaultQueryOptions,
       });

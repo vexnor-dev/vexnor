@@ -3,6 +3,7 @@ import { Sql, TYPE } from "#/core/sql-base.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
 import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlTableAllAny = SqlTableAll<any>;
 
 export class SqlTableAll<Row extends Record<string, unknown>> extends Sql {
@@ -11,7 +12,13 @@ export class SqlTableAll<Row extends Record<string, unknown>> extends Sql {
    readonly row: InferTable$RowBySelect<Row>;
 
    constructor(row: InferTable$RowBySelect<Row>) {
-      super({ id: `${Object.keys(row).join(", ")}` });
+      super({
+         type: "SqlTableAll",
+         id: `${Object.keys(row).join(", ")}`,
+         hashId: Object.values(row)
+            .map((c) => c.hashId)
+            .join(","),
+      });
       this.row = row;
    }
 

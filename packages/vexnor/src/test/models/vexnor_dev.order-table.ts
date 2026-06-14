@@ -12,6 +12,10 @@ export const Order = newSqlTable<{ Select: IOrderSelect; Insert: IOrderInsert; U
    },
    tableInfo: { name: "order", schema: "main", out: false, alias: null },
    pk: ["orderId"],
+   jsonSchema: {
+      createdAt: "Date",
+      modifiedAt: "Date",
+   },
    columns: {
       /**
        * order_id uuid default gen_random_uuid()

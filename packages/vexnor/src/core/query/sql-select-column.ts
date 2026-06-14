@@ -20,7 +20,9 @@ export class SqlSelectColumn<T extends { Key: string; Type: unknown; Params?: un
 
    constructor({ key, ...args }: SqlSelectColumnArgs<T>) {
       super({
+         type: "SqlSelectColumn",
          id: key,
+         hashId: key,
       });
       this.key = key;
 

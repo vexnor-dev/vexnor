@@ -1,0 +1,220 @@
+import { describe, expect, test } from "vitest";
+import { sql } from "#/core/sql.js";
+import { row } from "#/core/query/sql-select-row.js";
+import { newSqlQueryHandler, SqlQueryHandler } from "#/core/query/sql-query-handler.js";
+import { SqlQuery, SqlQueryExtended } from "#/core/query/sql-query.js";
+import { RemoteClient, SqlRunArgs } from "#/core/query/sql-query-types.js";
+import { Account } from "@test-models/vexnor_dev.account-table.js";
+import { SqlSelectCharm } from "#/core/query/sql-charm.js";
+
+type MockQueryResult = { rows: unknown[] };
+
+class MockQueryHandler<T extends { Row?: unknown; Params?: unknown }> extends SqlQueryHandler<
+   Pick<T, "Row" | "Params"> & { Read: MockQueryResult; Write: MockQueryResult; Connection: RemoteClient }
+> {
+   constructor(query: SqlQuery<Pick<T, "Row" | "Params">>) {
+      super(query, { pluginName: "mock" });
+   }
+
+   isReadResult(result: unknown): result is MockQueryResult {
+      return typeof result === "object" && result !== null && "rows" in result && Array.isArray(result.rows);
+   }
+
+   resolveRows(result: MockQueryResult): T["Row"][] {
+      return result.rows as T["Row"][];
+   }
+
+   deserialize<TResult = MockQueryResult>(result: TResult, isRemoteClient: boolean): TResult {
+      return { ...result, rows: this.deserializeRows((result as MockQueryResult).rows as T["Row"][], isRemoteClient) };
+   }
+
+   async execute<TResult = MockQueryResult>(
+      args: SqlRunArgs<{ Connection: RemoteClient; Params: T["Params"] }>,
+   ): Promise<TResult> {
+      const db = await args.db;
+      return (await db.remoteExecute<MockQueryResult>({
+         plugin: "test",
+         hash: "",
+         params: {},
+         name: null,
+         location: null,
+      })) as TResult;
+   }
+}
+
+function mockHandler<T extends { Row?: unknown; Params?: unknown }>(query: SqlQueryExtended<T>) {
+   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   return newSqlQueryHandler(new MockQueryHandler<T>(query) as any);
+}
+
+const DATE_STR = "2001-05-30T10:40:50.867Z";
+
+const remoteClient = <TRow>(rows: TRow[]): RemoteClient => ({
+   remoteExecute<TResult>(): Promise<TResult> {
+      return Promise.resolve({ rows }) as unknown as Promise<TResult>;
+   },
+});
+
+describe("SqlQueryHandler all() — remote deserialization", () => {
+   test("no schema — returns rows unchanged", async () => {
+      const q = sql`select ${row(Account.$accountId, Account.$email)} from ${Account}`;
+      const rows = [{ accountId: "1", email: "a@b.com" }];
+      const result = await mockHandler(q).all({ db: remoteClient(rows) });
+      expect(result).toMatchInlineSnapshot(`
+        [
+          {
+            "accountId": "1",
+            "email": "a@b.com",
+          },
+        ]
+      `);
+   });
+
+   test("deserializes top-level Date fields from JSON strings", async () => {
+      const q = sql`select ${row(Account.$accountId, Account.$createdAt)} from ${Account}`;
+      const rows = [{ accountId: "1", createdAt: DATE_STR }];
+      const result = await mockHandler(q).all({ db: remoteClient(rows) });
+      expect(result).toMatchInlineSnapshot(`
+        [
+          {
+            "accountId": "1",
+            "createdAt": 2001-05-30T10:40:50.867Z,
+          },
+        ]
+      `);
+   });
+
+   test("deserializes nested array charm Date fields", async () => {
+      const charm = new SqlSelectCharm({
+         key: "orders",
+         params: null,
+         jsonSchema: { orders: [{ createdAt: "Date" }] },
+         write() {},
+      });
+      const q = sql`select ${row(Account.$accountId, Account.$createdAt)}, ${charm} from ${Account}`;
+      const rows = [
+         {
+            accountId: "1",
+            createdAt: DATE_STR,
+            orders: [{ orderId: "o1", createdAt: DATE_STR }],
+         },
+      ];
+      const result = await mockHandler(q).all({ db: remoteClient(rows) });
+      expect(result).toMatchInlineSnapshot(`
+        [
+          {
+            "accountId": "1",
+            "createdAt": 2001-05-30T10:40:50.867Z,
+            "orders": [
+              {
+                "createdAt": 2001-05-30T10:40:50.867Z,
+                "orderId": "o1",
+              },
+            ],
+          },
+        ]
+      `);
+   });
+
+   test("deserializes nested object charm Date fields", async () => {
+      const charm = new SqlSelectCharm({
+         key: "lastOrder",
+         params: null,
+         jsonSchema: { lastOrder: { createdAt: "Date" } },
+         write() {},
+      });
+      const q = sql`select ${row(Account.$accountId, Account.$createdAt)}, ${charm} from ${Account}`;
+      const rows = [
+         {
+            accountId: "1",
+            createdAt: DATE_STR,
+            lastOrder: { orderId: "o1", createdAt: DATE_STR },
+         },
+      ];
+      const result = await mockHandler(q).all({ db: remoteClient(rows) });
+      expect(result).toMatchInlineSnapshot(`
+        [
+          {
+            "accountId": "1",
+            "createdAt": 2001-05-30T10:40:50.867Z,
+            "lastOrder": {
+              "createdAt": 2001-05-30T10:40:50.867Z,
+              "orderId": "o1",
+            },
+          },
+        ]
+      `);
+   });
+
+   test("null nested value — leaves it as null", async () => {
+      const charm = new SqlSelectCharm({
+         key: "lastOrder",
+         params: null,
+         jsonSchema: { lastOrder: { createdAt: "Date" } },
+         write() {},
+      });
+      const q = sql`select ${row(Account.$accountId)}, ${charm} from ${Account}`;
+      const rows = [{ accountId: "1", lastOrder: null }];
+      const result = await mockHandler(q).all({ db: remoteClient(rows) });
+      expect(result).toMatchInlineSnapshot(`
+        [
+          {
+            "accountId": "1",
+            "lastOrder": null,
+          },
+        ]
+      `);
+   });
+});
+
+describe("SqlQueryHandler run() — remote deserialization", () => {
+   test("nested array charm — run() returns deserialized result", async () => {
+      const charm = new SqlSelectCharm({
+         key: "orders",
+         params: null,
+         jsonSchema: { orders: [{ createdAt: "Date" }] },
+         write() {},
+      });
+      const q = sql`select ${row(Account.$accountId, Account.$createdAt)}, ${charm} from ${Account}`;
+      const rows = [
+         {
+            accountId: "1",
+            createdAt: DATE_STR,
+            orders: [{ orderId: "o1", createdAt: DATE_STR }],
+         },
+      ];
+      const result = await mockHandler(q).run({ db: remoteClient(rows) });
+      expect(result).toMatchInlineSnapshot(`
+        {
+          "rows": [
+            {
+              "accountId": "1",
+              "createdAt": 2001-05-30T10:40:50.867Z,
+              "orders": [
+                {
+                  "createdAt": 2001-05-30T10:40:50.867Z,
+                  "orderId": "o1",
+                },
+              ],
+            },
+          ],
+        }
+      `);
+   });
+
+   test("top-level and nested Date fields — run() deserializes both", async () => {
+      const q = sql`select ${row(Account.$accountId, Account.$createdAt)} from ${Account}`;
+      const rows = [{ accountId: "1", createdAt: DATE_STR }];
+      const result = await mockHandler(q).run({ db: remoteClient(rows) });
+      expect(result).toMatchInlineSnapshot(`
+        {
+          "rows": [
+            {
+              "accountId": "1",
+              "createdAt": 2001-05-30T10:40:50.867Z,
+            },
+          ],
+        }
+      `);
+   });
+});

@@ -25,7 +25,14 @@ export class SqlSelectValue<T extends { Key: string; Type: unknown; Params?: unk
 
    constructor({ innerQuery, key }: SqlSelectValueArgs<T>) {
       super({
-         id: `${innerQuery.rawStrings[0]} ... as ${String(key)}`,
+         type: "SqlSelectValue",
+         ...(() => {
+            const hashId = `${key}: ${innerQuery.hashId}`;
+            return {
+               id: hashId,
+               hashId,
+            };
+         })(),
       });
       this.innerQuery = innerQuery;
       this.key = key;

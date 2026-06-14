@@ -4,68 +4,72 @@
 import * as vexnor from "vexnor";
 import * as udt from "./vexnor_dev-enums.js";
 
-
-export const Order = vexnor.newSqlTable<{ Select: IOrderSelect, Insert: IOrderInsert, Update: IOrderUpdate; Delete: true }>({
-   crud:
-   {
-      select: true, 
-      insert: true, 
-      update: true, 
-      delete: true, 
+export const Order = vexnor.newSqlTable<{
+   Select: IOrderSelect;
+   Insert: IOrderInsert;
+   Update: IOrderUpdate;
+   Delete: true;
+}>( {
+   crud: {
+      select: true,
+      insert: true,
+      update: true,
+      delete: true,
    },
-   tableInfo:
-   {
+   tableInfo: {
       name: "order",
       schema: "vexnor_dev",
    },
-   pk: ["orderId"], 
+   pk: ["orderId"],
    dialect: "postgresql",
-   columns:
-   {
+   columns: {
 
       /**
        * order_id uuid default gen_random_uuid()
-      */
+       */
       orderId: "order_id",
 
       /**
        * status order_status default 'created'::vexnor_dev.order_status
-      */
+       */
       status: "status",
 
       /**
        * created_at timestamptz default now()
-      */
+       */
       createdAt: "created_at",
 
       /**
        * modified_at timestamptz default now()
-      */
+       */
       modifiedAt: "modified_at",
 
       /**
        * account_id uuid
-      */
+       */
       accountId: "account_id",
-   }
+   },
+   jsonSchema: {
+      createdAt: "Date",
+      modifiedAt: "Date",
+   },
 });
-
 export type IOrderInsert = {
    orderId?: string;
    status?: udt.OrderStatusUdt;
    createdAt?: Date;
    modifiedAt?: Date;
    accountId: string;
-}
+};
 
 export type IOrderUpdate = Partial<IOrderInsert>;
 
 export type IOrderSelect = {
-   orderId: string
-   status: udt.OrderStatusUdt
-   createdAt: Date
-   modifiedAt: Date
-   accountId: string
-}
+   orderId: string;
+   status: udt.OrderStatusUdt;
+   createdAt: Date;
+   modifiedAt: Date;
+   accountId: string;
+};
 
 export type IOrderJson = vexnor.JsonRow<IOrderSelect>;

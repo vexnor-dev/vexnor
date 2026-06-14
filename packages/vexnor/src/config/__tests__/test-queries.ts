@@ -1,7 +1,7 @@
-import { sql } from "#/cli/exec/__tests__/test-driver-setup.js";
 import { param } from "#/core/query/sql-param.js";
 import { row } from "#/core/query/sql-select-row.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
+import { sql } from "#/test/mock-sql.js";
 
 export const findAccountById = sql`
    select ${row(Account.$$)}

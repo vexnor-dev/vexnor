@@ -1,3 +1,4 @@
+// noinspection SqlNoDataSourceInspection,SqlResolve
 import {
    SqlTable,
    SqlSelectArgs,
@@ -11,7 +12,7 @@ import {
    row,
    info,
 } from "vexnor";
-import { ok } from "vexnor/plugin";
+import { ok } from "vexnor";
 import { mssqlSelect, MssqlSelectResult } from "./mssql-select.js";
 import { mssqlInsertRows, MssqlInsertRowsResult } from "./mssql-insert-rows.js";
 import { mssqlInsertFrom, MssqlInsertFromResult } from "./mssql-insert-from.js";
@@ -116,10 +117,13 @@ function buildFindByExpand<T extends { Select: Record<string, unknown> }>(
 function mssqlFind<T extends { Select: Record<string, unknown> }, Params extends Partial<T["Select"]>>(
    table: SqlTable<T>,
 ): MssqlQueryHandler<{ Params: Params; Row: T["Select"] }> {
-   const whereExpand = expand<Params>((params) => {
-      if (!params) return null;
-      return buildFindByExpand(table, params as Partial<T["Select"]>) as ReturnType<typeof buildFindByExpand>;
-   });
+   const whereExpand = expand<Params>(
+      Object.fromEntries(Object.values(table.cols).map((col) => [col.key, null])) as Record<keyof Params, null>,
+      (params) => {
+         if (!params) return null;
+         return buildFindByExpand(table, params as Partial<T["Select"]>) as ReturnType<typeof buildFindByExpand>;
+      },
+   );
 
    return mssqlSql`
       ${info({ driver: "transactsql" }) ?? raw.BLANK}

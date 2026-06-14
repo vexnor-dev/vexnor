@@ -14,6 +14,7 @@ import { TableInsertRows } from "#/core/charms/table-insert-rows.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
 import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
 import { CACHE } from "#/lib/cache.js";
+import { SqlJsonType } from "#/core/utils/sql-json-schema.js";
 
 export type SqlTableOptions<
    T extends {
@@ -22,7 +23,10 @@ export type SqlTableOptions<
       Update?: Record<string, unknown>;
       Delete?: boolean;
    },
-> = { readonly columns: Record<keyof T["Select"], string> } & Pick<SqlTable<T>, "tableInfo" | "pk"> &
+> = {
+   readonly columns: Record<keyof T["Select"], string>;
+   readonly jsonSchema?: Partial<Record<keyof T["Select"], SqlJsonType>>;
+} & Pick<SqlTable<T>, "tableInfo" | "pk"> &
    Partial<Pick<SqlTable<T>, "format" | "dialect">> & { crud: SqlTableCrudConfig<T> };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -60,6 +64,7 @@ export class SqlTable<
    readonly format: SqlTableFormat | null;
    readonly pk: Array<keyof T["Select"]>;
    readonly dialect: string;
+   readonly columnTypes: Partial<Record<keyof T["Select"], SqlJsonType>>;
 
    // TODO: ideas for later: onBeforeInsert|onBeforeUpdate|onAfterInsert|onAfterUpdate  ((T) => T) ?
    // readonly onInsert?: T["Insert"] extends Record<string, unknown> ? (value: T["Insert"]) => T["Insert"] : boolean;
@@ -73,16 +78,25 @@ export class SqlTable<
    constructor(args: SqlTableOptions<T> | SqlTable<T>) {
       const { format, pk, tableInfo, crud, dialect } = args;
       super({
-         id: (() => {
-            const schema = tableInfo.schema ? `${tableInfo.schema}.` : "";
-            const alias = tableInfo.alias ? ` as ${tableInfo.alias}` : "";
-            return `${schema}${tableInfo.name}${alias}`;
+         type: "SqlTable",
+         ...(() => {
+            let hashId = "";
+            if (tableInfo.schema) hashId += `${tableInfo.schema}.`;
+
+            hashId += tableInfo.name;
+            if (tableInfo.alias) hashId += ` as ${tableInfo.alias}`;
+
+            return {
+               hashId,
+               id: hashId,
+            };
          })(),
       });
       this.tableInfo = tableInfo;
       this.format = format ?? null;
       this.pk = pk;
       this.dialect = dialect || "sql";
+      this.columnTypes = (args instanceof SqlTable ? args.columnTypes : args.jsonSchema) ?? {};
       this._$$ = new Lazy(() => new SqlTableAll<T["Select"]>(this.cols));
       this._crudConfig = crud;
 
@@ -92,9 +106,9 @@ export class SqlTable<
             this._out = new Lazy(() => args.out);
             break;
          default: {
-            const { columns } = args;
-            this._cols = new Lazy(() => this.initCols(columns));
-            this._out = new Lazy(() => this.initOut(columns));
+            const { columns, jsonSchema = {} } = args;
+            this._cols = new Lazy(() => this.initCols(columns, jsonSchema));
+            this._out = new Lazy(() => this.initOut(columns, jsonSchema));
          }
       }
    }
@@ -148,6 +162,7 @@ export class SqlTable<
             format: this.format,
             pk: this.pk,
             dialect: this.dialect,
+            jsonSchema: this.columnTypes,
             columns: (() => {
                const columns: Record<string, string> = {};
                for (const { key, columnName } of Object.values(this.cols)) {
@@ -284,6 +299,7 @@ export class SqlTable<
             tableInfo: this.tableInfo,
             pk: this.pk,
             dialect: this.dialect,
+            jsonSchema: this.columnTypes,
             columns: (() => {
                const columns: Record<string, string> = {};
                for (const { key, columnName } of Object.values(this.cols)) {
@@ -297,14 +313,22 @@ export class SqlTable<
       );
    }
 
-   private initCols(columns: Record<keyof T["Select"], string>): InferTable$RowBySelect<T["Select"]> {
+   private initCols(
+      columns: Record<keyof T["Select"], string>,
+      columnTypes: Partial<Record<keyof T["Select"], SqlJsonType>>,
+   ): InferTable$RowBySelect<T["Select"]> {
       const { schema, name } = this.tableInfo;
       let cols: Partial<InferTable$RowBySelect<T["Select"]>> = {};
       for (const [key, value] of Object.entries(columns)) {
          if (typeof value === "string") {
             cols = {
                ...(cols ?? {}),
-               [`$${key}`]: newSqlTableColumn({ key: key, columnName: value, tableInfo: this.tableInfo }),
+               [`$${key}`]: newSqlTableColumn({
+                  key,
+                  columnName: value,
+                  tableInfo: this.tableInfo,
+                  jsonType: columnTypes[key] ?? null,
+               }),
             };
          } else {
             throw new Error(`Column ${schema}.${name} ${key} must be a string`);
@@ -313,7 +337,10 @@ export class SqlTable<
       return cols as InferTable$RowBySelect<T["Select"]>;
    }
 
-   private initOut(columns: Record<keyof T["Select"], string>): InferTable$RowBySelect<T["Select"]> {
+   private initOut(
+      columns: Record<keyof T["Select"], string>,
+      columnTypes: Partial<Record<keyof T["Select"], SqlJsonType>>,
+   ): InferTable$RowBySelect<T["Select"]> {
       const { schema, name } = this.tableInfo;
       let out: Partial<InferTable$RowBySelect<T["Select"]>> = {};
       for (const [key, value] of Object.entries(columns)) {
@@ -321,9 +348,10 @@ export class SqlTable<
             out = {
                ...(out ?? {}),
                [`$${key}`]: newSqlTableColumn({
-                  key: key,
+                  key,
                   columnName: value,
                   tableInfo: { ...this.tableInfo, out: true },
+                  jsonType: columnTypes[key] ?? null,
                }),
             };
          } else {

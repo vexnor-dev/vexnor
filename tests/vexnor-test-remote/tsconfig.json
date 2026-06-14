@@ -1,0 +1,16 @@
+{
+   "extends": "../../tsconfig.json",
+   "compilerOptions": {
+      "outDir": "./dist",
+      "rootDir": "./src",
+      "composite": true
+   },
+   "include": ["src/**/*"],
+   "exclude": ["dist", "node_modules"],
+   "references": [
+      { "path": "../../packages/vexnor" },
+      { "path": "../../packages/vexnor-postgres" },
+      { "path": "../../packages/vexnor-mssql" },
+      { "path": "../../packages/vexnor-sqlite3" }
+   ]
+}

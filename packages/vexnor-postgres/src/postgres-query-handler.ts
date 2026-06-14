@@ -1,21 +1,43 @@
-import { SqlQueryHandler, SqlQuery, SqlRunArgs, SqlRunError } from "vexnor";
+import {
+   deserialize,
+   ok,
+   RemoteClient,
+   SqlErrorCode,
+   SqlQuery,
+   SqlQueryHandler,
+   SqlRunArgs,
+   SqlRunError,
+} from "vexnor";
 import type { QueryResult } from "pg";
 import { PostgresTokenizer } from "#/postgres-tokenizer.js";
+import pkg from "../package.json" with { type: "json" };
+
+// Postgres transient error codes that are safe to retry
+const RETRYABLE_PG_CODES = new Set(["57P01", "08006", "08001", "08004", "40001", "40P01"]);
+
+function isRetryablePgError(err: unknown): boolean {
+   return (
+      typeof err === "object" && err !== null && "code" in err && RETRYABLE_PG_CODES.has((err as { code: string }).code)
+   );
+}
+
+export const PLUGIN_NAME = pkg.name;
 
 export type PostgresClient = {
-   query: (queryConfig: { text: string; values: unknown[] }) => Promise<QueryResult>;
+   query: <TRow>(queryConfig: { text: string; values: unknown[] }) => Promise<QueryResult<RowOrDefault<TRow>>>;
 };
 
-type RowOrDefault<T> = T extends object ? T : never;
+export type RowOrDefault<T> = T extends object ? T : never;
 
 export class PostgresQueryHandler<T extends { Row?: unknown; Params?: unknown }> extends SqlQueryHandler<
    Pick<T, "Row" | "Params"> & {
-      QueryResult: QueryResult<RowOrDefault<T["Row"]>>;
-      Connection: PostgresClient;
+      Connection: PostgresClient | RemoteClient;
+      Read: QueryResult<RowOrDefault<T["Row"]>>;
+      Write: QueryResult<RowOrDefault<T["Row"]>>;
    }
 > {
-   constructor(readonly query: SqlQuery<Pick<T, "Row" | "Params">>) {
-      super(query);
+   constructor(readonly source: SqlQuery<Pick<T, "Row" | "Params">>) {
+      super(source, { pluginName: PLUGIN_NAME });
    }
 
    getOptions(args: SqlRunArgs<{ Connection: PostgresClient; Params: T["Params"] }>) {
@@ -25,16 +47,18 @@ export class PostgresQueryHandler<T extends { Row?: unknown; Params?: unknown }>
             ...args,
             options: {
                ...args.options,
-               tokenizer: new PostgresTokenizer(this.query.id),
+               tokenizer: new PostgresTokenizer(this.source.id),
                dialect: "postgresql",
                paramFormat: (args: { index: number }) => `$${args.index + 1}`,
             },
          };
-
-         queryInput = this.query.getSql(newArgs);
+         queryInput = this.source.getSql(newArgs);
          return queryInput;
       } catch (err) {
-         throw new SqlRunError(`Error building postgres query '${this.query.id}'`, this.query, { cause: err });
+         throw new SqlRunError(`Error building postgres query '${this.source.id}'`, this.source, {
+            cause: err,
+            code: SqlErrorCode.QUERY_BUILD_FAILED,
+         });
       }
    }
 
@@ -42,27 +66,47 @@ export class PostgresQueryHandler<T extends { Row?: unknown; Params?: unknown }>
       return result.rows;
    }
 
+   deserialize<TResult = QueryResult<RowOrDefault<T["Row"]>>>(result: TResult, remote: boolean): TResult {
+      ok(isQueryResult(result), `Postgres query result should be an object with a 'rows' property.`);
+      const rowSchema = this.getRowSchema(remote);
+      for (let i = 0; i < result.rows.length; i++) {
+         result.rows[i] = deserialize(result.rows[i]!, rowSchema);
+      }
+
+      return result as TResult;
+   }
+
    /**
     * Executes the query and returns the raw `pg` `QueryResult`.
     *
     * You typically don't call this directly — use `getAll()`, `getOneRequired()`,
-    * or `getOneOptional()` instead. Call `run()` when you need access to the full
+    * or `getOneOptional()` instead. Call `execute()` when you need access to the full
     * `QueryResult` object (e.g. `rowCount`, `fields`).
     *
     * @param args - Database connection and query parameters.
     */
-   async run(
+   async execute(
       args: SqlRunArgs<{ Connection: PostgresClient; Params: T["Params"] }>,
    ): Promise<QueryResult<RowOrDefault<T["Row"]>>> {
       const { db, options: { debug } = {} } = args;
+      const resolvedDb = await db;
       let queryInput = undefined;
       try {
          queryInput = this.getOptions(args);
          if (debug) debug(Object.freeze(queryInput));
          const { text, values } = queryInput;
-         return await (await db).query({ text, values });
+         return await resolvedDb.query({ text, values });
       } catch (err) {
-         throw new SqlRunError(`Error running postgres query '${this.query.id}'`, this.query, { cause: err }, queryInput?.text);
+         throw new SqlRunError(`Error running postgres query '${this.source.id}'`, this.source, {
+            cause: err,
+            sql: queryInput?.text,
+            code: isRetryablePgError(err) ? SqlErrorCode.QUERY_RETRYABLE_FAILURE : SqlErrorCode.QUERY_EXECUTION_FAILED,
+            retryable: isRetryablePgError(err),
+         });
       }
    }
+}
+
+function isQueryResult<T extends object>(x: unknown): x is QueryResult<T> {
+   return typeof x === "object" && x !== null && "rows" in x && Array.isArray((x as { rows: unknown }).rows);
 }

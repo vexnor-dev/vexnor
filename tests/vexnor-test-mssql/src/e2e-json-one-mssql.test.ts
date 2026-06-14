@@ -49,12 +49,7 @@ describe.sequential("jsonOne() tests", (ctx) => {
          where ${Account.$parentId} is not null
       `;
 
-      const result = await query.any({ db: pool.request() }).then((z) => {
-         return {
-            ...z,
-            parent: z?.parent ? JSON.parse(z?.parent) : null,
-         };
-      });
+      const result = await query.any({ db: pool.request() });
 
       if (result) {
          expect(result.parent).toBeDefined();

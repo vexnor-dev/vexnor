@@ -1,5 +1,3 @@
-import { SqlBuildError } from "#/core/sql-build-error.js";
-
 type NonNullish<T> = Exclude<T, null | undefined>;
 type ValidateFn<T> = {
    bivarianceHack: (value: T) => boolean | string;
@@ -19,6 +17,8 @@ export type ParamValidation<T = unknown> = LengthRules<T> &
    PatternRules<T> &
    RangeRules<T> & {
       enum?: readonly NonNullish<T>[];
+      values?: readonly NonNullish<T>[];
+      default?: NonNullish<T>;
       validate?: ValidateFn<T>;
    };
 
@@ -29,59 +29,61 @@ type ParamValidationRuntime = {
    min?: number | Date;
    max?: number | Date;
    enum?: readonly unknown[];
+   values?: readonly unknown[];
    validate?: (value: unknown) => boolean | string;
 };
 
-export function validateParamValue(name: string, value: unknown, validation: ParamValidation<unknown> | null): void {
-   if (!validation) return;
-   if (value == null) return;
+export function isParamValueValid<T>(value: unknown, validation: ParamValidation<T> | null): boolean {
+   return validateParamValue(value, validation).length === 0;
+}
+
+/**
+ * Validates a param value against the given validation rules.
+ * Returns an empty array when valid, or an array of all failure messages when invalid.
+ */
+export function validateParamValue<T>(value: unknown, validation: ParamValidation<T> | null): string[] {
+   if (!validation) return [];
+   if (value == null) return [];
    const rules = validation as ParamValidationRuntime;
+   const errors: string[] = [];
 
    if (rules.minLength != null) {
       const len = getLength(value);
-      if (len == null || len < rules.minLength) {
-         throw new SqlBuildError(`Invalid param '${name}': expected length >= ${rules.minLength}`);
-      }
+      if (len == null || len < rules.minLength) errors.push(`expected length >= ${rules.minLength}`);
    }
 
    if (rules.maxLength != null) {
       const len = getLength(value);
-      if (len == null || len > rules.maxLength) {
-         throw new SqlBuildError(`Invalid param '${name}': expected length <= ${rules.maxLength}`);
-      }
+      if (len == null || len > rules.maxLength) errors.push(`expected length <= ${rules.maxLength}`);
    }
 
    if (rules.pattern) {
-      if (typeof value !== "string" || !rules.pattern.test(value)) {
-         throw new SqlBuildError(`Invalid param '${name}': pattern mismatch`);
-      }
+      if (typeof value !== "string" || !rules.pattern.test(value)) errors.push(`pattern mismatch`);
    }
 
    if (rules.min != null) {
-      if (!isAtLeast(value, rules.min)) {
-         throw new SqlBuildError(`Invalid param '${name}': expected value >= ${String(rules.min)}`);
-      }
+      if (!isAtLeast(value, rules.min)) errors.push(`expected value >= ${String(rules.min)}`);
    }
 
    if (rules.max != null) {
-      if (!isAtMost(value, rules.max)) {
-         throw new SqlBuildError(`Invalid param '${name}': expected value <= ${String(rules.max)}`);
-      }
+      if (!isAtMost(value, rules.max)) errors.push(`expected value <= ${String(rules.max)}`);
    }
 
    if (rules.enum && !rules.enum.some((item) => Object.is(item, value))) {
-      throw new SqlBuildError(`Invalid param '${name}': value not in enum`);
+      errors.push(`value not in enum`);
+   }
+
+   if (rules.values && !rules.values.some((item) => Object.is(item, value))) {
+      errors.push(`value not in allowed values`);
    }
 
    if (rules.validate) {
       const result = rules.validate(value);
-      if (result === false) {
-         throw new SqlBuildError(`Invalid param '${name}': custom validation failed`);
-      }
-      if (typeof result === "string" && result.trim()) {
-         throw new SqlBuildError(`Invalid param '${name}': ${result}`);
-      }
+      if (result === false) errors.push(`custom validation failed`);
+      else if (typeof result === "string" && result.trim()) errors.push(result);
    }
+
+   return errors;
 }
 
 function getLength(value: unknown): number | null {

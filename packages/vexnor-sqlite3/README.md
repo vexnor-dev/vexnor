@@ -198,9 +198,13 @@ const result = await Account.sqlite.upsert({
 
 Available `select()` clauses: `SELECT`, `WHERE`, `JOIN`, `GROUP_BY`, `HAVING`, `ORDER_BY`, `limit`, `offset`, `includeMany`, `includeOne`.
 
-## Codegen
+## Bundler Notes
 
-Generate TypeScript types from your SQLite schema:
+The `sideEffects` field in `package.json` explicitly marks `dist/index.js`, `dist/vexnor-sqlite3.js`, and `dist/sqlite3-augment.js` as having side effects. This is required for bundlers (Turbopack, webpack, esbuild) that perform tree-shaking — without it, the prototype augmentation that registers `.sqlite` on all queries gets dropped, causing runtime errors.
+
+Do not remove or narrow the `sideEffects` field.
+
+## Codegen
 
 ```bash
 npx vexnor codegen \
@@ -208,7 +212,7 @@ npx vexnor codegen \
   --schema main \
   --uri $SQLITE_PATH \
   --outDir src/models \
-  --pascalCaseTables \
+   \
   --camelCaseColumns
 ```
 

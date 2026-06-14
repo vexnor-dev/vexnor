@@ -1,4 +1,4 @@
-import { SqlQuery, SqlQueryToken, SqlRow, SqlParams, newSqlQueryHandler, SqlQueryExtended } from "vexnor";
+import { SqlQuery, SqlQueryToken, SqlRow, SqlParams, newSqlQueryHandler, SqlQueryExtended, sqlBuildDefaults } from "vexnor";
 import { BetterSqlite3QueryHandler } from "#/better-sqlite3-query-handler.js";
 
 export type BetterSqlite3QueryExtended<T extends { Row?: unknown; Params?: unknown }> = BetterSqlite3QueryHandler<T> &
@@ -52,4 +52,12 @@ export function sql<Token extends SqlQueryToken = SqlQueryToken, Tokens extends 
       Row: SqlRow<typeof rawValues>;
       Params: SqlParams<typeof rawValues>;
    }>;
+}
+
+/** Global build defaults. Set properties at app start to change defaults for all queries. */
+Object.defineProperty(sql, "defaults", { value: sqlBuildDefaults, writable: false });
+
+// eslint-disable-next-line @typescript-eslint/no-namespace
+export declare namespace sql {
+   export const defaults: typeof sqlBuildDefaults;
 }

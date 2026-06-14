@@ -20,6 +20,10 @@ export const Product = newSqlTable<{
       alias: null,
    },
    pk: ["productId"],
+   jsonSchema: {
+      createdAt: "Date",
+      modifiedAt: "Date",
+   },
    columns: {
       /**
        * product_id uuid default gen_random_uuid()

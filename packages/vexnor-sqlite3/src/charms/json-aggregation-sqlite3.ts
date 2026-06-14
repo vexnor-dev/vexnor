@@ -1,3 +1,4 @@
+// noinspection SqlNoDataSourceInspection,SqlResolve
 import {
    raw,
    sql,
@@ -7,15 +8,16 @@ import {
    SqlQuery,
    SqlQueryColumn,
    SqlSelectValue,
-   SqlQueryAny,
    JsonRow,
    SqlBuildError,
    quote,
-   SqlSelectColumn,
    CACHE,
    row,
+   SqlSelectCharm,
+   SqlJsonSchema,
+   SqlQueryBaseAny,
 } from "vexnor";
-import { ok } from "vexnor/plugin";
+import { ok } from "vexnor";
 
 export type JsonResultType = "one" | "many";
 
@@ -27,7 +29,9 @@ export type JsonResultType = "one" | "many";
  * FROM ${Account}
  * WHERE ${Account.$accountId} = ${param("accountId")}
  */
-export class JsonAggregationSqlite3<T extends { Params?: unknown; Row?: unknown }> extends SqlCharm<{
+export class JsonAggregationSqlite3<
+   T extends { Params?: unknown; Row?: unknown; Type?: Array<T["Row"]> | (T["Row"] | null) },
+> extends SqlCharm<{
    Params: T["Params"];
 }> {
    static readonly CONFIG: Record<
@@ -51,8 +55,10 @@ export class JsonAggregationSqlite3<T extends { Params?: unknown; Row?: unknown 
       { type }: { type: JsonResultType },
    ) {
       super({
+         type: "JsonAggregationSqlite3",
          id: query.id,
          params: query.params,
+         hashId: `${type}:${query.hashId}`,
       });
       this.type = type;
    }
@@ -81,7 +87,7 @@ export class JsonAggregationSqlite3<T extends { Params?: unknown; Row?: unknown 
       }
    }
 
-   as<Key extends string>(key: Key): SqlSelectColumn<{ Key: Key; Type: string; Params: T["Params"] }> {
+   as<Key extends string>(key: Key): SqlSelectCharm<{ Key: Key; Type: T["Type"]; Params: T["Params"] }> {
       const fields = Object.values(this.query.row ?? {}).flatMap((value) => {
          if (value instanceof SqlSelectValue || value instanceof SqlQueryColumn) {
             return [raw(`'${value.key}'`), quote(value.key)];
@@ -94,10 +100,16 @@ export class JsonAggregationSqlite3<T extends { Params?: unknown; Row?: unknown 
             ? sql`(select json_object(${fields}) from ${this.query} limit 1) as ${quote(key)}`
             : sql`(select coalesce(json_group_array(json_object(${fields})), ${raw(coalesce)}) from ${this.query}) as ${quote(key)}`;
 
-      return new SqlSelectColumn<{ Key: Key; Type: string; Params: T["Params"] }>({
+      const innerSchema = this.query.jsonSchema;
+      const jsonSchema: SqlJsonSchema = { [key]: this.type === "one" ? innerSchema : [innerSchema] };
+
+      return new SqlSelectCharm<{ Key: Key; Type: T["Type"]; Params: T["Params"] }>({
          key,
-         onWrite: (context, options) => innerQuery.build(context, options),
          params: this.params,
+         jsonSchema,
+         write(context, options) {
+            innerQuery.build(context, options);
+         },
       });
    }
 }
@@ -124,10 +136,10 @@ export class JsonAggregationSqlite3<T extends { Params?: unknown; Row?: unknown 
  * `.all({ db: database });
  * // result[0].parent: string (JSON — parse to IAccountSelect | null)
  */
-export function jsonOne<T extends SqlQueryAny>(query: T): JsonAggregationResult<T> {
-   return CACHE.get([query.id, `json=one`, "sqlite3"], () => {
-      ok(query.$$, `'query.$$' is required. check if the query does return a row.`);
-      const findOne = sql`select ${row(query.$$)} from ${query.inline()} limit 1`;
+export function jsonOne<T extends SqlQueryBaseAny>(query: T): JsonAggregationResult<T> {
+   return CACHE.get([query.source.id, `json=one`, "sqlite3"], () => {
+      ok(query.source.$$, `'query.$$' is required. check if the query does return a row.`);
+      const findOne = sql`select ${row(query.source.$$)} from ${query.source.inline()} limit 1`;
       return new JsonAggregationSqlite3(findOne, {
          type: "one",
       });
@@ -156,11 +168,11 @@ export function jsonOne<T extends SqlQueryAny>(query: T): JsonAggregationResult<
  * `.all({ db: database });
  * // result[0].orders: string (JSON — parse to IOrderSelect[])
  */
-export function jsonMany<T extends SqlQueryAny>(query: T): JsonAggregationResult<T, []> {
+export function jsonMany<T extends SqlQueryBaseAny>(query: T): JsonAggregationResult<T, []> {
    return CACHE.get(
-      [query.id, `json=many`, "sqlite3"],
+      [query.source.id, `json=many`, "sqlite3"],
       () =>
-         new JsonAggregationSqlite3(query, {
+         new JsonAggregationSqlite3(query.source, {
             type: "many",
          }),
    ) as JsonAggregationResult<T>;

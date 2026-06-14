@@ -1,3 +1,4 @@
+// noinspection SqlNoDataSourceInspection,SqlResolve
 import {
    SqlTable,
    SqlSelectArgs,
@@ -11,7 +12,7 @@ import {
    row,
    info,
 } from "vexnor";
-import { ok } from "vexnor/plugin";
+import { ok } from "vexnor";
 import { sqlite3Select, Sqlite3SelectResult } from "./sqlite3-select.js";
 import { sqlite3InsertRows, Sqlite3InsertRowsResult } from "./sqlite3-insert-rows.js";
 import { sqlite3InsertFrom, Sqlite3InsertFromResult } from "./sqlite3-insert-from.js";
@@ -115,10 +116,13 @@ function buildFindByExpand<T extends { Select: Record<string, unknown> }>(
 function sqlite3Find<T extends { Select: Record<string, unknown> }, Params extends Partial<T["Select"]>>(
    table: SqlTable<T>,
 ): BetterSqlite3QueryHandler<{ Params: Params; Row: T["Select"] }> {
-   const whereExpand = expand<Params>((params) => {
-      if (!params) return null;
-      return buildFindByExpand(table, params as Partial<T["Select"]>) as ReturnType<typeof buildFindByExpand>;
-   });
+   const whereExpand = expand<Params>(
+      Object.fromEntries(Object.values(table.cols).map((col) => [col.key, null])) as Record<keyof Params, null>,
+      (params) => {
+         if (!params) return null;
+         return buildFindByExpand(table, params as Partial<T["Select"]>) as ReturnType<typeof buildFindByExpand>;
+      },
+   );
 
    return sql`
       ${info({ driver: "sqlite" }) ?? raw.BLANK}

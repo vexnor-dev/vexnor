@@ -35,9 +35,10 @@ main
    )
    .requiredOption("--outDir <directory>", "Output directory to generate the mapping files into")
    .requiredOption("--schema <schema...>", "Database schema(s) to generate mapping code for")
-   .option("--pascalCaseTables", "Use PascalCase for table names")
    .option("--camelCaseColumns", "Use camelCase for column names")
    .option("--omit <tables...>", "Table names to omit from codegen (e.g. migration_vexnor or schema.table_name)")
+   .option("-c, --config <path>", "Path to vexnor.config.ts", "vexnor.config.ts")
+   .option("-p, --profile <profile>", "Profile to use from vexnor.config.ts")
    .action(async (options: CodegenCommandOptions) => {
       await codegenCommand(options);
    });
@@ -59,6 +60,7 @@ exec
    .option("-c, --config <path>", "Path to vexnor.config.ts", "vexnor.config.ts")
    .option("-q, --query-config <path>", "Path to query config file")
    .option("-e, --env <environment>", "Environment to use for params")
+   .option("-ctx, --context <key=value...>", "Runtime param values (e.g. --context userId=abc123)")
    .option("-f, --format <format>", "Output format (table|json|csv)")
    .option("-l, --limit <number>", "Limit number of results", parseInt)
    .option("--dry-run", "Show SQL without executing")

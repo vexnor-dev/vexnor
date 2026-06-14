@@ -16,7 +16,11 @@ export class TableInsertRows<
       public readonly inserts: T["Insert"][],
    ) {
       super({
+         type: "TableInsertRows",
          id: `rows: ${inserts.length}`,
+         hashId: `[${Object.values(cols)
+            .map((c) => c.hashId)
+            .join(",")}]|${JSON.stringify(inserts)}`,
       });
       this.keys = getCanonicalInsertKeys(cols, inserts);
    }

@@ -1,15 +1,18 @@
-import { SqlTable, row, ParamsOfArgs, SqlQueryExtended, raw, info } from "vexnor";
+import { SqlTable, row, ParamsOfArgs, raw, info, SqlQueryColumns } from "vexnor";
 import type { SqlInsertFromArgs } from "vexnor";
 import { sql } from "#/mssql-sql.js";
-import { ok } from "vexnor/plugin";
+import { ok } from "vexnor";
+import "#/mssql-augment.js";
+import { MssqlQueryHandler } from "#/mssql-query-handler.js";
 
 export type MssqlInsertFromResult<
    T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> },
    Args extends SqlInsertFromArgs<T>,
-> = SqlQueryExtended<{
+> = MssqlQueryHandler<{
    Row: T["Select"];
    Params: ParamsOfArgs<Args>;
-}>;
+}> &
+   SqlQueryColumns<T["Select"]>;
 
 export function mssqlInsertFrom<
    T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> },
@@ -22,5 +25,5 @@ export function mssqlInsertFrom<
       insert into ${table}
             ${args.FROM}
             output ${row(table.as`inserted`.$$)}
-   ` as unknown as MssqlInsertFromResult<T, Args>;
+   `.mssql as unknown as MssqlInsertFromResult<T, Args>;
 }
