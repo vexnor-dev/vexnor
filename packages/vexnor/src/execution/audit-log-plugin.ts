@@ -1,7 +1,7 @@
-import type { SqlQueryPipelinePlugin, SqlPipelineAfterArgs } from "./sql-query-pipeline-plugin.js";
+import type { SqlQueryPipelinePlugin, SqlPipelineEndArgs } from "./sql-query-pipeline-plugin.js";
 
 export type AuditLogArgs<TContext extends Record<string, unknown> = Record<string, unknown>> =
-   SqlPipelineAfterArgs<TContext>;
+   SqlPipelineEndArgs<TContext>;
 
 export type AuditLogPluginOptions<TContext extends Record<string, unknown> = Record<string, unknown>> = {
    /**
@@ -12,8 +12,8 @@ export type AuditLogPluginOptions<TContext extends Record<string, unknown> = Rec
 
    /**
     * Opt-in projection of context into the audit log.
-    * When set, `AuditLogArgs.contextLog` contains the resolver's return value.
-    * When absent, `contextLog` is `null` and raw context is never logged.
+    * When set, `AuditLogArgs.context` contains the resolver's return value.
+    * When absent, `context` is `null` and raw context is never logged.
     */
    contextLogResolver?(context: TContext): Record<string, unknown>;
 
@@ -22,10 +22,10 @@ export type AuditLogPluginOptions<TContext extends Record<string, unknown> = Rec
 };
 
 /**
- * Built-in audit log plugin. Attach via `registry.use(new AuditLogPlugin({ onLog: ... }))`.
+ * Built-in audit log plugin. Attach via `pipeline.use(new AuditLogPlugin({ onLog: ... }))`.
  *
- * Receives full execution context after every query — success or failure — and trims it
- * via `contextLogResolver` before passing it to `onLog`. Raw context is never forwarded.
+ * Fires in the `end()` phase — after every pipeline execution (success, failure, or rejection).
+ * Trims context via `contextLogResolver` before passing to `onLog`. Raw context is never forwarded.
  */
 export class AuditLogPlugin<
    TContext extends Record<string, unknown> = Record<string, unknown>,
@@ -36,7 +36,7 @@ export class AuditLogPlugin<
       this.name = options.name ?? "AuditLogPlugin";
    }
 
-   after(args: SqlPipelineAfterArgs<TContext>): void {
+   end(args: SqlPipelineEndArgs<TContext>): void {
       const context = this.options.contextLogResolver?.(args.context) ?? null;
       const log = { ...args, context: context as TContext };
       this.options.onLog(log);

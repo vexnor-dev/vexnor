@@ -2,7 +2,7 @@ import { describe, expect, test, vi } from "vitest";
 import { TimeToLiveRateLimiter } from "#/execution/time-to-live-rate-limiter.js";
 import { SqlRunError } from "#/core/sql-run-error.js";
 import { SqlErrorCode } from "#/core/sql-error-code.js";
-import type { SqlPipelineExecutionArgs, SqlPipelineAfterArgs } from "#/execution/sql-query-pipeline-plugin.js";
+import type { SqlPipelineExecutionArgs, SqlPipelineEndArgs } from "#/execution/sql-query-pipeline-plugin.js";
 
 // ── minimal stubs ─────────────────────────────────────────────────────────────
 
@@ -56,20 +56,20 @@ function ctxArgs(
    };
 }
 
-function afterArgs(overrides: Partial<SqlPipelineAfterArgs> = {}): SqlPipelineAfterArgs {
+function endArgs(overrides: Partial<SqlPipelineEndArgs> = {}): SqlPipelineEndArgs {
    return { ...execArgs(), durationMs: 10, error: null, ...overrides };
 }
 
-function ctxAfterArgs(userId: string, overrides: Partial<SqlPipelineAfterArgs<Ctx>> = {}): SqlPipelineAfterArgs<Ctx> {
+function ctxEndArgs(userId: string, overrides: Partial<SqlPipelineEndArgs<Ctx>> = {}): SqlPipelineEndArgs<Ctx> {
    return { ...ctxArgs(userId), durationMs: 10, error: null, ...overrides };
 }
 
 // ── metrics tracking ──────────────────────────────────────────────────────────
 
 describe("TimeToLiveRateLimiter — metrics tracking", () => {
-   test("check increments inFlight and totalCalls", async () => {
+   test("init() increments inFlight and totalCalls", async () => {
       const limiter = new TimeToLiveRateLimiter();
-      await limiter.check(execArgs());
+      limiter.init(execArgs());
 
       expect(limiter.metrics.get("query-a")).toMatchInlineSnapshot(`
         {
@@ -81,10 +81,11 @@ describe("TimeToLiveRateLimiter — metrics tracking", () => {
       `);
    });
 
-   test("after() decrements inFlight and updates avgDurationMs", async () => {
+   test("end() decrements inFlight and updates avgDurationMs", async () => {
       const limiter = new TimeToLiveRateLimiter();
+      limiter.init(execArgs());
       await limiter.check(execArgs());
-      await limiter.after(afterArgs({ durationMs: 20 }));
+      await limiter.end(endArgs({ durationMs: 20 }));
 
       expect(limiter.metrics.get("query-a")).toMatchInlineSnapshot(`
         {
@@ -98,10 +99,12 @@ describe("TimeToLiveRateLimiter — metrics tracking", () => {
 
    test("avgDurationMs is a rolling average across multiple completions", async () => {
       const limiter = new TimeToLiveRateLimiter();
+      limiter.init(execArgs());
       await limiter.check(execArgs());
+      limiter.init(execArgs());
       await limiter.check(execArgs());
-      await limiter.after(afterArgs({ durationMs: 10 }));
-      await limiter.after(afterArgs({ durationMs: 30 }));
+      await limiter.end(endArgs({ durationMs: 10 }));
+      await limiter.end(endArgs({ durationMs: 30 }));
 
       const m = limiter.metrics.get("query-a")!;
       expect(m.avgDurationMs).toBe(20);
@@ -109,19 +112,20 @@ describe("TimeToLiveRateLimiter — metrics tracking", () => {
       expect(m.inFlight).toBe(0);
    });
 
-   test("after() increments totalErrors on failure", async () => {
+   test("end() increments totalErrors on failure", async () => {
       const limiter = new TimeToLiveRateLimiter();
+      limiter.init(execArgs());
       await limiter.check(execArgs());
-      await limiter.after(afterArgs({ error: new Error("oops") }));
+      await limiter.end(endArgs({ error: new Error("oops") }));
 
       expect(limiter.metrics.get("query-a")!.totalErrors).toBe(1);
    });
 
-   test("after() is a no-op when hash is unknown", () => {
+   test("end() is a no-op when hash is unknown", () => {
       const limiter = new TimeToLiveRateLimiter();
       expect(() =>
-         limiter.after(
-            afterArgs({
+         limiter.end(
+            endArgs({
                query: { id: "unknown" } as SqlPipelineExecutionArgs["query"],
             }),
          ),
@@ -130,9 +134,11 @@ describe("TimeToLiveRateLimiter — metrics tracking", () => {
 
    test("tracks separate metrics per query id", async () => {
       const limiter = new TimeToLiveRateLimiter();
+      limiter.init(execArgs());
       await limiter.check(execArgs());
+      limiter.init(execArgs({ query: stubQueryB }));
       await limiter.check(execArgs({ query: stubQueryB }));
-      limiter.after(afterArgs({ durationMs: 5 }));
+      limiter.end(endArgs({ durationMs: 5 }));
 
       expect(limiter.metrics.get("query-a")).toMatchInlineSnapshot(`
         {
@@ -156,11 +162,12 @@ describe("TimeToLiveRateLimiter — metrics tracking", () => {
 // ── context metrics ───────────────────────────────────────────────────────────
 
 describe("TimeToLiveRateLimiter — context metrics", () => {
-   test("check and after() track per-context metrics when contextKeyResolver is set", async () => {
+   test("check and end() track per-context metrics when contextKeyResolver is set", async () => {
       const limiter = new TimeToLiveRateLimiter<Ctx>({ contextKeyResolver: (ctx) => ctx.userId });
 
+      limiter.init(ctxArgs("u1"));
       await limiter.check(ctxArgs("u1"));
-      await limiter.after(ctxAfterArgs("u1", { durationMs: 15 }));
+      await limiter.end(ctxEndArgs("u1", { durationMs: 15 }));
 
       const cm = limiter.contextMetrics.get("query-a")?.get("u1");
       expect(cm?.lastActivityAt).toEqual(expect.any(Number));
@@ -178,6 +185,7 @@ describe("TimeToLiveRateLimiter — context metrics", () => {
 
    test("context metrics are not tracked when no contextKeyResolver is set", async () => {
       const limiter = new TimeToLiveRateLimiter();
+      limiter.init(execArgs());
       await limiter.check(execArgs());
 
       expect(limiter.contextMetrics.size).toBe(0);
@@ -186,10 +194,12 @@ describe("TimeToLiveRateLimiter — context metrics", () => {
    test("separate context keys are tracked independently", async () => {
       const limiter = new TimeToLiveRateLimiter<Ctx>({ contextKeyResolver: (ctx) => ctx.userId });
 
+      limiter.init(ctxArgs("u1"));
       await limiter.check(ctxArgs("u1"));
+      limiter.init(ctxArgs("u2"));
       await limiter.check(ctxArgs("u2"));
-      await limiter.after(ctxAfterArgs("u1", { durationMs: 10 }));
-      await limiter.after(ctxAfterArgs("u2", { durationMs: 20 }));
+      await limiter.end(ctxEndArgs("u1", { durationMs: 10 }));
+      await limiter.end(ctxEndArgs("u2", { durationMs: 20 }));
 
       expect(limiter.contextMetrics.get("query-a")?.get("u1")?.avgDurationMs).toBe(10);
       expect(limiter.contextMetrics.get("query-a")?.get("u2")?.avgDurationMs).toBe(20);
@@ -201,24 +211,30 @@ describe("TimeToLiveRateLimiter — context metrics", () => {
 describe("TimeToLiveRateLimiter — maxConcurrent", () => {
    test("rejects when inFlight reaches maxConcurrent", async () => {
       const limiter = new TimeToLiveRateLimiter({ maxConcurrent: 1 });
+      limiter.init(execArgs());
       await limiter.check(execArgs());
 
+      limiter.init(execArgs());
       await expect(limiter.check(execArgs())).rejects.toMatchInlineSnapshot(
-         `[SqlRunError: Query "findAccounts" rejected — concurrency limit of 1 reached (1 in flight)]`,
+         `[SqlRunError: Query "findAccounts" rejected — concurrency limit of 1 reached (2 in flight)]`,
       );
    });
 
    test("allows execution after inFlight drops back below limit", async () => {
       const limiter = new TimeToLiveRateLimiter({ maxConcurrent: 1 });
+      limiter.init(execArgs());
       await limiter.check(execArgs());
-      await limiter.after(afterArgs());
+      await limiter.end(endArgs());
 
+      limiter.init(execArgs());
       await expect(limiter.check(execArgs())).resolves.toBeUndefined();
    });
 
    test("does not reject below the limit", async () => {
       const limiter = new TimeToLiveRateLimiter({ maxConcurrent: 2 });
+      limiter.init(execArgs());
       await limiter.check(execArgs());
+      limiter.init(execArgs());
       await expect(limiter.check(execArgs())).resolves.toBeUndefined();
    });
 });
@@ -231,10 +247,12 @@ describe("TimeToLiveRateLimiter — maxConcurrentPerContext", () => {
          contextKeyResolver: (ctx) => ctx.userId,
          maxConcurrentPerContext: 1,
       });
+      limiter.init(ctxArgs("u1"));
       await limiter.check(ctxArgs("u1"));
 
+      limiter.init(ctxArgs("u1"));
       await expect(limiter.check(ctxArgs("u1"))).rejects.toMatchInlineSnapshot(
-         `[SqlRunError: Query "findAccounts" rejected — per-context concurrency limit of 1 reached for key "u1" (1 in flight)]`,
+         `[SqlRunError: Query "findAccounts" rejected — per-context concurrency limit of 1 reached for key "u1" (2 in flight)]`,
       );
    });
 
@@ -243,14 +261,18 @@ describe("TimeToLiveRateLimiter — maxConcurrentPerContext", () => {
          contextKeyResolver: (ctx) => ctx.userId,
          maxConcurrentPerContext: 1,
       });
+      limiter.init(ctxArgs("u1"));
       await limiter.check(ctxArgs("u1"));
 
+      limiter.init(ctxArgs("u2"));
       await expect(limiter.check(ctxArgs("u2"))).resolves.toBeUndefined();
    });
 
    test("does not apply when no contextKeyResolver is configured", async () => {
       const limiter = new TimeToLiveRateLimiter({ maxConcurrentPerContext: 1 });
+      limiter.init(execArgs());
       await limiter.check(execArgs());
+      limiter.init(execArgs());
       await expect(limiter.check(execArgs())).resolves.toBeUndefined();
    });
 });
@@ -262,13 +284,14 @@ describe("TimeToLiveRateLimiter — limit hook", () => {
       const limit = vi.fn();
       const limiter = new TimeToLiveRateLimiter<Ctx>({ contextKeyResolver: (ctx) => ctx.userId, limit });
 
+      limiter.init(ctxArgs("u1"));
       await limiter.check(ctxArgs("u1"));
 
       expect(limit).toHaveBeenCalledOnce();
       expect(limit).toHaveBeenCalledWith(
          expect.objectContaining({
-            queryMetrics: { inFlight: 0, totalCalls: 0, totalErrors: 0, avgDurationMs: 0 },
-            contextMetrics: expect.objectContaining({ contextKey: "u1", inFlight: 0, totalCalls: 0 }),
+            queryMetrics: { inFlight: 1, totalCalls: 1, totalErrors: 0, avgDurationMs: 0 },
+            contextMetrics: expect.objectContaining({ contextKey: "u1", inFlight: 1, totalCalls: 1 }),
          }),
       );
    });
@@ -280,6 +303,7 @@ describe("TimeToLiveRateLimiter — limit hook", () => {
          },
       });
 
+      limiter.init(execArgs());
       await expect(limiter.check(execArgs())).rejects.toMatchInlineSnapshot(
          `[SqlRunError: Rate limit exceeded for query "findAccounts". (Error: too many)]`,
       );
@@ -292,14 +316,17 @@ describe("TimeToLiveRateLimiter — limit hook", () => {
          },
       });
 
+      limiter.init(execArgs());
       await expect(limiter.check(execArgs())).rejects.toMatchInlineSnapshot(`[SqlRunError: custom]`);
    });
 
    test("limit hook runs after maxConcurrent check — not called on second rejected check", async () => {
       const limit = vi.fn();
       const limiter = new TimeToLiveRateLimiter({ maxConcurrent: 1, limit });
+      limiter.init(execArgs());
       await limiter.check(execArgs());
 
+      limiter.init(execArgs());
       await expect(limiter.check(execArgs())).rejects.toThrow("concurrency limit");
       expect(limit).toHaveBeenCalledOnce();
    });
@@ -316,11 +343,13 @@ describe("TimeToLiveRateLimiter — TTL sweep", () => {
          now: () => currentTime,
       });
 
+      limiter.init(ctxArgs("u1"));
       await limiter.check(ctxArgs("u1"));
-      await limiter.after(ctxAfterArgs("u1"));
+      await limiter.end(ctxEndArgs("u1"));
 
       currentTime += 100; // advance time past TTL
 
+      limiter.init(ctxArgs("u2"));
       await limiter.check(ctxArgs("u2"));
 
       expect(limiter.contextMetrics.get("query-a")?.has("u1")).toBe(false);
@@ -335,10 +364,12 @@ describe("TimeToLiveRateLimiter — TTL sweep", () => {
          now: () => currentTime,
       });
 
+      limiter.init(ctxArgs("u1"));
       await limiter.check(ctxArgs("u1")); // inFlight = 1, not yet recorded
 
       currentTime += 100; // advance time past TTL
 
+      limiter.init(ctxArgs("u2"));
       await limiter.check(ctxArgs("u2"));
 
       expect(limiter.contextMetrics.get("query-a")?.has("u1")).toBe(true);
@@ -350,7 +381,9 @@ describe("TimeToLiveRateLimiter — TTL sweep", () => {
 describe("TimeToLiveRateLimiter — clearContextMetrics", () => {
    test("clearContextMetrics() with no arg clears all context entries", async () => {
       const limiter = new TimeToLiveRateLimiter<Ctx>({ contextKeyResolver: (ctx) => ctx.userId });
+      limiter.init(ctxArgs("u1"));
       await limiter.check(ctxArgs("u1"));
+      limiter.init(ctxArgs("u1", { query: stubQueryB }));
       await limiter.check(ctxArgs("u1", { query: stubQueryB }));
 
       limiter.clearContextMetrics();
@@ -361,8 +394,11 @@ describe("TimeToLiveRateLimiter — clearContextMetrics", () => {
 
    test("clearContextMetrics(key) removes only that key across all hashes", async () => {
       const limiter = new TimeToLiveRateLimiter<Ctx>({ contextKeyResolver: (ctx) => ctx.userId });
+      limiter.init(ctxArgs("u1"));
       await limiter.check(ctxArgs("u1"));
+      limiter.init(ctxArgs("u1", { query: stubQueryB }));
       await limiter.check(ctxArgs("u1", { query: stubQueryB }));
+      limiter.init(ctxArgs("u2"));
       await limiter.check(ctxArgs("u2"));
 
       limiter.clearContextMetrics("u1");

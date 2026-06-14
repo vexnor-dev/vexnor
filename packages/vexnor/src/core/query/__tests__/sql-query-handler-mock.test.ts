@@ -117,9 +117,9 @@ describe("SqlQueryHandler mock execution", () => {
       const db: MockConnection = { query, name: "my test connection" } as MockConnection;
       const pipeline = new SqlQueryPipeline<{ Context: { sinceAt: Date } }>();
       const before = vi.fn();
-      const after = vi.fn();
+      const end = vi.fn();
 
-      pipeline.use({ name: "observer", before, after });
+      pipeline.use({ name: "observer", before, end });
 
       const connection = connect(db, { pipeline });
 
@@ -143,7 +143,7 @@ describe("SqlQueryHandler mock execution", () => {
             remote: null,
          } satisfies SqlPipelineExecutionArgs<{ sinceAt: Date }>),
       );
-      expect(after).toHaveBeenCalledWith(
+      expect(end).toHaveBeenCalledWith(
          expect.objectContaining({
             error: null,
             durationMs: expect.any(Number),

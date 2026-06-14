@@ -1,13 +1,117 @@
 # vexnor
 
-Write real SQL. Get typed results. No ORM, no DSL, no repository boilerplate.
+One query. Server or browser. No API layer.
 
-Vexnor generates TypeScript types from your database schema and makes queries first-class objects — composable, reusable, and executable directly. The query is the repository.
+Write a SQL query once — execute it on the server against your database, or dispatch it from the browser over HTTP. Same code, same types, no REST endpoints to define. The query is the contract.
 
 [![CI](https://github.com/vexnor-dev/vexnor/actions/workflows/ci_github.yml/badge.svg)](https://github.com/vexnor-dev/vexnor/actions/workflows/ci_github.yml)
 [![codecov](https://codecov.io/gh/vexnor-dev/vexnor/branch/main/graph/badge.svg)](https://codecov.io/gh/vexnor-dev/vexnor)
 [![npm version](https://img.shields.io/npm/v/vexnor.svg)](https://www.npmjs.com/package/vexnor)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
+```typescript
+// Define once
+const selectAccounts = sql`
+  SELECT ${row(Account.$accountId, Account.$email)}
+  FROM ${Account}
+  WHERE ${Account.$status} = ${AccountStatusUdt.ACTIVE}
+`;
+
+// Server — direct DB execution
+const accounts = await selectAccounts.postgres.all({ db: pool });
+
+// Browser — dispatched over HTTP, same call site
+const accounts = await selectAccounts.postgres.all({ db: remoteClient });
+```
+
+Mix raw SQL with CRUD — compose subqueries into typed includes:
+
+```typescript
+// A reusable SQL subquery
+const AccountOrders = sql`
+  SELECT ${row(Order.$orderId, Order.$status, Order.$createdAt)}
+  FROM ${Order}
+  WHERE ${Order.$accountId} = ${Account.out.$accountId}
+  ORDER BY ${Order.$createdAt} DESC
+`;
+
+// CRUD select with the subquery included as a typed nested array
+const accounts = await Account.postgres.select({
+  WHERE: sql`${Account.$status} = ${AccountStatusUdt.ACTIVE}`,
+  includeMany: { orders: AccountOrders },
+}).all({ db: pool });
+// { accountId: string; email: string; ...; orders: { orderId: string; status: string; createdAt: Date }[] }[]
+```
+
+Parameters and context values — validated at runtime, injected from pipeline context:
+
+```typescript
+// param() — caller provides, validated at build time
+const findByEmail = sql`
+  SELECT ${row(Account.$$)} FROM ${Account}
+  WHERE ${Account.$email} = ${param<{ email: string }>('email')}
+`.postgres.all({ db: pool, params: { email: 'jane@example.com' } });
+
+// ctx() — injected from SqlQueryRegistry/pipeline context, never sent from the client
+const myOrders = sql`
+  SELECT ${row(Order.$$)} FROM ${Order}
+  WHERE ${Order.$accountId} = ${ctx<{ userId: string }>('userId')}
+`.authorize('user');
+// In registry: userId is resolved from the authenticated request context
+// .authorize('user') — query won't execute without a registered authorization hook
+```
+
+Zero-SQL CRUD — same types, same pipeline:
+
+```typescript
+// Find by any column subset — no SQL needed
+const account = await Account.postgres.findBy().any({
+  db: pool,
+  params: { email: 'jane@example.com' },
+});
+// account: IAccountSelect | null
+```
+
+The client never sends SQL. It sends a stable hash that identifies a pre-registered query. The server looks it up, runs it, and returns typed results. No REST endpoints, no tRPC procedures, no GraphQL resolvers — the query is the API.
+
+## SQL Injection Is Structurally Impossible
+
+Every interpolated value in a `sql` template becomes a parameterized placeholder (`$1`, `?`) — never concatenated into the SQL string. This isn't a convention you have to follow; it's enforced by the tagged template architecture. There is no API that accepts a user string and puts it into a query.
+
+```typescript
+// The value goes into the driver's parameter array, not the SQL text
+const accounts = await sql`
+  SELECT ${row(Account.$$)} FROM ${Account}
+  WHERE ${Account.$email} = ${param<{ email: string }>('email')}
+`.postgres.all({ db: pool, params: { email: userInput } });
+// Generated: SELECT ... WHERE "email" = $1  — values: [userInput]
+```
+
+In isomorphic mode, the browser never sends SQL at all — only a query hash. Even a compromised client cannot inject arbitrary SQL.
+
+## How It Works
+
+1. You write typed SQL queries as first-class objects
+2. Register them in a `SqlQueryRegistry` on the server
+3. From the browser, the same query object dispatches via `HttpRemoteClient`
+4. The server resolves the query by hash, executes it, returns typed results
+5. Types flow end-to-end — no codegen, no shared API types to maintain
+
+```typescript
+import { HttpRemoteClient } from 'vexnor';
+
+// Browser — auth-aware
+const remoteClient = new HttpRemoteClient({
+  targetUrl: '/api/db',
+  headerResolver: async () => ({ Authorization: `Bearer ${token}` }),
+});
+
+// Same query, same types, different execution target
+const accounts = await selectAccounts.postgres.all({ db: remoteClient });
+// accounts: { accountId: string; email: string }[]
+```
+
+See [Isomorphic SQL](docs/isomorphic-sql.md) for the full picture and comparison with REST/tRPC/GraphQL.
 
 ## Install
 
@@ -34,9 +138,9 @@ npx vexnor codegen \
   --camelCaseColumns
 ```
 
-## What It Looks Like
+## Typed SQL Queries
 
-### Queries
+Real SQL. Full type inference from what you select. Composable subqueries.
 
 ```typescript
 import { Account, AccountStatusUdt, Order, OrderItem } from './models/vexnor_dev.schema.js';
@@ -88,12 +192,12 @@ const typed: {
 accounts[0]!.lastName;
 ```
 
-### CRUD
+## CRUD
 
-The same `AccountOrders` subquery, reused with the CRUD `select()` factory:
+No SQL needed for the common case. Same subqueries compose into CRUD factories:
 
 ```typescript
-// No SQL needed for the common case
+// SELECT with includes
 const accounts = await Account.postgres.select({
   WHERE: sql`${Account.$status} = ${AccountStatusUdt.ACTIVE}`,
   GROUP_BY: sql`${Account.$accountId}, ${Account.$email}`,
@@ -120,41 +224,6 @@ const found = await Account.postgres.findBy().any({
 });
 // found: IAccountSelect | null
 ```
-
-## Isomorphic SQL
-
-The same query object can execute directly on the server **or** be dispatched from the browser — without changing the call site.
-
-```typescript
-// Server — direct DB execution
-const accounts = await selectAccounts.postgres.all({ db: pool });
-
-// Browser — dispatched over HTTP to /api/db
-const accounts = await selectAccounts.postgres.all({ db: remoteClient });
-```
-
-The client never sends SQL. It sends a stable hash that identifies a pre-registered query. The server looks it up, runs it, and returns typed results. No REST endpoints to define, no API types to maintain — the query is the contract.
-
-`HttpRemoteClient` is the built-in implementation:
-
-```typescript
-import { HttpRemoteClient } from 'vexnor';
-
-// Static (no auth)
-const remoteClient = new HttpRemoteClient({ targetUrl: '/api/db' });
-
-// Auth-aware hook (React)
-import { useMemo } from 'react';
-function useRemoteClient() {
-  const { token } = useAuth();
-  return useMemo(() => new HttpRemoteClient({
-    targetUrl: '/api/db',
-    headerResolver: async () => token ? { Authorization: `Bearer ${token}` } : {},
-  }), [token]);
-}
-```
-
-See [Isomorphic SQL](docs/isomorphic-sql.md) for the full picture.
 
 ## Transactions
 

@@ -45,7 +45,7 @@ export type SqlQueryExtended<T extends { Row?: unknown; Params?: unknown }> = Sq
 
 export type SqlQueryArgs = Pick<SqlQueryAny, "rawStrings" | "rawValues"> &
    Partial<Pick<SqlQueryAny, "info" | "tag" | "label" | "location" | "locationUrl">> & {
-      authorization?: string | null;
+      authorization?: string[] | null;
    };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -91,9 +91,10 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
    readonly rawValues: unknown[];
    readonly location: string | null;
    readonly locationUrl: string | null;
-   protected _authorization: string | null;
+   protected _authorization: string[];
 
    private readonly _innerQueriesLazy = new Lazy<SqlQueryAny[]>(this.initInnerQueries.bind(this));
+   private _authorizationLazy = new Lazy<string[]>(this.initAuthorization.bind(this));
    private readonly _dialectsLazy = new Lazy<Set<string>>(this.initDialects.bind(this));
    private readonly _paramsLazy = new Lazy<BuildSqlParams<T["Params"]>>(this.initParams.bind(this));
    private readonly _contextLazy = new Lazy<Partial<BuildSqlParams<T["Params"]>>>(this.initContext.bind(this));
@@ -144,7 +145,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
          this.location = args.location ?? null;
       }
 
-      this._authorization = args.authorization ?? null;
+      this._authorization = args.authorization ?? [];
    }
 
    // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -156,9 +157,9 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
       return this;
    }
 
-   /** Query authorization tag */
-   get authorization() {
-      return this._authorization;
+   /** Query authorization tags — includes tags inherited from subqueries */
+   get authorization(): string[] {
+      return this._authorizationLazy.value;
    }
 
    /** Query info */
@@ -357,7 +358,8 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
          () => {
             const queryName = context.getQueryName(this);
             // TODO: include additional tracing in sql-query.build(): ${this.fragment ? "fragment " : ""}format="${this.format}"
-            if (options?.boundaryComments ?? sqlBuildDefaults.boundaryComments) context.addStrings(` /* <${queryName}> */ `);
+            if (options?.boundaryComments ?? sqlBuildDefaults.boundaryComments)
+               context.addStrings(` /* <${queryName}> */ `);
             const children = [...this.rawValues];
             let i = -1;
             while (children.length || i < this.rawStrings.length) {
@@ -385,7 +387,8 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
                }
             }
 
-            if (options?.boundaryComments ?? sqlBuildDefaults.boundaryComments) context.addStrings(`/* </${queryName}> */`);
+            if (options?.boundaryComments ?? sqlBuildDefaults.boundaryComments)
+               context.addStrings(`/* </${queryName}> */`);
          },
          scope ?? { queryType: "main", cte: false },
       );
@@ -440,6 +443,16 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
                })
                .join(" ")
       );
+   }
+
+   initAuthorization(authorization = this._authorization): string[] {
+      const tags = new Set<string>(authorization);
+      for (const inner of this.innerQueries) {
+         for (const tag of inner._authorization) {
+            tags.add(tag);
+         }
+      }
+      return [...tags];
    }
 
    initDialects(rawValues = this.rawValues): Set<string> {
@@ -699,11 +712,12 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
     * with this tag before the query executes. Throw inside the hook to deny
     * execution.
     *
-    * @param tag - An arbitrary string label (e.g. `'admin'`, `'read:orders'`).
+    * @param tags authorization tags
     */
-   authorize(tag: string): this {
+   authorize(...tags: string[]): this {
       const clone = Object.create(this) as this;
-      clone._authorization = tag;
+      clone._authorization = [...this._authorization, ...tags];
+      clone._authorizationLazy = new Lazy(() => clone.initAuthorization());
       return clone;
    }
 

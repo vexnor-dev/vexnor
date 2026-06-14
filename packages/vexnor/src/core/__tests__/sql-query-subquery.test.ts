@@ -59,7 +59,12 @@ describe("sql subqueries tests", () => {
                 "_value": null,
                 "callback": [Function],
               },
-              "_authorization": null,
+              "_authorization": [],
+              "_authorizationLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
               "_contextLazy": Lazy {
                 "_computed": false,
                 "_value": null,
@@ -843,7 +848,12 @@ describe("sql subqueries tests", () => {
                 "_value": null,
                 "callback": [Function],
               },
-              "_authorization": null,
+              "_authorization": [],
+              "_authorizationLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
               "_contextLazy": Lazy {
                 "_computed": false,
                 "_value": null,
@@ -1627,7 +1637,12 @@ describe("sql subqueries tests", () => {
                 "_value": null,
                 "callback": [Function],
               },
-              "_authorization": null,
+              "_authorization": [],
+              "_authorizationLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
               "_contextLazy": Lazy {
                 "_computed": false,
                 "_value": null,
@@ -2411,7 +2426,12 @@ describe("sql subqueries tests", () => {
                 "_value": null,
                 "callback": [Function],
               },
-              "_authorization": null,
+              "_authorization": [],
+              "_authorizationLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
               "_contextLazy": Lazy {
                 "_computed": false,
                 "_value": null,
@@ -3195,7 +3215,12 @@ describe("sql subqueries tests", () => {
                 "_value": null,
                 "callback": [Function],
               },
-              "_authorization": null,
+              "_authorization": [],
+              "_authorizationLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
               "_contextLazy": Lazy {
                 "_computed": false,
                 "_value": null,
@@ -3979,7 +4004,12 @@ describe("sql subqueries tests", () => {
                 "_value": null,
                 "callback": [Function],
               },
-              "_authorization": null,
+              "_authorization": [],
+              "_authorizationLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
               "_contextLazy": Lazy {
                 "_computed": false,
                 "_value": null,
@@ -4763,7 +4793,12 @@ describe("sql subqueries tests", () => {
                 "_value": null,
                 "callback": [Function],
               },
-              "_authorization": null,
+              "_authorization": [],
+              "_authorizationLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
               "_contextLazy": Lazy {
                 "_computed": false,
                 "_value": null,
@@ -5547,7 +5582,12 @@ describe("sql subqueries tests", () => {
                 "_value": null,
                 "callback": [Function],
               },
-              "_authorization": null,
+              "_authorization": [],
+              "_authorizationLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
               "_contextLazy": Lazy {
                 "_computed": false,
                 "_value": null,
@@ -6331,7 +6371,12 @@ describe("sql subqueries tests", () => {
                 "_value": null,
                 "callback": [Function],
               },
-              "_authorization": null,
+              "_authorization": [],
+              "_authorizationLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
               "_contextLazy": Lazy {
                 "_computed": false,
                 "_value": null,

@@ -3,7 +3,7 @@ import { SqlErrorCode } from "#/core/sql-error-code.js";
 import type {
    SqlQueryPipelinePlugin,
    SqlPipelineExecutionArgs,
-   SqlPipelineAfterArgs,
+   SqlPipelineEndArgs,
 } from "./sql-query-pipeline-plugin.js";
 
 export type QueryMetrics = {
@@ -81,6 +81,14 @@ export type TimeToLiveRateLimiterOptions<TContext extends Record<string, unknown
    now?: () => number;
 };
 
+/**
+ * Rate limiter plugin with per-query and per-context concurrency tracking.
+ *
+ * Uses the `init()`/`end()` paired lifecycle for inFlight counting:
+ * - `init()` — increments inFlight and totalCalls (always fires)
+ * - `check()` — evaluates limits against current metrics (pure gate, no mutations)
+ * - `end()` — decrements inFlight, updates avgDurationMs and totalErrors (always fires)
+ */
 export class TimeToLiveRateLimiter<
    TContext extends Record<string, unknown> = Record<string, unknown>,
 > implements SqlQueryPipelinePlugin<TContext> {
@@ -120,18 +128,41 @@ export class TimeToLiveRateLimiter<
       }
    }
 
+   /**
+    * `init()` — always fires at pipeline start. Increments inFlight and totalCalls.
+    */
+   init(args: SqlPipelineExecutionArgs<TContext>): void {
+      const { query } = args;
+      const key = query.id;
+      const qm = this.getOrCreateQueryMetrics(key);
+      qm.inFlight++;
+      qm.totalCalls++;
+
+      const contextKey = this.options.contextKeyResolver?.(args.context);
+      if (contextKey !== undefined) {
+         const cm = this.getOrCreateContextMetrics(key, contextKey);
+         cm.inFlight++;
+         cm.totalCalls++;
+         cm.lastActivityAt = this.now();
+      }
+   }
+
+   /**
+    * `check()` — pure gate. Evaluates concurrency limits against current metrics.
+    * Throws to reject. Does not mutate metrics.
+    */
    async check(args: SqlPipelineExecutionArgs<TContext>): Promise<void> {
       this.sweep();
 
       const { query, name } = args;
       const key = query.id;
-      const qm = this.getOrCreateQueryMetrics(key);
+      const qm = this._queryMetrics.get(key);
       const contextKey = this.options.contextKeyResolver?.(args.context);
-      const cm = contextKey !== undefined ? this.getOrCreateContextMetrics(key, contextKey) : null;
+      const cm = contextKey !== undefined ? this._contextMetrics.get(key)?.get(contextKey) ?? null : null;
 
       const { maxConcurrent, maxConcurrentPerContext } = this.options;
 
-      if (maxConcurrent !== undefined && qm && qm.inFlight >= maxConcurrent) {
+      if (maxConcurrent !== undefined && qm && qm.inFlight > maxConcurrent) {
          throw new SqlRunError(
             `Query "${name}" rejected — concurrency limit of ${maxConcurrent} reached (${qm.inFlight} in flight)`,
             query,
@@ -139,7 +170,7 @@ export class TimeToLiveRateLimiter<
          );
       }
 
-      if (maxConcurrentPerContext !== undefined && cm !== null && cm.inFlight >= maxConcurrentPerContext) {
+      if (maxConcurrentPerContext !== undefined && cm !== null && cm.inFlight > maxConcurrentPerContext) {
          throw new SqlRunError(
             `Query "${name}" rejected — per-context concurrency limit of ${maxConcurrentPerContext} reached for key "${contextKey}" (${cm.inFlight} in flight)`,
             query,
@@ -159,20 +190,12 @@ export class TimeToLiveRateLimiter<
             });
          }
       }
-
-      if (qm) {
-         qm.inFlight++;
-         qm.totalCalls++;
-      }
-
-      if (cm) {
-         cm.inFlight++;
-         cm.totalCalls++;
-         cm.lastActivityAt = this.now();
-      }
    }
 
-   after(args: SqlPipelineAfterArgs<TContext>): void {
+   /**
+    * `end()` — always fires at pipeline end. Decrements inFlight, updates avgDurationMs and totalErrors.
+    */
+   end(args: SqlPipelineEndArgs<TContext>): void {
       const { query, error, durationMs } = args;
       const key = query.id;
 

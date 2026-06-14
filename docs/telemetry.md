@@ -159,7 +159,7 @@ Both receive every event independently — telemetry spans and audit logs are co
 
 ## Implementation
 
-`registerOpenTelemetry` adds a pipeline plugin via `registry.use()`. The plugin implements `after()` — it receives the query execution result (including timing and errors) and creates a completed span covering the execution duration.
+`registerOpenTelemetry` adds a pipeline plugin via `registry.use()`. The plugin implements `end()` — it receives the query execution result (including timing and errors) and creates a completed span covering the execution duration.
 
 The plugin is implemented in `vexnor/telemetry` and extends `SqlQueryRegistry.prototype` with the `registerOpenTelemetry` method when imported.
 

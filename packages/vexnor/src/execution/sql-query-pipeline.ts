@@ -7,7 +7,7 @@ import type { SqlRetryArgs, SqlRetryOptions, SqlRunOptions } from "#/core/query/
 import type {
    SqlPipelineExecutionArgs,
    SqlQueryPipelinePlugin,
-   SqlPipelineAfterArgs,
+   SqlPipelineEndArgs,
    SqlQueryExecutionPluginRef,
 } from "./sql-query-pipeline-plugin.js";
 
@@ -23,15 +23,21 @@ export type AuthorizeHook<TContext extends Record<string, unknown>> = (
    args: AuthorizeArgs<TContext>,
 ) => void | Promise<void>;
 
+export class InitQueryEvent<TContext extends Record<string, unknown>> extends Event {
+   constructor(public readonly args: SqlPipelineExecutionArgs<TContext>) {
+      super("initQuery");
+   }
+}
+
 export class BeforeQueryEvent<TContext extends Record<string, unknown>> extends Event {
    constructor(public readonly args: SqlPipelineExecutionArgs<TContext>) {
       super("beforeQuery");
    }
 }
 
-export class AfterQueryEvent<TContext extends Record<string, unknown>> extends Event {
-   constructor(public readonly args: SqlPipelineAfterArgs<TContext>) {
-      super("afterQuery");
+export class EndQueryEvent<TContext extends Record<string, unknown>> extends Event {
+   constructor(public readonly args: SqlPipelineEndArgs<TContext>) {
+      super("endQuery");
    }
 }
 
@@ -49,13 +55,16 @@ export type SqlQueryPipelineOptions<TContext extends Record<string, unknown>> = 
     */
    retry?: SqlQueryRetryOptions<TContext> | false;
    /**
-    * Fallback error handler called when a plugin's `before()` or `after()` throws
+    * Fallback error handler called when a plugin's `init()`, `before()`, or `end()` throws
     * and the plugin does not define its own `onError()`.
     */
    onPluginError?: (
       err: unknown,
       plugin: SqlQueryPipelinePlugin<TContext>,
-      phase: { before: SqlPipelineExecutionArgs<TContext> } | { after: SqlPipelineAfterArgs<TContext> },
+      phase:
+         | { init: SqlPipelineExecutionArgs<TContext> }
+         | { before: SqlPipelineExecutionArgs<TContext> }
+         | { end: SqlPipelineEndArgs<TContext> },
    ) => void;
 };
 
@@ -79,18 +88,27 @@ export class SqlQueryPipeline<T extends { Context: Record<string, unknown> }> ex
    }
 
    /**
-    * Attaches a `QueryExecutionPlugin` to the pipeline.
+    * Attaches a plugin to the pipeline.
     *
-    * - `check()` is called before every query executes — throw to reject.
-    * - `before()` is dispatched via EventTarget after checks pass, before the query runs.
-    * - `after()` is dispatched via EventTarget after every query completes, success or failure.
+    * **Lifecycle hooks:**
+    * - `init()` — always fires at pipeline start (paired with `end()`)
+    * - `check()` — async gate, throw to reject
+    * - `before()` — fires after checks pass, before query execution
+    * - `end()` — always fires at pipeline end (paired with `init()`)
     *
-    * Returns an unsubscribe function that removes the plugin's listeners and check hook.
+    * Returns an unsubscribe function that removes the plugin.
     */
    use(plugin: SqlQueryPipelinePlugin<T["Context"]>): () => void {
       if (plugin.check) {
          this.checkPlugins.push(plugin);
       }
+
+      const initListener = plugin.init
+         ? (e: Event) => {
+              const args = (e as InitQueryEvent<T["Context"]>).args;
+              this.invokePluginListener(plugin, { init: args }, () => plugin.init!(args));
+           }
+         : null;
 
       const beforeListener = plugin.before
          ? (e: Event) => {
@@ -99,21 +117,23 @@ export class SqlQueryPipeline<T extends { Context: Record<string, unknown> }> ex
            }
          : null;
 
-      const afterListener = plugin.after
+      const endListener = plugin.end
          ? (e: Event) => {
-              const args = (e as AfterQueryEvent<T["Context"]>).args;
-              this.invokePluginListener(plugin, { after: args }, () => plugin.after!(args));
+              const args = (e as EndQueryEvent<T["Context"]>).args;
+              this.invokePluginListener(plugin, { end: args }, () => plugin.end!(args));
            }
          : null;
 
+      if (initListener) this.addEventListener("initQuery", initListener);
       if (beforeListener) this.addEventListener("beforeQuery", beforeListener);
-      if (afterListener) this.addEventListener("afterQuery", afterListener);
+      if (endListener) this.addEventListener("endQuery", endListener);
 
       return () => {
          const idx = this.checkPlugins.indexOf(plugin);
          if (idx >= 0) this.checkPlugins.splice(idx, 1);
+         if (initListener) this.removeEventListener("initQuery", initListener);
          if (beforeListener) this.removeEventListener("beforeQuery", beforeListener);
-         if (afterListener) this.removeEventListener("afterQuery", afterListener);
+         if (endListener) this.removeEventListener("endQuery", endListener);
       };
    }
 
@@ -134,7 +154,7 @@ export class SqlQueryPipeline<T extends { Context: Record<string, unknown> }> ex
     * Throws {@link SqlError} with code `REGISTRY_NOT_AUTHORIZED` if the check fails.
     */
    checkAuthorization(queries: SqlQueryAny[]): void {
-      const authorized = queries.filter((q) => q.authorization !== null);
+      const authorized = queries.filter((q) => q.authorization.length > 0);
       if (authorized.length > 0 && !this.authorizeHooks.length) {
          throw new SqlError(
             `${authorized.length} quer${authorized.length === 1 ? "y requires" : "ies require"} authorization but no hook is registered: ${authorized.map((q) => q.label).join(", ")}`,
@@ -150,7 +170,6 @@ export class SqlQueryPipeline<T extends { Context: Record<string, unknown> }> ex
    clear(): void {
       this.checkPlugins.length = 0;
       this.authorizeHooks.length = 0;
-      // EventTarget has no built-in clear — rebuild by cloning
       const clone = new EventTarget();
       Object.setPrototypeOf(this, Object.getPrototypeOf(clone));
    }
@@ -175,11 +194,11 @@ export class SqlQueryPipeline<T extends { Context: Record<string, unknown> }> ex
    async runAuthorize(args: AuthorizeArgs<T["Context"]>): Promise<void> {
       const { query, name } = args;
 
-      if (!query.authorization) return;
+      if (!query.authorization.length) return;
 
       if (!this.authorizeHooks.length) {
          throw new SqlRunError(
-            `Query "${name}" requires authorization (tag: "${query.authorization}") but no authorize hook is registered`,
+            `Query "${name}" requires authorization (tags: ${JSON.stringify(query.authorization)}) but no authorize hook is registered`,
             query,
             { code: SqlErrorCode.QUERY_NOT_AUTHORIZED, queryName: name },
          );
@@ -215,6 +234,13 @@ export class SqlQueryPipeline<T extends { Context: Record<string, unknown> }> ex
       }
    }
 
+   /**
+    * Executes a query through the full pipeline lifecycle.
+    *
+    * **Flow:** `init()` → `authorize()` → `check()` → `before()` → execute → `end()`
+    *
+    * `init()` and `end()` always fire as a pair regardless of outcome.
+    */
    async execute<TResult>(
       executionArgs: SqlPipelineExecutionArgs<T["Context"]>,
       executeQuery: (attempt: number) => Promise<TResult>,
@@ -223,6 +249,9 @@ export class SqlQueryPipeline<T extends { Context: Record<string, unknown> }> ex
       const { plugin, query, name, params, context } = executionArgs;
       const start = performance.now();
       let error: unknown | null = null;
+
+      // init() — always fires at start
+      this.dispatchEvent(new InitQueryEvent(executionArgs));
 
       try {
          await this.runAuthorize({
@@ -256,9 +285,12 @@ export class SqlQueryPipeline<T extends { Context: Record<string, unknown> }> ex
             code: SqlErrorCode.QUERY_EXECUTION_FAILED,
          });
       } finally {
+         // end() — always fires at end
          const durationMs = performance.now() - start;
-         const afterArgs: SqlPipelineAfterArgs<T["Context"]> = { ...executionArgs, durationMs, error };
-         this.dispatchEvent(new AfterQueryEvent(afterArgs));
+         const endArgs = executionArgs as unknown as SqlPipelineEndArgs<T["Context"]>;
+         endArgs.durationMs = durationMs;
+         endArgs.error = error;
+         this.dispatchEvent(new EndQueryEvent(endArgs));
       }
    }
 
@@ -275,7 +307,10 @@ export class SqlQueryPipeline<T extends { Context: Record<string, unknown> }> ex
 
    private invokePluginListener(
       plugin: SqlQueryPipelinePlugin<T["Context"]>,
-      phase: { before: SqlPipelineExecutionArgs<T["Context"]> } | { after: SqlPipelineAfterArgs<T["Context"]> },
+      phase:
+         | { init: SqlPipelineExecutionArgs<T["Context"]> }
+         | { before: SqlPipelineExecutionArgs<T["Context"]> }
+         | { end: SqlPipelineEndArgs<T["Context"]> },
       fn: () => void,
    ): void {
       try {
@@ -288,7 +323,10 @@ export class SqlQueryPipeline<T extends { Context: Record<string, unknown> }> ex
    private handlePluginError(
       err: unknown,
       plugin: SqlQueryPipelinePlugin<T["Context"]>,
-      phase: { before: SqlPipelineExecutionArgs<T["Context"]> } | { after: SqlPipelineAfterArgs<T["Context"]> },
+      phase:
+         | { init: SqlPipelineExecutionArgs<T["Context"]> }
+         | { before: SqlPipelineExecutionArgs<T["Context"]> }
+         | { end: SqlPipelineEndArgs<T["Context"]> },
    ): void {
       try {
          if (plugin.onError) {
@@ -297,7 +335,7 @@ export class SqlQueryPipeline<T extends { Context: Record<string, unknown> }> ex
             this.options.onPluginError?.(err, plugin, phase);
          }
       } catch (handlerErr) {
-         const phaseName = "before" in phase ? "before" : "after";
+         const phaseName = "init" in phase ? "init" : "before" in phase ? "before" : "end";
          const msg = `[vexnor] QueryExecutionPlugin "${plugin.name}" onError threw during "${phaseName}" phase: ${handlerErr}`;
          if (typeof process !== "undefined" && typeof process.emitWarning === "function") {
             process.emitWarning(msg);

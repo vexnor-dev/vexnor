@@ -201,7 +201,7 @@ describe('SqlQueryRegistry authorization', () => {
   test('denies unauthorized queries', async () => {
     const registry = new SqlQueryRegistry<{ roles: string[] }>();
     registry.registerAuthorization(({ query, context }) => {
-      if (!context.roles.includes(query.authorization!)) {
+      if (!query.authorization.every(tag => context.roles.includes(tag))) {
         throw new Error('Forbidden');
       }
     });
@@ -255,7 +255,7 @@ import { SqlQueryPipeline } from 'vexnor/execution';
 test('pipeline fires authorization on direct execution', async () => {
   const pipeline = new SqlQueryPipeline<{ Context: { roles: string[] } }>();
   pipeline.registerAuthorization(({ query, context }) => {
-    if (!context.roles.includes(query.authorization!)) throw new Error('Forbidden');
+    if (!query.authorization.every(tag => context.roles.includes(tag))) throw new Error('Forbidden');
   });
 
   const db = connect(mockDb, { pipeline });

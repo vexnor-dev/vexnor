@@ -10,6 +10,12 @@ export default defineConfig({
    test: {
       environment: "jsdom",
       globals: true,
+      environmentOptions: {
+         jsdom: {
+            resources: "usable",
+         },
+      },
+      setupFiles: ["./vitest.setup.ts"],
       alias: {
          "#": path.resolve(__dirname, "client/src"),
          "#shared": path.resolve(__dirname, "shared"),

@@ -8,13 +8,14 @@ export {
    type SqlQueryRegistryOptions,
    type ExecuteQueryArgs,
    BeforeQueryEvent,
-   AfterQueryEvent,
+   InitQueryEvent,
+   EndQueryEvent,
 } from "./sql-query-registry.js";
 export { SqlQueryPipeline, type SqlQueryPipelineOptions } from "./sql-query-pipeline.js";
 export {
    type SqlQueryPipelinePlugin,
    type SqlPipelineExecutionArgs,
-   type SqlPipelineAfterArgs,
+   type SqlPipelineEndArgs,
 } from "./sql-query-pipeline-plugin.js";
 export {
    TimeToLiveRateLimiter,

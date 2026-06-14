@@ -98,8 +98,12 @@ describe("SqlQuery — authorize()", () => {
    test("authorize creates a clone with authorization tag", () => {
       const q = sql`DELETE FROM account`;
       const authorized = q.authorize("admin");
-      expect(authorized.authorization).toMatchInlineSnapshot(`"admin"`);
-      expect(q.authorization).toBeNull();
+      expect(authorized.authorization).toMatchInlineSnapshot(`
+        [
+          "admin",
+        ]
+      `);
+      expect(q.authorization).toEqual([]);
    });
 });
 

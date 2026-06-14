@@ -8,8 +8,9 @@ import { isVexnorConnection } from "#/plugin/vexnor-connection.js";
 import type { SqlPipelineExecutionArgs, SqlQueryPipelinePlugin } from "./sql-query-pipeline-plugin.js";
 import {
    SqlQueryPipeline,
+   InitQueryEvent,
    BeforeQueryEvent,
-   AfterQueryEvent,
+   EndQueryEvent,
    type AuthorizeArgs,
    type AuthorizeHook,
    type SqlQueryPipelineOptions,
@@ -18,7 +19,7 @@ import { SqlParamAny } from "#/core/query/sql-param.js";
 import { SqlQueryHandler, SqlQueryHandlerAny } from "#/core/query/sql-query-handler.js";
 
 export type { AuthorizeArgs, AuthorizeHook };
-export { BeforeQueryEvent, AfterQueryEvent };
+export { InitQueryEvent, BeforeQueryEvent, EndQueryEvent };
 
 export type ConnectionResolverArgs<TContext extends Record<string, unknown> = Record<string, unknown>> = {
    plugin: VexnorPluginAny;
@@ -88,14 +89,14 @@ export class SqlQueryRegistry<TContext extends Record<string, unknown> = Record<
     * Returns all registered queries that carry an `.authorize()` tag.
     */
    getAuthorizedQueries(): SqlQueryAny[] {
-      return this.getQueries().filter((q) => q.authorization !== null);
+      return this.getQueries().filter((q) => q.authorization.length > 0);
    }
 
    /**
     * Returns all registered queries that have no `.authorize()` tag.
     */
    getUnauthorizedQueries(): SqlQueryAny[] {
-      return this.getQueries().filter((q) => q.authorization === null);
+      return this.getQueries().filter((q) => q.authorization.length === 0);
    }
 
    /** Returns all registered queries with their plugin name, hash, and display name. */

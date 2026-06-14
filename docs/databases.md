@@ -249,7 +249,7 @@ type AppContext = { userId: string; roles: string[] };
 
 const pipeline = new SqlQueryPipeline<{ Context: AppContext }>();
 pipeline.registerAuthorization(({ query, context }) => {
-  if (!context.roles.includes(query.authorization!)) throw new Error('Forbidden');
+  if (!query.authorization.every(tag => context.roles.includes(tag))) throw new Error('Forbidden');
 });
 
 const db = connect<AppContext>(pool, { pipeline });

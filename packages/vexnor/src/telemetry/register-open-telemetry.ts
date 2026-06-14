@@ -5,7 +5,7 @@ import { SqlRunError } from "#/core/sql-run-error.js";
 SqlQueryRegistry.prototype.registerOpenTelemetry = function (tracer: Tracer): void {
    this.use({
       name: "opentelemetry",
-      after({ query, plugin, remote, name, durationMs, error, mode }) {
+      end({ query, plugin, remote, name, durationMs, error, mode }) {
          const span = tracer.startSpan(`db.query ${name}`, {
             startTime: Date.now() - durationMs,
          });

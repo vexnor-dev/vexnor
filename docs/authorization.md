@@ -23,7 +23,7 @@ await queryRegistry.register(vexnorPostgres, { findAccounts, deleteAccount });
 
 ## Query Authorization
 
-Tag a query with `.authorize(tag)` to require an authorization check before it executes:
+Tag a query with `.authorize(...tags)` to require an authorization check before it executes:
 
 ```typescript
 const deleteAccount = sql`
@@ -34,11 +34,14 @@ const deleteAccount = sql`
 const findAccounts = sql`
   SELECT ${row(Account.$$)} FROM ${Account}
 `.authorize('read:accounts');
+
+// Multiple tags at once
+const sensitiveReport = sql`...`.authorize('admin', 'audit');
 ```
 
-The tag is an arbitrary string — use whatever convention fits your app (`'admin'`, `'read:orders'`, `'superuser'`, etc.).
+Tags are arbitrary strings — use whatever convention fits your app (`'admin'`, `'read:orders'`, `'superuser'`, etc.).
 
-`.authorize()` returns a new query object with the tag set. The original query is not mutated.
+`.authorize()` returns a new query object with the tags added. The original query is not mutated. Tags accumulate across chained calls and are inherited from subqueries.
 
 ### Registering an Authorization Hook
 
@@ -48,8 +51,10 @@ Register a hook on the `SqlQueryRegistry` that runs before any tagged query exec
 import { queryRegistry } from './registry.js';
 
 queryRegistry.registerAuthorization(({ query, plugin, params, context }) => {
-  if (!context.roles.includes(query.authorization!)) {
-    throw new Error(`Forbidden: requires role '${query.authorization}'`);
+  for (const tag of query.authorization) {
+    if (!context.roles.includes(tag)) {
+      throw new Error(`Forbidden: requires role '${tag}'`);
+    }
   }
 });
 ```
@@ -71,7 +76,7 @@ Multiple hooks can be registered — they run sequentially. If any hook throws, 
 ```typescript
 // RBAC check
 queryRegistry.registerAuthorization(({ query, context }) => {
-  if (!context.roles.includes(query.authorization!)) throw new Error('Forbidden');
+  if (!query.authorization.every(tag => context.roles.includes(tag))) throw new Error('Forbidden');
 });
 
 // Rate limiting
@@ -92,7 +97,7 @@ type AppContext = { userId: string; roles: string[] };
 
 const pipeline = new SqlQueryPipeline<{ Context: AppContext }>();
 pipeline.registerAuthorization(({ query, context }) => {
-  if (!context.roles.includes(query.authorization!)) throw new Error('Forbidden');
+  if (!query.authorization.every(tag => context.roles.includes(tag))) throw new Error('Forbidden');
 });
 
 const db = connect<AppContext>(pool, { pipeline });

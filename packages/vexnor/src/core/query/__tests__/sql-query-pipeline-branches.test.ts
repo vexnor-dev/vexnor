@@ -223,9 +223,9 @@ describe("SqlQueryPipeline — plugin error handling (direct)", () => {
       const pipeline = new SqlQueryPipeline<{ Context: { userId: string } }>();
       const onError = vi.fn();
       pipeline.use({
-         name: "broken-after",
-         after: () => {
-            throw new Error("after broke");
+         name: "broken-end",
+         end: () => {
+            throw new Error("end broke");
          },
          onError,
       });
@@ -241,7 +241,7 @@ describe("SqlQueryPipeline — plugin error handling (direct)", () => {
       };
 
       await pipeline.execute(executionArgs, async () => ({ rows: [] }));
-      expect(onError).toHaveBeenCalledWith(expect.any(Error), expect.objectContaining({ after: expect.anything() }));
+      expect(onError).toHaveBeenCalledWith(expect.any(Error), expect.objectContaining({ end: expect.anything() }));
    });
 
    test("options.onPluginError is called when plugin has no onError", async () => {

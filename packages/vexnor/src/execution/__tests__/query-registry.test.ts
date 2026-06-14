@@ -12,7 +12,8 @@ import { Order } from "@test-models/vexnor_dev.order-table.js";
 import { SqlRunError } from "#/core/sql-run-error.js";
 import { SqlErrorCode } from "#/core/sql-error-code.js";
 import { ok } from "node:assert";
-import { SqlPipelineAfterArgs } from "#/execution/sql-query-pipeline-plugin.js";
+import { SqlPipelineEndArgs } from "#/execution/sql-query-pipeline-plugin.js";
+import { mockHandler } from "#/test/mock-query-handler.js";
 import { MockConnection, MockPlugin } from "#/test/mock-plugin.js";
 
 // Two distinct plugins
@@ -346,7 +347,7 @@ describe("QueryRegistry", () => {
                params: { email: "a@b.com" },
                mode: "read",
                name: "findAccounts",
-            } satisfies SqlPipelineAfterArgs["remote"],
+            } satisfies SqlPipelineEndArgs["remote"],
          }),
       );
    });
@@ -373,6 +374,16 @@ describe("QueryRegistry", () => {
       warnSpy.mockRestore();
    });
 
+   test("register accepts SqlQueryHandler instances alongside SqlQuery", async () => {
+      const registry = new SqlQueryRegistry();
+      const handler = mockHandler(findOrders);
+      await registry.register(pluginA, { findAccounts, findOrdersHandler: handler });
+
+      expect(registry.getQueries()).toHaveLength(2);
+      expect(registry.getQueries().map((q) => q.id)).toContain(findAccounts.id);
+      expect(registry.getQueries().map((q) => q.id)).toContain(findOrders.id);
+   });
+
    // ── getAuthorizedQueries / getUnauthorizedQueries ─────────────────────────
 
    test("getQueries returns all registered queries across all plugins", async () => {
@@ -389,7 +400,7 @@ describe("QueryRegistry", () => {
       await registry.register(pluginA, { taggedQuery });
       await registry.register(pluginB, { findOrders });
 
-      expect(registry.getAuthorizedQueries().map((q) => q.authorization)).toEqual(["admin"]);
+      expect(registry.getAuthorizedQueries().map((q) => q.authorization)).toEqual([["admin"]]);
    });
 
    test("getUnauthorizedQueries returns only untagged queries", async () => {
@@ -398,7 +409,7 @@ describe("QueryRegistry", () => {
       await registry.register(pluginA, { taggedQuery });
       await registry.register(pluginB, { findOrders });
 
-      expect(registry.getUnauthorizedQueries().map((q) => q.authorization)).toEqual([null]);
+      expect(registry.getUnauthorizedQueries().map((q) => q.authorization)).toEqual([[]]);
    });
 
    test("getAuthorizedQueries returns empty when no queries are tagged", async () => {
@@ -761,7 +772,7 @@ describe("QueryRegistry", () => {
             resolver: async () => makeDb([]),
          }),
       ).rejects.toMatchInlineSnapshot(
-         `[SqlRunError: Query "taggedQuery" requires authorization (tag: "admin") but no authorize hook is registered]`,
+         `[SqlRunError: Query "taggedQuery" requires authorization (tags: ["admin"]) but no authorize hook is registered]`,
       );
    });
 
@@ -927,7 +938,7 @@ describe("QueryRegistry", () => {
                params: { email: "a@b.com" },
                mode: "read",
                name: "findAccounts",
-            } satisfies SqlPipelineAfterArgs["remote"],
+            } satisfies SqlPipelineEndArgs["remote"],
             context: { userId: "u1" },
             error: null,
          }),
@@ -965,15 +976,15 @@ describe("QueryRegistry", () => {
             resolver: async () => makeDb([]),
          }),
       ).rejects.toMatchInlineSnapshot(
-         `[SqlRunError: Query "findAccounts" rejected — concurrency limit of 1 reached (1 in flight)]`,
+         `[SqlRunError: Query "findAccounts" rejected — concurrency limit of 1 reached (2 in flight)]`,
       );
 
       unblock();
       await first;
 
-      // First call completed — totalCalls=1, inFlight=0
-      // Second call was rejected in check() — after() fires but no metrics entry existed for that call
-      expect(limiter.metrics.get(findAccounts.id)?.totalCalls).toBe(1);
+      // First call completed — totalCalls=2 (init fires for both), inFlight=0 (both ended)
+      // Second call was rejected in check() — but init() already incremented, end() decremented
+      expect(limiter.metrics.get(findAccounts.id)?.totalCalls).toBe(2);
       expect(limiter.metrics.get(findAccounts.id)?.inFlight).toBe(0);
    });
 
@@ -1012,7 +1023,7 @@ describe("QueryRegistry", () => {
          check: () => {
             throw new Error("too busy");
          },
-         after: () => {},
+         end: () => {},
       });
 
       const hash = await findAccounts.hash;
@@ -1087,8 +1098,8 @@ describe("QueryRegistry", () => {
       const registry = new SqlQueryRegistry();
       await registry.register(pluginA, { findAccounts });
 
-      const after = vi.fn();
-      registry.use({ name: "observer", after });
+      const end = vi.fn();
+      registry.use({ name: "observer", end });
 
       const hash = await findAccounts.hash;
       await executeRegistry(registry, {
@@ -1099,8 +1110,8 @@ describe("QueryRegistry", () => {
       });
       await Promise.resolve();
 
-      expect(after).toHaveBeenCalledOnce();
-      expect(after).toHaveBeenCalledWith(
+      expect(end).toHaveBeenCalledOnce();
+      expect(end).toHaveBeenCalledWith(
          expect.objectContaining({
             name: "findAccounts",
             query: findAccounts,
@@ -1114,7 +1125,7 @@ describe("QueryRegistry", () => {
                params: { email: "a@b.com" },
                mode: "read",
                name: null,
-            } satisfies SqlPipelineAfterArgs["remote"],
+            } satisfies SqlPipelineEndArgs["remote"],
             error: null,
             durationMs: expect.any(Number),
          }),
@@ -1125,13 +1136,13 @@ describe("QueryRegistry", () => {
       const registry = new SqlQueryRegistry();
       await registry.register(pluginA, { findAccounts });
 
-      const after = vi.fn();
+      const end = vi.fn();
       registry.use({
          name: "observer",
          check: () => {
             throw new Error("denied");
          },
-         after,
+         end,
       });
 
       const hash = await findAccounts.hash;
@@ -1145,7 +1156,7 @@ describe("QueryRegistry", () => {
       ).rejects.toThrow();
       await Promise.resolve();
 
-      expect(after).toHaveBeenCalledOnce();
+      expect(end).toHaveBeenCalledOnce();
    });
 
    // ── retry ────────────────────────────────────────────────────────────────
@@ -1155,8 +1166,8 @@ describe("QueryRegistry", () => {
       await registry.register(pluginA, { findAccounts });
 
       const before = vi.fn();
-      const after = vi.fn();
-      registry.use({ name: "observer", before, after });
+      const end = vi.fn();
+      registry.use({ name: "observer", before, end });
 
       const queryDb = vi
          .fn()
@@ -1189,8 +1200,8 @@ describe("QueryRegistry", () => {
       `);
       expect(queryDb).toHaveBeenCalledTimes(2);
       expect(before).toHaveBeenCalledTimes(2);
-      expect(after).toHaveBeenCalledOnce();
-      expect(after).toHaveBeenCalledWith(expect.objectContaining({ error: null }));
+      expect(end).toHaveBeenCalledOnce();
+      expect(end).toHaveBeenCalledWith(expect.objectContaining({ error: null }));
    });
 
    test("request retry option retries retryable SqlRunError failures without registry retry default", async () => {
@@ -1303,8 +1314,8 @@ describe("QueryRegistry", () => {
       const onError = vi.fn();
       registry.use({
          name: "failing-plugin",
-         after: () => {
-            throw new Error("after failed");
+         end: () => {
+            throw new Error("end failed");
          },
          onError,
       });
@@ -1323,7 +1334,7 @@ describe("QueryRegistry", () => {
       expect(onError).toHaveBeenCalledWith(
          expect.any(Error),
          expect.objectContaining({
-            after: expect.objectContaining({
+            end: expect.objectContaining({
                name: "findAccounts",
                query: findAccounts,
                plugin: pluginA,
@@ -1336,7 +1347,7 @@ describe("QueryRegistry", () => {
                   params: { email: "a@b.com" },
                   mode: "read",
                   name: "findAccounts",
-               } satisfies SqlPipelineAfterArgs["remote"],
+               } satisfies SqlPipelineEndArgs["remote"],
                error: null,
             }),
          }),
@@ -1350,8 +1361,8 @@ describe("QueryRegistry", () => {
 
       registry.use({
          name: "failing-plugin",
-         after: () => {
-            throw new Error("after failed");
+         end: () => {
+            throw new Error("end failed");
          },
       });
 
@@ -1370,7 +1381,7 @@ describe("QueryRegistry", () => {
          expect.any(Error),
          expect.objectContaining({ name: "failing-plugin" }),
          expect.objectContaining({
-            after: expect.objectContaining({
+            end: expect.objectContaining({
                name: "findAccounts",
                query: findAccounts,
                plugin: pluginA,
@@ -1383,7 +1394,7 @@ describe("QueryRegistry", () => {
                   params: { email: "a@b.com" },
                   mode: "read",
                   name: "findAccounts",
-               } satisfies SqlPipelineAfterArgs["remote"],
+               } satisfies SqlPipelineEndArgs["remote"],
                error: null,
             }),
          }),
@@ -1398,8 +1409,8 @@ describe("QueryRegistry", () => {
 
       registry.use({
          name: "failing-plugin",
-         after: () => {
-            throw new Error("after failed");
+         end: () => {
+            throw new Error("end failed");
          },
          onError,
       });
@@ -1424,8 +1435,8 @@ describe("QueryRegistry", () => {
       const warnSpy = vi.spyOn(process, "emitWarning").mockImplementation(() => {});
       registry.use({
          name: "broken-plugin",
-         after: () => {
-            throw new Error("after failed");
+         end: () => {
+            throw new Error("end failed");
          },
          onError: () => {
             throw new Error("onError failed");
@@ -1443,7 +1454,7 @@ describe("QueryRegistry", () => {
 
       expect(warnSpy).toHaveBeenCalledOnce();
       expect(warnSpy).toHaveBeenCalledWith(
-         expect.stringContaining(`QueryExecutionPlugin "broken-plugin" onError threw during "after" phase`),
+         expect.stringContaining(`QueryExecutionPlugin "broken-plugin" onError threw during "end" phase`),
       );
       warnSpy.mockRestore();
    });

@@ -289,12 +289,17 @@ await registry.execute(args, connectionResolver, runtimeContext?);
 
 ### `use(plugin)`
 
-Attaches a `QueryExecutionPlugin` to the registry. Returns an unsubscribe function.
+Attaches a `SqlQueryPipelinePlugin` to the registry. Returns an unsubscribe function.
 
-- `check()` — async gate called before every query executes. Throw to reject.
-- `before()` — called after checks pass, before the query runs (fire-and-forget).
-- `after()` — called after every query completes, success or failure (fire-and-forget).
-- `onError()` — called when `before()` or `after()` throws.
+**Lifecycle flow:** `init()` → `authorize()` → `check()` → `before()` → execute query → `end()`
+
+- `init()` — always fires at pipeline start, paired with `end()`. Use for resource tracking (e.g. inFlight counters).
+- `check()` — async gate called after authorization. Throw to reject.
+- `before()` — fires after checks pass, immediately before query execution (fire-and-forget).
+- `end()` — always fires at pipeline end, paired with `init()`. Success or failure (fire-and-forget).
+- `onError()` — called when `init()`, `before()`, or `end()` throws.
+
+`init()` and `end()` are guaranteed to always fire as a pair, regardless of whether authorization or checks reject the query.
 
 Multiple plugins accumulate and all run on every execution.
 
@@ -426,18 +431,20 @@ import type { SqlQueryPipelinePlugin } from 'vexnor';
 
 const myPlugin: SqlQueryPipelinePlugin<AppContext> = {
   name: 'my-plugin',
+  // Sync observer — always fires at pipeline start, paired with end() (fire-and-forget)
+  init: ({ name, query }) => { /* ... */ },
   // Async gate — throw to reject the query before it runs
   check: async ({ name, context, params }) => { /* ... */ },
   // Sync observer — fires after checks pass, before the query runs (fire-and-forget)
   before: ({ name, params }) => { /* ... */ },
-  // Sync observer — fires after every query completes, success or failure (fire-and-forget)
-  after: ({ name, durationMs, error }) => { /* ... */ },
-  // Called when before() or after() throws — falls back to pipeline onPluginError if omitted
+  // Sync observer — always fires at pipeline end, paired with init() (fire-and-forget)
+  end: ({ name, durationMs, error }) => { /* ... */ },
+  // Called when init(), before(), or end() throws — falls back to pipeline onPluginError if omitted
   onError: (err, phase) => { /* ... */ },
 };
 ```
 
-`SqlPipelineExecutionArgs` fields available in `check`, `before`, and `after`:
+`SqlPipelineExecutionArgs` fields available in `init`, `check`, `before`, and `end`:
 
 - `plugin` — `{ name, driver?, dialect? }` identifying the vexnor plugin
 - `query` — the `SqlQuery` object

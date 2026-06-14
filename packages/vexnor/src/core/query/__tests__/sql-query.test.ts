@@ -63,6 +63,7 @@ describe("SqlQuery tests", () => {
           "locationUrl",
           "_authorization",
           "_innerQueriesLazy",
+          "_authorizationLazy",
           "_dialectsLazy",
           "_paramsLazy",
           "_contextLazy",

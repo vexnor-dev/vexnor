@@ -130,7 +130,7 @@ export { CACHE } from "#/lib/cache.js";
 export {
    SqlQueryPipeline,
    BeforeQueryEvent,
-   AfterQueryEvent,
+   EndQueryEvent,
    type AuthorizeArgs,
    type AuthorizeHook,
    type SqlQueryPipelineOptions,
@@ -138,7 +138,7 @@ export {
 export {
    type SqlQueryPipelinePlugin,
    type SqlPipelineExecutionArgs,
-   type SqlPipelineAfterArgs,
+   type SqlPipelineEndArgs,
 } from "#/execution/sql-query-pipeline-plugin.js";
 export { VexnorConnection, connect } from "#/plugin/vexnor-connection.js";
 export { getQueryName } from "#/core/query/sql-query-name.js";

@@ -7,7 +7,7 @@ export type SqlQueryExecutionPluginRef = {
    readonly dialect?: string;
 };
 
-/** Identity fields shared by `check`, `before`, and `after`. */
+/** Identity fields shared across all plugin lifecycle hooks. */
 export type SqlPipelineExecutionArgs<TContext extends Record<string, unknown> = Record<string, unknown>> = {
    plugin: SqlQueryExecutionPluginRef;
    query: SqlQueryAny;
@@ -25,8 +25,8 @@ export type SqlPipelineExecutionArgs<TContext extends Record<string, unknown> = 
    context: TContext;
 };
 
-/** Args passed to `after()` after a query completes — success or failure. */
-export type SqlPipelineAfterArgs<TContext extends Record<string, unknown> = Record<string, unknown>> =
+/** Args passed to `end()` after a query completes — success or failure. */
+export type SqlPipelineEndArgs<TContext extends Record<string, unknown> = Record<string, unknown>> =
    SqlPipelineExecutionArgs<TContext> & {
       durationMs: number;
       /** `null` on success. */
@@ -34,23 +34,44 @@ export type SqlPipelineAfterArgs<TContext extends Record<string, unknown> = Reco
    };
 
 /**
- * A composable plugin that plugs into `QueryRegistry` via `registry.use()`.
+ * A composable plugin that plugs into the query pipeline via `pipeline.use()`.
  *
  * All methods are optional — implement only what the plugin needs.
  *
- * - `check()` — async gate called before execution. Throw to reject the query.
- * - `before()` — sync observer called after all checks pass, before the query runs. Fire-and-forget via EventTarget.
- * - `after()` — sync observer called after every query completes, success or failure. Fire-and-forget via EventTarget.
- * - `onError()` — called when `before()` or `after()` throws, with the original args for context.
+ * **Lifecycle flow:**
+ * ```
+ * init() → authorize() → check() → before() → execute query → end()
+ * ```
+ *
+ * - `init()` — sync observer, **always** fires at the start of every pipeline execution. Paired with `end()`.
+ * - `check()` — async gate called after authorization. Throw to reject the query.
+ * - `before()` — sync observer called after all checks pass, immediately before query execution.
+ * - `end()` — sync observer, **always** fires at the end of every pipeline execution (success, failure, or rejection). Paired with `init()`.
+ * - `onError()` — called when `init()`, `before()`, or `end()` throws, with the original args for context.
+ *
+ * `init()` and `end()` are guaranteed to always fire as a pair, regardless of whether
+ * authorization or checks reject the query. Use them for resource tracking (e.g. inFlight counters).
+ *
+ * `before()` only fires when the query is about to execute against the database —
+ * use it for tracing spans or last-moment setup.
  */
 export interface SqlQueryPipelinePlugin<TContext extends Record<string, unknown> = Record<string, unknown>> {
    /** Unique name identifying this plugin — used in error messages and warnings. */
    readonly name: string;
+   /** Always fires at pipeline start. Paired with `end()`. */
+   init?(args: SqlPipelineExecutionArgs<TContext>): void;
+   /** Async gate — throw to reject the query. */
    check?(args: SqlPipelineExecutionArgs<TContext>): void | Promise<void>;
+   /** Fires after checks pass, immediately before query execution. */
    before?(args: SqlPipelineExecutionArgs<TContext>): void;
-   after?(args: SqlPipelineAfterArgs<TContext>): void;
+   /** Always fires at pipeline end (success or failure). Paired with `init()`. */
+   end?(args: SqlPipelineEndArgs<TContext>): void;
+   /** Called when `init()`, `before()`, or `end()` throws. */
    onError?(
       err: unknown,
-      phase: { before: SqlPipelineExecutionArgs<TContext> } | { after: SqlPipelineAfterArgs<TContext> },
+      phase:
+         | { init: SqlPipelineExecutionArgs<TContext> }
+         | { before: SqlPipelineExecutionArgs<TContext> }
+         | { end: SqlPipelineEndArgs<TContext> },
    ): void;
 }
