@@ -119,7 +119,7 @@ app.post("/api/db", async (c) => {
       );
       return c.json(result);
    } catch (err) {
-      return handleDbError(c, err, body);
+      return handleDbError(c, err);
    }
 });
 

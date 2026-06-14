@@ -60,7 +60,7 @@ export async function POST(request: Request) {
    } catch (err) {
       if (err instanceof SqlRunError || err instanceof SqlError) {
          const status = SQL_ERROR_STATUS[err.code] ?? 500;
-         return Response.json({ error: err.message, code: err.code, ...args }, { status });
+         return Response.json({ error: err.message, code: err.code }, { status });
       }
       throw err;
    }
