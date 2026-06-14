@@ -14,7 +14,7 @@ function run(cmd, args, options) {
 
 const passthroughArgs = process.argv.slice(2);
 const callerCwd = process.cwd();
-const tempDir = mkdtempSync(resolve(tmpdir(), "@vexnor/prisma-v6-"));
+const tempDir = mkdtempSync(resolve(tmpdir(), "vexnor-prisma-v6-"));
 
 /** @param {string[]} args */
 function normalizePathArgs(args) {
