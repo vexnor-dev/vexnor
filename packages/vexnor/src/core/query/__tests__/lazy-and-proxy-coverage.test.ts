@@ -147,7 +147,8 @@ describe("SqlQuery — buildInnerQueryRef all format cases", () => {
 
 describe("SqlQuery — label init edge cases", () => {
    test("label with null rawValue", () => {
-      const query = sql`SELECT ${null as unknown as string} FROM ${Account}`;
+      const nullValue: string | null = null;
+      const query = sql`SELECT ${nullValue} FROM ${Account}`;
       expect(query.label).toBeDefined();
    });
 
