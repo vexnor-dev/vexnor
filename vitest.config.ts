@@ -4,7 +4,7 @@ export default defineConfig({
    test: {
       fileParallelism: true,
       isolate: false,
-      projects: ["./packages/*", "./tests/*", "./examples/*"],
+      projects: ["./packages/*", "./plugins/*", "./orms/*", "./tests/*", "./examples/*"],
       typecheck: {
          enabled: true,
          checker: "tsc",

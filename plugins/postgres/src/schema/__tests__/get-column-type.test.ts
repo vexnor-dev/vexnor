@@ -23,8 +23,15 @@ describe("getColumnType (postgres)", () => {
       },
    );
 
-   test("interval → Custom", () => {
-      expect(getColumnType({ udt_name: "interval" } as never).type).toBe(SqlLiteralType.Custom);
+   test("interval → Custom with Interval type", () => {
+      expect(getColumnType({ udt_name: "interval" } as never)).toMatchInlineSnapshot(`
+        {
+          "tsImport": "import type * as vexnorPostgres from "@vexnor/postgres";",
+          "tsTypeInsert": "string",
+          "tsTypeSelect": "vexnorPostgres.Interval",
+          "type": "Custom",
+        }
+      `);
    });
 
    test.each([["time"], ["timetz"], ["money"]])("%s → String", (udt_name) => {
@@ -71,12 +78,26 @@ describe("getColumnType (postgres)", () => {
       expect(getColumnType({ udt_name } as never).type).toBe(SqlLiteralType.String);
    });
 
-   test("point → Custom", () => {
-      expect(getColumnType({ udt_name: "point" } as never).type).toBe(SqlLiteralType.Custom);
+   test("point → Custom with Point type", () => {
+      expect(getColumnType({ udt_name: "point" } as never)).toMatchInlineSnapshot(`
+        {
+          "tsImport": "import type * as vexnorPostgres from "@vexnor/postgres";",
+          "tsTypeInsert": "string",
+          "tsTypeSelect": "vexnorPostgres.Point",
+          "type": "Custom",
+        }
+      `);
    });
 
-   test("circle → Custom", () => {
-      expect(getColumnType({ udt_name: "circle" } as never).type).toBe(SqlLiteralType.Custom);
+   test("circle → Custom with Circle type", () => {
+      expect(getColumnType({ udt_name: "circle" } as never)).toMatchInlineSnapshot(`
+        {
+          "tsImport": "import type * as vexnorPostgres from "@vexnor/postgres";",
+          "tsTypeInsert": "string",
+          "tsTypeSelect": "vexnorPostgres.Circle",
+          "type": "Custom",
+        }
+      `);
    });
 
    test("bytea → Buffer", () => {
@@ -95,6 +116,12 @@ describe("getColumnType (postgres)", () => {
       const result = getColumnType({ udt_name: "my_enum", data_type: "USER-DEFINED" } as never);
       expect(result.type).toBe(SqlLiteralType.Udt);
       expect((result as { udt: string }).udt).toBe("my_enum");
+   });
+
+   test("USER-DEFINED data_type with domain_name fallback → Udt", () => {
+      const result = getColumnType({ udt_name: undefined, domain_name: "my_domain", data_type: "USER-DEFINED" } as never);
+      expect(result.type).toBe(SqlLiteralType.Udt);
+      expect((result as { udt: string }).udt).toBe("my_domain");
    });
 
    test("unknown udt_name → Unknown", () => {
