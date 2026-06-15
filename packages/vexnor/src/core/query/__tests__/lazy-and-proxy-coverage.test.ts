@@ -3,6 +3,7 @@ import { sql } from "#/core/sql.js";
 import { row } from "#/core/query/sql-select-row.js";
 import { param, ctx } from "#/core/query/sql-param.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
+import { SqlQuery } from "#/core/query/sql-query.js";
 import { Order } from "@test-models/vexnor_dev.order-table.js";
 import { val } from "#/core/query/sql-select-value.js";
 import { info } from "#/core/charms/sql-query-info.js";
@@ -147,8 +148,8 @@ describe("SqlQuery — buildInnerQueryRef all format cases", () => {
 
 describe("SqlQuery — label init edge cases", () => {
    test("label with null rawValue", () => {
-      const nullValue: string | null = null;
-      const query = sql`SELECT ${nullValue} FROM ${Account}`;
+      const rawStrings = Object.assign(["SELECT ", " FROM accounts"], { raw: ["SELECT ", " FROM accounts"] }) as TemplateStringsArray;
+      const query = new SqlQuery({ rawStrings, rawValues: [null] });
       expect(query.label).toBeDefined();
    });
 

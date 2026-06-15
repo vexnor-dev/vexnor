@@ -6,6 +6,7 @@ import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
 import { param } from "#/core/query/sql-param.js";
 import { expand } from "#/core/query/sql-expand.js";
 import { raw } from "#/core/query/sql-raw.js";
+import { SqlQuery } from "#/core/query/sql-query.js";
 
 describe("SqlQuery.getSql — uncovered paths", () => {
    test("getSql with postgresql dialect", () => {
@@ -83,16 +84,16 @@ describe("SqlQuery.getSql — uncovered paths", () => {
 
 describe("SqlQuery.buildInnerToken — edge cases", () => {
    test("null token produces value token", () => {
-      const nullValue: string | null = null;
-      const query = sql`SELECT ${nullValue}`;
+      const rawStrings = Object.assign(["SELECT ", ""], { raw: ["SELECT ", ""] }) as TemplateStringsArray;
+      const query = new SqlQuery({ rawStrings, rawValues: [null] });
       const context = new SqlBuildContext({ dialect: "sql" });
       query.build(context, null, { queryType: "main" });
       expect(context.tokens.some((t) => t.type === "value" && t.value === null)).toBe(true);
    });
 
    test("undefined token produces value token", () => {
-      const undefinedValue: string | undefined = undefined;
-      const query = sql`SELECT ${undefinedValue}`;
+      const rawStrings = Object.assign(["SELECT ", ""], { raw: ["SELECT ", ""] }) as TemplateStringsArray;
+      const query = new SqlQuery({ rawStrings, rawValues: [undefined] });
       const context = new SqlBuildContext({ dialect: "sql" });
       query.build(context, null, { queryType: "main" });
       expect(context.tokens.some((t) => t.type === "value" && t.value === null)).toBe(true);
