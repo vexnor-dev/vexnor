@@ -1,22 +1,16 @@
 import { describe, expect, test } from "vitest";
 import { sql } from "#/core/sql.js";
-import { row } from "#/core/query/sql-select-row.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { Order } from "@test-models/vexnor_dev.order-table.js";
+import { AccountStatusUdt } from "@test-models/vexnor_dev-enums.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
 import { info } from "#/core/charms/sql-query-info.js";
-import { SqlTableAll } from "#/core/charms/sql-table-all.js";
-import { TableInsertCols } from "#/core/charms/table-insert-cols.js";
-import { TableInsertRows } from "#/core/charms/table-insert-rows.js";
-import { TableUpdateSet } from "#/core/charms/table-update-set.js";
-import { TableInsertValues } from "#/core/charms/table-insert-values.js";
 
 describe("SqlQueryInfo — uncovered paths", () => {
    test("info() write outputs comment", () => {
       const queryInfo = info({ label: "test-query", driver: "pg" });
       const context = new SqlBuildContext({ dialect: "sql" });
       queryInfo.build(context);
-      const text = context.tokens.map((t) => t.value).join("");
+      const text = context.tokens.map((t) => ("value" in t ? t.value : "")).join("");
       expect(text).toMatchInlineSnapshot(`
         "
         /* label: test-query, driver: pg */
@@ -59,7 +53,7 @@ describe("SqlTableAll — uncovered paths", () => {
       context.next("EXISTS (SELECT ");
       all.build(context);
       const lastToken = context.tokens.at(-1)!;
-      expect(lastToken.value).toMatchInlineSnapshot(`"*"`);
+      expect("value" in lastToken ? lastToken.value : undefined).toMatchInlineSnapshot(`"*"`);
    });
 });
 
@@ -84,8 +78,8 @@ describe("TableInsertRows — write", () => {
    test("emits values clause for multiple rows", () => {
       const context = new SqlBuildContext({ dialect: "sql" });
       const query = sql`INSERT INTO ${Account} ${Account.insertColsVals(
-         { accountId: "1", email: "a@b.com", firstName: "A", lastName: "B", status: "active" },
-         { accountId: "2", email: "c@d.com", firstName: "C", lastName: "D", status: "inactive" },
+         { accountId: "1", email: "a@b.com", firstName: "A", lastName: "B", status: AccountStatusUdt.CREATED },
+         { accountId: "2", email: "c@d.com", firstName: "C", lastName: "D", status: AccountStatusUdt.CREATED },
       )}`;
       query.build(context, null, { queryType: "main" });
       expect(context.tokens.some((t) => t.type === "value" && t.value === "a@b.com")).toBe(true);
@@ -96,7 +90,7 @@ describe("TableInsertRows — write", () => {
 describe("TableInsertCols — write", () => {
    test("emits column names in parentheses", () => {
       const context = new SqlBuildContext({ dialect: "sql" });
-      const query = sql`INSERT INTO ${Account} ${Account.insertCols({ accountId: "1", email: "a@b.com", firstName: "A", lastName: "B", status: "active" })} VALUES (1,2,3,4,5)`;
+      const query = sql`INSERT INTO ${Account} ${Account.insertCols({ accountId: "1", email: "a@b.com", firstName: "A", lastName: "B", status: AccountStatusUdt.CREATED })} VALUES (1,2,3,4,5)`;
       query.build(context, null, { queryType: "main" });
       const text = context.tokens.filter((t) => t.type === "text").map((t) => t.value).join("");
       expect(text).toContain("(");

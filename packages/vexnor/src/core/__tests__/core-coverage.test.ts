@@ -1,17 +1,16 @@
 import { describe, expect, test } from "vitest";
-import { Sql, nextId, resetIds, classCounters } from "#/core/sql-base.js";
+import { Sql, nextId, resetIds } from "#/core/sql-base.js";
 import { SqlBuildError } from "#/core/sql-build-error.js";
 import { SqlError } from "#/core/sql-error.js";
 import { SqlRunError } from "#/core/sql-run-error.js";
 import { SqlErrorCode } from "#/core/sql-error-code.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
 import { sql } from "#/core/sql.js";
-import { row } from "#/core/query/sql-select-row.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
 import { excluded } from "#/core/schema/sql-excluded.js";
 import { getTableId } from "#/core/schema/sql-table-identity.js";
 import { ok, strictEqual } from "#/lib/assert.js";
-import { SqlTableColumn, newSqlTableColumn } from "#/core/schema/sql-table-column.js";
+import { newSqlTableColumn } from "#/core/schema/sql-table-column.js";
 import { DefaultFormatter } from "#/core/builder/default-formatter.js";
 import { DefaultTokenizer } from "#/core/builder/default-tokenizer.js";
 import { runWithRetry } from "#/core/query/sql-retry.js";
@@ -34,6 +33,7 @@ describe("sql-base.ts — uncovered", () => {
 
    test("Sql.build() wraps errors with context", () => {
       class BadSql extends Sql {
+         constructor(options: { type: string; id: string; hashId: string }) { super(options); }
          write() { throw new Error("write failed"); }
       }
       const bad = new BadSql({ type: "Bad", id: "x", hashId: "x" });
@@ -273,57 +273,57 @@ describe("SqlSelectCharm — uncovered", () => {
 
 describe("SqlParam — uncovered paths", () => {
    test("validate throws on invalid value", () => {
-      const p = new SqlParam({ name: "age", validation: { min: 0 } });
+      const p = new SqlParam<{ Name: "age"; Type: number }>({ name: "age", validation: { min: 0 } });
       expect(() => p.validate(-1)).toThrow("Invalid param 'age'");
    });
 
    test("validate does not throw on valid value", () => {
-      const p = new SqlParam({ name: "age", validation: { min: 0 } });
+      const p = new SqlParam<{ Name: "age"; Type: number }>({ name: "age", validation: { min: 0 } });
       expect(() => p.validate(5)).not.toThrow();
    });
 
    test("valueOrDefault returns default for undefined", () => {
-      const p = new SqlParam({ name: "x", validation: { default: 42 } });
+      const p = new SqlParam<{ Name: "x"; Type: number }>({ name: "x", validation: { default: 42 } });
       expect(p.valueOrDefault(undefined)).toBe(42);
    });
 
    test("valueOrDefault returns value if valid", () => {
-      const p = new SqlParam({ name: "x", validation: { min: 0 } });
+      const p = new SqlParam<{ Name: "x"; Type: number }>({ name: "x", validation: { min: 0 } });
       expect(p.valueOrDefault(10)).toBe(10);
    });
 
    test("valueOrDefault falls back to default if invalid", () => {
-      const p = new SqlParam({ name: "x", validation: { min: 0, default: 0 } });
+      const p = new SqlParam<{ Name: "x"; Type: number }>({ name: "x", validation: { min: 0, default: 0 } });
       expect(p.valueOrDefault(-1)).toBe(0);
    });
 
    test("valueOrDefault throws if invalid and no default", () => {
-      const p = new SqlParam({ name: "x", validation: { min: 0 } });
+      const p = new SqlParam<{ Name: "x"; Type: number }>({ name: "x", validation: { min: 0 } });
       expect(() => p.valueOrDefault(-1)).toThrow();
    });
 
    test("isValid returns true for valid value", () => {
-      const p = new SqlParam({ name: "x", validation: { min: 0 } });
+      const p = new SqlParam<{ Name: "x"; Type: number }>({ name: "x", validation: { min: 0 } });
       expect(p.isValid(5)).toBe(true);
    });
 
    test("isValid returns false for invalid value", () => {
-      const p = new SqlParam({ name: "x", validation: { min: 0 } });
+      const p = new SqlParam<{ Name: "x"; Type: number }>({ name: "x", validation: { min: 0 } });
       expect(p.isValid(-1)).toBe(false);
    });
 
    test("validOrDefault returns value if valid", () => {
-      const p = new SqlParam({ name: "x", validation: { min: 0 } });
+      const p = new SqlParam<{ Name: "x"; Type: number }>({ name: "x", validation: { min: 0 } });
       expect(p.validOrDefault(5, 0)).toBe(5);
    });
 
    test("validOrDefault returns default if invalid", () => {
-      const p = new SqlParam({ name: "x", validation: { min: 0 } });
+      const p = new SqlParam<{ Name: "x"; Type: number }>({ name: "x", validation: { min: 0 } });
       expect(p.validOrDefault(-1, 99)).toBe(99);
    });
 
    test("hasDefault is true when validation has default", () => {
-      const p = new SqlParam({ name: "x", validation: { default: 42 } });
+      const p = new SqlParam<{ Name: "x"; Type: number }>({ name: "x", validation: { default: 42 } });
       expect(p.hasDefault).toBe(true);
       expect(p.default).toBe(42);
    });
@@ -365,13 +365,13 @@ describe("isParamValueValid / validateParamValue — uncovered rules", () => {
    test("Date range validation", () => {
       const min = new Date("2020-01-01");
       const max = new Date("2025-01-01");
-      expect(isParamValueValid(new Date("2022-06-01"), { min, max })).toBe(true);
-      expect(isParamValueValid(new Date("2019-01-01"), { min })).toBe(false);
-      expect(isParamValueValid(new Date("2026-01-01"), { max })).toBe(false);
+      expect(isParamValueValid<Date>(new Date("2022-06-01"), { min, max })).toBe(true);
+      expect(isParamValueValid<Date>(new Date("2019-01-01"), { min })).toBe(false);
+      expect(isParamValueValid<Date>(new Date("2026-01-01"), { max })).toBe(false);
    });
 
    test("null values pass validation", () => {
-      expect(validateParamValue(null, { min: 0 })).toMatchInlineSnapshot(`[]`);
+      expect(validateParamValue<number>(null, { min: 0 })).toMatchInlineSnapshot(`[]`);
    });
 
    test("null validation returns empty errors", () => {

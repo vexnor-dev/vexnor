@@ -2,15 +2,9 @@ import { describe, expect, test } from "vitest";
 import { sql } from "#/core/sql.js";
 import { row } from "#/core/query/sql-select-row.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { Order } from "@test-models/vexnor_dev.order-table.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
 import { val } from "#/core/query/sql-select-value.js";
 import { col } from "#/core/query/sql-select-column.js";
-import { expand } from "#/core/query/sql-expand.js";
-import { raw } from "#/core/query/sql-raw.js";
-import { param } from "#/core/query/sql-param.js";
-import { SqlSelectRow } from "#/core/query/sql-select-row.js";
-import { newSqlTableColumn } from "#/core/schema/sql-table-column.js";
 
 describe("Branch coverage — SqlSelectRow.getRow() all switch cases", () => {
    test("getRow with SqlTableAll (Account.$$)", () => {

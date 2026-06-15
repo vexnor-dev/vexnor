@@ -1,11 +1,9 @@
-import { describe, expect, test, vi } from "vitest";
+import { describe, expect, test } from "vitest";
 import { sql } from "#/core/sql.js";
 import { row } from "#/core/query/sql-select-row.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
 import { param } from "#/core/query/sql-param.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { connect } from "#/plugin/vexnor-connection.js";
-import { SqlQueryPipeline } from "#/execution/sql-query-pipeline.js";
 import { raw } from "#/core/query/sql-raw.js";
 import { info } from "#/core/charms/sql-query-info.js";
 import { SqlQuery } from "#/core/query/sql-query.js";

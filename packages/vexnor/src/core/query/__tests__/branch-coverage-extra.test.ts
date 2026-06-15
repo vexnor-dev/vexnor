@@ -2,16 +2,9 @@ import { describe, expect, test } from "vitest";
 import { sql } from "#/core/sql.js";
 import { row } from "#/core/query/sql-select-row.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { Order } from "@test-models/vexnor_dev.order-table.js";
-import { OrderItem } from "@test-models/vexnor_dev.order-item-table.js";
+import { AccountStatusUdt } from "@test-models/vexnor_dev-enums.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { param, ctx } from "#/core/query/sql-param.js";
-import { val } from "#/core/query/sql-select-value.js";
-import { col } from "#/core/query/sql-select-column.js";
 import { expand } from "#/core/query/sql-expand.js";
-import { raw } from "#/core/query/sql-raw.js";
-import { info } from "#/core/charms/sql-query-info.js";
-import { SqlBuildError } from "#/core/sql-build-error.js";
 import { newSqlTable } from "#/core/schema/sql-table.js";
 import { excluded } from "#/core/schema/sql-excluded.js";
 
@@ -128,7 +121,7 @@ describe("More branch coverage — sql-table-column write formats", () => {
 
    test("excluded column uses rawAlias.columnName format", () => {
       const excl = excluded(Account);
-      const query = sql`INSERT INTO ${Account} ${Account.insertColsVals({ accountId: "1", email: "a@b.com", firstName: "A", lastName: "B", status: "active" })} ON CONFLICT DO UPDATE SET ${excl.$email}`;
+      const query = sql`INSERT INTO ${Account} ${Account.insertColsVals({ accountId: "1", email: "a@b.com", firstName: "A", lastName: "B", status: AccountStatusUdt.CREATED })} ON CONFLICT DO UPDATE SET ${excl.$email}`;
       const context = new SqlBuildContext({ dialect: "sql" });
       query.build(context, null, { queryType: "main" });
       const text = context.tokens.filter(t => t.type === "text").map(t => t.value).join("");

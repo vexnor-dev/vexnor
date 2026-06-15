@@ -2,14 +2,12 @@ import { describe, expect, test } from "vitest";
 import { sql } from "#/core/sql.js";
 import { row } from "#/core/query/sql-select-row.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { Order } from "@test-models/vexnor_dev.order-table.js";
+import { AccountStatusUdt } from "@test-models/vexnor_dev-enums.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { param } from "#/core/query/sql-param.js";
 import { val } from "#/core/query/sql-select-value.js";
 import { col } from "#/core/query/sql-select-column.js";
 import { expand } from "#/core/query/sql-expand.js";
 import { raw } from "#/core/query/sql-raw.js";
-import { SqlBuildError } from "#/core/sql-build-error.js";
 
 describe("Branch coverage — sql-select-row edge cases", () => {
    test("row with SqlTableAll column type", () => {
@@ -149,8 +147,8 @@ describe("Branch coverage — table update set with Date", () => {
 describe("Branch coverage — insert with multiple rows", () => {
    test("insertColsVals with two rows", () => {
       const query = sql`INSERT INTO ${Account} ${Account.insertColsVals(
-         { accountId: "1", email: "a@b.com", firstName: "A", lastName: "B", status: "active" },
-         { accountId: "2", email: "c@d.com", firstName: "C", lastName: "D", status: "inactive" },
+         { accountId: "1", email: "a@b.com", firstName: "A", lastName: "B", status: AccountStatusUdt.CREATED },
+         { accountId: "2", email: "c@d.com", firstName: "C", lastName: "D", status: AccountStatusUdt.CREATED },
       )}`;
       const context = new SqlBuildContext({ dialect: "sql" });
       query.build(context, null, { queryType: "main" });

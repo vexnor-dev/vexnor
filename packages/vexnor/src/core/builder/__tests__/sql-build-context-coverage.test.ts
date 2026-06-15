@@ -2,11 +2,7 @@ import { describe, expect, test } from "vitest";
 import { sql } from "#/core/sql.js";
 import { row } from "#/core/query/sql-select-row.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { Order } from "@test-models/vexnor_dev.order-table.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { param } from "#/core/query/sql-param.js";
-import { expand } from "#/core/query/sql-expand.js";
-import { val } from "#/core/query/sql-select-value.js";
 
 describe("SqlBuildContext — uncovered function paths", () => {
    test("text getter returns formatted SQL text", () => {

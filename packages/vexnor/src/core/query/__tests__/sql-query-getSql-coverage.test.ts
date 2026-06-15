@@ -2,10 +2,8 @@ import { describe, expect, test } from "vitest";
 import { sql } from "#/core/sql.js";
 import { row } from "#/core/query/sql-select-row.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { Order } from "@test-models/vexnor_dev.order-table.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
 import { param } from "#/core/query/sql-param.js";
-import { val } from "#/core/query/sql-select-value.js";
 import { expand } from "#/core/query/sql-expand.js";
 import { raw } from "#/core/query/sql-raw.js";
 
@@ -166,6 +164,6 @@ describe("SqlQueryRef — uncovered paths", () => {
    test("ref proxy get for non-existent key returns undefined", () => {
       const query = sql`SELECT ${row(Account.$accountId)} FROM ${Account}`;
       const ref = query.render("from");
-      expect((ref as Record<string, unknown>)["$nonExistent"]).toBeUndefined();
+      expect((ref as unknown as Record<string, unknown>)["$nonExistent"]).toBeUndefined();
    });
 });

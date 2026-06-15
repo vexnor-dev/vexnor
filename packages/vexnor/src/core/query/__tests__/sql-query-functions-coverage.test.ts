@@ -153,7 +153,7 @@ describe("SqlQuery — uncovered function paths", () => {
 
    test("newSqlQuery proxy get for non-existent key returns undefined", () => {
       const query = sql`SELECT ${row(Account.$accountId)} FROM ${Account}`;
-      expect((query as Record<string, unknown>)["$nonExistent"]).toBeUndefined();
+      expect((query as unknown as Record<string, unknown>)["$nonExistent"]).toBeUndefined();
    });
 
    test("col() simple key", () => {
@@ -163,7 +163,7 @@ describe("SqlQuery — uncovered function paths", () => {
    });
 
    test("col() with onWrite handler", () => {
-      const column = col<{ total: number }>(
+      const column = col<{ total: number }, Record<string, never>>(
          "total",
          (ctx) => ctx.addStrings("COUNT(*)"),
          null as never,

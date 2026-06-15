@@ -2,13 +2,11 @@ import { describe, expect, test } from "vitest";
 import { sql } from "#/core/sql.js";
 import { row } from "#/core/query/sql-select-row.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { Order } from "@test-models/vexnor_dev.order-table.js";
+import { AccountStatusUdt } from "@test-models/vexnor_dev-enums.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
 import { param } from "#/core/query/sql-param.js";
 import { expand } from "#/core/query/sql-expand.js";
 import { raw } from "#/core/query/sql-raw.js";
-import { SqlSelectAll } from "#/core/query/sql-select-all.js";
-import { newSqlQueryColumn } from "#/core/query/sql-query-column.js";
 
 describe("SqlBuildContext.text — param and expand tokens", () => {
    test("text with param token renders ?", () => {
@@ -63,7 +61,7 @@ describe("SqlSelectRow.getRow — first-item branch (row ?? {})", () => {
 describe("SqlTable write — INSERT INTO/DELETE FROM/UPDATE context sets alias", () => {
    test("INSERT INTO context with schema.tableName", () => {
       const rendered = Account.render("schema.tableName");
-      const query = sql`INSERT INTO ${rendered} ${Account.insertColsVals({ accountId: "1", email: "a@b.com", firstName: "A", lastName: "B", status: "active" })}`;
+      const query = sql`INSERT INTO ${rendered} ${Account.insertColsVals({ accountId: "1", email: "a@b.com", firstName: "A", lastName: "B", status: AccountStatusUdt.CREATED })}`;
       const context = new SqlBuildContext({ dialect: "sql" });
       query.build(context, null, { queryType: "main" });
       expect(context.tokens.length).toBeGreaterThan(0);

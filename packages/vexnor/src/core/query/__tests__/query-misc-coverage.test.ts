@@ -2,9 +2,7 @@ import { describe, expect, test } from "vitest";
 import { sql } from "#/core/sql.js";
 import { row } from "#/core/query/sql-select-row.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { Order } from "@test-models/vexnor_dev.order-table.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { param } from "#/core/query/sql-param.js";
 import { val } from "#/core/query/sql-select-value.js";
 import { raw } from "#/core/query/sql-raw.js";
 import { col } from "#/core/query/sql-select-column.js";
@@ -76,7 +74,7 @@ describe("input()", () => {
 
    test("proxy get returns undefined for symbol", () => {
       const p = input<{ name: string }>();
-      expect((p as Record<symbol, unknown>)[Symbol("test")]).toBeUndefined();
+      expect((p as unknown as Record<symbol, unknown>)[Symbol("test")]).toBeUndefined();
    });
 
    test("caches SqlParam instances", () => {
@@ -182,7 +180,7 @@ describe("val() with SqlQuery argument", () => {
 
 describe("col() with onWrite", () => {
    test("col with custom onWrite emits custom SQL", () => {
-      const column = col<{ total: number }>(
+      const column = col<{ total: number }, Record<string, never>>(
          "total",
          (ctx) => ctx.addStrings("COUNT(*)"),
          null as never,

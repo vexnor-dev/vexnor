@@ -1,9 +1,6 @@
 import { describe, expect, test } from "vitest";
-import { sql } from "#/core/sql.js";
-import { row } from "#/core/query/sql-select-row.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { Order } from "@test-models/vexnor_dev.order-table.js";
-import { newSqlTable } from "#/core/schema/sql-table.js";
+import { AccountStatusUdt } from "@test-models/vexnor_dev-enums.js";
 
 describe("SqlTable — uncovered function paths", () => {
    test("as() with string creates alias", () => {
@@ -46,22 +43,22 @@ describe("SqlTable — uncovered function paths", () => {
    });
 
    test("insertColsVals() creates insert SQL", () => {
-      const insert = Account.insertColsVals({ accountId: "1", email: "a@b.com", firstName: "A", lastName: "B", status: "active" });
+      const insert = Account.insertColsVals({ accountId: "1", email: "a@b.com", firstName: "A", lastName: "B", status: AccountStatusUdt.CREATED });
       expect(insert).toBeDefined();
    });
 
    test("insertCols() creates column list only", () => {
-      const cols = Account.insertCols({ accountId: "1", email: "a@b.com", firstName: "A", lastName: "B", status: "active" });
+      const cols = Account.insertCols({ accountId: "1", email: "a@b.com", firstName: "A", lastName: "B", status: AccountStatusUdt.CREATED });
       expect(cols).toBeDefined();
    });
 
    test("insertVals() creates values clause only", () => {
-      const vals = Account.insertVals({ accountId: "1", email: "a@b.com", firstName: "A", lastName: "B", status: "active" });
+      const vals = Account.insertVals({ accountId: "1", email: "a@b.com", firstName: "A", lastName: "B", status: AccountStatusUdt.CREATED });
       expect(vals).toBeDefined();
    });
 
    test("insertColsVals() throws with empty array", () => {
-      expect(() => (Account as never).insertColsVals()).toThrow();
+      expect(() => (Account as unknown as { insertColsVals: () => void }).insertColsVals()).toThrow();
    });
 
    test("$$ returns SqlTableAll", () => {
