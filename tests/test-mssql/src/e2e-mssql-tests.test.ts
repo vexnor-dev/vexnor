@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, test } from "vitest";
 import { randomUUID } from "node:crypto";
 import { ok } from "node:assert";
-import { param, row, sql } from "vexnor";
+import { param, row, sql } from "@vexnor/core";
 import { jsonMany } from "@vexnor/mssql";
 import { Account, IAccountSelect } from "./codegen/vexnor_dev.schema.js";
 import { pool } from "./mssql-pool.js";

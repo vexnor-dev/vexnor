@@ -1,7 +1,7 @@
 // noinspection SqlNoDataSourceInspection,SqlResolve
-import { info, ParamsOfArgs, sql, SqlDeleteArgs, SqlQueryColumns } from "vexnor";
-import { raw, row, SqlTable } from "vexnor";
-import { ok } from "vexnor";
+import { info, ParamsOfArgs, sql, SqlDeleteArgs, SqlQueryColumns } from "@vexnor/core";
+import { raw, row, SqlTable } from "@vexnor/core";
+import { ok } from "@vexnor/core";
 import { MssqlQueryHandler } from "#/mssql-query-handler.js";
 import "#/mssql-augment.js";
 

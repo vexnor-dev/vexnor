@@ -1,4 +1,4 @@
-import { col, param, row, sql, val } from "vexnor";
+import { col, param, row, sql, val } from "@vexnor/core";
 import { PragmaTableInfo, SqliteMaster } from "#/schema/models.js";
 
 export const findTables = sql`

@@ -1,4 +1,4 @@
-import { row, sql } from "vexnor";
+import { row, sql } from "@vexnor/core";
 import { Account } from "./codegen/vexnor_dev.account-table.js";
 import { pool } from "./mssql-pool.js";
 import "@vexnor/mssql";

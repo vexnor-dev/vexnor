@@ -12,9 +12,9 @@ import {
    SqlTableColumnAny,
    excluded,
    SqlQueryColumns,
-} from "vexnor";
+} from "@vexnor/core";
 import { sql } from "#/postgres-sql.js";
-import { SqlInsertRowsParams } from "vexnor";
+import { SqlInsertRowsParams } from "@vexnor/core";
 import { PostgresQueryHandler } from "#/postgres-query-handler.js";
 import "#/postgres-augment.js";
 

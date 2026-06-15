@@ -1,5 +1,5 @@
-import { col, param, row, sql } from "vexnor";
-import { SqlColumnInfo, SqlPrimaryKeyInfo } from "vexnor/plugin";
+import { col, param, row, sql } from "@vexnor/core";
+import { SqlColumnInfo, SqlPrimaryKeyInfo } from "@vexnor/core/plugin";
 import { Columns, KeyColumnUsage, TableConstraints } from "#/schema/models.js";
 
 export const findTableColumns = sql`

@@ -1,6 +1,6 @@
 import { getViewConfig, type PgView } from "drizzle-orm/pg-core";
 import { Column } from "drizzle-orm";
-import { newSqlTable, type SqlTableExtended } from "vexnor";
+import { newSqlTable, type SqlTableExtended } from "@vexnor/core";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyPgView = PgView<string, boolean, Record<string, any>>;

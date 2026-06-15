@@ -3,7 +3,7 @@
 import { startTransition, Suspense, useState } from "react";
 import { DeleteButton } from "./delete-button";
 import { AlertMessage } from "./alert-message";
-import { TypeOf } from "vexnor";
+import { TypeOf } from "@vexnor/core";
 import * as postgres from "@/shared/queries/postgres";
 import * as mssql from "@/shared/queries/mssql";
 import * as sqlite3 from "@/shared/queries/sqlite3";

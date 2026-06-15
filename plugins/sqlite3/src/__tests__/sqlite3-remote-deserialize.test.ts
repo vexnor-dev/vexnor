@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
-import { sql, row, SqlSelectCharm, type RemoteClient } from "vexnor";
-import { Account } from "vexnor/testing";
+import { sql, row, SqlSelectCharm, type RemoteClient } from "@vexnor/core";
+import { Account } from "@vexnor/core/testing";
 import "@vexnor/sqlite3";
 import "#/sqlite3-augment.js";
 

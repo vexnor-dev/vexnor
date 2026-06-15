@@ -1,4 +1,4 @@
-import { newSqlTable } from "vexnor";
+import { newSqlTable } from "@vexnor/core";
 
 export const SqliteMaster = newSqlTable<{
    Select: { type: string; name: string; tbl_name: string; rootpage: number; sql: string };

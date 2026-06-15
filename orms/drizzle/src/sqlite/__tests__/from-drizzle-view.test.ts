@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { sqliteView, text, integer } from "drizzle-orm/sqlite-core";
-import { sql, row, param, SqlTable } from "vexnor";
+import { sql, row, param, SqlTable } from "@vexnor/core";
 import { fromDrizzleView } from "../index.js";
 
 const accountOrderSummaryDrizzle = sqliteView("account_order_summary", {

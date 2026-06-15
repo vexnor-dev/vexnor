@@ -1,7 +1,7 @@
-import { SqlTable, row, ParamsOfArgs, raw, info, SqlQueryColumns } from "vexnor";
-import type { SqlInsertFromArgs } from "vexnor";
+import { SqlTable, row, ParamsOfArgs, raw, info, SqlQueryColumns } from "@vexnor/core";
+import type { SqlInsertFromArgs } from "@vexnor/core";
 import { sql } from "#/mssql-sql.js";
-import { ok } from "vexnor";
+import { ok } from "@vexnor/core";
 import "#/mssql-augment.js";
 import { MssqlQueryHandler } from "#/mssql-query-handler.js";
 

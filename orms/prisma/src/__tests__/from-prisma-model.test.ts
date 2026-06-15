@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { SqlTable, SqlTableColumn, col, row, sql } from "vexnor";
+import { SqlTable, SqlTableColumn, col, row, sql } from "@vexnor/core";
 import { readFile } from "node:fs/promises";
 import { fromPrismaModelTable, fromPrismaModelView } from "../from-prisma-model.js";
 import { getDialectFromPrismaProvider } from "../dialect.js";

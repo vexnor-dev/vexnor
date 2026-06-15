@@ -3,7 +3,7 @@ import { ok } from "node:assert";
 import { randomUUID } from "node:crypto";
 import { sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { fromDrizzleTable } from "@vexnor/drizzle/sqlite";
-import { row, sql, param, excluded } from "vexnor";
+import { row, sql, param, excluded } from "@vexnor/core";
 import "@vexnor/sqlite3";
 import { db } from "./config.js";
 

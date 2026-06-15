@@ -1,8 +1,8 @@
 // noinspection SqlNoDataSourceInspection,SqlResolve
 import "@vexnor/sqlite3";
 import { describe, expect, test } from "vitest";
-import { Account } from "vexnor/testing";
-import { sql, input } from "vexnor";
+import { Account } from "@vexnor/core/testing";
+import { sql, input } from "@vexnor/core";
 import { sqlite3Update } from "#/crud/sqlite3-update.js";
 import { defaultQueryOptions } from "#/crud/default-query-options.js";
 

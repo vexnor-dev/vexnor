@@ -1,4 +1,4 @@
-import { SqlColumnFormat, DefaultFormatter, SqlBuildContext, SqlTableFormat } from "vexnor";
+import { SqlColumnFormat, DefaultFormatter, SqlBuildContext, SqlTableFormat } from "@vexnor/core";
 
 export class Sqlite3Formatter extends DefaultFormatter {
    override getColumnFormat(context: SqlBuildContext): SqlColumnFormat {

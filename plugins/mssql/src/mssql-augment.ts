@@ -1,8 +1,8 @@
-import { SqlQuery, SqlTable, newSqlQueryHandler } from "vexnor";
+import { SqlQuery, SqlTable, newSqlQueryHandler } from "@vexnor/core";
 import { MssqlQueryHandler } from "#/mssql-query-handler.js";
 import { newMssqlTableHandler, MssqlTableHandler } from "#/crud/mssql-table-handler.js";
 
-declare module "vexnor" {
+declare module "@vexnor/core" {
    interface SqlQuery<T extends { Row?: unknown; Params?: unknown }> {
       readonly mssql: MssqlQueryHandler<T>;
    }

@@ -1,4 +1,4 @@
-import { newSqlTable } from "vexnor";
+import { newSqlTable } from "@vexnor/core";
 
 export const PgType = newSqlTable<{
    Select: { oid: number; typname: string; typcategory: string; typnamespace: number; typelem: number };

@@ -1,5 +1,5 @@
 import "@vexnor/mssql";
-import { row, sql, param, col } from "vexnor";
+import { row, sql, param, col } from "@vexnor/core";
 import { jsonOne } from "@vexnor/mssql";
 import { Account } from "../codegen/mssql/vexnor_dev.account-table";
 import { Order } from "../codegen/mssql/vexnor_dev.order-table";

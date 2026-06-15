@@ -1,5 +1,5 @@
-import { SqlTable, sql, raw, buildUpdateSetExpand, row, SqlUpdateParameters, Void, ParamsOfArgs, info } from "vexnor";
-import type { SqlUpdateArgs } from "vexnor";
+import { SqlTable, sql, raw, buildUpdateSetExpand, row, SqlUpdateParameters, Void, ParamsOfArgs, info } from "@vexnor/core";
+import type { SqlUpdateArgs } from "@vexnor/core";
 import { BetterSqlite3QueryHandler } from "#/better-sqlite3-query-handler.js";
 import "#/sqlite3-augment.js";
 

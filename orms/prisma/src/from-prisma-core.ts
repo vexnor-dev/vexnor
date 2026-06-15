@@ -1,4 +1,4 @@
-import { newSqlTable, SqlTableExtended } from "vexnor";
+import { newSqlTable, SqlTableExtended } from "@vexnor/core";
 import { getDialectFromPrismaProvider } from "./dialect.js";
 import { PrismaModel } from "./prisma-dmmf-types.js";
 

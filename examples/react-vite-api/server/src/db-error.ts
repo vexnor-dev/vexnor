@@ -1,6 +1,6 @@
-import { SqlError, SqlRunError } from "vexnor/execution";
+import { SqlError, SqlRunError } from "@vexnor/core/execution";
 import type { Context } from "hono";
-import { SqlErrorCode } from "vexnor";
+import { SqlErrorCode } from "@vexnor/core";
 
 type ErrorStatus = 400 | 403 | 429 | 500 | 503 | 504;
 

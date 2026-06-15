@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { sqliteTable, text, integer, real, primaryKey } from "drizzle-orm/sqlite-core";
-import { sql, row, val, param, SqlTable } from "vexnor";
+import { sql, row, val, param, SqlTable } from "@vexnor/core";
 import { fromDrizzleTable } from "../index.js";
 
 const accountDrizzle = sqliteTable("account", {

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
-import { param, row, sql } from "vexnor";
-import { Account } from "vexnor/testing";
+import { param, row, sql } from "@vexnor/core";
+import { Account } from "@vexnor/core/testing";
 import { BetterSqlite3QueryHandler } from "#/better-sqlite3-query-handler.js";
 import "#/sqlite3-augment.js";
 

@@ -1,7 +1,7 @@
 // noinspection SqlNoDataSourceInspection,SqlResolve
 import { describe, expect, test } from "vitest";
-import { Account } from "vexnor/testing";
-import { sql, row } from "vexnor";
+import { Account } from "@vexnor/core/testing";
+import { sql, row } from "@vexnor/core";
 import "#/sqlite3-augment.js";
 import "@vexnor/sqlite3";
 

@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { pgSchema, uuid, varchar, bigint } from "drizzle-orm/pg-core";
 import { fromDrizzleView } from "@vexnor/drizzle/pg";
-import { sql, row, param } from "vexnor";
+import { sql, row, param } from "@vexnor/core";
 import "@vexnor/postgres";
 import { pool } from "./postgres-pool.js";
 

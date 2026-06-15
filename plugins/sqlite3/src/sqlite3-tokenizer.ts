@@ -1,4 +1,4 @@
-import { DefaultTokenizer, MAJOR_KEYWORDS, SqlBuildError } from "vexnor";
+import { DefaultTokenizer, MAJOR_KEYWORDS, SqlBuildError } from "@vexnor/core";
 
 export class Sqlite3Tokenizer extends DefaultTokenizer {
    // We override the entire tokenize method to allow the '?' and '$' parameter markers for SQLite3.

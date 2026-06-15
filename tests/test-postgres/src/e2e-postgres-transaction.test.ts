@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { row, SqlRunError } from "vexnor";
+import { row, SqlRunError } from "@vexnor/core";
 import { sql } from "@vexnor/postgres";
 import { transaction, savepoint } from "@vexnor/postgres";
 import { Account } from "./codegen/vexnor_dev.account-table.js";

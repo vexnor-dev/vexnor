@@ -4,7 +4,7 @@ import { Account } from "./codegen/main.account-table.js";
 import { randomUUID } from "node:crypto";
 import Database from "better-sqlite3";
 import { SQLITE_PATH } from "./config.js";
-import { row } from "vexnor";
+import { row } from "@vexnor/core";
 
 describe("vexnor postgres sql tests", () => {
    const db = new Database(SQLITE_PATH);

@@ -1,7 +1,7 @@
 // noinspection SqlNoDataSourceInspection,SqlResolve
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
-import { HttpRemoteClient, info, param, row } from "vexnor";
+import { HttpRemoteClient, info, param, row } from "@vexnor/core";
 import { sql, jsonMany } from "@vexnor/sqlite3";
 import "@vexnor/sqlite3";
 import { createTestServer } from "./test-server.js";

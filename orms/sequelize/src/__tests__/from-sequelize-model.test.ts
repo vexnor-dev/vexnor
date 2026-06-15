@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { DataTypes, InferAttributes, InferCreationAttributes, Model, Sequelize } from "sequelize";
-import { row, sql, SqlTable } from "vexnor";
+import { row, sql, SqlTable } from "@vexnor/core";
 import { fromSequelizeTable, fromSequelizeView } from "../index.js";
 
 class AccountModel extends Model<InferAttributes<AccountModel>, InferCreationAttributes<AccountModel>> {

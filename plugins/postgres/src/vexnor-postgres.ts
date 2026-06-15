@@ -8,13 +8,13 @@ import {
    SqlSchema,
    VexnorConnection,
    VexnorPlugin,
-} from "vexnor/plugin";
+} from "@vexnor/core/plugin";
 import { Pool } from "pg";
 import { findEnums } from "#/schema/find-enums.js";
 import { findTables, findViews } from "#/schema/find-tables.js";
 import { getColumnType } from "#/schema/get-column-type.js";
 import { PLUGIN_NAME, PostgresQueryHandler } from "#/postgres-query-handler.js";
-import { SqlQuery, SqlQueryHandler } from "vexnor";
+import { SqlQuery, SqlQueryHandler } from "@vexnor/core";
 import "#/postgres-augment.js";
 
 /**

@@ -1,8 +1,8 @@
-import { SqlQuery, SqlTable, newSqlQueryHandler } from "vexnor";
+import { SqlQuery, SqlTable, newSqlQueryHandler } from "@vexnor/core";
 import { PostgresQueryHandler } from "#/postgres-query-handler.js";
 import { newPostgresTableHandler, PostgresTableHandler } from "#/crud/postgres-table-handler.js";
 
-declare module "vexnor" {
+declare module "@vexnor/core" {
    interface SqlQuery<T extends { Row?: unknown; Params?: unknown }> {
       readonly postgres: PostgresQueryHandler<T>;
    }

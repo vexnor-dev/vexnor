@@ -1,4 +1,4 @@
-import { SqlBuildOptions } from "vexnor";
+import { SqlBuildOptions } from "@vexnor/core";
 import { MssqlTokenizer } from "#/mssql-tokenizer.js";
 
 export const defaultQueryOptions: SqlBuildOptions = {

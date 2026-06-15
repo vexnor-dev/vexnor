@@ -37,7 +37,7 @@ describe("initCommand", () => {
 
       const configContent = await fs.readFile("vexnor.config.ts", "utf-8");
 
-      expect(configContent).toContain(`import { defineConfig } from "vexnor"`);
+      expect(configContent).toContain(`import { defineConfig } from "@vexnor/core"`);
       expect(configContent).toContain(`plugin: "<SET ME>"`);
       expect(configContent).toContain(`defaultProfile: "dev"`);
       expect(configContent).toContain(`confirmMutations: true`);
@@ -48,8 +48,8 @@ describe("initCommand", () => {
 
       const queryConfigContent = await fs.readFile("queries.vexnor.ts", "utf-8");
 
-      expect(queryConfigContent).toContain('import { defineQueryConfig } from "vexnor"');
-      expect(queryConfigContent).toContain('import { sql } from "vexnor"');
+      expect(queryConfigContent).toContain('import { defineQueryConfig } from "@vexnor/core"');
+      expect(queryConfigContent).toContain('import { sql } from "@vexnor/core"');
       expect(queryConfigContent).toContain("exampleQuery");
    });
 

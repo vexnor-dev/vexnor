@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 import { Account } from "./codegen/vexnor_dev.account-table.js";
 import { pool } from "./postgres-pool.js";
 import { AccountStatusUdt } from "./codegen/vexnor_dev-enums.js";
-import { row } from "vexnor";
+import { row } from "@vexnor/core";
 import { sql } from "@vexnor/postgres";
 
 describe("vexnor postgres sql tests", () => {

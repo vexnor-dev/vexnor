@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { ok } from "node:assert";
 import { randomUUID } from "node:crypto";
-import { row, val } from "vexnor";
+import { row, val } from "@vexnor/core";
 import { sql, sqlite3InsertRows, sqlite3InsertFrom } from "@vexnor/sqlite3";
 import { Account, IAccountInsert } from "./codegen/main.account-table.js";
 import { db } from "./config.js";

@@ -1,4 +1,4 @@
-import { SqlQuery, SqlQueryToken, SqlRow, SqlParams, SqlQueryExtended, newSqlQueryHandler, sqlBuildDefaults } from "vexnor";
+import { SqlQuery, SqlQueryToken, SqlRow, SqlParams, SqlQueryExtended, newSqlQueryHandler, sqlBuildDefaults } from "@vexnor/core";
 import { PostgresQueryHandler } from "#/postgres-query-handler.js";
 
 export type PostgresQueryExtended<T extends { Row?: unknown; Params?: unknown }> = PostgresQueryHandler<T> &

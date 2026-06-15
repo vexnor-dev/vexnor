@@ -21,7 +21,7 @@
    "dependencies": {
       "@sinclair/typebox": "^0.34.41",
       "better-sqlite3": "^12.4.1",
-      "vexnor": "workspace:*",
+      "@vexnor/core": "workspace:*",
       "@vexnor/drizzle": "workspace:*",
       "@vexnor/prisma": "workspace:*",
       "@vexnor/sequelize": "workspace:*",

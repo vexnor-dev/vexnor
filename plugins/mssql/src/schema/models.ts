@@ -1,4 +1,4 @@
-import { newSqlTable } from "vexnor";
+import { newSqlTable } from "@vexnor/core";
 
 export const Tables = newSqlTable<{ Select: { table_name: string; table_schema: string; table_type: string } }>({
    crud: {

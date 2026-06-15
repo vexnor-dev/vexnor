@@ -1,4 +1,4 @@
-import { defineConfig } from "vexnor/config";
+import { defineConfig } from "@vexnor/core/config";
 import { GetEnvVars } from "env-cmd";
 import { ok } from "node:assert";
 

@@ -1,7 +1,7 @@
 import { assertType, describe, expect, test } from "vitest";
-import { JsonRow, param, row, sql, SqlBuildContext, SqlCharm, SqlParam, SqlQueryExtended } from "vexnor";
+import { JsonRow, param, row, sql, SqlBuildContext, SqlCharm, SqlParam, SqlQueryExtended } from "@vexnor/core";
 import { jsonMany } from "#/charms/json-aggregation-postgres.js";
-import { Account, IAccountSelect } from "vexnor/testing";
+import { Account, IAccountSelect } from "@vexnor/core/testing";
 
 describe("json-many-postgres tests", () => {
    test("should render select w/o alias", () => {

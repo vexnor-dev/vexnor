@@ -52,7 +52,7 @@
       "README.md"
    ],
    "dependencies": {
-      "vexnor": "workspace:^"
+      "@vexnor/core": "workspace:^"
    },
    "devDependencies": {
       "@types/mssql": "^12.3.0",

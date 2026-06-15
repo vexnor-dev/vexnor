@@ -1,7 +1,7 @@
 // noinspection SqlNoDataSourceInspection,SqlResolve
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
-import { HttpRemoteClient, param, row } from "vexnor";
+import { HttpRemoteClient, param, row } from "@vexnor/core";
 import { sql as pgSql } from "@vexnor/postgres";
 import { sql as mssqlSql } from "@vexnor/mssql";
 import { sql as sqliteSql } from "@vexnor/sqlite3";

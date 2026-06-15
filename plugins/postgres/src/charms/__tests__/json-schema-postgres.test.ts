@@ -1,8 +1,8 @@
 import { describe, expect, test } from "vitest";
-import { row, sql } from "vexnor";
+import { row, sql } from "@vexnor/core";
 import { jsonOne, jsonMany } from "#/charms/json-aggregation-postgres.js";
-import { Account } from "vexnor/testing";
-import { Order } from "vexnor/testing";
+import { Account } from "@vexnor/core/testing";
+import { Order } from "@vexnor/core/testing";
 
 describe("SqlQuery.jsonSchema with postgres charms", () => {
    test("jsonOne.as() — schema includes inner Date columns as object", () => {

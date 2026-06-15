@@ -1,7 +1,7 @@
 // noinspection SqlNoDataSourceInspection,SqlResolve
-import { SqlTable, expandInsertColumns, expandInsertValues, row, raw, info, SqlQueryColumns } from "vexnor";
+import { SqlTable, expandInsertColumns, expandInsertValues, row, raw, info, SqlQueryColumns } from "@vexnor/core";
 import { sql } from "#/postgres-sql.js";
-import { SqlInsertRowsParams } from "vexnor";
+import { SqlInsertRowsParams } from "@vexnor/core";
 import { PostgresQueryHandler } from "#/postgres-query-handler.js";
 import "#/postgres-augment.js";
 

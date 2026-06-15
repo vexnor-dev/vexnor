@@ -8,7 +8,7 @@ import {
    deserialize,
    ok,
    RemoteClient,
-} from "vexnor";
+} from "@vexnor/core";
 
 // MSSQL transient error numbers and codes safe to retry
 const RETRYABLE_MSSQL_NUMBERS = new Set([1205]); // deadlock

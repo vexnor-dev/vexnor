@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { SqlSelectCharm } from "vexnor";
+import { SqlSelectCharm } from "@vexnor/core";
 import type { IResult } from "mssql";
 import { sql } from "#/mssql-sql.js";
 

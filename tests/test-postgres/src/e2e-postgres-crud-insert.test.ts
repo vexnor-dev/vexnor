@@ -3,7 +3,7 @@ import { ok } from "node:assert";
 import { pool } from "./postgres-pool.js";
 import { TestDataManager } from "./test-data-manager.js";
 import { Account } from "./codegen/vexnor_dev.account-table.js";
-import { row, sql } from "vexnor";
+import { row, sql } from "@vexnor/core";
 
 describe.sequential("vexnor postgres CRUD - insert", async (ctx) => {
    const dataManager = new TestDataManager(ctx, {

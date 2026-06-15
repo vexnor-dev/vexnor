@@ -1,7 +1,7 @@
 // noinspection SqlNoDataSourceInspection,SqlResolve
 import { describe, expect, test } from "vitest";
-import { Account } from "vexnor/testing";
-import { sql, input } from "vexnor";
+import { Account } from "@vexnor/core/testing";
+import { sql, input } from "@vexnor/core";
 import { postgresUpdate } from "#/crud/postgres-update.js";
 import { defaultQueryOptions } from "#/default-query-options.js";
 

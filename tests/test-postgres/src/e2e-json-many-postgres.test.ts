@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, test } from "vitest";
-import { info, param, row } from "vexnor";
+import { info, param, row } from "@vexnor/core";
 import { Account, AccountStatusUdt, IAccountSelect, Order, IOrderSelect } from "./codegen/vexnor_dev.schema.js";
 import { jsonMany, sql } from "@vexnor/postgres";
 import { pool } from "./postgres-pool.js";

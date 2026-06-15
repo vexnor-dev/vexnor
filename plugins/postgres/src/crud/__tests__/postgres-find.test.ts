@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { Account } from "vexnor/testing";
+import { Account } from "@vexnor/core/testing";
 import "@vexnor/postgres";
 import { defaultQueryOptions } from "#/default-query-options.js";
 

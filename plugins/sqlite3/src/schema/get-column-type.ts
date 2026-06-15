@@ -1,4 +1,4 @@
-import { SqlColumnInfo, SqlColumnType, SqlLiteralType } from "vexnor/plugin";
+import { SqlColumnInfo, SqlColumnType, SqlLiteralType } from "@vexnor/core/plugin";
 
 export function getColumnType(col: SqlColumnInfo): SqlColumnType {
    const lowerType = col.udt_name?.toLowerCase() || "";

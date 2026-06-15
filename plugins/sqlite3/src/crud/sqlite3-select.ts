@@ -9,7 +9,7 @@ import {
    SqlSelectResultRow,
    info,
    SqlQueryColumns,
-} from "vexnor";
+} from "@vexnor/core";
 import { jsonMany, jsonOne } from "#/charms/json-aggregation-sqlite3.js";
 import { BetterSqlite3QueryHandler } from "#/better-sqlite3-query-handler.js";
 import "#/sqlite3-augment.js";

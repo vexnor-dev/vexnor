@@ -1,6 +1,6 @@
 // noinspection SqlNoDataSourceInspection,SqlResolve
-import { SqlTable, expandInsertColumns, expandInsertValues, row, raw, info, sql } from "vexnor";
-import { SqlInsertRowsParams } from "vexnor";
+import { SqlTable, expandInsertColumns, expandInsertValues, row, raw, info, sql } from "@vexnor/core";
+import { SqlInsertRowsParams } from "@vexnor/core";
 import { BetterSqlite3QueryHandler } from "#/better-sqlite3-query-handler.js";
 import "#/sqlite3-augment.js";
 

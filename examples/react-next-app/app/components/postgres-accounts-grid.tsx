@@ -5,7 +5,7 @@ import { AccountOrderBy, deleteAccount, selectAccounts, SelectAccountsParams } f
 import { AccountTable } from "./account-table";
 import { AlertMessage } from "./alert-message";
 import { useRemoteClient } from "@/app/components/use-remote-client";
-import { TypeOf } from "vexnor";
+import { TypeOf } from "@vexnor/core";
 import { Account } from "@/shared/codegen/postgres/vexnor_dev.account-table";
 import { SearchInput } from "@/app/components/search-input";
 import { OrderDirection } from "@/shared/queries/params";

@@ -1,5 +1,5 @@
 import { AnySQLiteTable, getTableConfig } from "drizzle-orm/sqlite-core";
-import { newSqlTable, SqlTableExtended } from "vexnor";
+import { newSqlTable, SqlTableExtended } from "@vexnor/core";
 
 type FromDrizzleResult<T extends AnySQLiteTable> = T extends {
    $inferSelect: Record<string, unknown>;

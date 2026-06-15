@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
 import { mssqlSchema, varchar, nvarchar } from "drizzle-orm/mssql-core";
 import { fromDrizzleTable } from "@vexnor/drizzle/mssql";
-import { row, sql, param } from "vexnor";
+import { row, sql, param } from "@vexnor/core";
 import "@vexnor/mssql";
 import { pool } from "./mssql-pool.js";
 import { getTag } from "./tags.js";

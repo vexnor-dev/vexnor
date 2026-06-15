@@ -1,7 +1,7 @@
 // noinspection SqlNoDataSourceInspection,SqlResolve
 import { beforeAll, describe, expect, test } from "vitest";
-import { info, param, row, type RemoteClient } from "vexnor";
-import { SqlQueryRegistry } from "vexnor/execution";
+import { info, param, row, type RemoteClient } from "@vexnor/core";
+import { SqlQueryRegistry } from "@vexnor/core/execution";
 import { Account, AccountStatusUdt, IAccountSelect, IOrderSelect, Order } from "./codegen/vexnor_dev.schema.js";
 import { jsonMany, sql } from "@vexnor/postgres";
 import vexnorPostgres from "@vexnor/postgres";

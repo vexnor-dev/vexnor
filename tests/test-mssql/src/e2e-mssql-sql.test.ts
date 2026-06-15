@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 import { sql } from "@vexnor/mssql";
 import { Account } from "./codegen/vexnor_dev.account-table.js";
 import { pool } from "./mssql-pool.js";
-import { row } from "vexnor";
+import { row } from "@vexnor/core";
 import { getTag } from "./tags.js";
 
 describe("vexnor postgres sql tests", (ctx) => {

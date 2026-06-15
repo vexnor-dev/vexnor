@@ -1,4 +1,4 @@
-import { DefaultTokenizer, MAJOR_KEYWORDS, SqlBuildError } from "vexnor";
+import { DefaultTokenizer, MAJOR_KEYWORDS, SqlBuildError } from "@vexnor/core";
 
 export class MssqlTokenizer extends DefaultTokenizer {
    // We override the entire tokenize method to allow the '@' parameter marker for MSSQL.

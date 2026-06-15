@@ -1,5 +1,5 @@
-import { SqlError, SqlRunError } from "vexnor/execution";
-import { SqlQueryRegistry } from "vexnor/execution";
+import { SqlError, SqlRunError } from "@vexnor/core/execution";
+import { SqlQueryRegistry } from "@vexnor/core/execution";
 import vexnorPostgres from "@vexnor/postgres";
 import vexnorMssql from "@vexnor/mssql";
 import vexnorSqlite3 from "@vexnor/sqlite3";
@@ -9,7 +9,7 @@ import { sqliteDb } from "@/shared/db/sqlite3";
 import { queries as postgresQueries } from "@/shared/queries/postgres";
 import * as mssqlQueries from "@/shared/queries/mssql";
 import * as sqlite3Queries from "@/shared/queries/sqlite3";
-import { SqlExecuteMode } from "vexnor";
+import { SqlExecuteMode } from "@vexnor/core";
 
 const SQL_ERROR_STATUS: Record<string, number> = {
    QUERY_NOT_FOUND: 400,

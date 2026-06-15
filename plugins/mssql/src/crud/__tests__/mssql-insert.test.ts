@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
-import { Account } from "vexnor/testing";
-import { sql, row } from "vexnor";
+import { Account } from "@vexnor/core/testing";
+import { sql, row } from "@vexnor/core";
 import { mssqlInsertRows } from "#/crud/mssql-insert-rows.js";
 import { defaultQueryOptions } from "#/default-query-options.js";
 import { mssqlInsertFrom } from "#/crud/mssql-insert-from.js";

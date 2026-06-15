@@ -9,8 +9,8 @@ import {
    ParamsOfArgs,
    info,
    SqlQueryColumns,
-} from "vexnor";
-import type { SqlUpdateArgs } from "vexnor";
+} from "@vexnor/core";
+import type { SqlUpdateArgs } from "@vexnor/core";
 import { MssqlQueryHandler } from "#/mssql-query-handler.js";
 import "#/mssql-augment.js";
 

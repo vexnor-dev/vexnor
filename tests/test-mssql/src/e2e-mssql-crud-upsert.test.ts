@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { sql } from "vexnor";
+import { sql } from "@vexnor/core";
 import "@vexnor/mssql";
 import { Account } from "./codegen/vexnor_dev.schema.js";
 import { pool } from "./mssql-pool.js";

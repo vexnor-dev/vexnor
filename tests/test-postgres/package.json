@@ -21,7 +21,7 @@
    "dependencies": {
       "@sinclair/typebox": "^0.34.49",
       "pg": "^8.21.0",
-      "vexnor": "workspace:*",
+      "@vexnor/core": "workspace:*",
       "@vexnor/drizzle": "workspace:*",
       "@vexnor/postgres": "workspace:*",
       "@vexnor/prisma": "workspace:*",

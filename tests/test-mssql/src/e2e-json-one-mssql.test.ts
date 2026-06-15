@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, test } from "vitest";
-import { info, row, SqlBuildContext } from "vexnor";
+import { info, row, SqlBuildContext } from "@vexnor/core";
 import { pool } from "./mssql-pool.js";
 import { jsonOne, MssqlTokenizer, sql } from "@vexnor/mssql";
 import { Account } from "./codegen/vexnor_dev.schema.js";

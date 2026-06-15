@@ -5,7 +5,7 @@ import { Product, IProductInsert, IProductSelect } from "./codegen/main.product-
 import { sql } from "@vexnor/sqlite3";
 import assert, { ok } from "node:assert";
 import { getTag } from "./tags.js";
-import { row } from "vexnor";
+import { row } from "@vexnor/core";
 import { expect } from "vitest";
 import type Database from "better-sqlite3";
 

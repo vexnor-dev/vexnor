@@ -2,7 +2,7 @@ import { describe, expect, test, vi } from "vitest";
 import { BetterSqlite3QueryHandler } from "#/better-sqlite3-query-handler.js";
 import { Sqlite3Formatter } from "#/sqlite3-formatter.js";
 import { sql } from "#/sqlite3-sql.js";
-import { SqlRunError, SqlBuildContext } from "vexnor";
+import { SqlRunError, SqlBuildContext } from "@vexnor/core";
 
 const simpleQuery = sql`SELECT 1 as id`;
 

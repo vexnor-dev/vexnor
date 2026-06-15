@@ -25,7 +25,7 @@
       "hono": "^4.7.10",
       "mssql": "^12.5.2",
       "pg": "^8.16.3",
-      "vexnor": "workspace:*",
+      "@vexnor/core": "workspace:*",
       "@vexnor/mssql": "workspace:*",
       "@vexnor/postgres": "workspace:*",
       "@vexnor/sqlite3": "workspace:*"

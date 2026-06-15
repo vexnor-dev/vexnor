@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { sqliteView, text, integer } from "drizzle-orm/sqlite-core";
 import { fromDrizzleView } from "@vexnor/drizzle/sqlite";
-import { sql, row, param } from "vexnor";
+import { sql, row, param } from "@vexnor/core";
 import "@vexnor/sqlite3";
 import { db } from "./config.js";
 

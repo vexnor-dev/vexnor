@@ -7,7 +7,7 @@ import {
    SqlQueryHandler,
    SqlRunArgs,
    SqlRunError,
-} from "vexnor";
+} from "@vexnor/core";
 import type { QueryResult } from "pg";
 import { PostgresTokenizer } from "#/postgres-tokenizer.js";
 import pkg from "../package.json" with { type: "json" };

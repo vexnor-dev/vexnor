@@ -3,7 +3,7 @@ import { ok } from "node:assert";
 import { fileURLToPath } from "node:url";
 import type { FromPrismaModelResult } from "@vexnor/prisma";
 import { findPrismaModel, fromPrismaModelTable } from "@vexnor/prisma";
-import { param, row, sql } from "vexnor";
+import { param, row, sql } from "@vexnor/core";
 import "@vexnor/mssql";
 import { pool } from "./mssql-pool.js";
 import { getTag } from "./tags.js";

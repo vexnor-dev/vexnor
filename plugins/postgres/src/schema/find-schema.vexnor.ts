@@ -1,4 +1,4 @@
-import { defineQueryConfig } from "vexnor/config";
+import { defineQueryConfig } from "@vexnor/core/config";
 import { findEnums } from "#/schema/find-enums.js";
 import { vexnorPostgres } from "#/vexnor-postgres.js";
 import { findTables, findTableColumns, findPrimaryKeys } from "#/schema/find-tables.js";

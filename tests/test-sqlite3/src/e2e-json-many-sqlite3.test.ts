@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, test } from "vitest";
-import { info, param, row, SqlBuildContext } from "vexnor";
+import { info, param, row, SqlBuildContext } from "@vexnor/core";
 import { Account, Order } from "./codegen/main.schema.js";
 import { jsonMany, Sqlite3Tokenizer, sql } from "@vexnor/sqlite3";
 import { db } from "./config.js";

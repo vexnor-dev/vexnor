@@ -22,7 +22,7 @@
    "dependencies": {
       "@sinclair/typebox": "^0.34.41",
       "mssql": "^12.5.2",
-      "vexnor": "workspace:*",
+      "@vexnor/core": "workspace:*",
       "@vexnor/drizzle": "workspace:*",
       "@vexnor/mssql": "workspace:*",
       "@vexnor/prisma": "workspace:*",

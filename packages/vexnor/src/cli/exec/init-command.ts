@@ -5,7 +5,7 @@ export interface InitOptions {
    force?: boolean;
 }
 
-const VEXNOR_CONFIG_TEMPLATE = `import { defineConfig } from "vexnor";
+const VEXNOR_CONFIG_TEMPLATE = `import { defineConfig } from "@vexnor/core";
 
 export default defineConfig({
    profiles: {
@@ -33,8 +33,8 @@ export default defineConfig({
 });
 `;
 
-const QUERY_CONFIG_TEMPLATE = `import { defineQueryConfig } from "vexnor";
-import { sql } from "vexnor";
+const QUERY_CONFIG_TEMPLATE = `import { defineQueryConfig } from "@vexnor/core";
+import { sql } from "@vexnor/core";
 
 // Define your queries
 const exampleQuery = sql\`SELECT * FROM users WHERE id = $1\`;

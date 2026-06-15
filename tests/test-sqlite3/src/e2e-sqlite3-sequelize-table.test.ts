@@ -3,7 +3,7 @@ import { ok } from "node:assert";
 import { randomUUID } from "node:crypto";
 import { DataTypes, InferAttributes, InferCreationAttributes, Model, Sequelize } from "sequelize";
 import { fromSequelizeTable } from "@vexnor/sequelize";
-import { row, sql, param, excluded } from "vexnor";
+import { row, sql, param, excluded } from "@vexnor/core";
 import "@vexnor/sqlite3";
 import { db } from "./config.js";
 

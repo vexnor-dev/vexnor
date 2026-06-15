@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { Account } from "vexnor/testing";
+import { Account } from "@vexnor/core/testing";
 import "@vexnor/sqlite3";
 import { defaultQueryOptions } from "#/crud/default-query-options.js";
 

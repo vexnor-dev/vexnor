@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
-import { param } from "vexnor";
+import { param } from "@vexnor/core";
 import { sql } from "@vexnor/mssql";
 import "@vexnor/mssql";
 import { ITypeCoverageSelect, TypeCoverage } from "./codegen/vexnor_dev.type_coverage-table.js";

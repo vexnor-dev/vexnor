@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
-import { param, row, sql } from "vexnor";
+import { param, row, sql } from "@vexnor/core";
 import "@vexnor/postgres";
 import { ITypeCoverageSelect, TypeCoverage } from "./codegen/vexnor_dev.type_coverage-table.js";
 import { pool } from "./postgres-pool.js";

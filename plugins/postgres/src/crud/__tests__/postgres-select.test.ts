@@ -1,7 +1,7 @@
 // noinspection SqlNoDataSourceInspection,SqlResolve
 import { assertType, describe, expect, test } from "vitest";
-import { Account, Order, OrderItem, AccountStatusUdt } from "vexnor/testing";
-import { sql, row, col, param, input, ParamsOf, TypeOf } from "vexnor";
+import { Account, Order, OrderItem, AccountStatusUdt } from "@vexnor/core/testing";
+import { sql, row, col, param, input, ParamsOf, TypeOf } from "@vexnor/core";
 import { jsonMany } from "#/charms/json-aggregation-postgres.js";
 import { postgresSelect } from "#/crud/postgres-select.js";
 import { defaultQueryOptions } from "#/default-query-options.js";

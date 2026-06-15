@@ -1,9 +1,9 @@
 import { describe, expect, test } from "vitest";
 import { newSqlite3TableHandler } from "#/crud/sqlite3-table-handler.js";
-import { Account } from "vexnor/testing";
+import { Account } from "@vexnor/core/testing";
 import "@vexnor/sqlite3";
 import { defaultQueryOptions } from "#/crud/default-query-options.js";
-import { param, sql } from "vexnor";
+import { param, sql } from "@vexnor/core";
 
 describe("newSqlite3TableHandler", () => {
    const handler = newSqlite3TableHandler(Account);

@@ -683,7 +683,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
       const formatter = getFormatter();
       if (formatOption === true && !formatter) {
          throw new SqlBuildError(
-            `format: true was set but no formatter is registered. Call setupFormatter() from 'vexnor/format' first.`,
+            `format: true was set but no formatter is registered. Call setupFormatter() from '@vexnor/core/format' first.`,
          );
       }
 

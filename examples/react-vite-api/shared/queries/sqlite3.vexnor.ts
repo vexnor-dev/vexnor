@@ -1,6 +1,6 @@
 import "@vexnor/sqlite3";
-import { defineQueryConfig } from "vexnor/config";
-import { contextValue } from "vexnor";
+import { defineQueryConfig } from "@vexnor/core/config";
+import { contextValue } from "@vexnor/core";
 import sqlite3Plugin from "@vexnor/sqlite3";
 import { selectAccounts, selectAccountsForLogin, selectMyOrders, deleteAccount, insertAccount } from "./sqlite3.js";
 

@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { DataSource, EntitySchema } from "typeorm";
-import { sql, row, val, param } from "vexnor";
+import { sql, row, val, param } from "@vexnor/core";
 import { fromTypeORM } from "../index.js";
 
 interface IAccount extends Record<string, unknown> {

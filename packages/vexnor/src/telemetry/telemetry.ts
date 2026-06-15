@@ -1,8 +1,8 @@
 import "./register-open-telemetry.js";
 import { Tracer } from "@opentelemetry/api";
 
-// Augment for dist consumers (import from "vexnor/execution")
-declare module "vexnor/execution" {
+// Augment for dist consumers (import from "@vexnor/core/execution")
+declare module "@vexnor/core/execution" {
    // eslint-disable-next-line unused-imports/no-unused-vars
    interface SqlQueryRegistry<TContext extends Record<string, unknown>> {
       registerOpenTelemetry(tracer: Tracer): void;

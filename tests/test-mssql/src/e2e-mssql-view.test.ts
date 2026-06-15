@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { sql, row, param } from "vexnor";
+import { sql, row, param } from "@vexnor/core";
 import "@vexnor/mssql";
 import { AccountOrderSummary } from "./codegen/vexnor_dev.account_order_summary-view.js";
 import { pool } from "./mssql-pool.js";

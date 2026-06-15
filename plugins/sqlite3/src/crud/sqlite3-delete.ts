@@ -1,5 +1,5 @@
-import { info, ParamsOfArgs, SqlDeleteArgs, raw, row, SqlTable, sql } from "vexnor";
-import { ok } from "vexnor";
+import { info, ParamsOfArgs, SqlDeleteArgs, raw, row, SqlTable, sql } from "@vexnor/core";
+import { ok } from "@vexnor/core";
 import { BetterSqlite3QueryHandler } from "#/better-sqlite3-query-handler.js";
 import "#/sqlite3-augment.js";
 

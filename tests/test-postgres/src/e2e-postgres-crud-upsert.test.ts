@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { excluded, sql } from "vexnor";
+import { excluded, sql } from "@vexnor/core";
 import "@vexnor/postgres";
 import { Account } from "./codegen/vexnor_dev.schema.js";
 import { pool } from "./postgres-pool.js";

@@ -2,7 +2,7 @@ import { describe, expect, test, vi } from "vitest";
 import type { IResult } from "mssql";
 import { MssqlQueryHandler } from "#/mssql-query-handler.js";
 import { sql } from "#/mssql-sql.js";
-import { SqlRunError } from "vexnor";
+import { SqlRunError } from "@vexnor/core";
 
 const simpleQuery = sql`SELECT 1 as id`;
 

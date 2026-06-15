@@ -3,7 +3,7 @@ import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
 import { DataSource, EntitySchema, Entity, PrimaryGeneratedColumn, Column, ViewEntity, ViewColumn } from "typeorm";
 import { fromTypeORM } from "@vexnor/typeorm";
-import { row, sql, param, excluded } from "vexnor";
+import { row, sql, param, excluded } from "@vexnor/core";
 import "@vexnor/postgres";
 import { pool } from "./postgres-pool.js";
 import { POSTGRES_HOST, POSTGRES_PORT, POSTGRES_DATABASE, POSTGRES_USER, POSTGRES_PASSWORD } from "./config.js";

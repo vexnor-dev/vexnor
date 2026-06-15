@@ -1,5 +1,5 @@
 import { describe, test, expect } from "vitest";
-import { SqlRunError, SqlError } from "vexnor/execution";
+import { SqlRunError, SqlError } from "@vexnor/core/execution";
 import { toDbErrorResponse, SQL_ERROR_STATUS } from "../db-error.js";
 
 const mockQuery = { id: "SqlQuery#1", location: null };

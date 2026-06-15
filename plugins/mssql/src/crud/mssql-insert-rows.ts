@@ -1,6 +1,6 @@
-import { SqlTable, expandInsertColumns, expandInsertValues, row, raw, info, SqlQueryColumns } from "vexnor";
+import { SqlTable, expandInsertColumns, expandInsertValues, row, raw, info, SqlQueryColumns } from "@vexnor/core";
 import { sql } from "#/mssql-sql.js";
-import { SqlInsertRowsParams } from "vexnor";
+import { SqlInsertRowsParams } from "@vexnor/core";
 import { MssqlQueryHandler } from "#/mssql-query-handler.js";
 import "#/mssql-augment.js";
 

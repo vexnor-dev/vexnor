@@ -1,7 +1,7 @@
 import "@vexnor/postgres";
 import { Suspense, useEffect, useState } from "react";
 import { useSearch, useNavigate } from "@tanstack/react-router";
-import { contextValue } from "vexnor";
+import { contextValue } from "@vexnor/core";
 import { deleteAccount, insertAccount, selectAccounts, selectMyOrders } from "#shared/queries/postgres";
 import { AccountGrid } from "#/components/account-grid.js";
 import { CreateAccountForm } from "#/components/create-account-form.js";

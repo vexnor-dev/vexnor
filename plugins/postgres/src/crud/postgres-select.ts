@@ -9,7 +9,7 @@ import {
    SqlSelectResultRow,
    info,
    SqlQueryColumns,
-} from "vexnor";
+} from "@vexnor/core";
 import { jsonMany, jsonOne } from "#/charms/json-aggregation-postgres.js";
 import { PostgresQueryHandler } from "#/postgres-query-handler.js";
 import "#/postgres-augment.js";

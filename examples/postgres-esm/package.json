@@ -18,7 +18,7 @@
    "license": "ISC",
    "dependencies": {
       "pg": "^8.16.3",
-      "vexnor": "workspace:^1.0.0",
+      "@vexnor/core": "workspace:^",
       "@vexnor/postgres": "workspace:^1.0.0"
    },
    "devDependencies": {

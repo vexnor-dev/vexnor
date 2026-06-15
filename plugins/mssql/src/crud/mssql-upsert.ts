@@ -13,7 +13,7 @@ import {
    SqlInsertRowsParams,
    sql,
    SqlQueryColumns,
-} from "vexnor";
+} from "@vexnor/core";
 import { MssqlQueryHandler } from "#/mssql-query-handler.js";
 import "#/mssql-augment.js";
 

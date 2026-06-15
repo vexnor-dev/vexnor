@@ -7,11 +7,11 @@ import {
    SqlTableInfo,
    VexnorConnection,
    VexnorPlugin,
-} from "vexnor/plugin";
+} from "@vexnor/core/plugin";
 import BetterSqlite3 from "better-sqlite3";
 import { findPrimaryKeys, findTableColumns, findTables, findViews } from "#/schema/find-tables.js";
 import { getColumnType } from "#/schema/get-column-type.js";
-import { SqlQuery, SqlQueryHandler } from "vexnor";
+import { SqlQuery, SqlQueryHandler } from "@vexnor/core";
 import { BetterSqlite3QueryHandler } from "#/better-sqlite3-query-handler.js";
 import pkg from "../package.json" with { type: "json" };
 

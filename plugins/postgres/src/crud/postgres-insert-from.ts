@@ -1,7 +1,7 @@
-import { SqlTable, row, ParamsOfArgs, raw, info, SqlQueryColumns } from "vexnor";
-import type { SqlInsertFromArgs } from "vexnor";
+import { SqlTable, row, ParamsOfArgs, raw, info, SqlQueryColumns } from "@vexnor/core";
+import type { SqlInsertFromArgs } from "@vexnor/core";
 import { sql } from "#/postgres-sql.js";
-import { ok } from "vexnor";
+import { ok } from "@vexnor/core";
 import { PostgresQueryHandler } from "#/postgres-query-handler.js";
 import "#/postgres-augment.js";
 

@@ -1,5 +1,5 @@
-import { info, ParamsOfArgs, SqlDeleteArgs, raw, row, SqlTable, SqlQueryColumns } from "vexnor";
-import { ok } from "vexnor";
+import { info, ParamsOfArgs, SqlDeleteArgs, raw, row, SqlTable, SqlQueryColumns } from "@vexnor/core";
+import { ok } from "@vexnor/core";
 import { sql } from "#/postgres-sql.js";
 import { PostgresQueryHandler } from "#/postgres-query-handler.js";
 import "#/postgres-augment.js";

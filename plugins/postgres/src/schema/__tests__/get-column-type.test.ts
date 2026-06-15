@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { getColumnType } from "#/schema/get-column-type.js";
-import { SqlLiteralType } from "vexnor/plugin";
+import { SqlLiteralType } from "@vexnor/core/plugin";
 
 describe("getColumnType (postgres)", () => {
    test.each([

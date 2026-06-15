@@ -2,8 +2,8 @@
 import { describe, expect, test, beforeAll, afterAll } from "vitest";
 import { VexnorSqlite3 } from "#/vexnor-sqlite3.js";
 import BetterSqlite3 from "better-sqlite3";
-import { sql, param, row } from "vexnor";
-import { Account } from "vexnor/testing";
+import { sql, param, row } from "@vexnor/core";
+import { Account } from "@vexnor/core/testing";
 import { jsonOne, jsonMany } from "#/charms/json-aggregation-sqlite3.js";
 import "@vexnor/sqlite3";
 import "#/sqlite3-augment.js";

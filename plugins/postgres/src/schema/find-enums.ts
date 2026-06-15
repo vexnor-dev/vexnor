@@ -1,6 +1,6 @@
-import { param, row, sql, val } from "vexnor";
+import { param, row, sql, val } from "@vexnor/core";
 import { PgEnum, PgNamespace, PgType } from "#/schema/models.js";
-import { SqlEnumValue } from "vexnor/plugin";
+import { SqlEnumValue } from "@vexnor/core/plugin";
 
 export const findEnums = sql`
    with "enum_values" as (select ${PgEnum.$oid},

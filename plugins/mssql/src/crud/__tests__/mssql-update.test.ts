@@ -1,8 +1,8 @@
 // noinspection SqlNoDataSourceInspection,SqlResolve
 import { describe, expect, test } from "vitest";
 import "@vexnor/mssql";
-import { Account } from "vexnor/testing";
-import { sql, input } from "vexnor";
+import { Account } from "@vexnor/core/testing";
+import { sql, input } from "@vexnor/core";
 import { mssqlUpdate } from "#/crud/mssql-update.js";
 import { defaultQueryOptions } from "#/default-query-options.js";
 

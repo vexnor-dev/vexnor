@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
-import { param, row, sql } from "vexnor";
+import { param, row, sql } from "@vexnor/core";
 import { sqlite3Update } from "@vexnor/sqlite3";
 import { ITypeCoverageSelect, TypeCoverage } from "./codegen/main.type_coverage-table.js";
 import { db } from "./config.js";

@@ -1,7 +1,7 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
-import { HttpRemoteClient, SqlErrorCode } from "vexnor";
-import { SqlError, SqlRunError, SqlQueryRegistry, type QueryMap } from "vexnor/execution";
+import { HttpRemoteClient, SqlErrorCode } from "@vexnor/core";
+import { SqlError, SqlRunError, SqlQueryRegistry, type QueryMap } from "@vexnor/core/execution";
 import vexnorPostgres from "@vexnor/postgres";
 import vexnorMssql from "@vexnor/mssql";
 import vexnorSqlite3 from "@vexnor/sqlite3";

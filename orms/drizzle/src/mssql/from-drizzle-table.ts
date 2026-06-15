@@ -1,5 +1,5 @@
 import { getTableConfig, type AnyMsSqlTable } from "drizzle-orm/mssql-core";
-import { newSqlTable, type SqlTableExtended } from "vexnor";
+import { newSqlTable, type SqlTableExtended } from "@vexnor/core";
 
 type FromDrizzleResult<T extends AnyMsSqlTable> = T extends {
    $inferSelect: Record<string, unknown>;

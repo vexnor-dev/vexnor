@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
 import { CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, Model, Sequelize } from "sequelize";
 import { fromSequelizeTable } from "@vexnor/sequelize";
-import { row, sql, param } from "vexnor";
+import { row, sql, param } from "@vexnor/core";
 import "@vexnor/mssql";
 import { pool } from "./mssql-pool.js";
 import { getTag } from "./tags.js";

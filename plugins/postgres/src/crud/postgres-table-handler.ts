@@ -11,8 +11,8 @@ import {
    raw,
    row,
    info,
-} from "vexnor";
-import { ok } from "vexnor";
+} from "@vexnor/core";
+import { ok } from "@vexnor/core";
 import { postgresSelect, PostgresSelectResult } from "./postgres-select.js";
 import { postgresInsertRows, PostgresInsertRowsResult } from "./postgres-insert-rows.js";
 import { postgresInsertFrom, PostgresInsertFromResult } from "./postgres-insert-from.js";

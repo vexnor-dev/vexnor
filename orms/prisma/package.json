@@ -48,7 +48,7 @@
    ],
    "dependencies": {
       "@prisma/internals": "^7.8.0",
-      "vexnor": "workspace:^"
+      "@vexnor/core": "workspace:^"
    },
    "devDependencies": {
       "@prisma/client": "7.8.0",

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { newMssqlTableHandler } from "#/crud/mssql-table-handler.js";
-import { Account } from "vexnor/testing";
+import { Account } from "@vexnor/core/testing";
 import "@vexnor/mssql";
 import { defaultQueryOptions } from "#/default-query-options.js";
 

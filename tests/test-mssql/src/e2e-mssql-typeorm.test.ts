@@ -3,7 +3,7 @@ import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
 import { DataSource, EntitySchema, Entity, PrimaryGeneratedColumn, Column, ViewEntity, ViewColumn } from "typeorm";
 import { fromTypeORM } from "@vexnor/typeorm";
-import { row, sql, param } from "vexnor";
+import { row, sql, param } from "@vexnor/core";
 import "@vexnor/mssql";
 import { pool } from "./mssql-pool.js";
 import { getTag } from "./tags.js";

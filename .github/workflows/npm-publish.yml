@@ -196,7 +196,7 @@ jobs:
         run: |
           # Verify package names haven't been tampered with
           declare -A EXPECTED_NAMES=(
-            ["packages/vexnor"]="vexnor"
+            ["packages/vexnor"]="@vexnor/core"
             ["plugins/postgres"]="@vexnor/postgres"
             ["plugins/mssql"]="@vexnor/mssql"
             ["plugins/sqlite3"]="@vexnor/sqlite3"

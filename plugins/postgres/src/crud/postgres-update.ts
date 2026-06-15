@@ -9,8 +9,8 @@ import {
    ParamsOfArgs,
    info,
    SqlQueryColumns,
-} from "vexnor";
-import type { SqlUpdateArgs } from "vexnor";
+} from "@vexnor/core";
+import type { SqlUpdateArgs } from "@vexnor/core";
 import { PostgresQueryHandler } from "#/postgres-query-handler.js";
 import "#/postgres-augment.js";
 

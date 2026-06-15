@@ -1,6 +1,6 @@
-import { SqlTable, row, ParamsOfArgs, SqlQueryExtended, raw, info, sql } from "vexnor";
-import type { SqlInsertFromArgs } from "vexnor";
-import { ok } from "vexnor";
+import { SqlTable, row, ParamsOfArgs, SqlQueryExtended, raw, info, sql } from "@vexnor/core";
+import type { SqlInsertFromArgs } from "@vexnor/core";
+import { ok } from "@vexnor/core";
 import { BetterSqlite3QueryHandler } from "#/better-sqlite3-query-handler.js";
 import "#/sqlite3-augment.js";
 

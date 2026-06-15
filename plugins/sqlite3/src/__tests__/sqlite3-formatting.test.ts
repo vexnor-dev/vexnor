@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
-import { Account } from "vexnor/testing";
-import { sql } from "vexnor";
+import { Account } from "@vexnor/core/testing";
+import { sql } from "@vexnor/core";
 
 describe("sqlite3 formatting", () => {
    test("should format table insert without alias", () => {

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { pgTable, pgSchema, uuid, varchar, text, timestamp, integer, boolean, primaryKey } from "drizzle-orm/pg-core";
-import { sql, row, val, param, SqlTable } from "vexnor";
+import { sql, row, val, param, SqlTable } from "@vexnor/core";
 import { fromDrizzleTable } from "../index.js";
 
 const accountDrizzle = pgTable("account", {

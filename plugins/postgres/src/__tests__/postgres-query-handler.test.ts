@@ -1,8 +1,8 @@
 import { describe, expect, test, vi } from "vitest";
-import { sql, row, SqlSelectCharm } from "vexnor";
-import { Account } from "vexnor/testing";
+import { sql, row, SqlSelectCharm } from "@vexnor/core";
+import { Account } from "@vexnor/core/testing";
 import "@vexnor/postgres";
-import type { RemoteClient } from "vexnor";
+import type { RemoteClient } from "@vexnor/core";
 
 const DATE_STR = "2001-05-30T10:40:50.867Z";
 

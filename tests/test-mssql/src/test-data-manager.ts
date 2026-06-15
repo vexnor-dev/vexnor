@@ -5,7 +5,7 @@ import { Product, IProductInsert, IProductSelect } from "./codegen/vexnor_dev.pr
 import { sql } from "@vexnor/mssql";
 import assert, { ok } from "node:assert";
 import { getTag } from "./tags.js";
-import { row, SqlQueryAny } from "vexnor";
+import { row, SqlQueryAny } from "@vexnor/core";
 import { expect } from "vitest";
 import { ConnectionPool } from "mssql";
 import "@vexnor/mssql";

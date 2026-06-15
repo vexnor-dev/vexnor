@@ -4,7 +4,7 @@ import { ok } from "node:assert";
 import { randomUUID } from "node:crypto";
 import { DataSource, EntitySchema, Entity, PrimaryColumn, Column, ViewEntity, ViewColumn } from "typeorm";
 import { fromTypeORM } from "@vexnor/typeorm";
-import { row, sql, param, excluded } from "vexnor";
+import { row, sql, param, excluded } from "@vexnor/core";
 import "@vexnor/sqlite3";
 import { db, SQLITE_PATH } from "./config.js";
 

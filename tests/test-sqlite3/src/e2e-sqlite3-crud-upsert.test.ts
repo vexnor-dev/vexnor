@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { randomUUID } from "node:crypto";
-import { excluded, sql } from "vexnor";
+import { excluded, sql } from "@vexnor/core";
 import "@vexnor/sqlite3";
 import { Account, IAccountInsert } from "./codegen/main.account-table.js";
 import { db } from "./config.js";

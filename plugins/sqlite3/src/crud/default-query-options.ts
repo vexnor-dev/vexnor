@@ -1,4 +1,4 @@
-import { SqlBuildOptions } from "vexnor";
+import { SqlBuildOptions } from "@vexnor/core";
 import { Sqlite3Tokenizer } from "#/sqlite3-tokenizer.js";
 
 export const defaultQueryOptions: SqlBuildOptions = {

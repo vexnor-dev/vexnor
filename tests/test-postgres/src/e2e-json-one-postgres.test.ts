@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, test } from "vitest";
-import { info, row, SqlBuildContext } from "vexnor";
+import { info, row, SqlBuildContext } from "@vexnor/core";
 import { Account, AccountStatusUdt } from "./codegen/vexnor_dev.schema.js";
 import { jsonOne, PostgresTokenizer, sql } from "@vexnor/postgres";
 import { pool } from "./postgres-pool.js";

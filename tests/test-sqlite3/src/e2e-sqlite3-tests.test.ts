@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
-import { param, row, sql } from "vexnor";
+import { param, row, sql } from "@vexnor/core";
 import { jsonMany } from "@vexnor/sqlite3";
 import { Account, IAccountSelect } from "./codegen/main.account-table.js";
 import { db } from "./config.js";

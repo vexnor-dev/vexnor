@@ -10,7 +10,7 @@ import {
    SqlSelectResultRow,
    info,
    SqlQueryColumns,
-} from "vexnor";
+} from "@vexnor/core";
 import { jsonMany, jsonOne } from "#/charms/json-aggregation-mssql.js";
 import { MssqlQueryHandler } from "#/mssql-query-handler.js";
 import "#/mssql-augment.js";

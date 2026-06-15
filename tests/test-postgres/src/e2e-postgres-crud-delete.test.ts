@@ -1,7 +1,7 @@
 // noinspection SqlNoDataSourceInspection,SqlResolve
 import { beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
-import { param } from "vexnor";
+import { param } from "@vexnor/core";
 import { sql } from "@vexnor/postgres";
 import "@vexnor/postgres";
 import { Account, IAccountSelect, IOrderSelect, Order } from "./codegen/vexnor_dev.schema.js";

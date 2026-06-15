@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
-import { param, row } from "vexnor";
+import { param, row } from "@vexnor/core";
 import { sql } from "@vexnor/mssql";
 import "@vexnor/mssql";
 import { Account, IAccountSelect, IOrderSelect, Order } from "./codegen/vexnor_dev.schema.js";

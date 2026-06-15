@@ -11,8 +11,8 @@ import {
    raw,
    row,
    info,
-} from "vexnor";
-import { ok } from "vexnor";
+} from "@vexnor/core";
+import { ok } from "@vexnor/core";
 import { mssqlSelect, MssqlSelectResult } from "./mssql-select.js";
 import { mssqlInsertRows, MssqlInsertRowsResult } from "./mssql-insert-rows.js";
 import { mssqlInsertFrom, MssqlInsertFromResult } from "./mssql-insert-from.js";

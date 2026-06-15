@@ -1,4 +1,4 @@
-import { SqlColumnInfo, SqlColumnType, SqlLiteralType } from "vexnor/plugin";
+import { SqlColumnInfo, SqlColumnType, SqlLiteralType } from "@vexnor/core/plugin";
 
 /**
  * Get the column type

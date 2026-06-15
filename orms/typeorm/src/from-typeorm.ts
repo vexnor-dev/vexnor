@@ -1,5 +1,5 @@
 import { ObjectLiteral, Repository } from "typeorm";
-import { newSqlTable, SqlTableExtended } from "vexnor";
+import { newSqlTable, SqlTableExtended } from "@vexnor/core";
 import { getDialect } from "#/dialect.js";
 
 type FromTypeORMResult<T> = SqlTableExtended<{

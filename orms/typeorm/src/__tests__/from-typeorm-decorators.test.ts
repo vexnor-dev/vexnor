@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { DataSource, Entity, PrimaryGeneratedColumn, PrimaryColumn, Column, ObjectLiteral, Repository } from "typeorm";
-import { sql, row, SqlTable } from "vexnor";
+import { sql, row, SqlTable } from "@vexnor/core";
 import { fromTypeORM } from "../index.js";
 
 @Entity({ name: "account", schema: "main" })

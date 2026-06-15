@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { mssqlSchema, mssqlView, varchar, nvarchar, int } from "drizzle-orm/mssql-core";
-import { sql, row, param, SqlTable } from "vexnor";
+import { sql, row, param, SqlTable } from "@vexnor/core";
 import { fromDrizzleView } from "../index.js";
 
 const mySchema = mssqlSchema("vexnor_dev");

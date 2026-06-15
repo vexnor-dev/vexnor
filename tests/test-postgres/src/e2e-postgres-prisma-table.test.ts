@@ -3,7 +3,7 @@ import { ok } from "node:assert";
 import { fileURLToPath } from "node:url";
 import { findPrismaModel, fromPrismaModelTable } from "@vexnor/prisma";
 import type { FromPrismaModelResult } from "@vexnor/prisma";
-import { row, sql, param } from "vexnor";
+import { row, sql, param } from "@vexnor/core";
 import "@vexnor/postgres";
 import { pool } from "./postgres-pool.js";
 import { POSTGRES_HOST, POSTGRES_PORT, POSTGRES_DATABASE, POSTGRES_USER, POSTGRES_PASSWORD } from "./config.js";

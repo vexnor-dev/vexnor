@@ -8,14 +8,14 @@ import pg from "pg";
 import mssql from "mssql";
 import BetterSqlite3 from "better-sqlite3";
 import { trace } from "@opentelemetry/api";
-import "vexnor/telemetry";
+import "@vexnor/core/telemetry";
 import * as postgresQueries from "../../shared/queries/postgres.js";
 import * as mssqlQueries from "../../shared/queries/mssql.js";
 import * as sqlite3Queries from "../../shared/queries/sqlite3.js";
 import vexnorMssql from "@vexnor/mssql";
 import vexnorPostgres from "@vexnor/postgres";
 import vexnorSqlite3 from "@vexnor/sqlite3";
-import { SqlQueryRegistry } from "vexnor/execution";
+import { SqlQueryRegistry } from "@vexnor/core/execution";
 import { handleDbError } from "./db-error.js";
 
 const tracer = trace.getTracer("vexnor-react-vite-api");

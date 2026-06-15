@@ -1,4 +1,4 @@
-import { col, param, row, sql } from "vexnor";
+import { col, param, row, sql } from "@vexnor/core";
 import { Columns, KeyColumnUsage, TableConstraints, Tables } from "#/schema/models.js";
 
 const TableColumns = sql`

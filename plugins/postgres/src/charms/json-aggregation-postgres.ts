@@ -17,8 +17,8 @@ import {
    SqlJsonSchema,
    SqlQuery,
    SqlSelectCharm,
-} from "vexnor";
-import { ok } from "vexnor";
+} from "@vexnor/core";
+import { ok } from "@vexnor/core";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type JsonAggregationPostgresAny = JsonAggregationPostgres<any>;

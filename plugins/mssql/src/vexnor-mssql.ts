@@ -9,9 +9,9 @@ import {
    SqlTableInfo,
    VexnorConnection,
    VexnorPlugin,
-} from "vexnor/plugin";
+} from "@vexnor/core/plugin";
 import { MssqlQueryHandler, PLUGIN_NAME } from "./mssql-query-handler.js";
-import { SqlQueryHandler, SqlQuery } from "vexnor";
+import { SqlQueryHandler, SqlQuery } from "@vexnor/core";
 import "#/mssql-augment.js";
 import { getColumnType } from "./get-column-type.js";
 import { findTables, findViews } from "./schema/find-tables.js";

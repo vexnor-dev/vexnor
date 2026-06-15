@@ -1,5 +1,5 @@
 import { afterAll, describe, expect, test } from "vitest";
-import { row } from "vexnor";
+import { row } from "@vexnor/core";
 import { sql } from "@vexnor/sqlite3";
 import { transaction, savepoint } from "@vexnor/sqlite3";
 import { Account } from "./codegen/main.account-table.js";

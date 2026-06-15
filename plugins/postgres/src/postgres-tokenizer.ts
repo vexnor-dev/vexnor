@@ -1,4 +1,4 @@
-import { DefaultTokenizer, MAJOR_KEYWORDS, SqlBuildError } from "vexnor";
+import { DefaultTokenizer, MAJOR_KEYWORDS, SqlBuildError } from "@vexnor/core";
 
 export class PostgresTokenizer extends DefaultTokenizer {
    constructor(public readonly queryName: string) {

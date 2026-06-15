@@ -1,6 +1,6 @@
 import { test, expect } from "vitest";
 import "@vexnor/mssql";
-import { row, sql } from "vexnor";
+import { row, sql } from "@vexnor/core";
 import { jsonMany } from "@vexnor/mssql";
 import { Account } from "./codegen/vexnor_dev.account-table.js";
 

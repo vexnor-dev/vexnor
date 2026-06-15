@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, test } from "vitest";
 import { randomUUID } from "node:crypto";
-import { info, param, row, sql, SqlBuildContext } from "vexnor";
+import { info, param, row, sql, SqlBuildContext } from "@vexnor/core";
 import { Order } from "./codegen/main.order-table.js";
 import { Account } from "./codegen/main.account-table.js";
 import { jsonMany, Sqlite3Tokenizer } from "@vexnor/sqlite3";

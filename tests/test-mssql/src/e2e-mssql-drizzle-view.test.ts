@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { mssqlSchema, varchar, nvarchar, int } from "drizzle-orm/mssql-core";
 import { fromDrizzleView } from "@vexnor/drizzle/mssql";
-import { sql, row, param } from "vexnor";
+import { sql, row, param } from "@vexnor/core";
 import "@vexnor/mssql";
 import { pool } from "./mssql-pool.js";
 

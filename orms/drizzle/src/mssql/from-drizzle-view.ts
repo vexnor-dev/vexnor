@@ -1,6 +1,6 @@
 import { getViewConfig, type MsSqlView } from "drizzle-orm/mssql-core";
 import { Column } from "drizzle-orm";
-import { newSqlTable, type SqlTableExtended } from "vexnor";
+import { newSqlTable, type SqlTableExtended } from "@vexnor/core";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyMsSqlView = MsSqlView<string, boolean, Record<string, any>>;

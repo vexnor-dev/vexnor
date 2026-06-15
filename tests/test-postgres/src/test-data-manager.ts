@@ -6,7 +6,7 @@ import { Product, IProductInsert, IProductSelect } from "./codegen/vexnor_dev.pr
 import { sql } from "@vexnor/postgres";
 import assert, { ok } from "node:assert";
 import { getTag } from "./tags.js";
-import { row } from "vexnor";
+import { row } from "@vexnor/core";
 import { expect } from "vitest";
 import { Pool } from "pg";
 

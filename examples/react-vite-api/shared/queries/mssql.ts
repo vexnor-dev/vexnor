@@ -1,6 +1,6 @@
 // noinspection SqlNoDataSourceInspection,SqlResolve
 import "@vexnor/mssql";
-import { row, sql, param, col, ctx } from "vexnor";
+import { row, sql, param, col, ctx } from "@vexnor/core";
 import { Account } from "../codegen/mssql/vexnor_dev.account-table.js";
 import { Order } from "../codegen/mssql/vexnor_dev.order-table.js";
 import { OrderItem } from "../codegen/mssql/vexnor_dev.order_item-table.js";

@@ -1,5 +1,5 @@
 import { Attributes, CreationAttributes, Model, ModelStatic } from "sequelize";
-import { newSqlTable, SqlTableExtended } from "vexnor";
+import { newSqlTable, SqlTableExtended } from "@vexnor/core";
 import { getDialect } from "#/dialect.js";
 
 type FromSequelizeTableResult<T extends Model> = SqlTableExtended<{

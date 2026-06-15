@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
 import { pgSchema, uuid, varchar, text, timestamp } from "drizzle-orm/pg-core";
 import { fromDrizzleTable } from "@vexnor/drizzle/pg";
-import { row, sql, param } from "vexnor";
+import { row, sql, param } from "@vexnor/core";
 import "@vexnor/postgres";
 import { pool } from "./postgres-pool.js";
 

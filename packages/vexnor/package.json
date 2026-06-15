@@ -1,119 +1,119 @@
 {
-   "name": "vexnor",
-   "version": "1.0.0-beta.1",
-   "description": "",
-   "type": "module",
-   "main": "./dist/core/index.js",
-   "types": "./dist/core/index.d.ts",
-   "module": "./dist/core/index.js",
-   "imports": {
-      "#/*": "./dist/*"
-   },
-   "exports": {
-      ".": {
-         "types": "./dist/core/core.d.ts",
-         "browser": "./dist/core/core.browser.js",
-         "import": "./dist/core/core.js",
-         "require": "./dist/core/core.js"
-      },
-      "./format": {
-         "import": "./dist/format/index.js",
-         "types": "./dist/format/index.d.ts",
-         "require": "./dist/format/index.js"
-      },
-      "./plugin": {
-         "import": "./dist/plugin/plugin.js",
-         "types": "./dist/plugin/plugin.d.ts",
-         "require": "./dist/plugin/plugin.js"
-      },
-      "./config": {
-         "import": "./dist/config/config.js",
-         "types": "./dist/config/config.d.ts",
-         "require": "./dist/config/config.js"
-      },
-      "./execution": {
-         "import": "./dist/execution/execution.js",
-         "types": "./dist/execution/execution.d.ts",
-         "require": "./dist/execution/execution.js"
-      },
-      "./testing": {
-         "import": "./dist/test/testing.js",
-         "types": "./dist/test/testing.d.ts",
-         "require": "./dist/test/testing.js"
-      },
-      "./telemetry": {
-         "import": "./dist/telemetry/telemetry.js",
-         "types": "./dist/telemetry/telemetry.d.ts",
-         "require": "./dist/telemetry/telemetry.js"
-      }
-   },
-   "keywords": [
-      "vexnor",
-      "postgres",
-      "sql",
-      "postgres.js",
-      "pg",
-      "mssql",
-      "mysql",
-      "strongly typed sql",
-      "query builder",
-      "orm"
-   ],
-   "author": "Adrian Topala",
-   "license": "Apache-2.0",
-   "repository": "https://github.com/vexnor-dev/vexnor",
-   "sideEffects": false,
-   "publishConfig": {
-      "access": "public"
-   },
-   "homepage": "https://github.com/vexnor-dev/vexnor#readme",
-   "bugs": {
-      "url": "https://github.com/vexnor-dev/vexnor/issues"
-   },
-   "bin": {
-      "vexnor": "./cli.mjs"
-   },
-   "engines": {
-      "node": ">=22.21.1"
-   },
-   "scripts": {
-      "clean": "rimraf dist tsconfig.tsbuildinfo",
-      "build": "tsc -b",
-      "postbuild": "tsc-alias",
-      "prepack:1-copy-readme": "copyfiles -f \"../../README.md\" .",
-      "prepack": "run-s 'build' 'prepack:*'",
-      "pretest": "run-s 'build'",
-      "test": "vitest --coverage run",
-      "test:watch": "vitest --watch",
-      "test:run": "vitest run"
-   },
-   "files": [
-      "dist",
-      "package.json",
-      "README.md"
-   ],
-   "dependencies": {
-      "commander": "^9.1.0",
-      "pino": "^7.10.0",
-      "to-case": "^2.0.0",
-      "tsx": "^4.20.6"
-   },
-   "peerDependencies": {
-      "@opentelemetry/api": "^1.0.0",
-      "sql-formatter": "^15.7.0"
-   },
-   "peerDependenciesMeta": {
-      "sql-formatter": {
-         "optional": true
-      },
-      "@opentelemetry/api": {
-         "optional": true
-      }
-   },
-   "devDependencies": {
-      "@vitest/coverage-v8": "^4.1.5",
-      "tsc-alias": "^1.8.16",
-      "vite-tsconfig-paths": "^6.1.1",
-      "vitest": "^4.1.5"
-   }
+  "name": "@vexnor/core",
+  "version": "1.0.0-beta.1",
+  "description": "",
+  "type": "module",
+  "main": "./dist/core/index.js",
+  "types": "./dist/core/index.d.ts",
+  "module": "./dist/core/index.js",
+  "imports": {
+    "#/*": "./dist/*"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/core/core.d.ts",
+      "browser": "./dist/core/core.browser.js",
+      "import": "./dist/core/core.js",
+      "require": "./dist/core/core.js"
+    },
+    "./format": {
+      "import": "./dist/format/index.js",
+      "types": "./dist/format/index.d.ts",
+      "require": "./dist/format/index.js"
+    },
+    "./plugin": {
+      "import": "./dist/plugin/plugin.js",
+      "types": "./dist/plugin/plugin.d.ts",
+      "require": "./dist/plugin/plugin.js"
+    },
+    "./config": {
+      "import": "./dist/config/config.js",
+      "types": "./dist/config/config.d.ts",
+      "require": "./dist/config/config.js"
+    },
+    "./execution": {
+      "import": "./dist/execution/execution.js",
+      "types": "./dist/execution/execution.d.ts",
+      "require": "./dist/execution/execution.js"
+    },
+    "./testing": {
+      "import": "./dist/test/testing.js",
+      "types": "./dist/test/testing.d.ts",
+      "require": "./dist/test/testing.js"
+    },
+    "./telemetry": {
+      "import": "./dist/telemetry/telemetry.js",
+      "types": "./dist/telemetry/telemetry.d.ts",
+      "require": "./dist/telemetry/telemetry.js"
+    }
+  },
+  "keywords": [
+    "vexnor",
+    "postgres",
+    "sql",
+    "postgres.js",
+    "pg",
+    "mssql",
+    "mysql",
+    "strongly typed sql",
+    "query builder",
+    "orm"
+  ],
+  "author": "Adrian Topala",
+  "license": "Apache-2.0",
+  "repository": "https://github.com/vexnor-dev/vexnor",
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "homepage": "https://github.com/vexnor-dev/vexnor#readme",
+  "bugs": {
+    "url": "https://github.com/vexnor-dev/vexnor/issues"
+  },
+  "bin": {
+    "vexnor": "./cli.mjs"
+  },
+  "engines": {
+    "node": ">=22.21.1"
+  },
+  "scripts": {
+    "clean": "rimraf dist tsconfig.tsbuildinfo",
+    "build": "tsc -b",
+    "postbuild": "tsc-alias",
+    "prepack:1-copy-readme": "copyfiles -f \"../../README.md\" .",
+    "prepack": "run-s 'build' 'prepack:*'",
+    "pretest": "run-s 'build'",
+    "test": "vitest --coverage run",
+    "test:watch": "vitest --watch",
+    "test:run": "vitest run"
+  },
+  "files": [
+    "dist",
+    "package.json",
+    "README.md"
+  ],
+  "dependencies": {
+    "commander": "^9.1.0",
+    "pino": "^7.10.0",
+    "to-case": "^2.0.0",
+    "tsx": "^4.20.6"
+  },
+  "peerDependencies": {
+    "@opentelemetry/api": "^1.0.0",
+    "sql-formatter": "^15.7.0"
+  },
+  "peerDependenciesMeta": {
+    "sql-formatter": {
+      "optional": true
+    },
+    "@opentelemetry/api": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^4.1.5",
+    "tsc-alias": "^1.8.16",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^4.1.5"
+  }
 }
