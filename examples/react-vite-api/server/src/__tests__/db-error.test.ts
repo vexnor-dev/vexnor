@@ -60,19 +60,6 @@ describe("toDbErrorResponse", () => {
       `);
    });
 
-   test("includes name and location from meta when provided", () => {
-      const err = new SqlError("not found", { code: "QUERY_NOT_FOUND" as never });
-      expect(toDbErrorResponse(err, { name: "selectAccounts", location: "shared/queries/postgres.ts:22:31" })).toMatchInlineSnapshot(`
-        {
-          "code": "QUERY_NOT_FOUND",
-          "error": "not found",
-          "location": "shared/queries/postgres.ts:22:31",
-          "name": "selectAccounts",
-          "status": 400,
-        }
-      `);
-   });
-
    test("non-SqlError falls back to 500 with stringified message", () => {
       expect(toDbErrorResponse(new Error("boom"))).toMatchInlineSnapshot(`
         {

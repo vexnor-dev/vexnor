@@ -19,21 +19,18 @@ export const SQL_ERROR_STATUS: Record<SqlErrorCode, ErrorStatus> = {
 };
 
 export type DbErrorResponse =
-   | { error: string; code: string; status: ErrorStatus; name?: string | null; location?: string | null }
+   | { error: string; code: string; status: ErrorStatus }
    | { error: string; status: 500 };
 
-export function toDbErrorResponse(
-   err: unknown,
-   meta?: { name?: string | null; location?: string | null },
-): DbErrorResponse {
+export function toDbErrorResponse(err: unknown): DbErrorResponse {
    if (err instanceof SqlRunError || err instanceof SqlError) {
       const status: ErrorStatus = SQL_ERROR_STATUS[err.code] ?? 500;
-      return { error: err.message, code: err.code, status, ...meta };
+      return { error: err.message, code: err.code, status };
    }
    return { error: String(err), status: 500 };
 }
 
-export function handleDbError(c: Context, err: unknown, meta?: { name?: string | null; location?: string | null }) {
-   const { status, ...body } = toDbErrorResponse(err, meta);
+export function handleDbError(c: Context, err: unknown) {
+   const { status, ...body } = toDbErrorResponse(err);
    return c.json(body, status);
 }

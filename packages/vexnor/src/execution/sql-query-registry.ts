@@ -47,15 +47,24 @@ export type ExecuteQueryArgs = {
 const RequiredExecuteQueryKeys: (keyof ExecuteQueryArgs)[] = ["plugin", "hash", "params", "mode", "location", "name"];
 
 export type SqlQueryRegistryOptions<TContext extends Record<string, unknown> = Record<string, unknown>> =
-   SqlQueryPipelineOptions<TContext>;
+   SqlQueryPipelineOptions<TContext> & {
+      /**
+       * When enabled, filters incoming params to only the keys declared by the
+       * matched query before passing them to plugins, audit, and execution.
+       * Prevents payload inflation attacks against log pipelines.
+       */
+      strictParams?: boolean;
+   };
 
 export class SqlQueryRegistry<TContext extends Record<string, unknown> = Record<string, unknown>> {
    readonly pipeline: SqlQueryPipeline<{ Context: TContext }>;
    private readonly maps = new Map<string, Map<string, { query: SqlQueryAny; name: string }>>();
    private readonly plugins = new Map<string, VexnorPluginAny>();
+   private readonly strictParams: boolean;
 
    constructor(options: SqlQueryRegistryOptions<TContext> = {}) {
       this.pipeline = new SqlQueryPipeline(options);
+      this.strictParams = options.strictParams ?? false;
    }
 
    /**
@@ -117,7 +126,7 @@ export class SqlQueryRegistry<TContext extends Record<string, unknown> = Record<
          });
       }
 
-      const result = Object.fromEntries(
+      return Object.fromEntries(
          RequiredExecuteQueryKeys.map((key) => {
             const value = (request as Record<string, unknown>)[key];
             if (value === undefined)
@@ -127,9 +136,6 @@ export class SqlQueryRegistry<TContext extends Record<string, unknown> = Record<
             return [key, value];
          }),
       ) as ExecuteQueryArgs;
-      const options = (request as { options?: SqlRunOptions }).options;
-      if (options !== undefined) result.options = options;
-      return result;
    }
 
    /**
@@ -185,7 +191,8 @@ export class SqlQueryRegistry<TContext extends Record<string, unknown> = Record<
       const plugin = this.plugins.get(pluginName);
       ok(plugin, `Unknown plugin: ${pluginName}`);
 
-      const mergedParams = this.mergeRuntimeParams(query, params, context);
+      const filteredParams = this.strictParams ? this.filterParams(query, params) : params;
+      const mergedParams = this.mergeRuntimeParams(query, filteredParams, context);
       const executionArgs: SqlPipelineExecutionArgs<TContext> = {
          mode: mode,
          plugin,
@@ -206,6 +213,13 @@ export class SqlQueryRegistry<TContext extends Record<string, unknown> = Record<
          },
          options,
       )) as TResult;
+   }
+
+   private filterParams(query: SqlQueryAny, params: Record<string, unknown>): Record<string, unknown> {
+      const queryParams = query.params as Record<string, SqlParamAny> | null;
+      if (!queryParams) return {};
+      const allowed = new Set(Object.keys(queryParams));
+      return Object.fromEntries(Object.entries(params).filter(([key]) => allowed.has(key)));
    }
 
    private mergeRuntimeParams(

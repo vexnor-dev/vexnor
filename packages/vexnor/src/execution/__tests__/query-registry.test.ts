@@ -4,7 +4,7 @@ import { TimeToLiveRateLimiter } from "#/execution/time-to-live-rate-limiter.js"
 import { AuditLogPlugin } from "#/execution/audit-log-plugin.js";
 import { sql } from "#/core/sql.js";
 import { row } from "#/core/query/sql-select-row.js";
-import { param } from "#/core/query/sql-param.js";
+import { ctx, param } from "#/core/query/sql-param.js";
 import { SqlQueryAny } from "#/core/query/sql-query.js";
 import { type SqlExecuteMode } from "#/core/query/sql-query-types.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
@@ -15,6 +15,7 @@ import { ok } from "node:assert";
 import { SqlPipelineEndArgs } from "#/execution/sql-query-pipeline-plugin.js";
 import { mockHandler } from "#/test/mock-query-handler.js";
 import { MockConnection, MockPlugin } from "#/test/mock-plugin.js";
+import { VexnorConnection } from "#/plugin/vexnor-connection.js";
 
 // Two distinct plugins
 const pluginA = new MockPlugin({ name: "pluginA" });
@@ -748,6 +749,86 @@ describe("QueryRegistry", () => {
       expect(() => registry.getExecutionArgs(42)).toThrow("Expected request object");
    });
 
+   test("getExecutionArgs strips options from untrusted remote payloads", () => {
+      const registry = new SqlQueryRegistry();
+      const input = {
+         plugin: "pluginA",
+         hash: "abc",
+         params: {},
+         location: "test",
+         mode: "read" as const,
+         name: null,
+         options: { retry: { maxAttempts: 1000 }, timeout: 1 },
+      };
+      const result = registry.getExecutionArgs(input);
+      expect(result.options).toBeUndefined();
+   });
+
+   // ── strictParams ──────────────────────────────────────────────────────────
+
+   test("strictParams filters incoming params to only declared query param keys", async () => {
+      const registry = new SqlQueryRegistry({ strictParams: true });
+      await registry.register(pluginA, { findAccounts });
+
+      const end = vi.fn();
+      registry.use({ name: "observer", end });
+
+      const hash = await findAccounts.hash;
+      await executeRegistry(registry, {
+         plugin: "pluginA",
+         hash,
+         params: { email: "a@b.com", extraKey: "malicious", anotherExtra: 99999 },
+         resolver: async () => makeDb([]),
+      });
+      await Promise.resolve();
+
+      expect(end).toHaveBeenCalledWith(
+         expect.objectContaining({ params: { email: "a@b.com" } }),
+      );
+   });
+
+   test("strictParams returns empty params when query declares no params", async () => {
+      const registry = new SqlQueryRegistry({ strictParams: true });
+      await registry.register(pluginB, { findOrders });
+
+      const end = vi.fn();
+      registry.use({ name: "observer", end });
+
+      const hash = await findOrders.hash;
+      await executeRegistry(registry, {
+         plugin: "pluginB",
+         hash,
+         params: { injected: "garbage" },
+         resolver: async () => makeDb([]),
+      });
+      await Promise.resolve();
+
+      expect(end).toHaveBeenCalledWith(
+         expect.objectContaining({ params: {} }),
+      );
+   });
+
+   test("strictParams disabled (default) passes all params through", async () => {
+      const registry = new SqlQueryRegistry();
+      await registry.register(pluginA, { findAccounts });
+
+      const end = vi.fn();
+      registry.use({ name: "observer", end });
+
+      const hash = await findAccounts.hash;
+      await executeRegistry(registry, {
+         plugin: "pluginA",
+         hash,
+         params: { email: "a@b.com", extraKey: "kept" },
+         resolver: async () => makeDb([]),
+      });
+      await Promise.resolve();
+
+      expect(end).toHaveBeenCalledWith(
+         expect.objectContaining({ params: { email: "a@b.com", extraKey: "kept" } }),
+      );
+   });
+
    test("getExecutionArgs throws QUERY_PARAMETERS_INVALID when a required key is missing", () => {
       const registry = new SqlQueryRegistry();
       expect(() =>
@@ -1457,5 +1538,88 @@ describe("QueryRegistry", () => {
          expect.stringContaining(`QueryExecutionPlugin "broken-plugin" onError threw during "end" phase`),
       );
       warnSpy.mockRestore();
+   });
+
+   // ── context params merging ────────────────────────────────────────────────
+
+   test("execute merges context params from registry context into query params", async () => {
+      const findByUser = sql`
+         select ${row(Account.$accountId, Account.$email)}
+         from ${Account}
+         where ${Account.$accountId} = ${ctx<{ userId: string }>("userId")}
+      `;
+      const registry = new SqlQueryRegistry<{ userId: string }>();
+      await registry.register(pluginA, { findByUser });
+
+      const end = vi.fn();
+      registry.use({ name: "observer", end });
+
+      const hash = await findByUser.hash;
+      await executeRegistry(registry, {
+         plugin: "pluginA",
+         hash,
+         params: {},
+         resolver: async () => makeDb([]),
+         context: { userId: "u-injected" },
+      });
+      await Promise.resolve();
+
+      expect(end).toHaveBeenCalledWith(
+         expect.objectContaining({ params: { userId: "u-injected" } }),
+      );
+   });
+
+   test("execute merges context params alongside regular params", async () => {
+      const findByUserEmail = sql`
+         select ${row(Account.$accountId, Account.$email)}
+         from ${Account}
+         where ${Account.$accountId} = ${ctx<{ userId: string }>("userId")}
+           and ${Account.$email} = ${param<{ email: string }>("email")}
+      `;
+      const registry = new SqlQueryRegistry<{ userId: string }>();
+      await registry.register(pluginA, { findByUserEmail });
+
+      const end = vi.fn();
+      registry.use({ name: "observer", end });
+
+      const hash = await findByUserEmail.hash;
+      await executeRegistry(registry, {
+         plugin: "pluginA",
+         hash,
+         params: { email: "a@b.com" },
+         resolver: async () => makeDb([]),
+         context: { userId: "u-123" },
+      });
+      await Promise.resolve();
+
+      expect(end).toHaveBeenCalledWith(
+         expect.objectContaining({ params: { email: "a@b.com", userId: "u-123" } }),
+      );
+   });
+
+   test("execute unwraps VexnorConnection from resolver", async () => {
+      const registry = new SqlQueryRegistry();
+      await registry.register(pluginA, { findAccounts });
+
+      const hash = await findAccounts.hash;
+      const db = makeDb([{ accountId: "1", email: "a@b.com" }]);
+      const connection = new VexnorConnection(db, () => {});
+      const result = await executeRegistry(registry, {
+         plugin: "pluginA",
+         hash,
+         params: { email: "a@b.com" },
+         resolver: async () => connection,
+      });
+
+      expect(result).toMatchInlineSnapshot(`
+        {
+          "rows": [
+            {
+              "accountId": "1",
+              "email": "a@b.com",
+            },
+          ],
+        }
+      `);
    });
 });
