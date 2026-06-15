@@ -160,7 +160,7 @@ jobs:
   # ─────────────────────────────────────────────────────────────────────────────
   # Step 2: Publish
   # Downloads pre-built artifacts and publishes to npm.
-  # No install. No scripts. Only `npm publish`.
+  # No install. No scripts. Only `npm publish --ignore-scripts`.
   # ─────────────────────────────────────────────────────────────────────────────
   publish:
     needs: build-and-test
@@ -275,15 +275,15 @@ jobs:
           NPM_TAG="${{ steps.version.outputs.npm_tag }}"
 
           # Core first (others depend on it)
-          npm publish ./packages/vexnor --access public --tag "$NPM_TAG" --provenance
+          npm publish --ignore-scripts ./packages/vexnor --access public --tag "$NPM_TAG" --provenance
 
           # Plugins
-          npm publish ./plugins/postgres --access public --tag "$NPM_TAG" --provenance
-          npm publish ./plugins/mssql --access public --tag "$NPM_TAG" --provenance
-          npm publish ./plugins/sqlite3 --access public --tag "$NPM_TAG" --provenance
+          npm publish --ignore-scripts ./plugins/postgres --access public --tag "$NPM_TAG" --provenance
+          npm publish --ignore-scripts ./plugins/mssql --access public --tag "$NPM_TAG" --provenance
+          npm publish --ignore-scripts ./plugins/sqlite3 --access public --tag "$NPM_TAG" --provenance
 
           # ORMs
-          npm publish ./orms/prisma --access public --tag "$NPM_TAG" --provenance
-          npm publish ./orms/drizzle --access public --tag "$NPM_TAG" --provenance
-          npm publish ./orms/typeorm --access public --tag "$NPM_TAG" --provenance
-          npm publish ./orms/sequelize --access public --tag "$NPM_TAG" --provenance
+          npm publish --ignore-scripts ./orms/prisma --access public --tag "$NPM_TAG" --provenance
+          npm publish --ignore-scripts ./orms/drizzle --access public --tag "$NPM_TAG" --provenance
+          npm publish --ignore-scripts ./orms/typeorm --access public --tag "$NPM_TAG" --provenance
+          npm publish --ignore-scripts ./orms/sequelize --access public --tag "$NPM_TAG" --provenance
