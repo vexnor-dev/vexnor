@@ -21,6 +21,7 @@ export const Account = vexnor.newSqlTable<{
    },
    pk: ["accountId"],
    dialect: "tsql",
+   source: "@vexnor/test-remote:src/codegen/mssql",
    columns: {
 
       /**
@@ -71,6 +72,20 @@ export const Account = vexnor.newSqlTable<{
    jsonSchema: {
       createdAt: "Date",
       modifiedAt: "Date",
+   },
+   fk: [
+      { from: ["parentId"], to: { schema: "vexnor_dev", table: "account", columns: ["accountId"] } },
+   ],
+   dbSchema: {
+      accountId: { dbType: "uniqueidentifier", type: vexnor.SqlLiteralType.String, default: "(newid())" },
+      parentId: { dbType: "uniqueidentifier", type: vexnor.SqlLiteralType.String, nullable: true },
+      status: { dbType: "varchar", type: vexnor.SqlLiteralType.String, default: "('created')" },
+      email: { dbType: "varchar", type: vexnor.SqlLiteralType.String },
+      firstName: { dbType: "varchar", type: vexnor.SqlLiteralType.String },
+      lastName: { dbType: "varchar", type: vexnor.SqlLiteralType.String },
+      notes: { dbType: "varchar", type: vexnor.SqlLiteralType.String, nullable: true },
+      createdAt: { dbType: "datetimeoffset", type: vexnor.SqlLiteralType.Date, default: "(sysdatetimeoffset())" },
+      modifiedAt: { dbType: "datetimeoffset", type: vexnor.SqlLiteralType.Date, default: "(sysdatetimeoffset())" },
    },
 });
 export type IAccountInsert = {

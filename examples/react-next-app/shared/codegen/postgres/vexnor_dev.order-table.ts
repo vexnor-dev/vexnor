@@ -22,6 +22,7 @@ export const Order = vexnor.newSqlTable<{
    },
    pk: ["orderId"],
    dialect: "postgresql",
+   source: "@vexnor/example-react-next-app:shared/codegen/postgres",
    columns: {
 
       /**
@@ -52,6 +53,16 @@ export const Order = vexnor.newSqlTable<{
    jsonSchema: {
       createdAt: "Date",
       modifiedAt: "Date",
+   },
+   fk: [
+      { from: ["accountId"], to: { schema: "vexnor_dev", table: "account", columns: ["accountId"] } },
+   ],
+   dbSchema: {
+      orderId: { dbType: "uuid", type: vexnor.SqlLiteralType.String, default: "gen_random_uuid()" },
+      status: { dbType: "order_status", type: vexnor.SqlLiteralType.Udt, default: "'created'::vexnor_dev.order_status", values: ["created", "paid", "delivered", "received"] },
+      createdAt: { dbType: "timestamptz", type: vexnor.SqlLiteralType.Date, default: "now()" },
+      modifiedAt: { dbType: "timestamptz", type: vexnor.SqlLiteralType.Date, default: "now()" },
+      accountId: { dbType: "uuid", type: vexnor.SqlLiteralType.String },
    },
 });
 export type IOrderInsert = {

@@ -135,13 +135,21 @@ describe("VexnorMssql.getSchema()", () => {
          rowsAffected: [1],
          output: {},
       };
+      const mockFkResult = {
+         recordsets: [[
+            { table_schema: "dbo", table_name: "account", column_name: "parent_id", constraint_name: "fk_parent", referenced_table_schema: "dbo", referenced_table_name: "account", referenced_column_name: "id" },
+         ]],
+         recordset: [{ table_schema: "dbo", table_name: "account", column_name: "parent_id", constraint_name: "fk_parent", referenced_table_schema: "dbo", referenced_table_name: "account", referenced_column_name: "id" }],
+         rowsAffected: [1],
+         output: {},
+      };
 
       let callCount = 0;
+      const mockResults = [mockTableResult, mockViewResult, mockFkResult];
       const mockRequest = {
          input: vi.fn().mockReturnThis(),
          query: vi.fn().mockImplementation(() => {
-            callCount++;
-            return Promise.resolve(callCount === 1 ? mockTableResult : mockViewResult);
+            return Promise.resolve(mockResults[callCount++]);
          }),
       };
       const mockPool = {
@@ -160,11 +168,54 @@ describe("VexnorMssql.getSchema()", () => {
          expect(schema.tables).toHaveLength(2);
          expect(schema.tables[0]!.table_type).toBe("table");
          expect(schema.tables[0]!.table_name).toBe("account");
+         expect(schema.tables[0]!.foreign_keys).toMatchInlineSnapshot(`
+           [
+             {
+               "column_name": "parent_id",
+               "constraint_name": "fk_parent",
+               "referenced_column_name": "id",
+               "referenced_table_name": "account",
+               "referenced_table_schema": "dbo",
+               "table_name": "account",
+               "table_schema": "dbo",
+             },
+           ]
+         `);
          expect(schema.tables[1]!.table_type).toBe("view");
          expect(schema.tables[1]!.table_name).toBe("account_summary");
+         expect(schema.tables[1]!.foreign_keys).toMatchInlineSnapshot(`[]`);
          expect(schema.enums).toMatchInlineSnapshot(`[]`);
       } finally {
          createSpy.mockRestore();
+      }
+   });
+
+   test("handles FK query error gracefully", async () => {
+      const plugin = new VexnorMssql();
+      let callCount = 0;
+      const mockRequest = {
+         input: vi.fn().mockReturnThis(),
+         query: vi.fn().mockImplementation(() => {
+            callCount++;
+            if (callCount === 3) return Promise.reject(new Error("FK query failed"));
+            return Promise.resolve({
+               recordsets: [[]],
+               recordset: [],
+               rowsAffected: [0],
+               output: {},
+            });
+         }),
+      };
+      const mockPool = { request: () => mockRequest, driver: "tedious", close: vi.fn() };
+      const createSpy = vi.spyOn(plugin, "createConnection").mockResolvedValue({ db: mockPool, close: vi.fn() } as never);
+      const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+      try {
+         await expect(plugin.getSchema({ schemas: ["dbo"], uri: "test://localhost" } as never)).rejects.toThrow("FK query failed");
+         expect(consoleSpy).toHaveBeenCalled();
+      } finally {
+         createSpy.mockRestore();
+         consoleSpy.mockRestore();
       }
    });
 });

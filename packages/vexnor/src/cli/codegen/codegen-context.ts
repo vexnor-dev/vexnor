@@ -1,7 +1,7 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 import to from "to-case";
 import { CodeWriter } from "#/lib/code-writer.js";
-import { VexnorPluginAny } from "#/plugin/plugin.js";
+import { VexnorPluginAny, SqlEnumInfo } from "#/plugin/plugin.js";
 import { GenerateConfig } from "#/config/config-types.js";
 
 export class CodegenContextModel {
@@ -10,6 +10,8 @@ export class CodegenContextModel {
    readonly camelCaseColumns?: boolean;
    readonly includeEnums?: boolean;
    readonly generate: GenerateConfig | null;
+   readonly source: string;
+   readonly enums: SqlEnumInfo[];
    readonly getColumnName: (columnName: string) => string;
    readonly getTableName: (tableName: string) => string;
 
@@ -19,6 +21,8 @@ export class CodegenContextModel {
       this.camelCaseColumns = args.camelCaseColumns;
       this.includeEnums = args.includeEnums;
       this.generate = args.generate ?? null;
+      this.source = args.source ?? "";
+      this.enums = args.enums ?? [];
       this.getColumnName = (columnName: string) => (this.camelCaseColumns ? to.camel(columnName) : columnName);
       this.getTableName = (tableName: string) => to.pascal(tableName);
    }
@@ -48,4 +52,6 @@ export type CodegenContextArgs = {
    camelCaseColumns?: boolean;
    includeEnums?: boolean;
    generate?: GenerateConfig | null;
+   source?: string;
+   enums?: SqlEnumInfo[];
 };

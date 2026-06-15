@@ -65,6 +65,8 @@ export async function codegenCommand(options: CodegenCommandOptions) {
       camelCaseColumns,
       includeEnums: enums.length > 0,
       generate,
+      source: await resolveSource(outDir),
+      enums,
    });
 
    const files = await fs.readdir(outDir);
@@ -103,4 +105,21 @@ export async function resolveGenerateConfig(options: CodegenCommandOptions): Pro
    } catch {
       return null;
    }
+}
+
+export async function resolveSource(outDir: string): Promise<string> {
+   let dir = outDir;
+   while (dir !== path.dirname(dir)) {
+      try {
+         const pkg = JSON.parse(await fs.readFile(path.join(dir, "package.json"), "utf8"));
+         if (pkg.name) {
+            const relativeOutDir = path.relative(dir, outDir);
+            return `${pkg.name}:${relativeOutDir}`;
+         }
+      } catch {
+         // no package.json here, go up
+      }
+      dir = path.dirname(dir);
+   }
+   return outDir;
 }

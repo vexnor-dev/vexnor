@@ -12,7 +12,7 @@ describe("view — AccountOrderSummary (sqlite)", () => {
             "columnName": "account_id",
             "format": null,
             "hashId": "SqlTableColumn#(account_order_summary.account_id as accountId)",
-            "id": "SqlTableColumn#19(account_order_summary.account_id as accountId)",
+            "id": "SqlTableColumn#27(account_order_summary.account_id as accountId)",
             "jsonType": null,
             "key": "accountId",
             "tableInfo": {
@@ -26,7 +26,7 @@ describe("view — AccountOrderSummary (sqlite)", () => {
             "columnName": "email",
             "format": null,
             "hashId": "SqlTableColumn#(account_order_summary.email)",
-            "id": "SqlTableColumn#20(account_order_summary.email)",
+            "id": "SqlTableColumn#28(account_order_summary.email)",
             "jsonType": null,
             "key": "email",
             "tableInfo": {
@@ -40,7 +40,7 @@ describe("view — AccountOrderSummary (sqlite)", () => {
             "columnName": "first_name",
             "format": null,
             "hashId": "SqlTableColumn#(account_order_summary.first_name as firstName)",
-            "id": "SqlTableColumn#21(account_order_summary.first_name as firstName)",
+            "id": "SqlTableColumn#29(account_order_summary.first_name as firstName)",
             "jsonType": null,
             "key": "firstName",
             "tableInfo": {
@@ -54,7 +54,7 @@ describe("view — AccountOrderSummary (sqlite)", () => {
             "columnName": "last_name",
             "format": null,
             "hashId": "SqlTableColumn#(account_order_summary.last_name as lastName)",
-            "id": "SqlTableColumn#22(account_order_summary.last_name as lastName)",
+            "id": "SqlTableColumn#30(account_order_summary.last_name as lastName)",
             "jsonType": null,
             "key": "lastName",
             "tableInfo": {
@@ -68,7 +68,7 @@ describe("view — AccountOrderSummary (sqlite)", () => {
             "columnName": "latest_order_at",
             "format": null,
             "hashId": "SqlTableColumn#(account_order_summary.latest_order_at as latestOrderAt)",
-            "id": "SqlTableColumn#25(account_order_summary.latest_order_at as latestOrderAt)",
+            "id": "SqlTableColumn#33(account_order_summary.latest_order_at as latestOrderAt)",
             "jsonType": null,
             "key": "latestOrderAt",
             "tableInfo": {
@@ -82,7 +82,7 @@ describe("view — AccountOrderSummary (sqlite)", () => {
             "columnName": "order_count",
             "format": null,
             "hashId": "SqlTableColumn#(account_order_summary.order_count as orderCount)",
-            "id": "SqlTableColumn#24(account_order_summary.order_count as orderCount)",
+            "id": "SqlTableColumn#32(account_order_summary.order_count as orderCount)",
             "jsonType": null,
             "key": "orderCount",
             "tableInfo": {
@@ -96,7 +96,7 @@ describe("view — AccountOrderSummary (sqlite)", () => {
             "columnName": "status",
             "format": null,
             "hashId": "SqlTableColumn#(account_order_summary.status)",
-            "id": "SqlTableColumn#23(account_order_summary.status)",
+            "id": "SqlTableColumn#31(account_order_summary.status)",
             "jsonType": null,
             "key": "status",
             "tableInfo": {
@@ -118,7 +118,7 @@ describe("view — AccountOrderSummary (sqlite)", () => {
                 "columnName": "account_id",
                 "format": null,
                 "hashId": "SqlTableColumn#(account_order_summary.account_id as accountId)",
-                "id": "SqlTableColumn#19(account_order_summary.account_id as accountId)",
+                "id": "SqlTableColumn#27(account_order_summary.account_id as accountId)",
                 "jsonType": null,
                 "key": "accountId",
                 "tableInfo": {
@@ -132,7 +132,7 @@ describe("view — AccountOrderSummary (sqlite)", () => {
                 "columnName": "email",
                 "format": null,
                 "hashId": "SqlTableColumn#(account_order_summary.email)",
-                "id": "SqlTableColumn#20(account_order_summary.email)",
+                "id": "SqlTableColumn#28(account_order_summary.email)",
                 "jsonType": null,
                 "key": "email",
                 "tableInfo": {
@@ -146,7 +146,7 @@ describe("view — AccountOrderSummary (sqlite)", () => {
                 "columnName": "first_name",
                 "format": null,
                 "hashId": "SqlTableColumn#(account_order_summary.first_name as firstName)",
-                "id": "SqlTableColumn#21(account_order_summary.first_name as firstName)",
+                "id": "SqlTableColumn#29(account_order_summary.first_name as firstName)",
                 "jsonType": null,
                 "key": "firstName",
                 "tableInfo": {
@@ -160,7 +160,7 @@ describe("view — AccountOrderSummary (sqlite)", () => {
                 "columnName": "last_name",
                 "format": null,
                 "hashId": "SqlTableColumn#(account_order_summary.last_name as lastName)",
-                "id": "SqlTableColumn#22(account_order_summary.last_name as lastName)",
+                "id": "SqlTableColumn#30(account_order_summary.last_name as lastName)",
                 "jsonType": null,
                 "key": "lastName",
                 "tableInfo": {
@@ -174,7 +174,7 @@ describe("view — AccountOrderSummary (sqlite)", () => {
                 "columnName": "latest_order_at",
                 "format": null,
                 "hashId": "SqlTableColumn#(account_order_summary.latest_order_at as latestOrderAt)",
-                "id": "SqlTableColumn#25(account_order_summary.latest_order_at as latestOrderAt)",
+                "id": "SqlTableColumn#33(account_order_summary.latest_order_at as latestOrderAt)",
                 "jsonType": null,
                 "key": "latestOrderAt",
                 "tableInfo": {
@@ -188,7 +188,7 @@ describe("view — AccountOrderSummary (sqlite)", () => {
                 "columnName": "order_count",
                 "format": null,
                 "hashId": "SqlTableColumn#(account_order_summary.order_count as orderCount)",
-                "id": "SqlTableColumn#24(account_order_summary.order_count as orderCount)",
+                "id": "SqlTableColumn#32(account_order_summary.order_count as orderCount)",
                 "jsonType": null,
                 "key": "orderCount",
                 "tableInfo": {
@@ -202,7 +202,7 @@ describe("view — AccountOrderSummary (sqlite)", () => {
                 "columnName": "status",
                 "format": null,
                 "hashId": "SqlTableColumn#(account_order_summary.status)",
-                "id": "SqlTableColumn#23(account_order_summary.status)",
+                "id": "SqlTableColumn#31(account_order_summary.status)",
                 "jsonType": null,
                 "key": "status",
                 "tableInfo": {
@@ -227,11 +227,50 @@ describe("view — AccountOrderSummary (sqlite)", () => {
             "callback": [Function],
           },
           "columnTypes": {},
+          "dbSchema": {
+            "accountId": {
+              "dbType": "TEXT",
+              "nullable": true,
+              "type": "string",
+            },
+            "email": {
+              "dbType": "TEXT",
+              "nullable": true,
+              "type": "string",
+            },
+            "firstName": {
+              "dbType": "TEXT",
+              "nullable": true,
+              "type": "string",
+            },
+            "lastName": {
+              "dbType": "TEXT",
+              "nullable": true,
+              "type": "string",
+            },
+            "latestOrderAt": {
+              "dbType": "",
+              "nullable": true,
+              "type": "string",
+            },
+            "orderCount": {
+              "dbType": "",
+              "nullable": true,
+              "type": "string",
+            },
+            "status": {
+              "dbType": "TEXT",
+              "nullable": true,
+              "type": "string",
+            },
+          },
           "dialect": "sqlite",
+          "fk": [],
           "format": null,
           "hashId": "SqlTable#(main.account_order_summary)",
-          "id": "SqlTable#4(main.account_order_summary)",
+          "id": "SqlTable#6(main.account_order_summary)",
           "pk": [],
+          "source": "@vexnor/test-sqlite3:src/codegen",
           "tableInfo": {
             "name": "account_order_summary",
             "schema": "main",

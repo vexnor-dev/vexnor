@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { findTables } from "#/schema/find-tables.js";
+import { findForeignKeys, findTables } from "#/schema/find-tables.js";
 
 describe("findTables() tests", () => {
    test("findTables() snapshot match", () => {
@@ -69,6 +69,37 @@ describe("findTables() tests", () => {
         ORDER BY
           "T_1"."TABLE_SCHEMA",
           "T_1"."TABLE_NAME" /* </query_0> */"
+      `);
+   });
+
+   test("findForeignKeys() snapshot match", () => {
+      const { text, values } = findForeignKeys.getSql({ params: { schemas: ["vexnor_dev"] } });
+      expect(values).toMatchInlineSnapshot(`
+        [
+          "vexnor_dev",
+        ]
+      `);
+      expect(text).toMatchInlineSnapshot(`
+        "/* <query_0> */
+        SELECT
+          "KCU_1"."TABLE_SCHEMA" AS "table_schema",
+          "KCU_1"."TABLE_NAME" AS "table_name",
+          "KCU_1"."COLUMN_NAME" AS "column_name",
+          "KCU_1"."CONSTRAINT_NAME" AS "constraint_name",
+          "CCU_2"."TABLE_SCHEMA" AS "referenced_table_schema",
+          "CCU_2"."TABLE_NAME" AS "referenced_table_name",
+          "CCU_2"."COLUMN_NAME" AS "referenced_column_name"
+        FROM
+          "INFORMATION_SCHEMA"."KEY_COLUMN_USAGE" AS "KCU_1"
+          JOIN "INFORMATION_SCHEMA"."TABLE_CONSTRAINTS" AS "TC_3" ON "KCU_1"."CONSTRAINT_NAME" = "TC_3"."CONSTRAINT_NAME"
+          AND "KCU_1"."TABLE_SCHEMA" = "TC_3"."TABLE_SCHEMA"
+          JOIN "INFORMATION_SCHEMA"."REFERENTIAL_CONSTRAINTS" AS "RC_4" ON "TC_3"."CONSTRAINT_NAME" = "RC_4"."CONSTRAINT_NAME"
+          AND "TC_3"."TABLE_SCHEMA" = "RC_4"."CONSTRAINT_SCHEMA"
+          JOIN "INFORMATION_SCHEMA"."CONSTRAINT_COLUMN_USAGE" AS "CCU_2" ON "RC_4"."UNIQUE_CONSTRAINT_NAME" = "CCU_2"."CONSTRAINT_NAME"
+          AND "RC_4"."UNIQUE_CONSTRAINT_SCHEMA" = "CCU_2"."CONSTRAINT_SCHEMA"
+        WHERE
+          "TC_3"."CONSTRAINT_TYPE" = 'FOREIGN KEY'
+          AND "TC_3"."TABLE_SCHEMA" IN (?) /* </query_0> */"
       `);
    });
 });

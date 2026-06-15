@@ -127,3 +127,5 @@ export { SqlRunError, type SqlRunErrorOptions, type SqlRunQueryRef } from "./sql
 export { CACHE } from "#/lib/cache.js";
 
 export { getQueryName } from "#/core/query/sql-query-name.js";
+
+export { SqlLiteralType } from "#/plugin/sql-literal.js";

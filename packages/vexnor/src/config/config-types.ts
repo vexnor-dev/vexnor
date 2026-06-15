@@ -21,6 +21,8 @@ export interface GenerateConfig {
    outDir: string;
    pascalCaseTables?: boolean;
    camelCaseColumns?: boolean;
+   includeForeignKeys?: boolean;
+   includeDbSchema?: boolean;
    schemas?: Record<string, unknown>;
 }
 

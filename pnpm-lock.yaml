@@ -408,8 +408,6 @@ importers:
 
   orms/prisma/src/__tests__/fixtures-v6-client-js/generated: {}
 
-  orms/prisma/src/__tests__/fixtures-v6/generated: {}
-
   orms/prisma/src/__tests__/fixtures-v7-client-js/generated:
     dependencies:
       '@prisma/client-runtime-utils':

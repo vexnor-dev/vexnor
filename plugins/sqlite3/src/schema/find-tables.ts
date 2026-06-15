@@ -1,5 +1,5 @@
 import { col, param, row, sql, val } from "@vexnor/core";
-import { PragmaTableInfo, SqliteMaster } from "#/schema/models.js";
+import { PragmaForeignKeyList, PragmaTableInfo, SqliteMaster } from "#/schema/models.js";
 
 export const findTables = sql`
    SELECT 
@@ -32,4 +32,15 @@ export const findPrimaryKeys = sql`
    SELECT ${row(PragmaTableInfo.$name.as("column_name"), PragmaTableInfo.$name.as("constraint_name"), PragmaTableInfo.$cid.as("ordinal_position"))}
    FROM pragma_table_info(${param<{ tableName: string }>("tableName")}) as ${PragmaTableInfo.render("tableAlias")}
    WHERE pk = 1
+`;
+
+export const findForeignKeys = sql`
+   SELECT ${row(
+      PragmaForeignKeyList.$id,
+      PragmaForeignKeyList.$seq,
+      PragmaForeignKeyList.$table.as("referenced_table_name"),
+      PragmaForeignKeyList.$from.as("column_name"),
+      PragmaForeignKeyList.$to.as("referenced_column_name"),
+   )}
+   FROM pragma_foreign_key_list(${param<{ tableName: string }>("tableName")}) as ${PragmaForeignKeyList.render("tableAlias")}
 `;

@@ -18,6 +18,7 @@ export const AccountOrderSummary = vexnor.newSqlTable<{
    },
    pk: [],
    dialect: "sqlite",
+   source: "@vexnor/example-react-vite-api:shared/codegen/sqlite3",
    columns: {
 
       /**
@@ -54,6 +55,15 @@ export const AccountOrderSummary = vexnor.newSqlTable<{
        * latest_order_at 
        */
       latestOrderAt: "latest_order_at",
+   },
+   dbSchema: {
+      accountId: { dbType: "TEXT", type: vexnor.SqlLiteralType.String, nullable: true },
+      email: { dbType: "TEXT", type: vexnor.SqlLiteralType.String, nullable: true },
+      firstName: { dbType: "TEXT", type: vexnor.SqlLiteralType.String, nullable: true },
+      lastName: { dbType: "TEXT", type: vexnor.SqlLiteralType.String, nullable: true },
+      status: { dbType: "TEXT", type: vexnor.SqlLiteralType.String, nullable: true },
+      orderCount: { dbType: "", type: vexnor.SqlLiteralType.String, nullable: true },
+      latestOrderAt: { dbType: "", type: vexnor.SqlLiteralType.String, nullable: true },
    },
 });
 export type IAccountOrderSummarySelect = {

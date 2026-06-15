@@ -21,6 +21,7 @@ export const Account = vexnor.newSqlTable<{
    },
    pk: ["accountId"],
    dialect: "sqlite",
+   source: "@vexnor/example-react-next-app:shared/codegen/sqlite3",
    columns: {
 
       /**
@@ -67,6 +68,20 @@ export const Account = vexnor.newSqlTable<{
        * parent_id TEXT
        */
       parentId: "parent_id",
+   },
+   fk: [
+      { from: ["parentId"], to: { schema: "main", table: "account", columns: ["accountId"] } },
+   ],
+   dbSchema: {
+      accountId: { dbType: "TEXT", type: vexnor.SqlLiteralType.String, default: "lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-4' || substr(lower(hex(randomblob(2))),2) || '-' || substr('89ab',abs(random()) % 4 + 1, 1) || substr(lower(hex(randomblob(2))),2) || '-' || lower(hex(randomblob(6)))" },
+      status: { dbType: "TEXT", type: vexnor.SqlLiteralType.String, default: "'created'" },
+      email: { dbType: "TEXT", type: vexnor.SqlLiteralType.String },
+      firstName: { dbType: "TEXT", type: vexnor.SqlLiteralType.String },
+      lastName: { dbType: "TEXT", type: vexnor.SqlLiteralType.String },
+      notes: { dbType: "TEXT", type: vexnor.SqlLiteralType.String, nullable: true },
+      createdAt: { dbType: "TEXT", type: vexnor.SqlLiteralType.String, default: "datetime('now')" },
+      modifiedAt: { dbType: "TEXT", type: vexnor.SqlLiteralType.String, default: "datetime('now')" },
+      parentId: { dbType: "TEXT", type: vexnor.SqlLiteralType.String, nullable: true },
    },
 });
 export type IAccountInsert = {

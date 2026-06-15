@@ -57,18 +57,62 @@ describe("Find Tables tests", () => {
             GROUP BY
               "kcu_2"."table_name",
               "kcu_2"."table_schema" /* </query_2> */
+          ),
+          "query_3" AS (
+            /* <query_3> */
+            SELECT
+              "kcu_4"."table_name",
+              "kcu_4"."table_schema",
+              json_agg(
+                json_build_object(
+                  'constraint_name',
+                  "kcu_4"."constraint_name",
+                  'column_name',
+                  "kcu_4"."column_name",
+                  'table_schema',
+                  "kcu_4"."table_schema",
+                  'table_name',
+                  "kcu_4"."table_name",
+                  'referenced_table_schema',
+                  "ccu_5"."table_schema",
+                  'referenced_table_name',
+                  "ccu_5"."table_name",
+                  'referenced_column_name',
+                  "ccu_5"."column_name"
+                )
+                ORDER BY
+                  "kcu_4"."ordinal_position"
+              ) AS "foreign_keys"
+            FROM
+              "information_schema"."key_column_usage" AS "kcu_4"
+              JOIN "information_schema"."table_constraints" AS "tc_6" ON "kcu_4"."constraint_name" = "tc_6"."constraint_name"
+              AND "kcu_4"."table_schema" = "tc_6"."table_schema"
+              JOIN "information_schema"."referential_constraints" AS "rc_7" ON "tc_6"."constraint_name" = "rc_7"."constraint_name"
+              AND "tc_6"."table_schema" = "rc_7"."constraint_schema"
+              JOIN "information_schema"."constraint_column_usage" AS "ccu_5" ON "rc_7"."unique_constraint_name" = "ccu_5"."constraint_name"
+              AND "rc_7"."unique_constraint_schema" = "ccu_5"."constraint_schema"
+            WHERE
+              "tc_6"."constraint_type" = 'FOREIGN KEY'
+              AND "tc_6"."table_schema" IN ($4)
+            GROUP BY
+              "kcu_4"."table_name",
+              "kcu_4"."table_schema" /* </query_3> */
           )
         SELECT
           "query_1".*,
-          "query_2"."primary_keys"
+          "query_2"."primary_keys",
+          "query_3"."foreign_keys"
         FROM
           "query_1"
           LEFT JOIN "query_2" ON "query_1"."table_schema" = "query_2"."table_schema"
-          AND "query_1"."table_name" = "query_2"."table_name" /* </query_0> */"
+          AND "query_1"."table_name" = "query_2"."table_name"
+          LEFT JOIN "query_3" ON "query_1"."table_schema" = "query_3"."table_schema"
+          AND "query_1"."table_name" = "query_3"."table_name" /* </query_0> */"
       `);
 
       expect(values).toMatchInlineSnapshot(`
         [
+          "public",
           "public",
           "public",
           "public",

@@ -198,3 +198,59 @@ export const KeyColumnUsage = newSqlTable<{
       ordinal_position: "ordinal_position",
    },
 });
+
+export const ReferentialConstraints = newSqlTable<{
+   Select: {
+      constraint_name: string;
+      constraint_schema: string;
+      unique_constraint_name: string;
+      unique_constraint_schema: string;
+   };
+}>({
+   crud: {
+      select: true,
+      insert: false,
+      update: false,
+      delete: false,
+   },
+   tableInfo: {
+      name: "referential_constraints",
+      schema: "information_schema",
+   },
+   pk: [],
+   columns: {
+      constraint_name: "constraint_name",
+      constraint_schema: "constraint_schema",
+      unique_constraint_name: "unique_constraint_name",
+      unique_constraint_schema: "unique_constraint_schema",
+   },
+});
+
+export const ConstraintColumnUsage = newSqlTable<{
+   Select: {
+      constraint_name: string;
+      constraint_schema: string;
+      table_name: string;
+      table_schema: string;
+      column_name: string;
+   };
+}>({
+   crud: {
+      select: true,
+      insert: false,
+      update: false,
+      delete: false,
+   },
+   tableInfo: {
+      name: "constraint_column_usage",
+      schema: "information_schema",
+   },
+   pk: [],
+   columns: {
+      constraint_name: "constraint_name",
+      constraint_schema: "constraint_schema",
+      table_name: "table_name",
+      table_schema: "table_schema",
+      column_name: "column_name",
+   },
+});

@@ -21,6 +21,7 @@ export const MigrationValnor = vexnor.newSqlTable<{
    },
    pk: ["version"],
    dialect: "sqlite",
+   source: "@vexnor/example-react-vite-api:shared/codegen/sqlite3",
    columns: {
 
       /**
@@ -42,6 +43,12 @@ export const MigrationValnor = vexnor.newSqlTable<{
        * run_at TIMESTAMP WITH TIME ZONE
        */
       runAt: "run_at",
+   },
+   dbSchema: {
+      version: { dbType: "INTEGER", type: vexnor.SqlLiteralType.Number, nullable: true },
+      name: { dbType: "TEXT", type: vexnor.SqlLiteralType.String, nullable: true },
+      md5: { dbType: "TEXT", type: vexnor.SqlLiteralType.String, nullable: true },
+      runAt: { dbType: "TIMESTAMP WITH TIME ZONE", type: vexnor.SqlLiteralType.String, nullable: true },
    },
 });
 export type IMigrationValnorInsert = {

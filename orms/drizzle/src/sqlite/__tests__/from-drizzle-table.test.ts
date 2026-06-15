@@ -246,13 +246,16 @@ describe("fromDrizzleTable (sqlite) — metadata", () => {
             "callback": [Function],
           },
           "columnTypes": {},
+          "dbSchema": {},
           "dialect": "sqlite",
+          "fk": [],
           "format": null,
           "hashId": "SqlTable#(account)",
           "id": "SqlTable#4(account)",
           "pk": [
             "accountId",
           ],
+          "source": "",
           "tableInfo": {
             "name": "account",
             "schema": null,

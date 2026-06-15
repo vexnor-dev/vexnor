@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { findTables, findTableColumns, findPrimaryKeys } from "#/schema/find-tables.js";
+import { findTables, findTableColumns, findPrimaryKeys, findForeignKeys } from "#/schema/find-tables.js";
 
 describe("Find Tables tests", () => {
    test("Find Tables query should match expected SQL", () => {
@@ -70,6 +70,30 @@ describe("Find Tables tests", () => {
           pragma_table_info (?) AS "pti_1"
         WHERE
           pk = 1
+          /* </query_0> */"
+      `);
+   });
+
+   test("Find Foreign Keys query should match expected SQL", () => {
+      const { text, values } = findForeignKeys.getSql({
+         params: { tableName: "account" },
+         options: { dialect: "sqlite" },
+      });
+      expect(values).toMatchInlineSnapshot(`
+        [
+          "account",
+        ]
+      `);
+      expect(text).toMatchInlineSnapshot(`
+        "/* <query_0> */
+        SELECT
+          "pfkl_1"."id",
+          "pfkl_1"."seq",
+          "pfkl_1"."table" AS "referenced_table_name",
+          "pfkl_1"."from" AS "column_name",
+          "pfkl_1"."to" AS "referenced_column_name"
+        FROM
+          pragma_foreign_key_list (?) AS "pfkl_1"
           /* </query_0> */"
       `);
    });

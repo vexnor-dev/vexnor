@@ -24,7 +24,14 @@ export function resetCache() {
    CACHE.reset();
 }
 
+const resetHooks: (() => void)[] = [];
+
+export function registerResetHook(fn: () => void) {
+   resetHooks.push(fn);
+}
+
 export function resetAll() {
    resetIds();
    resetCache();
+   resetHooks.forEach((fn) => fn());
 }

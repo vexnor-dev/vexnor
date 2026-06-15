@@ -21,6 +21,7 @@ export const Order = vexnor.newSqlTable<{
    },
    pk: ["orderId"],
    dialect: "tsql",
+   source: "@vexnor/example-react-vite-api:shared/codegen/mssql",
    columns: {
 
       /**
@@ -51,6 +52,16 @@ export const Order = vexnor.newSqlTable<{
    jsonSchema: {
       createdAt: "Date",
       modifiedAt: "Date",
+   },
+   fk: [
+      { from: ["accountId"], to: { schema: "vexnor_dev", table: "account", columns: ["accountId"] } },
+   ],
+   dbSchema: {
+      orderId: { dbType: "uniqueidentifier", type: vexnor.SqlLiteralType.String, default: "(newid())" },
+      status: { dbType: "varchar", type: vexnor.SqlLiteralType.String, default: "('created')" },
+      createdAt: { dbType: "datetimeoffset", type: vexnor.SqlLiteralType.Date, default: "(sysdatetimeoffset())" },
+      modifiedAt: { dbType: "datetimeoffset", type: vexnor.SqlLiteralType.Date, default: "(sysdatetimeoffset())" },
+      accountId: { dbType: "uniqueidentifier", type: vexnor.SqlLiteralType.String },
    },
 });
 export type IOrderInsert = {

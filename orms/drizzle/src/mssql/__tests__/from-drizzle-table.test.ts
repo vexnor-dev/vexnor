@@ -254,13 +254,16 @@ describe("fromDrizzleTable (mssql) — metadata", () => {
             "callback": [Function],
           },
           "columnTypes": {},
+          "dbSchema": {},
           "dialect": "tsql",
+          "fk": [],
           "format": null,
           "hashId": "SqlTable#(account)",
           "id": "SqlTable#4(account)",
           "pk": [
             "accountId",
           ],
+          "source": "",
           "tableInfo": {
             "name": "account",
             "schema": null,
@@ -409,13 +412,16 @@ describe("fromDrizzleTable (mssql) — metadata", () => {
             "callback": [Function],
           },
           "columnTypes": {},
+          "dbSchema": {},
           "dialect": "tsql",
+          "fk": [],
           "format": null,
           "hashId": "SqlTable#(vexnor_dev.account)",
           "id": "SqlTable#5(vexnor_dev.account)",
           "pk": [
             "accountId",
           ],
+          "source": "",
           "tableInfo": {
             "name": "account",
             "schema": "vexnor_dev",

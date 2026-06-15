@@ -1,16 +1,17 @@
-export enum SqlLiteralType {
-   String = "string",
-   Number = "number",
-   Boolean = "boolean",
-   Bit = "Bit",
-   Date = "Date",
-   BigInt = "BigInt",
-   Buffer = "Uint8Array",
-   Json = "Json",
-   Custom = "Custom",
-   Unknown = "unknown",
-   Udt = "Udt",
-}
+export const SqlLiteralType = {
+   String: "string",
+   Number: "number",
+   Boolean: "boolean",
+   Bit: "Bit",
+   Date: "Date",
+   BigInt: "BigInt",
+   Buffer: "Uint8Array",
+   Json: "Json",
+   Custom: "Custom",
+   Unknown: "unknown",
+   Udt: "Udt",
+} as const;
+export type SqlLiteralType = (typeof SqlLiteralType)[keyof typeof SqlLiteralType];
 
 export function isSqlType(value: unknown): value is SqlLiteralType {
    if (!value) return false;

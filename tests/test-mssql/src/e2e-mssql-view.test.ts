@@ -12,7 +12,7 @@ describe("view — AccountOrderSummary (mssql)", () => {
             "columnName": "account_id",
             "format": null,
             "hashId": "SqlTableColumn#(account_order_summary.account_id as accountId)",
-            "id": "SqlTableColumn#27(account_order_summary.account_id as accountId)",
+            "id": "SqlTableColumn#39(account_order_summary.account_id as accountId)",
             "jsonType": null,
             "key": "accountId",
             "tableInfo": {
@@ -26,7 +26,7 @@ describe("view — AccountOrderSummary (mssql)", () => {
             "columnName": "email",
             "format": null,
             "hashId": "SqlTableColumn#(account_order_summary.email)",
-            "id": "SqlTableColumn#28(account_order_summary.email)",
+            "id": "SqlTableColumn#40(account_order_summary.email)",
             "jsonType": null,
             "key": "email",
             "tableInfo": {
@@ -40,7 +40,7 @@ describe("view — AccountOrderSummary (mssql)", () => {
             "columnName": "first_name",
             "format": null,
             "hashId": "SqlTableColumn#(account_order_summary.first_name as firstName)",
-            "id": "SqlTableColumn#29(account_order_summary.first_name as firstName)",
+            "id": "SqlTableColumn#41(account_order_summary.first_name as firstName)",
             "jsonType": null,
             "key": "firstName",
             "tableInfo": {
@@ -54,7 +54,7 @@ describe("view — AccountOrderSummary (mssql)", () => {
             "columnName": "last_name",
             "format": null,
             "hashId": "SqlTableColumn#(account_order_summary.last_name as lastName)",
-            "id": "SqlTableColumn#30(account_order_summary.last_name as lastName)",
+            "id": "SqlTableColumn#42(account_order_summary.last_name as lastName)",
             "jsonType": null,
             "key": "lastName",
             "tableInfo": {
@@ -68,7 +68,7 @@ describe("view — AccountOrderSummary (mssql)", () => {
             "columnName": "latest_order_at",
             "format": null,
             "hashId": "SqlTableColumn#(account_order_summary.latest_order_at as latestOrderAt)",
-            "id": "SqlTableColumn#33(account_order_summary.latest_order_at as latestOrderAt)",
+            "id": "SqlTableColumn#45(account_order_summary.latest_order_at as latestOrderAt)",
             "jsonType": "Date",
             "key": "latestOrderAt",
             "tableInfo": {
@@ -82,7 +82,7 @@ describe("view — AccountOrderSummary (mssql)", () => {
             "columnName": "order_count",
             "format": null,
             "hashId": "SqlTableColumn#(account_order_summary.order_count as orderCount)",
-            "id": "SqlTableColumn#32(account_order_summary.order_count as orderCount)",
+            "id": "SqlTableColumn#44(account_order_summary.order_count as orderCount)",
             "jsonType": null,
             "key": "orderCount",
             "tableInfo": {
@@ -96,7 +96,7 @@ describe("view — AccountOrderSummary (mssql)", () => {
             "columnName": "status",
             "format": null,
             "hashId": "SqlTableColumn#(account_order_summary.status)",
-            "id": "SqlTableColumn#31(account_order_summary.status)",
+            "id": "SqlTableColumn#43(account_order_summary.status)",
             "jsonType": null,
             "key": "status",
             "tableInfo": {
@@ -118,7 +118,7 @@ describe("view — AccountOrderSummary (mssql)", () => {
                 "columnName": "account_id",
                 "format": null,
                 "hashId": "SqlTableColumn#(account_order_summary.account_id as accountId)",
-                "id": "SqlTableColumn#27(account_order_summary.account_id as accountId)",
+                "id": "SqlTableColumn#39(account_order_summary.account_id as accountId)",
                 "jsonType": null,
                 "key": "accountId",
                 "tableInfo": {
@@ -132,7 +132,7 @@ describe("view — AccountOrderSummary (mssql)", () => {
                 "columnName": "email",
                 "format": null,
                 "hashId": "SqlTableColumn#(account_order_summary.email)",
-                "id": "SqlTableColumn#28(account_order_summary.email)",
+                "id": "SqlTableColumn#40(account_order_summary.email)",
                 "jsonType": null,
                 "key": "email",
                 "tableInfo": {
@@ -146,7 +146,7 @@ describe("view — AccountOrderSummary (mssql)", () => {
                 "columnName": "first_name",
                 "format": null,
                 "hashId": "SqlTableColumn#(account_order_summary.first_name as firstName)",
-                "id": "SqlTableColumn#29(account_order_summary.first_name as firstName)",
+                "id": "SqlTableColumn#41(account_order_summary.first_name as firstName)",
                 "jsonType": null,
                 "key": "firstName",
                 "tableInfo": {
@@ -160,7 +160,7 @@ describe("view — AccountOrderSummary (mssql)", () => {
                 "columnName": "last_name",
                 "format": null,
                 "hashId": "SqlTableColumn#(account_order_summary.last_name as lastName)",
-                "id": "SqlTableColumn#30(account_order_summary.last_name as lastName)",
+                "id": "SqlTableColumn#42(account_order_summary.last_name as lastName)",
                 "jsonType": null,
                 "key": "lastName",
                 "tableInfo": {
@@ -174,7 +174,7 @@ describe("view — AccountOrderSummary (mssql)", () => {
                 "columnName": "latest_order_at",
                 "format": null,
                 "hashId": "SqlTableColumn#(account_order_summary.latest_order_at as latestOrderAt)",
-                "id": "SqlTableColumn#33(account_order_summary.latest_order_at as latestOrderAt)",
+                "id": "SqlTableColumn#45(account_order_summary.latest_order_at as latestOrderAt)",
                 "jsonType": "Date",
                 "key": "latestOrderAt",
                 "tableInfo": {
@@ -188,7 +188,7 @@ describe("view — AccountOrderSummary (mssql)", () => {
                 "columnName": "order_count",
                 "format": null,
                 "hashId": "SqlTableColumn#(account_order_summary.order_count as orderCount)",
-                "id": "SqlTableColumn#32(account_order_summary.order_count as orderCount)",
+                "id": "SqlTableColumn#44(account_order_summary.order_count as orderCount)",
                 "jsonType": null,
                 "key": "orderCount",
                 "tableInfo": {
@@ -202,7 +202,7 @@ describe("view — AccountOrderSummary (mssql)", () => {
                 "columnName": "status",
                 "format": null,
                 "hashId": "SqlTableColumn#(account_order_summary.status)",
-                "id": "SqlTableColumn#31(account_order_summary.status)",
+                "id": "SqlTableColumn#43(account_order_summary.status)",
                 "jsonType": null,
                 "key": "status",
                 "tableInfo": {
@@ -229,11 +229,45 @@ describe("view — AccountOrderSummary (mssql)", () => {
           "columnTypes": {
             "latestOrderAt": "Date",
           },
+          "dbSchema": {
+            "accountId": {
+              "dbType": "uniqueidentifier",
+              "type": "string",
+            },
+            "email": {
+              "dbType": "varchar",
+              "type": "string",
+            },
+            "firstName": {
+              "dbType": "varchar",
+              "type": "string",
+            },
+            "lastName": {
+              "dbType": "varchar",
+              "type": "string",
+            },
+            "latestOrderAt": {
+              "dbType": "datetimeoffset",
+              "nullable": true,
+              "type": "Date",
+            },
+            "orderCount": {
+              "dbType": "int",
+              "nullable": true,
+              "type": "number",
+            },
+            "status": {
+              "dbType": "varchar",
+              "type": "string",
+            },
+          },
           "dialect": "tsql",
+          "fk": [],
           "format": null,
           "hashId": "SqlTable#(vexnor_dev.account_order_summary)",
-          "id": "SqlTable#5(vexnor_dev.account_order_summary)",
+          "id": "SqlTable#7(vexnor_dev.account_order_summary)",
           "pk": [],
+          "source": "@vexnor/test-mssql:src/codegen",
           "tableInfo": {
             "name": "account_order_summary",
             "schema": "vexnor_dev",

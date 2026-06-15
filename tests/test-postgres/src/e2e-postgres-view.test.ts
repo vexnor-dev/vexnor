@@ -12,7 +12,7 @@ describe("view — AccountOrderSummary (postgres)", () => {
             "columnName": "account_id",
             "format": null,
             "hashId": "SqlTableColumn#(account_order_summary.account_id as accountId)",
-            "id": "SqlTableColumn#49(account_order_summary.account_id as accountId)",
+            "id": "SqlTableColumn#58(account_order_summary.account_id as accountId)",
             "jsonType": null,
             "key": "accountId",
             "tableInfo": {
@@ -26,7 +26,7 @@ describe("view — AccountOrderSummary (postgres)", () => {
             "columnName": "email",
             "format": null,
             "hashId": "SqlTableColumn#(account_order_summary.email)",
-            "id": "SqlTableColumn#50(account_order_summary.email)",
+            "id": "SqlTableColumn#59(account_order_summary.email)",
             "jsonType": null,
             "key": "email",
             "tableInfo": {
@@ -40,7 +40,7 @@ describe("view — AccountOrderSummary (postgres)", () => {
             "columnName": "first_name",
             "format": null,
             "hashId": "SqlTableColumn#(account_order_summary.first_name as firstName)",
-            "id": "SqlTableColumn#51(account_order_summary.first_name as firstName)",
+            "id": "SqlTableColumn#60(account_order_summary.first_name as firstName)",
             "jsonType": null,
             "key": "firstName",
             "tableInfo": {
@@ -54,7 +54,7 @@ describe("view — AccountOrderSummary (postgres)", () => {
             "columnName": "last_name",
             "format": null,
             "hashId": "SqlTableColumn#(account_order_summary.last_name as lastName)",
-            "id": "SqlTableColumn#52(account_order_summary.last_name as lastName)",
+            "id": "SqlTableColumn#61(account_order_summary.last_name as lastName)",
             "jsonType": null,
             "key": "lastName",
             "tableInfo": {
@@ -68,7 +68,7 @@ describe("view — AccountOrderSummary (postgres)", () => {
             "columnName": "latest_order_at",
             "format": null,
             "hashId": "SqlTableColumn#(account_order_summary.latest_order_at as latestOrderAt)",
-            "id": "SqlTableColumn#55(account_order_summary.latest_order_at as latestOrderAt)",
+            "id": "SqlTableColumn#64(account_order_summary.latest_order_at as latestOrderAt)",
             "jsonType": "Date",
             "key": "latestOrderAt",
             "tableInfo": {
@@ -82,7 +82,7 @@ describe("view — AccountOrderSummary (postgres)", () => {
             "columnName": "order_count",
             "format": null,
             "hashId": "SqlTableColumn#(account_order_summary.order_count as orderCount)",
-            "id": "SqlTableColumn#54(account_order_summary.order_count as orderCount)",
+            "id": "SqlTableColumn#63(account_order_summary.order_count as orderCount)",
             "jsonType": null,
             "key": "orderCount",
             "tableInfo": {
@@ -96,7 +96,7 @@ describe("view — AccountOrderSummary (postgres)", () => {
             "columnName": "status",
             "format": null,
             "hashId": "SqlTableColumn#(account_order_summary.status)",
-            "id": "SqlTableColumn#53(account_order_summary.status)",
+            "id": "SqlTableColumn#62(account_order_summary.status)",
             "jsonType": null,
             "key": "status",
             "tableInfo": {
@@ -118,7 +118,7 @@ describe("view — AccountOrderSummary (postgres)", () => {
                 "columnName": "account_id",
                 "format": null,
                 "hashId": "SqlTableColumn#(account_order_summary.account_id as accountId)",
-                "id": "SqlTableColumn#49(account_order_summary.account_id as accountId)",
+                "id": "SqlTableColumn#58(account_order_summary.account_id as accountId)",
                 "jsonType": null,
                 "key": "accountId",
                 "tableInfo": {
@@ -132,7 +132,7 @@ describe("view — AccountOrderSummary (postgres)", () => {
                 "columnName": "email",
                 "format": null,
                 "hashId": "SqlTableColumn#(account_order_summary.email)",
-                "id": "SqlTableColumn#50(account_order_summary.email)",
+                "id": "SqlTableColumn#59(account_order_summary.email)",
                 "jsonType": null,
                 "key": "email",
                 "tableInfo": {
@@ -146,7 +146,7 @@ describe("view — AccountOrderSummary (postgres)", () => {
                 "columnName": "first_name",
                 "format": null,
                 "hashId": "SqlTableColumn#(account_order_summary.first_name as firstName)",
-                "id": "SqlTableColumn#51(account_order_summary.first_name as firstName)",
+                "id": "SqlTableColumn#60(account_order_summary.first_name as firstName)",
                 "jsonType": null,
                 "key": "firstName",
                 "tableInfo": {
@@ -160,7 +160,7 @@ describe("view — AccountOrderSummary (postgres)", () => {
                 "columnName": "last_name",
                 "format": null,
                 "hashId": "SqlTableColumn#(account_order_summary.last_name as lastName)",
-                "id": "SqlTableColumn#52(account_order_summary.last_name as lastName)",
+                "id": "SqlTableColumn#61(account_order_summary.last_name as lastName)",
                 "jsonType": null,
                 "key": "lastName",
                 "tableInfo": {
@@ -174,7 +174,7 @@ describe("view — AccountOrderSummary (postgres)", () => {
                 "columnName": "latest_order_at",
                 "format": null,
                 "hashId": "SqlTableColumn#(account_order_summary.latest_order_at as latestOrderAt)",
-                "id": "SqlTableColumn#55(account_order_summary.latest_order_at as latestOrderAt)",
+                "id": "SqlTableColumn#64(account_order_summary.latest_order_at as latestOrderAt)",
                 "jsonType": "Date",
                 "key": "latestOrderAt",
                 "tableInfo": {
@@ -188,7 +188,7 @@ describe("view — AccountOrderSummary (postgres)", () => {
                 "columnName": "order_count",
                 "format": null,
                 "hashId": "SqlTableColumn#(account_order_summary.order_count as orderCount)",
-                "id": "SqlTableColumn#54(account_order_summary.order_count as orderCount)",
+                "id": "SqlTableColumn#63(account_order_summary.order_count as orderCount)",
                 "jsonType": null,
                 "key": "orderCount",
                 "tableInfo": {
@@ -202,7 +202,7 @@ describe("view — AccountOrderSummary (postgres)", () => {
                 "columnName": "status",
                 "format": null,
                 "hashId": "SqlTableColumn#(account_order_summary.status)",
-                "id": "SqlTableColumn#53(account_order_summary.status)",
+                "id": "SqlTableColumn#62(account_order_summary.status)",
                 "jsonType": null,
                 "key": "status",
                 "tableInfo": {
@@ -229,11 +229,55 @@ describe("view — AccountOrderSummary (postgres)", () => {
           "columnTypes": {
             "latestOrderAt": "Date",
           },
+          "dbSchema": {
+            "accountId": {
+              "dbType": "uuid",
+              "nullable": true,
+              "type": "string",
+            },
+            "email": {
+              "dbType": "varchar",
+              "nullable": true,
+              "type": "string",
+            },
+            "firstName": {
+              "dbType": "varchar",
+              "nullable": true,
+              "type": "string",
+            },
+            "lastName": {
+              "dbType": "varchar",
+              "nullable": true,
+              "type": "string",
+            },
+            "latestOrderAt": {
+              "dbType": "timestamptz",
+              "nullable": true,
+              "type": "Date",
+            },
+            "orderCount": {
+              "dbType": "int8",
+              "nullable": true,
+              "type": "string",
+            },
+            "status": {
+              "dbType": "account_status",
+              "nullable": true,
+              "type": "Udt",
+              "values": [
+                "created",
+                "confirmed",
+                "deleted",
+              ],
+            },
+          },
           "dialect": "postgresql",
+          "fk": [],
           "format": null,
           "hashId": "SqlTable#(vexnor_dev.account_order_summary)",
-          "id": "SqlTable#9(vexnor_dev.account_order_summary)",
+          "id": "SqlTable#11(vexnor_dev.account_order_summary)",
           "pk": [],
+          "source": "@vexnor/test-postgres:src/codegen",
           "tableInfo": {
             "name": "account_order_summary",
             "schema": "vexnor_dev",

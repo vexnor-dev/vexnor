@@ -21,6 +21,7 @@ export const Product = vexnor.newSqlTable<{
    },
    pk: ["productId"],
    dialect: "sqlite",
+   source: "@vexnor/example-react-next-app:shared/codegen/sqlite3",
    columns: {
 
       /**
@@ -42,6 +43,12 @@ export const Product = vexnor.newSqlTable<{
        * price REAL
        */
       price: "price",
+   },
+   dbSchema: {
+      productId: { dbType: "TEXT", type: vexnor.SqlLiteralType.String, nullable: true, default: "lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-4' || substr(lower(hex(randomblob(2))),2) || '-' || substr('89ab',abs(random()) % 4 + 1, 1) || substr(lower(hex(randomblob(2))),2) || '-' || lower(hex(randomblob(6)))" },
+      name: { dbType: "TEXT", type: vexnor.SqlLiteralType.String },
+      description: { dbType: "TEXT", type: vexnor.SqlLiteralType.String, nullable: true },
+      price: { dbType: "REAL", type: vexnor.SqlLiteralType.Number },
    },
 });
 export type IProductInsert = {
