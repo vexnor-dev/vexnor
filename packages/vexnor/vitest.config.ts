@@ -14,5 +14,18 @@ export default mergeConfig(sharedConfig, {
    },
    test: {
       setupFiles: ["./src/test/setup-test.ts"],
+      coverage: {
+         provider: "istanbul",
+         reportsDirectory: "./coverage",
+         reporter: ["text", "html", "json", "json-summary", "clover"],
+         include: ["src/**/*"],
+         exclude: [
+            "**/__tests__/**",
+            "**/test/**",
+            "**/coverage/**",
+            "**/node_modules/**",
+            "**/dist/**",
+         ],
+      },
    },
 });
