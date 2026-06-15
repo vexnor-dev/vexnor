@@ -83,14 +83,14 @@ describe("SqlQuery.getSql — uncovered paths", () => {
 
 describe("SqlQuery.buildInnerToken — edge cases", () => {
    test("null token produces value token", () => {
-      const query = sql`SELECT ${null}`;
+      const query = sql`SELECT ${null as unknown as string}`;
       const context = new SqlBuildContext({ dialect: "sql" });
       query.build(context, null, { queryType: "main" });
       expect(context.tokens.some((t) => t.type === "value" && t.value === null)).toBe(true);
    });
 
    test("undefined token produces value token", () => {
-      const query = sql`SELECT ${undefined}`;
+      const query = sql`SELECT ${undefined as unknown as string}`;
       const context = new SqlBuildContext({ dialect: "sql" });
       query.build(context, null, { queryType: "main" });
       expect(context.tokens.some((t) => t.type === "value" && t.value === null)).toBe(true);
