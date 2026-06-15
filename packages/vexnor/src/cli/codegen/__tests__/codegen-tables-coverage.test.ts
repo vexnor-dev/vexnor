@@ -147,4 +147,31 @@ describe("writeTableType — branch coverage", () => {
       expect(output).toContain("update: false");
       expect(output).toContain("delete: false");
    });
+
+   test("writes table type with no primary keys and no Date columns", () => {
+      mockPlugin.getColumnType.mockReturnValue({ type: "string" });
+
+      const noPkTable = { ...baseTable, primary_keys: [] };
+      const writer = new CodeWriter();
+      runInContext(() => writeTableType(writer, { table: noPkTable as never }));
+      const output = writer.toString();
+      expect(output).toContain('pk: []');
+      expect(output).not.toContain("jsonSchema:");
+   });
+
+   test("writes table type with column_default values in JSDoc", () => {
+      mockPlugin.getColumnType.mockReturnValue({ type: "string" });
+
+      const tableWithDefaults = {
+         ...baseTable,
+         columns: [
+            { column_name: "id", is_nullable: "NO", column_default: "gen_random_uuid()", udt_name: "uuid" },
+            { column_name: "name", is_nullable: "NO", column_default: null, udt_name: "varchar" },
+         ],
+      };
+      const writer = new CodeWriter();
+      runInContext(() => writeTableType(writer, { table: tableWithDefaults as never }));
+      const output = writer.toString();
+      expect(output).toContain("default gen_random_uuid()");
+   });
 });
