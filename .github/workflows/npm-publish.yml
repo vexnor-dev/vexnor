@@ -4,18 +4,28 @@ on:
   release:
     types: [created]
 
-permissions:
-  contents: read
-  checks: write
-  pull-requests: write
-  issues: write
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Step 1: Build & Test
+  # No secrets. No NPM token. Only builds, tests, and produces artifacts.
+  # ─────────────────────────────────────────────────────────────────────────────
   build-and-test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    env:
+      POSTGRES_HOST: localhost
+      POSTGRES_USER: testuser
+      POSTGRES_PASSWORD: testpassword
+      POSTGRES_DATABASE: postgres
+      POSTGRES_PORT: 5432
+      NODE_ENV: test
+      LOG_LEVEL: debug
 
     services:
       postgres:
@@ -32,71 +42,224 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
-    env:
-      POSTGRES_HOST: localhost
-      POSTGRES_USER: testuser
-      POSTGRES_PASSWORD: testpassword
-      POSTGRES_DATABASE: postgres
-      POSTGRES_PORT: 5432
-      NODE_ENV: test
-      LOG_LEVEL: debug
-
-    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Build and test
-        uses: ./.github/actions/build-and-test
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload build output
-        uses: actions/upload-artifact@v4
-        with:
-          name: vexnor-dist
-          path: ./packages/vexnor/dist/
-
-  publish:
-    needs: build-and-test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Download build output
-        uses: actions/download-artifact@v4
-        with:
-          name: vexnor-dist
-          path: ./packages/vexnor/dist/
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version-file: 'package.json'
+          node-version: '22.22.3'
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
         with:
           run_install: false
-          package_json_file: 'package.json'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Setup .npmrc
-        #don't write actual token into .npmrc
-        run: echo '//registry.npmjs.org/:_authToken=${NPM_ACCESS_TOKEN}' >> .npmrc
+      - name: Wait for Postgres
+        uses: ./.github/actions/wait-for-postgres
 
-      - name: Set package.json version to match release tag
-        working-directory: packages/vexnor
+      - name: Migrate databases
+        run: |
+          pnpm db-migrate:postgres
+          pnpm db-migrate:sqlite3
+
+      - name: Build
+        run: pnpm build
+
+      - name: Run tests
+        run: pnpm test
+
+      - name: Prepare publishable packages
         run: |
           VERSION=${GITHUB_REF#refs/tags/v}
-          echo "Setting version to $VERSION"
-          pnpm pkg set version="$VERSION"
+          echo "Setting version $VERSION on all packages"
 
-      - name: Publish to NPM
-        working-directory: ./packages/vexnor
-        run: pnpm publish --access public --no-git-checks --report-summary
+          # Set version on all workspace packages
+          for pkg in packages/vexnor plugins/postgres plugins/mssql plugins/sqlite3 orms/prisma orms/drizzle orms/typeorm orms/sequelize; do
+            node -e "const f='$pkg/package.json'; const p=JSON.parse(require('fs').readFileSync(f)); p.version='$VERSION'; require('fs').writeFileSync(f, JSON.stringify(p, null, 2)+'\n')"
+          done
+
+          # Replace workspace:^ dependencies with the actual version
+          for pkg in plugins/*/package.json orms/*/package.json; do
+            sed -i "s/\"workspace:\^\"/${Q}${VERSION}${Q}/g" "$pkg"
+            sed -i "s/\"workspace:\\*\"/${Q}${VERSION}${Q}/g" "$pkg"
+          done
         env:
-          NPM_ACCESS_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+          Q: '"'
+
+      - name: Verify package contents (dry-run)
+        run: |
+          echo "### Package contents" >> $GITHUB_STEP_SUMMARY
+          for pkg in packages/vexnor plugins/postgres plugins/mssql plugins/sqlite3 orms/prisma orms/drizzle orms/typeorm orms/sequelize; do
+            echo "#### $pkg" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            cd "$pkg"
+            npm pack --dry-run 2>&1 | tee -a $GITHUB_STEP_SUMMARY
+            cd "$GITHUB_WORKSPACE"
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          done
+
+      - name: Upload publishable artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: vexnor-publish
+          path: |
+            packages/vexnor/package.json
+            packages/vexnor/dist/
+            packages/vexnor/cli.mjs
+            packages/vexnor/README.md
+            plugins/postgres/package.json
+            plugins/postgres/dist/
+            plugins/postgres/README.md
+            plugins/mssql/package.json
+            plugins/mssql/dist/
+            plugins/mssql/README.md
+            plugins/sqlite3/package.json
+            plugins/sqlite3/dist/
+            plugins/sqlite3/README.md
+            orms/prisma/package.json
+            orms/prisma/dist/
+            orms/prisma/README.md
+            orms/drizzle/package.json
+            orms/drizzle/dist/
+            orms/drizzle/README.md
+            orms/typeorm/package.json
+            orms/typeorm/dist/
+            orms/typeorm/README.md
+            orms/sequelize/package.json
+            orms/sequelize/dist/
+            orms/sequelize/README.md
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Step 2: Publish
+  # Downloads pre-built artifacts and publishes to npm.
+  # No install. No scripts. Only `npm publish`.
+  # ─────────────────────────────────────────────────────────────────────────────
+  publish:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Harden runner
+        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2
+        with:
+          egress-policy: block
+          allowed-endpoints: >
+            registry.npmjs.org:443
+            fulcio.sigstore.dev:443
+            rekor.sigstore.dev:443
+            tuf-repo-cdn.sigstore.dev:443
+
+      - name: Download publishable artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: vexnor-publish
+
+      - name: Checkout source for verification
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          path: _source
+
+      - name: Verify artifact integrity
+        run: |
+          # Verify package names haven't been tampered with
+          declare -A EXPECTED_NAMES=(
+            ["packages/vexnor"]="vexnor"
+            ["plugins/postgres"]="@vexnor/postgres"
+            ["plugins/mssql"]="@vexnor/mssql"
+            ["plugins/sqlite3"]="@vexnor/sqlite3"
+            ["orms/prisma"]="@vexnor/prisma"
+            ["orms/drizzle"]="@vexnor/drizzle"
+            ["orms/typeorm"]="@vexnor/typeorm"
+            ["orms/sequelize"]="@vexnor/sequelize"
+          )
+
+          FAILED=0
+          for pkg in "${!EXPECTED_NAMES[@]}"; do
+            EXPECTED="${EXPECTED_NAMES[$pkg]}"
+            ACTUAL=$(node -e "console.log(JSON.parse(require('fs').readFileSync('$pkg/package.json')).name)")
+            if [ "$ACTUAL" != "$EXPECTED" ]; then
+              echo "::error::INTEGRITY FAILURE: $pkg/package.json name is '$ACTUAL', expected '$EXPECTED'"
+              FAILED=1
+            fi
+
+            # Verify repository field points to the correct repo
+            REPO=$(node -e "const p=JSON.parse(require('fs').readFileSync('$pkg/package.json')); console.log(typeof p.repository==='string'?p.repository:p.repository?.url||'')")
+            if [[ "$REPO" != *"vexnor-dev/vexnor"* ]]; then
+              echo "::error::INTEGRITY FAILURE: $pkg/package.json repository is '$REPO', expected vexnor-dev/vexnor"
+              FAILED=1
+            fi
+          done
+
+          # Verify dist/ directories exist and are non-empty
+          for pkg in "${!EXPECTED_NAMES[@]}"; do
+            if [ ! -d "$pkg/dist" ] || [ -z "$(ls -A $pkg/dist)" ]; then
+              echo "::error::INTEGRITY FAILURE: $pkg/dist is missing or empty"
+              FAILED=1
+            fi
+          done
+
+          # Verify no unexpected scripts in package.json (preinstall/postinstall hijacking)
+          for pkg in "${!EXPECTED_NAMES[@]}"; do
+            SCRIPTS=$(node -e "const p=JSON.parse(require('fs').readFileSync('$pkg/package.json')); const s=p.scripts||{}; const bad=Object.keys(s).filter(k=>['preinstall','postinstall','preuninstall','install'].includes(k)); if(bad.length) console.log(bad.join(','))")
+            if [ -n "$SCRIPTS" ]; then
+              echo "::error::INTEGRITY FAILURE: $pkg/package.json has lifecycle scripts that should not be published: $SCRIPTS"
+              FAILED=1
+            fi
+          done
+
+          if [ $FAILED -ne 0 ]; then
+            echo "::error::Artifact integrity check failed. Aborting publish."
+            exit 1
+          fi
+          echo "✅ All integrity checks passed"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22.22.3'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Determine npm tag
+        id: version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          if [[ "$VERSION" == *"-alpha"* ]]; then
+            NPM_TAG="alpha"
+          elif [[ "$VERSION" == *"-beta"* ]]; then
+            NPM_TAG="beta"
+          elif [[ "$VERSION" == *"-rc"* ]]; then
+            NPM_TAG="rc"
+          else
+            NPM_TAG="latest"
+          fi
+          echo "npm_tag=$NPM_TAG" >> $GITHUB_OUTPUT
+          echo "Publishing $VERSION with tag: $NPM_TAG"
+
+      - name: Publish to npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+        run: |
+          NPM_TAG="${{ steps.version.outputs.npm_tag }}"
+
+          # Core first (others depend on it)
+          npm publish ./packages/vexnor --access public --tag "$NPM_TAG" --provenance
+
+          # Plugins
+          npm publish ./plugins/postgres --access public --tag "$NPM_TAG" --provenance
+          npm publish ./plugins/mssql --access public --tag "$NPM_TAG" --provenance
+          npm publish ./plugins/sqlite3 --access public --tag "$NPM_TAG" --provenance
+
+          # ORMs
+          npm publish ./orms/prisma --access public --tag "$NPM_TAG" --provenance
+          npm publish ./orms/drizzle --access public --tag "$NPM_TAG" --provenance
+          npm publish ./orms/typeorm --access public --tag "$NPM_TAG" --provenance
+          npm publish ./orms/sequelize --access public --tag "$NPM_TAG" --provenance
