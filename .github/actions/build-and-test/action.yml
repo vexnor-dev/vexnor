@@ -36,16 +36,20 @@ runs:
         path: |
           packages/*/dist
           packages/*/tsconfig.tsbuildinfo
+          plugins/*/dist
+          plugins/*/tsconfig.tsbuildinfo
+          orms/*/dist
+          orms/*/tsconfig.tsbuildinfo
           tests/*/dist
           tests/*/tsconfig.tsbuildinfo
           examples/*/dist
           examples/*/tsconfig.tsbuildinfo
-          packages/vexnor-prisma/src/__tests__/fixtures-v6-client/generated
-          packages/vexnor-prisma/src/__tests__/fixtures-v6-client-js/generated
-          packages/vexnor-prisma/src/__tests__/fixtures-v7-client/generated
-          packages/vexnor-prisma/src/__tests__/fixtures-v7-client-js/generated
+          orms/prisma/src/__tests__/fixtures-v6-client/generated
+          orms/prisma/src/__tests__/fixtures-v6-client-js/generated
+          orms/prisma/src/__tests__/fixtures-v7-client/generated
+          orms/prisma/src/__tests__/fixtures-v7-client-js/generated
           tests/*/prisma/generated
-        key: ${{ runner.os }}-build-${{ hashFiles('packages/*/src/**', 'tests/*/src/**', 'packages/*/tsconfig.json', 'tests/*/tsconfig.json') }}
+        key: ${{ runner.os }}-build-${{ hashFiles('packages/*/src/**', 'plugins/*/src/**', 'orms/*/src/**', 'tests/*/src/**', 'packages/*/tsconfig.json', 'plugins/*/tsconfig.json', 'orms/*/tsconfig.json', 'tests/*/tsconfig.json') }}
         restore-keys: |
           ${{ runner.os }}-build-
 

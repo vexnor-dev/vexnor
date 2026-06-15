@@ -1,8 +1,8 @@
 import { SqlError, SqlRunError } from "vexnor/execution";
 import { SqlQueryRegistry } from "vexnor/execution";
-import vexnorPostgres from "vexnor-postgres";
-import vexnorMssql from "vexnor-mssql";
-import vexnorSqlite3 from "vexnor-sqlite3";
+import vexnorPostgres from "@vexnor/postgres";
+import vexnorMssql from "@vexnor/mssql";
+import vexnorSqlite3 from "@vexnor/sqlite3";
 import { pgPool } from "@/shared/db/postgres";
 import { getMssqlPool } from "@/shared/db/mssql";
 import { sqliteDb } from "@/shared/db/sqlite3";

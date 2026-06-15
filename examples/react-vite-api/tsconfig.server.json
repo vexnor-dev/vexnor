@@ -15,13 +15,13 @@
          "path": "../../packages/vexnor"
       },
       {
-         "path": "../../packages/vexnor-mssql"
+         "path": "../../plugins/mssql"
       },
       {
-         "path": "../../packages/vexnor-postgres"
+         "path": "../../plugins/postgres"
       },
       {
-         "path": "../../packages/vexnor-sqlite3"
+         "path": "../../plugins/sqlite3"
       }
    ]
 }

@@ -3,7 +3,7 @@ import { fileURLToPath } from "url";
 import { dirname, resolve } from "path";
 import { VexnorPluginAny } from "#/plugin/plugin.js";
 
-const VALID_PACKAGE_NAME = /^vexnor-[a-z0-9-]+$/;
+const VALID_PACKAGE_NAME = /^@vexnor\/[a-z0-9-]+$/;
 
 export async function loadPlugin(packageName: string): Promise<{ plugin: VexnorPluginAny; path: string }> {
    if (!VALID_PACKAGE_NAME.test(packageName)) {
@@ -18,7 +18,8 @@ export async function loadPlugin(packageName: string): Promise<{ plugin: VexnorP
       // Fallback for local workspace packages
       if (error && typeof error === "object" && "code" in error && error.code === "ERR_MODULE_NOT_FOUND") {
          const currentDir = dirname(fileURLToPath(import.meta.url));
-         pluginPath = resolve(currentDir, `../../${packageName}/dist/index.js`);
+         const folderName = packageName.replace("@vexnor/", "");
+         pluginPath = resolve(currentDir, `../../../plugins/${folderName}/dist/index.js`);
          plugin = await import(pluginPath);
       } else {
          throw error;

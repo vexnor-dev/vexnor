@@ -12,7 +12,7 @@ npx vexnor codegen [options]
 
 | Option | Description | Required |
 |--------|-------------|----------|
-| `--plugin <name>` | Plugin package name (e.g. `vexnor-postgres`) | yes (unless using `--profile`) |
+| `--plugin <name>` | Plugin package name (e.g. `@vexnor/postgres`) | yes (unless using `--profile`) |
 | `--schema <name...>` | Database schema(s) to generate (repeatable) | yes (unless using `--profile`) |
 | `--uri <connection>` | Connection URI (conflicts with individual host/port/etc) | one of `--uri` or host options |
 | `--host <host>` | Database host | conflicts with `--uri` |
@@ -31,7 +31,7 @@ npx vexnor codegen [options]
 ```bash
 # Using connection URI
 npx vexnor codegen \
-  --plugin vexnor-postgres \
+  --plugin @vexnor/postgres \
   --schema public \
   --uri $DATABASE_URL \
   --outDir src/models \
@@ -39,7 +39,7 @@ npx vexnor codegen \
 
 # Using individual connection options
 npx vexnor codegen \
-  --plugin vexnor-postgres \
+  --plugin @vexnor/postgres \
   --schema public \
   --host localhost \
   --port 5432 \
@@ -51,14 +51,14 @@ npx vexnor codegen \
 
 # Multiple schemas
 npx vexnor codegen \
-  --plugin vexnor-postgres \
+  --plugin @vexnor/postgres \
   --schema public --schema billing \
   --uri $DATABASE_URL \
   --outDir src/models
 
 # Exclude migration tables
 npx vexnor codegen \
-  --plugin vexnor-postgres \
+  --plugin @vexnor/postgres \
   --schema public \
   --uri $DATABASE_URL \
   --outDir src/models \
@@ -66,7 +66,7 @@ npx vexnor codegen \
 
 # Exclude by schema.table
 npx vexnor codegen \
-  --plugin vexnor-postgres \
+  --plugin @vexnor/postgres \
   --schema public --schema internal \
   --uri $DATABASE_URL \
   --outDir src/models \
@@ -187,7 +187,7 @@ export default defineConfig({
         // or: uri: process.env.DATABASE_URL
       },
       generate: {
-        plugin: 'vexnor-postgres',
+        plugin: '@vexnor/postgres',
         schema: ['public'],
         outDir: 'src/models',
         pascalCaseTables: true,
@@ -199,7 +199,7 @@ export default defineConfig({
         uri: process.env.DATABASE_URL,
       },
       generate: {
-        plugin: 'vexnor-postgres',
+        plugin: '@vexnor/postgres',
         schema: ['public'],
         outDir: 'src/models',
         camelCaseColumns: true,
@@ -269,7 +269,7 @@ Define execution settings per query. The CLI uses `defineQueryConfig()` for type
 ```typescript
 import { defineQueryConfig } from 'vexnor/config';
 import { findActiveAccounts, findAccountById } from './queries.js';
-import vexnorPostgres from 'vexnor-postgres';
+import vexnorPostgres from '@vexnor/postgres';
 
 export default defineQueryConfig({ findActiveAccounts, findAccountById })({
   queries: {

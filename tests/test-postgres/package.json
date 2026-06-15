@@ -1,0 +1,45 @@
+{
+   "name": "@vexnor/test-postgres",
+   "version": "1.0.0-beta.1",
+   "description": "Integration tests for vexnor",
+   "type": "module",
+   "author": "Adrian Topala",
+   "license": "Apache-2.0",
+   "scripts": {
+      "precodegen": "pnpm --filter='vexnor' --filter='@vexnor/postgres' run build",
+      "codegen:vexnor": "env-cmd --no-override -x -r ../../env-dev.json -e postgres node ../../packages/vexnor/cli.mjs codegen --plugin @vexnor/postgres --schema vexnor_dev  --camelCaseColumns --host \\$POSTGRES_HOST --port \\$POSTGRES_PORT --database \\$POSTGRES_DATABASE --user \\$POSTGRES_USER --password \\$POSTGRES_PASSWORD --outDir './src/codegen' | pino-pretty",
+      "codegen:prisma": "pnpm exec prisma generate --schema prisma/schema.prisma --config prisma/prisma.config.ts",
+      "codegen": "run-s 'codegen:*'",
+      "build:dependencies": "pnpm --filter='@vexnor/drizzle' --filter='@vexnor/prisma' --filter='@vexnor/typeorm' run build",
+      "prebuild": "run-s 'build:dependencies' 'codegen:*'",
+      "pretest": "run-s 'build'",
+      "test": "vitest --coverage run",
+      "test:watch": "vitest --watch",
+      "test:run": "vitest run",
+      "build": "tsc -b"
+   },
+   "dependencies": {
+      "@sinclair/typebox": "^0.34.49",
+      "pg": "^8.21.0",
+      "vexnor": "workspace:*",
+      "@vexnor/drizzle": "workspace:*",
+      "@vexnor/postgres": "workspace:*",
+      "@vexnor/prisma": "workspace:*",
+      "@vexnor/sequelize": "workspace:*",
+      "@vexnor/typeorm": "workspace:*"
+   },
+   "devDependencies": {
+      "@prisma/adapter-pg": "^7.8.0",
+      "@prisma/client": "^7.8.0",
+      "@types/pg": "^8.20.0",
+      "@vitest/coverage-v8": "^4.1.8",
+      "drizzle-orm": "1.0.0-rc.4-5d5b77c",
+      "env-cmd": "^10.1.0",
+      "prisma": "^7.8.0",
+      "reflect-metadata": "^0.2.2",
+      "sequelize": "^6.37.8",
+      "typeorm": "^0.3.30",
+      "vite-tsconfig-paths": "^6.1.1",
+      "vitest": "^4.1.8"
+   }
+}

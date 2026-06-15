@@ -243,8 +243,8 @@ queryRegistry.use(new AuditLogPlugin({
 Example output:
 
 ```json
-{"level":30,"name":"vexnor","name":"findAccounts","plugin":"vexnor-postgres","durationMs":3.2,"userId":"u-123","msg":"query executed"}
-{"level":50,"name":"vexnor","name":"deleteAccount","plugin":"vexnor-postgres","durationMs":1.1,"userId":"u-123","err":{},"msg":"query failed"}
+{"level":30,"name":"vexnor","name":"findAccounts","plugin":"@vexnor/postgres","durationMs":3.2,"userId":"u-123","msg":"query executed"}
+{"level":50,"name":"vexnor","name":"deleteAccount","plugin":"@vexnor/postgres","durationMs":1.1,"userId":"u-123","err":{},"msg":"query failed"}
 ```
 
 ---

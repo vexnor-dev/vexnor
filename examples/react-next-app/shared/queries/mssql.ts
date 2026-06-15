@@ -1,6 +1,6 @@
-import "vexnor-mssql";
+import "@vexnor/mssql";
 import { row, sql, param, col } from "vexnor";
-import { jsonOne } from "vexnor-mssql";
+import { jsonOne } from "@vexnor/mssql";
 import { Account } from "../codegen/mssql/vexnor_dev.account-table";
 import { Order } from "../codegen/mssql/vexnor_dev.order-table";
 import { OrderItem } from "../codegen/mssql/vexnor_dev.order_item-table";

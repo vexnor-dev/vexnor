@@ -12,9 +12,9 @@ import "vexnor/telemetry";
 import * as postgresQueries from "../../shared/queries/postgres.js";
 import * as mssqlQueries from "../../shared/queries/mssql.js";
 import * as sqlite3Queries from "../../shared/queries/sqlite3.js";
-import vexnorMssql from "vexnor-mssql";
-import vexnorPostgres from "vexnor-postgres";
-import vexnorSqlite3 from "vexnor-sqlite3";
+import vexnorMssql from "@vexnor/mssql";
+import vexnorPostgres from "@vexnor/postgres";
+import vexnorSqlite3 from "@vexnor/sqlite3";
 import { SqlQueryRegistry } from "vexnor/execution";
 import { handleDbError } from "./db-error.js";
 

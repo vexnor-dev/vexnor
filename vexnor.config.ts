@@ -44,7 +44,7 @@ export default defineConfig({
             database: process.env.POSTGRES_DATABASE,
          },
          generate: {
-            plugin: "vexnor-postgres",
+            plugin: "@vexnor/postgres",
             schema: [],
             outDir: "",
          },
@@ -58,7 +58,7 @@ export default defineConfig({
             database: process.env.MSSQL_DATABASE,
          },
          generate: {
-            plugin: "vexnor-mssql",
+            plugin: "@vexnor/mssql",
             schema: [],
             outDir: "",
          },
@@ -72,7 +72,7 @@ export default defineConfig({
             database: process.env.POSTGRES_DATABASE,
          },
          generate: {
-            plugin: "vexnor-postgres",
+            plugin: "@vexnor/postgres",
             schema: [],
             outDir: "",
          },

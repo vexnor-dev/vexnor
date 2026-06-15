@@ -107,7 +107,7 @@ describe("defineQueryConfig", () => {
       const rootConfig = defineConfig({
          profiles: {
             postgres: {
-               plugin: "vexnor-postgres",
+               plugin: "@vexnor/postgres",
                connection: { uri: "postgres://localhost" },
                generate: { schema: ["public"], outDir: "./out" },
             },

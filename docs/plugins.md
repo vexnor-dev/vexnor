@@ -6,9 +6,9 @@ Each database plugin provides schema introspection, type mapping, and query exec
 
 | Plugin | Database | Driver |
 |--------|----------|--------|
-| `vexnor-postgres` | PostgreSQL | `pg` |
-| `vexnor-mssql` | MS SQL Server | `mssql` |
-| `vexnor-sqlite3` | SQLite | `better-sqlite3` |
+| `@vexnor/postgres` | PostgreSQL | `pg` |
+| `@vexnor/mssql` | MS SQL Server | `mssql` |
+| `@vexnor/sqlite3` | SQLite | `better-sqlite3` |
 
 See [Databases](databases.md) for setup and dialect details.
 
@@ -26,18 +26,18 @@ ORM adaptors convert existing ORM model definitions into Vexnor tables — no co
 
 ## Drizzle Adaptor
 
-**Package:** `vexnor-drizzle`
+**Package:** `@vexnor/drizzle`
 
 Subpath imports by database:
-- `vexnor-drizzle/pg`
-- `vexnor-drizzle/sqlite`
-- `vexnor-drizzle/mssql`
+- `@vexnor/drizzle/pg`
+- `@vexnor/drizzle/sqlite`
+- `@vexnor/drizzle/mssql`
 
 ```typescript
-import { fromDrizzleTable, fromDrizzleView } from 'vexnor-drizzle/pg';
+import { fromDrizzleTable, fromDrizzleView } from '@vexnor/drizzle/pg';
 import { account, accountOrderSummary } from './drizzle-schema.js';
 import { sql, row, param } from 'vexnor';
-import 'vexnor-postgres';
+import '@vexnor/postgres';
 
 const Account = fromDrizzleTable(account);
 const AccountOrderSummary = fromDrizzleView(accountOrderSummary);
@@ -61,14 +61,14 @@ const account = await findByEmail.postgres.any({
 
 ## TypeORM Adaptor
 
-**Package:** `vexnor-typeorm`
+**Package:** `@vexnor/typeorm`
 
 ```typescript
-import { fromTypeORM } from 'vexnor-typeorm';
+import { fromTypeORM } from '@vexnor/typeorm';
 import { dataSource } from './typeorm-data-source.js';
 import { AccountEntity } from './account.entity.js';
 import { sql, row, param } from 'vexnor';
-import 'vexnor-postgres';
+import '@vexnor/postgres';
 
 await dataSource.initialize();
 
@@ -90,10 +90,10 @@ const account = await findById.postgres.any({
 
 ## Sequelize Adaptor
 
-**Package:** `vexnor-sequelize`
+**Package:** `@vexnor/sequelize`
 
 ```typescript
-import { fromSequelizeTable, fromSequelizeView } from 'vexnor-sequelize';
+import { fromSequelizeTable, fromSequelizeView } from '@vexnor/sequelize';
 
 const Account = fromSequelizeTable(AccountModel);
 const AccountOrderSummary = fromSequelizeView(AccountOrderSummaryModel);
@@ -103,7 +103,7 @@ const AccountOrderSummary = fromSequelizeView(AccountOrderSummaryModel);
 
 ## Prisma Adaptor
 
-**Package:** `vexnor-prisma`
+**Package:** `@vexnor/prisma`
 
 Supports Prisma v6 and v7, both `prisma-client-js` and `prisma-client` generators.
 
@@ -112,7 +112,7 @@ Supports Prisma v6 and v7, both `prisma-client-js` and `prisma-client` generator
 `findPrismaModel` accepts three input forms:
 
 ```typescript
-import { findPrismaModel } from 'vexnor-prisma';
+import { findPrismaModel } from '@vexnor/prisma';
 
 // Option A: dmmf — best for Prisma v6 + prisma-client-js
 import { Prisma } from '@prisma/client';
@@ -129,7 +129,7 @@ const model = await findPrismaModel('Account', { schema });
 ### Build a Vexnor Table
 
 ```typescript
-import { fromPrismaModelTable, fromPrismaModelView } from 'vexnor-prisma';
+import { fromPrismaModelTable, fromPrismaModelView } from '@vexnor/prisma';
 import type { Account, Prisma as PrismaTypes } from '@prisma/client';
 
 const Account = fromPrismaModelTable<
@@ -147,7 +147,7 @@ const Account = fromPrismaModelTable<
 | v7 | `prisma-client` | `{ schemaPath }` |
 | v7 | `prisma-client-js` | either — pick one and stay consistent |
 
-For full Prisma adaptor details see `packages/vexnor-prisma/README.md`.
+For full Prisma adaptor details see `packages/@vexnor/prisma/README.md`.
 
 ---
 
@@ -163,8 +163,8 @@ Create a side-effect module (e.g. `src/db.ts`) that does two things:
 ```typescript
 // src/db.ts
 import { SqlQuery, SqlTable, newSqlQueryHandler } from 'vexnor';
-import { PostgresQueryHandler, newPostgresTableHandler, type PostgresTableHandler } from 'vexnor-postgres';
-import 'vexnor-postgres';
+import { PostgresQueryHandler, newPostgresTableHandler, type PostgresTableHandler } from '@vexnor/postgres';
+import '@vexnor/postgres';
 
 declare module 'vexnor' {
   interface SqlQuery<T extends { Row?: unknown; Params?: unknown }> {
@@ -202,7 +202,7 @@ const accounts = await findActiveAccounts.myProject.all({ db: pool });
 const account = await Account.myProject.findBy().any({ db: pool, params: { email: 'jane@example.com' } });
 ```
 
-This is exactly what `import 'vexnor-postgres'` does internally. There is no difference between a plugin namespace and a custom one — they use the same mechanism.
+This is exactly what `import '@vexnor/postgres'` does internally. There is no difference between a plugin namespace and a custom one — they use the same mechanism.
 
 ---
 

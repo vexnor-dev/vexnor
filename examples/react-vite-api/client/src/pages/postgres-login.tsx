@@ -1,4 +1,4 @@
-import "vexnor-postgres";
+import "@vexnor/postgres";
 import { Suspense, use, useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { selectAccountsForLogin } from "#shared/queries/postgres";

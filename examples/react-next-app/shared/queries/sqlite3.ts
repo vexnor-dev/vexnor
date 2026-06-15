@@ -1,7 +1,7 @@
 // noinspection SqlNoDataSourceInspection,SqlResolve
-import "vexnor-sqlite3";
+import "@vexnor/sqlite3";
 import { row, sql, param, col } from "vexnor";
-import { jsonOne } from "vexnor-sqlite3";
+import { jsonOne } from "@vexnor/sqlite3";
 import { Account } from "../codegen/sqlite3/main.account-table";
 import { Order } from "../codegen/sqlite3/main.order-table";
 import { OrderItem } from "../codegen/sqlite3/main.order_item-table";

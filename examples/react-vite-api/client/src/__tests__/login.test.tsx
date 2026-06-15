@@ -2,7 +2,7 @@ import { describe, test, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Suspense } from "react";
-import "vexnor-sqlite3";
+import "@vexnor/sqlite3";
 import { AuthProvider } from "#/auth-context.js";
 
 const mockRemoteExecute = vi.fn();
@@ -177,10 +177,10 @@ describe("Sqlite3LoginPage", () => {
       expect(screen.getByText("0")).toBeDefined(); // Bob has 0 orders
    });
 
-   test("calls remoteExecute with vexnor-sqlite3 plugin", async () => {
+   test("calls remoteExecute with @vexnor/sqlite3 plugin", async () => {
       await act(async () => renderPage());
       await waitFor(() => screen.getByText("alice@example.com"));
-      expect(mockRemoteExecute).toHaveBeenCalledWith(expect.objectContaining({ plugin: "vexnor-sqlite3" }));
+      expect(mockRemoteExecute).toHaveBeenCalledWith(expect.objectContaining({ plugin: "@vexnor/sqlite3" }));
    });
 
    test("renders empty state when no accounts", async () => {

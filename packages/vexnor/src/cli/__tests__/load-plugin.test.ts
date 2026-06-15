@@ -8,16 +8,16 @@ const mockDb: MockConnection = {
 
 const testPlugin = new MockPlugin({ name: "test-plugin" }, mockDb);
 
-vi.mock("vexnor-test", () => ({ default: testPlugin }));
+vi.mock("@vexnor/test", () => ({ default: testPlugin }));
 
 describe("loadPlugin validation", () => {
    test("loads a valid package", async () => {
-      const { plugin, path } = await loadPlugin("vexnor-test");
+      const { plugin, path } = await loadPlugin("@vexnor/test");
       expect(plugin).toBe(testPlugin);
-      expect(path).toMatchInlineSnapshot(`"vexnor-test"`);
+      expect(path).toMatchInlineSnapshot(`"@vexnor/test"`);
    });
 
-   test("throws on non-vexnor package name", async () => {
+   test("throws on non-scoped package name", async () => {
       await expect(loadPlugin("some-other-plugin")).rejects.toMatchInlineSnapshot(
          `[Error: Invalid plugin package name: some-other-plugin]`,
       );

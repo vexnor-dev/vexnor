@@ -10,7 +10,7 @@ export default config(
       settings: {
          "import/resolver": {
             typescript: {
-               project: "packages/*/tsconfig.json",
+               project: ["packages/*/tsconfig.json", "plugins/*/tsconfig.json", "orms/*/tsconfig.json"],
             },
          },
       },
@@ -29,7 +29,7 @@ export default config(
       },
    },
    {
-      files: ["tests/vexnor-test-*/src/**/*.ts"],
+      files: ["tests/test-*/src/**/*.ts"],
       rules: {
          "@typescript-eslint/no-explicit-any": "error",
       },

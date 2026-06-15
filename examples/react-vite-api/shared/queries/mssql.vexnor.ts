@@ -1,7 +1,7 @@
-import "vexnor-mssql";
+import "@vexnor/mssql";
 import { defineQueryConfig } from "vexnor/config";
 import { contextValue } from "vexnor";
-import mssqlPlugin from "vexnor-mssql";
+import mssqlPlugin from "@vexnor/mssql";
 import { selectAccounts, selectAccountsForLogin, selectMyOrders, deleteAccount, insertAccount } from "./mssql.js";
 
 export default defineQueryConfig({

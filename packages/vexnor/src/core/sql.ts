@@ -13,8 +13,8 @@ export type SqlQueryToken = _SqlInlineValue_ | _SqlInlineValue_[];
  * and subqueries as interpolated values. The result type and required parameters
  * are inferred at compile time from what you embed in the template.
  *
- * Use the database-specific `sql` tag from a plugin package (`vexnor-postgres`,
- * `vexnor-mssql`, `vexnor-sqlite3`) to get a query object that can be executed
+ * Use the database-specific `sql` tag from a plugin package (`@vexnor/postgres`,
+ * `@vexnor/mssql`, `@vexnor/sqlite3`) to get a query object that can be executed
  * directly. Use this core `sql` tag when composing reusable subqueries that will
  * be embedded into a plugin query.
  *

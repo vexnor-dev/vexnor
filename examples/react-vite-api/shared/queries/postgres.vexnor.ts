@@ -1,7 +1,7 @@
-import "vexnor-postgres";
+import "@vexnor/postgres";
 import { defineQueryConfig } from "vexnor/config";
 import { contextValue } from "vexnor";
-import postgresPlugin from "vexnor-postgres";
+import postgresPlugin from "@vexnor/postgres";
 import { selectAccounts, selectAccountsForLogin, selectMyOrders, deleteAccount, insertAccount } from "./postgres.js";
 
 export default defineQueryConfig({
