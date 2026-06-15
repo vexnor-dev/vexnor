@@ -24,6 +24,12 @@ jobs:
       POSTGRES_PASSWORD: testpassword
       POSTGRES_DATABASE: postgres
       POSTGRES_PORT: 5432
+      MSSQL_HOST: localhost
+      MSSQL_PORT: 1433
+      MSSQL_SA_PASSWORD: P@ssw0rd!
+      MSSQL_DATABASE: vexnor
+      MSSQL_USER: vexnor_dev
+      MSSQL_PASSWORD: P@ssw0rd!
       NODE_ENV: test
       LOG_LEVEL: debug
 
@@ -42,6 +48,19 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
+      mssql:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_SA_PASSWORD: P@ssw0rd!
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'P@ssw0rd!' -C -Q 'SELECT 1'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
     steps:
       - name: Checkout code
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
@@ -59,6 +78,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Bootstrap MSSQL
+        uses: ./.github/actions/bootstrap-mssql
+
       - name: Wait for Postgres
         uses: ./.github/actions/wait-for-postgres
 
@@ -66,6 +88,7 @@ jobs:
         run: |
           pnpm db-migrate:postgres
           pnpm db-migrate:sqlite3
+          pnpm db-migrate:mssql
 
       - name: Build
         run: pnpm build
