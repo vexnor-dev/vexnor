@@ -59,6 +59,36 @@ await query.postgres.one({
 });
 ```
 
+### Grouped Params with `params()`
+
+For queries with multiple parameters, `params()` defines all params in one place and returns typed accessors. Avoids repeating the type argument on each `param()` call.
+
+```typescript
+import { params } from 'vexnor';
+
+const p = params<{ firstName: string; email: string; limit: number }>({
+  firstName: { minLength: 1 },
+  limit: { min: 1, max: 100, default: 10 },
+});
+
+const query = sql`
+  SELECT ${row(Account.$$)}
+  FROM ${Account}
+  WHERE ${Account.$firstName} = ${p.firstName}
+    AND ${Account.$email} = ${p.email}
+  LIMIT ${p.limit}
+`;
+
+await query.postgres.all({
+  db: pool,
+  params: { firstName: 'Jane', email: 'jane@example.com', limit: 20 },
+});
+```
+
+Each property access (`p.firstName`, `p.email`) returns a cached `SqlParam` instance. The same instance is returned on repeated access — safe to use multiple times in the same query.
+
+Validation rules are optional — only declare them for params that need runtime checks. Params without validation simply pass through.
+
 ### Mixing Both Styles
 
 ```typescript
