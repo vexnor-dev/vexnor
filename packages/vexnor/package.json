@@ -81,6 +81,7 @@
     "build": "tsc -b",
     "postbuild": "tsc-alias",
     "prepack:1-copy-readme": "copyfiles -f \"../../README.md\" .",
+    "prepack:2-copy-docs": "copyfiles -u 2 \"../../docs/**\" docs",
     "prepack": "run-s 'build' 'prepack:*'",
     "pretest": "run-s 'build'",
     "test": "vitest --coverage run",
@@ -89,6 +90,7 @@
   },
   "files": [
     "dist",
+    "docs",
     "package.json",
     "README.md",
     "CHANGELOG.md"
