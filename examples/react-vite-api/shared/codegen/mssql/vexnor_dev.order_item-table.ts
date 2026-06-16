@@ -21,6 +21,7 @@ export const OrderItem = vexnor.newSqlTable<{
    },
    pk: ["productId"],
    dialect: "tsql",
+   source: "@vexnor/example-react-vite-api:shared/codegen/mssql",
    columns: {
 
       /**
@@ -66,6 +67,20 @@ export const OrderItem = vexnor.newSqlTable<{
    jsonSchema: {
       createdAt: "Date",
       modifiedAt: "Date",
+   },
+   fk: [
+      { from: ["orderId"], to: { schema: "vexnor_dev", table: "order", columns: ["orderId"] } },
+      { from: ["productId"], to: { schema: "vexnor_dev", table: "product", columns: ["productId"] } },
+   ],
+   dbSchema: {
+      orderId: { dbType: "uniqueidentifier", type: vexnor.SqlLiteralType.String },
+      productId: { dbType: "uniqueidentifier", type: vexnor.SqlLiteralType.String },
+      createdAt: { dbType: "datetimeoffset", type: vexnor.SqlLiteralType.Date, default: "(sysdatetimeoffset())" },
+      modifiedAt: { dbType: "datetimeoffset", type: vexnor.SqlLiteralType.Date, default: "(sysdatetimeoffset())" },
+      productPrice: { dbType: "decimal", type: vexnor.SqlLiteralType.Number },
+      discountPrice: { dbType: "decimal", type: vexnor.SqlLiteralType.Number, nullable: true },
+      quantity: { dbType: "int", type: vexnor.SqlLiteralType.Number },
+      metadata: { dbType: "nvarchar", type: vexnor.SqlLiteralType.String, nullable: true },
    },
 });
 export type IOrderItemInsert = {

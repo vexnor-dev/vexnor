@@ -21,6 +21,7 @@ export const Order = vexnor.newSqlTable<{
    },
    pk: ["orderId"],
    dialect: "sqlite",
+   source: "@vexnor/test-sqlite3:src/codegen",
    columns: {
 
       /**
@@ -47,6 +48,16 @@ export const Order = vexnor.newSqlTable<{
        * account_id TEXT
        */
       accountId: "account_id",
+   },
+   fk: [
+      { from: ["accountId"], to: { schema: "main", table: "account", columns: ["accountId"] } },
+   ],
+   dbSchema: {
+      orderId: { dbType: "TEXT", type: vexnor.SqlLiteralType.String, nullable: true, default: "lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-4' || substr(lower(hex(randomblob(2))),2) || '-' || substr('89ab',abs(random()) % 4 + 1, 1) || substr(lower(hex(randomblob(2))),2) || '-' || lower(hex(randomblob(6)))" },
+      status: { dbType: "TEXT", type: vexnor.SqlLiteralType.String, default: "'created'" },
+      createdAt: { dbType: "TEXT", type: vexnor.SqlLiteralType.String, default: "datetime('now')" },
+      modifiedAt: { dbType: "TEXT", type: vexnor.SqlLiteralType.String, default: "datetime('now')" },
+      accountId: { dbType: "TEXT", type: vexnor.SqlLiteralType.String },
    },
 });
 export type IOrderInsert = {

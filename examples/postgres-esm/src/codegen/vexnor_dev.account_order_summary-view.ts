@@ -19,6 +19,7 @@ export const AccountOrderSummary = vexnor.newSqlTable<{
    },
    pk: [],
    dialect: "postgresql",
+   source: "@vexnor/example-postgres-esm:src/codegen",
    columns: {
 
       /**
@@ -58,6 +59,15 @@ export const AccountOrderSummary = vexnor.newSqlTable<{
    },
    jsonSchema: {
       latestOrderAt: "Date",
+   },
+   dbSchema: {
+      accountId: { dbType: "uuid", type: vexnor.SqlLiteralType.String, nullable: true },
+      email: { dbType: "varchar", type: vexnor.SqlLiteralType.String, nullable: true },
+      firstName: { dbType: "varchar", type: vexnor.SqlLiteralType.String, nullable: true },
+      lastName: { dbType: "varchar", type: vexnor.SqlLiteralType.String, nullable: true },
+      status: { dbType: "account_status", type: vexnor.SqlLiteralType.Udt, nullable: true, values: ["created", "confirmed", "deleted"] },
+      orderCount: { dbType: "int8", type: vexnor.SqlLiteralType.String, nullable: true },
+      latestOrderAt: { dbType: "timestamptz", type: vexnor.SqlLiteralType.Date, nullable: true },
    },
 });
 export type IAccountOrderSummarySelect = {

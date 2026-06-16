@@ -21,6 +21,7 @@ export const Product = vexnor.newSqlTable<{
    },
    pk: ["productId"],
    dialect: "tsql",
+   source: "@vexnor/example-react-next-app:shared/codegen/mssql",
    columns: {
 
       /**
@@ -71,6 +72,17 @@ export const Product = vexnor.newSqlTable<{
    jsonSchema: {
       createdAt: "Date",
       modifiedAt: "Date",
+   },
+   dbSchema: {
+      productId: { dbType: "uniqueidentifier", type: vexnor.SqlLiteralType.String, default: "(newid())" },
+      createdAt: { dbType: "datetimeoffset", type: vexnor.SqlLiteralType.Date, default: "(sysdatetimeoffset())" },
+      modifiedAt: { dbType: "datetimeoffset", type: vexnor.SqlLiteralType.Date, default: "(sysdatetimeoffset())" },
+      label: { dbType: "varchar", type: vexnor.SqlLiteralType.String },
+      price: { dbType: "decimal", type: vexnor.SqlLiteralType.Number },
+      discount: { dbType: "decimal", type: vexnor.SqlLiteralType.Number, nullable: true },
+      isAvailable: { dbType: "bit", type: vexnor.SqlLiteralType.Boolean, default: "((1))" },
+      isPublished: { dbType: "bit", type: vexnor.SqlLiteralType.Boolean, default: "((0))" },
+      metadata: { dbType: "nvarchar", type: vexnor.SqlLiteralType.String, nullable: true },
    },
 });
 export type IProductInsert = {

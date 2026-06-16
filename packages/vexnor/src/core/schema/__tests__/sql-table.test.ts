@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { SqlTable } from "#/core/schema/sql-table.js";
+import { SqlTable, newSqlTable } from "#/core/schema/sql-table.js";
 import { SqlTableColumn } from "#/core/schema/sql-table-column.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
 import { Sql } from "#/core/sql-base.js";
@@ -333,13 +333,16 @@ describe("SqlTable tests", () => {
             "createdAt": "Date",
             "modifiedAt": "Date",
           },
+          "dbSchema": {},
           "dialect": "sql",
+          "fk": [],
           "format": null,
           "hashId": "SqlTable#(main.account)",
           "id": "SqlTable#1(main.account)",
           "pk": [
             "accountId",
           ],
+          "source": "",
           "tableInfo": {
             "alias": null,
             "name": "account",
@@ -669,13 +672,16 @@ describe("SqlTable tests", () => {
             "createdAt": "Date",
             "modifiedAt": "Date",
           },
+          "dbSchema": {},
           "dialect": "sql",
+          "fk": [],
           "format": null,
           "hashId": "SqlTable#(main.account as parent)",
           "id": "SqlTable#1(main.account as parent)",
           "pk": [
             "accountId",
           ],
+          "source": "",
           "tableInfo": {
             "alias": "parent",
             "name": "account",
@@ -864,5 +870,134 @@ describe("SqlTable tests", () => {
           "type": "SqlTableAll",
         }
       `);
+   });
+
+   test("SqlTable with fk and dbSchema options stores them correctly", () => {
+      const TableWithFk = newSqlTable<{
+         Select: { id: string; accountId: string };
+         Insert: { id?: string; accountId: string };
+         Update: { accountId?: string };
+         Delete: true;
+      }>({
+         crud: { select: true, insert: true, update: true, delete: true },
+         tableInfo: { name: "order", schema: "public", out: false, alias: null },
+         pk: ["id"],
+         columns: { id: "id", accountId: "account_id" },
+         fk: [{ from: ["accountId"], to: { schema: "public", table: "account", columns: ["id"] } }],
+         dbSchema: {
+            id: { dbType: "uuid", type: "string" as const, default: "gen_random_uuid()" },
+            accountId: { dbType: "uuid", type: "string" as const },
+         },
+      });
+
+      expect(TableWithFk.fk).toMatchInlineSnapshot(`
+        [
+          {
+            "from": [
+              "accountId",
+            ],
+            "to": {
+              "columns": [
+                "id",
+              ],
+              "schema": "public",
+              "table": "account",
+            },
+          },
+        ]
+      `);
+      expect(TableWithFk.dbSchema).toMatchInlineSnapshot(`
+        {
+          "accountId": {
+            "dbType": "uuid",
+            "type": "string",
+          },
+          "id": {
+            "dbType": "uuid",
+            "default": "gen_random_uuid()",
+            "type": "string",
+          },
+        }
+      `);
+   });
+
+   test("SqlTable.resolve() finds registered tables by source:schema.table", () => {
+      const Account = newSqlTable<{ Select: { id: string }; Insert: { id: string }; Update: { id?: string }; Delete: true }>({
+         crud: { select: true, insert: true, update: true, delete: true },
+         tableInfo: { name: "account", schema: "public", out: false, alias: null },
+         pk: ["id"],
+         columns: { id: "id" },
+         source: "my-app:src/codegen",
+      });
+
+      const resolved = SqlTable.resolve({ source: "my-app:src/codegen", schema: "public", table: "account" });
+      expect(resolved).toBe(Account);
+   });
+
+   test("SqlTable.resolve() returns undefined for unregistered tables", () => {
+      const resolved = SqlTable.resolve({ source: "unknown:path", schema: "public", table: "nonexistent" });
+      expect(resolved).toMatchInlineSnapshot(`undefined`);
+   });
+
+   test("resolveFk() resolves FK to target table instance", () => {
+      const source = "fk-test:src/models";
+      const Account = newSqlTable<{ Select: { id: string }; Insert: { id: string }; Update: { id?: string }; Delete: true }>({
+         crud: { select: true, insert: true, update: true, delete: true },
+         tableInfo: { name: "account", schema: "app", out: false, alias: null },
+         pk: ["id"],
+         columns: { id: "id" },
+         source,
+      });
+
+      const Order = newSqlTable<{ Select: { id: string; accountId: string }; Insert: { id: string; accountId: string }; Update: { id?: string }; Delete: true }>({
+         crud: { select: true, insert: true, update: true, delete: true },
+         tableInfo: { name: "order", schema: "app", out: false, alias: null },
+         pk: ["id"],
+         columns: { id: "id", accountId: "account_id" },
+         source,
+         fk: [{ from: ["accountId"], to: { schema: "app", table: "account", columns: ["id"] } }],
+      });
+
+      const resolved = Order.resolveFk(Order.fk[0]!);
+      expect(resolved).toBe(Account);
+   });
+
+   test("resolveFk() returns undefined when target table is not registered", () => {
+      const Orphan = newSqlTable<{ Select: { id: string }; Insert: { id: string }; Update: { id?: string }; Delete: true }>({
+         crud: { select: true, insert: true, update: true, delete: true },
+         tableInfo: { name: "orphan", schema: "app", out: false, alias: null },
+         pk: ["id"],
+         columns: { id: "id" },
+         source: "orphan-test:models",
+         fk: [{ from: ["id"], to: { schema: "app", table: "missing", columns: ["id"] } }],
+      });
+
+      expect(Orphan.resolveFk(Orphan.fk[0]!)).toMatchInlineSnapshot(`undefined`);
+   });
+
+   test("aliased tables do not register in the registry", () => {
+      const Base = newSqlTable<{ Select: { id: string }; Insert: { id: string }; Update: { id?: string }; Delete: true }>({
+         crud: { select: true, insert: true, update: true, delete: true },
+         tableInfo: { name: "base", schema: "app", out: false, alias: null },
+         pk: ["id"],
+         columns: { id: "id" },
+         source: "alias-test:models",
+      });
+
+      const Aliased = Base.as("b");
+      expect(SqlTable.resolve({ source: "alias-test:models", schema: "app", table: "base" })).toBe(Base);
+      expect(Aliased.tableInfo.alias).toMatchInlineSnapshot(`"b"`);
+   });
+
+   test("tables without source do not register in the registry", () => {
+      const NoSource = newSqlTable<{ Select: { id: string }; Insert: { id: string }; Update: { id?: string }; Delete: true }>({
+         crud: { select: true, insert: true, update: true, delete: true },
+         tableInfo: { name: "nosource", schema: "app", out: false, alias: null },
+         pk: ["id"],
+         columns: { id: "id" },
+      });
+
+      expect(NoSource.source).toMatchInlineSnapshot(`""`);
+      expect(SqlTable.resolve({ source: "", schema: "app", table: "nosource" })).toMatchInlineSnapshot(`undefined`);
    });
 });

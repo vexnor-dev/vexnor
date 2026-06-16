@@ -1,17 +1,16 @@
-export type AccountStatusUdt_ = 'created' | 'confirmed' | 'deleted'
+export const AccountStatusUdt = {
+   CREATED: "created",
+   CONFIRMED: "confirmed",
+   DELETED: "deleted",
+} as const;
 
-export enum AccountStatusUdt {
-   CREATED = 'created', 
-   CONFIRMED = 'confirmed', 
-   DELETED = 'deleted', 
-}
+export type AccountStatusUdt = (typeof AccountStatusUdt)[keyof typeof AccountStatusUdt];
 
-export type OrderStatusUdt_ = 'created' | 'paid' | 'delivered' | 'received'
+export const OrderStatusUdt = {
+   CREATED: "created",
+   PAID: "paid",
+   DELIVERED: "delivered",
+   RECEIVED: "received",
+} as const;
 
-export enum OrderStatusUdt {
-   CREATED = 'created', 
-   PAID = 'paid', 
-   DELIVERED = 'delivered', 
-   RECEIVED = 'received', 
-}
-
+export type OrderStatusUdt = (typeof OrderStatusUdt)[keyof typeof OrderStatusUdt];

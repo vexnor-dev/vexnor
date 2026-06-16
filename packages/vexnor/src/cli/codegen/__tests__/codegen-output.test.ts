@@ -1,8 +1,10 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { mkdtemp, readdir, readFile, rm } from "node:fs/promises";
-import { join } from "node:path";
-import { tmpdir } from "node:os";
+import { mkdir, readdir, readFile, rm } from "node:fs/promises";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import { codegenCommand } from "#/cli/codegen/codegen-command.js";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 import { loadPlugin } from "#/load-plugin.js";
 import { MockPlugin } from "#/test/mock-plugin.js";
 import { SqlColumnInfo, SqlColumnType } from "#/plugin/plugin.js";
@@ -81,8 +83,9 @@ describe("codegenCommand output", () => {
    });
 
    test("generates correct output for a table with enums", async () => {
-      const outDir = await mkdtemp(join(tmpdir(), "vexnor-codegen-test-"));
+      const outDir = join(__dirname, ".tmp-codegen-test");
       try {
+         await mkdir(outDir, { recursive: true });
          await codegenCommand({
             plugin: "vexnor-codegen-test",
             schema: ["public"],
@@ -135,6 +138,7 @@ describe("codegenCommand output", () => {
               },
               pk: ["accountId"],
               dialect: "postgres",
+              source: "@vexnor/core:src/cli/codegen/__tests__/.tmp-codegen-test",
               columns: {
 
                  /**
@@ -175,6 +179,15 @@ describe("codegenCommand output", () => {
               jsonSchema: {
                  createdAt: "Date",
               },
+              dbSchema: {
+                 accountId: { dbType: "uuid", type: vexnor.SqlLiteralType.String },
+                 email: { dbType: "text", type: vexnor.SqlLiteralType.String },
+                 status: { dbType: "account_status", type: vexnor.SqlLiteralType.Udt, default: "'active'", values: ["active", "suspended"] },
+                 createdAt: { dbType: "timestamptz", type: vexnor.SqlLiteralType.Date, default: "now()" },
+                 score: { dbType: "int4", type: vexnor.SqlLiteralType.Number, nullable: true },
+                 isActive: { dbType: "bool", type: vexnor.SqlLiteralType.Boolean },
+                 metadata: { dbType: "jsonb", type: vexnor.SqlLiteralType.Json, nullable: true },
+              },
            });
            export type IAccountInsert = {
               accountId: string;
@@ -211,13 +224,14 @@ describe("codegenCommand output", () => {
            "
          `);
       } finally {
-         await rm(outDir, { recursive: true });
+         await rm(outDir, { recursive: true, force: true });
       }
    });
 
    test("generates correct output without camelCase or pascalCase", async () => {
-      const outDir = await mkdtemp(join(tmpdir(), "vexnor-codegen-test-"));
+      const outDir = join(__dirname, ".tmp-codegen-test-nocase");
       try {
+         await mkdir(outDir, { recursive: true });
          await codegenCommand({
             plugin: "vexnor-codegen-test",
             schema: ["public"],
@@ -251,6 +265,7 @@ describe("codegenCommand output", () => {
               },
               pk: ["account_id"],
               dialect: "postgres",
+              source: "@vexnor/core:src/cli/codegen/__tests__/.tmp-codegen-test-nocase",
               columns: {
 
                  /**
@@ -291,6 +306,15 @@ describe("codegenCommand output", () => {
               jsonSchema: {
                  created_at: "Date",
               },
+              dbSchema: {
+                 account_id: { dbType: "uuid", type: vexnor.SqlLiteralType.String },
+                 email: { dbType: "text", type: vexnor.SqlLiteralType.String },
+                 status: { dbType: "account_status", type: vexnor.SqlLiteralType.Udt, default: "'active'", values: ["active", "suspended"] },
+                 created_at: { dbType: "timestamptz", type: vexnor.SqlLiteralType.Date, default: "now()" },
+                 score: { dbType: "int4", type: vexnor.SqlLiteralType.Number, nullable: true },
+                 is_active: { dbType: "bool", type: vexnor.SqlLiteralType.Boolean },
+                 metadata: { dbType: "jsonb", type: vexnor.SqlLiteralType.Json, nullable: true },
+              },
            });
            export type IAccountInsert = {
               account_id: string;
@@ -317,7 +341,7 @@ describe("codegenCommand output", () => {
            export type IAccountJson = vexnor.JsonRow<IAccountSelect>;"
          `);
       } finally {
-         await rm(outDir, { recursive: true });
+         await rm(outDir, { recursive: true, force: true });
       }
    });
 });

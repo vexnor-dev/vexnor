@@ -13,8 +13,22 @@ import { TableInsertCols } from "#/core/charms/table-insert-cols.js";
 import { TableInsertRows } from "#/core/charms/table-insert-rows.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
 import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
-import { CACHE } from "#/lib/cache.js";
+import { CACHE, registerResetHook } from "#/lib/cache.js";
 import { SqlJsonType } from "#/core/utils/sql-json-schema.js";
+import { SqlLiteralType } from "#/plugin/sql-literal.js";
+
+export type SqlTableForeignKey = {
+   from: string[];
+   to: { schema: string; table: string; columns: string[] };
+};
+
+export type SqlTableDbColumnSchema = {
+   dbType: string;
+   type: SqlLiteralType;
+   nullable?: boolean;
+   default?: string;
+   values?: string[];
+};
 
 export type SqlTableOptions<
    T extends {
@@ -26,8 +40,10 @@ export type SqlTableOptions<
 > = {
    readonly columns: Record<keyof T["Select"], string>;
    readonly jsonSchema?: Partial<Record<keyof T["Select"], SqlJsonType>>;
+   readonly fk?: SqlTableForeignKey[];
+   readonly dbSchema?: Partial<Record<keyof T["Select"], SqlTableDbColumnSchema>>;
 } & Pick<SqlTable<T>, "tableInfo" | "pk"> &
-   Partial<Pick<SqlTable<T>, "format" | "dialect">> & { crud: SqlTableCrudConfig<T> };
+   Partial<Pick<SqlTable<T>, "format" | "dialect" | "source">> & { crud: SqlTableCrudConfig<T> };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlTableAny = SqlTable<any>;
@@ -60,11 +76,30 @@ export class SqlTable<
       Delete?: boolean;
    },
 > extends Sql {
+   private static registry = new Map<string, SqlTableAny>();
+
+   static resolve({ source, schema, table }: { source: string; schema: string; table: string }): SqlTableAny | undefined {
+      return SqlTable.registry.get(`${source}:${schema}.${table}`);
+   }
+
+   static clearRegistry(): void {
+      SqlTable.registry.clear();
+   }
+
+   static register(table: SqlTableAny): void {
+      if (table.source && !table.tableInfo.alias) {
+         SqlTable.registry.set(`${table.source}:${table.tableInfo.schema}.${table.tableInfo.name}`, table);
+      }
+   }
+
    readonly tableInfo: SqlTableIdentity;
    readonly format: SqlTableFormat | null;
    readonly pk: Array<keyof T["Select"]>;
    readonly dialect: string;
+   readonly source: string;
    readonly columnTypes: Partial<Record<keyof T["Select"], SqlJsonType>>;
+   readonly fk: SqlTableForeignKey[];
+   readonly dbSchema: Partial<Record<keyof T["Select"], SqlTableDbColumnSchema>>;
 
    // TODO: ideas for later: onBeforeInsert|onBeforeUpdate|onAfterInsert|onAfterUpdate  ((T) => T) ?
    // readonly onInsert?: T["Insert"] extends Record<string, unknown> ? (value: T["Insert"]) => T["Insert"] : boolean;
@@ -96,7 +131,10 @@ export class SqlTable<
       this.format = format ?? null;
       this.pk = pk;
       this.dialect = dialect || "sql";
+      this.source = (args instanceof SqlTable ? args.source : args.source) ?? "";
       this.columnTypes = (args instanceof SqlTable ? args.columnTypes : args.jsonSchema) ?? {};
+      this.fk = (args instanceof SqlTable ? args.fk : args.fk) ?? [];
+      this.dbSchema = (args instanceof SqlTable ? args.dbSchema : args.dbSchema) ?? {};
       this._$$ = new Lazy(() => new SqlTableAll<T["Select"]>(this.cols));
       this._crudConfig = crud;
 
@@ -128,6 +166,11 @@ export class SqlTable<
 
    get crud(): SqlTableCrudConfig<T> {
       return this._crudConfig;
+   }
+
+   /** Resolves a foreign key reference to the target SqlTable instance via the static registry. */
+   resolveFk(fk: SqlTableForeignKey): SqlTableAny | undefined {
+      return SqlTable.resolve({ source: this.source, schema: fk.to.schema, table: fk.to.table });
    }
 
    /**
@@ -362,6 +405,8 @@ export class SqlTable<
    }
 }
 
+registerResetHook(() => SqlTable.clearRegistry());
+
 export function newSqlTable<
    T extends {
       Select: Record<string, unknown>;
@@ -371,7 +416,11 @@ export function newSqlTable<
    },
    Extra extends Record<string, unknown> = Record<string, unknown>,
 >(options: SqlTableOptions<T>, extra?: Extra): SqlTableExtended<T> & Extra {
-   return newSqlTableProxy(new SqlTable(options), extra);
+   const table = new SqlTable(options);
+   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   const result = newSqlTableProxy(table as any, extra) as SqlTableExtended<T> & Extra;
+   SqlTable.register(result as unknown as SqlTableAny);
+   return result;
 }
 
 export function newSqlTableProxy<

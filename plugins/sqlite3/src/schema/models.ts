@@ -43,3 +43,25 @@ export const PragmaTableInfo = newSqlTable<{
       dflt_value: "dflt_value",
    },
 });
+
+export const PragmaForeignKeyList = newSqlTable<{
+   Select: { id: number; seq: number; table: string; from: string; to: string };
+}>({
+   crud: {
+      select: true,
+      insert: false,
+      update: false,
+      delete: false,
+   },
+   pk: [],
+   tableInfo: {
+      name: "pragma_foreign_key_list",
+   },
+   columns: {
+      id: "id",
+      seq: "seq",
+      table: "table",
+      from: "from",
+      to: "to",
+   },
+});

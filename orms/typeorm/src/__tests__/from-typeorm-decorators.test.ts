@@ -189,13 +189,16 @@ describe("fromTypeORM — decorator entities", () => {
             "callback": [Function],
           },
           "columnTypes": {},
+          "dbSchema": {},
           "dialect": "sqlite",
+          "fk": [],
           "format": null,
           "hashId": "SqlTable#(main.account)",
           "id": "SqlTable#2(main.account)",
           "pk": [
             "accountId",
           ],
+          "source": "",
           "tableInfo": {
             "name": "account",
             "schema": "main",

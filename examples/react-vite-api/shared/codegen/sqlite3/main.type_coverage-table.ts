@@ -21,6 +21,7 @@ export const TypeCoverage = vexnor.newSqlTable<{
    },
    pk: ["colText"],
    dialect: "sqlite",
+   source: "@vexnor/example-react-vite-api:shared/codegen/sqlite3",
    columns: {
 
       /**
@@ -112,6 +113,26 @@ export const TypeCoverage = vexnor.newSqlTable<{
        * col_blob BLOB
        */
       colBlob: "col_blob",
+   },
+   dbSchema: {
+      colText: { dbType: "TEXT", type: vexnor.SqlLiteralType.String },
+      colVarchar: { dbType: "VARCHAR(255)", type: vexnor.SqlLiteralType.String },
+      colChar: { dbType: "CHAR(10)", type: vexnor.SqlLiteralType.String },
+      colInteger: { dbType: "INTEGER", type: vexnor.SqlLiteralType.Number },
+      colInt: { dbType: "INT", type: vexnor.SqlLiteralType.Number },
+      colTinyint: { dbType: "TINYINT", type: vexnor.SqlLiteralType.Number },
+      colSmallint: { dbType: "SMALLINT", type: vexnor.SqlLiteralType.Number },
+      colBigint: { dbType: "BIGINT", type: vexnor.SqlLiteralType.Number },
+      colReal: { dbType: "REAL", type: vexnor.SqlLiteralType.Number },
+      colFloat: { dbType: "FLOAT", type: vexnor.SqlLiteralType.Number },
+      colDouble: { dbType: "DOUBLE", type: vexnor.SqlLiteralType.Number },
+      colNumeric: { dbType: "NUMERIC(10, 2)", type: vexnor.SqlLiteralType.Number, nullable: true },
+      colDecimal: { dbType: "DECIMAL(10, 2)", type: vexnor.SqlLiteralType.Number, nullable: true },
+      colBoolean: { dbType: "BOOLEAN", type: vexnor.SqlLiteralType.Bit },
+      colDate: { dbType: "DATE", type: vexnor.SqlLiteralType.String, nullable: true },
+      colDatetime: { dbType: "DATETIME", type: vexnor.SqlLiteralType.String, nullable: true },
+      colTimestamp: { dbType: "TIMESTAMP", type: vexnor.SqlLiteralType.String, nullable: true },
+      colBlob: { dbType: "BLOB", type: vexnor.SqlLiteralType.Buffer, nullable: true },
    },
 });
 export type ITypeCoverageInsert = {

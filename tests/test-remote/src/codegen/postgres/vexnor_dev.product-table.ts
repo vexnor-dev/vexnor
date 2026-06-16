@@ -22,6 +22,7 @@ export const Product = vexnor.newSqlTable<{
    },
    pk: ["productId"],
    dialect: "postgresql",
+   source: "@vexnor/test-remote:src/codegen/postgres",
    columns: {
 
       /**
@@ -77,6 +78,18 @@ export const Product = vexnor.newSqlTable<{
    jsonSchema: {
       createdAt: "Date",
       modifiedAt: "Date",
+   },
+   dbSchema: {
+      productId: { dbType: "uuid", type: vexnor.SqlLiteralType.String, default: "gen_random_uuid()" },
+      createdAt: { dbType: "timestamptz", type: vexnor.SqlLiteralType.Date, default: "now()" },
+      modifiedAt: { dbType: "timestamptz", type: vexnor.SqlLiteralType.Date, default: "now()" },
+      label: { dbType: "varchar", type: vexnor.SqlLiteralType.String },
+      price: { dbType: "numeric", type: vexnor.SqlLiteralType.String },
+      discount: { dbType: "numeric", type: vexnor.SqlLiteralType.String, nullable: true },
+      isAvailable: { dbType: "bool", type: vexnor.SqlLiteralType.Boolean, default: "true" },
+      isPublished: { dbType: "bool", type: vexnor.SqlLiteralType.Boolean, default: "false" },
+      metadata: { dbType: "jsonb", type: vexnor.SqlLiteralType.Json, nullable: true },
+      tags: { dbType: "_text", type: vexnor.SqlLiteralType.Unknown, nullable: true },
    },
 });
 export type IProductInsert = {

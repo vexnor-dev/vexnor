@@ -22,6 +22,7 @@ export const Account = vexnor.newSqlTable<{
    },
    pk: ["accountId"],
    dialect: "postgresql",
+   source: "@vexnor/example-postgres-esm:src/codegen",
    columns: {
 
       /**
@@ -72,6 +73,20 @@ export const Account = vexnor.newSqlTable<{
    jsonSchema: {
       createdAt: "Date",
       modifiedAt: "Date",
+   },
+   fk: [
+      { from: ["parentId"], to: { schema: "vexnor_dev", table: "account", columns: ["accountId"] } },
+   ],
+   dbSchema: {
+      accountId: { dbType: "uuid", type: vexnor.SqlLiteralType.String, default: "gen_random_uuid()" },
+      status: { dbType: "account_status", type: vexnor.SqlLiteralType.Udt, default: "'created'::vexnor_dev.account_status", values: ["created", "confirmed", "deleted"] },
+      email: { dbType: "varchar", type: vexnor.SqlLiteralType.String },
+      firstName: { dbType: "varchar", type: vexnor.SqlLiteralType.String },
+      lastName: { dbType: "varchar", type: vexnor.SqlLiteralType.String },
+      notes: { dbType: "text", type: vexnor.SqlLiteralType.String, nullable: true },
+      createdAt: { dbType: "timestamptz", type: vexnor.SqlLiteralType.Date, default: "now()" },
+      modifiedAt: { dbType: "timestamptz", type: vexnor.SqlLiteralType.Date, default: "now()" },
+      parentId: { dbType: "uuid", type: vexnor.SqlLiteralType.String, nullable: true },
    },
 });
 export type IAccountInsert = {

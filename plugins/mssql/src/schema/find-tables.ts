@@ -1,5 +1,5 @@
 import { col, param, row, sql } from "@vexnor/core";
-import { Columns, KeyColumnUsage, TableConstraints, Tables } from "#/schema/models.js";
+import { Columns, ConstraintColumnUsage, KeyColumnUsage, ReferentialConstraints, TableConstraints, Tables } from "#/schema/models.js";
 
 const TableColumns = sql`
    SELECT ${row(Columns.$column_name, Columns.$column_default, Columns.$is_nullable, Columns.$udt_name, Columns.$domain_name, Columns.$numeric_precision_radix)},
@@ -21,6 +21,26 @@ export const findPrimaryKeys = sql`
       AND ${TableConstraints.$table_name} = ${KeyColumnUsage.$table_name}
    WHERE ${TableConstraints.$table_schema} IN (${param<{ schemas: string[] }>("schemas")})
      AND ${TableConstraints.$constraint_type} = 'PRIMARY KEY'`;
+
+export const findForeignKeys = sql`
+   SELECT ${row(
+      KeyColumnUsage.$table_schema,
+      KeyColumnUsage.$table_name,
+      KeyColumnUsage.$column_name,
+      KeyColumnUsage.$constraint_name,
+      ConstraintColumnUsage.$table_schema.as("referenced_table_schema"),
+      ConstraintColumnUsage.$table_name.as("referenced_table_name"),
+      ConstraintColumnUsage.$column_name.as("referenced_column_name"),
+   )}
+   FROM ${KeyColumnUsage}
+           JOIN ${TableConstraints} ON ${KeyColumnUsage.$constraint_name} = ${TableConstraints.$constraint_name}
+      AND ${KeyColumnUsage.$table_schema} = ${TableConstraints.$table_schema}
+           JOIN ${ReferentialConstraints} ON ${TableConstraints.$constraint_name} = ${ReferentialConstraints.$constraint_name}
+      AND ${TableConstraints.$table_schema} = ${ReferentialConstraints.$constraint_schema}
+           JOIN ${ConstraintColumnUsage} ON ${ReferentialConstraints.$unique_constraint_name} = ${ConstraintColumnUsage.$constraint_name}
+      AND ${ReferentialConstraints.$unique_constraint_schema} = ${ConstraintColumnUsage.$constraint_schema}
+   WHERE ${TableConstraints.$constraint_type} = 'FOREIGN KEY'
+     AND ${TableConstraints.$table_schema} IN (${param<{ schemas: string[] }>("schemas")})`;
 
 /**
  * Query all tables in the given schemas

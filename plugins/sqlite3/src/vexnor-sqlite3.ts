@@ -3,13 +3,14 @@ import {
    logger,
    SqlColumnInfo,
    SqlColumnType,
+   SqlForeignKeyInfo,
    SqlSchema,
    SqlTableInfo,
    VexnorConnection,
    VexnorPlugin,
 } from "@vexnor/core/plugin";
 import BetterSqlite3 from "better-sqlite3";
-import { findPrimaryKeys, findTableColumns, findTables, findViews } from "#/schema/find-tables.js";
+import { findForeignKeys, findPrimaryKeys, findTableColumns, findTables, findViews } from "#/schema/find-tables.js";
 import { getColumnType } from "#/schema/get-column-type.js";
 import { SqlQuery, SqlQueryHandler } from "@vexnor/core";
 import { BetterSqlite3QueryHandler } from "#/better-sqlite3-query-handler.js";
@@ -70,6 +71,19 @@ export class VexnorSqlite3 extends VexnorPlugin<{
             ...runArgs,
             params: { tableName: table.table_name },
          });
+         const fkRows = await findForeignKeys.sqlite.all({
+            ...runArgs,
+            params: { tableName: table.table_name },
+         });
+         const foreign_keys: SqlForeignKeyInfo[] = fkRows.map((fk) => ({
+            constraint_name: `fk_${table.table_name}_${fk.id}`,
+            column_name: fk.column_name,
+            table_schema: table.table_schema,
+            table_name: table.table_name,
+            referenced_table_schema: table.table_schema,
+            referenced_table_name: fk.referenced_table_name,
+            referenced_column_name: fk.referenced_column_name,
+         }));
 
          newTables.push({
             table_type: "table",
@@ -80,6 +94,7 @@ export class VexnorSqlite3 extends VexnorPlugin<{
             })),
             ...table,
             columns: columns.map((z) => ({ ...z, table_name: table.table_name, table_schema: table.table_schema })),
+            foreign_keys,
          });
       }
 

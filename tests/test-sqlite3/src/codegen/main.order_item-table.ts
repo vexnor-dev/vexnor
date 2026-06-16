@@ -21,6 +21,7 @@ export const OrderItem = vexnor.newSqlTable<{
    },
    pk: ["orderId"],
    dialect: "sqlite",
+   source: "@vexnor/test-sqlite3:src/codegen",
    columns: {
 
       /**
@@ -62,6 +63,20 @@ export const OrderItem = vexnor.newSqlTable<{
        * metadata TEXT
        */
       metadata: "metadata",
+   },
+   fk: [
+      { from: ["productId"], to: { schema: "main", table: "product", columns: ["productId"] } },
+      { from: ["orderId"], to: { schema: "main", table: "order", columns: ["orderId"] } },
+   ],
+   dbSchema: {
+      orderId: { dbType: "TEXT", type: vexnor.SqlLiteralType.String },
+      productId: { dbType: "TEXT", type: vexnor.SqlLiteralType.String },
+      createdAt: { dbType: "TEXT", type: vexnor.SqlLiteralType.String, default: "datetime('now')" },
+      modifiedAt: { dbType: "TEXT", type: vexnor.SqlLiteralType.String, default: "datetime('now')" },
+      productPrice: { dbType: "REAL", type: vexnor.SqlLiteralType.Number },
+      discountPrice: { dbType: "REAL", type: vexnor.SqlLiteralType.Number, nullable: true },
+      quantity: { dbType: "INTEGER", type: vexnor.SqlLiteralType.Number },
+      metadata: { dbType: "TEXT", type: vexnor.SqlLiteralType.String, nullable: true },
    },
 });
 export type IOrderItemInsert = {

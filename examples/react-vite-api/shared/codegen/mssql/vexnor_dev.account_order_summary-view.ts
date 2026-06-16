@@ -18,6 +18,7 @@ export const AccountOrderSummary = vexnor.newSqlTable<{
    },
    pk: [],
    dialect: "tsql",
+   source: "@vexnor/example-react-vite-api:shared/codegen/mssql",
    columns: {
 
       /**
@@ -57,6 +58,15 @@ export const AccountOrderSummary = vexnor.newSqlTable<{
    },
    jsonSchema: {
       latestOrderAt: "Date",
+   },
+   dbSchema: {
+      accountId: { dbType: "uniqueidentifier", type: vexnor.SqlLiteralType.String },
+      email: { dbType: "varchar", type: vexnor.SqlLiteralType.String },
+      firstName: { dbType: "varchar", type: vexnor.SqlLiteralType.String },
+      lastName: { dbType: "varchar", type: vexnor.SqlLiteralType.String },
+      status: { dbType: "varchar", type: vexnor.SqlLiteralType.String },
+      orderCount: { dbType: "int", type: vexnor.SqlLiteralType.Number, nullable: true },
+      latestOrderAt: { dbType: "datetimeoffset", type: vexnor.SqlLiteralType.Date, nullable: true },
    },
 });
 export type IAccountOrderSummarySelect = {

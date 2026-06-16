@@ -29,12 +29,31 @@ export interface SqlPrimaryKeyInfo {
    ordinal_position?: number;
 }
 
+export interface SqlForeignKeyInfo {
+   constraint_name: string;
+   column_name: string;
+   referenced_table_schema: string;
+   referenced_table_name: string;
+   referenced_column_name: string;
+   table_schema: string;
+   table_name: string;
+}
+
+export interface SqlDbColumnSchema {
+   dbType: string;
+   type: SqlLiteralType;
+   nullable?: boolean;
+   default?: string;
+   values?: string[];
+}
+
 export type SqlTableInfo = {
    table_name: string;
    table_type: "table" | "view";
    columns: SqlColumnInfo[];
    table_schema: string;
    primary_keys: SqlPrimaryKeyInfo[];
+   foreign_keys?: SqlForeignKeyInfo[];
 };
 
 export interface SqlEnumValue {
