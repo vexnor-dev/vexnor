@@ -1,68 +1,70 @@
 {
-   "name": "@vexnor/drizzle",
-   "version": "1.0.0-beta.1",
-   "description": "Drizzle ORM adaptor for vexnor — convert drizzle tables to vexnor runtime tables",
-   "type": "module",
-   "exports": {
-      "./pg": {
-         "types": "./dist/pg/index.d.ts",
-         "import": "./dist/pg/index.js",
-         "require": "./dist/pg/index.js"
-      },
-      "./sqlite": {
-         "types": "./dist/sqlite/index.d.ts",
-         "import": "./dist/sqlite/index.js",
-         "require": "./dist/sqlite/index.js"
-      },
-      "./mssql": {
-         "types": "./dist/mssql/index.d.ts",
-         "import": "./dist/mssql/index.js",
-         "require": "./dist/mssql/index.js"
-      }
-   },
-   "keywords": [
-      "vexnor",
-      "drizzle",
-      "drizzle-orm",
-      "postgresql",
-      "sqlite",
-      "mssql",
-      "adaptor",
-      "sql"
-   ],
-   "author": "Adrian Topala",
-   "license": "Apache-2.0",
-   "repository": "https://github.com/vexnor-dev/vexnor",
-   "sideEffects": false,
-   "publishConfig": {
-      "access": "public"
-   },
-   "scripts": {
-      "clean": "rimraf dist tsconfig.tsbuildinfo",
-      "build": "tsc -b",
-      "pretest": "run-s 'build'",
-      "test": "vitest --coverage run",
-      "test:watch": "vitest --watch",
-      "test:run": "vitest run"
-   },
-   "files": [
-      "dist",
-      "package.json",
-      "README.md"
-   ],
-   "dependencies": {
-      "@vexnor/core": "workspace:^"
-   },
-   "devDependencies": {
-      "@types/mssql": "^12.3.0",
-      "drizzle-orm": "^1.0.0-beta.20",
-      "@vitest/coverage-v8": "^4.1.5",
-      "npm-run-all": "^4.1.5",
-      "typescript": "^5.9.3",
-      "vite-tsconfig-paths": "^6.1.1",
-      "vitest": "^4.1.5"
-   },
-   "peerDependencies": {
-      "drizzle-orm": ">=1.0.0-beta.1"
-   }
+  "name": "@vexnor/drizzle",
+  "version": "1.0.0-beta.1",
+  "description": "Drizzle ORM adaptor for vexnor — convert drizzle tables to vexnor runtime tables",
+  "type": "module",
+  "exports": {
+    "./pg": {
+      "types": "./dist/pg/index.d.ts",
+      "import": "./dist/pg/index.js",
+      "require": "./dist/pg/index.js"
+    },
+    "./sqlite": {
+      "types": "./dist/sqlite/index.d.ts",
+      "import": "./dist/sqlite/index.js",
+      "require": "./dist/sqlite/index.js"
+    },
+    "./mssql": {
+      "types": "./dist/mssql/index.d.ts",
+      "import": "./dist/mssql/index.js",
+      "require": "./dist/mssql/index.js"
+    }
+  },
+  "keywords": [
+    "vexnor",
+    "drizzle",
+    "drizzle-orm",
+    "postgresql",
+    "sqlite",
+    "mssql",
+    "adaptor",
+    "sql"
+  ],
+  "author": "Adrian Topala",
+  "license": "Apache-2.0",
+  "repository": "https://github.com/vexnor-dev/vexnor",
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "clean": "rimraf dist tsconfig.tsbuildinfo",
+    "build": "tsc -b",
+    "pretest": "run-s 'build'",
+    "test": "vitest --coverage run",
+    "test:watch": "vitest --watch",
+    "test:run": "vitest run"
+  },
+  "files": [
+    "dist",
+    "package.json",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "dependencies": {
+    "@vexnor/core": "workspace:^"
+  },
+  "devDependencies": {
+    "@types/mssql": "^12.3.0",
+    "drizzle-orm": "^1.0.0-beta.20",
+    "@vitest/coverage-v8": "^4.1.5",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.9.3",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^4.1.5"
+  },
+  "peerDependencies": {
+    "drizzle-orm": ">=1.0.0-beta.1"
+  },
+  "changelog": "https://github.com/vexnor-dev/vexnor/releases"
 }

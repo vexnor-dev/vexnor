@@ -268,6 +268,16 @@ jobs:
           echo "npm_tag=$NPM_TAG" >> $GITHUB_OUTPUT
           echo "Publishing $VERSION with tag: $NPM_TAG"
 
+      - name: Generate CHANGELOG.md from release notes
+        env:
+          RELEASE_BODY: ${{ github.event.release.body }}
+          RELEASE_URL: ${{ github.event.release.html_url }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          for pkg in packages/vexnor plugins/postgres plugins/mssql plugins/sqlite3 orms/prisma orms/drizzle orms/typeorm orms/sequelize; do
+            printf '# %s\n\n%s\n\n%s\n' "$RELEASE_TAG" "$RELEASE_URL" "$RELEASE_BODY" > "$pkg/CHANGELOG.md"
+          done
+
       - name: Publish to npm
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
