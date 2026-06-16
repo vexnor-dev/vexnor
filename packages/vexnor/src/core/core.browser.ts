@@ -144,3 +144,5 @@ export { VexnorConnection, connect } from "#/plugin/vexnor-connection.js";
 export { getQueryName } from "#/core/query/sql-query-name.js";
 
 export { SqlLiteralType } from "#/plugin/sql-literal.js";
+
+export { type SqlParamsList, params } from "#/core/query/sql-params-list.js";

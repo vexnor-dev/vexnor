@@ -13,6 +13,9 @@ type RangeRules<T> =
         ? { min?: Date; max?: Date }
         : unknown;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type ParamValidationAny = ParamValidation<any>;
+
 export type ParamValidation<T = unknown> = LengthRules<T> &
    PatternRules<T> &
    RangeRules<T> & {
