@@ -181,7 +181,7 @@ describe("writeTableType — config flag branches", () => {
       mockPlugin.getColumnType.mockReset();
    });
 
-   test("does not emit dbSchema when includeDbSchema is false", () => {
+   test("always emits dbSchema", () => {
       mockPlugin.getColumnType.mockReturnValue({ type: "string" });
 
       const ctx = new CodegenContextModel({
@@ -189,16 +189,16 @@ describe("writeTableType — config flag branches", () => {
          plugin: mockPlugin as never,
          camelCaseColumns: true,
          includeEnums: false,
-         generate: { schema: [], outDir: "/tmp", includeDbSchema: false },
+         generate: null,
       });
 
       const writer = new CodeWriter();
       CodegenContext.run(ctx, () => writeTableType(writer, { table: baseTable as never }));
       const output = writer.toString();
-      expect(output).not.toContain("dbSchema:");
+      expect(output).toContain("dbSchema:");
    });
 
-   test("does not emit fk when includeForeignKeys is false", () => {
+   test("always emits fk when table has foreign keys", () => {
       mockPlugin.getColumnType.mockReturnValue({ type: "string" });
 
       const ctx = new CodegenContextModel({
@@ -206,7 +206,7 @@ describe("writeTableType — config flag branches", () => {
          plugin: mockPlugin as never,
          camelCaseColumns: true,
          includeEnums: false,
-         generate: { schema: [], outDir: "/tmp", includeForeignKeys: false },
+         generate: null,
       });
 
       const tableWithFk = {
@@ -219,7 +219,7 @@ describe("writeTableType — config flag branches", () => {
       const writer = new CodeWriter();
       CodegenContext.run(ctx, () => writeTableType(writer, { table: tableWithFk as never }));
       const output = writer.toString();
-      expect(output).not.toContain("fk:");
+      expect(output).toContain("fk:");
    });
 });
 

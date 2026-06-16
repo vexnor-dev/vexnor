@@ -74,9 +74,8 @@ export function writeTableType(writer: CodeWriter, { table }: PrintTableArgs) {
                .writeLine(",");
          }
          // Emit foreign keys (tables only, not views)
-         const includeForeignKeys = getCodegenContext().generate?.includeForeignKeys !== false;
          const fks = groupForeignKeys(foreign_keys ?? [], getColumnName);
-         if (!isView && includeForeignKeys && fks.length) {
+         if (!isView && fks.length) {
             writer.writeLine(`fk: [`);
             fks.forEach((fk) => {
                writer.writeLine(
@@ -86,11 +85,9 @@ export function writeTableType(writer: CodeWriter, { table }: PrintTableArgs) {
             writer.writeLine(`],`);
          }
          // Emit dbSchema
-         const includeDbSchema = getCodegenContext().generate?.includeDbSchema !== false;
-         if (includeDbSchema) {
-            const { enums } = getCodegenContext();
-            writer
-               .write(`dbSchema:`)
+         const { enums } = getCodegenContext();
+         writer
+            .write(`dbSchema:`)
                .inlineBlock(() => {
                   columnTypes.forEach(({ col, colType }) => {
                      const colAlias = getColumnName(col.column_name);
@@ -114,7 +111,6 @@ export function writeTableType(writer: CodeWriter, { table }: PrintTableArgs) {
                   });
                })
                .writeLine(",");
-         }
       })
       .write(");");
 }

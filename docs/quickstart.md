@@ -38,7 +38,18 @@ export const Account = vexnor.newSqlTable<{
   Insert: IAccountInsert;
   Update: IAccountUpdate;
   Delete: true;
-}>({ ... });
+}>({
+  // ...crud, tableInfo, pk, dialect, source, columns
+  fk: [
+    { from: ["parentId"], to: { schema: "public", table: "account", columns: ["accountId"] } },
+  ],
+  dbSchema: {
+    accountId: { dbType: "uuid", type: vexnor.SqlLiteralType.String, default: "gen_random_uuid()" },
+    email: { dbType: "text", type: vexnor.SqlLiteralType.String },
+    firstName: { dbType: "varchar", type: vexnor.SqlLiteralType.String },
+    // ...
+  },
+});
 
 export type IAccountSelect = { accountId: string; email: string; firstName: string; ... };
 export type IAccountInsert = { email: string; firstName: string; ... };
