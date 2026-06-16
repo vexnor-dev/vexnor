@@ -122,9 +122,13 @@ describe("VexnorMssql.getSchema()", () => {
       const mockTableResult = {
          recordsets: [[
             { table_name: "account", table_schema: "dbo", table_columns: JSON.stringify([{ column_name: "id", udt_name: "int" }]), primary_key: "id" },
+            { table_name: "product", table_schema: "dbo", table_columns: JSON.stringify([{ column_name: "id", udt_name: "int" }]), primary_key: "id" },
          ]],
-         recordset: [{ table_name: "account", table_schema: "dbo", table_columns: JSON.stringify([{ column_name: "id", udt_name: "int" }]), primary_key: "id" }],
-         rowsAffected: [1],
+         recordset: [
+            { table_name: "account", table_schema: "dbo", table_columns: JSON.stringify([{ column_name: "id", udt_name: "int" }]), primary_key: "id" },
+            { table_name: "product", table_schema: "dbo", table_columns: JSON.stringify([{ column_name: "id", udt_name: "int" }]), primary_key: "id" },
+         ],
+         rowsAffected: [2],
          output: {},
       };
       const mockViewResult = {
@@ -165,7 +169,7 @@ describe("VexnorMssql.getSchema()", () => {
 
       try {
          const schema = await plugin.getSchema({ schemas: ["dbo"], host: "localhost", database: "test", user: "sa", password: "pass" } as never);
-         expect(schema.tables).toHaveLength(2);
+         expect(schema.tables).toHaveLength(3);
          expect(schema.tables[0]!.table_type).toBe("table");
          expect(schema.tables[0]!.table_name).toBe("account");
          expect(schema.tables[0]!.foreign_keys).toMatchInlineSnapshot(`
@@ -181,9 +185,11 @@ describe("VexnorMssql.getSchema()", () => {
              },
            ]
          `);
-         expect(schema.tables[1]!.table_type).toBe("view");
-         expect(schema.tables[1]!.table_name).toBe("account_summary");
+         expect(schema.tables[1]!.table_name).toBe("product");
          expect(schema.tables[1]!.foreign_keys).toMatchInlineSnapshot(`[]`);
+         expect(schema.tables[2]!.table_type).toBe("view");
+         expect(schema.tables[2]!.table_name).toBe("account_summary");
+         expect(schema.tables[2]!.foreign_keys).toMatchInlineSnapshot(`[]`);
          expect(schema.enums).toMatchInlineSnapshot(`[]`);
       } finally {
          createSpy.mockRestore();

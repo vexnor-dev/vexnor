@@ -988,4 +988,16 @@ describe("SqlTable tests", () => {
       expect(SqlTable.resolve({ source: "alias-test:models", schema: "app", table: "base" })).toBe(Base);
       expect(Aliased.tableInfo.alias).toMatchInlineSnapshot(`"b"`);
    });
+
+   test("tables without source do not register in the registry", () => {
+      const NoSource = newSqlTable<{ Select: { id: string }; Insert: { id: string }; Update: { id?: string }; Delete: true }>({
+         crud: { select: true, insert: true, update: true, delete: true },
+         tableInfo: { name: "nosource", schema: "app", out: false, alias: null },
+         pk: ["id"],
+         columns: { id: "id" },
+      });
+
+      expect(NoSource.source).toMatchInlineSnapshot(`""`);
+      expect(SqlTable.resolve({ source: "", schema: "app", table: "nosource" })).toMatchInlineSnapshot(`undefined`);
+   });
 });

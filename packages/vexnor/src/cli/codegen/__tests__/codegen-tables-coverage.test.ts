@@ -251,6 +251,110 @@ describe("CodegenContextModel — defaults", () => {
       expect(ctx.source).toMatchInlineSnapshot(`""`);
       expect(ctx.enums).toMatchInlineSnapshot(`[]`);
    });
+
+   test("uses provided source and enums when given", () => {
+      const ctx = new CodegenContextModel({
+         outDir: "/tmp",
+         plugin: mockPlugin as never,
+         source: "my-pkg:src/codegen",
+         enums: [{ enum_schema: "public", enum_name: "status", enum_values: [{ enum_label: "active" }] }],
+      });
+      expect(ctx.source).toMatchInlineSnapshot(`"my-pkg:src/codegen"`);
+      expect(ctx.enums).toHaveLength(1);
+   });
+});
+
+describe("writeTableType — dbSchema edge cases", () => {
+   beforeEach(() => {
+      mockPlugin.getColumnType.mockReset();
+   });
+
+   test("handles column with no udt_name and no data_type", () => {
+      mockPlugin.getColumnType.mockReturnValue({ type: "string" });
+
+      const tableWithBareCol = {
+         ...baseTable,
+         columns: [
+            { column_name: "bare_col", is_nullable: "NO", column_default: null, udt_name: undefined, data_type: undefined },
+         ],
+         primary_keys: [],
+      };
+
+      const writer = new CodeWriter();
+      runInContext(() => writeTableType(writer, { table: tableWithBareCol as never }));
+      const output = writer.toString();
+      expect(output).toContain('dbType: "unknown"');
+   });
+
+   test("handles column with data_type but no udt_name", () => {
+      mockPlugin.getColumnType.mockReturnValue({ type: "string" });
+
+      const tableWithDataType = {
+         ...baseTable,
+         columns: [
+            { column_name: "col", is_nullable: "NO", column_default: null, udt_name: undefined, data_type: "character varying" },
+         ],
+         primary_keys: [],
+      };
+
+      const writer = new CodeWriter();
+      runInContext(() => writeTableType(writer, { table: tableWithDataType as never }));
+      const output = writer.toString();
+      expect(output).toContain('dbType: "character varying"');
+   });
+
+   test("handles unknown SqlLiteralType value", () => {
+      mockPlugin.getColumnType.mockReturnValue({ type: "some_unknown_type" });
+
+      const table = {
+         ...baseTable,
+         columns: [
+            { column_name: "col", is_nullable: "NO", column_default: null, udt_name: "custom", data_type: "custom" },
+         ],
+         primary_keys: [],
+      };
+
+      const writer = new CodeWriter();
+      runInContext(() => writeTableType(writer, { table: table as never }));
+      const output = writer.toString();
+      expect(output).toContain("SqlLiteralType.Unknown");
+   });
+
+   test("handles non-nullable column without default", () => {
+      mockPlugin.getColumnType.mockReturnValue({ type: "string" });
+
+      const table = {
+         ...baseTable,
+         columns: [
+            { column_name: "col", is_nullable: "NO", column_default: null, udt_name: "text" },
+         ],
+         primary_keys: [],
+      };
+
+      const writer = new CodeWriter();
+      runInContext(() => writeTableType(writer, { table: table as never }));
+      const output = writer.toString();
+      expect(output).not.toContain("nullable:");
+      expect(output).not.toContain("default:");
+   });
+
+   test("handles Udt type without udt field", () => {
+      mockPlugin.getColumnType.mockReturnValue({ type: SqlLiteralType.Udt });
+
+      const table = {
+         ...baseTable,
+         columns: [
+            { column_name: "col", is_nullable: "NO", column_default: null, udt_name: "my_type" },
+         ],
+         primary_keys: [],
+      };
+
+      const writer = new CodeWriter();
+      runInContext(() => writeTableType(writer, { table: table as never }));
+      const output = writer.toString();
+      expect(output).toContain("SqlLiteralType.Udt");
+      expect(output).not.toContain("values:");
+   });
 });
 
 describe("resolveSource — fallback", () => {
