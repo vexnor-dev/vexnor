@@ -88,6 +88,12 @@ The output directory receives:
 Table names are always PascalCased (`account` → `Account`).  
 Column names respect `--camelCaseColumns` (`account_id` → `accountId` when enabled).
 
+Each generated table includes:
+
+- **`fk`** — foreign key relationships: `{ from: [...columns], to: { schema, table, columns } }`
+- **`dbSchema`** — per-column database metadata: original `dbType`, mapped `type` (SqlLiteralType), optional `nullable`, `default`, and `values` (for enums)
+- **`source`** — stable identifier (`packageName:relativeOutDir`) for the table registry
+
 ---
 
 ## `vexnor exec init`
