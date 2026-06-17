@@ -101,6 +101,9 @@ jobs:
           VERSION=${GITHUB_REF#refs/tags/v}
           echo "Setting version $VERSION on all packages"
 
+          # Copy docs into @vexnor/core package
+          cp -r docs packages/vexnor/docs
+
           # Set version on all workspace packages
           for pkg in packages/vexnor plugins/postgres plugins/mssql plugins/sqlite3 orms/prisma orms/drizzle orms/typeorm orms/sequelize; do
             node -e "const f='$pkg/package.json'; const p=JSON.parse(require('fs').readFileSync(f)); p.version='$VERSION'; require('fs').writeFileSync(f, JSON.stringify(p, null, 2)+'\n')"
@@ -133,6 +136,7 @@ jobs:
           path: |
             packages/vexnor/package.json
             packages/vexnor/dist/
+            packages/vexnor/docs/
             packages/vexnor/cli.mjs
             packages/vexnor/README.md
             plugins/postgres/package.json
@@ -267,6 +271,16 @@ jobs:
           fi
           echo "npm_tag=$NPM_TAG" >> $GITHUB_OUTPUT
           echo "Publishing $VERSION with tag: $NPM_TAG"
+
+      - name: Generate CHANGELOG.md from release notes
+        env:
+          RELEASE_BODY: ${{ github.event.release.body }}
+          RELEASE_URL: ${{ github.event.release.html_url }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          for pkg in packages/vexnor plugins/postgres plugins/mssql plugins/sqlite3 orms/prisma orms/drizzle orms/typeorm orms/sequelize; do
+            printf '# %s\n\n%s\n\n%s\n' "$RELEASE_TAG" "$RELEASE_URL" "$RELEASE_BODY" > "$pkg/CHANGELOG.md"
+          done
 
       - name: Publish to npm
         env:

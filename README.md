@@ -331,6 +331,9 @@ See [Telemetry](docs/telemetry.md) — span shape, OTLP exporters, combining wit
 
 ## Documentation
 
+> 📖 See [Cheat Sheet](docs/cheat-sheet.md) for the full composable API reference (`.as()`, `.out`, `col()`, `param()`, CLI troubleshooting).
+
+- [Cheat Sheet](docs/cheat-sheet.md) — quick reference for all composable APIs
 - [Quickstart](docs/quickstart.md) — full onboarding, all core APIs
 - [Queries](docs/queries.md) — subqueries, CTEs, recursive CTEs, window functions
 - [Params](docs/params.md) — inline injection, `param()`, `expand()`, runtime validation
