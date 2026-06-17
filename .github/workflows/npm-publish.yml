@@ -195,6 +195,7 @@ jobs:
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           path: _source
+          fetch-depth: 0
 
       - name: Verify artifact integrity
         run: |
@@ -287,17 +288,81 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
         run: |
           NPM_TAG="${{ steps.version.outputs.npm_tag }}"
+          CURRENT_TAG="${GITHUB_REF#refs/tags/}"
 
-          # Core first (others depend on it)
-          npm publish --ignore-scripts ./packages/vexnor --access public --tag "$NPM_TAG" --provenance
+          # Find previous tag
+          PREV_TAG=$(cd _source && git tag --sort=-creatordate | grep -v "^${CURRENT_TAG}$" | head -1)
+          echo "Comparing $PREV_TAG...$CURRENT_TAG"
 
-          # Plugins
-          npm publish --ignore-scripts ./plugins/postgres --access public --tag "$NPM_TAG" --provenance
-          npm publish --ignore-scripts ./plugins/mssql --access public --tag "$NPM_TAG" --provenance
-          npm publish --ignore-scripts ./plugins/sqlite3 --access public --tag "$NPM_TAG" --provenance
+          PUBLISHED=""
+          SKIPPED=""
 
-          # ORMs
-          npm publish --ignore-scripts ./orms/prisma --access public --tag "$NPM_TAG" --provenance
-          npm publish --ignore-scripts ./orms/drizzle --access public --tag "$NPM_TAG" --provenance
-          npm publish --ignore-scripts ./orms/typeorm --access public --tag "$NPM_TAG" --provenance
-          npm publish --ignore-scripts ./orms/sequelize --access public --tag "$NPM_TAG" --provenance
+          publish_if_changed() {
+            local pkg_dir="$1"
+            local src_dirs="$2"  # comma-separated source dirs to check
+
+            # If no previous tag exists, publish everything
+            if [ -z "$PREV_TAG" ]; then
+              npm publish --ignore-scripts "./$pkg_dir" --access public --tag "$NPM_TAG" --provenance
+              PUBLISHED="${PUBLISHED}  ✅ $pkg_dir\n"
+              return
+            fi
+
+            # Check if any of the source dirs have changes
+            local has_changes=false
+            IFS=',' read -ra DIRS <<< "$src_dirs"
+            for dir in "${DIRS[@]}"; do
+              if [ -n "$(cd _source && git diff --name-only "$PREV_TAG...$CURRENT_TAG" -- "$dir")" ]; then
+                has_changes=true
+                break
+              fi
+            done
+
+            if [ "$has_changes" = true ]; then
+              npm publish --ignore-scripts "./$pkg_dir" --access public --tag "$NPM_TAG" --provenance
+              PUBLISHED="${PUBLISHED}  ✅ $pkg_dir\n"
+            else
+              SKIPPED="${SKIPPED}  ⏭️ $pkg_dir (no changes)\n"
+            fi
+          }
+
+          # Core first — if core changed, all packages should republish
+          CORE_CHANGED=false
+          if [ -z "$PREV_TAG" ] || [ -n "$(cd _source && git diff --name-only "$PREV_TAG...$CURRENT_TAG" -- packages/vexnor)" ]; then
+            CORE_CHANGED=true
+          fi
+
+          # Publish core
+          publish_if_changed "packages/vexnor" "packages/vexnor"
+
+          # Plugins — republish if core changed OR plugin dir changed
+          if [ "$CORE_CHANGED" = true ]; then
+            PLUGIN_SRC="packages/vexnor"
+          else
+            PLUGIN_SRC=""
+          fi
+          publish_if_changed "plugins/postgres" "plugins/postgres${PLUGIN_SRC:+,$PLUGIN_SRC}"
+          publish_if_changed "plugins/mssql" "plugins/mssql${PLUGIN_SRC:+,$PLUGIN_SRC}"
+          publish_if_changed "plugins/sqlite3" "plugins/sqlite3${PLUGIN_SRC:+,$PLUGIN_SRC}"
+
+          # ORMs — republish if core changed OR orm dir changed
+          publish_if_changed "orms/prisma" "orms/prisma${PLUGIN_SRC:+,$PLUGIN_SRC}"
+          publish_if_changed "orms/drizzle" "orms/drizzle${PLUGIN_SRC:+,$PLUGIN_SRC}"
+          publish_if_changed "orms/typeorm" "orms/typeorm${PLUGIN_SRC:+,$PLUGIN_SRC}"
+          publish_if_changed "orms/sequelize" "orms/sequelize${PLUGIN_SRC:+,$PLUGIN_SRC}"
+
+          # Report
+          echo ""
+          echo "### Publish Report" >> $GITHUB_STEP_SUMMARY
+          if [ -n "$PUBLISHED" ]; then
+            echo "**Published:**" >> $GITHUB_STEP_SUMMARY
+            printf "$PUBLISHED" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ -n "$SKIPPED" ]; then
+            echo "**Skipped (no changes since $PREV_TAG):**" >> $GITHUB_STEP_SUMMARY
+            printf "$SKIPPED" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ -z "$PUBLISHED" ]; then
+            echo "⚠️ No packages were published — no changes detected since $PREV_TAG"
+            echo "⚠️ No packages were published" >> $GITHUB_STEP_SUMMARY
+          fi
