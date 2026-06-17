@@ -9,7 +9,7 @@ Converts Drizzle table and view definitions into Vexnor runtime tables — no co
 ## Install
 
 ```bash
-npm install vexnor @vexnor/drizzle
+npm install @vexnor/core @vexnor/drizzle
 ```
 
 ## Subpath Imports
@@ -27,7 +27,7 @@ import { fromDrizzleTable } from '@vexnor/drizzle/mssql';                   // M
 ```typescript
 import { fromDrizzleTable, fromDrizzleView } from '@vexnor/drizzle/pg';
 import { pgSchema, uuid, varchar } from 'drizzle-orm/pg-core';
-import { sql, row, param } from 'vexnor';
+import { sql, row, param } from '@vexnor/core';
 import '@vexnor/postgres';
 
 const schema = pgSchema('public');
@@ -63,7 +63,7 @@ const account = await findByEmail.postgres.any({ db: pool, params: { email: 'jan
 ```typescript
 import { fromDrizzleTable } from '@vexnor/drizzle/sqlite';
 import { sqliteTable, text } from 'drizzle-orm/sqlite-core';
-import { sql, row } from 'vexnor';
+import { sql, row } from '@vexnor/core';
 import '@vexnor/sqlite3';
 
 const accountDrizzle = sqliteTable('account', {
@@ -83,7 +83,7 @@ const accounts = await sql`
 ```typescript
 import { fromDrizzleTable } from '@vexnor/drizzle/mssql';
 import { mssqlTable, uniqueidentifier, varchar } from 'drizzle-orm/mssql-core';
-import { sql, row } from 'vexnor';
+import { sql, row } from '@vexnor/core';
 import '@vexnor/mssql';
 
 const accountDrizzle = mssqlTable('account', {

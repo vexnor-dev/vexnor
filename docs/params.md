@@ -64,7 +64,7 @@ await query.postgres.one({
 For queries with multiple parameters, `params()` defines all params in one place and returns typed accessors. Avoids repeating the type argument on each `param()` call.
 
 ```typescript
-import { params } from 'vexnor';
+import { params } from '@vexnor/core';
 
 const p = params<{ firstName: string; email: string; limit: number }>({
   firstName: { minLength: 1 },
@@ -184,7 +184,7 @@ Without a `default`, an invalid value throws `SqlBuildError` with code `PARAM_VA
 This is the correct mechanism for row-level access control: bake the restriction into the query itself so it cannot be bypassed, rather than relying on the authorization callback to check it after the fact.
 
 ```typescript
-import { ctx } from 'vexnor';
+import { ctx } from '@vexnor/core';
 
 // Only returns orders belonging to the currently authenticated user
 const myOrders = sql`
@@ -242,7 +242,7 @@ await myOrders.postgres.all({
 When calling a query with `ctx()` params from the browser via `remoteClient`, the client doesn't know the user's server-side identity. Use the `runtimeValue` sentinel to satisfy the TypeScript type requirement without sending an actual value:
 
 ```typescript
-import { contextValue } from 'vexnor';
+import { contextValue } from '@vexnor/core';
 
 await myOrders.postgres.all({
   db: remoteClient,
@@ -295,7 +295,7 @@ const effectiveUserId = ctx<{ effectiveUserId: string }>('effectiveUserId');
 `expand` lazily builds a list of SQL nodes at query execution time. Use it when the shape or number of SQL fragments depends on runtime values — `IN (...)` lists, dynamic `ORDER BY`, conditional `SET` clauses, etc.
 
 ```typescript
-import { expand } from 'vexnor';
+import { expand } from '@vexnor/core';
 
 const findByIds = sql`
   SELECT ${row(Account.$$)}
@@ -352,7 +352,7 @@ expand<{ ids: string[]; sort: string }>(
 A common pattern — use `values` to whitelist column names, preventing SQL injection:
 
 ```typescript
-import { expand, raw, param } from 'vexnor';
+import { expand, raw, param } from '@vexnor/core';
 
 const orderBy = param<{ orderBy?: string }>('orderBy', {
   values: ['email', 'created_at', 'first_name'],
@@ -404,7 +404,7 @@ const outer = sql`
 Use `ParamsOf` to extract the params type from a query without repeating it manually:
 
 ```typescript
-import { type ParamsOf } from 'vexnor';
+import { type ParamsOf } from '@vexnor/core';
 
 export const selectAccounts = sql`...`;
 

@@ -7,7 +7,7 @@ It converts Prisma model metadata (`PrismaModel`) into Vexnor runtime tables/vie
 ## Install
 
 ```bash
-pnpm add vexnor @vexnor/prisma @prisma/client
+pnpm add @vexnor/core @vexnor/prisma @prisma/client
 ```
 
 ## When to Use

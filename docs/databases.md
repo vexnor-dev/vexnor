@@ -7,7 +7,7 @@
 **Dialect:** `postgresql`
 
 ```bash
-npm install vexnor @vexnor/postgres pg
+npm install @vexnor/core @vexnor/postgres pg
 ```
 
 ### Connection Setup
@@ -101,7 +101,7 @@ import type { Point, Circle, Interval } from '@vexnor/postgres';
 **Dialect:** `tsql`
 
 ```bash
-npm install vexnor @vexnor/mssql mssql
+npm install @vexnor/core @vexnor/mssql mssql
 ```
 
 ### Connection Setup
@@ -182,7 +182,7 @@ import { jsonMany, jsonOne } from '@vexnor/mssql';
 **Dialect:** `sqlite`
 
 ```bash
-npm install vexnor @vexnor/sqlite3 better-sqlite3
+npm install @vexnor/core @vexnor/sqlite3 better-sqlite3
 ```
 
 ### Connection Setup
@@ -242,8 +242,8 @@ import { jsonMany, jsonOne } from '@vexnor/sqlite3';
 Wrap any connection with `connect()` to attach a `SqlQueryPipeline` — adding authorization, rate limiting, and audit logging to direct queries:
 
 ```typescript
-import { connect } from 'vexnor';
-import { SqlQueryPipeline } from 'vexnor/execution';
+import { connect } from '@vexnor/core';
+import { SqlQueryPipeline } from '@vexnor/core/execution';
 
 type AppContext = { userId: string; roles: string[] };
 

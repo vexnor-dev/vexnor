@@ -23,7 +23,7 @@ The client never sends SQL. It sends a hash that identifies a pre-registered que
 ```typescript
 // shared/queries/accounts.ts
 import '@vexnor/postgres';
-import { sql, row, param } from 'vexnor';
+import { sql, row, param } from '@vexnor/core';
 import { Account } from '../codegen/postgres/account-table.js';
 
 export const selectAccounts = sql`
@@ -43,7 +43,7 @@ export const insertAccount = Account.postgres.insertRows();
 
 ```typescript
 // server/registry.ts
-import { SqlQueryRegistry } from 'vexnor/execution';
+import { SqlQueryRegistry } from '@vexnor/core/execution';
 import * as accountQueries from '../shared/queries/accounts.js';
 import vexnorPostgres from '@vexnor/postgres';
 import { Pool } from 'pg';
@@ -60,7 +60,7 @@ Passing the module namespace directly registers all `SqlQuery` exports under the
 
 ```typescript
 // server/app.ts
-import { SqlError, SqlRunError } from 'vexnor/execution';
+import { SqlError, SqlRunError } from '@vexnor/core/execution';
 import { registry, pool } from './registry.js';
 
 app.post('/api/db', async (c) => {
@@ -87,7 +87,7 @@ app.post('/api/db', async (c) => {
 Map `SqlErrorCode` values to HTTP status codes so clients can handle errors programmatically:
 
 ```typescript
-import { SqlError, SqlRunError } from 'vexnor/execution';
+import { SqlError, SqlRunError } from '@vexnor/core/execution';
 
 const SQL_ERROR_STATUS: Record<string, number> = {
   QUERY_NOT_FOUND: 400,
@@ -118,7 +118,7 @@ For anonymous (unauthenticated) use, construct an `HttpRemoteClient` with the en
 
 ```typescript
 // client/remote-client.ts
-import { HttpRemoteClient } from 'vexnor';
+import { HttpRemoteClient } from '@vexnor/core';
 
 export const remoteClient = new HttpRemoteClient({ targetUrl: '/api/db' });
 ```
@@ -128,7 +128,7 @@ For authenticated use, provide a `headerResolver` that reads the token from your
 ```typescript
 // client/use-remote-client.ts
 import { useMemo } from 'react';
-import { HttpRemoteClient } from 'vexnor';
+import { HttpRemoteClient } from '@vexnor/core';
 import { useAuth } from './auth-context.js';
 
 export function useRemoteClient() {
@@ -214,7 +214,7 @@ export function AccountsGrid({ initialAccounts, initialParams }) {
 
 ```typescript
 // app/api/db/route.ts
-import { SqlError, SqlRunError } from 'vexnor/execution';
+import { SqlError, SqlRunError } from '@vexnor/core/execution';
 
 export async function POST(request: Request) {
   const args = await request.json();
@@ -306,7 +306,7 @@ Multiple plugins accumulate and all run on every execution.
 The built-in `TimeToLiveRateLimiter` covers the most common rate-limiting cases:
 
 ```typescript
-import { TimeToLiveRateLimiter } from 'vexnor/execution';
+import { TimeToLiveRateLimiter } from '@vexnor/core/execution';
 
 const limiter = new TimeToLiveRateLimiter({
   contextKeyResolver: (ctx) => ctx.userId,   // enables per-user metrics
@@ -330,7 +330,7 @@ limiter.clearContextMetrics(userId); // eager eviction on logout
 The built-in `AuditLogPlugin` covers audit logging:
 
 ```typescript
-import { AuditLogPlugin } from 'vexnor/execution';
+import { AuditLogPlugin } from '@vexnor/core/execution';
 
 registry.use(new AuditLogPlugin({
   contextLogResolver: ({ userId }) => ({ userId }), // opt-in — never logs raw context
@@ -343,7 +343,7 @@ registry.use(new AuditLogPlugin({
 For a fully custom plugin, implement the `QueryExecutionPlugin` interface directly:
 
 ```typescript
-import type { QueryExecutionPlugin } from 'vexnor/execution';
+import type { QueryExecutionPlugin } from '@vexnor/core/execution';
 
 const myPlugin: QueryExecutionPlugin = {
   name: 'my-plugin',
@@ -371,8 +371,8 @@ A `SqlQueryPipeline` is the execution engine behind every query run. It sequence
 Pipelines become useful directly when you want the same authorization, rate-limiting, and audit behaviour on **direct** (non-registry) query executions — for example in a background worker, a migration script, or a test that talks to a real database. You pass the pipeline to `connect()` alongside the DB connection:
 
 ```typescript
-import { connect } from 'vexnor';
-import { SqlQueryPipeline } from 'vexnor/execution';
+import { connect } from '@vexnor/core';
+import { SqlQueryPipeline } from '@vexnor/core/execution';
 
 type AppContext = { userId: string };
 
@@ -427,7 +427,7 @@ const copy = SqlQueryPipeline.from(pipeline);
 The plugin interface used by both `registry.use()` and `pipeline.use()` is identical:
 
 ```typescript
-import type { SqlQueryPipelinePlugin } from 'vexnor';
+import type { SqlQueryPipelinePlugin } from '@vexnor/core';
 
 const myPlugin: SqlQueryPipelinePlugin<AppContext> = {
   name: 'my-plugin',

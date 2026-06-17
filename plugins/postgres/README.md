@@ -7,7 +7,7 @@ Provides schema introspection, type mapping, query execution, JSON aggregation, 
 ## Install
 
 ```bash
-npm install vexnor @vexnor/postgres pg
+npm install @vexnor/core @vexnor/postgres pg
 ```
 
 ## Setup
@@ -26,7 +26,7 @@ Also works with `postgres.js` — pass a `postgres()` client as `db`.
 ## Executing Queries
 
 ```typescript
-import { sql, row, param } from 'vexnor';
+import { sql, row, param } from '@vexnor/core';
 import { Account } from './models/public.account-table.js';
 
 const findByEmail = sql`

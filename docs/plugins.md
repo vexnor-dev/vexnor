@@ -36,7 +36,7 @@ Subpath imports by database:
 ```typescript
 import { fromDrizzleTable, fromDrizzleView } from '@vexnor/drizzle/pg';
 import { account, accountOrderSummary } from './drizzle-schema.js';
-import { sql, row, param } from 'vexnor';
+import { sql, row, param } from '@vexnor/core';
 import '@vexnor/postgres';
 
 const Account = fromDrizzleTable(account);
@@ -67,7 +67,7 @@ const account = await findByEmail.postgres.any({
 import { fromTypeORM } from '@vexnor/typeorm';
 import { dataSource } from './typeorm-data-source.js';
 import { AccountEntity } from './account.entity.js';
-import { sql, row, param } from 'vexnor';
+import { sql, row, param } from '@vexnor/core';
 import '@vexnor/postgres';
 
 await dataSource.initialize();
@@ -162,7 +162,7 @@ Create a side-effect module (e.g. `src/db.ts`) that does two things:
 
 ```typescript
 // src/db.ts
-import { SqlQuery, SqlTable, newSqlQueryHandler } from 'vexnor';
+import { SqlQuery, SqlTable, newSqlQueryHandler } from '@vexnor/core';
 import { PostgresQueryHandler, newPostgresTableHandler, type PostgresTableHandler } from '@vexnor/postgres';
 import '@vexnor/postgres';
 
@@ -211,7 +211,7 @@ This is exactly what `import '@vexnor/postgres'` does internally. There is no di
 Implement the `VexnorPlugin` interface from `vexnor/plugin`:
 
 ```typescript
-import { VexnorPlugin } from 'vexnor/plugin';
+import { VexnorPlugin } from '@vexnor/core/plugin';
 
 class MyPlugin extends VexnorPlugin<{ Connection: MyConnection; Config: MyConfig }> {
   dialect = 'postgresql';

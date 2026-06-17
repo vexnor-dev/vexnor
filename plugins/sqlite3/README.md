@@ -7,7 +7,7 @@ Provides schema introspection, type mapping, query execution, JSON aggregation, 
 ## Install
 
 ```bash
-npm install vexnor @vexnor/sqlite3 better-sqlite3
+npm install @vexnor/core @vexnor/sqlite3 better-sqlite3
 ```
 
 ## Setup
@@ -26,7 +26,7 @@ const db = new Database('mydb.sqlite');
 ## Executing Queries
 
 ```typescript
-import { sql, row, param } from 'vexnor';
+import { sql, row, param } from '@vexnor/core';
 import { Account } from './models/account-table.js';
 
 const findByEmail = sql`

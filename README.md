@@ -102,7 +102,7 @@ In isomorphic mode, the browser never sends SQL at all — only a query hash. Ev
 5. Types flow end-to-end — no codegen, no shared API types to maintain
 
 ```typescript
-import { HttpRemoteClient } from 'vexnor';
+import { HttpRemoteClient } from '@vexnor/core';
 
 // Browser — auth-aware
 const remoteClient = new HttpRemoteClient({
@@ -121,13 +121,13 @@ See [Isomorphic SQL](docs/isomorphic-sql.md) for the full picture and comparison
 
 ```bash
 # PostgreSQL
-npm install vexnor @vexnor/postgres pg
+npm install @vexnor/core @vexnor/postgres pg
 
 # MS SQL Server
-npm install vexnor @vexnor/mssql mssql
+npm install @vexnor/core @vexnor/mssql mssql
 
 # SQLite
-npm install vexnor @vexnor/sqlite3 better-sqlite3
+npm install @vexnor/core @vexnor/sqlite3 better-sqlite3
 ```
 
 Generate types from your database schema:
@@ -148,7 +148,7 @@ Real SQL. Full type inference from what you select. Composable subqueries.
 
 ```typescript
 import { Account, AccountStatusUdt, Order, OrderItem } from './models/vexnor_dev.schema.js';
-import { sql, row, param, col } from 'vexnor';
+import { sql, row, param, col } from '@vexnor/core';
 import { jsonMany } from '@vexnor/postgres';
 import '@vexnor/postgres';
 
@@ -250,8 +250,8 @@ See [Transactions](docs/transactions.md) for all three drivers and options.
 Every query execution flows through a `SqlQueryPipeline` — a composable object that sequences authorization, rate limiting, audit logging, and observability in a single place. `SqlQueryRegistry` owns one by default; you can also attach a pipeline directly to any connection via `connect()` for background workers, scripts, or tests.
 
 ```typescript
-import { connect } from 'vexnor';
-import { SqlQueryPipeline, AuditLogPlugin, TimeToLiveRateLimiter, SqlQueryRegistry } from 'vexnor/execution';
+import { connect } from '@vexnor/core';
+import { SqlQueryPipeline, AuditLogPlugin, TimeToLiveRateLimiter, SqlQueryRegistry } from '@vexnor/core/execution';
 
 type AppContext = { userId: string; roles: string[] };
 
@@ -319,7 +319,7 @@ if (unprotected.length > 0) throw new Error(`Unprotected queries: ${unprotected.
 Built-in OpenTelemetry support creates a span for every query — including error code, SQL text on failure, and source location:
 
 ```typescript
-import 'vexnor/telemetry';
+import '@vexnor/core/telemetry';
 import { trace } from '@opentelemetry/api';
 
 registry.registerOpenTelemetry(trace.getTracer('my-service'));

@@ -179,7 +179,7 @@ Use `--no-confirm` to skip all prompts (useful in scripts).
 ### `vexnor.config.ts`
 
 ```typescript
-import { defineConfig } from 'vexnor/config';
+import { defineConfig } from '@vexnor/core/config';
 
 export default defineConfig({
   profiles: {
@@ -273,7 +273,7 @@ Either URI-based or individual fields:
 Define execution settings per query. The CLI uses `defineQueryConfig()` for type safety:
 
 ```typescript
-import { defineQueryConfig } from 'vexnor/config';
+import { defineQueryConfig } from '@vexnor/core/config';
 import { findActiveAccounts, findAccountById } from './queries.js';
 import vexnorPostgres from '@vexnor/postgres';
 
@@ -310,7 +310,7 @@ export default defineQueryConfig({ findActiveAccounts, findAccountById })({
 If a query uses `ctx()` parameters (runtime-injected values), use `contextValue` as a placeholder and provide the real value via `--context`:
 
 ```typescript
-import { contextValue } from 'vexnor';
+import { contextValue } from '@vexnor/core';
 
 export default defineQueryConfig({ selectMyOrders })({
   queries: {
