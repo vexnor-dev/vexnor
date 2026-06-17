@@ -112,7 +112,12 @@ jobs:
 
       - name: Prepare publishable packages
         run: |
-          VERSION=${GITHUB_REF#refs/tags/v}
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ inputs.tag || '0.0.0-dry-run' }}"
+            VERSION="${VERSION#v}"
+          else
+            VERSION=${GITHUB_REF#refs/tags/v}
+          fi
           echo "Setting version $VERSION on all packages"
 
           # Copy docs into @vexnor/core package
