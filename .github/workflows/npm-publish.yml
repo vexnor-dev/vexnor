@@ -299,7 +299,6 @@ jobs:
 
           publish_if_changed() {
             local pkg_dir="$1"
-            local src_dirs="$2"  # comma-separated source dirs to check
 
             # If no previous tag exists, publish everything
             if [ -z "$PREV_TAG" ]; then
@@ -308,17 +307,7 @@ jobs:
               return
             fi
 
-            # Check if any of the source dirs have changes
-            local has_changes=false
-            IFS=',' read -ra DIRS <<< "$src_dirs"
-            for dir in "${DIRS[@]}"; do
-              if [ -n "$(cd _source && git diff --name-only "$PREV_TAG...$CURRENT_TAG" -- "$dir")" ]; then
-                has_changes=true
-                break
-              fi
-            done
-
-            if [ "$has_changes" = true ]; then
+            if [ -n "$(cd _source && git diff --name-only "$PREV_TAG...$CURRENT_TAG" -- "$pkg_dir")" ]; then
               npm publish --ignore-scripts "./$pkg_dir" --access public --tag "$NPM_TAG" --provenance
               PUBLISHED="${PUBLISHED}  ✅ $pkg_dir\n"
             else
@@ -326,30 +315,14 @@ jobs:
             fi
           }
 
-          # Core first — if core changed, all packages should republish
-          CORE_CHANGED=false
-          if [ -z "$PREV_TAG" ] || [ -n "$(cd _source && git diff --name-only "$PREV_TAG...$CURRENT_TAG" -- packages/vexnor)" ]; then
-            CORE_CHANGED=true
-          fi
-
-          # Publish core
-          publish_if_changed "packages/vexnor" "packages/vexnor"
-
-          # Plugins — republish if core changed OR plugin dir changed
-          if [ "$CORE_CHANGED" = true ]; then
-            PLUGIN_SRC="packages/vexnor"
-          else
-            PLUGIN_SRC=""
-          fi
-          publish_if_changed "plugins/postgres" "plugins/postgres${PLUGIN_SRC:+,$PLUGIN_SRC}"
-          publish_if_changed "plugins/mssql" "plugins/mssql${PLUGIN_SRC:+,$PLUGIN_SRC}"
-          publish_if_changed "plugins/sqlite3" "plugins/sqlite3${PLUGIN_SRC:+,$PLUGIN_SRC}"
-
-          # ORMs — republish if core changed OR orm dir changed
-          publish_if_changed "orms/prisma" "orms/prisma${PLUGIN_SRC:+,$PLUGIN_SRC}"
-          publish_if_changed "orms/drizzle" "orms/drizzle${PLUGIN_SRC:+,$PLUGIN_SRC}"
-          publish_if_changed "orms/typeorm" "orms/typeorm${PLUGIN_SRC:+,$PLUGIN_SRC}"
-          publish_if_changed "orms/sequelize" "orms/sequelize${PLUGIN_SRC:+,$PLUGIN_SRC}"
+          publish_if_changed "packages/vexnor"
+          publish_if_changed "plugins/postgres"
+          publish_if_changed "plugins/mssql"
+          publish_if_changed "plugins/sqlite3"
+          publish_if_changed "orms/prisma"
+          publish_if_changed "orms/drizzle"
+          publish_if_changed "orms/typeorm"
+          publish_if_changed "orms/sequelize"
 
           # Report
           echo ""
