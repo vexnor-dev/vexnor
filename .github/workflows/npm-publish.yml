@@ -3,6 +3,20 @@ name: Publish Package to NPM
 on:
   release:
     types: [created]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run — detect changes and report without publishing'
+        required: true
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+      tag:
+        description: 'Tag to compare against (e.g. v1.0.0-beta.2). Uses latest tag if empty.'
+        required: false
+        type: string
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -169,7 +183,7 @@ jobs:
   publish:
     needs: build-and-test
     runs-on: ubuntu-latest
-    environment: production
+    environment: ${{ (github.event_name == 'workflow_dispatch' && inputs.dry_run == 'true') && '' || 'production' }}
     permissions:
       contents: read
       id-token: write
@@ -260,7 +274,19 @@ jobs:
       - name: Determine npm tag
         id: version
         run: |
-          VERSION=${GITHUB_REF#refs/tags/v}
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            # Use provided tag or latest tag
+            if [ -n "${{ inputs.tag }}" ]; then
+              VERSION="${{ inputs.tag }}"
+              VERSION="${VERSION#v}"
+            else
+              VERSION=$(cd _source && git describe --tags --abbrev=0)
+              VERSION="${VERSION#v}"
+            fi
+          else
+            VERSION=${GITHUB_REF#refs/tags/v}
+          fi
+
           if [[ "$VERSION" == *"-alpha"* ]]; then
             NPM_TAG="alpha"
           elif [[ "$VERSION" == *"-beta"* ]]; then
@@ -271,9 +297,11 @@ jobs:
             NPM_TAG="latest"
           fi
           echo "npm_tag=$NPM_TAG" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Publishing $VERSION with tag: $NPM_TAG"
 
       - name: Generate CHANGELOG.md from release notes
+        if: github.event_name == 'release'
         env:
           RELEASE_BODY: ${{ github.event.release.body }}
           RELEASE_URL: ${{ github.event.release.html_url }}
@@ -288,11 +316,26 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
         run: |
           NPM_TAG="${{ steps.version.outputs.npm_tag }}"
-          CURRENT_TAG="${GITHUB_REF#refs/tags/}"
+          DRY_RUN="${{ inputs.dry_run || 'false' }}"
+
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ inputs.tag }}" ]; then
+            CURRENT_TAG="${{ inputs.tag }}"
+          elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            CURRENT_TAG=$(cd _source && git describe --tags --abbrev=0)
+          else
+            CURRENT_TAG="${GITHUB_REF#refs/tags/}"
+          fi
 
           # Find previous tag
           PREV_TAG=$(cd _source && git tag --sort=-creatordate | grep -v "^${CURRENT_TAG}$" | head -1)
           echo "Comparing $PREV_TAG...$CURRENT_TAG"
+
+          if [ "$DRY_RUN" = "true" ]; then
+            echo "🏃 DRY RUN — no packages will be published"
+            echo "### 🏃 Dry Run Report" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### Publish Report" >> $GITHUB_STEP_SUMMARY
+          fi
 
           PUBLISHED=""
           SKIPPED=""
@@ -302,15 +345,24 @@ jobs:
 
             # If no previous tag exists, publish everything
             if [ -z "$PREV_TAG" ]; then
-              npm publish --ignore-scripts "./$pkg_dir" --access public --tag "$NPM_TAG" --provenance
+              if [ "$DRY_RUN" = "true" ]; then
+                echo "✅ $pkg_dir — WOULD publish (no previous tag)"
+              else
+                npm publish --ignore-scripts "./$pkg_dir" --access public --tag "$NPM_TAG" --provenance
+              fi
               PUBLISHED="${PUBLISHED}  ✅ $pkg_dir\n"
               return
             fi
 
             if [ -n "$(cd _source && git diff --name-only "$PREV_TAG...$CURRENT_TAG" -- "$pkg_dir")" ]; then
-              npm publish --ignore-scripts "./$pkg_dir" --access public --tag "$NPM_TAG" --provenance
+              if [ "$DRY_RUN" = "true" ]; then
+                echo "✅ $pkg_dir — WOULD publish"
+              else
+                npm publish --ignore-scripts "./$pkg_dir" --access public --tag "$NPM_TAG" --provenance
+              fi
               PUBLISHED="${PUBLISHED}  ✅ $pkg_dir\n"
             else
+              echo "⏭️  $pkg_dir — skipped (no changes)"
               SKIPPED="${SKIPPED}  ⏭️ $pkg_dir (no changes)\n"
             fi
           }
