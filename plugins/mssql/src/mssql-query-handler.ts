@@ -7,7 +7,7 @@ import {
    SqlErrorCode,
    deserialize,
    ok,
-   RemoteClient,
+   RemoteClient, getQueryName,
 } from "@vexnor/core";
 
 // MSSQL transient error numbers and codes safe to retry
@@ -131,7 +131,8 @@ export class MssqlQueryHandler<T extends { Params?: unknown; Row?: unknown }> ex
       try {
          return await request.query(text);
       } catch (err) {
-         throw new SqlRunError(`Error running MSSQL query.\n${text}`, this.source, {
+         const queryName = await getQueryName(this.source);
+         throw new SqlRunError(`Error running MSSQL query '${queryName ?? this.source.id}' at ${this.source.location}.`, this.source, {
             cause: err,
             sql: text,
             code: isRetryableMssqlError(err)
