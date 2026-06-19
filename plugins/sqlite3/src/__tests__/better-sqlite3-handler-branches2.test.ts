@@ -72,7 +72,7 @@ describe("BetterSqlite3QueryHandler — branches", () => {
          },
       };
       await expect(handler.execute({ db: fakeDb as never }, "read")).rejects.toThrow(
-         "Error running sqlite query",
+         "Error running SQLITE3 query",
       );
    });
 
