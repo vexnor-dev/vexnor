@@ -96,6 +96,12 @@ export class MssqlQueryHandler<T extends { Params?: unknown; Row?: unknown }> ex
       return result;
    }
 
+   serialize<TResult = IResult<T["Row"]>>(value: TResult): TResult {
+      const result = value as unknown as IResult<T["Row"]>;
+      const { recordsets, rowsAffected } = result;
+      return { recordsets, rowsAffected } as unknown as TResult;
+   }
+
    /**
     * Executes the query and returns the raw `mssql` `IResult`.
     *
