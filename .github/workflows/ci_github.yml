@@ -126,6 +126,9 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Reinstall after codegen
+        run: pnpm install --no-frozen-lockfile
+
       - name: Run tests
         run: pnpm test
 

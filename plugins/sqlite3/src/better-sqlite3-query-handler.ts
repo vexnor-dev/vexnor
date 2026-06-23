@@ -1,4 +1,5 @@
 import {
+   getQueryName,
    ok,
    type RemoteClient,
    SqlErrorCode,
@@ -123,7 +124,8 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
 
          return Promise.resolve(statement.run(queryConfig.values));
       } catch (err) {
-         throw new SqlRunError(`Error running sqlite query '${this.source.id}'`, this.source, {
+         const queryName = await getQueryName(this.source);
+         throw new SqlRunError(`Error running SQLITE3 query '${queryName ?? this.source.id}' at ${this.source.location}.`, this.source, {
             cause: err,
             sql: queryConfig?.sql,
             code: isRetryableSqliteError(err)

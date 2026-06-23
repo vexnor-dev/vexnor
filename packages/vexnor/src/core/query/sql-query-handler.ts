@@ -115,6 +115,10 @@ export abstract class SqlQueryHandler<
     */
    abstract deserialize(result: T["Read"], isRemoteClient: boolean): T["Read"];
 
+   serialize(value: T["Read"]): T["Read"] {
+      return value;
+   }
+
    isReadResult(result: unknown): result is T["Read"] {
       return typeof result === "object" && result !== null && "rows" in result && Array.isArray(result.rows);
    }
@@ -183,17 +187,19 @@ export abstract class SqlQueryHandler<
                      this.runLocal({ ...args, db: rawDb } as SqlRunArgs<Pick<T, "Connection" | "Params">>, mode),
                   ),
                args.options,
-            );
+            ).then(data => {
+               return this.serialize(data);
+            });
          }
 
-         return await runWithRetry(args.options?.retry, undefined, () =>
+         return this.serialize(await runWithRetry(args.options?.retry, undefined, () =>
             this.runLocal({ ...args, db: rawDb } as SqlRunArgs<Pick<T, "Connection" | "Params">>, mode),
-         );
+         ));
       }
 
-      return await runWithRetry(args.options?.retry, undefined, () =>
+      return this.serialize(await runWithRetry(args.options?.retry, undefined, () =>
          this.runLocal({ ...args, db: resolvedDb } as SqlRunArgs<Pick<T, "Connection" | "Params">>, mode),
-      );
+      ));
    }
 
    async runLocal(

@@ -1,5 +1,5 @@
 import {
-   deserialize,
+   deserialize, getQueryName,
    ok,
    RemoteClient,
    SqlErrorCode,
@@ -76,6 +76,11 @@ export class PostgresQueryHandler<T extends { Row?: unknown; Params?: unknown }>
       return result as TResult;
    }
 
+   serialize<TResult extends QueryResult<RowOrDefault<T["Row"]>> = QueryResult<RowOrDefault<T["Row"]>>>(value: TResult): TResult {
+      const { rows, rowCount, command, oid } = value;
+      return { rows, rowCount, command, oid } as TResult;
+   }
+
    /**
     * Executes the query and returns the raw `pg` `QueryResult`.
     *
@@ -97,7 +102,8 @@ export class PostgresQueryHandler<T extends { Row?: unknown; Params?: unknown }>
          const { text, values } = queryInput;
          return await resolvedDb.query({ text, values });
       } catch (err) {
-         throw new SqlRunError(`Error running postgres query '${this.source.id}'`, this.source, {
+         const queryName = await getQueryName(this.source);
+         throw new SqlRunError(`Error running POSTGRES query '${queryName ?? this.source.id}' at ${this.source.location}.`, this.source, {
             cause: err,
             sql: queryInput?.text,
             code: isRetryablePgError(err) ? SqlErrorCode.QUERY_RETRYABLE_FAILURE : SqlErrorCode.QUERY_EXECUTION_FAILED,
