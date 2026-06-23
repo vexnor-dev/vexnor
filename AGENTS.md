@@ -75,6 +75,13 @@ This is a serious, high-quality codebase. No shortcuts. No lazy work. Ever.
 - Use `toMatchInlineSnapshot()` for all SQL text and values output — write empty calls first, then populate by running with `-u`.
 - Do not ship code without running the full test suite and confirming it passes.
 
+## Git commits by AI
+
+- Every commit must have a comprehensive commit message: summary line + detailed body explaining what changed and why.
+- Before committing, AI must prove local CI passed by running: build all packages, run all tests.
+- If build or tests fail, fix them first — never commit broken code.
+- Include the build/test evidence (counts, pass/fail) in the commit process.
+
 ## Snapshot assertions
 
 - ALWAYS use `toMatchInlineSnapshot()` when asserting string or object outputs in tests — never use `toContain`, `toBe`, `toEqual`, `toStrictEqual`, or `not.toContain` for string or object output assertions.
