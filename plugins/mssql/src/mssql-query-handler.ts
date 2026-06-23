@@ -8,6 +8,7 @@ import {
    deserialize,
    ok,
    RemoteClient, getQueryName,
+   type QueryMeta,
 } from "@vexnor/core";
 
 // MSSQL transient error numbers and codes safe to retry
@@ -26,6 +27,8 @@ import type { ConnectionPool, IResult, Request } from "mssql";
 import { defaultQueryOptions } from "./default-query-options.js";
 import pkg from "../package.json" with { type: "json" };
 
+export type MssqlResult<T> = IResult<T>;
+
 export const PLUGIN_NAME = pkg.name;
 
 export type MssqlClient = Request | ConnectionPool;
@@ -33,15 +36,15 @@ export type MssqlClient = Request | ConnectionPool;
 export class MssqlQueryHandler<T extends { Params?: unknown; Row?: unknown }> extends SqlQueryHandler<
    Pick<T, "Row" | "Params"> & {
       Connection: MssqlClient | RemoteClient;
-      Read: IResult<T["Row"]>;
-      Write: IResult<T["Row"]>;
+      Read: MssqlResult<T["Row"]>;
+      Write: MssqlResult<T["Row"]>;
    }
 > {
    constructor(readonly source: SqlQuery<Pick<T, "Row" | "Params">>) {
       super(source, { pluginName: PLUGIN_NAME });
    }
 
-   isReadResult(result: unknown): result is IResult<T["Row"]> {
+   isReadResult(result: unknown): result is MssqlResult<T["Row"]> {
       return (
          typeof result === "object" && result !== null && "recordsets" in result && Array.isArray(result.recordsets)
       );
@@ -67,13 +70,13 @@ export class MssqlQueryHandler<T extends { Params?: unknown; Row?: unknown }> ex
       }
    }
 
-   resolveRows(result: IResult<T["Row"]>): T["Row"][] {
+   resolveRows(result: MssqlResult<T["Row"]>): T["Row"][] {
       ok(Array.isArray(result.recordsets), `MSSQL query result doesn't have a 'recordsets' array.`);
       ok(result.recordsets[0], `MSSQL query result doesn't have any results in 'recordsets' array.`);
       return (result.recordsets[0] as T["Row"][]) ?? [];
    }
 
-   deserialize<TResult = IResult<T["Row"]>>(result: TResult, isRemoteClient: boolean): TResult {
+   deserialize<TResult = MssqlResult<T["Row"]>>(result: TResult, isRemoteClient: boolean): TResult {
       ok(this.isReadResult(result), `MSSQL query result should be an object with a 'recordsets' property.`);
       const rowSchema = this.getRowSchema(isRemoteClient);
       const { recordsets } = result;
@@ -92,14 +95,14 @@ export class MssqlQueryHandler<T extends { Params?: unknown; Row?: unknown }> ex
          }
       }
 
-      result.recordset = (recordsets[0] ?? []) as IResult<T["Row"]>["recordset"];
+      result.recordset = (recordsets[0] ?? []) as MssqlResult<T["Row"]>["recordset"];
       return result;
    }
 
-   serialize<TResult = IResult<T["Row"]>>(value: TResult): TResult {
-      const result = value as unknown as IResult<T["Row"]>;
+   serialize<TResult extends MssqlResult<T["Row"]> = MssqlResult<T["Row"]>>(value: TResult): TResult {
+      const result = value as MssqlResult<T["Row"]>;
       const { recordsets, rowsAffected } = result;
-      return { recordsets, rowsAffected } as unknown as TResult;
+      return { recordsets, rowsAffected } as TResult;
    }
 
    /**
@@ -111,7 +114,7 @@ export class MssqlQueryHandler<T extends { Params?: unknown; Row?: unknown }> ex
     *
     * @param args - Database connection and query parameters.
     */
-   async execute(args: SqlRunArgs<{ Connection: MssqlClient; Params: T["Params"] }>): Promise<IResult<T["Row"]>> {
+   async execute(args: SqlRunArgs<{ Connection: MssqlClient; Params: T["Params"] }>, _mode?: unknown, meta?: QueryMeta) {
       const { db, options: { debug } = {} } = args;
       const resolved = await db;
       const request =
@@ -135,7 +138,9 @@ export class MssqlQueryHandler<T extends { Params?: unknown; Row?: unknown }> ex
       }
 
       try {
-         return await request.query(text);
+         const result: IResult<T["Row"]> = await request.query(text);
+         if (meta) { meta.sql = text; meta.params = values; }
+         return result;
       } catch (err) {
          const queryName = await getQueryName(this.source);
          throw new SqlRunError(`Error running MSSQL query '${queryName ?? this.source.id}' at ${this.source.location}.`, this.source, {

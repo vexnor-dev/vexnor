@@ -1,4 +1,5 @@
-import type { RemoteClient } from "#/core/query/sql-query-types.js";
+import type { QueryMeta, RemoteClient } from "#/core/query/sql-query-types.js";
+import { setQueryMeta } from "#/core/query/query-meta-store.js";
 
 type HeaderRecord = Record<string, string>;
 
@@ -28,6 +29,7 @@ export class HttpRemoteClient implements RemoteClient {
 
    async remoteExecute<TResult>(request: Parameters<RemoteClient["remoteExecute"]>[0]): Promise<TResult> {
       const resolvedHeaders = this.headerResolver ? await this.headerResolver(request) : {};
+      const start = performance.now();
       const response = await this.fetch(this.targetUrl, {
          method: "POST",
          headers: {
@@ -38,6 +40,14 @@ export class HttpRemoteClient implements RemoteClient {
          body: JSON.stringify(request),
       });
       if (!response.ok) throw new Error(`Query failed: ${response.status}`);
-      return response.json() as Promise<TResult>;
+      const json = await response.json();
+      const sqlHeader = response.headers.get("x-query-sql");
+      const sql = sqlHeader
+         ? (typeof atob === "function" ? atob(sqlHeader) : Buffer.from(sqlHeader, "base64").toString())
+         : undefined;
+      const meta: QueryMeta = { sql, duration: performance.now() - start };
+      if (request.meta) Object.assign(request.meta, meta);
+      setQueryMeta(json, meta);
+      return json as TResult;
    }
 }
