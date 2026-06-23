@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
-import { param, row, sql } from "@vexnor/core";
+import { insert, param, row, sql } from "@vexnor/core";
 import "@vexnor/postgres";
 import { ITypeCoverageSelect, TypeCoverage } from "./codegen/vexnor_dev.type_coverage-table.js";
 import { pool } from "./postgres-pool.js";
@@ -9,7 +9,9 @@ describe("postgres type coverage", () => {
 
    beforeAll(async () => {
       inserted = await sql`
-         insert into ${TypeCoverage} ${TypeCoverage.insertColsVals({
+         insert into ${TypeCoverage} ${insert(TypeCoverage, "rows")}
+         returning ${row(TypeCoverage.$$)}
+      `.postgres.one({ db: pool, params: { rows: [{
             colText: "hello",
             colVarchar: "world",
             colBpchar: "char      ",
@@ -48,9 +50,7 @@ describe("postgres type coverage", () => {
             colPath: "[(0,0),(1,1),(2,0)]",
             colPolygon: "((0,0),(1,1),(2,0))",
             colCircle: "<(1,1),5>",
-         })}
-         returning ${row(TypeCoverage.$$)}
-      `.postgres.one({ db: pool });
+         }] } });
    });
 
    afterAll(async () => {

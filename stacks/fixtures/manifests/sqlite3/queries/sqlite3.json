@@ -1,0 +1,276 @@
+{
+  "version": 1,
+  "generatorVersion": "1.0.0-beta.1",
+  "dialect": "sqlite",
+  "queries": {
+    "ec0d5256cdf584c9cf136017e5a046e8105b9921393b2218b210aa4f994db7f7": {
+      "name": "insertAccounts",
+      "location": "stacks/fixtures/queries/sqlite3.ts:21:31",
+      "hash": "ec0d5256cdf584c9cf136017e5a046e8105b9921393b2218b210aa4f994db7f7",
+      "template": [
+        {
+          "type": "text",
+          "value": "\n   INSERT INTO \"main\".\"account\"\n   "
+        },
+        {
+          "type": "insert",
+          "param": "rows",
+          "columns": {
+            "accountId": "\"account_id\"",
+            "status": "\"status\"",
+            "email": "\"email\"",
+            "firstName": "\"first_name\"",
+            "lastName": "\"last_name\"",
+            "notes": "\"notes\"",
+            "createdAt": "\"created_at\"",
+            "modifiedAt": "\"modified_at\"",
+            "parentId": "\"parent_id\""
+          }
+        },
+        {
+          "type": "text",
+          "value": "\n   RETURNING \"account\".\"account_id\" as \"accountId\", \"account\".\"status\", \"account\".\"email\", \"account\".\"first_name\" as \"firstName\", \"account\".\"last_name\" as \"lastName\", \"account\".\"notes\", \"account\".\"created_at\" as \"createdAt\", \"account\".\"modified_at\" as \"modifiedAt\", \"account\".\"parent_id\" as \"parentId\"\n"
+        }
+      ],
+      "params": {
+        "rows": {
+          "name": "rows",
+          "isContext": false
+        }
+      },
+      "row": null,
+      "authorization": []
+    },
+    "f3a1bfe7b68b7b220f36109a979c20276e24e498e3322b0973f401f7ebc6328f": {
+      "name": "selectByStatus",
+      "location": "stacks/fixtures/queries/sqlite3.ts:9:31",
+      "hash": "f3a1bfe7b68b7b220f36109a979c20276e24e498e3322b0973f401f7ebc6328f",
+      "template": [
+        {
+          "type": "text",
+          "value": "\n   SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\"\n   FROM \"main\".\"account\" as \"a_1\"\n   WHERE \"a_1\".\"status\" = "
+        },
+        {
+          "type": "param",
+          "name": "status"
+        },
+        {
+          "type": "text",
+          "value": "\n"
+        }
+      ],
+      "params": {
+        "status": {
+          "name": "status",
+          "isContext": false
+        }
+      },
+      "row": null,
+      "authorization": []
+    },
+    "1f6d57de343044708b8ebe27a209f4599398357582a62c3fcfa4523c4967f120": {
+      "name": "selectConditional",
+      "location": "stacks/fixtures/queries/sqlite3.ts:40:34",
+      "hash": "1f6d57de343044708b8ebe27a209f4599398357582a62c3fcfa4523c4967f120",
+      "template": [
+        {
+          "type": "text",
+          "value": "\n   SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\"\n   FROM \"main\".\"account\" as \"a_1\"\n   WHERE \"a_1\".\"status\" = "
+        },
+        {
+          "type": "param",
+          "name": "status"
+        },
+        {
+          "type": "text",
+          "value": "\n   "
+        },
+        {
+          "type": "when",
+          "param": "email",
+          "onTrue": [
+            {
+              "type": "text",
+              "value": "AND \"a_1\".\"email\" = "
+            },
+            {
+              "type": "param",
+              "name": "email"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "value": "\n"
+        }
+      ],
+      "params": {
+        "status": {
+          "name": "status",
+          "isContext": false
+        },
+        "email": {
+          "name": "email",
+          "isContext": false
+        }
+      },
+      "row": null,
+      "authorization": []
+    },
+    "0d09cf0f5762616973d3f17272ff3f6735e75e6809a14e03ef6ec28e4a9a1a7f": {
+      "name": "selectOrdered",
+      "location": "stacks/fixtures/queries/sqlite3.ts:34:30",
+      "hash": "0d09cf0f5762616973d3f17272ff3f6735e75e6809a14e03ef6ec28e4a9a1a7f",
+      "template": [
+        {
+          "type": "text",
+          "value": "\n   SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\"\n   FROM \"main\".\"account\" as \"a_1\"\n   "
+        },
+        {
+          "type": "orderBy",
+          "param": "order",
+          "columns": {
+            "accountId": "\"a_1\".\"account_id\"",
+            "status": "\"a_1\".\"status\"",
+            "email": "\"a_1\".\"email\"",
+            "firstName": "\"a_1\".\"first_name\"",
+            "lastName": "\"a_1\".\"last_name\"",
+            "notes": "\"a_1\".\"notes\"",
+            "createdAt": "\"a_1\".\"created_at\"",
+            "modifiedAt": "\"a_1\".\"modified_at\"",
+            "parentId": "\"a_1\".\"parent_id\""
+          }
+        },
+        {
+          "type": "text",
+          "value": "\n"
+        }
+      ],
+      "params": {
+        "order": {
+          "name": "order",
+          "isContext": false
+        }
+      },
+      "row": null,
+      "authorization": []
+    },
+    "ea0a757c5e4c0a63e4217ab7cc518ce4bb4031ef100994d28f2c1a12b30a3bb9": {
+      "name": "selectWithFilter",
+      "location": "stacks/fixtures/queries/sqlite3.ts:15:33",
+      "hash": "ea0a757c5e4c0a63e4217ab7cc518ce4bb4031ef100994d28f2c1a12b30a3bb9",
+      "template": [
+        {
+          "type": "text",
+          "value": "\n   SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\"\n   FROM \"main\".\"account\" as \"a_1\"\n   WHERE "
+        },
+        {
+          "type": "filter",
+          "param": "filter",
+          "columns": {
+            "accountId": "\"a_1\".\"account_id\"",
+            "status": "\"a_1\".\"status\"",
+            "email": "\"a_1\".\"email\"",
+            "firstName": "\"a_1\".\"first_name\"",
+            "lastName": "\"a_1\".\"last_name\"",
+            "notes": "\"a_1\".\"notes\"",
+            "createdAt": "\"a_1\".\"created_at\"",
+            "modifiedAt": "\"a_1\".\"modified_at\"",
+            "parentId": "\"a_1\".\"parent_id\""
+          }
+        },
+        {
+          "type": "text",
+          "value": "\n"
+        }
+      ],
+      "params": {
+        "filter": {
+          "name": "filter",
+          "isContext": false,
+          "validation": {
+            "type": "filter",
+            "columns": [
+              "accountId",
+              "status",
+              "email",
+              "firstName",
+              "lastName",
+              "notes",
+              "createdAt",
+              "modifiedAt",
+              "parentId"
+            ],
+            "operators": [
+              "equal",
+              "not",
+              "greaterThan",
+              "greaterOrEqual",
+              "lowerThan",
+              "lowerOrEqual",
+              "between",
+              "in",
+              "notIn",
+              "like",
+              "notLike",
+              "isNull",
+              "isNotNull"
+            ]
+          }
+        }
+      },
+      "row": null,
+      "authorization": []
+    },
+    "49103fab4a1a66fa1fcb6f3dba2b89b3ce5f6e993b2d5d153d1913eee35cd6fb": {
+      "name": "updateAccount",
+      "location": "stacks/fixtures/queries/sqlite3.ts:27:30",
+      "hash": "49103fab4a1a66fa1fcb6f3dba2b89b3ce5f6e993b2d5d153d1913eee35cd6fb",
+      "template": [
+        {
+          "type": "text",
+          "value": "\n   UPDATE \"main\".\"account\"\n   "
+        },
+        {
+          "type": "set",
+          "param": "set",
+          "columns": {
+            "accountId": "\"account_id\"",
+            "status": "\"status\"",
+            "email": "\"email\"",
+            "firstName": "\"first_name\"",
+            "lastName": "\"last_name\"",
+            "notes": "\"notes\"",
+            "createdAt": "\"created_at\"",
+            "modifiedAt": "\"modified_at\"",
+            "parentId": "\"parent_id\""
+          }
+        },
+        {
+          "type": "text",
+          "value": "\n   WHERE \"account\".\"account_id\" = "
+        },
+        {
+          "type": "param",
+          "name": "accountId"
+        },
+        {
+          "type": "text",
+          "value": "\n   RETURNING \"account\".\"account_id\" as \"accountId\", \"account\".\"status\", \"account\".\"email\", \"account\".\"first_name\" as \"firstName\", \"account\".\"last_name\" as \"lastName\", \"account\".\"notes\", \"account\".\"created_at\" as \"createdAt\", \"account\".\"modified_at\" as \"modifiedAt\", \"account\".\"parent_id\" as \"parentId\"\n"
+        }
+      ],
+      "params": {
+        "set": {
+          "name": "set",
+          "isContext": false
+        },
+        "accountId": {
+          "name": "accountId",
+          "isContext": false
+        }
+      },
+      "row": null,
+      "authorization": []
+    }
+  }
+}

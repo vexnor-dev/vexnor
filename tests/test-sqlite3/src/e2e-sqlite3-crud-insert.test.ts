@@ -1,28 +1,28 @@
 import { describe, expect, test } from "vitest";
 import { ok } from "node:assert";
 import { randomUUID } from "node:crypto";
-import { row, val } from "@vexnor/core";
+import { insert, row, val } from "@vexnor/core";
 import { sql, sqlite3InsertRows, sqlite3InsertFrom } from "@vexnor/sqlite3";
 import { Account, IAccountInsert } from "./codegen/main.account-table.js";
 import { db } from "./config.js";
 
 describe.sequential("vexnor sqlite3 CRUD - insert", () => {
    test("insertRows: single row returns full select", async () => {
-      const insert: IAccountInsert = {
+      const insertData: IAccountInsert = {
          accountId: randomUUID(),
          email: `insert-rows-single-${randomUUID()}@example.com`,
          firstName: "Insert",
          lastName: "Single",
       };
 
-      const result = await sqlite3InsertRows(Account).one({ db, params: { rows: [insert] } });
+      const result = await sqlite3InsertRows(Account).one({ db, params: { rows: [insertData] } });
 
       expect(result).toEqual(
          expect.objectContaining({
-            accountId: insert.accountId,
-            email: insert.email,
-            firstName: insert.firstName,
-            lastName: insert.lastName,
+            accountId: insertData.accountId,
+            email: insertData.email,
+            firstName: insertData.firstName,
+            lastName: insertData.lastName,
             status: "created",
          }),
       );
@@ -69,9 +69,9 @@ describe.sequential("vexnor sqlite3 CRUD - insert", () => {
       };
       const parent = await sql`
          insert into ${Account}
-            ${Account.insertColsVals(parentInsert)}
+            ${insert(Account, "rows")}
          returning ${row(Account.$$)}
-      `.sqlite.one({ db });
+      `.sqlite.one({ db, params: { rows: [parentInsert] } });
 
       const childId = randomUUID();
 

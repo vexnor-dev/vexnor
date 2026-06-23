@@ -5,17 +5,20 @@ import { SqlTableIdentity } from "#/core/schema/sql-table-identity.js";
 import { SqlTableFormat } from "#/core/builder/default-formatter.js";
 import { Lazy } from "#/lib/lazy.js";
 import { SqlTableAll } from "#/core/charms/sql-table-all.js";
-import { newSqlTableColumn, SqlTableColumnAny } from "#/core/schema/sql-table-column.js";
-import { ok } from "#/lib/assert.js";
-import { TableUpdateSet } from "#/core/charms/table-update-set.js";
-import { TableInsertValues } from "#/core/charms/table-insert-values.js";
-import { TableInsertCols } from "#/core/charms/table-insert-cols.js";
-import { TableInsertRows } from "#/core/charms/table-insert-rows.js";
+import { newSqlTableColumn, SqlTableColumn, SqlTableColumnAny } from "#/core/schema/sql-table-column.js";
+
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
 import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
 import { CACHE, registerResetHook } from "#/lib/cache.js";
 import { SqlJsonType } from "#/core/utils/sql-json-schema.js";
 import { SqlLiteralType } from "#/plugin/sql-literal.js";
+
+export type SqlTableTypeArgs = {
+   Select: Record<string, unknown>;
+   Insert?: Record<string, unknown>;
+   Update?: Record<string, unknown>;
+   Delete?: boolean;
+};
 
 export type SqlTableForeignKey = {
    from: string[];
@@ -30,14 +33,7 @@ export type SqlTableDbColumnSchema = {
    values?: string[];
 };
 
-export type SqlTableOptions<
-   T extends {
-      Select: Record<string, unknown>;
-      Insert?: Record<string, unknown>;
-      Update?: Record<string, unknown>;
-      Delete?: boolean;
-   },
-> = {
+export type SqlTableOptions<T extends SqlTableTypeArgs> = {
    readonly columns: Record<keyof T["Select"], string>;
    readonly jsonSchema?: Partial<Record<keyof T["Select"], SqlJsonType>>;
    readonly fk?: SqlTableForeignKey[];
@@ -56,42 +52,13 @@ export type SqlTableRow<
    (strings: TemplateStringsArray): SqlTableExtended<T>;
 };
 
-export type SqlTableExtended<
-   T extends {
-      Select: Record<string, unknown>;
-      Insert?: Record<string, unknown>;
-      Update?: Record<string, unknown>;
-      Delete?: boolean;
-   },
-> = SqlTable<T> & SqlTableRow<T>;
+export type SqlTableExtended<T extends SqlTableTypeArgs> = SqlTable<T> & SqlTableRow<T>;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlTableExtendedAny = SqlTableExtended<any>;
 
-export class SqlTable<
-   T extends {
-      Select: Record<string, unknown>;
-      Insert?: Record<string, unknown>;
-      Update?: Record<string, unknown>;
-      Delete?: boolean;
-   },
-> extends Sql {
+export class SqlTable<T extends SqlTableTypeArgs> extends Sql {
    private static registry = new Map<string, SqlTableAny>();
-
-   static resolve({ source, schema, table }: { source: string; schema: string; table: string }): SqlTableAny | undefined {
-      return SqlTable.registry.get(`${source}:${schema}.${table}`);
-   }
-
-   static clearRegistry(): void {
-      SqlTable.registry.clear();
-   }
-
-   static register(table: SqlTableAny): void {
-      if (table.source && !table.tableInfo.alias) {
-         SqlTable.registry.set(`${table.source}:${table.tableInfo.schema}.${table.tableInfo.name}`, table);
-      }
-   }
-
    readonly tableInfo: SqlTableIdentity;
    readonly format: SqlTableFormat | null;
    readonly pk: Array<keyof T["Select"]>;
@@ -100,14 +67,13 @@ export class SqlTable<
    readonly columnTypes: Partial<Record<keyof T["Select"], SqlJsonType>>;
    readonly fk: SqlTableForeignKey[];
    readonly dbSchema: Partial<Record<keyof T["Select"], SqlTableDbColumnSchema>>;
+   private readonly _cols: Lazy<InferTable$RowBySelect<T["Select"]>>;
+   private readonly _out: Lazy<InferTable$RowBySelect<T["Select"]>>;
+   private readonly _$$: Lazy<SqlTableAll<T["Select"]>>;
 
    // TODO: ideas for later: onBeforeInsert|onBeforeUpdate|onAfterInsert|onAfterUpdate  ((T) => T) ?
    // readonly onInsert?: T["Insert"] extends Record<string, unknown> ? (value: T["Insert"]) => T["Insert"] : boolean;
    // readonly onUpdate?: T["Update"] extends Record<string, unknown> ? (value: T["Update"]) => T["Update"] : boolean;
-
-   private readonly _cols: Lazy<InferTable$RowBySelect<T["Select"]>>;
-   private readonly _out: Lazy<InferTable$RowBySelect<T["Select"]>>;
-   private readonly _$$: Lazy<SqlTableAll<T["Select"]>>;
    private readonly _crudConfig: SqlTableCrudConfig<T>;
 
    constructor(args: SqlTableOptions<T> | SqlTable<T>) {
@@ -151,6 +117,10 @@ export class SqlTable<
       }
    }
 
+   get colKeys(): Extract<keyof T["Select"], string>[] {
+      return Object.values(this.cols).map((z) => z.key) as Extract<keyof T["Select"], string>[];
+   }
+
    get cols(): InferTable$RowBySelect<T["Select"]> {
       return this._cols.value;
    }
@@ -166,6 +136,28 @@ export class SqlTable<
 
    get crud(): SqlTableCrudConfig<T> {
       return this._crudConfig;
+   }
+
+   static resolve({
+      source,
+      schema,
+      table,
+   }: {
+      source: string;
+      schema: string;
+      table: string;
+   }): SqlTableAny | undefined {
+      return SqlTable.registry.get(`${source}:${schema}.${table}`);
+   }
+
+   static clearRegistry(): void {
+      SqlTable.registry.clear();
+   }
+
+   static register(table: SqlTableAny): void {
+      if (table.source && !table.tableInfo.alias) {
+         SqlTable.registry.set(`${table.source}:${table.tableInfo.schema}.${table.tableInfo.name}`, table);
+      }
    }
 
    /** Resolves a foreign key reference to the target SqlTable instance via the static registry. */
@@ -220,83 +212,13 @@ export class SqlTable<
       );
    }
 
-   column(key: string): SqlTableColumnAny {
+   column<Key extends Extract<keyof T["Select"], string>>(
+      key: Key,
+   ): SqlTableColumn<{ Key: Key; Type: T["Select"][Key] }> {
       const result = this.cols[key as keyof T["Select"]];
       if (!result) throw new Error(`Column not found: ${this.tableInfo.name}.${String(key)}`);
 
       return result as unknown as SqlTableColumnAny;
-   }
-
-   /**
-    * Generates the `SET col1 = ?, col2 = ?` clause for an UPDATE statement.
-    *
-    * @param update - An object containing the columns and values to update.
-    *
-    * @example
-    * sql`
-    *   UPDATE ${Account}
-    *   SET ${Account.updateSet({ firstName: "Jane", email: "jane@example.com" })}
-    *   WHERE ${Account.$accountId} = ${accountId}
-    *   RETURNING ${row(Account.$$)}
-    * `
-    */
-   updateSet<U extends T["Update"]>(update: U): T["Update"] extends undefined ? never : Sql {
-      ok(update, `Update is required`);
-      ok(Object.keys(update), `Update doesn't have any values`);
-      return new TableUpdateSet(this.cols, update) as unknown as T["Update"] extends undefined ? never : Sql;
-   }
-
-   /**
-    * Generates the `("col1", "col2") VALUES (?, ?), (?, ?)` clause for an INSERT statement.
-    *
-    * Accepts one or more insert objects. All objects must share the same set of keys.
-    *
-    * @param inserts - One or more objects containing the data to insert.
-    *
-    * @example
-    * // Single row
-    * sql`INSERT INTO ${Account} ${Account.insertColsVals({ firstName: "John", email: "john@example.com" })}`
-    *
-    * @example
-    * // Batch insert
-    * sql`
-    *   INSERT INTO ${Account}
-    *   ${Account.insertColsVals(
-    *     { firstName: "John", email: "john@example.com" },
-    *     { firstName: "Jane", email: "jane@example.com" }
-    *   )}
-    *   RETURNING ${row(Account.$$)}
-    * `
-    */
-   insertColsVals(...inserts: T["Insert"][]): T["Insert"] extends undefined ? never : Sql {
-      ok(insertsAreValid(inserts), `Invalid inserts`);
-      return new TableInsertValues(this.cols, inserts) as never as T["Insert"] extends undefined ? never : Sql;
-   }
-
-   /**
-    * Generates only the column list `("col1", "col2")` for an INSERT statement.
-    *
-    * Use together with `insertVals()` when you need to separate the column list
-    * from the values clause (e.g. for INSERT ... SELECT patterns).
-    *
-    * @param inserts - One or more objects whose keys determine the column list.
-    */
-   insertCols(...inserts: T["Insert"][]): T["Insert"] extends undefined ? never : Sql {
-      ok(insertsAreValid(inserts), `Invalid inserts`);
-      return new TableInsertCols(this.cols, inserts) as never as T["Insert"] extends undefined ? never : Sql;
-   }
-
-   /**
-    * Generates only the `VALUES (?, ?), (?, ?)` clause for an INSERT statement.
-    *
-    * Use together with `insertCols()` when you need to separate the column list
-    * from the values clause (e.g. for INSERT ... SELECT patterns).
-    *
-    * @param inserts - One or more objects containing the data to insert.
-    */
-   insertVals(...inserts: T["Insert"][]): T["Insert"] extends undefined ? never : Sql {
-      ok(insertsAreValid(inserts), `Invalid inserts`);
-      return new TableInsertRows(this.cols, inserts) as never as T["Insert"] extends undefined ? never : Sql;
    }
 
    // eslint-disable-next-line unused-imports/no-unused-vars
@@ -464,9 +386,4 @@ export function newSqlTableProxy<
          }
       },
    }) as Table & SqlTableRow<T> & Extra;
-}
-
-function insertsAreValid(values: unknown[]): values is Record<string, unknown>[] {
-   if (!values.length) return false;
-   return !values.some((value) => !value);
 }

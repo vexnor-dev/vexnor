@@ -1,0 +1,16 @@
+/Users/adrian/Work/vexnor-dev-portable-queries/stacks/dotnet/src/Vexnor.Sqlite3/bin/Debug/net10.0/Vexnor.Sqlite3.deps.json
+/Users/adrian/Work/vexnor-dev-portable-queries/stacks/dotnet/src/Vexnor.Sqlite3/bin/Debug/net10.0/Vexnor.Sqlite3.dll
+/Users/adrian/Work/vexnor-dev-portable-queries/stacks/dotnet/src/Vexnor.Sqlite3/bin/Debug/net10.0/Vexnor.Sqlite3.pdb
+/Users/adrian/Work/vexnor-dev-portable-queries/stacks/dotnet/src/Vexnor.Sqlite3/bin/Debug/net10.0/Vexnor.Core.dll
+/Users/adrian/Work/vexnor-dev-portable-queries/stacks/dotnet/src/Vexnor.Sqlite3/bin/Debug/net10.0/Vexnor.Core.pdb
+/Users/adrian/Work/vexnor-dev-portable-queries/stacks/dotnet/src/Vexnor.Sqlite3/obj/Debug/net10.0/Vexnor.Sqlite3.csproj.AssemblyReference.cache
+/Users/adrian/Work/vexnor-dev-portable-queries/stacks/dotnet/src/Vexnor.Sqlite3/obj/Debug/net10.0/Vexnor.Sqlite3.GeneratedMSBuildEditorConfig.editorconfig
+/Users/adrian/Work/vexnor-dev-portable-queries/stacks/dotnet/src/Vexnor.Sqlite3/obj/Debug/net10.0/Vexnor.Sqlite3.AssemblyInfoInputs.cache
+/Users/adrian/Work/vexnor-dev-portable-queries/stacks/dotnet/src/Vexnor.Sqlite3/obj/Debug/net10.0/Vexnor.Sqlite3.AssemblyInfo.cs
+/Users/adrian/Work/vexnor-dev-portable-queries/stacks/dotnet/src/Vexnor.Sqlite3/obj/Debug/net10.0/Vexnor.Sqlite3.csproj.CoreCompileInputs.cache
+/Users/adrian/Work/vexnor-dev-portable-queries/stacks/dotnet/src/Vexnor.Sqlite3/obj/Debug/net10.0/Vexnor.Sqlite3.sourcelink.json
+/Users/adrian/Work/vexnor-dev-portable-queries/stacks/dotnet/src/Vexnor.Sqlite3/obj/Debug/net10.0/Vexnor.S.22E7375A.Up2Date
+/Users/adrian/Work/vexnor-dev-portable-queries/stacks/dotnet/src/Vexnor.Sqlite3/obj/Debug/net10.0/Vexnor.Sqlite3.dll
+/Users/adrian/Work/vexnor-dev-portable-queries/stacks/dotnet/src/Vexnor.Sqlite3/obj/Debug/net10.0/refint/Vexnor.Sqlite3.dll
+/Users/adrian/Work/vexnor-dev-portable-queries/stacks/dotnet/src/Vexnor.Sqlite3/obj/Debug/net10.0/Vexnor.Sqlite3.pdb
+/Users/adrian/Work/vexnor-dev-portable-queries/stacks/dotnet/src/Vexnor.Sqlite3/obj/Debug/net10.0/ref/Vexnor.Sqlite3.dll

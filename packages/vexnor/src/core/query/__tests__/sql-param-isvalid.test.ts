@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { param } from "#/core/query/sql-param.js";
-import { validateParamValue } from "#/core/query/sql-param-validation.js";
+
+import { validateParamValue } from "#/core/query/params/validate-param-value.js";
 
 describe("validateParamValue", () => {
    test("returns empty array when valid", () => {
@@ -16,19 +17,19 @@ describe("validateParamValue", () => {
       `);
    });
 
-   test("includes custom validate message alongside other failures", () => {
+   test("includes pattern failure alongside other failures", () => {
       expect(
          validateParamValue(
             "x",
             param<{ s: string }>("s", {
                minLength: 3,
-               validate: (v) => (v.startsWith("acc_") ? true : "must start with acc_"),
+               pattern: /^acc_/,
             }).validation,
          ),
       ).toMatchInlineSnapshot(`
          [
            "expected length >= 3",
-           "must start with acc_",
+           "pattern mismatch",
          ]
       `);
    });
@@ -81,7 +82,7 @@ describe("SqlParam.isValid", () => {
    });
 
    test("enum", () => {
-      const p = param<{ role: string }>("role", { enum: ["admin", "user"] as const });
+      const p = param<{ role: string }>("role", { values: ["admin", "user"] as const });
       expect(p.isValid("admin")).toBe(true);
       expect(p.isValid("guest")).toBe(false);
    });
@@ -94,13 +95,13 @@ describe("SqlParam.isValid", () => {
    });
 
    test("custom validate — boolean", () => {
-      const p = param<{ id: string }>("id", { validate: (v) => typeof v === "string" && v.startsWith("acc_") });
+      const p = param<{ id: string }>("id", { pattern: /^acc_/ });
       expect(p.isValid("acc_123")).toBe(true);
       expect(p.isValid("123")).toBe(false);
    });
 
    test("custom validate — string message", () => {
-      const p = param<{ id: string }>("id", { validate: (v) => (typeof v === "string" && v.startsWith("acc_") ? true : "bad") });
+      const p = param<{ id: string }>("id", { pattern: /^acc_/ });
       expect(p.isValid("acc_ok")).toBe(true);
       expect(p.isValid("nope")).toBe(false);
    });

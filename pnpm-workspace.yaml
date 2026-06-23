@@ -4,6 +4,7 @@ packages:
   - orms/**
   - examples/**
   - tests/**
+  - stacks/fixtures
   - '!**/dist/**'
   - '!**/build/**'
   - '!**/deploy/**'

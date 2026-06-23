@@ -3,6 +3,7 @@ import { execCommand, ExecOptions } from "#/cli/exec/exec-command.js";
 import { initCommand, InitOptions } from "#/cli/exec/init-command.js";
 import { codegenCommand } from "#/cli/codegen/codegen-command.js";
 import { CodegenCommandOptions } from "#/cli/codegen/types/types.js";
+import { serializeCommand, SerializeOptions } from "#/cli/serialize/serialize-command.js";
 
 const main = new Command();
 
@@ -67,6 +68,16 @@ exec
    .option("--no-confirm", "Skip confirmation for mutations")
    .action(async (queryName: string, options: ExecOptions) => {
       await execCommand(queryName, options);
+   });
+
+main
+   .command("serialize")
+   .description("Serialize registered queries to portable JSON manifests for cross-stack execution")
+   .requiredOption("-i, --input <glob>", "Glob pattern for files exporting queries")
+   .requiredOption("-o, --output <dir>", "Output directory for manifest JSON files (one per source file)")
+   .requiredOption("-d, --dialect <dialect>", "SQL dialect (postgresql, transactsql, sqlite)")
+   .action(async (options: SerializeOptions) => {
+      await serializeCommand(options);
    });
 
 main.parse();

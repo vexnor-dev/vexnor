@@ -14,7 +14,7 @@ export type SqlCrudCommands<
 > = {
    driver: string;
    select: T extends { Select: Record<string, unknown> }
-      ? <Args extends SqlSelectArgs>(args: Args) => SqlSelectResult<T & { Select: Record<string, unknown> }, Args>
+      ? <Args extends SqlSelectArgs<T & { Select: Record<string, unknown> }>>(args: Args) => SqlSelectResult<T & { Select: Record<string, unknown> }, Args>
       : null;
    insertFrom: T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> }
       ? <Args extends SqlInsertFromArgs<T & { Select: Record<string, unknown>; Insert: Record<string, unknown> }>>(
@@ -22,7 +22,7 @@ export type SqlCrudCommands<
         ) => SqlInsertFromResult<T, Args>
       : null;
    insertRows: T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> }
-      ? () => SqlInsertRowsResult<T>
+      ? () => SqlInsertRowsResult<T, "rows">
       : null;
    update: T extends { Select: Record<string, unknown>; Update: Record<string, unknown> }
       ? <Args extends SqlUpdateArgs>(

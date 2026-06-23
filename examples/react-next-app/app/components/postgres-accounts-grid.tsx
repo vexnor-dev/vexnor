@@ -8,7 +8,6 @@ import { useRemoteClient } from "@/app/components/use-remote-client";
 import { TypeOf } from "@vexnor/core";
 import { Account } from "@/shared/codegen/postgres/vexnor_dev.account-table";
 import { SearchInput } from "@/app/components/search-input";
-import { OrderDirection } from "@/shared/queries/params";
 
 const FILTER_DEBOUNCE_MS = 300;
 
@@ -37,8 +36,11 @@ export function PostgresAccountsGrid({
       });
       const url = new URLSearchParams();
       if (nextParams.filter) url.set("filter", nextParams.filter);
-      if (nextParams.accountOrderBy) url.set("accountOrderBy", nextParams.accountOrderBy);
-      if (nextParams.orderDir) url.set("orderDir", nextParams.orderDir);
+      if (nextParams.orderBy) {
+         const [[col, dir]] = Object.entries(nextParams.orderBy);
+         url.set("accountOrderBy", col);
+         url.set("orderDir", dir);
+      }
       window.history.replaceState(null, "", `?${url.toString()}`);
    }
 
@@ -52,8 +54,8 @@ export function PostgresAccountsGrid({
       }, FILTER_DEBOUNCE_MS);
    }
 
-   function handleOrderChange(accountOrderBy: AccountOrderBy, orderDir: OrderDirection) {
-      const next = { ...params, accountOrderBy, orderDir };
+   function handleOrderChange(accountOrderBy: AccountOrderBy, orderDir: string) {
+      const next = { ...params, orderBy: { [accountOrderBy]: orderDir } };
       setParams(next);
       refetch(next);
    }
@@ -76,10 +78,10 @@ export function PostgresAccountsGrid({
             <SearchInput defaultValue={filterInput} onChange={handleFilterChange} />
             <div className="relative">
                <select
-                  value={`${params.accountOrderBy}:${params.orderDir}`}
+                  value={`${Object.keys(params.orderBy ?? {})[0] ?? Account.$createdAt.columnName}:${Object.values(params.orderBy ?? {})[0] ?? "DESC"}`}
                   onChange={(e) => {
                      const [nextField, nextDir] = e.target.value.split(":");
-                     handleOrderChange(nextField as AccountOrderBy, nextDir as OrderDirection);
+                     handleOrderChange(nextField as AccountOrderBy, nextDir!);
                   }}
                   className={`w-full border border-gray-300 rounded-md px-3 py-2 pr-8 text-sm bg-white appearance-none focus:outline-none focus:ring-2 focus:ring-gray-400 ${isPending ? "opacity-60" : ""}`}
                >

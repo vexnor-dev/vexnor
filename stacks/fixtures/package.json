@@ -1,0 +1,30 @@
+{
+   "name": "@vexnor/stack-fixtures",
+   "version": "1.0.0-beta.1",
+   "private": true,
+   "type": "module",
+   "scripts": {
+      "precodegen": "pnpm --filter='vexnor' --filter='@vexnor/postgres' --filter='@vexnor/mssql' --filter='@vexnor/sqlite3' run build",
+      "codegen:postgres": "env-cmd --no-override -x -r ../../env-dev.json -e postgres node ../../packages/vexnor/cli.mjs codegen --plugin @vexnor/postgres --schema vexnor_dev  --camelCaseColumns --host \\$POSTGRES_HOST --port \\$POSTGRES_PORT --database \\$POSTGRES_DATABASE --user \\$POSTGRES_USER --password \\$POSTGRES_PASSWORD --outDir './codegen/postgres' | pino-pretty",
+      "codegen:mssql": "env-cmd --no-override -x -r ../../env-dev.json -e mssql node ../../packages/vexnor/cli.mjs codegen --plugin @vexnor/mssql --schema vexnor_dev  --camelCaseColumns --host \\$MSSQL_HOST --port \\$MSSQL_PORT --database \\$MSSQL_DATABASE --user \\$MSSQL_USER --password \\$MSSQL_PASSWORD --outDir './codegen/mssql' | pino-pretty",
+      "codegen:sqlite3": "env-cmd --no-override -x -r ../../env-dev.json -e sqlite3 node ../../packages/vexnor/cli.mjs codegen --plugin @vexnor/sqlite3 --schema main  --camelCaseColumns --uri \\$SQLITE_PATH --omit migration_vexnor --outDir './codegen/sqlite3' | pino-pretty",
+      "codegen": "run-p 'codegen:*'",
+      "serialize:postgres": "node ../../packages/vexnor/cli.mjs serialize -i 'queries/postgres.ts' -o ./manifests/postgres -d postgresql",
+      "serialize:mssql": "node ../../packages/vexnor/cli.mjs serialize -i 'queries/mssql.ts' -o ./manifests/mssql -d transactsql",
+      "serialize:sqlite3": "node ../../packages/vexnor/cli.mjs serialize -i 'queries/sqlite3.ts' -o ./manifests/sqlite3 -d sqlite",
+      "serialize": "run-p 'serialize:*'",
+      "build": "run-s 'codegen' 'serialize'"
+   },
+   "dependencies": {
+      "@vexnor/core": "workspace:^",
+      "@vexnor/postgres": "workspace:^",
+      "@vexnor/mssql": "workspace:^",
+      "@vexnor/sqlite3": "workspace:^"
+   },
+   "devDependencies": {
+      "env-cmd": "^10.1.0",
+      "npm-run-all2": "^7.0.0",
+      "pino-pretty": "^13.0.0",
+      "tsx": "^4.20.6"
+   }
+}

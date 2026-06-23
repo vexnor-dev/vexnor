@@ -69,8 +69,8 @@ export const OrderItem = vexnor.newSqlTable<{
       modifiedAt: "Date",
    },
    fk: [
-      { from: ["orderId"], to: { schema: "vexnor_dev", table: "order", columns: ["orderId"] } },
       { from: ["productId"], to: { schema: "vexnor_dev", table: "product", columns: ["productId"] } },
+      { from: ["orderId"], to: { schema: "vexnor_dev", table: "order", columns: ["orderId"] } },
    ],
    dbSchema: {
       orderId: { dbType: "uniqueidentifier", type: vexnor.SqlLiteralType.String },

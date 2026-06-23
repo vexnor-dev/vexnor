@@ -129,6 +129,27 @@ jobs:
       - name: Run tests
         run: pnpm test
 
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Build .NET solution
+        run: dotnet build stacks/dotnet/Vexnor.sln --nologo
+
+      - name: Run .NET tests with coverage
+        run: |
+          dotnet test stacks/dotnet/tests/Vexnor.Core.Tests/Vexnor.Core.Tests.csproj \
+            --nologo --no-build \
+            --collect:"XPlat Code Coverage" \
+            --results-directory stacks/dotnet/TestResults
+          dotnet test stacks/dotnet/tests/Vexnor.Integration.Tests/Vexnor.Integration.Tests.csproj \
+            --nologo --no-build \
+            --collect:"XPlat Code Coverage" \
+            --results-directory stacks/dotnet/TestResults
+        env:
+          ConnectionStrings__Postgres: "Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=postgres"
+
       - name: Upload coverage artifact
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -138,6 +159,7 @@ jobs:
             coverage/clover.xml
             coverage/coverage-summary.json
             coverage/coverage-final.json
+            stacks/dotnet/TestResults/**/coverage.cobertura.xml
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Report — secrets scoped to reporting only
@@ -169,7 +191,16 @@ jobs:
         uses: codecov/codecov-action@04b047e8bb82a0c002c8312c1c880fbc6a999d45 # v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: coverage/clover.xml
+          files: coverage/clover.xml,coverage/**/coverage.cobertura.xml
+          flags: nodejs
+          fail_ci_if_error: false
+
+      - name: Upload .NET coverage to Codecov
+        uses: codecov/codecov-action@04b047e8bb82a0c002c8312c1c880fbc6a999d45 # v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage/**/coverage.cobertura.xml
+          flags: dotnet
           fail_ci_if_error: false
 
       - name: Codecov summary link

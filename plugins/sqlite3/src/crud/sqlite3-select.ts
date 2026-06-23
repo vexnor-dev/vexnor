@@ -9,6 +9,7 @@ import {
    SqlSelectResultRow,
    info,
    SqlQueryColumns,
+   SqlQueryBaseAny,
 } from "@vexnor/core";
 import { jsonMany, jsonOne } from "#/charms/json-aggregation-sqlite3.js";
 import { BetterSqlite3QueryHandler } from "#/better-sqlite3-query-handler.js";
@@ -16,14 +17,14 @@ import "#/sqlite3-augment.js";
 
 export type Sqlite3SelectResult<
    T extends { Select: Record<string, unknown> },
-   Args extends SqlSelectArgs,
+   Args extends SqlSelectArgs<T>,
 > = BetterSqlite3QueryHandler<{
    Row: SqlSelectResultRow<T, Args>;
    Params: ParamsOfArgs<Args>;
 }> &
    SqlQueryColumns<SqlSelectResultRow<T, Args>>;
 
-export function sqlite3Select<T extends { Select: Record<string, unknown> }, Args extends SqlSelectArgs>(
+export function sqlite3Select<T extends { Select: Record<string, unknown> }, Args extends SqlSelectArgs<T>>(
    table: SqlTable<T>,
    args: Args,
 ): Sqlite3SelectResult<T, Args> {
@@ -37,8 +38,8 @@ export function sqlite3Select<T extends { Select: Record<string, unknown> }, Arg
       if (!args.ORDER_BY) throw new Error("ORDER_BY is required when using offset/limit");
    }
 
-   const ones = Object.entries(includeOne ?? {}).map(([k, q]) => ({ key: k, charm: jsonOne(q.source) }));
-   const manys = Object.entries(includeMany ?? {}).map(([k, q]) => ({ key: k, charm: jsonMany(q.source) }));
+   const ones = Object.entries(includeOne ?? {}).map(([k, q]) => ({ key: k, charm: jsonOne((q as SqlQueryBaseAny).source) }));
+   const manys = Object.entries(includeMany ?? {}).map(([k, q]) => ({ key: k, charm: jsonMany((q as SqlQueryBaseAny).source) }));
 
    const includes = [...ones, ...manys].map(({ key, charm }) => charm.as(key));
 

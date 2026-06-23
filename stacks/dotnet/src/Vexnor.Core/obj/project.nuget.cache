@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "dgSpecHash": "4yJAXvjobTI=",
+  "success": true,
+  "projectFilePath": "/Users/adrian/Work/vexnor-dev-portable-queries/stacks/dotnet/src/Vexnor.Core/Vexnor.Core.csproj",
+  "expectedPackageFiles": [
+    "/Users/adrian/.nuget/packages/system.text.json/8.0.5/system.text.json.8.0.5.nupkg.sha512",
+    "/Users/adrian/.nuget/packages/microsoft.netcore.app.ref/9.0.17/microsoft.netcore.app.ref.9.0.17.nupkg.sha512",
+    "/Users/adrian/.nuget/packages/microsoft.aspnetcore.app.ref/9.0.17/microsoft.aspnetcore.app.ref.9.0.17.nupkg.sha512",
+    "/Users/adrian/.nuget/packages/microsoft.netcore.app.ref/8.0.28/microsoft.netcore.app.ref.8.0.28.nupkg.sha512",
+    "/Users/adrian/.nuget/packages/microsoft.aspnetcore.app.ref/8.0.28/microsoft.aspnetcore.app.ref.8.0.28.nupkg.sha512"
+  ],
+  "logs": [
+    {
+      "code": "NU1510",
+      "level": "Warning",
+      "message": "PackageReference System.Text.Json will not be pruned. Consider removing this package from your dependencies, as it is likely unnecessary.",
+      "projectPath": "/Users/adrian/Work/vexnor-dev-portable-queries/stacks/dotnet/src/Vexnor.Core/Vexnor.Core.csproj",
+      "warningLevel": 1,
+      "filePath": "/Users/adrian/Work/vexnor-dev-portable-queries/stacks/dotnet/src/Vexnor.Core/Vexnor.Core.csproj",
+      "libraryId": "System.Text.Json",
+      "targetGraphs": [
+        "net10.0",
+        "net9.0",
+        "net8.0"
+      ]
+    }
+  ]
+}

@@ -2,7 +2,7 @@ import {
    SqlTable,
    sql,
    raw,
-   buildUpdateSetExpand,
+   set,
    row,
    SqlUpdateParameters,
    Void,
@@ -30,7 +30,7 @@ export function mssqlUpdate<
    return sql`
       ${info({ driver: "transactsql" }) ?? raw.BLANK}
       update ${table}
-         ${buildUpdateSetExpand(table)}
+         ${set(table)}
          output ${row(table.as`inserted`.$$)}
          ${args.WHERE ? sql`where ${args.WHERE.source.inline()}`.inline() : raw.BLANK}
    `.mssql as unknown as MssqlTableUpdateResult<T, Args>;

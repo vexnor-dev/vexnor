@@ -1,4 +1,3 @@
-import { SqlExpandHandlerAny } from "#/core/query/sql-expand.js";
 import { InferSelectRowByResult } from "#/core/query/sql-query-types.js";
 import { SqlSelectAll } from "#/core/query/sql-select-all.js";
 import { SqlTableColumn } from "#/core/schema/sql-table-column.js";
@@ -11,7 +10,18 @@ export type SqlBuildToken =
    | { type: "text"; value: string }
    | { type: "param"; name: string }
    | { type: "value"; value: unknown }
-   | { type: "expand"; id: string; expand: SqlExpandHandlerAny };
+   | { type: "operator"; operator: SqlOperatorToken };
+
+export type SqlOperatorToken =
+   | { type: "set"; param: string; columns: Record<string, string> }
+   | { type: "insert"; param: string; columns: Record<string, string> }
+   | { type: "insertCols"; param: string; columns: Record<string, string> }
+   | { type: "insertValues"; param: string; keys: string[] }
+   | { type: "filter"; param: string; columns: Record<string, string>; prefix?: string; suffix?: string }
+   | { type: "orderBy"; param: string; columns: Record<string, string> }
+   | { type: "when"; param: string; negate?: boolean; onTrue: SqlBuildToken[]; onFalse?: SqlBuildToken[] }
+   | { type: "projection"; param: string; columns: Record<string, string> }
+   | { type: "pagination" };
 
 export type SqlParamFormat = (args: { name?: string; index: number }) => string;
 

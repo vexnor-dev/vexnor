@@ -1,0 +1,155 @@
+{
+  "xOrderBySingle": {
+    "hash": "cf44077ef89247739e2363c676bd122c6f27a8d701c92e500cadd4e720dbb2e4",
+    "text": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" order by \"a_1\".\"created_at\" DESC",
+    "values": [],
+    "error": null
+  },
+  "xOrderByMulti": {
+    "hash": "cf44077ef89247739e2363c676bd122c6f27a8d701c92e500cadd4e720dbb2e4",
+    "text": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" order by \"a_1\".\"status\" ASC, \"a_1\".\"created_at\" DESC",
+    "values": [],
+    "error": null
+  },
+  "xOrderByNull": {
+    "hash": "cf44077ef89247739e2363c676bd122c6f27a8d701c92e500cadd4e720dbb2e4",
+    "text": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" ",
+    "values": [],
+    "error": null
+  },
+  "xFilterEquality": {
+    "hash": "85e65b56b010a8c21feb7086cbee015421fde614cd7e054f8ab92fb23a7c20e4",
+    "text": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" WHERE \"a_1\".\"email\" = $1 and \"a_1\".\"status\" = $2",
+    "values": [
+      "jane@example.com",
+      "active"
+    ],
+    "error": null
+  },
+  "xFilterOperators": {
+    "hash": "85e65b56b010a8c21feb7086cbee015421fde614cd7e054f8ab92fb23a7c20e4",
+    "text": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" WHERE \"a_1\".\"created_at\" >= $1 and \"a_1\".\"status\" in ($2, $3) and \"a_1\".\"parent_id\" is null",
+    "values": [
+      "2024-01-01",
+      "active",
+      "confirmed"
+    ],
+    "error": null
+  },
+  "xFilterOrGroup": {
+    "hash": "85e65b56b010a8c21feb7086cbee015421fde614cd7e054f8ab92fb23a7c20e4",
+    "text": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" WHERE \"a_1\".\"status\" = $1 and (\"a_1\".\"email\" like $2 or \"a_1\".\"parent_id\" is not null)",
+    "values": [
+      "active",
+      "%@vip.com"
+    ],
+    "error": null
+  },
+  "xFilterEmpty": {
+    "hash": "85e65b56b010a8c21feb7086cbee015421fde614cd7e054f8ab92fb23a7c20e4",
+    "text": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" WHERE ",
+    "values": [],
+    "error": null
+  },
+  "xInsertSingle": {
+    "hash": "6b198c1e4f9a9b4e6adb67befcfbcde5eb1a6dc525a5d07f22c7320788e87556",
+    "text": "INSERT INTO \"vexnor_dev\".\"account\" (\"email\", \"first_name\", \"last_name\") values ($1, $2, $3) RETURNING \"account\".\"account_id\" as \"accountId\", \"account\".\"status\", \"account\".\"email\", \"account\".\"first_name\" as \"firstName\", \"account\".\"last_name\" as \"lastName\", \"account\".\"notes\", \"account\".\"created_at\" as \"createdAt\", \"account\".\"modified_at\" as \"modifiedAt\", \"account\".\"parent_id\" as \"parentId\"",
+    "values": [
+      "a@test.com",
+      "A",
+      "B"
+    ],
+    "error": null
+  },
+  "xInsertMulti": {
+    "hash": "6b198c1e4f9a9b4e6adb67befcfbcde5eb1a6dc525a5d07f22c7320788e87556",
+    "text": "INSERT INTO \"vexnor_dev\".\"account\" (\"email\", \"first_name\", \"last_name\") values ($1, $2, $3), ($4, $5, $6) RETURNING \"account\".\"account_id\" as \"accountId\", \"account\".\"status\", \"account\".\"email\", \"account\".\"first_name\" as \"firstName\", \"account\".\"last_name\" as \"lastName\", \"account\".\"notes\", \"account\".\"created_at\" as \"createdAt\", \"account\".\"modified_at\" as \"modifiedAt\", \"account\".\"parent_id\" as \"parentId\"",
+    "values": [
+      "a@test.com",
+      "A",
+      "AA",
+      "b@test.com",
+      "B",
+      "BB"
+    ],
+    "error": null
+  },
+  "xSetSingle": {
+    "hash": "e4b69d057c7e9138c72cb711e495f50310f0d399f9b7fafaaaf62c30efc269a9",
+    "text": "UPDATE \"vexnor_dev\".\"account\" set \"email\" = $1 WHERE \"account\".\"account_id\" = $2 RETURNING \"account\".\"account_id\" as \"accountId\", \"account\".\"status\", \"account\".\"email\", \"account\".\"first_name\" as \"firstName\", \"account\".\"last_name\" as \"lastName\", \"account\".\"notes\", \"account\".\"created_at\" as \"createdAt\", \"account\".\"modified_at\" as \"modifiedAt\", \"account\".\"parent_id\" as \"parentId\"",
+    "values": [
+      "updated@test.com",
+      "uuid-123"
+    ],
+    "error": null
+  },
+  "xSetMulti": {
+    "hash": "e4b69d057c7e9138c72cb711e495f50310f0d399f9b7fafaaaf62c30efc269a9",
+    "text": "UPDATE \"vexnor_dev\".\"account\" set \"email\" = $1, \"first_name\" = $2, \"last_name\" = $3 WHERE \"account\".\"account_id\" = $4 RETURNING \"account\".\"account_id\" as \"accountId\", \"account\".\"status\", \"account\".\"email\", \"account\".\"first_name\" as \"firstName\", \"account\".\"last_name\" as \"lastName\", \"account\".\"notes\", \"account\".\"created_at\" as \"createdAt\", \"account\".\"modified_at\" as \"modifiedAt\", \"account\".\"parent_id\" as \"parentId\"",
+    "values": [
+      "new@test.com",
+      "Jane",
+      "Doe",
+      "uuid-456"
+    ],
+    "error": null
+  },
+  "xWhenTrue": {
+    "hash": "293a7e86b87e5bce74195ddf2cdabd5a42904ac7c9eaf89b9e07201dc007678d",
+    "text": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" WHERE \"a_1\".\"status\" = $1 AND \"a_1\".\"email\" = $2",
+    "values": [
+      "active",
+      "test@example.com"
+    ],
+    "error": null
+  },
+  "xWhenFalse": {
+    "hash": "293a7e86b87e5bce74195ddf2cdabd5a42904ac7c9eaf89b9e07201dc007678d",
+    "text": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" WHERE \"a_1\".\"status\" = $1 ",
+    "values": [
+      "active"
+    ],
+    "error": null
+  },
+  "xWhenWithElse": {
+    "hash": "ce8accc75484d5eb168f473e8c5e530e5144fc33237b134cf707588e0631208a",
+    "text": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" ORDER BY \"a_1\".\"created_at\" ASC",
+    "values": [],
+    "error": null
+  },
+  "xWhenNegate": {
+    "hash": "d1a114015bb63813b65c264a4ca210aee31e2cd20acc22e08b757035dcafff5f",
+    "text": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" WHERE \"a_1\".\"status\" = $1 AND \"a_1\".\"email\" IS NOT NULL",
+    "values": [
+      "active"
+    ],
+    "error": null
+  },
+  "xPaginationBoth": {
+    "hash": "6e8f55b5301e267586edf5fc10bc929ecc15c0e75c395b6828f81aeed42c686d",
+    "text": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" WHERE \"a_1\".\"status\" = $1 order by \"a_1\".\"created_at\" DESC limit $2 offset $3",
+    "values": [
+      "active",
+      25,
+      50
+    ],
+    "error": null
+  },
+  "xPaginationLimitOnly": {
+    "hash": "736963ded4c70356243ccb7738c7de482e855679e7f74ce2bcc785376ae7d37a",
+    "text": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" limit $1",
+    "values": [
+      10
+    ],
+    "error": null
+  },
+  "xCombined": {
+    "hash": "b88c13a1ba975aac88811cff6c00ef677cfafde2cf70fde099e2b77955009790",
+    "text": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" WHERE \"a_1\".\"status\" = $1 and \"a_1\".\"email\" like $2 order by \"a_1\".\"created_at\" DESC",
+    "values": [
+      "active",
+      "%@vip%"
+    ],
+    "error": null
+  }
+}

@@ -1,0 +1,1147 @@
+{
+  "version": 1,
+  "generatorVersion": "1.0.0-beta.1",
+  "dialect": "postgresql",
+  "queries": {
+    "4b614629e43f82ca09a5549f34216f9fd3ab384b3b01a6b17bc4a87709b56ae3": {
+      "name": "deleteAccount",
+      "location": "stacks/fixtures/queries/postgres.ts:160:47",
+      "hash": "4b614629e43f82ca09a5549f34216f9fd3ab384b3b01a6b17bc4a87709b56ae3",
+      "template": [
+        {
+          "type": "text",
+          "value": "\n      \n/* driver: postgres */\n\n      delete\n      from \"vexnor_dev\".\"account\"\n      where \"account\".\"account_id\" = "
+        },
+        {
+          "type": "param",
+          "name": "accountId"
+        },
+        {
+          "type": "text",
+          "value": "\n      returning \"account\".\"account_id\" as \"accountId\", \"account\".\"status\", \"account\".\"email\", \"account\".\"first_name\" as \"firstName\", \"account\".\"last_name\" as \"lastName\", \"account\".\"notes\", \"account\".\"created_at\" as \"createdAt\", \"account\".\"modified_at\" as \"modifiedAt\", \"account\".\"parent_id\" as \"parentId\"\n   "
+        }
+      ],
+      "params": {
+        "accountId": {
+          "name": "accountId",
+          "isContext": false
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "9ee763eea1406421c8f1214176212bde152a9cdf2e6be7f442a6a677c624e6b8": {
+      "name": "insertAccountCrud",
+      "location": "stacks/fixtures/queries/postgres.ts:150:51",
+      "hash": "9ee763eea1406421c8f1214176212bde152a9cdf2e6be7f442a6a677c624e6b8",
+      "template": [
+        {
+          "type": "text",
+          "value": "\n      \n/* driver: postgres */\n\n      insert into \"vexnor_dev\".\"account\"\n      "
+        },
+        {
+          "type": "insert",
+          "param": "rows",
+          "columns": {
+            "accountId": "\"account_id\"",
+            "status": "\"status\"",
+            "email": "\"email\"",
+            "firstName": "\"first_name\"",
+            "lastName": "\"last_name\"",
+            "notes": "\"notes\"",
+            "createdAt": "\"created_at\"",
+            "modifiedAt": "\"modified_at\"",
+            "parentId": "\"parent_id\""
+          }
+        },
+        {
+          "type": "text",
+          "value": "\n      returning \"account\".\"account_id\" as \"accountId\", \"account\".\"status\", \"account\".\"email\", \"account\".\"first_name\" as \"firstName\", \"account\".\"last_name\" as \"lastName\", \"account\".\"notes\", \"account\".\"created_at\" as \"createdAt\", \"account\".\"modified_at\" as \"modifiedAt\", \"account\".\"parent_id\" as \"parentId\"\n   "
+        }
+      ],
+      "params": {
+        "rows": {
+          "name": "rows",
+          "isContext": false
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "14a4762932dd2e8d4df02daba4b85dfbac8309e55b4bea6eacea7eadb02c4314": {
+      "name": "insertAccounts",
+      "location": "stacks/fixtures/queries/postgres.ts:87:31",
+      "hash": "14a4762932dd2e8d4df02daba4b85dfbac8309e55b4bea6eacea7eadb02c4314",
+      "template": [
+        {
+          "type": "text",
+          "value": "\n   INSERT INTO \"vexnor_dev\".\"account\"\n   "
+        },
+        {
+          "type": "insert",
+          "param": "rows",
+          "columns": {
+            "accountId": "\"account_id\"",
+            "status": "\"status\"",
+            "email": "\"email\"",
+            "firstName": "\"first_name\"",
+            "lastName": "\"last_name\"",
+            "notes": "\"notes\"",
+            "createdAt": "\"created_at\"",
+            "modifiedAt": "\"modified_at\"",
+            "parentId": "\"parent_id\""
+          }
+        },
+        {
+          "type": "text",
+          "value": "\n   RETURNING \"account\".\"account_id\" as \"accountId\", \"account\".\"status\", \"account\".\"email\", \"account\".\"first_name\" as \"firstName\", \"account\".\"last_name\" as \"lastName\", \"account\".\"notes\", \"account\".\"created_at\" as \"createdAt\", \"account\".\"modified_at\" as \"modifiedAt\", \"account\".\"parent_id\" as \"parentId\"\n"
+        }
+      ],
+      "params": {
+        "rows": {
+          "name": "rows",
+          "isContext": false
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "6507c207623cb69c1e46fe3b0859ac8190c08221b173026eef03008b82e62d07": {
+      "name": "insertAccountsSplit",
+      "location": "stacks/fixtures/queries/postgres.ts:95:36",
+      "hash": "6507c207623cb69c1e46fe3b0859ac8190c08221b173026eef03008b82e62d07",
+      "template": [
+        {
+          "type": "text",
+          "value": "\n   INSERT INTO \"vexnor_dev\".\"account\"\n   ("
+        },
+        {
+          "type": "insertCols",
+          "param": "rows",
+          "columns": {
+            "accountId": "\"account_id\"",
+            "status": "\"status\"",
+            "email": "\"email\"",
+            "firstName": "\"first_name\"",
+            "lastName": "\"last_name\"",
+            "notes": "\"notes\"",
+            "createdAt": "\"created_at\"",
+            "modifiedAt": "\"modified_at\"",
+            "parentId": "\"parent_id\""
+          }
+        },
+        {
+          "type": "text",
+          "value": ")\n   VALUES "
+        },
+        {
+          "type": "insertValues",
+          "param": "rows",
+          "keys": [
+            "accountId",
+            "status",
+            "email",
+            "firstName",
+            "lastName",
+            "notes",
+            "createdAt",
+            "modifiedAt",
+            "parentId"
+          ]
+        },
+        {
+          "type": "text",
+          "value": "\n   RETURNING \"account\".\"account_id\" as \"accountId\", \"account\".\"status\", \"account\".\"email\", \"account\".\"first_name\" as \"firstName\", \"account\".\"last_name\" as \"lastName\", \"account\".\"notes\", \"account\".\"created_at\" as \"createdAt\", \"account\".\"modified_at\" as \"modifiedAt\", \"account\".\"parent_id\" as \"parentId\"\n"
+        }
+      ],
+      "params": {
+        "rows": {
+          "name": "rows",
+          "isContext": false
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "ab5f0a3fe9bf528105c0abc2fceccee8ee05aff03f0638f89970af83c2c290f3": {
+      "name": "selectAccountsCrud",
+      "location": "stacks/fixtures/queries/postgres.ts:41:52",
+      "hash": "ab5f0a3fe9bf528105c0abc2fceccee8ee05aff03f0638f89970af83c2c290f3",
+      "template": [
+        {
+          "type": "text",
+          "value": "\n         \n         select\n         "
+        },
+        {
+          "type": "projection",
+          "param": "select",
+          "columns": {
+            "accountId": "\"a_1\".\"account_id\" as \"accountId\"",
+            "status": "\"a_1\".\"status\"",
+            "email": "\"a_1\".\"email\"",
+            "firstName": "\"a_1\".\"first_name\" as \"firstName\"",
+            "lastName": "\"a_1\".\"last_name\" as \"lastName\"",
+            "notes": "\"a_1\".\"notes\"",
+            "createdAt": "\"a_1\".\"created_at\" as \"createdAt\"",
+            "modifiedAt": "\"a_1\".\"modified_at\" as \"modifiedAt\"",
+            "parentId": "\"a_1\".\"parent_id\" as \"parentId\""
+          }
+        },
+        {
+          "type": "text",
+          "value": "\n         from \"vexnor_dev\".\"account\" as \"a_1\"\n         \n         "
+        },
+        {
+          "type": "filter",
+          "param": "filter",
+          "columns": {
+            "accountId": "\"a_1\".\"account_id\"",
+            "status": "\"a_1\".\"status\"",
+            "email": "\"a_1\".\"email\"",
+            "firstName": "\"a_1\".\"first_name\"",
+            "lastName": "\"a_1\".\"last_name\"",
+            "notes": "\"a_1\".\"notes\"",
+            "createdAt": "\"a_1\".\"created_at\"",
+            "modifiedAt": "\"a_1\".\"modified_at\"",
+            "parentId": "\"a_1\".\"parent_id\""
+          },
+          "prefix": "where "
+        },
+        {
+          "type": "text",
+          "value": "\n         \n         \n         order by \"a_1\".\"created_at\" DESC\n         "
+        },
+        {
+          "type": "pagination"
+        },
+        {
+          "type": "text",
+          "value": "\n      "
+        }
+      ],
+      "params": {
+        "select": {
+          "name": "select",
+          "isContext": false,
+          "validation": {
+            "type": "projection",
+            "columns": [
+              "accountId",
+              "status",
+              "email",
+              "firstName",
+              "lastName",
+              "notes",
+              "createdAt",
+              "modifiedAt",
+              "parentId"
+            ],
+            "functions": [
+              "sum",
+              "count",
+              "avg",
+              "min",
+              "max"
+            ]
+          }
+        },
+        "filter": {
+          "name": "filter",
+          "isContext": false
+        },
+        "limit": {
+          "name": "limit",
+          "isContext": false
+        },
+        "offset": {
+          "name": "offset",
+          "isContext": false
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "0a8cd04bb98c6beb2eaae42a3b4cddec4fa087b15e09e504e6bb7100912851d4": {
+      "name": "selectAccountsWithLastOrder",
+      "location": "stacks/fixtures/queries/postgres.ts:127:61",
+      "hash": "0a8cd04bb98c6beb2eaae42a3b4cddec4fa087b15e09e504e6bb7100912851d4",
+      "template": [
+        {
+          "type": "text",
+          "value": "\n      \n/* driver: postgres */\n\n      select \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\"\n                ,  \"query_1_result\" as \"lastOrder\"\n      from \"vexnor_dev\".\"account\" as \"a_1\" \n                \n/* inline: true */\n\n               left join lateral (\n               select coalesce(to_jsonb(\"query_1\".*), null) as \"query_1_result\"\n               from (select \"query_2\".* from (\n   SELECT \"o_2\".\"order_id\" as \"orderId\", \"o_2\".\"status\", \"o_2\".\"created_at\" as \"createdAt\", \"o_2\".\"modified_at\" as \"modifiedAt\", \"o_2\".\"account_id\" as \"accountId\"\n   FROM \"vexnor_dev\".\"order\" as \"o_2\"\n   WHERE \"o_2\".\"account_id\" = \"a_1\".\"account_id\"\n   ORDER BY \"o_2\".\"created_at\" DESC\n) as \"query_2\" limit 1) as \"query_1\") as \"query_1\"\n               on true\n              \n         where "
+        },
+        {
+          "type": "filter",
+          "param": "filterBy",
+          "columns": {
+            "accountId": "\"a_1\".\"account_id\"",
+            "status": "\"a_1\".\"status\"",
+            "email": "\"a_1\".\"email\"",
+            "firstName": "\"a_1\".\"first_name\"",
+            "lastName": "\"a_1\".\"last_name\"",
+            "notes": "\"a_1\".\"notes\"",
+            "createdAt": "\"a_1\".\"created_at\"",
+            "modifiedAt": "\"a_1\".\"modified_at\"",
+            "parentId": "\"a_1\".\"parent_id\""
+          },
+          "suffix": " and"
+        },
+        {
+          "type": "text",
+          "value": " \"a_1\".\"status\" = "
+        },
+        {
+          "type": "param",
+          "name": "status"
+        },
+        {
+          "type": "text",
+          "value": "\n         \n         \n         order by \"a_1\".\"created_at\" DESC\n         \n         \n   "
+        }
+      ],
+      "params": {
+        "filterBy": {
+          "name": "filterBy",
+          "isContext": false
+        },
+        "status": {
+          "name": "status",
+          "isContext": false
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        },
+        "lastOrder": {
+          "type": "[object Object]"
+        }
+      },
+      "authorization": []
+    },
+    "78fe726f3887fd88cc3a63c4495e7f37cfe694cedf87387bb1a2813d758738e5": {
+      "name": "selectAccountsWithOrderCount",
+      "location": "stacks/fixtures/queries/postgres.ts:135:62",
+      "hash": "78fe726f3887fd88cc3a63c4495e7f37cfe694cedf87387bb1a2813d758738e5",
+      "template": [
+        {
+          "type": "text",
+          "value": "\n         \n         select\n         (\"a_1\".\"account_id\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\", \"a_1\".\"last_name\", \"a_1\".\"notes\", \"a_1\".\"created_at\", \"a_1\".\"modified_at\", \"a_1\".\"parent_id\", (SELECT count(*) FROM \"vexnor_dev\".\"order\" as \"o_2\" WHERE \"o_2\".\"account_id\" = \"a_1\".\"account_id\") AS \"orderCount\") as \"query_1\"\n         from \"vexnor_dev\".\"account\" as \"a_3\"\n         \n         "
+        },
+        {
+          "type": "filter",
+          "param": "filter",
+          "columns": {
+            "accountId": "\"a_3\".\"account_id\"",
+            "status": "\"a_3\".\"status\"",
+            "email": "\"a_3\".\"email\"",
+            "firstName": "\"a_3\".\"first_name\"",
+            "lastName": "\"a_3\".\"last_name\"",
+            "notes": "\"a_3\".\"notes\"",
+            "createdAt": "\"a_3\".\"created_at\"",
+            "modifiedAt": "\"a_3\".\"modified_at\"",
+            "parentId": "\"a_3\".\"parent_id\""
+          },
+          "prefix": "where "
+        },
+        {
+          "type": "text",
+          "value": "\n         \n         \n         order by \"a_3\".\"created_at\" DESC\n         "
+        },
+        {
+          "type": "pagination"
+        },
+        {
+          "type": "text",
+          "value": "\n      "
+        }
+      ],
+      "params": {
+        "filter": {
+          "name": "filter",
+          "isContext": false
+        },
+        "limit": {
+          "name": "limit",
+          "isContext": false
+        },
+        "offset": {
+          "name": "offset",
+          "isContext": false
+        }
+      },
+      "row": null,
+      "authorization": []
+    },
+    "6e8230e745569dfe097860da2d89be9918d9c85f031592d07214a3a2622354c8": {
+      "name": "selectAccountsWithOrders",
+      "location": "stacks/fixtures/queries/postgres.ts:119:58",
+      "hash": "6e8230e745569dfe097860da2d89be9918d9c85f031592d07214a3a2622354c8",
+      "template": [
+        {
+          "type": "text",
+          "value": "\n      \n/* driver: postgres */\n\n      select \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\"\n                ,  \"query_1_result\" as \"orders\"\n      from \"vexnor_dev\".\"account\" as \"a_1\"  \n                \n/* inline: true */\n\n               left join lateral (\n               select coalesce(jsonb_agg(\"query_1\".*), '[]') as \"query_1_result\"\n               from (\n   SELECT \"o_2\".\"order_id\" as \"orderId\", \"o_2\".\"status\", \"o_2\".\"created_at\" as \"createdAt\", \"o_2\".\"modified_at\" as \"modifiedAt\", \"o_2\".\"account_id\" as \"accountId\"\n   FROM \"vexnor_dev\".\"order\" as \"o_2\"\n   WHERE \"o_2\".\"account_id\" = \"a_1\".\"account_id\"\n   ORDER BY \"o_2\".\"created_at\" DESC\n) as \"query_1\") as \"query_1\"\n               on true\n             \n         where "
+        },
+        {
+          "type": "filter",
+          "param": "filterBy",
+          "columns": {
+            "accountId": "\"a_1\".\"account_id\"",
+            "status": "\"a_1\".\"status\"",
+            "email": "\"a_1\".\"email\"",
+            "firstName": "\"a_1\".\"first_name\"",
+            "lastName": "\"a_1\".\"last_name\"",
+            "notes": "\"a_1\".\"notes\"",
+            "createdAt": "\"a_1\".\"created_at\"",
+            "modifiedAt": "\"a_1\".\"modified_at\"",
+            "parentId": "\"a_1\".\"parent_id\""
+          },
+          "suffix": " and"
+        },
+        {
+          "type": "text",
+          "value": " \"a_1\".\"status\" = "
+        },
+        {
+          "type": "param",
+          "name": "status"
+        },
+        {
+          "type": "text",
+          "value": "\n         \n         \n         order by \"a_1\".\"created_at\" DESC\n         \n         \n   "
+        }
+      ],
+      "params": {
+        "filterBy": {
+          "name": "filterBy",
+          "isContext": false
+        },
+        "status": {
+          "name": "status",
+          "isContext": false
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        },
+        "orders": {
+          "type": "[object Object]"
+        }
+      },
+      "authorization": []
+    },
+    "62b42336c34d60a715acadf1ba36542d1ebe1db9027750e149cd5d3ea576fc04": {
+      "name": "selectByIds",
+      "location": "stacks/fixtures/queries/postgres.ts:25:28",
+      "hash": "62b42336c34d60a715acadf1ba36542d1ebe1db9027750e149cd5d3ea576fc04",
+      "template": [
+        {
+          "type": "text",
+          "value": "\n   SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\"\n   FROM \"vexnor_dev\".\"account\" as \"a_1\"\n   WHERE \"a_1\".\"account_id\" IN ("
+        },
+        {
+          "type": "param",
+          "name": "ids"
+        },
+        {
+          "type": "text",
+          "value": ")\n"
+        }
+      ],
+      "params": {
+        "ids": {
+          "name": "ids",
+          "isContext": false
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "91941cf0d9065faf24f4bc61c1f4c2b0415392ec35bff01310770cd4ee8fc161": {
+      "name": "selectByMultipleParams",
+      "location": "stacks/fixtures/queries/postgres.ts:16:39",
+      "hash": "91941cf0d9065faf24f4bc61c1f4c2b0415392ec35bff01310770cd4ee8fc161",
+      "template": [
+        {
+          "type": "text",
+          "value": "\n   SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\"\n   FROM \"vexnor_dev\".\"account\" as \"a_1\"\n   WHERE \"a_1\".\"email\" = "
+        },
+        {
+          "type": "param",
+          "name": "email"
+        },
+        {
+          "type": "text",
+          "value": "\n   AND \"a_1\".\"status\" = "
+        },
+        {
+          "type": "param",
+          "name": "status"
+        },
+        {
+          "type": "text",
+          "value": "\n"
+        }
+      ],
+      "params": {
+        "email": {
+          "name": "email",
+          "isContext": false
+        },
+        "status": {
+          "name": "status",
+          "isContext": false
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "e7546d96753ac81d6899592ee665843292dfa7d10795d6520239016fd7dcee00": {
+      "name": "selectByStatus",
+      "location": "stacks/fixtures/queries/postgres.ts:10:31",
+      "hash": "e7546d96753ac81d6899592ee665843292dfa7d10795d6520239016fd7dcee00",
+      "template": [
+        {
+          "type": "text",
+          "value": "\n   SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\"\n   FROM \"vexnor_dev\".\"account\" as \"a_1\"\n   WHERE \"a_1\".\"status\" = "
+        },
+        {
+          "type": "param",
+          "name": "status"
+        },
+        {
+          "type": "text",
+          "value": "\n"
+        }
+      ],
+      "params": {
+        "status": {
+          "name": "status",
+          "isContext": false
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "a3a4c1b3d65fc4d3869455713fdc7dfb63fc0ccd36562692db1f89dbb726c9cc": {
+      "name": "selectComplex",
+      "location": "stacks/fixtures/queries/postgres.ts:168:30",
+      "hash": "a3a4c1b3d65fc4d3869455713fdc7dfb63fc0ccd36562692db1f89dbb726c9cc",
+      "template": [
+        {
+          "type": "text",
+          "value": "\n   SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\"\n   FROM \"vexnor_dev\".\"account\" as \"a_1\"\n   WHERE "
+        },
+        {
+          "type": "filter",
+          "param": "filter",
+          "columns": {
+            "accountId": "\"a_1\".\"account_id\"",
+            "status": "\"a_1\".\"status\"",
+            "email": "\"a_1\".\"email\"",
+            "firstName": "\"a_1\".\"first_name\"",
+            "lastName": "\"a_1\".\"last_name\"",
+            "notes": "\"a_1\".\"notes\"",
+            "createdAt": "\"a_1\".\"created_at\"",
+            "modifiedAt": "\"a_1\".\"modified_at\"",
+            "parentId": "\"a_1\".\"parent_id\""
+          }
+        },
+        {
+          "type": "text",
+          "value": "\n   "
+        },
+        {
+          "type": "orderBy",
+          "param": "orderBy",
+          "columns": {
+            "accountId": "\"a_1\".\"account_id\"",
+            "status": "\"a_1\".\"status\"",
+            "email": "\"a_1\".\"email\"",
+            "firstName": "\"a_1\".\"first_name\"",
+            "lastName": "\"a_1\".\"last_name\"",
+            "notes": "\"a_1\".\"notes\"",
+            "createdAt": "\"a_1\".\"created_at\"",
+            "modifiedAt": "\"a_1\".\"modified_at\"",
+            "parentId": "\"a_1\".\"parent_id\""
+          }
+        },
+        {
+          "type": "text",
+          "value": "\n   "
+        },
+        {
+          "type": "when",
+          "param": "hasLimit",
+          "onTrue": [
+            {
+              "type": "text",
+              "value": "LIMIT "
+            },
+            {
+              "type": "param",
+              "name": "limit"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "value": "\n"
+        }
+      ],
+      "params": {
+        "filter": {
+          "name": "filter",
+          "isContext": false,
+          "validation": {
+            "type": "filter",
+            "columns": [
+              "accountId",
+              "status",
+              "email",
+              "firstName",
+              "lastName",
+              "notes",
+              "createdAt",
+              "modifiedAt",
+              "parentId"
+            ],
+            "operators": [
+              "equal",
+              "not",
+              "greaterThan",
+              "greaterOrEqual",
+              "lowerThan",
+              "lowerOrEqual",
+              "between",
+              "in",
+              "notIn",
+              "like",
+              "notLike",
+              "isNull",
+              "isNotNull"
+            ]
+          }
+        },
+        "orderBy": {
+          "name": "orderBy",
+          "isContext": false
+        },
+        "limit": {
+          "name": "limit",
+          "isContext": false
+        },
+        "hasLimit": {
+          "name": "hasLimit",
+          "isContext": false
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "494ea9e354daa2c4d88c45852b2c8b8478f22316816133e2f6f06ebbbbd607e8": {
+      "name": "selectConditional",
+      "location": "stacks/fixtures/queries/postgres.ts:49:34",
+      "hash": "494ea9e354daa2c4d88c45852b2c8b8478f22316816133e2f6f06ebbbbd607e8",
+      "template": [
+        {
+          "type": "text",
+          "value": "\n   SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\"\n   FROM \"vexnor_dev\".\"account\" as \"a_1\"\n   WHERE \"a_1\".\"status\" = "
+        },
+        {
+          "type": "param",
+          "name": "status"
+        },
+        {
+          "type": "text",
+          "value": "\n   "
+        },
+        {
+          "type": "when",
+          "param": "hasEmail",
+          "onTrue": [
+            {
+              "type": "text",
+              "value": "AND \"a_1\".\"email\" = "
+            },
+            {
+              "type": "param",
+              "name": "email"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "value": "\n   "
+        },
+        {
+          "type": "when",
+          "param": "hasName",
+          "onTrue": [
+            {
+              "type": "text",
+              "value": "AND \"a_1\".\"first_name\" = "
+            },
+            {
+              "type": "param",
+              "name": "firstName"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "value": "\n"
+        }
+      ],
+      "params": {
+        "status": {
+          "name": "status",
+          "isContext": false
+        },
+        "email": {
+          "name": "email",
+          "isContext": false
+        },
+        "hasEmail": {
+          "name": "hasEmail",
+          "isContext": false
+        },
+        "firstName": {
+          "name": "firstName",
+          "isContext": false
+        },
+        "hasName": {
+          "name": "hasName",
+          "isContext": false
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "56c5bfb286ca994111088f4fdd12b60ac19a2d82b3a32cee4162088fb21ee493": {
+      "name": "selectMyOrders",
+      "location": "stacks/fixtures/queries/postgres.ts:142:46",
+      "hash": "56c5bfb286ca994111088f4fdd12b60ac19a2d82b3a32cee4162088fb21ee493",
+      "template": [
+        {
+          "type": "text",
+          "value": "\n      \n/* driver: postgres */\n\n      select \"o_1\".\"order_id\" as \"orderId\", \"o_1\".\"status\", \"o_1\".\"created_at\" as \"createdAt\", \"o_1\".\"modified_at\" as \"modifiedAt\", \"o_1\".\"account_id\" as \"accountId\"\n                ,  \"query_1_result\" as \"items\"\n      from \"vexnor_dev\".\"order\" as \"o_1\"  \n                \n/* inline: true */\n\n               left join lateral (\n               select coalesce(jsonb_agg(\"query_1\".*), '[]') as \"query_1_result\"\n               from (\n   SELECT \"oi_2\".\"order_id\" as \"orderId\", \"oi_2\".\"product_id\" as \"productId\", \"oi_2\".\"created_at\" as \"createdAt\", \"oi_2\".\"modified_at\" as \"modifiedAt\", \"oi_2\".\"product_price\" as \"productPrice\", \"oi_2\".\"discount_price\" as \"discountPrice\", \"oi_2\".\"quantity\", \"oi_2\".\"metadata\"\n   FROM \"vexnor_dev\".\"order_item\" as \"oi_2\"\n   WHERE \"oi_2\".\"order_id\" = \"o_1\".\"order_id\"\n) as \"query_1\") as \"query_1\"\n               on true\n             \n         where "
+        },
+        {
+          "type": "filter",
+          "param": "filterBy",
+          "columns": {
+            "orderId": "\"o_1\".\"order_id\"",
+            "status": "\"o_1\".\"status\"",
+            "createdAt": "\"o_1\".\"created_at\"",
+            "modifiedAt": "\"o_1\".\"modified_at\"",
+            "accountId": "\"o_1\".\"account_id\""
+          },
+          "suffix": " and"
+        },
+        {
+          "type": "text",
+          "value": " \"o_1\".\"account_id\" = "
+        },
+        {
+          "type": "param",
+          "name": "userId"
+        },
+        {
+          "type": "text",
+          "value": "\n         \n         \n         order by \"o_1\".\"created_at\" DESC\n         \n         \n   "
+        }
+      ],
+      "params": {
+        "filterBy": {
+          "name": "filterBy",
+          "isContext": false
+        },
+        "userId": {
+          "name": "userId",
+          "isContext": true
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        },
+        "items": {
+          "type": "[object Object]"
+        }
+      },
+      "authorization": []
+    },
+    "65b1d6bd236ec56ae16a15b6a356d14bbdb660bd428de0dafb6ea5776da53936": {
+      "name": "selectOrdered",
+      "location": "stacks/fixtures/queries/postgres.ts:70:30",
+      "hash": "65b1d6bd236ec56ae16a15b6a356d14bbdb660bd428de0dafb6ea5776da53936",
+      "template": [
+        {
+          "type": "text",
+          "value": "\n   SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\"\n   FROM \"vexnor_dev\".\"account\" as \"a_1\"\n   "
+        },
+        {
+          "type": "orderBy",
+          "param": "orderBy",
+          "columns": {
+            "accountId": "\"a_1\".\"account_id\"",
+            "status": "\"a_1\".\"status\"",
+            "email": "\"a_1\".\"email\"",
+            "firstName": "\"a_1\".\"first_name\"",
+            "lastName": "\"a_1\".\"last_name\"",
+            "notes": "\"a_1\".\"notes\"",
+            "createdAt": "\"a_1\".\"created_at\"",
+            "modifiedAt": "\"a_1\".\"modified_at\"",
+            "parentId": "\"a_1\".\"parent_id\""
+          }
+        },
+        {
+          "type": "text",
+          "value": "\n"
+        }
+      ],
+      "params": {
+        "orderBy": {
+          "name": "orderBy",
+          "isContext": false
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "30e148b999f5a63cf01482efd65120e2497536b65f89c754cf3e60cf32d8b010": {
+      "name": "selectWithFilter",
+      "location": "stacks/fixtures/queries/postgres.ts:33:33",
+      "hash": "30e148b999f5a63cf01482efd65120e2497536b65f89c754cf3e60cf32d8b010",
+      "template": [
+        {
+          "type": "text",
+          "value": "\n   SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\"\n   FROM \"vexnor_dev\".\"account\" as \"a_1\"\n   WHERE "
+        },
+        {
+          "type": "filter",
+          "param": "filter",
+          "columns": {
+            "accountId": "\"a_1\".\"account_id\"",
+            "status": "\"a_1\".\"status\"",
+            "email": "\"a_1\".\"email\"",
+            "firstName": "\"a_1\".\"first_name\"",
+            "lastName": "\"a_1\".\"last_name\"",
+            "notes": "\"a_1\".\"notes\"",
+            "createdAt": "\"a_1\".\"created_at\"",
+            "modifiedAt": "\"a_1\".\"modified_at\"",
+            "parentId": "\"a_1\".\"parent_id\""
+          }
+        },
+        {
+          "type": "text",
+          "value": "\n"
+        }
+      ],
+      "params": {
+        "filter": {
+          "name": "filter",
+          "isContext": false,
+          "validation": {
+            "type": "filter",
+            "columns": [
+              "accountId",
+              "status",
+              "email",
+              "firstName",
+              "lastName",
+              "notes",
+              "createdAt",
+              "modifiedAt",
+              "parentId"
+            ],
+            "operators": [
+              "equal",
+              "not",
+              "greaterThan",
+              "greaterOrEqual",
+              "lowerThan",
+              "lowerOrEqual",
+              "between",
+              "in",
+              "notIn",
+              "like",
+              "notLike",
+              "isNull",
+              "isNotNull"
+            ]
+          }
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "4e15d360c71757013a8b45c44cf740d61e7ee4efecdedf7feb83f3fa35e30194": {
+      "name": "selectWithSortDirection",
+      "location": "stacks/fixtures/queries/postgres.ts:61:40",
+      "hash": "4e15d360c71757013a8b45c44cf740d61e7ee4efecdedf7feb83f3fa35e30194",
+      "template": [
+        {
+          "type": "text",
+          "value": "\n   SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\"\n   FROM \"vexnor_dev\".\"account\" as \"a_1\"\n   WHERE \"a_1\".\"status\" = "
+        },
+        {
+          "type": "param",
+          "name": "status"
+        },
+        {
+          "type": "text",
+          "value": "\n   ORDER BY \"a_1\".\"created_at\" "
+        },
+        {
+          "type": "when",
+          "param": "sortAsc",
+          "onTrue": [
+            {
+              "type": "text",
+              "value": "ASC"
+            }
+          ],
+          "onFalse": [
+            {
+              "type": "text",
+              "value": "DESC"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "value": "\n"
+        }
+      ],
+      "params": {
+        "status": {
+          "name": "status",
+          "isContext": false
+        },
+        "sortAsc": {
+          "name": "sortAsc",
+          "isContext": false
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "6dd40a048a611c8ab52173656c9f492e1b93826fca093dc2b59b968fd15297e4": {
+      "name": "updateAccount",
+      "location": "stacks/fixtures/queries/postgres.ts:78:30",
+      "hash": "6dd40a048a611c8ab52173656c9f492e1b93826fca093dc2b59b968fd15297e4",
+      "template": [
+        {
+          "type": "text",
+          "value": "\n   UPDATE \"vexnor_dev\".\"account\"\n   "
+        },
+        {
+          "type": "set",
+          "param": "set",
+          "columns": {
+            "accountId": "\"account_id\"",
+            "status": "\"status\"",
+            "email": "\"email\"",
+            "firstName": "\"first_name\"",
+            "lastName": "\"last_name\"",
+            "notes": "\"notes\"",
+            "createdAt": "\"created_at\"",
+            "modifiedAt": "\"modified_at\"",
+            "parentId": "\"parent_id\""
+          }
+        },
+        {
+          "type": "text",
+          "value": "\n   WHERE \"account\".\"account_id\" = "
+        },
+        {
+          "type": "param",
+          "name": "accountId"
+        },
+        {
+          "type": "text",
+          "value": "\n   RETURNING \"account\".\"account_id\" as \"accountId\", \"account\".\"status\", \"account\".\"email\", \"account\".\"first_name\" as \"firstName\", \"account\".\"last_name\" as \"lastName\", \"account\".\"notes\", \"account\".\"created_at\" as \"createdAt\", \"account\".\"modified_at\" as \"modifiedAt\", \"account\".\"parent_id\" as \"parentId\"\n"
+        }
+      ],
+      "params": {
+        "set": {
+          "name": "set",
+          "isContext": false
+        },
+        "accountId": {
+          "name": "accountId",
+          "isContext": false
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "03241dcce6a50c6f8ea8aaee1243a79fc5b8a5d352e3f7c250925027c090a47a": {
+      "name": "updateAccountCrud",
+      "location": "stacks/fixtures/queries/postgres.ts:154:51",
+      "hash": "03241dcce6a50c6f8ea8aaee1243a79fc5b8a5d352e3f7c250925027c090a47a",
+      "template": [
+        {
+          "type": "text",
+          "value": "\n      \n/* driver: postgres */\n\n      update \"vexnor_dev\".\"account\"\n         "
+        },
+        {
+          "type": "set",
+          "param": "set",
+          "columns": {
+            "accountId": "\"account_id\"",
+            "status": "\"status\"",
+            "email": "\"email\"",
+            "firstName": "\"first_name\"",
+            "lastName": "\"last_name\"",
+            "notes": "\"notes\"",
+            "createdAt": "\"created_at\"",
+            "modifiedAt": "\"modified_at\"",
+            "parentId": "\"parent_id\""
+          }
+        },
+        {
+          "type": "text",
+          "value": "\n         where \"account\".\"account_id\" = "
+        },
+        {
+          "type": "param",
+          "name": "accountId"
+        },
+        {
+          "type": "text",
+          "value": "\n      returning \"account\".\"account_id\" as \"accountId\", \"account\".\"status\", \"account\".\"email\", \"account\".\"first_name\" as \"firstName\", \"account\".\"last_name\" as \"lastName\", \"account\".\"notes\", \"account\".\"created_at\" as \"createdAt\", \"account\".\"modified_at\" as \"modifiedAt\", \"account\".\"parent_id\" as \"parentId\"\n   "
+        }
+      ],
+      "params": {
+        "set": {
+          "name": "set",
+          "isContext": false
+        },
+        "accountId": {
+          "name": "accountId",
+          "isContext": false
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    }
+  }
+}

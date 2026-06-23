@@ -1,0 +1,16 @@
+/Users/adrian/Work/vexnor-dev-portable-queries/stacks/dotnet/src/Vexnor.Postgres/bin/Debug/net10.0/Vexnor.Postgres.deps.json
+/Users/adrian/Work/vexnor-dev-portable-queries/stacks/dotnet/src/Vexnor.Postgres/bin/Debug/net10.0/Vexnor.Postgres.dll
+/Users/adrian/Work/vexnor-dev-portable-queries/stacks/dotnet/src/Vexnor.Postgres/bin/Debug/net10.0/Vexnor.Postgres.pdb
+/Users/adrian/Work/vexnor-dev-portable-queries/stacks/dotnet/src/Vexnor.Postgres/bin/Debug/net10.0/Vexnor.Core.dll
+/Users/adrian/Work/vexnor-dev-portable-queries/stacks/dotnet/src/Vexnor.Postgres/bin/Debug/net10.0/Vexnor.Core.pdb
+/Users/adrian/Work/vexnor-dev-portable-queries/stacks/dotnet/src/Vexnor.Postgres/obj/Debug/net10.0/Vexnor.Postgres.csproj.AssemblyReference.cache
+/Users/adrian/Work/vexnor-dev-portable-queries/stacks/dotnet/src/Vexnor.Postgres/obj/Debug/net10.0/Vexnor.Postgres.GeneratedMSBuildEditorConfig.editorconfig
+/Users/adrian/Work/vexnor-dev-portable-queries/stacks/dotnet/src/Vexnor.Postgres/obj/Debug/net10.0/Vexnor.Postgres.AssemblyInfoInputs.cache
+/Users/adrian/Work/vexnor-dev-portable-queries/stacks/dotnet/src/Vexnor.Postgres/obj/Debug/net10.0/Vexnor.Postgres.AssemblyInfo.cs
+/Users/adrian/Work/vexnor-dev-portable-queries/stacks/dotnet/src/Vexnor.Postgres/obj/Debug/net10.0/Vexnor.Postgres.csproj.CoreCompileInputs.cache
+/Users/adrian/Work/vexnor-dev-portable-queries/stacks/dotnet/src/Vexnor.Postgres/obj/Debug/net10.0/Vexnor.Postgres.sourcelink.json
+/Users/adrian/Work/vexnor-dev-portable-queries/stacks/dotnet/src/Vexnor.Postgres/obj/Debug/net10.0/Vexnor.P.41222C91.Up2Date
+/Users/adrian/Work/vexnor-dev-portable-queries/stacks/dotnet/src/Vexnor.Postgres/obj/Debug/net10.0/Vexnor.Postgres.dll
+/Users/adrian/Work/vexnor-dev-portable-queries/stacks/dotnet/src/Vexnor.Postgres/obj/Debug/net10.0/refint/Vexnor.Postgres.dll
+/Users/adrian/Work/vexnor-dev-portable-queries/stacks/dotnet/src/Vexnor.Postgres/obj/Debug/net10.0/Vexnor.Postgres.pdb
+/Users/adrian/Work/vexnor-dev-portable-queries/stacks/dotnet/src/Vexnor.Postgres/obj/Debug/net10.0/ref/Vexnor.Postgres.dll

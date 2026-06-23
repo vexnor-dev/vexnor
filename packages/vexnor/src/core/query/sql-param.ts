@@ -1,24 +1,53 @@
-import { ARGS, PARAMS, ParamsOfArgs } from "#/core/sql-base.js";
+import { ARGS, PARAMS, ParamsOfArgs, Sql, SqlOptions } from "#/core/sql-base.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { isParamValueValid, ParamValidation, validateParamValue } from "#/core/query/sql-param-validation.js";
+import { isParamValueValid, SqlParamValidation } from "#/core/query/params/sql-param-validation.js";
 import { SqlBuildError } from "#/core/sql-build-error.js";
 import { SqlErrorCode } from "#/core/sql-error-code.js";
-import { Sql, SqlOptions } from "#/core/sql-base.js";
+import { resolvePath } from "#/core/query/resolve-path.js";
+import { validateParamValue } from "#/core/query/params/validate-param-value.js";
+
+export type SqlParamTypeArgs = { Name: string; Type: unknown };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlParamAny = SqlParam<any>;
 
-export type SqlParamShape<Name extends string, Type> = undefined extends Type
-   ? { [K in Name]?: Exclude<Type, undefined> }
-   : { [K in Name]: Type };
+/**
+ * Converts a dot-path string into a nested object type.
+ * "orderBy.email" → { orderBy: { email: T } }
+ * "email" → { email: T }
+ */
+export type PathToNested<Path extends string, T> = Path extends `${infer Head}.${infer Tail}`
+   ? { [K in Head]: PathToNested<Tail, T> }
+   : undefined extends T
+     ? { [K in Path]?: Exclude<T, undefined> }
+     : { [K in Path]: T };
 
-export class SqlParam<T extends { Name: string; Type: unknown }> extends Sql {
-   declare readonly [PARAMS]: SqlParamShape<T["Name"], T["Type"]>;
+/**
+ * Extracts all leaf paths from a nested object type.
+ * { address: { city: string; zip: number }; name: string } → "address.city" | "address.zip" | "name"
+ */
+export type LeafPaths<T, Prefix extends string = ""> = T extends Record<string, unknown>
+   ? { [K in keyof T & string]: T[K] extends Record<string, unknown>
+        ? LeafPaths<T[K], `${Prefix}${K}.`>
+        : `${Prefix}${K}`
+     }[keyof T & string]
+   : never;
+
+/**
+ * Resolves the type at a dot-path within a nested object.
+ * PathType<{ address: { city: string } }, "address.city"> → string
+ */
+export type PathType<T, Path extends string> = Path extends `${infer Head}.${infer Tail}`
+   ? Head extends keyof T ? PathType<T[Head], Tail> : never
+   : Path extends keyof T ? T[Path] : never;
+
+export class SqlParam<T extends SqlParamTypeArgs> extends Sql {
+   declare readonly [PARAMS]: PathToNested<T["Name"], T["Type"]>;
    declare readonly [ARGS]?: T["Type"];
 
    readonly name: T["Name"];
    readonly isContext: boolean;
-   readonly validation: ParamValidation<T["Type"]> | null;
+   readonly validation: SqlParamValidation<T["Type"]> | null;
    readonly default: unknown | null;
    readonly hasDefault: boolean;
 
@@ -28,7 +57,7 @@ export class SqlParam<T extends { Name: string; Type: unknown }> extends Sql {
       isContext,
    }: {
       name: T["Name"];
-      validation?: ParamValidation<T["Type"]> | null;
+      validation?: SqlParamValidation<T["Type"]> | null;
       isContext?: boolean;
    }) {
       super(
@@ -59,6 +88,15 @@ export class SqlParam<T extends { Name: string; Type: unknown }> extends Sql {
          throw new SqlBuildError(`Invalid param '${this.name}': ${errors.join("; ")}`, {
             code: SqlErrorCode.PARAM_VALIDATION_FAILED,
          });
+   }
+
+   /**
+    * Resolves this param's value from a params object using dot-path traversal.
+    * "orderBy.field" → params.orderBy.field
+    * "email" → params.email
+    */
+   resolve(params: Record<string, unknown>): unknown {
+      return this.valueOrDefault(resolvePath(params, this.name));
    }
 
    /**
@@ -93,42 +131,19 @@ export class SqlParam<T extends { Name: string; Type: unknown }> extends Sql {
 /**
  * Declares a named query parameter with a compile-time type.
  *
- * The type argument `T` is the full params record for the query. The `key`
- * argument picks one property from it. TypeScript will enforce that the correct
- * `params` object is passed when the query is executed.
+ * Supports dot-path names for nested params: `param<P>("orderBy.field")` → `{ orderBy: { field: T } }`
+ * Only leaf paths are allowed — intermediate objects are rejected at compile time.
  *
- * @param key - The parameter name, must be a key of `T`.
+ * @param key - The parameter name (dot-separated path to a leaf value).
  * @param validation - The optional parameter validation
- * @returns A `SqlParam` node that emits a placeholder (`?` / `$1` etc.) at build time.
- *
- * @example
- * // Single param
- * const q = sql`
- *   SELECT ${row(Account.$$)}
- *   FROM ${Account}
- *   WHERE ${Account.$accountId} = ${param<{ id: string }>("id")}
- * `;
- * // q requires: { id: string }
- *
- * @example
- * // Multiple params — share the same type argument across all param() calls
- * type Params = { firstName: string; email: string };
- *
- * const q = sql`
- *   SELECT ${row(Account.$$)}
- *   FROM ${Account}
- *   WHERE ${Account.$firstName} = ${param<Params>("firstName")}
- *     AND ${Account.$email}     = ${param<Params>("email")}
- * `;
- * // q requires: { firstName: string; email: string }
  */
-export function param<T extends Record<string, unknown>, K extends Extract<keyof T, string> = Extract<keyof T, string>>(
+export function param<T extends Record<string, unknown>, K extends LeafPaths<T> = LeafPaths<T>>(
    key: K,
-   validation?: ParamValidation<T[K]>,
-): SqlParam<{ Name: K; Type: T[K] }> {
-   return new SqlParam<{ Name: K; Type: T[K] }>({
+   validation?: SqlParamValidation<PathType<T, K>> | null,
+): SqlParam<{ Name: K; Type: PathType<T, K> }> {
+   return new SqlParam<{ Name: K; Type: PathType<T, K> }>({
       name: key,
-      validation: validation as ParamValidation<T[K]> | undefined,
+      validation: validation as SqlParamValidation<PathType<T, K>> | undefined,
       isContext: false,
    });
 }
@@ -136,34 +151,19 @@ export function param<T extends Record<string, unknown>, K extends Extract<keyof
 /**
  * Declares a named runtime parameter with a compile-time type.
  *
- * Runtime parameters are identical to `param()` at the SQL level — they emit
- * a placeholder at build time. The distinction is semantic and enforced by the
- * `QueryRegistry`: values for context parameters are injected from the trusted
- * server-side context rather than from the caller-supplied params.
+ * Context parameters are injected server-side from registry context.
+ * Supports dot-path names for nested params. Only leaf paths are allowed.
  *
- * On direct execution (outside the registry), context values are passed just
- * like regular params.
- *
- * @param key - The parameter name must be a key of `T`.
+ * @param key - The parameter name (dot-separated path to a leaf value).
  * @param validation - Optional validation rules applied before execution.
- * @returns A `SqlParam` node with `isRuntime: true` that emits a placeholder at build time.
- *
- * @example
- * const q = sql`
- *   SELECT ${row(Order.$$)}
- *   FROM ${Order}
- *   WHERE ${Order.$userId} = ${ctx<{ userId: string }>("userId")}
- * `;
- * // Direct execution: q.postgres.all({ db, params: { userId: "123" } })
- * // Registry execution: userId injected automatically from registry context
  */
-export function ctx<T extends Record<string, unknown>, K extends Extract<keyof T, string> = Extract<keyof T, string>>(
+export function ctx<T extends Record<string, unknown>, K extends LeafPaths<T> = LeafPaths<T>>(
    key: K,
-   validation?: ParamValidation<T[K]>,
-): SqlParam<{ Name: K; Type: T[K] }> {
-   return new SqlParam<{ Name: K; Type: T[K] }>({
+   validation?: SqlParamValidation<PathType<T, K>> | null,
+): SqlParam<{ Name: K; Type: PathType<T, K> }> {
+   return new SqlParam<{ Name: K; Type: PathType<T, K> }>({
       name: key,
-      validation: validation as ParamValidation<T[K]> | undefined,
+      validation: validation as SqlParamValidation<PathType<T, K>> | undefined,
       isContext: true,
    });
 }
@@ -171,7 +171,11 @@ export function ctx<T extends Record<string, unknown>, K extends Extract<keyof T
 export type BuildSqlParams<Params> =
    Params extends Record<string, unknown>
       ? {
-           [K in keyof Params]: K extends string ? SqlParam<{ Name: K; Type: Params[K] }> : never;
+           [K in keyof Params]: K extends string
+              ? Params[K] extends Record<string, unknown>
+                ? BuildSqlParams<Params[K]>
+                : SqlParam<{ Name: K; Type: Params[K] }>
+              : never;
         }
       : unknown;
 

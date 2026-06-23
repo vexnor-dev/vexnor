@@ -1,5 +1,6 @@
 import { assertType, describe, expect, test } from "vitest";
 import { param } from "#/core/query/sql-param.js";
+import { set } from "#/core/query/sql-set.js";
 import { SqlQuery } from "#/core/query/sql-query.js";
 import { row } from "#/core/query/sql-select-row.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
@@ -47,8 +48,8 @@ describe("sql query type tests", () => {
    test("query without row type", () => {
       const query = sql`
          update ${Account}
-         set ${Account.updateSet({ status: AccountStatusUdt.CONFIRMED })} 
-         where ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}`;
+         ${set(Account)} 
+         where ${Account.$accountId} = ${param<{ set: Record<string, unknown>; accountId: string }>("accountId")}`;
 
       expect(query).toBeInstanceOf(SqlQuery);
       expect(query.id).toBeDefined();
@@ -60,7 +61,7 @@ describe("sql query type tests", () => {
    test("query without params", () => {
       const query = sql`
          update ${Account}
-         set ${Account.updateSet({ status: AccountStatusUdt.CONFIRMED })} 
+         ${set(Account)} 
          where ${Account.$accountId} = ${1}
          returning ${row(Account.$$)}`;
 

@@ -84,31 +84,15 @@ describe("SqlTable.as() — error and caching", () => {
 
 describe("SqlTable.column()", () => {
    test("column() returns column by $key lookup", () => {
-      // column() accesses this.cols[key] — the internal cols map uses keys WITHOUT $prefix
-      // but the public cols are exposed with $ prefix. Let's check how it works:
+      // column() accesses this.cols[key] — the internal cols map uses $-prefixed keys
+      // @ts-expect-error column() type expects keyof Select but runtime uses $ prefix
       const col = Account.column("$accountId");
       expect(col.key).toBe("accountId");
    });
 
    test("column() throws for unknown key", () => {
+      // @ts-expect-error non-existing column
       expect(() => Account.column("nonExistent")).toThrow("Column not found");
-   });
-});
-
-describe("SqlTable — updateSet / insertColsVals error paths", () => {
-   test("updateSet throws when update is null", () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect(() => Account.updateSet(null as any)).toThrow("Update is required");
-   });
-
-   test("insertColsVals throws for empty array", () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect(() => (Account as any).insertColsVals()).toThrow("Invalid inserts");
-   });
-
-   test("insertColsVals throws for null value in array", () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect(() => (Account as any).insertColsVals(null)).toThrow("Invalid inserts");
    });
 });
 

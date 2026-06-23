@@ -25,6 +25,8 @@ describe("mssqlTableRead()", () => {
           "a_1"."parent_id" AS "parentId"
         FROM
           "main"."account" AS "a_1"
+          /* <query_1> */
+          /* </query_1> */
           /* </query_0> */"
       `);
    });

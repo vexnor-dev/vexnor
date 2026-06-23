@@ -15,9 +15,8 @@ describe("SqlTableUpdate", () => {
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         UPDATE "main"."account"
-        /* <query_1> */
         SET
-          /* <query_2> */ "email" = ? /* </query_2> */ /* </query_1> */
+          "email" = ?
         RETURNING
           "account"."account_id" AS "accountId",
           "account"."status",
@@ -46,13 +45,12 @@ describe("SqlTableUpdate", () => {
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         UPDATE "main"."account"
-        /* <query_1> */
         SET
-          /* <query_2> */ "email" = ? /* </query_2> */ /* </query_1> */
-          /* <query_3> */
+          "email" = ?
+          /* <query_1> */
         WHERE
-          /* <query_4> */
-          "account"."account_id" = ? /* </query_4> */ /* </query_3> */
+          /* <query_2> */
+          "account"."account_id" = ? /* </query_2> */ /* </query_1> */
         RETURNING
           "account"."account_id" AS "accountId",
           "account"."status",
@@ -67,16 +65,15 @@ describe("SqlTableUpdate", () => {
       `);
    });
 
-   test("should handle expand set clause", () => {
+   test("should handle set clause", () => {
       const query = sqlUpdate(Account, {});
 
       const { text } = query.getSql({ params: { set: { email: "new@test.com" } }, options: { dialect: "sqlite" } });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         UPDATE "main"."account"
-        /* <query_1> */
         SET
-          /* <query_2> */ "email" = ? /* </query_2> */ /* </query_1> */
+          "email" = ?
         RETURNING
           "account"."account_id" AS "accountId",
           "account"."status",
@@ -100,13 +97,12 @@ describe("SqlTableUpdate", () => {
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         UPDATE "main"."account"
-        /* <query_1> */
         SET
-          /* <query_2> */ "email" = ? /* </query_2> */ /* </query_1> */
-          /* <query_3> */
+          "email" = ?
+          /* <query_1> */
         WHERE
-          /* <query_4> */
-          "account"."account_id" = ? /* </query_4> */ /* </query_3> */
+          /* <query_2> */
+          "account"."account_id" = ? /* </query_2> */ /* </query_1> */
         RETURNING
           "account"."account_id" AS "accountId",
           "account"."status",

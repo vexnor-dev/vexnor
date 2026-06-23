@@ -3,8 +3,7 @@ import {
    Sql,
    SqlTable,
    SqlTableColumn,
-   expandInsertColumns,
-   expandInsertValues,
+   insert,
    row,
    raw,
    info,
@@ -31,7 +30,7 @@ export type PostgresUpsertArgs = {
 
 export type PostgresUpsertResult<T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> }> =
    PostgresQueryHandler<{
-      Params: SqlInsertRowsParams<T>;
+      Params: SqlInsertRowsParams<T, "rows">;
       Row: T["Select"];
    }> &
       SqlQueryColumns<T["Select"]>;
@@ -54,9 +53,9 @@ export function postgresUpsert<T extends { Select: Record<string, unknown>; Inse
    return sql`
       ${info({ driver: "postgres" }) ?? raw.BLANK}
       insert into ${table}
-         (${expandInsertColumns(table)})
+         (${insert.cols(table, "rows")})
       values
-         ${expandInsertValues(table)}
+         ${insert.values(table, "rows")}
       on conflict (${conflictCols})
       do update set ${sql`${setClause}`.inline()}
       returning ${row(table.$$)}

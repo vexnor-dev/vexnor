@@ -3,7 +3,7 @@ import { ok } from "node:assert";
 import { randomUUID } from "node:crypto";
 import { sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { fromDrizzleTable } from "@vexnor/drizzle/sqlite";
-import { row, sql, param, excluded } from "@vexnor/core";
+import { insert, row, sql, param, excluded } from "@vexnor/core";
 import "@vexnor/sqlite3";
 import { db } from "./config.js";
 
@@ -40,8 +40,8 @@ describe.sequential("e2e drizzle/sqlite — fromDrizzleTable works against real 
 
       await sql`
          INSERT INTO ${Account}
-            ${Account.insertColsVals({ accountId, email: `${TAG}-sql@example.com`, firstName: "SqlDrizzle", lastName: "Test" })}
-      `.sqlite.run({ db });
+            ${insert(Account, "rows")}
+      `.sqlite.run({ db, params: { rows: [{ accountId, email: `${TAG}-sql@example.com`, firstName: "SqlDrizzle", lastName: "Test" }] } });
 
       const selected = await sql`
          SELECT ${row(Account.$$)} FROM ${Account}
@@ -58,17 +58,6 @@ describe.sequential("e2e drizzle/sqlite — fromDrizzleTable works against real 
       expect(account.email).toBe(`${TAG}@example.com`);
       expect(account.firstName).toBe("Drizzle");
       expect(account.accountId).toBeDefined();
-   });
-
-   test("crud: findById", async () => {
-      const result = await Account.sqlite.findById().any({ db, params: { accountId: account.accountId } });
-      expect(result?.accountId).toBe(account.accountId);
-      expect(result?.email).toBe(account.email);
-   });
-
-   test("crud: findBy", async () => {
-      const result = await Account.sqlite.findBy().any({ db, params: { email: account.email } });
-      expect(result?.accountId).toBe(account.accountId);
    });
 
    test("crud: select with WHERE", async () => {

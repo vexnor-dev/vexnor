@@ -18,7 +18,7 @@ import {
  * the runtime guard present in `sqlSelect`. Used to test param and row type propagation
  * through `SqlSelectResultRow<T, Args>` and `ParamsOfArgs<Args>` within the base package.
  */
-export function testSelect<T extends { Select: Record<string, unknown> }, Args extends SqlSelectArgs>(
+export function testSelect<T extends { Select: Record<string, unknown> }, Args extends SqlSelectArgs<T>>(
    table: SqlTable<T>,
    args: Args,
 ): SqlQueryExtended<{ Row: SqlSelectResultRow<T, Args>; Params: ParamsOfArgs<Args> }> {
@@ -29,7 +29,7 @@ export function testSelect<T extends { Select: Record<string, unknown> }, Args e
       ...Object.entries(includeMany ?? {}).map(([k]) => sql`(select '[]') as ${raw(`"${k}"`)}`),
    ];
 
-   const baseQuery = sqlSelect(table as SqlTable<{ Select: Record<string, unknown> }>, baseArgs as SqlSelectArgs);
+   const baseQuery = sqlSelect(table as SqlTable<{ Select: Record<string, unknown> }>, baseArgs as SqlSelectArgs<{ Select: Record<string, unknown> }>);
 
    if (!includeFragments.length) {
       return baseQuery as unknown as SqlQueryExtended<{ Row: SqlSelectResultRow<T, Args>; Params: ParamsOfArgs<Args> }>;

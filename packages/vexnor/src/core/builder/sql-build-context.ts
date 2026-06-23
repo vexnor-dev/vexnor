@@ -5,14 +5,13 @@ import { DefaultTokenizer } from "#/core/builder/default-tokenizer.js";
 import { SqlQuery, SqlQueryAny } from "#/core/query/sql-query.js";
 import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
 import { ITokenizer } from "#/core/builder/sql-tokenizer.js";
-import { SqlBuildToken } from "#/core/query/sql-models.js";
+import { SqlBuildToken, SqlOperatorToken } from "#/core/query/sql-models.js";
 import { SqlBuildError } from "#/core/sql-build-error.js";
 import { MAJOR_KEYWORDS, SUBQUERY_STARTERS } from "#/core/sql-constants.js";
 import { getTableId, SqlTableIdentity } from "#/core/schema/sql-table-identity.js";
 import { getAliasStackInfo } from "#/core/query/lib/get-alias-stack-info.js";
 import { SqlSelectAll, SqlSelectAllAny } from "#/core/query/sql-select-all.js";
 import { SqlQueryColumn, SqlQueryColumnAny } from "#/core/query/sql-query-column.js";
-import { SqlExpandHandlerAny } from "#/core/query/sql-expand.js";
 import { Queue } from "#/lib/queue.js";
 import { SqlQueryScope } from "#/core/query/sql-query-types.js";
 import { quoteText } from "#/core/utils/quote-text.js";
@@ -71,9 +70,6 @@ export class SqlBuildContext {
             case "param":
                text += "?";
                break;
-            case "expand":
-               text += "?";
-               break;
             case "value":
                if (!isPrimitive(token.value)) {
                   throw new SqlBuildError(
@@ -81,6 +77,9 @@ export class SqlBuildContext {
                   );
                }
                text += "?";
+               break;
+            case "operator":
+               text += `/* <${token.operator.type}> */`;
                break;
             default:
                throw new SqlBuildError(`Unknown token type ${typeof token}: ${token}`);
@@ -300,12 +299,8 @@ export class SqlBuildContext {
       });
    }
 
-   addExpand(expand: { id: string; expand: SqlExpandHandlerAny }) {
-      this._tokens.push({
-         id: expand.id,
-         type: "expand",
-         expand: expand.expand,
-      });
+   addOperator(operator: SqlOperatorToken) {
+      this._tokens.push({ type: "operator", operator });
    }
 
    addQuery(query: SqlQueryAny, override?: Pick<QueryInfo, "cte">) {

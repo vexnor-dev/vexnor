@@ -5,7 +5,7 @@ import { Product, IProductInsert, IProductSelect } from "./codegen/main.product-
 import { sql } from "@vexnor/sqlite3";
 import assert, { ok } from "node:assert";
 import { getTag } from "./tags.js";
-import { row } from "@vexnor/core";
+import { insert, row } from "@vexnor/core";
 import { expect } from "vitest";
 import type Database from "better-sqlite3";
 
@@ -52,9 +52,9 @@ export class TestDataManager {
       }
       const accounts = await sql`
          insert into ${Account}
-            ${Account.insertColsVals(...accountInserts)}
+            ${insert(Account, "rows")}
             returning ${row(Account.$$)}
-      `.sqlite.all({ db });
+      `.sqlite.all({ db, params: { rows: accountInserts } });
 
       ok(accounts?.length, "root accounts not inserted");
       assert.deepEqual(accounts.length, this.ACCOUNT_ROOT_COUNT);
@@ -81,9 +81,9 @@ export class TestDataManager {
             };
             const account = await sql`
                insert into ${Account}
-                  ${Account.insertColsVals(accountInsert)}
+                  ${insert(Account, "rows")}
                   returning ${row(Account.$$)}
-            `.sqlite.one({ db });
+            `.sqlite.one({ db, params: { rows: [accountInsert] } });
             expect(account).toEqual(
                expect.objectContaining({
                   status: "created",
@@ -105,9 +105,9 @@ export class TestDataManager {
       }));
       const inserted = await sql`
          insert into ${Product}
-            ${Product.insertColsVals(...inserts)}
+            ${insert(Product, "rows")}
             returning ${row(Product.$$)}
-      `.sqlite.all({ db });
+      `.sqlite.all({ db, params: { rows: inserts } });
       ok(inserted?.length, "products not inserted");
       this.products.push(...inserted);
    }
@@ -122,9 +122,9 @@ export class TestDataManager {
          }));
          const inserted = await sql`
             insert into ${Order}
-               ${Order.insertColsVals(...inserts)}
+               ${insert(Order, "rows")}
                returning ${row(Order.$$)}
-         `.sqlite.all({ db });
+         `.sqlite.all({ db, params: { rows: inserts } });
          ok(inserted?.length, "orders not inserted");
          this.orders.push(...inserted);
       }
@@ -140,9 +140,9 @@ export class TestDataManager {
          }));
          const inserted = await sql`
             insert into ${OrderItem}
-               ${OrderItem.insertColsVals(...inserts)}
+               ${insert(OrderItem, "rows")}
                returning ${row(OrderItem.$$)}
-         `.sqlite.all({ db });
+         `.sqlite.all({ db, params: { rows: inserts } });
          ok(inserted?.length, "order items not inserted");
          this.orderItems.push(...inserted);
       }

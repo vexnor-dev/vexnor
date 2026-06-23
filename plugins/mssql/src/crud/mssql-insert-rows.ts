@@ -1,4 +1,4 @@
-import { SqlTable, expandInsertColumns, expandInsertValues, row, raw, info, SqlQueryColumns } from "@vexnor/core";
+import { SqlTable, insert, row, raw, info, SqlQueryColumns } from "@vexnor/core";
 import { sql } from "#/mssql-sql.js";
 import { SqlInsertRowsParams } from "@vexnor/core";
 import { MssqlQueryHandler } from "#/mssql-query-handler.js";
@@ -6,7 +6,7 @@ import "#/mssql-augment.js";
 
 export type MssqlInsertRowsResult<T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> }> =
    MssqlQueryHandler<{
-      Params: SqlInsertRowsParams<T>;
+      Params: SqlInsertRowsParams<T, "rows">;
       Row: T["Select"];
    }> &
       SqlQueryColumns<T["Select"]>;
@@ -17,9 +17,9 @@ export function mssqlInsertRows<T extends { Select: Record<string, unknown>; Ins
    return sql`
       ${info({ driver: "transactsql" }) ?? raw.BLANK}
       insert into ${table}
-      (${expandInsertColumns(table)})
+      (${insert.cols(table, "rows")})
       output ${row(table.as`inserted`.$$)}
       values
-      ${expandInsertValues(table)}
+      ${insert.values(table, "rows")}
    `.mssql as unknown as MssqlInsertRowsResult<T>;
 }

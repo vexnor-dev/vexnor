@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
 import { CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, Model, Sequelize } from "sequelize";
 import { fromSequelizeTable } from "@vexnor/sequelize";
-import { row, sql, param } from "@vexnor/core";
+import { row, sql, param, insert } from "@vexnor/core";
 import "@vexnor/postgres";
 import { pool } from "./postgres-pool.js";
 
@@ -73,9 +73,9 @@ describe.sequential("e2e sequelize/pg — fromSequelizeTable works against real 
    test("sql: insert and select", async () => {
       const inserted = await sql`
          INSERT INTO ${Account}
-            ${Account.insertColsVals({ email: `${TAG}-sql@example.com`, firstName: "SqlSequelize", lastName: "Test" })}
+            ${insert(Account, "rows")}
             RETURNING ${row(Account.$$)}
-      `.postgres.one({ db: pool });
+      `.postgres.one({ db: pool, params: { rows: [{ email: `${TAG}-sql@example.com`, firstName: "SqlSequelize", lastName: "Test" }] } });
 
       expect(inserted.email).toBe(`${TAG}-sql@example.com`);
       expect(inserted.firstName).toBe("SqlSequelize");
@@ -88,17 +88,6 @@ describe.sequential("e2e sequelize/pg — fromSequelizeTable works against real 
       expect(account.email).toBe(`${TAG}@example.com`);
       expect(account.firstName).toBe("Sequelize");
       expect(account.accountId).toBeDefined();
-   });
-
-   test("crud: findById", async () => {
-      const result = await Account.postgres.findById().any({ db: pool, params: { accountId: account.accountId } });
-      expect(result?.accountId).toBe(account.accountId);
-      expect(result?.email).toBe(account.email);
-   });
-
-   test("crud: findBy", async () => {
-      const result = await Account.postgres.findBy().any({ db: pool, params: { email: account.email } });
-      expect(result?.accountId).toBe(account.accountId);
    });
 
    test("crud: select with WHERE", async () => {

@@ -635,3 +635,89 @@ await updateAccount.postgres.one({
   params: { accountId: '...', set: { firstName: 'Jane', email: 'jane@new.com' } },
 });
 ```
+
+---
+
+## `when()` — Conditional SQL Fragments
+
+Include or exclude a SQL fragment based on a parameter's presence. The condition is evaluated at build time — only the matching branch is emitted into the final SQL.
+
+A value is considered **present** if it is not `null`, `undefined`, or `false`. Notably, `0` and `""` (empty string) are treated as **truthy** — they count as present values.
+
+Fully serializable for cross-stack execution (the manifest stores both branches and the condition).
+
+### Basic Usage
+
+```typescript
+type P = { status: string; hasEmail: boolean; email: string };
+
+const query = sql`
+  SELECT ${row(Account.$$)} FROM ${Account}
+  WHERE ${Account.$status} = ${param<P>('status')}
+  ${when<P>('hasEmail', sql`AND ${Account.$email} = ${param<P>('email')}`)}
+`;
+
+// hasEmail: true  → AND "email" = $2
+// hasEmail: false → (nothing)
+```
+
+### Negation — `"!"` Prefix
+
+Prefix the param name with `"!"` to negate the condition — the `onTrue` branch is included when the param is **absent** (null, undefined, or false):
+
+```typescript
+// Include when hasEmail is absent (null/undefined/false)
+${when<P>('!hasEmail', sql`AND ${Account.$email} IS NULL`)}
+
+// hasEmail: false/null/undefined → AND "email" IS NULL
+// hasEmail: true  → (nothing)
+```
+
+### Else Branch (`onFalse`)
+
+Pass a second SQL fragment for the absent case:
+
+```typescript
+${when<P>('sortAsc', sql`ASC`, sql`DESC`)}
+
+// sortAsc: present (not null/undefined/false) → ASC
+// sortAsc: absent (null/undefined/false)      → DESC
+```
+
+With negation:
+
+```typescript
+${when<P>('!isAdmin', sql`AND "tier" = 'basic'`, sql`AND "tier" = 'admin'`)}
+
+// isAdmin: present → AND "tier" = 'admin' (onFalse, because negated + present = false)
+// isAdmin: absent  → AND "tier" = 'basic' (onTrue, because negated + absent = true)
+```
+
+### Type Safety
+
+The `flag` parameter must be a key of the params type. The value is considered present if not `null`, `undefined`, or `false` — this means `0` and `""` are truthy. Invalid keys produce compile errors:
+
+```typescript
+type P = { status: string; hasEmail: boolean };
+
+when<P>('hasEmail', ...)   // ✓ valid key
+when<P>('!hasEmail', ...)  // ✓ negated valid key
+when<P>('status', ...)     // ✓ valid key — present when not null/undefined/false
+when<P>('badKey', ...)     // ✗ compile error — not in P
+```
+
+### Serialization (Cross-Stack)
+
+The manifest includes a `negate` field:
+
+```json
+{
+  "type": "when",
+  "param": "hasEmail",
+  "negate": true,
+  "onTrue": [...],
+  "onFalse": [...]
+}
+```
+
+Any stack reads `negate` and flips the boolean evaluation accordingly.

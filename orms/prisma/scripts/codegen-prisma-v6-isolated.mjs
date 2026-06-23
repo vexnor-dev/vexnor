@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { copyFileSync, cpSync, existsSync, mkdtempSync, rmSync } from "node:fs";
+import { copyFileSync, cpSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, isAbsolute, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
@@ -81,6 +81,13 @@ const prismaArgs = normalizedArgs.map((arg, index, all) => {
 
 try {
    run("pnpm", ["init"], { cwd: tempDir, stdio: "inherit", env: process.env });
+
+   // Remove devEngines.packageManager — pnpm init adds a semver range that newer pnpm rejects
+   const pkgPath = resolve(tempDir, "package.json");
+   const pkg = JSON.parse(readFileSync(pkgPath, "utf8"));
+   delete pkg.devEngines;
+   writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
+
    run("pnpm", ["add", "-D", "prisma@6", "@prisma/client@6", "--allow-build=prisma", "--allow-build=@prisma/client", "--allow-build=@prisma/engines"], { cwd: tempDir, stdio: "inherit", env: process.env });
 
    run("pnpm", ["prisma", "generate", ...prismaArgs], { cwd: tempDir, stdio: "inherit", env: process.env });

@@ -16,9 +16,8 @@ describe("postgresUpdate()", () => {
         "/* <query_0> */
         /* driver: postgres */
         UPDATE "main"."account"
-        /* <query_1> */
         SET
-          /* <query_2> */ "email" = $1 /* </query_2> */ /* </query_1> */
+          "email" = $1
         RETURNING
           "account"."account_id" AS "accountId",
           "account"."status",
@@ -45,12 +44,11 @@ describe("postgresUpdate()", () => {
         "/* <query_0> */
         /* driver: postgres */
         UPDATE "main"."account"
-        /* <query_1> */
         SET
-          /* <query_2> */ "email" = $1 /* </query_2> */ /* </query_1> */
-          /* <query_3> */
+          "email" = $1
+          /* <query_1> */
         WHERE
-          /* <query_4> */ "account"."account_id" = $2 /* </query_4> */ /* </query_3> */
+          /* <query_2> */ "account"."account_id" = $2 /* </query_2> */ /* </query_1> */
         RETURNING
           "account"."account_id" AS "accountId",
           "account"."status",

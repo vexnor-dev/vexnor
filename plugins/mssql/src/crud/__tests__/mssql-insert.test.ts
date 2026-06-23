@@ -26,8 +26,7 @@ describe("mssqlTableCreate()", () => {
           "inserted"."modified_at" AS "modifiedAt",
           "inserted"."parent_id" AS "parentId"
         VALUES
-          /* <query_1> */
-          (@param_0, @param_1, @param_2) /* </query_1> */
+          (@param_0, @param_1, @param_2)
           /* </query_0> */"
       `);
       expect(values).toMatchObject(["a@b.com", "John", "Doe"]);
@@ -58,9 +57,8 @@ describe("mssqlTableCreate()", () => {
           "inserted"."modified_at" AS "modifiedAt",
           "inserted"."parent_id" AS "parentId"
         VALUES
-          /* <query_1> */
-          (@param_0, @param_1, @param_2) /* </query_1> */,
-          /* <query_2> */ (@param_3, @param_4, @param_5) /* </query_2> */
+          (@param_0, @param_1, @param_2),
+          (@param_3, @param_4, @param_5)
           /* </query_0> */"
       `);
       expect(values).toMatchObject(["a@b.com", "John", "Doe", "b@b.com", "Jane", "Smith"]);

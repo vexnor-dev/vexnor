@@ -1,27 +1,25 @@
 import { SqlColumnFormat } from "#/core/builder/default-formatter.js";
-import { TYPE, Sql } from "#/core/sql-base.js";
+import { Sql, TYPE } from "#/core/sql-base.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
 import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
 import { SqlTableIdentity } from "#/core/schema/sql-table-identity.js";
 import { SqlJsonSchema, SqlJsonType } from "#/core/utils/sql-json-schema.js";
 
-export type SqlTableColumnOptions<
-   T extends {
-      Key: string;
-      Type: unknown;
-   },
-> = Pick<SqlTableColumn<T>, "columnName" | "key" | "tableInfo"> &
+export type SqlTableColumnTypeArgs = {
+   Key: string;
+   Type: unknown;
+};
+
+export type SqlTableColumnOptions<T extends SqlTableColumnTypeArgs> = Pick<
+   SqlTableColumn<T>,
+   "columnName" | "key" | "tableInfo"
+> &
    Partial<Pick<SqlTableColumn<T>, "format" | "jsonType">>;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlTableColumnAny = SqlTableColumn<any>;
 
-export class SqlTableColumn<
-   T extends {
-      Key: string;
-      Type: unknown;
-   },
-> extends Sql {
+export class SqlTableColumn<T extends SqlTableColumnTypeArgs> extends Sql {
    declare readonly [TYPE]: Record<T["Key"], T["Type"]>;
 
    readonly key: T["Key"];
@@ -77,6 +75,24 @@ export class SqlTableColumn<
          key,
          tableInfo: this.tableInfo,
          format: this.format,
+         jsonType: this.jsonType,
+      });
+   }
+
+   /**
+    * Returns a copy of this column with a specific output format.
+    *
+    * Use this to control how the column is rendered in SQL — e.g., without
+    * an alias inside aggregate function calls.
+    *
+    * @param format - The column format to use when building SQL.
+    */
+   render(format: SqlColumnFormat): SqlTableColumn<T> {
+      return new SqlTableColumn({
+         columnName: this.columnName,
+         key: this.key,
+         tableInfo: this.tableInfo,
+         format,
          jsonType: this.jsonType,
       });
    }

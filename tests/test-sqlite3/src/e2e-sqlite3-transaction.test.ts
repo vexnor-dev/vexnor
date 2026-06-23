@@ -1,5 +1,5 @@
 import { afterAll, describe, expect, test } from "vitest";
-import { row } from "@vexnor/core";
+import { insert, row } from "@vexnor/core";
 import { sql } from "@vexnor/sqlite3";
 import { transaction, savepoint } from "@vexnor/sqlite3";
 import { Account } from "./codegen/main.account-table.js";
@@ -13,7 +13,7 @@ describe.sequential("transaction() - sqlite3", () => {
 
    test("commits on success", async () => {
       const account = await transaction(db, async (tx) => {
-         await sql`INSERT INTO ${Account} ${Account.insertColsVals({ email: "tx-commit@test.com", firstName: "Tx", lastName: "Commit" })}`.run({ db: tx });
+         await sql`INSERT INTO ${Account} ${insert(Account, "rows")}`.run({ db: tx, params: { rows: [{ email: "tx-commit@test.com", firstName: "Tx", lastName: "Commit" }] } });
          return sql`SELECT ${row(Account.$$)} FROM ${Account} WHERE ${Account.$email} = ${"tx-commit@test.com"}`.one({ db: tx });
       });
 
@@ -27,7 +27,7 @@ describe.sequential("transaction() - sqlite3", () => {
 
       await expect(
          transaction(db, async (tx) => {
-            await sql`INSERT INTO ${Account} ${Account.insertColsVals({ email: "tx-rollback@test.com", firstName: "Tx", lastName: "Rollback" })}`.run({ db: tx });
+            await sql`INSERT INTO ${Account} ${insert(Account, "rows")}`.run({ db: tx, params: { rows: [{ email: "tx-rollback@test.com", firstName: "Tx", lastName: "Rollback" }] } });
             const account = await sql`SELECT ${row(Account.$$)} FROM ${Account} WHERE ${Account.$email} = ${"tx-rollback@test.com"}`.one({ db: tx });
             insertedId = account.accountId;
             throw new Error("forced rollback");
@@ -40,7 +40,7 @@ describe.sequential("transaction() - sqlite3", () => {
 
    test("respects IMMEDIATE behavior", async () => {
       const account = await transaction(db, async (tx) => {
-         await sql`INSERT INTO ${Account} ${Account.insertColsVals({ email: "tx-immediate@test.com", firstName: "Tx", lastName: "Immediate" })}`.run({ db: tx });
+         await sql`INSERT INTO ${Account} ${insert(Account, "rows")}`.run({ db: tx, params: { rows: [{ email: "tx-immediate@test.com", firstName: "Tx", lastName: "Immediate" }] } });
          return sql`SELECT ${row(Account.$$)} FROM ${Account} WHERE ${Account.$email} = ${"tx-immediate@test.com"}`.one({ db: tx });
       }, { behavior: "IMMEDIATE" });
 
@@ -51,7 +51,7 @@ describe.sequential("transaction() - sqlite3", () => {
 
    test("respects EXCLUSIVE behavior", async () => {
       const account = await transaction(db, async (tx) => {
-         await sql`INSERT INTO ${Account} ${Account.insertColsVals({ email: "tx-exclusive@test.com", firstName: "Tx", lastName: "Exclusive" })}`.run({ db: tx });
+         await sql`INSERT INTO ${Account} ${insert(Account, "rows")}`.run({ db: tx, params: { rows: [{ email: "tx-exclusive@test.com", firstName: "Tx", lastName: "Exclusive" }] } });
          return sql`SELECT ${row(Account.$$)} FROM ${Account} WHERE ${Account.$email} = ${"tx-exclusive@test.com"}`.one({ db: tx });
       }, { behavior: "EXCLUSIVE" });
 
@@ -68,11 +68,11 @@ describe.sequential("savepoint() - sqlite3", () => {
 
    test("releases savepoint on success, outer transaction commits", async () => {
       const result = await transaction(db, async (tx) => {
-         await sql`INSERT INTO ${Account} ${Account.insertColsVals({ email: "sp-outer@test.com", firstName: "Sp", lastName: "Outer" })}`.run({ db: tx });
+         await sql`INSERT INTO ${Account} ${insert(Account, "rows")}`.run({ db: tx, params: { rows: [{ email: "sp-outer@test.com", firstName: "Sp", lastName: "Outer" }] } });
          const outer = await sql`SELECT ${row(Account.$$)} FROM ${Account} WHERE ${Account.$email} = ${"sp-outer@test.com"}`.one({ db: tx });
 
          const inner = await savepoint(tx, async (tx2) => {
-            await sql`INSERT INTO ${Account} ${Account.insertColsVals({ email: "sp-inner@test.com", firstName: "Sp", lastName: "Inner" })}`.run({ db: tx2 });
+            await sql`INSERT INTO ${Account} ${insert(Account, "rows")}`.run({ db: tx2, params: { rows: [{ email: "sp-inner@test.com", firstName: "Sp", lastName: "Inner" }] } });
             return sql`SELECT ${row(Account.$$)} FROM ${Account} WHERE ${Account.$email} = ${"sp-inner@test.com"}`.one({ db: tx2 });
          });
 
@@ -87,11 +87,11 @@ describe.sequential("savepoint() - sqlite3", () => {
 
    test("rolls back savepoint on error, outer transaction continues", async () => {
       const result = await transaction(db, async (tx) => {
-         await sql`INSERT INTO ${Account} ${Account.insertColsVals({ email: "sp-outer-err@test.com", firstName: "Sp", lastName: "OuterErr" })}`.run({ db: tx });
+         await sql`INSERT INTO ${Account} ${insert(Account, "rows")}`.run({ db: tx, params: { rows: [{ email: "sp-outer-err@test.com", firstName: "Sp", lastName: "OuterErr" }] } });
          const outer = await sql`SELECT ${row(Account.$$)} FROM ${Account} WHERE ${Account.$email} = ${"sp-outer-err@test.com"}`.one({ db: tx });
 
          const inner = await savepoint(tx, async (tx2) => {
-            await sql`INSERT INTO ${Account} ${Account.insertColsVals({ email: "sp-inner-err@test.com", firstName: "Sp", lastName: "InnerErr" })}`.run({ db: tx2 });
+            await sql`INSERT INTO ${Account} ${insert(Account, "rows")}`.run({ db: tx2, params: { rows: [{ email: "sp-inner-err@test.com", firstName: "Sp", lastName: "InnerErr" }] } });
             throw new Error("savepoint rollback");
          });
 
@@ -106,11 +106,11 @@ describe.sequential("savepoint() - sqlite3", () => {
 
    test("savepoint with explicit name", async () => {
       const result = await transaction(db, async (tx) => {
-         await sql`INSERT INTO ${Account} ${Account.insertColsVals({ email: "sp-named@test.com", firstName: "Sp", lastName: "Named" })}`.run({ db: tx });
+         await sql`INSERT INTO ${Account} ${insert(Account, "rows")}`.run({ db: tx, params: { rows: [{ email: "sp-named@test.com", firstName: "Sp", lastName: "Named" }] } });
          const outer = await sql`SELECT ${row(Account.$$)} FROM ${Account} WHERE ${Account.$email} = ${"sp-named@test.com"}`.one({ db: tx });
 
          await savepoint(tx, "my_savepoint", async (tx2) => {
-            await sql`INSERT INTO ${Account} ${Account.insertColsVals({ email: "sp-named-inner@test.com", firstName: "Sp", lastName: "NamedInner" })}`.run({ db: tx2 });
+            await sql`INSERT INTO ${Account} ${insert(Account, "rows")}`.run({ db: tx2, params: { rows: [{ email: "sp-named-inner@test.com", firstName: "Sp", lastName: "NamedInner" }] } });
             throw new Error("rollback named savepoint");
          });
 

@@ -3,7 +3,7 @@ import { ok } from "node:assert";
 import { fileURLToPath } from "node:url";
 import { findPrismaModel, fromPrismaModelTable } from "@vexnor/prisma";
 import type { FromPrismaModelResult } from "@vexnor/prisma";
-import { row, sql, param } from "@vexnor/core";
+import { row, sql, param, insert } from "@vexnor/core";
 import "@vexnor/postgres";
 import { pool } from "./postgres-pool.js";
 import { POSTGRES_HOST, POSTGRES_PORT, POSTGRES_DATABASE, POSTGRES_USER, POSTGRES_PASSWORD } from "./config.js";
@@ -58,9 +58,9 @@ describe.sequential("e2e prisma/pg — fromPrismaModelTable works against real D
    test("sql: insert and select", async () => {
       const inserted = await sql`
          INSERT INTO ${Account}
-            ${Account.insertColsVals({ email: `${TAG}-sql@example.com`, firstName: "SqlPrisma", lastName: "Test" })}
+            ${insert(Account, "rows")}
             RETURNING ${row(Account.$$)}
-      `.postgres.one({ db: pool });
+      `.postgres.one({ db: pool, params: { rows: [{ email: `${TAG}-sql@example.com`, firstName: "SqlPrisma", lastName: "Test" }] } });
 
       expect(inserted.email).toBe(`${TAG}-sql@example.com`);
       expect(inserted.firstName).toBe("SqlPrisma");
@@ -71,12 +71,6 @@ describe.sequential("e2e prisma/pg — fromPrismaModelTable works against real D
 
    test("crud: full cycle", async () => {
       expect(account.email).toBe(`${TAG}@example.com`);
-
-      const byId = await Account.postgres.findById().any({ db: pool, params: { accountId: account.accountId } });
-      expect(byId?.accountId).toBe(account.accountId);
-
-      const byEmail = await Account.postgres.findBy().any({ db: pool, params: { email: account.email } });
-      expect(byEmail?.accountId).toBe(account.accountId);
 
       const selected = await Account.postgres
          .select({ WHERE: sql`${Account.$accountId} = ${param<{ id: string }>("id")}` })

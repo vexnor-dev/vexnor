@@ -71,9 +71,9 @@ describe("SqlQuery — uncovered function paths", () => {
       `);
    });
 
-   test("getContext() throws when query has no params", () => {
+   test("getContext() returns empty when query has no params", () => {
       const query = sql`SELECT ${row(Account.$$)} FROM ${Account}`;
-      expect(() => query.getContext({} as never)).toThrow();
+      expect(query.getContext({} as never)).toMatchInlineSnapshot(`{}`);
    });
 
    test("getContext() throws when args is null/undefined", () => {
@@ -128,9 +128,9 @@ describe("SqlQuery — uncovered function paths", () => {
       expect(query.dialects.size).toBeGreaterThan(0);
    });
 
-   test("initContext returns null when params is null", () => {
+   test("initContext returns empty object when query has no context params", () => {
       const query = sql`SELECT 1`;
-      expect(query.context).toBeNull();
+      expect(query.context).toMatchInlineSnapshot(`{}`);
    });
 
    test("newSqlQuery proxy has() for row key", () => {

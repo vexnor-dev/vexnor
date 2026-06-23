@@ -17,9 +17,8 @@ describe("sqlite3Update()", () => {
         "/* <query_0> */
         /* driver: sqlite */
         UPDATE "main"."account"
-        /* <query_1> */
         SET
-          /* <query_2> */ "email" = ? /* </query_2> */ /* </query_1> */
+          "email" = ?
         RETURNING
           "account"."account_id" AS "accountId",
           "account"."status",
@@ -46,12 +45,11 @@ describe("sqlite3Update()", () => {
         "/* <query_0> */
         /* driver: sqlite */
         UPDATE "main"."account"
-        /* <query_1> */
         SET
-          /* <query_2> */ "email" = ? /* </query_2> */ /* </query_1> */
-          /* <query_3> */
+          "email" = ?
+          /* <query_1> */
         WHERE
-          /* <query_4> */ "account"."account_id" = ? /* </query_4> */ /* </query_3> */
+          /* <query_2> */ "account"."account_id" = ? /* </query_2> */ /* </query_1> */
         RETURNING
           "account"."account_id" AS "accountId",
           "account"."status",

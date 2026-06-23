@@ -8,8 +8,9 @@ Quick reference for all composable APIs.
 
 ```typescript
 // Core — query building
-import { sql, row, col, param, ctx, expand, raw, val, excluded, DEFAULT } from 'vexnor';
+import { sql, row, col, param, ctx, raw, val, excluded, DEFAULT, filter, set, orderBy, filterBy } from 'vexnor';
 import { HttpRemoteClient, connect } from 'vexnor';
+import type { FilterOp, FilterCondition, FilterConditionList } from 'vexnor';
 
 // Execution — registry, pipelines, errors
 import { SqlQueryRegistry, SqlQueryPipeline, AuditLogPlugin, TimeToLiveRateLimiter } from 'vexnor/execution';
@@ -177,19 +178,6 @@ const myOrders = sql`
 
 ---
 
-## `expand()` — Dynamic IN Lists
-
-Expands an array parameter into `($1, $2, $3, ...)`.
-
-```typescript
-const findByIds = sql`
-  SELECT ${row(Account.$$)} FROM ${Account}
-  WHERE ${Account.$accountId} IN ${expand<{ ids: string[] }>('ids')}
-`;
-
-await findByIds.postgres.all({ db: pool, params: { ids: ['a', 'b', 'c'] } });
-```
-
 ---
 
 ## `jsonMany()` / `jsonOne()` — Nested JSON
@@ -264,6 +252,36 @@ const row = await query.postgres.one({ db: pool, params: { ... } });
 
 ---
 
+## `filter` — Runtime WHERE Conditions
+
+Every CRUD `select()` accepts a `filter` param at runtime. Array of conditions = AND. Tuple = operator.
+
+```typescript
+// Bare value = equality
+params: { filter: [{ email: "jane@example.com" }] }
+
+// Operator tuple: [op, ...args]
+params: { filter: [{ createdAt: [">=", "2024-01-01"] }] }
+
+// Multiple conditions = AND
+params: { filter: [{ status: "active" }, { createdAt: ["<", "2025-01-01"] }] }
+
+// OR group
+params: { filter: [{ or: [{ status: "active" }, { status: "confirmed" }] }] }
+
+// Range (same column twice)
+params: { filter: [
+  { createdAt: [">=", "2024-01-01"] },
+  { createdAt: ["<", "2025-01-01"] },
+]}
+```
+
+**Operators:** `=`, `not`, `!=`, `>`, `>=`, `<`, `<=`, `between`, `in`, `notIn`, `like`, `notLike`, `isNull`, `isNotNull`
+
+See [CRUD — Runtime Filter](crud.md#runtime-filter-paramsfilter) for full reference.
+
+---
+
 ## CRUD Factories
 
 ```typescript
@@ -278,9 +296,6 @@ Account.postgres.insertRows().all({
   db: pool,
   params: { rows: [{ email: 'jane@example.com', firstName: 'Jane', lastName: 'Doe' }] },
 });
-
-// FIND BY
-Account.postgres.findBy().any({ db: pool, params: { email: 'jane@example.com' } });
 ```
 
 ---

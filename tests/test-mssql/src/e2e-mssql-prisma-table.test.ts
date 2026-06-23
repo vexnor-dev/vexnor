@@ -3,7 +3,7 @@ import { ok } from "node:assert";
 import { fileURLToPath } from "node:url";
 import type { FromPrismaModelResult } from "@vexnor/prisma";
 import { findPrismaModel, fromPrismaModelTable } from "@vexnor/prisma";
-import { param, row, sql } from "@vexnor/core";
+import { insert, param, row, sql } from "@vexnor/core";
 import "@vexnor/mssql";
 import { pool } from "./mssql-pool.js";
 import { getTag } from "./tags.js";
@@ -57,10 +57,10 @@ describe.sequential("e2e prisma/mssql — fromPrismaModelTable works against rea
    test("sql: insert and select", async () => {
       const inserted = await sql`
          INSERT INTO ${Account}
-            ${Account.insertCols({ email: `${TAG}-sql@example.com`, firstName: "SqlPrisma", lastName: "Test" })}
+            (${insert.cols(Account, "rows")})
             OUTPUT ${row(Account.as("inserted").$$)}
-            ${Account.insertVals({ email: `${TAG}-sql@example.com`, firstName: "SqlPrisma", lastName: "Test" })}
-      `.mssql.one({ db: pool.request() });
+            VALUES ${insert.values(Account, "rows")}
+      `.mssql.one({ db: pool.request(), params: { rows: [{ email: `${TAG}-sql@example.com`, firstName: "SqlPrisma", lastName: "Test" }] } });
 
       expect(inserted.email).toBe(`${TAG}-sql@example.com`);
       expect(inserted.firstName).toBe("SqlPrisma");
@@ -71,12 +71,6 @@ describe.sequential("e2e prisma/mssql — fromPrismaModelTable works against rea
 
    test("crud: full cycle", async () => {
       expect(account.email).toBe(`${TAG}@example.com`);
-
-      const byId = await Account.mssql.findById().any({ db: pool.request(), params: { accountId: account.accountId } });
-      expect(String(byId?.accountId).toLowerCase()).toBe(String(account.accountId).toLowerCase());
-
-      const byEmail = await Account.mssql.findBy().any({ db: pool.request(), params: { email: account.email } });
-      expect(String(byEmail?.accountId).toLowerCase()).toBe(String(account.accountId).toLowerCase());
 
       const selected = await Account.mssql
          .select({ WHERE: sql`${Account.$accountId} = ${param<{ id: string }>("id")}` })

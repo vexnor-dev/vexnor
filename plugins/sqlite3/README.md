@@ -139,16 +139,10 @@ await transaction(db, async (db) => {
 Generated tables expose typed query factories on `.sqlite`. Available methods depend on which operations are enabled in the table's `crud` config.
 
 ```typescript
-// Find by primary key
-const account = await Account.sqlite.findById().any({
-  db,
-  params: { accountId: '00000000-0000-0000-0000-000000000001' },
-});
-
 // Find by any column subset
-const account = await Account.sqlite.findBy().any({
+const account = await Account.sqlite.select({}).any({
   db,
-  params: { email: 'jane@example.com' },
+  params: { filter: { email: 'jane@example.com' } },
 });
 
 // SELECT with optional clauses

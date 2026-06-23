@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { sql } from "#/core/sql.js";
 import { row } from "#/core/query/sql-select-row.js";
+import { set } from "#/core/query/sql-set.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
 import { val } from "#/core/query/sql-select-value.js";
@@ -66,9 +67,9 @@ describe("Branch coverage — SqlTable write() format branches", () => {
 
    test("schema.tableName in UPDATE context sets alias", () => {
       const rendered = Account.render("schema.tableName");
-      const query = sql`UPDATE ${rendered} SET ${Account.updateSet({ email: "new@test.com" })}`;
+      const query = sql`UPDATE ${rendered} ${set(Account)}`;
       const context = new SqlBuildContext({ dialect: "sql" });
-      query.build(context, null, { queryType: "main" });
+      query.build(context, null, { queryType: "main", params: { set: { email: "new@test.com" } } });
       expect(context.tokens.length).toBeGreaterThan(0);
    });
 

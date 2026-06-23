@@ -4,8 +4,6 @@ import { row } from "#/core/query/sql-select-row.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
 import { param } from "#/core/query/sql-param.js";
-import { expand } from "#/core/query/sql-expand.js";
-import { raw } from "#/core/query/sql-raw.js";
 import { SqlQuery } from "#/core/query/sql-query.js";
 
 describe("SqlQuery.getSql — uncovered paths", () => {
@@ -29,31 +27,6 @@ describe("SqlQuery.getSql — uncovered paths", () => {
           "active",
         ]
       `);
-   });
-
-   test("getSql with inline value", () => {
-      const query = sql`SELECT ${row(Account.$accountId)} FROM ${Account} WHERE ${Account.$status} = ${"active"}`;
-      const result = query.getSql({ options: { dialect: "postgresql" } });
-      expect(result.values).toMatchInlineSnapshot(`
-        [
-          "active",
-        ]
-      `);
-   });
-
-   test("getSql with format: false skips formatting", () => {
-      const query = sql`SELECT ${row(Account.$accountId)} FROM ${Account}`;
-      const result = query.getSql({ options: { dialect: "sql", format: false } });
-      expect(result.text).toBeDefined();
-   });
-
-   test("getSql with expand param that returns array", () => {
-      const query = sql`
-         SELECT ${row(Account.$accountId)} FROM ${Account}
-         WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>({ ids: null }, ({ ids }) => ids.map(id => raw(id)))})
-      `;
-      const result = query.getSql({ params: { ids: ["a", "b"] }, options: { dialect: "sql", format: false } });
-      expect(result.text).toBeDefined();
    });
 
    test("getSql throws for invalid dialect", () => {
@@ -168,5 +141,23 @@ describe("SqlQueryRef — uncovered paths", () => {
       const query = sql`SELECT ${row(Account.$accountId)} FROM ${Account}`;
       const ref = query.render("from");
       expect((ref as unknown as Record<string, unknown>)["$nonExistent"]).toBeUndefined();
+   });
+});
+
+describe("getSql — additional coverage", () => {
+   test("getSql with inline value", () => {
+      const query = sql`SELECT ${row(Account.$accountId)} FROM ${Account} WHERE ${Account.$status} = ${"active"}`;
+      const result = query.getSql({ options: { dialect: "postgresql" } });
+      expect(result.values).toMatchInlineSnapshot(`
+        [
+          "active",
+        ]
+      `);
+   });
+
+   test("getSql with format: false skips formatting", () => {
+      const query = sql`SELECT ${row(Account.$accountId)} FROM ${Account}`;
+      const result = query.getSql({ options: { dialect: "sql", format: false } });
+      expect(result.text).toBeDefined();
    });
 });

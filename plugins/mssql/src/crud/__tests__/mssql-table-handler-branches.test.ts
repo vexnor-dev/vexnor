@@ -8,68 +8,6 @@ import { param, sql } from "@vexnor/core";
 describe("newMssqlTableHandler — SQL generation branches", () => {
    const handler = newMssqlTableHandler(Account);
 
-   test("findBy() — multiple fields SQL", () => {
-      const { text, values } = handler.findBy().source.getSql({
-         params: { email: "a@b.com", firstName: "Jane" },
-         options: defaultQueryOptions,
-      });
-      expect(text).toMatchInlineSnapshot(`
-        "/* <query_0> */
-        /* driver: transactsql */
-        SELECT
-          "a_1"."account_id" AS "accountId",
-          "a_1"."status",
-          "a_1"."email",
-          "a_1"."first_name" AS "firstName",
-          "a_1"."last_name" AS "lastName",
-          "a_1"."notes",
-          "a_1"."created_at" AS "createdAt",
-          "a_1"."modified_at" AS "modifiedAt",
-          "a_1"."parent_id" AS "parentId"
-        FROM
-          "main"."account" AS "a_1"
-          /* <query_1> */
-        WHERE
-          /* <query_2> */ /* <query_3> */ "a_1"."email" = @param_0 /* </query_3> */
-          AND /* <query_4> */ "a_1"."first_name" = @param_1 /* </query_4> */ /* </query_2> */ /* </query_1> */
-          /* </query_0> */"
-      `);
-      expect(values).toMatchInlineSnapshot(`
-        [
-          "a@b.com",
-          "Jane",
-        ]
-      `);
-   });
-
-   test("findBy() — empty params produces no WHERE clause values", () => {
-      const { text, values } = handler.findBy().source.getSql({
-         params: {},
-         options: defaultQueryOptions,
-      });
-      expect(text).toMatchInlineSnapshot(`
-        "/* <query_0> */
-        /* driver: transactsql */
-        SELECT
-          "a_1"."account_id" AS "accountId",
-          "a_1"."status",
-          "a_1"."email",
-          "a_1"."first_name" AS "firstName",
-          "a_1"."last_name" AS "lastName",
-          "a_1"."notes",
-          "a_1"."created_at" AS "createdAt",
-          "a_1"."modified_at" AS "modifiedAt",
-          "a_1"."parent_id" AS "parentId"
-        FROM
-          "main"."account" AS "a_1"
-          /* <query_1> */
-        WHERE
-          /* </query_1> */
-          /* </query_0> */"
-      `);
-      expect(values).toMatchInlineSnapshot(`[]`);
-   });
-
    test("select() — with WHERE clause", () => {
       const query = handler.select({
          WHERE: sql`${Account.$status} = ${param<{ status: string }>("status")}`,
@@ -165,8 +103,7 @@ describe("newMssqlTableHandler — SQL generation branches", () => {
           "inserted"."modified_at" AS "modifiedAt",
           "inserted"."parent_id" AS "parentId"
         VALUES
-          /* <query_1> */
-          (@param_0, @param_1, @param_2) /* </query_1> */
+          (@param_0, @param_1, @param_2)
           /* </query_0> */"
       `);
    });

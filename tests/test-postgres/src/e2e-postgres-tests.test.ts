@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, test } from "vitest";
 import crypto, { randomUUID } from "node:crypto";
 import { ok } from "node:assert";
-import { param, row } from "@vexnor/core";
+import { insert, param, row } from "@vexnor/core";
 import { Account, IAccountSelect } from "./codegen/vexnor_dev.account-table.js";
 import { AccountStatusUdt } from "./codegen/vexnor_dev-enums.js";
 import { pool } from "./postgres-pool.js";
@@ -34,9 +34,9 @@ describe.sequential("vexnor postgres e2e tests", { concurrent: false }, () => {
       }
       const accounts = await sql`
             insert into ${Account}
-               ${Account.insertColsVals(...newAccountsArgs)}
+               ${insert(Account, "rows")}
                returning ${row(Account.$$)}
-         `.all({ db: pool });
+         `.all({ db: pool, params: { rows: newAccountsArgs } });
 
       ok(accounts?.length, "root accounts not inserted");
       expect(accounts.length).toBe(100);
@@ -63,9 +63,9 @@ describe.sequential("vexnor postgres e2e tests", { concurrent: false }, () => {
 
       const children = await sql`
          insert into ${Account}
-            ${Account.insertColsVals(...childAccountsArgs)}
+            ${insert(Account, "rows")}
             returning ${row(Account.$$)}
-      `.all({ db: pool });
+      `.all({ db: pool, params: { rows: childAccountsArgs } });
 
       ok(children?.length, "child accounts not inserted");
       expect(children.length).toBe(ROOT_COUNT * CHILD_FACTOR);

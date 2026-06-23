@@ -199,7 +199,7 @@ Import this file once at your entry point — after that, `.myProject` is availa
 import './db.js';
 
 const accounts = await findActiveAccounts.myProject.all({ db: pool });
-const account = await Account.myProject.findBy().any({ db: pool, params: { email: 'jane@example.com' } });
+const account = await Account.myProject.select({}).any({ db: pool, params: { filter: { email: 'jane@example.com' } } });
 ```
 
 This is exactly what `import '@vexnor/postgres'` does internally. There is no difference between a plugin namespace and a custom one — they use the same mechanism.

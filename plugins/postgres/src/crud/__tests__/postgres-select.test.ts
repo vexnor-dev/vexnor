@@ -24,6 +24,10 @@ describe("postgresSelect()", () => {
           "a_1"."parent_id" AS "parentId"
         FROM
           "main"."account" AS "a_1"
+          /* <query_1> */
+          /* </query_1> */
+          /* <query_2> */
+          /* </query_2> */
           /* </query_0> */"
       `);
    });
@@ -56,6 +60,8 @@ describe("postgresSelect()", () => {
           /* <query_1> */
         WHERE
           /* <query_2> */ "a_1"."account_id" = $1 /* </query_2> */ /* </query_1> */
+          /* <query_3> */
+          /* </query_3> */
           /* </query_0> */"
       `);
    });
@@ -85,14 +91,16 @@ describe("postgresSelect()", () => {
         FROM
           "main"."account" AS "a_1"
           /* <query_1> */
+          /* </query_1> */
+          /* <query_2> */
         ORDER BY
-          /* <query_2> */ "a_1"."created_at" DESC /* </query_2> */ /* </query_1> */
-          /* <query_3> */
-        LIMIT
-          $1 /* </query_3> */
+          /* <query_3> */ "a_1"."created_at" DESC /* </query_3> */ /* </query_2> */
           /* <query_4> */
+        LIMIT
+          $1 /* </query_4> */
+          /* <query_5> */
         OFFSET
-          $2 /* </query_4> */
+          $2 /* </query_5> */
           /* </query_0> */"
       `);
       expect(values).toMatchObject([10, 0]);
@@ -147,6 +155,8 @@ describe("postgresSelect()", () => {
               ) AS "query_1"
           ) AS "query_1" ON TRUE
           /* </query_2> */
+          /* <query_3> */
+          /* </query_3> */
           /* </query_0> */"
       `);
    });
@@ -216,6 +226,8 @@ describe("postgresSelect()", () => {
               ) AS "query_1"
           ) AS "query_1" ON TRUE
           /* </query_3> */
+          /* <query_4> */
+          /* </query_4> */
           /* </query_0> */"
       `);
    });
@@ -318,6 +330,8 @@ describe("postgresSelect()", () => {
               ) AS "query_3"
           ) AS "query_3" ON TRUE
           /* </query_5> */
+          /* <query_6> */
+          /* </query_6> */
           /* </query_0> */"
       `);
    });
@@ -397,6 +411,8 @@ describe("postgresSelect()", () => {
               ) AS "query_1"
           ) AS "query_1" ON TRUE
           /* </query_2> */
+          /* <query_5> */
+          /* </query_5> */
           /* </query_0> */"
       `);
    });
@@ -431,6 +447,10 @@ describe("postgresSelect()", () => {
           ) AS "query_1"
         FROM
           "main"."account" AS "a_3"
+          /* <query_2> */
+          /* </query_2> */
+          /* <query_3> */
+          /* </query_3> */
           /* </query_0> */"
       `);
    });
@@ -520,8 +540,6 @@ describe("postgresSelect()", () => {
             email: "a@b.com",
             dir: "desc",
             limit: 5,
-            // @ts-expect-error not declared
-            other: "x",
          });
       });
 
@@ -543,8 +561,6 @@ describe("postgresSelect()", () => {
             email: "a@b.com",
             dir: "desc",
             limit: 1,
-            // @ts-expect-error not declared
-            other: "x",
          });
       });
    });

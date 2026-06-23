@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
-import { col, row, val } from "@vexnor/core";
+import { col, insert, row, val } from "@vexnor/core";
 import { jsonMany, sql } from "@vexnor/mssql";
 import { Account } from "./codegen/vexnor_dev.account-table.js";
 import { Order } from "./codegen/vexnor_dev.order-table.js";
@@ -315,18 +315,10 @@ describe.sequential("advanced SQL - mssql", async (ctx) => {
    test("subquery in WHERE: accounts with no orders (NOT IN)", async () => {
       const orphan = await sql`
          insert into ${Account}
-            ${Account.insertCols({
-               email: `orphan-${dataManager.TAG}@example.com`,
-               firstName: "Orphan",
-               lastName: dataManager.TAG,
-            })}
+            (${insert.cols(Account, "rows")})
             output ${row(Account.as("inserted").$$)}
-            ${Account.insertVals({
-               email: `orphan-${dataManager.TAG}@example.com`,
-               firstName: "Orphan",
-               lastName: dataManager.TAG,
-            })}
-      `.mssql.one({ db: pool.request() });
+            VALUES ${insert.values(Account, "rows")}
+      `.mssql.one({ db: pool.request(), params: { rows: [{ email: `orphan-${dataManager.TAG}@example.com`, firstName: "Orphan", lastName: dataManager.TAG }] } });
 
       const result = await sql`
          select ${row(Account.$$)}

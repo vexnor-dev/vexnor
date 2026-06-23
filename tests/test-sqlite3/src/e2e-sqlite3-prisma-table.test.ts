@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { findPrismaModel, fromPrismaModelTable } from "@vexnor/prisma";
 import type { FromPrismaModelResult } from "@vexnor/prisma";
-import { row, sql, param, excluded } from "@vexnor/core";
+import { insert, row, sql, param, excluded } from "@vexnor/core";
 import "@vexnor/sqlite3";
 import { db, SQLITE_PATH } from "./config.js";
 import { getTag } from "./tags.js";
@@ -64,8 +64,8 @@ describe.sequential("e2e prisma/sqlite — fromPrismaModelTable works against re
 
       await sql`
          INSERT INTO ${Account}
-            ${Account.insertColsVals({ accountId, email: `${TAG}-sql@example.com`, firstName: "SqlPrisma", lastName: "Test" })}
-      `.sqlite.run({ db });
+            ${insert(Account, "rows")}
+      `.sqlite.run({ db, params: { rows: [{ accountId, email: `${TAG}-sql@example.com`, firstName: "SqlPrisma", lastName: "Test" }] } });
 
       const selected = await sql`
          SELECT ${row(Account.$$)} FROM ${Account}
@@ -78,12 +78,6 @@ describe.sequential("e2e prisma/sqlite — fromPrismaModelTable works against re
 
    test("crud: full cycle", async () => {
       expect(account.email).toBe(`${TAG}@example.com`);
-
-      const byId = await Account.sqlite.findById().any({ db, params: { accountId: account.accountId } });
-      expect(byId?.accountId).toBe(account.accountId);
-
-      const byEmail = await Account.sqlite.findBy().any({ db, params: { email: account.email } });
-      expect(byEmail?.accountId).toBe(account.accountId);
 
       const selected = await Account.sqlite
          .select({ WHERE: sql`${Account.$accountId} = ${param<{ id: string }>("id")}` })

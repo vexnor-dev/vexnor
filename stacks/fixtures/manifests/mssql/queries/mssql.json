@@ -1,0 +1,334 @@
+{
+  "version": 1,
+  "generatorVersion": "1.0.0-beta.1",
+  "dialect": "transactsql",
+  "queries": {
+    "ddc6d356ac9e8492672f6a87607d1553813d24ea324bdad7d86e246f6bd5068a": {
+      "name": "insertAccounts",
+      "location": "stacks/fixtures/queries/mssql.ts:21:31",
+      "hash": "ddc6d356ac9e8492672f6a87607d1553813d24ea324bdad7d86e246f6bd5068a",
+      "template": [
+        {
+          "type": "text",
+          "value": "\n   INSERT INTO \"vexnor_dev\".\"account\"\n   ("
+        },
+        {
+          "type": "insertCols",
+          "param": "rows",
+          "columns": {
+            "accountId": "\"account_id\"",
+            "parentId": "\"parent_id\"",
+            "status": "\"status\"",
+            "email": "\"email\"",
+            "firstName": "\"first_name\"",
+            "lastName": "\"last_name\"",
+            "notes": "\"notes\"",
+            "createdAt": "\"created_at\"",
+            "modifiedAt": "\"modified_at\""
+          }
+        },
+        {
+          "type": "text",
+          "value": ")\n   OUTPUT \"inserted\".\"account_id\" as \"accountId\", \"inserted\".\"parent_id\" as \"parentId\", \"inserted\".\"status\", \"inserted\".\"email\", \"inserted\".\"first_name\" as \"firstName\", \"inserted\".\"last_name\" as \"lastName\", \"inserted\".\"notes\", \"inserted\".\"created_at\" as \"createdAt\", \"inserted\".\"modified_at\" as \"modifiedAt\"\n   VALUES "
+        },
+        {
+          "type": "insertValues",
+          "param": "rows",
+          "keys": [
+            "accountId",
+            "parentId",
+            "status",
+            "email",
+            "firstName",
+            "lastName",
+            "notes",
+            "createdAt",
+            "modifiedAt"
+          ]
+        },
+        {
+          "type": "text",
+          "value": "\n"
+        }
+      ],
+      "params": {
+        "rows": {
+          "name": "rows",
+          "isContext": false
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "3140e1bc3958c630b99c17ca480066fdc0b66116520bd8ba4880f78a17155ee7": {
+      "name": "selectByStatus",
+      "location": "stacks/fixtures/queries/mssql.ts:9:31",
+      "hash": "3140e1bc3958c630b99c17ca480066fdc0b66116520bd8ba4880f78a17155ee7",
+      "template": [
+        {
+          "type": "text",
+          "value": "\n   SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"parent_id\" as \"parentId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\"\n   FROM \"vexnor_dev\".\"account\" as \"a_1\"\n   WHERE \"a_1\".\"status\" = "
+        },
+        {
+          "type": "param",
+          "name": "status"
+        },
+        {
+          "type": "text",
+          "value": "\n"
+        }
+      ],
+      "params": {
+        "status": {
+          "name": "status",
+          "isContext": false
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "e3655d419b6c48e13d940173046bf4c4a3d8457dec844593406e6feef8edd15e": {
+      "name": "selectConditional",
+      "location": "stacks/fixtures/queries/mssql.ts:40:34",
+      "hash": "e3655d419b6c48e13d940173046bf4c4a3d8457dec844593406e6feef8edd15e",
+      "template": [
+        {
+          "type": "text",
+          "value": "\n   SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"parent_id\" as \"parentId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\"\n   FROM \"vexnor_dev\".\"account\" as \"a_1\"\n   WHERE \"a_1\".\"status\" = "
+        },
+        {
+          "type": "param",
+          "name": "status"
+        },
+        {
+          "type": "text",
+          "value": "\n   "
+        },
+        {
+          "type": "when",
+          "param": "hasEmail",
+          "onTrue": [
+            {
+              "type": "text",
+              "value": "AND \"a_1\".\"email\" = "
+            },
+            {
+              "type": "param",
+              "name": "email"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "value": "\n"
+        }
+      ],
+      "params": {
+        "status": {
+          "name": "status",
+          "isContext": false
+        },
+        "email": {
+          "name": "email",
+          "isContext": false
+        },
+        "hasEmail": {
+          "name": "hasEmail",
+          "isContext": false
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "0b7dcd2a77e7dc5565f6ffdfa0454ea8c2b6d11242fef2689e43ccdd84ddb16c": {
+      "name": "selectOrdered",
+      "location": "stacks/fixtures/queries/mssql.ts:34:30",
+      "hash": "0b7dcd2a77e7dc5565f6ffdfa0454ea8c2b6d11242fef2689e43ccdd84ddb16c",
+      "template": [
+        {
+          "type": "text",
+          "value": "\n   SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"parent_id\" as \"parentId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\"\n   FROM \"vexnor_dev\".\"account\" as \"a_1\"\n   "
+        },
+        {
+          "type": "orderBy",
+          "param": "sortField",
+          "columns": {
+            "accountId": "\"a_1\".\"account_id\"",
+            "parentId": "\"a_1\".\"parent_id\"",
+            "status": "\"a_1\".\"status\"",
+            "email": "\"a_1\".\"email\"",
+            "firstName": "\"a_1\".\"first_name\"",
+            "lastName": "\"a_1\".\"last_name\"",
+            "notes": "\"a_1\".\"notes\"",
+            "createdAt": "\"a_1\".\"created_at\"",
+            "modifiedAt": "\"a_1\".\"modified_at\""
+          }
+        },
+        {
+          "type": "text",
+          "value": "\n"
+        }
+      ],
+      "params": {
+        "sortField": {
+          "name": "sortField",
+          "isContext": false
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "e2947efd03ce1f5d41c6f50816bb6b324f9f3f625de4268cff24d4c34c1b979e": {
+      "name": "selectWithFilter",
+      "location": "stacks/fixtures/queries/mssql.ts:15:33",
+      "hash": "e2947efd03ce1f5d41c6f50816bb6b324f9f3f625de4268cff24d4c34c1b979e",
+      "template": [
+        {
+          "type": "text",
+          "value": "\n   SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"parent_id\" as \"parentId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\"\n   FROM \"vexnor_dev\".\"account\" as \"a_1\"\n   WHERE "
+        },
+        {
+          "type": "filter",
+          "param": "filter",
+          "columns": {
+            "accountId": "\"a_1\".\"account_id\"",
+            "parentId": "\"a_1\".\"parent_id\"",
+            "status": "\"a_1\".\"status\"",
+            "email": "\"a_1\".\"email\"",
+            "firstName": "\"a_1\".\"first_name\"",
+            "lastName": "\"a_1\".\"last_name\"",
+            "notes": "\"a_1\".\"notes\"",
+            "createdAt": "\"a_1\".\"created_at\"",
+            "modifiedAt": "\"a_1\".\"modified_at\""
+          }
+        },
+        {
+          "type": "text",
+          "value": "\n"
+        }
+      ],
+      "params": {
+        "filter": {
+          "name": "filter",
+          "isContext": false,
+          "validation": {
+            "type": "filter",
+            "columns": [
+              "accountId",
+              "parentId",
+              "status",
+              "email",
+              "firstName",
+              "lastName",
+              "notes",
+              "createdAt",
+              "modifiedAt"
+            ],
+            "operators": [
+              "equal",
+              "not",
+              "greaterThan",
+              "greaterOrEqual",
+              "lowerThan",
+              "lowerOrEqual",
+              "between",
+              "in",
+              "notIn",
+              "like",
+              "notLike",
+              "isNull",
+              "isNotNull"
+            ]
+          }
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "d8dd861991df814957cc85547ca46beeaa36d7202e57283daae17a9f21ca1449": {
+      "name": "updateAccount",
+      "location": "stacks/fixtures/queries/mssql.ts:28:30",
+      "hash": "d8dd861991df814957cc85547ca46beeaa36d7202e57283daae17a9f21ca1449",
+      "template": [
+        {
+          "type": "text",
+          "value": "\n   UPDATE \"vexnor_dev\".\"account\"\n   "
+        },
+        {
+          "type": "set",
+          "param": "set",
+          "columns": {
+            "accountId": "\"account_id\"",
+            "parentId": "\"parent_id\"",
+            "status": "\"status\"",
+            "email": "\"email\"",
+            "firstName": "\"first_name\"",
+            "lastName": "\"last_name\"",
+            "notes": "\"notes\"",
+            "createdAt": "\"created_at\"",
+            "modifiedAt": "\"modified_at\""
+          }
+        },
+        {
+          "type": "text",
+          "value": "\n   WHERE \"account\".\"account_id\" = "
+        },
+        {
+          "type": "param",
+          "name": "accountId"
+        },
+        {
+          "type": "text",
+          "value": "\n"
+        }
+      ],
+      "params": {
+        "set": {
+          "name": "set",
+          "isContext": false
+        },
+        "accountId": {
+          "name": "accountId",
+          "isContext": false
+        }
+      },
+      "row": null,
+      "authorization": []
+    }
+  }
+}

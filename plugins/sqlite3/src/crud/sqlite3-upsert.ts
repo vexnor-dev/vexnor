@@ -3,8 +3,7 @@ import {
    Sql,
    SqlTable,
    SqlTableColumn,
-   expandInsertColumns,
-   expandInsertValues,
+   insert,
    row,
    raw,
    info,
@@ -30,7 +29,7 @@ export type Sqlite3UpsertArgs = {
 
 export type Sqlite3UpsertResult<T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> }> =
    BetterSqlite3QueryHandler<{
-      Params: SqlInsertRowsParams<T>;
+      Params: SqlInsertRowsParams<T, "rows">;
       Row: T["Select"];
    }>;
 
@@ -52,9 +51,9 @@ export function sqlite3Upsert<T extends { Select: Record<string, unknown>; Inser
    return sql`
       ${info({ driver: "sqlite" }) ?? raw.BLANK}
       insert into ${table}
-         (${expandInsertColumns(table)})
+         (${insert.cols(table, "rows")})
       values
-         ${expandInsertValues(table)}
+         ${insert.values(table, "rows")}
       on conflict (${conflictCols})
       do update set ${sql`${setClause}`.inline()}
       returning ${row(table.$$)}

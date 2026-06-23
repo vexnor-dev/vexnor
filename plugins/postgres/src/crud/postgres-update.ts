@@ -2,7 +2,7 @@ import {
    SqlTable,
    sql,
    raw,
-   buildUpdateSetExpand,
+   set,
    row,
    SqlUpdateParameters,
    Void,
@@ -30,7 +30,7 @@ export function postgresUpdate<
    return sql`
       ${info({ driver: "postgres" }) ?? raw.BLANK}
       update ${table}
-         ${buildUpdateSetExpand(table)}
+         ${set(table)}
          ${args.WHERE ? sql`where ${args.WHERE.inline()}`.inline() : raw.BLANK}
       returning ${row(table.$$)}
    `.postgres as unknown as PostgresTableUpdateResult<T, Args>;

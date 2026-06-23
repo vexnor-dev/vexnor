@@ -1,19 +1,18 @@
 import { describe, expect, test } from "vitest";
 import { sql } from "#/core/sql.js";
 import { row } from "#/core/query/sql-select-row.js";
+import { set } from "#/core/query/sql-set.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
 import { param } from "#/core/query/sql-param.js";
-import { raw } from "#/core/query/sql-raw.js";
-import { expand } from "#/core/query/sql-expand.js";
 import { SqlQuery } from "#/core/query/sql-query.js";
 
 describe("Branch coverage push — SQL table write in update/delete/insert context", () => {
    test("UPDATE with schema.tableName sets alias to table name", () => {
       const rendered = Account.render("schema.tableName");
-      const query = sql`UPDATE ${rendered} SET ${Account.updateSet({ email: "x@y.com" })}`;
+      const query = sql`UPDATE ${rendered} ${set(Account)}`;
       const context = new SqlBuildContext({ dialect: "sql" });
-      query.build(context, null, { queryType: "main" });
+      query.build(context, null, { queryType: "main", params: { set: { email: "x@y.com" } } });
       const text = context.tokens.filter(t => t.type === "text").map(t => t.value).join("");
       expect(text.toLowerCase()).toContain("update");
    });
@@ -51,19 +50,6 @@ describe("Branch coverage push — SqlQuery.write with empty children", () => {
       query.build(context, null, { queryType: "main" });
       const text = context.tokens.filter(t => t.type === "text").map(t => t.value).join("");
       expect(text).toContain("SELECT 1");
-   });
-});
-
-describe("Branch coverage push — expand with multiple items and SqlQuery in array", () => {
-   test("expand returns array of multiple Sql items", () => {
-      const e = expand<{ cols: string[] }>({ cols: null }, ({ cols }) =>
-         cols.map((c, i) => (i > 0 ? sql`AND ${raw(c)} = 1`.inline() : sql`${raw(c)} = 1`.inline())),
-      );
-      const context = new SqlBuildContext({ dialect: "sql", params: { cols: ["a", "b", "c"] } });
-      e.build(context);
-      const text = context.tokens.filter(t => t.type === "text").map(t => t.value).join("");
-      expect(text).toContain("a");
-      expect(text).toContain("b");
    });
 });
 
