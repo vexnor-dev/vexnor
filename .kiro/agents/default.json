@@ -1,0 +1,14 @@
+{
+  "name": "default",
+  "allowedTools": [
+    "read",
+    "write",
+    "grep",
+    "glob",
+    "code",
+    "web_search",
+    "knowledge",
+    "subagent",
+    "todo_list"
+  ]
+}

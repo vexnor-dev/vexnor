@@ -33,6 +33,8 @@ describe("newMssqlTableHandler — SQL generation branches", () => {
           /* <query_1> */
         WHERE
           /* <query_2> */ "a_1"."status" = @param_0 /* </query_2> */ /* </query_1> */
+          /* <query_3> */
+          /* </query_3> */
           /* </query_0> */"
       `);
       expect(values).toMatchInlineSnapshot(`
@@ -122,20 +124,20 @@ describe("newMssqlTableHandler — SQL generation branches", () => {
         MERGE INTO
           "main"."account" using (
             VALUES
-              /* <query_1> */ (@param_0, @param_1, @param_2) /* </query_1> */
+              (@param_0, @param_1, @param_2)
           ) AS src ("email", "first_name", "last_name") ON (
-            /* <query_2> */ "account"."account_id" = src.account_id /* </query_2> */
+            /* <query_1> */ "account"."account_id" = src.account_id /* </query_1> */
           )
         WHEN MATCHED THEN
         UPDATE SET
-          /* <query_3> */ /* <query_4> */ /* <query_5> */ "email" = src.email /* </query_5> */,
-          /* <query_6> */ "first_name" = src.first_name /* </query_6> */,
-          /* <query_7> */ "last_name" = src.last_name /* </query_7> */ /* </query_4> */ /* </query_3> */
+          /* <query_2> */ "email" = src."email",
+          "first_name" = src."first_name",
+          "last_name" = src."last_name" /* </query_2> */
         WHEN NOT MATCHED THEN
         INSERT
           ("email", "first_name", "last_name")
         VALUES
-          (src.email, src.first_name, src.last_name) output "inserted"."account_id" AS "accountId",
+          (src."email", src."first_name", src."last_name") output "inserted"."account_id" AS "accountId",
           "inserted"."status",
           "inserted"."email",
           "inserted"."first_name" AS "firstName",

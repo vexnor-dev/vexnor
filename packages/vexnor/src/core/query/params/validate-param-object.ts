@@ -6,7 +6,7 @@ export function validateParamObject(
    validation: ObjectValidationAny,
    errors: string[],
 ): void {
-   const { fieldNames, operators, aggregates, fieldValues = [] } = validation;
+   const { fieldNames, operators, aggregates, fieldValues = null } = validation;
    const allowedKeys = fieldNames ? new Set([...fieldNames, ...aggregates ?? []]) : null;
    const allowedValues = fieldValues ? new Set([...fieldValues, ...Object.keys(operators ?? {})]) : null;
 

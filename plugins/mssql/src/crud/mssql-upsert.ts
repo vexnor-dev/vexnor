@@ -3,6 +3,7 @@ import {
    Sql,
    SqlTable,
    SqlTableColumn,
+   SqlBuildContext,
    insert,
    row,
    raw,
@@ -65,7 +66,7 @@ export function mssqlUpsert<T extends { Select: Record<string, unknown>; Insert:
          update set ${sql`${setClause}`.inline()}
       when not matched then
          insert (${insert.cols(table, "rows")})
-         values (${buildSrcCols(table, args.MERGE_ON)})
+         values (${buildSrcCols(table)})
       output ${row(table.as`inserted`.$$)};
    `.mssql as unknown as MssqlUpsertResult<T>;
 }
@@ -74,38 +75,64 @@ function buildMergeSet<T extends { Select: Record<string, unknown>; Insert: Reco
    table: SqlTable<T>,
    mergeCols: SqlTableColumnAny[],
 ): Sql {
-   const mergeColNames = new Set<string>(mergeCols.map((col) => col.columnName));
-   const pairs: Sql[] = [];
-   for (const colKey of Object.keys(table.cols)) {
-      const col = table.cols[colKey as `$${string}`];
-      if (!col || mergeColNames.has(col.columnName)) continue;
-      const src = new SqlTableColumn({
-         key: col.key,
-         columnName: col.columnName,
-         tableInfo: { ...col.tableInfo, alias: "src" },
-         format: "rawAlias.columnName",
-      });
-      pairs.push(sql`${col} = ${src}`.inline());
+   return new SqlMergeAutoSet(table, mergeCols);
+}
+
+class SqlMergeAutoSet<T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> }> extends Sql {
+   private readonly table: SqlTable<T>;
+   private readonly mergeCols: SqlTableColumnAny[];
+
+   constructor(table: SqlTable<T>, mergeCols: SqlTableColumnAny[]) {
+      super({ type: "SqlMergeAutoSet", id: `${table.tableInfo.name}.mergeSet`, hashId: `${table.hashId}|mergeSet` });
+      this.table = table;
+      this.mergeCols = mergeCols;
    }
-   return sql`${pairs}`;
+
+   write(context: SqlBuildContext): void {
+      const rows = (context.params as Record<string, unknown> | undefined)?.rows as Record<string, unknown>[] | undefined;
+      if (!rows?.length) return;
+
+      const insertKeySet = new Set(Object.keys(rows[0]!));
+      const mergeColNames = new Set<string>(this.mergeCols.map((col) => col.columnName));
+      const tableKeys = Object.keys(this.table.cols).map((k) => k.slice(1));
+      const keys = tableKeys.filter((k) => insertKeySet.has(k) && !mergeColNames.has(this.table.cols[`$${k}` as `$${string}`]!.columnName));
+
+      for (let i = 0; i < keys.length; i++) {
+         if (i > 0) context.addStrings(", ");
+         const col = this.table.cols[`$${keys[i]}` as `$${string}`] as SqlTableColumnAny;
+         context.addQuotes(col.columnName);
+         context.addStrings(` = src.`);
+         context.addQuotes(col.columnName);
+      }
+   }
 }
 
 function buildSrcCols<T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> }>(
    table: SqlTable<T>,
-   _mergeCols: SqlTableColumnAny[],
 ): Sql {
-   const cols: Sql[] = [];
-   for (const colKey of Object.keys(table.cols)) {
-      const col = table.cols[colKey as `$${string}`];
-      if (!col) continue;
-      cols.push(
-         new SqlTableColumn({
-            key: col.key,
-            columnName: col.columnName,
-            tableInfo: { ...col.tableInfo, alias: "src" },
-            format: "rawAlias.columnName",
-         }),
-      );
+   return new SqlMergeSrcCols(table);
+}
+
+class SqlMergeSrcCols<T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> }> extends Sql {
+   private readonly table: SqlTable<T>;
+
+   constructor(table: SqlTable<T>) {
+      super({ type: "SqlMergeSrcCols", id: `${table.tableInfo.name}.srcCols`, hashId: `${table.hashId}|srcCols` });
+      this.table = table;
    }
-   return sql`${cols}`;
+
+   write(context: SqlBuildContext): void {
+      const rows = (context.params as Record<string, unknown> | undefined)?.rows as Record<string, unknown>[] | undefined;
+      if (!rows?.length) return;
+
+      const insertKeySet = new Set(Object.keys(rows[0]!));
+      const tableKeys = Object.keys(this.table.cols).map((k) => k.slice(1));
+      const keys = tableKeys.filter((k) => insertKeySet.has(k));
+
+      for (let i = 0; i < keys.length; i++) {
+         if (i > 0) context.addStrings(", ");
+         const col = this.table.cols[`$${keys[i]}` as `$${string}`] as SqlTableColumnAny;
+         context.addStrings(`src."${col.columnName}"`);
+      }
+   }
 }

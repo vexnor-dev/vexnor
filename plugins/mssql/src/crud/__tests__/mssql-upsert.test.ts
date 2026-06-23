@@ -18,24 +18,24 @@ describe("mssqlUpsert()", () => {
         MERGE INTO
           "main"."account" using (
             VALUES
-              /* <query_1> */ (@param_0, @param_1, @param_2, @param_3) /* </query_1> */
+              (@param_0, @param_1, @param_2, @param_3)
           ) AS src ("account_id", "email", "first_name", "last_name") ON (
-            /* <query_2> */ "account"."account_id" = src.account_id /* </query_2> */
+            /* <query_1> */ "account"."account_id" = src.account_id /* </query_1> */
           )
         WHEN MATCHED THEN
         UPDATE SET
-          /* <query_3> */ /* <query_4> */ /* <query_5> */ "email" = src.email /* </query_5> */,
-          /* <query_6> */ "first_name" = src.first_name /* </query_6> */,
-          /* <query_7> */ "last_name" = src.last_name /* </query_7> */ /* </query_4> */ /* </query_3> */
+          /* <query_2> */ "email" = src."email",
+          "first_name" = src."first_name",
+          "last_name" = src."last_name" /* </query_2> */
         WHEN NOT MATCHED THEN
         INSERT
           ("account_id", "email", "first_name", "last_name")
         VALUES
           (
-            src.account_id,
-            src.email,
-            src.first_name,
-            src.last_name
+            src."account_id",
+            src."email",
+            src."first_name",
+            src."last_name"
           ) output "inserted"."account_id" AS "accountId",
           "inserted"."status",
           "inserted"."email",
@@ -73,22 +73,22 @@ describe("mssqlUpsert()", () => {
         MERGE INTO
           "main"."account" using (
             VALUES
-              /* <query_1> */ (@param_0, @param_1, @param_2, @param_3) /* </query_1> */
+              (@param_0, @param_1, @param_2, @param_3)
           ) AS src ("account_id", "email", "first_name", "last_name") ON (
-            /* <query_2> */ "account"."account_id" = src.account_id /* </query_2> */
+            /* <query_1> */ "account"."account_id" = src.account_id /* </query_1> */
           )
         WHEN MATCHED THEN
         UPDATE SET
-          /* <query_3> */ /* <query_4> */ "first_name" = src.first_name /* </query_4> */ /* </query_3> */
+          /* <query_2> */ /* <query_3> */ "first_name" = src.first_name /* </query_3> */ /* </query_2> */
         WHEN NOT MATCHED THEN
         INSERT
           ("account_id", "email", "first_name", "last_name")
         VALUES
           (
-            src.account_id,
-            src.email,
-            src.first_name,
-            src.last_name
+            src."account_id",
+            src."email",
+            src."first_name",
+            src."last_name"
           ) output "inserted"."account_id" AS "accountId",
           "inserted"."status",
           "inserted"."email",
@@ -128,25 +128,25 @@ describe("mssqlUpsert()", () => {
         MERGE INTO
           "main"."account" using (
             VALUES
-              /* <query_1> */ (@param_0, @param_1, @param_2, @param_3) /* </query_1> */,
-              /* <query_2> */ (@param_4, @param_5, @param_6, @param_7) /* </query_2> */
+              (@param_0, @param_1, @param_2, @param_3),
+              (@param_4, @param_5, @param_6, @param_7)
           ) AS src ("account_id", "email", "first_name", "last_name") ON (
-            /* <query_3> */ "account"."account_id" = src.account_id /* </query_3> */
+            /* <query_1> */ "account"."account_id" = src.account_id /* </query_1> */
           )
         WHEN MATCHED THEN
         UPDATE SET
-          /* <query_4> */ /* <query_5> */ /* <query_6> */ "email" = src.email /* </query_6> */,
-          /* <query_7> */ "first_name" = src.first_name /* </query_7> */,
-          /* <query_8> */ "last_name" = src.last_name /* </query_8> */ /* </query_5> */ /* </query_4> */
+          /* <query_2> */ "email" = src."email",
+          "first_name" = src."first_name",
+          "last_name" = src."last_name" /* </query_2> */
         WHEN NOT MATCHED THEN
         INSERT
           ("account_id", "email", "first_name", "last_name")
         VALUES
           (
-            src.account_id,
-            src.email,
-            src.first_name,
-            src.last_name
+            src."account_id",
+            src."email",
+            src."first_name",
+            src."last_name"
           ) output "inserted"."account_id" AS "accountId",
           "inserted"."status",
           "inserted"."email",
