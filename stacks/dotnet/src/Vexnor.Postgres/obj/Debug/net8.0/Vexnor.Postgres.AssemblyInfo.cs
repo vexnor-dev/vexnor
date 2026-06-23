@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Vexnor.Postgres")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2a99e39798d7b5562bee5630c088c759d10c0a0d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d9d53a7be1beb8a6d479e3913353afeb33455681")]
 [assembly: System.Reflection.AssemblyProductAttribute("Vexnor.Postgres")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Vexnor.Postgres")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -32,7 +32,9 @@
       "build:1-core": "pnpm --filter './packages/*' run build",
       "build:4-install": "pnpm install --frozen-lockfile",
       "build:5-rest": "pnpm -r run build",
-      "test": "vitest --coverage run"
+      "test": "vitest --coverage run",
+      "dotnet:build": "dotnet build stacks/dotnet",
+      "dotnet:test": "dotnet test stacks/dotnet"
    },
    "devDependencies": {
       "@eslint/js": "^9.39.4",
