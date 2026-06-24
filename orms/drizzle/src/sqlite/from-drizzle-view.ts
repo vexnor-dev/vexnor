@@ -1,5 +1,4 @@
 import { getViewConfig, type SQLiteView, type SQLiteViewWithSelection } from "drizzle-orm/sqlite-core";
-import { Column } from "drizzle-orm";
 import { newSqlTable, type SqlTableExtended } from "@vexnor/core";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -41,7 +40,7 @@ export function fromDrizzleView<T extends AnySQLiteView>(
 
    const columns: Record<string, string> = {};
    for (const [jsKey, col] of Object.entries(config.selectedFields)) {
-      if (col instanceof Column) {
+      if (col !== null && typeof col === "object" && "name" in col && typeof col.name === "string" && "columnType" in col) {
          columns[jsKey] = col.name;
       }
    }

@@ -1,5 +1,4 @@
 import { getViewConfig, type PgView, type PgViewWithSelection } from "drizzle-orm/pg-core";
-import { Column } from "drizzle-orm";
 import { newSqlTable, type SqlTableExtended } from "@vexnor/core";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -40,7 +39,7 @@ export function fromDrizzleView<T extends AnyPgView>(
 
    const columns: Record<string, string> = {};
    for (const [jsKey, col] of Object.entries(config.selectedFields)) {
-      if (col instanceof Column) {
+      if (col !== null && typeof col === "object" && "name" in col && typeof col.name === "string" && "columnType" in col) {
          columns[jsKey] = col.name;
       }
    }
