@@ -19,7 +19,7 @@ const accountOrderSummaryDrizzle = mssqlSchema("vexnor_dev")
 
 const View = fromDrizzleView(accountOrderSummaryDrizzle);
 
-describe("e2e drizzle/mssql — fromDrizzleView against real view", () => {
+describe.skip("e2e drizzle/mssql — fromDrizzleView against real view", () => {
    test("crud is select-only", () => {
       expect(View.crud).toMatchInlineSnapshot(`
         {

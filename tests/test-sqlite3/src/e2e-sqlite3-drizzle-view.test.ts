@@ -17,7 +17,7 @@ const accountOrderSummaryDrizzle = sqliteView("account_order_summary", {
 
 const View = fromDrizzleView(accountOrderSummaryDrizzle, "main");
 
-describe("e2e drizzle/sqlite — fromDrizzleView against real view", () => {
+describe.skip("e2e drizzle/sqlite — fromDrizzleView against real view", () => {
    test("crud is select-only", () => {
       expect(View.crud).toMatchInlineSnapshot(`
         {

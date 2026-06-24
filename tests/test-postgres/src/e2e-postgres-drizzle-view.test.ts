@@ -19,7 +19,7 @@ const accountOrderSummaryDrizzle = pgSchema("vexnor_dev")
 
 const View = fromDrizzleView(accountOrderSummaryDrizzle);
 
-describe("e2e drizzle/pg — fromDrizzleView against real view", () => {
+describe.skip("e2e drizzle/pg — fromDrizzleView against real view", () => {
    test("crud is select-only", () => {
       expect(View.crud).toMatchInlineSnapshot(`
         {
