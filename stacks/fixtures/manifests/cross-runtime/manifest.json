@@ -596,6 +596,54 @@
         }
       },
       "authorization": []
+    },
+    "b0b2775698ee54cf462e9dbfa1cadb11d6c6afb0e550e14b5882ecc6101c84b1": {
+      "name": "xUpsertMulti",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:35:18",
+      "hash": "b0b2775698ee54cf462e9dbfa1cadb11d6c6afb0e550e14b5882ecc6101c84b1",
+      "template": [
+        {
+          "type": "text",
+          "value": "INSERT INTO \"vexnor_dev\".\"account\" "
+        },
+        {
+          "type": "upsert",
+          "param": "rows",
+          "columns": {
+            "accountId": "\"account_id\"",
+            "status": "\"status\"",
+            "email": "\"email\"",
+            "firstName": "\"first_name\"",
+            "lastName": "\"last_name\"",
+            "notes": "\"notes\"",
+            "createdAt": "\"created_at\"",
+            "modifiedAt": "\"modified_at\"",
+            "parentId": "\"parent_id\""
+          },
+          "conflictKeys": [
+            "accountId"
+          ]
+        },
+        {
+          "type": "text",
+          "value": " RETURNING \"account\".\"account_id\" as \"accountId\", \"account\".\"status\", \"account\".\"email\", \"account\".\"first_name\" as \"firstName\", \"account\".\"last_name\" as \"lastName\", \"account\".\"notes\", \"account\".\"created_at\" as \"createdAt\", \"account\".\"modified_at\" as \"modifiedAt\", \"account\".\"parent_id\" as \"parentId\""
+        }
+      ],
+      "params": {
+        "rows": {
+          "name": "rows",
+          "isContext": false
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
     }
   }
 }

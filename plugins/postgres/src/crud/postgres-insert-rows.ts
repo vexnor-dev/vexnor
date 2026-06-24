@@ -1,5 +1,5 @@
 // noinspection SqlNoDataSourceInspection,SqlResolve
-import { SqlTable, insert, row, raw, info, SqlQueryColumns } from "@vexnor/core";
+import { SqlTable, insert, row, info, SqlQueryColumns } from "@vexnor/core";
 import { sql } from "#/postgres-sql.js";
 import { SqlInsertRowsParams } from "@vexnor/core";
 import { PostgresQueryHandler } from "#/postgres-query-handler.js";
@@ -16,7 +16,7 @@ export function postgresInsertRows<T extends { Select: Record<string, unknown>; 
    table: SqlTable<T>,
 ): PostgresInsertRowsResult<T> {
    return sql`
-      ${info({ driver: "postgres" }) ?? raw.BLANK}
+      ${info({ driver: "postgres" })}
       insert into ${table}
       ${insert(table, "rows")}
       returning ${row(table.$$)}

@@ -28,7 +28,7 @@ export function postgresUpdate<
    Args extends SqlUpdateArgs,
 >(table: SqlTable<T>, args: Args): PostgresTableUpdateResult<T, Args> {
    return sql`
-      ${info({ driver: "postgres" }) ?? raw.BLANK}
+      ${info({ driver: "postgres" })}
       update ${table}
          ${set(table)}
          ${args.WHERE ? sql`where ${args.WHERE.inline()}`.inline() : raw.BLANK}

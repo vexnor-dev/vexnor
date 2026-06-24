@@ -41,3 +41,22 @@ describe("newPostgresTableHandler", () => {
       expect(query.source).toBeDefined();
    });
 });
+
+describe("newPostgresTableHandler — disabled CRUD branches", () => {
+   test("handler without insert/update/delete has no upsert/insertRows/update/delete", () => {
+      const readOnlyTable = { ...Account, crud: { select: true, insert: false, update: false, delete: false } };
+      const handler = newPostgresTableHandler(readOnlyTable as typeof Account);
+      expect(handler.select).toBeDefined();
+      expect((handler as Record<string, unknown>).upsert).toBeUndefined();
+      expect((handler as Record<string, unknown>).insertRows).toBeUndefined();
+      expect((handler as Record<string, unknown>).update).toBeUndefined();
+      expect((handler as Record<string, unknown>).delete).toBeUndefined();
+   });
+
+   test("handler without select has no select method", () => {
+      const noSelectTable = { ...Account, crud: { select: false, insert: true, update: true, delete: true } };
+      const handler = newPostgresTableHandler(noSelectTable as typeof Account);
+      expect((handler as Record<string, unknown>).select).toBeUndefined();
+      expect((handler as Record<string, unknown>).insertRows).toBeDefined();
+   });
+});

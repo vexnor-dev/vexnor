@@ -4,7 +4,7 @@ import { ok } from "node:assert";
 import { randomUUID } from "node:crypto";
 import { DataSource, EntitySchema, Entity, PrimaryColumn, Column, ViewEntity, ViewColumn } from "typeorm";
 import { fromTypeORM } from "@vexnor/typeorm";
-import { insert, row, sql, param, excluded } from "@vexnor/core";
+import { insert, row, sql, param } from "@vexnor/core";
 import "@vexnor/sqlite3";
 import { db, SQLITE_PATH } from "./config.js";
 
@@ -212,7 +212,6 @@ describe.sequential("e2e typeorm/sqlite — EntitySchema", () => {
       const upserted = await Account.sqlite
          .upsert({
             CONFLICT_ON: [Account.$accountId],
-            SET: sql`${Account.$firstName} = ${excluded(Account).$firstName}`,
          })
          .one({
             db,

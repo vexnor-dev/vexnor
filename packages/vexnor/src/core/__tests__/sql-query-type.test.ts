@@ -1,6 +1,6 @@
 import { assertType, describe, expect, test } from "vitest";
 import { param } from "#/core/query/sql-param.js";
-import { set } from "#/core/query/sql-set.js";
+import { set } from "#/core/operators/sql-set.js";
 import { SqlQuery } from "#/core/query/sql-query.js";
 import { row } from "#/core/query/sql-select-row.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";

@@ -151,5 +151,31 @@
       "%@vip%"
     ],
     "error": null
+  },
+  "xUpsertSingle": {
+    "hash": "b0b2775698ee54cf462e9dbfa1cadb11d6c6afb0e550e14b5882ecc6101c84b1",
+    "text": "INSERT INTO \"vexnor_dev\".\"account\" (\"account_id\", \"email\", \"first_name\", \"last_name\") values ($1, $2, $3, $4) on conflict (\"account_id\") do update set \"email\" = excluded.\"email\", \"first_name\" = excluded.\"first_name\", \"last_name\" = excluded.\"last_name\" RETURNING \"account\".\"account_id\" as \"accountId\", \"account\".\"status\", \"account\".\"email\", \"account\".\"first_name\" as \"firstName\", \"account\".\"last_name\" as \"lastName\", \"account\".\"notes\", \"account\".\"created_at\" as \"createdAt\", \"account\".\"modified_at\" as \"modifiedAt\", \"account\".\"parent_id\" as \"parentId\"",
+    "values": [
+      "uuid-1",
+      "a@test.com",
+      "A",
+      "B"
+    ],
+    "error": null
+  },
+  "xUpsertMulti": {
+    "hash": "b0b2775698ee54cf462e9dbfa1cadb11d6c6afb0e550e14b5882ecc6101c84b1",
+    "text": "INSERT INTO \"vexnor_dev\".\"account\" (\"account_id\", \"email\", \"first_name\", \"last_name\") values ($1, $2, $3, $4), ($5, $6, $7, $8) on conflict (\"account_id\") do update set \"email\" = excluded.\"email\", \"first_name\" = excluded.\"first_name\", \"last_name\" = excluded.\"last_name\" RETURNING \"account\".\"account_id\" as \"accountId\", \"account\".\"status\", \"account\".\"email\", \"account\".\"first_name\" as \"firstName\", \"account\".\"last_name\" as \"lastName\", \"account\".\"notes\", \"account\".\"created_at\" as \"createdAt\", \"account\".\"modified_at\" as \"modifiedAt\", \"account\".\"parent_id\" as \"parentId\"",
+    "values": [
+      "uuid-1",
+      "a@test.com",
+      "A",
+      "AA",
+      "uuid-2",
+      "b@test.com",
+      "B",
+      "BB"
+    ],
+    "error": null
   }
 }

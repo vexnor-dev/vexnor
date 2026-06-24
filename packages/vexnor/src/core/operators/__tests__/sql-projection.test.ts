@@ -218,3 +218,31 @@ describe("SqlProjection — runtime column selection", () => {
    });
 });
 
+
+describe("SqlProjectBy — serialization and error branches", () => {
+   test("serializes to projection operator token when params=null", async () => {
+      const { serializeQuery } = await import("#/core/serialize/serialize-query.js");
+      const { SqlProjectBy } = await import("#/core/operators/sql-project-by.js");
+      const { Account } = await import("@test-models/vexnor_dev.schema.js");
+      const { sql } = await import("#/core/sql.js");
+
+      const projection = new SqlProjectBy(Account, "select");
+      const query = sql`SELECT ${projection} FROM ${Account}`;
+      const result = await serializeQuery(query, "projectionTest", "postgresql");
+      const projNode = result.template.find((n) => n.type === "projection");
+      expect(projNode).toBeDefined();
+      expect(projNode!.type).toBe("projection");
+   });
+
+   test("throws on invalid column reference in aggregate", async () => {
+      const { SqlProjectBy } = await import("#/core/operators/sql-project-by.js");
+      const { Account } = await import("@test-models/vexnor_dev.schema.js");
+      const { sql } = await import("#/core/sql.js");
+
+      const projection = new SqlProjectBy(Account, "select");
+      const query = sql`SELECT ${projection} FROM ${Account}`;
+      expect(() =>
+         query.getSql({ params: { select: [["sum", 123, "total"]] } }),
+      ).toThrow("Invalid column reference in aggregate");
+   });
+});

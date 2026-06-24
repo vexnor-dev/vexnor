@@ -28,7 +28,7 @@ export function mssqlUpdate<
    Args extends SqlUpdateArgs,
 >(table: SqlTable<T>, args: Args): MssqlTableUpdateResult<T, Args> {
    return sql`
-      ${info({ driver: "transactsql" }) ?? raw.BLANK}
+      ${info({ driver: "transactsql" })}
       update ${table}
          ${set(table)}
          output ${row(table.as`inserted`.$$)}

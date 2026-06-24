@@ -5,7 +5,7 @@
  *
  * Run: node --experimental-vm-modules stacks/fixtures/generate-cross-runtime.mjs
  */
-import { sql, row, orderBy, filterBy, insert, set, when, param, SqlPagination } from "../../packages/vexnor/dist/core/core.js";
+import { sql, row, orderBy, filterBy, insert, set, when, param, SqlPagination, upsert } from "../../packages/vexnor/dist/core/core.js";
 import { Account } from "./codegen/postgres/vexnor_dev.account-table.js";
 import { writeFileSync, mkdirSync } from "node:fs";
 import { serializeManifest } from "../../packages/vexnor/dist/core/serialize/serialize-query.js";
@@ -31,6 +31,8 @@ const queries = {
    xPaginationBoth: sql`SELECT ${row(Account.$$)} FROM ${Account} WHERE ${filterBy(Account)} ${orderBy(Account)} ${new SqlPagination()}`,
    xPaginationLimitOnly: sql`SELECT ${row(Account.$$)} FROM ${Account} ${new SqlPagination()}`,
    xCombined: sql`SELECT ${row(Account.$$)} FROM ${Account} WHERE ${filterBy(Account)} ${orderBy(Account)}`,
+   xUpsertSingle: sql`INSERT INTO ${Account} ${upsert(Account, ["accountId"])} RETURNING ${row(Account.$$)}`,
+   xUpsertMulti: sql`INSERT INTO ${Account} ${upsert(Account, ["accountId"])} RETURNING ${row(Account.$$)}`,
 };
 
 // ─── Test params per case ────────────────────────────────────────────────────
@@ -54,6 +56,8 @@ const testParams = {
    xPaginationBoth: { filterBy: { status: "active" }, orderBy: { createdAt: "DESC" }, limit: 25, offset: 50 },
    xPaginationLimitOnly: { filterBy: null, orderBy: null, limit: 10 },
    xCombined: { filterBy: [{ status: "active" }, { email: ["like", "%@vip%"] }], orderBy: { createdAt: "DESC" } },
+   xUpsertSingle: { rows: [{ accountId: "uuid-1", email: "a@test.com", firstName: "A", lastName: "B" }] },
+   xUpsertMulti: { rows: [{ accountId: "uuid-1", email: "a@test.com", firstName: "A", lastName: "AA" }, { accountId: "uuid-2", email: "b@test.com", firstName: "B", lastName: "BB" }] },
 };
 
 // ─── Generate outputs ────────────────────────────────────────────────────────

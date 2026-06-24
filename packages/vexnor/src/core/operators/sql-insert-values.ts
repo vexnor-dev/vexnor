@@ -1,24 +1,25 @@
-import { SqlTable, SqlTableAny } from "#/core/schema/sql-table.js";
-import { SqlInsertTypeArgs } from "#/core/query/sql-insert.js";
+import { SqlTable } from "#/core/schema/sql-table.js";
+import { SqlInsertTypeArgs } from "#/core/operators/sql-insert.js";
 import { PARAMS, Sql, SqlOptions } from "#/core/sql-base.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { getCanonicalKeys, getColumnMap } from "#/core/utils/sql-insert-utils.js";
-import { SqlTableColumnAny } from "#/core/schema/sql-table-column.js";
+import { getCanonicalKeys } from "#/core/utils/sql-insert-utils.js";
 import { BuildSqlParams, PathToNested, SqlParam } from "#/core/query/sql-param.js";
+import { ok } from "#/lib/assert.js";
+import { isPrimitive } from "#/lib/primitive.js";
 import { resolvePath } from "#/core/query/resolve-path.js";
 
-export class SqlInsertCols<T extends SqlInsertTypeArgs, ParamName extends string> extends Sql {
+export class SqlInsertValues<T extends SqlInsertTypeArgs, ParamName extends string> extends Sql {
    declare readonly [PARAMS]: PathToNested<ParamName, T["Insert"] | T["Insert"][]>;
 
    readonly table: SqlTable<T>;
    readonly paramName: ParamName;
    readonly params: BuildSqlParams<PathToNested<ParamName, T["Insert"] | T["Insert"][]>>;
 
-   constructor(table: SqlTableAny, paramName: ParamName) {
+   constructor(table: SqlTable<T>, paramName: ParamName) {
       super({
-         type: "SqlInsertCols",
-         id: `${table.tableInfo.name}.${paramName}.cols`,
-         hashId: `${table.hashId}|${paramName}|cols`,
+         type: "SqlInsertValues",
+         id: `${table.tableInfo.name}.${paramName}.values`,
+         hashId: `${table.hashId}|${paramName}|values`,
       } satisfies SqlOptions);
 
       this.table = table;
@@ -30,7 +31,8 @@ export class SqlInsertCols<T extends SqlInsertTypeArgs, ParamName extends string
 
    write(context: SqlBuildContext): void {
       if (!context.params) {
-         context.addOperator({ type: "insertCols", param: this.paramName, columns: getColumnMap(this.table) });
+         const keys = Object.keys(this.table.cols).map((k) => k.slice(1));
+         context.addOperator({ type: "insertValues", param: this.paramName, keys });
          return;
       }
 
@@ -42,10 +44,16 @@ export class SqlInsertCols<T extends SqlInsertTypeArgs, ParamName extends string
 
       const keys = getCanonicalKeys(this.table, rows);
 
-      for (let i = 0; i < keys.length; i++) {
-         if (i > 0) context.addStrings(", ");
-         const col = this.table.cols[`$${keys[i]}` as `$${string}`] as SqlTableColumnAny;
-         context.addQuotes(col.columnName);
+      for (let r = 0; r < rows.length; r++) {
+         if (r > 0) context.addStrings(", ");
+         context.addStrings("(");
+         for (let i = 0; i < keys.length; i++) {
+            if (i > 0) context.addStrings(", ");
+            const value = rows[r]![keys[i]!];
+            ok(isPrimitive(value), `Value is not a primitive: ${String(value)} of ${keys[i]}`);
+            context.addValues(value);
+         }
+         context.addStrings(")");
       }
    }
 }

@@ -1,5 +1,5 @@
 // noinspection SqlNoDataSourceInspection,SqlResolve
-import { SqlTable, insert, row, raw, info, sql } from "@vexnor/core";
+import { SqlTable, insert, row, info, sql } from "@vexnor/core";
 import { SqlInsertRowsParams } from "@vexnor/core";
 import { BetterSqlite3QueryHandler } from "#/better-sqlite3-query-handler.js";
 import "#/sqlite3-augment.js";
@@ -14,7 +14,7 @@ export function sqlite3InsertRows<T extends { Select: Record<string, unknown>; I
    table: SqlTable<T>,
 ): Sqlite3InsertRowsResult<T> {
    return sql`
-      ${info({ driver: "sqlite" }) ?? raw.BLANK}
+      ${info({ driver: "sqlite" })}
       insert into ${table}
       ${insert(table, "rows")}
       returning ${row(table.$$)}

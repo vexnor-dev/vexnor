@@ -125,14 +125,12 @@ describe("newMssqlTableHandler — SQL generation branches", () => {
           "main"."account" using (
             VALUES
               (@param_0, @param_1, @param_2)
-          ) AS src ("email", "first_name", "last_name") ON (
-            /* <query_1> */ "account"."account_id" = src.account_id /* </query_1> */
-          )
+          ) AS src ("email", "first_name", "last_name") ON ("account"."account_id" = src."account_id")
         WHEN MATCHED THEN
         UPDATE SET
-          /* <query_2> */ "email" = src."email",
+          "email" = src."email",
           "first_name" = src."first_name",
-          "last_name" = src."last_name" /* </query_2> */
+          "last_name" = src."last_name"
         WHEN NOT MATCHED THEN
         INSERT
           ("email", "first_name", "last_name")

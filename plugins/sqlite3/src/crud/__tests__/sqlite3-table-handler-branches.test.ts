@@ -117,13 +117,11 @@ describe("newSqlite3TableHandler — SQL generation branches", () => {
    test("upsert() — SQL generation", () => {
       const query = handler.upsert({
          CONFLICT_ON: [Account.$accountId],
-         SET: sql`${Account.$email} = ${param<{ email: string }>("email")}`,
       });
       const { text } = query.source.getSql({
          params: {
             rows: [{ email: "test@test.com", firstName: "Test", lastName: "User" }],
-            email: "updated@test.com",
-         } as never,
+         },
          options: defaultQueryOptions,
       });
       expect(text).toMatchInlineSnapshot(`
@@ -135,7 +133,9 @@ describe("newSqlite3TableHandler — SQL generation branches", () => {
           (?, ?, ?)
         ON CONFLICT ("account_id") DO UPDATE
         SET
-          /* <query_1> */ /* <query_2> */ "email" = ? /* </query_2> */ /* </query_1> */
+          "email" = excluded."email",
+          "first_name" = excluded."first_name",
+          "last_name" = excluded."last_name"
         RETURNING
           "account"."account_id" AS "accountId",
           "account"."status",

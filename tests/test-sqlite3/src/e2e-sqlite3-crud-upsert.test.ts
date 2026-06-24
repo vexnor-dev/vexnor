@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { randomUUID } from "node:crypto";
-import { excluded, sql } from "@vexnor/core";
+
 import "@vexnor/sqlite3";
 import { Account, IAccountInsert } from "./codegen/main.account-table.js";
 import { db } from "./config.js";
@@ -40,7 +40,6 @@ describe.sequential("vexnor sqlite3 CRUD - upsert", () => {
       const upserted = await Account.sqlite
          .upsert({
             CONFLICT_ON: [Account.$accountId],
-            SET: sql`${Account.$firstName} = ${excluded(Account).$firstName}`,
          })
          .one({
             db,

@@ -1,4 +1,4 @@
-import { SqlTable, row, ParamsOfArgs, raw, info, SqlQueryColumns } from "@vexnor/core";
+import { SqlTable, row, ParamsOfArgs, info, SqlQueryColumns } from "@vexnor/core";
 import type { SqlInsertFromArgs } from "@vexnor/core";
 import { sql } from "#/postgres-sql.js";
 import { ok } from "@vexnor/core";
@@ -21,7 +21,7 @@ export function postgresInsertFrom<
    ok(args?.FROM, `Args 'FROM' is required for 'insertFrom()' CRUD.`);
 
    return sql`
-      ${info({ driver: "postgres" }) ?? raw.BLANK}
+      ${info({ driver: "postgres" })}
       insert into ${table}
             ${args.FROM}
             returning ${row(table.$$)}

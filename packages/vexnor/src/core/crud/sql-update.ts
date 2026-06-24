@@ -2,7 +2,7 @@
 import { SqlQueryAny, SqlQueryExtended } from "#/core/query/sql-query.js";
 import { ParamsOfArgs } from "#/core/sql-base.js";
 import { SqlTable } from "#/core/schema/sql-table.js";
-import { set } from "#/core/query/sql-set.js";
+import { set } from "#/core/operators/sql-set.js";
 import { sql } from "#/core/sql.js";
 import { raw } from "#/core/query/sql-raw.js";
 import { row } from "#/core/query/sql-select-row.js";

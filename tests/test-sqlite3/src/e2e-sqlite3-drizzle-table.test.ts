@@ -3,7 +3,7 @@ import { ok } from "node:assert";
 import { randomUUID } from "node:crypto";
 import { sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { fromDrizzleTable } from "@vexnor/drizzle/sqlite";
-import { insert, row, sql, param, excluded } from "@vexnor/core";
+import { insert, row, sql, param } from "@vexnor/core";
 import "@vexnor/sqlite3";
 import { db } from "./config.js";
 
@@ -98,7 +98,6 @@ describe.sequential("e2e drizzle/sqlite — fromDrizzleTable works against real 
       const upserted = await Account.sqlite
          .upsert({
             CONFLICT_ON: [Account.$accountId],
-            SET: sql`${Account.$firstName} = ${excluded(Account).$firstName}`,
          })
          .one({
             db,

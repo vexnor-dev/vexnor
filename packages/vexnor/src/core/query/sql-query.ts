@@ -21,7 +21,7 @@ import { SqlSelectValue } from "#/core/query/sql-select-value.js";
 import { newSqlQueryColumn, SqlQueryColumn } from "#/core/query/sql-query-column.js";
 import { SqlSelectRow } from "#/core/query/sql-select-row.js";
 import { SqlSelectColumn } from "#/core/query/sql-select-column.js";
-import { SqlProjectBy } from "#/core/query/sql-project-by.js";
+import { SqlProjectBy } from "#/core/operators/sql-project-by.js";
 import { SqlSelectCharm } from "#/core/query/sql-charm.js";
 import { getFormatter } from "#/format/formatter-registry.js";
 import { SqlTable } from "#/core/schema/sql-table.js";

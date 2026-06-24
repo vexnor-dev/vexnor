@@ -2,7 +2,6 @@ import { describe, expect, test } from "vitest";
 import { newSqlite3TableHandler } from "#/crud/sqlite3-table-handler.js";
 import { Account } from "@vexnor/core/testing";
 import "@vexnor/sqlite3";
-import { param, sql } from "@vexnor/core";
 
 describe("newSqlite3TableHandler", () => {
    const handler = newSqlite3TableHandler(Account);
@@ -40,9 +39,27 @@ describe("newSqlite3TableHandler", () => {
    test("upsert() — builds query object", () => {
       const query = handler.upsert({
          CONFLICT_ON: [Account.$accountId],
-         SET: sql`${Account.$firstName} = ${param<{ firstName: string }>("firstName")}`,
       });
       expect(query).toBeDefined();
       expect(query.source).toBeDefined();
+   });
+});
+
+describe("newSqlite3TableHandler — disabled CRUD branches", () => {
+   test("handler without insert/update/delete", () => {
+      const readOnlyTable = { ...Account, crud: { select: true, insert: false, update: false, delete: false } };
+      const handler = newSqlite3TableHandler(readOnlyTable as typeof Account);
+      expect(handler.select).toBeDefined();
+      expect((handler as Record<string, unknown>).upsert).toBeUndefined();
+      expect((handler as Record<string, unknown>).insertRows).toBeUndefined();
+      expect((handler as Record<string, unknown>).update).toBeUndefined();
+      expect((handler as Record<string, unknown>).delete).toBeUndefined();
+   });
+
+   test("handler without select", () => {
+      const noSelectTable = { ...Account, crud: { select: false, insert: true, update: true, delete: true } };
+      const handler = newSqlite3TableHandler(noSelectTable as typeof Account);
+      expect((handler as Record<string, unknown>).select).toBeUndefined();
+      expect((handler as Record<string, unknown>).insertRows).toBeDefined();
    });
 });

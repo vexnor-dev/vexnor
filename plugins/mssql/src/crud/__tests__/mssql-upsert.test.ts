@@ -1,7 +1,6 @@
 // noinspection SqlNoDataSourceInspection,SqlResolve
 import { describe, expect, test } from "vitest";
 import { Account } from "@vexnor/core/testing";
-import { sql } from "@vexnor/core";
 import { mssqlUpsert } from "#/crud/mssql-upsert.js";
 import { defaultQueryOptions } from "#/default-query-options.js";
 
@@ -19,67 +18,12 @@ describe("mssqlUpsert()", () => {
           "main"."account" using (
             VALUES
               (@param_0, @param_1, @param_2, @param_3)
-          ) AS src ("account_id", "email", "first_name", "last_name") ON (
-            /* <query_1> */ "account"."account_id" = src.account_id /* </query_1> */
-          )
+          ) AS src ("account_id", "email", "first_name", "last_name") ON ("account"."account_id" = src."account_id")
         WHEN MATCHED THEN
         UPDATE SET
-          /* <query_2> */ "email" = src."email",
+          "email" = src."email",
           "first_name" = src."first_name",
-          "last_name" = src."last_name" /* </query_2> */
-        WHEN NOT MATCHED THEN
-        INSERT
-          ("account_id", "email", "first_name", "last_name")
-        VALUES
-          (
-            src."account_id",
-            src."email",
-            src."first_name",
-            src."last_name"
-          ) output "inserted"."account_id" AS "accountId",
-          "inserted"."status",
-          "inserted"."email",
-          "inserted"."first_name" AS "firstName",
-          "inserted"."last_name" AS "lastName",
-          "inserted"."notes",
-          "inserted"."created_at" AS "createdAt",
-          "inserted"."modified_at" AS "modifiedAt",
-          "inserted"."parent_id" AS "parentId";
-
-        /* </query_0> */"
-      `);
-      expect(values).toMatchInlineSnapshot(`
-        [
-          "id-1",
-          "a@b.com",
-          "John",
-          "Doe",
-        ]
-      `);
-   });
-
-   test("custom SET: uses provided SET clause", () => {
-      const query = mssqlUpsert(Account, {
-         MERGE_ON: [Account.$accountId],
-         SET: sql`${Account.$firstName} = src.first_name`,
-      });
-      const { text, values } = query.source.getSql({
-         params: { rows: [{ accountId: "id-1", email: "a@b.com", firstName: "John", lastName: "Doe" }] },
-         options: defaultQueryOptions,
-      });
-      expect(text).toMatchInlineSnapshot(`
-        "/* <query_0> */
-        /* driver: transactsql */
-        MERGE INTO
-          "main"."account" using (
-            VALUES
-              (@param_0, @param_1, @param_2, @param_3)
-          ) AS src ("account_id", "email", "first_name", "last_name") ON (
-            /* <query_1> */ "account"."account_id" = src.account_id /* </query_1> */
-          )
-        WHEN MATCHED THEN
-        UPDATE SET
-          /* <query_2> */ /* <query_3> */ "first_name" = src.first_name /* </query_3> */ /* </query_2> */
+          "last_name" = src."last_name"
         WHEN NOT MATCHED THEN
         INSERT
           ("account_id", "email", "first_name", "last_name")
@@ -130,14 +74,12 @@ describe("mssqlUpsert()", () => {
             VALUES
               (@param_0, @param_1, @param_2, @param_3),
               (@param_4, @param_5, @param_6, @param_7)
-          ) AS src ("account_id", "email", "first_name", "last_name") ON (
-            /* <query_1> */ "account"."account_id" = src.account_id /* </query_1> */
-          )
+          ) AS src ("account_id", "email", "first_name", "last_name") ON ("account"."account_id" = src."account_id")
         WHEN MATCHED THEN
         UPDATE SET
-          /* <query_2> */ "email" = src."email",
+          "email" = src."email",
           "first_name" = src."first_name",
-          "last_name" = src."last_name" /* </query_2> */
+          "last_name" = src."last_name"
         WHEN NOT MATCHED THEN
         INSERT
           ("account_id", "email", "first_name", "last_name")

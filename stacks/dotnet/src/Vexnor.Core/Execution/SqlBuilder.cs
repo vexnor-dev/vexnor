@@ -81,6 +81,10 @@ public sealed class SqlBuilder
                 case PaginationNode:
                     BuildPagination(parameters, sql, values);
                     break;
+
+                case UpsertNode upsert:
+                    BuildUpsert(upsert, parameters, sql, values);
+                    break;
             }
         }
     }
@@ -463,6 +467,133 @@ public sealed class SqlBuilder
             sql.Add(dir);
             emitted++;
         }
+    }
+
+    private void BuildUpsert(UpsertNode node, Dictionary<string, object?> parameters, List<string> sql, List<object?> values)
+    {
+        if (!parameters.TryGetValue(node.Param, out var obj)) return;
+        var rows = CoerceRowList(obj);
+        if (rows == null || rows.Count == 0) return;
+
+        var keys = GetCanonicalKeys(node.Columns, rows[0]);
+        var conflictSet = new HashSet<string>(node.ConflictKeys);
+
+        if (_dialect == "transactsql")
+            BuildUpsertMssql(node, keys, conflictSet, rows, sql, values);
+        else
+            BuildUpsertPgSqlite(node, keys, conflictSet, rows, sql, values);
+    }
+
+    private void BuildUpsertPgSqlite(UpsertNode node, List<string> keys, HashSet<string> conflictSet,
+        List<Dictionary<string, object?>> rows, List<string> sql, List<object?> values)
+    {
+        // (col1, col2, ...) VALUES (...) ON CONFLICT (pk) DO UPDATE SET col = EXCLUDED.col
+        sql.Add("(");
+        for (int i = 0; i < keys.Count; i++)
+        {
+            if (i > 0) sql.Add(", ");
+            sql.Add(node.Columns[keys[i]]);
+        }
+        sql.Add(") values ");
+
+        for (int r = 0; r < rows.Count; r++)
+        {
+            if (r > 0) sql.Add(", ");
+            sql.Add("(");
+            for (int i = 0; i < keys.Count; i++)
+            {
+                if (i > 0) sql.Add(", ");
+                sql.Add(FormatParam());
+                values.Add(rows[r].GetValueOrDefault(keys[i]));
+            }
+            sql.Add(")");
+        }
+
+        sql.Add(" on conflict (");
+        for (int i = 0; i < node.ConflictKeys.Count; i++)
+        {
+            if (i > 0) sql.Add(", ");
+            sql.Add(node.Columns[node.ConflictKeys[i]]);
+        }
+        sql.Add(") do update set ");
+
+        int emitted = 0;
+        foreach (var key in keys)
+        {
+            if (conflictSet.Contains(key)) continue;
+            if (emitted > 0) sql.Add(", ");
+            var col = node.Columns[key];
+            sql.Add(col);
+            sql.Add(" = excluded.");
+            sql.Add(col);
+            emitted++;
+        }
+    }
+
+    private void BuildUpsertMssql(UpsertNode node, List<string> keys, HashSet<string> conflictSet,
+        List<Dictionary<string, object?>> rows, List<string> sql, List<object?> values)
+    {
+        // USING (VALUES (...)) AS src(cols) ON (t.pk = src.pk) WHEN MATCHED ... WHEN NOT MATCHED ...
+        sql.Add("using (values ");
+        for (int r = 0; r < rows.Count; r++)
+        {
+            if (r > 0) sql.Add(", ");
+            sql.Add("(");
+            for (int i = 0; i < keys.Count; i++)
+            {
+                if (i > 0) sql.Add(", ");
+                sql.Add(FormatParam());
+                values.Add(rows[r].GetValueOrDefault(keys[i]));
+            }
+            sql.Add(")");
+        }
+        sql.Add(") as src(");
+        for (int i = 0; i < keys.Count; i++)
+        {
+            if (i > 0) sql.Add(", ");
+            sql.Add(node.Columns[keys[i]]);
+        }
+        sql.Add(") on (");
+
+        // ON clause
+        for (int i = 0; i < node.ConflictKeys.Count; i++)
+        {
+            if (i > 0) sql.Add(" and ");
+            var col = node.Columns[node.ConflictKeys[i]];
+            sql.Add(col);
+            sql.Add(" = src.");
+            sql.Add(col);
+        }
+        sql.Add(") when matched then update set ");
+
+        // SET col = src.col (non-conflict)
+        int emitted = 0;
+        foreach (var key in keys)
+        {
+            if (conflictSet.Contains(key)) continue;
+            if (emitted > 0) sql.Add(", ");
+            var col = node.Columns[key];
+            sql.Add(col);
+            sql.Add(" = src.");
+            sql.Add(col);
+            emitted++;
+        }
+
+        // WHEN NOT MATCHED
+        sql.Add(" when not matched then insert (");
+        for (int i = 0; i < keys.Count; i++)
+        {
+            if (i > 0) sql.Add(", ");
+            sql.Add(node.Columns[keys[i]]);
+        }
+        sql.Add(") values (");
+        for (int i = 0; i < keys.Count; i++)
+        {
+            if (i > 0) sql.Add(", ");
+            sql.Add("src.");
+            sql.Add(node.Columns[keys[i]]);
+        }
+        sql.Add(")");
     }
 
     private string FormatParam()

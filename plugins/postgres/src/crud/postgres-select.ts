@@ -54,7 +54,7 @@ export function postgresSelect<T extends { Select: Record<string, unknown> }, Ar
       : sql`${filterNode}`.inline("default");
 
    const result = sql`
-      ${info({ driver: "postgres" }) ?? raw.BLANK}
+      ${info({ driver: "postgres" })}
       select ${args.SELECT ? args.SELECT.source.inline("default") : row(table.$$)}
                 ${includes.length > 0 ? raw(", ") : raw.BLANK} ${includes}
       from ${table} ${ones.map(({ charm }) => charm)} ${manys.map(({ charm }) => charm)} ${baseArgs.JOIN ? baseArgs.JOIN.source.inline() : raw.BLANK}

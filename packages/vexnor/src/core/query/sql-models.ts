@@ -21,7 +21,8 @@ export type SqlOperatorToken =
    | { type: "orderBy"; param: string; columns: Record<string, string> }
    | { type: "when"; param: string; negate?: boolean; onTrue: SqlBuildToken[]; onFalse?: SqlBuildToken[] }
    | { type: "projection"; param: string; columns: Record<string, string> }
-   | { type: "pagination" };
+   | { type: "pagination" }
+   | { type: "upsert"; param: string; columns: Record<string, string>; conflictKeys: string[] };
 
 export type SqlParamFormat = (args: { name?: string; index: number }) => string;
 

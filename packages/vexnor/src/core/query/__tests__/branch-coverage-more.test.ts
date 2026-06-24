@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { sql } from "#/core/sql.js";
 import { row } from "#/core/query/sql-select-row.js";
-import { set } from "#/core/query/sql-set.js";
+import { set } from "#/core/operators/sql-set.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
 import { param } from "#/core/query/sql-param.js";

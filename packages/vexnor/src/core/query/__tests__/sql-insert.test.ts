@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 import { sql } from "#/core/sql.js";
 import { row } from "#/core/query/sql-select-row.js";
 import { Account } from "@test-models/vexnor_dev.schema.js";
-import { insert } from "#/core/query/sql-insert-x.js";
+import { insert } from "#/core/operators/sql-insert-x.js";
 
 describe("SqlInsert", () => {
    describe("combined form — insert()", () => {

@@ -42,3 +42,22 @@ describe("newMssqlTableHandler", () => {
       expect(query.source).toBeDefined();
    });
 });
+
+describe("newMssqlTableHandler — disabled CRUD branches", () => {
+   test("handler without insert/update/delete", () => {
+      const readOnlyTable = { ...Account, crud: { select: true, insert: false, update: false, delete: false } };
+      const handler = newMssqlTableHandler(readOnlyTable as typeof Account);
+      expect(handler.select).toBeDefined();
+      expect((handler as Record<string, unknown>).upsert).toBeUndefined();
+      expect((handler as Record<string, unknown>).insertRows).toBeUndefined();
+      expect((handler as Record<string, unknown>).update).toBeUndefined();
+      expect((handler as Record<string, unknown>).delete).toBeUndefined();
+   });
+
+   test("handler without select", () => {
+      const noSelectTable = { ...Account, crud: { select: false, insert: true, update: true, delete: true } };
+      const handler = newMssqlTableHandler(noSelectTable as typeof Account);
+      expect((handler as Record<string, unknown>).select).toBeUndefined();
+      expect((handler as Record<string, unknown>).insertRows).toBeDefined();
+   });
+});

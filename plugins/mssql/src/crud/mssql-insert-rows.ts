@@ -1,4 +1,4 @@
-import { SqlTable, insert, row, raw, info, SqlQueryColumns } from "@vexnor/core";
+import { SqlTable, insert, row, info, SqlQueryColumns } from "@vexnor/core";
 import { sql } from "#/mssql-sql.js";
 import { SqlInsertRowsParams } from "@vexnor/core";
 import { MssqlQueryHandler } from "#/mssql-query-handler.js";
@@ -15,7 +15,7 @@ export function mssqlInsertRows<T extends { Select: Record<string, unknown>; Ins
    table: SqlTable<T>,
 ): MssqlInsertRowsResult<T> {
    return sql`
-      ${info({ driver: "transactsql" }) ?? raw.BLANK}
+      ${info({ driver: "transactsql" })}
       insert into ${table}
       (${insert.cols(table, "rows")})
       output ${row(table.as`inserted`.$$)}

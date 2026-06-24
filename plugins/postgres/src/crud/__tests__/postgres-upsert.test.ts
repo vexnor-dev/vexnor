@@ -1,7 +1,6 @@
 // noinspection SqlNoDataSourceInspection,SqlResolve
 import { describe, expect, test } from "vitest";
 import { Account } from "@vexnor/core/testing";
-import { excluded, sql } from "@vexnor/core";
 import { postgresUpsert } from "#/crud/postgres-upsert.js";
 import { defaultQueryOptions } from "#/default-query-options.js";
 
@@ -21,55 +20,9 @@ describe("postgresUpsert()", () => {
           ($1, $2, $3, $4)
         ON CONFLICT ("account_id") DO UPDATE
         SET
-          /* <query_1> */ /* <query_2> */ /* <query_3> */ "status" = EXCLUDED.status /* </query_3> */,
-          /* <query_4> */ "email" = EXCLUDED.email /* </query_4> */,
-          /* <query_5> */ "first_name" = EXCLUDED.first_name /* </query_5> */,
-          /* <query_6> */ "last_name" = EXCLUDED.last_name /* </query_6> */,
-          /* <query_7> */ "notes" = EXCLUDED.notes /* </query_7> */,
-          /* <query_8> */ "created_at" = EXCLUDED.created_at /* </query_8> */,
-          /* <query_9> */ "modified_at" = EXCLUDED.modified_at /* </query_9> */,
-          /* <query_10> */ "parent_id" = EXCLUDED.parent_id /* </query_10> */ /* </query_2> */ /* </query_1> */
-        RETURNING
-          "account"."account_id" AS "accountId",
-          "account"."status",
-          "account"."email",
-          "account"."first_name" AS "firstName",
-          "account"."last_name" AS "lastName",
-          "account"."notes",
-          "account"."created_at" AS "createdAt",
-          "account"."modified_at" AS "modifiedAt",
-          "account"."parent_id" AS "parentId"
-          /* </query_0> */"
-      `);
-      expect(values).toMatchInlineSnapshot(`
-        [
-          "id-1",
-          "a@b.com",
-          "John",
-          "Doe",
-        ]
-      `);
-   });
-
-   test("custom SET: uses provided SET clause with excluded()", () => {
-      const upsert = postgresUpsert(Account, {
-         CONFLICT_ON: [Account.$accountId],
-         SET: sql`${Account.$firstName} = ${excluded(Account).$firstName}`,
-      });
-      const { text, values } = upsert.source.getSql({
-         params: { rows: [{ accountId: "id-1", email: "a@b.com", firstName: "John", lastName: "Doe" }] },
-         options: defaultQueryOptions,
-      });
-      expect(text).toMatchInlineSnapshot(`
-        "/* <query_0> */
-        /* driver: postgres */
-        INSERT INTO
-          "main"."account" ("account_id", "email", "first_name", "last_name")
-        VALUES
-          ($1, $2, $3, $4)
-        ON CONFLICT ("account_id") DO UPDATE
-        SET
-          /* <query_1> */ /* <query_2> */ "first_name" = EXCLUDED.first_name /* </query_2> */ /* </query_1> */
+          "email" = excluded."email",
+          "first_name" = excluded."first_name",
+          "last_name" = excluded."last_name"
         RETURNING
           "account"."account_id" AS "accountId",
           "account"."status",

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { sql } from "#/core/sql.js";
-import { set } from "#/core/query/sql-set.js";
+import { set } from "#/core/operators/sql-set.js";
 import { param } from "#/core/query/sql-param.js";
 import { Account } from "@test-models/vexnor_dev.schema.js";
 

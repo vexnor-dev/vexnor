@@ -45,7 +45,7 @@ export function mssqlSelect<T extends { Select: Record<string, unknown> }, Args 
    const includes = [...ones, ...manys].map(({ key, charm }) => charm.as(key));
 
    const result = sql`
-      ${info({ driver: "transactsql" }) ?? raw.BLANK}
+      ${info({ driver: "transactsql" })}
       select ${args.SELECT ? args.SELECT.source.inline("default") : row(table.$$)}
                 ${includes.length > 0 ? raw(", ") : raw.BLANK} ${includes}
       from ${table} ${ones.map(({ charm }) => charm)} ${manys.map(({ charm }) => charm)} ${baseArgs.JOIN ? baseArgs.JOIN.source.inline() : raw.BLANK}

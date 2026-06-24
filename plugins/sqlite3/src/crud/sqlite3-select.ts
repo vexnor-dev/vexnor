@@ -44,7 +44,7 @@ export function sqlite3Select<T extends { Select: Record<string, unknown> }, Arg
    const includes = [...ones, ...manys].map(({ key, charm }) => charm.as(key));
 
    return sql`
-      ${info({ driver: "sqlite" }) ?? raw.BLANK}
+      ${info({ driver: "sqlite" })}
       select ${args.SELECT ? args.SELECT.source.inline("default") : row(table.$$)}
                 ${includes.length > 0 ? raw(", ") : raw.BLANK} ${includes}
       from ${table} ${baseArgs.JOIN ? baseArgs.JOIN.source.inline() : raw.BLANK}

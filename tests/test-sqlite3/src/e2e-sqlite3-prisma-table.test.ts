@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { findPrismaModel, fromPrismaModelTable } from "@vexnor/prisma";
 import type { FromPrismaModelResult } from "@vexnor/prisma";
-import { insert, row, sql, param, excluded } from "@vexnor/core";
+import { insert, row, sql, param } from "@vexnor/core";
 import "@vexnor/sqlite3";
 import { db, SQLITE_PATH } from "./config.js";
 import { getTag } from "./tags.js";
@@ -91,7 +91,7 @@ describe.sequential("e2e prisma/sqlite — fromPrismaModelTable works against re
       account = updated;
 
       const upserted = await Account.sqlite
-         .upsert({ CONFLICT_ON: [Account.$accountId!], SET: sql`${Account.$firstName!} = ${excluded(Account).$firstName!}` })
+         .upsert({ CONFLICT_ON: [Account.$accountId!] })
          .one({
             db,
             params: {

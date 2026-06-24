@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { sql } from "#/core/sql.js";
-import { when, SqlWhen } from "#/core/query/sql-when.js";
+import { when, SqlWhen } from "#/core/operators/sql-when.js";
 import { param } from "#/core/query/sql-param.js";
 import { row } from "#/core/query/sql-select-row.js";
 import { raw } from "#/core/query/sql-raw.js";

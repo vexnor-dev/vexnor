@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { sql } from "#/core/sql.js";
-import { filterBy, SqlFilterBy } from "#/core/query/sql-filter-by.js";
+import { filterBy, SqlFilterBy } from "#/core/operators/sql-filter-by.js";
 import { row } from "#/core/query/sql-select-row.js";
 import { Account } from "@test-models/vexnor_dev.schema.js";
 import { AccountStatusUdt } from "@test-models/vexnor_dev-enums.js";

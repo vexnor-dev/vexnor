@@ -16,7 +16,7 @@ export function sqlite3Update<
    Args extends SqlUpdateArgs,
 >(table: SqlTable<T>, args: Args): Sqlite3TableUpdateResult<T, Args> {
    return sql`
-      ${info({ driver: "sqlite" }) ?? raw.BLANK}
+      ${info({ driver: "sqlite" })}
       update ${table}
          ${set(table)}
          ${args.WHERE ? sql`where ${args.WHERE.inline()}`.inline() : raw.BLANK}

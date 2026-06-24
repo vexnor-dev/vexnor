@@ -3,11 +3,11 @@ import { serializeQuery } from "#/core/serialize/serialize-query.js";
 import { sql } from "#/core/sql.js";
 import { param } from "#/core/query/sql-param.js";
 import { row } from "#/core/query/sql-select-row.js";
-import { when } from "#/core/query/sql-when.js";
-import { set } from "#/core/query/sql-set.js";
-import { insert } from "#/core/query/sql-insert-x.js";
-import { filterBy } from "#/core/query/sql-filter-by.js";
-import { orderBy } from "#/core/query/sql-order-by.js";
+import { when } from "#/core/operators/sql-when.js";
+import { set } from "#/core/operators/sql-set.js";
+import { insert } from "#/core/operators/sql-insert-x.js";
+import { filterBy } from "#/core/operators/sql-filter-by.js";
+import { orderBy } from "#/core/operators/sql-order-by.js";
 import { Account } from "@test-models/vexnor_dev.schema.js";
 
 type P = { status: string; hasEmail: boolean; email: string };

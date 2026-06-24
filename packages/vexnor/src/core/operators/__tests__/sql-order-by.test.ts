@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { sql } from "#/core/sql.js";
-import { orderBy, SqlOrderBy } from "#/core/query/sql-order-by.js";
+import { orderBy, SqlOrderBy } from "#/core/operators/sql-order-by.js";
 import { row } from "#/core/query/sql-select-row.js";
 import { Account } from "@test-models/vexnor_dev.schema.js";
 

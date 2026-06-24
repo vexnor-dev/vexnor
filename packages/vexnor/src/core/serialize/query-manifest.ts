@@ -54,7 +54,8 @@ export type TemplateNode =
    | FilterNode
    | OrderByNode
    | ProjectionNode
-   | PaginationNode;
+   | PaginationNode
+   | UpsertNode;
 
 export interface TextNode {
    type: "text";
@@ -180,4 +181,14 @@ export interface ProjectionNode {
 
 export interface PaginationNode {
    type: "pagination";
+}
+
+export interface UpsertNode {
+   type: "upsert";
+   /** Param name containing the rows array. */
+   param: string;
+   /** Map of JS key → quoted SQL column name, in table column order. */
+   columns: Record<string, string>;
+   /** JS keys of columns forming the conflict/merge target. */
+   conflictKeys: string[];
 }

@@ -1,5 +1,7 @@
-export { SqlInsertValues } from "#/core/query/sql-insert-values.js";
-export { SqlInsertCols } from "#/core/query/sql-insert-cols.js";
+export { SqlInsertValues } from "#/core/operators/sql-insert-values.js";
+export { SqlInsertCols } from "#/core/operators/sql-insert-cols.js";
+export { SqlInsertSrcRefs } from "#/core/operators/sql-insert-src-refs.js";
+export { SqlMergeSet } from "#/core/operators/sql-merge-set.js";
 
 // format
 export { SqlError } from "#/core/sql-error.js";
@@ -36,10 +38,11 @@ export { row, SqlSelectRow, type SqlSelectRowAny } from "./query/sql-select-row.
 export { val, SqlSelectValue, type SqlSelectValueAny } from "./query/sql-select-value.js";
 export { raw, quote, SqlRaw } from "./query/sql-raw.js";
 export { DEFAULT } from "./query/sql-default.js";
-export { when, SqlWhen } from "./query/sql-when.js";
-export { set, SqlSet } from "./query/sql-set.js";
-export { insert } from "./query/sql-insert-x.js";
-export { SqlInsert } from "./query/sql-insert.js";
+export { when, SqlWhen } from "./operators/sql-when.js";
+export { set, SqlSet } from "./operators/sql-set.js";
+export { insert } from "./operators/sql-insert-x.js";
+export { SqlInsert } from "./operators/sql-insert.js";
+export { upsert, SqlUpsert } from "./operators/sql-upsert.js";
 export {
    filterBy,
    SqlFilterBy,
@@ -47,15 +50,15 @@ export {
    type FilterOperator,
    type FilterCondition,
    type FilterConditionList,
-} from "./query/sql-filter-by.js";
+} from "./operators/sql-filter-by.js";
 export {
    SqlProjectBy,
    SqlProjectionGroupBy,
    type SqlProjectByAggregation,
    type SqlProjectByEntry,
    type SqlProjectByParams,
-} from "./query/sql-project-by.js";
-export { orderBy, SqlOrderBy, type SqlOrderByOption, type SqlOrderByParams } from "./query/sql-order-by.js";
+} from "./operators/sql-project-by.js";
+export { orderBy, SqlOrderBy, type SqlOrderByOption, type SqlOrderByParams } from "./operators/sql-order-by.js";
 export { input, SqlInput, type SqlInputExtended } from "./query/sql-input.js";
 export { info, SqlQueryInfo, type SqlQueryInfoOptions } from "./charms/sql-query-info.js";
 export {

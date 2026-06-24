@@ -8,10 +8,10 @@ import { ok } from "#/lib/assert.js";
 import { sql } from "#/core/sql.js";
 import { raw } from "#/core/query/sql-raw.js";
 import { SqlQueryInfo } from "#/core/charms/sql-query-info.js";
-import { SqlFilterBy, SqlFilterParams } from "#/core/query/sql-filter-by.js";
-import { SqlProjectBy, SqlProjectionGroupBy, SqlProjectByParams } from "#/core/query/sql-project-by.js";
-import { SqlOrderBy, SqlOrderByParams } from "#/core/query/sql-order-by.js";
-import { SqlPagination, SqlPaginationParams } from "#/core/query/sql-pagination.js";
+import { SqlFilterBy, SqlFilterParams } from "#/core/operators/sql-filter-by.js";
+import { SqlProjectBy, SqlProjectionGroupBy, SqlProjectByParams } from "#/core/operators/sql-project-by.js";
+import { SqlOrderBy, SqlOrderByParams } from "#/core/operators/sql-order-by.js";
+import { SqlPagination, SqlPaginationParams } from "#/core/operators/sql-pagination.js";
 
 /**
  * Arguments for the crud `select` command.

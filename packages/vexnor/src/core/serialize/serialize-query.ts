@@ -4,8 +4,8 @@ import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
 import type { SqlBuildToken, SqlOperatorToken } from "#/core/query/sql-models.js";
 import type { SqlLanguage } from "#/format/sql-language.js";
 import { createRequire } from "node:module";
-import { SqlFilterBy } from "#/core/query/sql-filter-by.js";
-import { SqlProjectBy } from "#/core/query/sql-project-by.js";
+import { SqlFilterBy } from "#/core/operators/sql-filter-by.js";
+import { SqlProjectBy } from "#/core/operators/sql-project-by.js";
 import type {
    QueryDefinition,
    QueryManifest,
@@ -130,6 +130,8 @@ function operatorToNode(op: SqlOperatorToken): TemplateNode {
          return { type: "projection", param: op.param, columns: op.columns };
       case "pagination":
          return { type: "pagination" };
+      case "upsert":
+         return { type: "upsert", param: op.param, columns: op.columns, conflictKeys: op.conflictKeys };
       default:
          return { type: "text", value: "" };
    }
