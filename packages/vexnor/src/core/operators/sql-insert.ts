@@ -1,5 +1,6 @@
 import { PARAMS, Sql, SqlOptions } from "#/core/sql-base.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
+import { SqlBuildError } from "#/core/sql-build-error.js";
 import { SqlTable } from "#/core/schema/sql-table.js";
 import { SqlTableColumnAny } from "#/core/schema/sql-table-column.js";
 import { BuildSqlParams, PathToNested, SqlParam } from "#/core/query/sql-param.js";
@@ -41,7 +42,9 @@ export class SqlInsert<T extends SqlInsertTypeArgs, ParamName extends string> ex
          | Record<string, unknown>[]
          | null
          | undefined;
-      if (!rows || !Array.isArray(rows) || !rows.length) return;
+      if (!rows || !Array.isArray(rows) || !rows.length) {
+         throw new SqlBuildError(`insert() requires a non-empty rows array in param '${this.paramName}'`);
+      }
 
       const keys = getCanonicalKeys(this.table, rows);
 

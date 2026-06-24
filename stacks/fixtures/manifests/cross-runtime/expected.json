@@ -188,5 +188,11 @@
       "B"
     ],
     "error": null
+  },
+  "xInsertEmpty": {
+    "hash": "6b198c1e4f9a9b4e6adb67befcfbcde5eb1a6dc525a5d07f22c7320788e87556",
+    "text": null,
+    "values": null,
+    "error": "Error building 'SqlQuery#27' in query '-'\\nError building 'SqlInsert#3(account.rows)' in query 'SqlQuery#27'\\ninsert() requires a non-empty rows array in param 'rows'"
   }
 }

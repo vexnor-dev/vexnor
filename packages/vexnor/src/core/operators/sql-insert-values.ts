@@ -1,3 +1,4 @@
+import { SqlBuildError } from "#/core/sql-build-error.js";
 import { SqlTable } from "#/core/schema/sql-table.js";
 import { SqlInsertTypeArgs } from "#/core/operators/sql-insert.js";
 import { PARAMS, Sql, SqlOptions } from "#/core/sql-base.js";
@@ -40,7 +41,7 @@ export class SqlInsertValues<T extends SqlInsertTypeArgs, ParamName extends stri
          | Record<string, unknown>[]
          | null
          | undefined;
-      if (!rows || !Array.isArray(rows) || !rows.length) return;
+      if (!rows || !Array.isArray(rows) || !rows.length) { throw new SqlBuildError(`insert requires a non-empty rows array`); }
 
       const keys = getCanonicalKeys(this.table, rows);
 

@@ -225,47 +225,6 @@ describe("SqlInsert", () => {
          ).toThrow("not a primitive");
       });
 
-      test("produces no output for empty rows array", () => {
-         const query = sql`
-            INSERT INTO ${Account}
-            ${insert(Account, "rows")}
-         `;
-
-         const result = query.getSql({
-            params: { rows: [] },
-            options: { dialect: "sql", format: false },
-         });
-
-         expect(result.text).toMatchInlineSnapshot(`
-           " /* <query_0> */ 
-                       INSERT INTO "main"."account"
-                       
-                    /* </query_0> */"
-         `);
-         expect(result.values).toMatchInlineSnapshot(`[]`);
-      });
-
-      test("produces no output for null param", () => {
-         const query = sql`
-            INSERT INTO ${Account}
-            ${insert(Account, "rows")}
-         `;
-
-         const result = query.getSql({
-            // @ts-expect-error null rows not allowed
-            params: { rows: null },
-            options: { dialect: "sql", format: false },
-         });
-
-         expect(result.text).toMatchInlineSnapshot(`
-           " /* <query_0> */ 
-                       INSERT INTO "main"."account"
-                       
-                    /* </query_0> */"
-         `);
-         expect(result.values).toMatchInlineSnapshot(`[]`);
-      });
-
       test("handles null values in rows", () => {
          const query = sql`
             INSERT INTO ${Account}
@@ -388,57 +347,5 @@ describe("SqlInsert", () => {
             }),
          ).toThrow("does not exist in table");
       });
-   });
-});
-
-describe("coverage — edge cases", () => {
-   test("insert.cols produces no output for empty rows", () => {
-      const query = sql`(${insert.cols(Account, "rows")})`;
-
-      const result = query.getSql({
-         params: { rows: [] },
-         options: { dialect: "sql", format: false },
-      });
-
-      expect(result.text).toMatchInlineSnapshot(`" /* <query_0> */ ()/* </query_0> */"`);
-      expect(result.values).toMatchInlineSnapshot(`[]`);
-   });
-
-   test("insert.values produces no output for empty rows", () => {
-      const query = sql`${insert.values(Account, "rows")}`;
-
-      const result = query.getSql({
-         params: { rows: [] },
-         options: { dialect: "sql", format: false },
-      });
-
-      expect(result.text).toMatchInlineSnapshot(`" /* <query_0> */ /* </query_0> */"`);
-      expect(result.values).toMatchInlineSnapshot(`[]`);
-   });
-
-   test("insert.cols produces no output for null param", () => {
-      const query = sql`(${insert.cols(Account, "rows")})`;
-
-      const result = query.getSql({
-         // @ts-expect-error null rows not allowed
-         params: { rows: null},
-         options: { dialect: "sql", format: false },
-      });
-
-      expect(result.text).toMatchInlineSnapshot(`" /* <query_0> */ ()/* </query_0> */"`);
-      expect(result.values).toMatchInlineSnapshot(`[]`);
-   });
-
-   test("insert.values produces no output for null param", () => {
-      const query = sql`${insert.values(Account, "rows")}`;
-
-      const result = query.getSql({
-         // @ts-expect-error null rows not allowed
-         params: { rows: null},
-         options: { dialect: "sql", format: false },
-      });
-
-      expect(result.text).toMatchInlineSnapshot(`" /* <query_0> */ /* </query_0> */"`);
-      expect(result.values).toMatchInlineSnapshot(`[]`);
    });
 });

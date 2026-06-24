@@ -123,8 +123,10 @@ public sealed class SqlBuilder
 
     private void BuildSet(SetNode set, Dictionary<string, object?> parameters, List<string> sql, List<object?> values)
     {
-        if (!parameters.TryGetValue(set.Param, out var obj) || obj is not Dictionary<string, object?> dict) return;
-        if (dict.Count == 0) return;
+        if (!parameters.TryGetValue(set.Param, out var obj) || obj is not Dictionary<string, object?> dict)
+            throw new InvalidOperationException("set() requires a non-empty object");
+        if (dict.Count == 0)
+            throw new InvalidOperationException("set() requires at least one column");
 
         sql.Add("set ");
         int emitted = 0;
@@ -144,7 +146,7 @@ public sealed class SqlBuilder
     {
         if (!parameters.TryGetValue(insert.Param, out var obj)) return;
         var rows = CoerceRowList(obj);
-        if (rows == null || rows.Count == 0) return;
+        if (rows == null || rows.Count == 0) throw new InvalidOperationException("insert/upsert requires a non-empty rows array");
 
         var keys = GetCanonicalKeys(insert.Columns, rows[0]);
 
@@ -176,7 +178,7 @@ public sealed class SqlBuilder
     {
         if (!parameters.TryGetValue(node.Param, out var obj)) return;
         var rows = CoerceRowList(obj);
-        if (rows == null || rows.Count == 0) return;
+        if (rows == null || rows.Count == 0) throw new InvalidOperationException("insert/upsert requires a non-empty rows array");
 
         var keys = GetCanonicalKeys(node.Columns, rows[0]);
         for (int i = 0; i < keys.Count; i++)
@@ -190,7 +192,7 @@ public sealed class SqlBuilder
     {
         if (!parameters.TryGetValue(node.Param, out var obj)) return;
         var rows = CoerceRowList(obj);
-        if (rows == null || rows.Count == 0) return;
+        if (rows == null || rows.Count == 0) throw new InvalidOperationException("insert/upsert requires a non-empty rows array");
 
         var keys = node.Keys.Where(k => rows[0].ContainsKey(k)).ToList();
         for (int r = 0; r < rows.Count; r++)
@@ -473,7 +475,7 @@ public sealed class SqlBuilder
     {
         if (!parameters.TryGetValue(node.Param, out var obj)) return;
         var rows = CoerceRowList(obj);
-        if (rows == null || rows.Count == 0) return;
+        if (rows == null || rows.Count == 0) throw new InvalidOperationException("insert/upsert requires a non-empty rows array");
 
         var keys = GetCanonicalKeys(node.Columns, rows[0]);
         var conflictSet = new HashSet<string>(node.ConflictKeys);

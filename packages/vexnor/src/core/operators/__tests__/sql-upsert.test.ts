@@ -222,52 +222,6 @@ describe("SqlUpsert", () => {
       `);
    });
 
-   test("emits nothing when rows param is empty", () => {
-      const query = sql`INSERT INTO ${Account} ${upsert(Account, ["accountId"])} RETURNING ${row(Account.$$)}`;
-      const { text } = query.getSql({
-         params: { rows: [] },
-         options: { dialect: "postgresql" },
-      });
-      expect(text).toMatchInlineSnapshot(`
-        "/* <query_0> */
-        INSERT INTO
-          "main"."account"
-        RETURNING
-          "account"."account_id" AS "accountId",
-          "account"."status",
-          "account"."email",
-          "account"."first_name" AS "firstName",
-          "account"."last_name" AS "lastName",
-          "account"."notes",
-          "account"."created_at" AS "createdAt",
-          "account"."modified_at" AS "modifiedAt",
-          "account"."parent_id" AS "parentId" /* </query_0> */"
-      `);
-   });
-
-   test("emits nothing when rows param is null", () => {
-      const query = sql`INSERT INTO ${Account} ${upsert(Account, ["accountId"])} RETURNING ${row(Account.$$)}`;
-      const { text } = query.getSql({
-         params: { rows: null as unknown as [] },
-         options: { dialect: "postgresql" },
-      });
-      expect(text).toMatchInlineSnapshot(`
-        "/* <query_0> */
-        INSERT INTO
-          "main"."account"
-        RETURNING
-          "account"."account_id" AS "accountId",
-          "account"."status",
-          "account"."email",
-          "account"."first_name" AS "firstName",
-          "account"."last_name" AS "lastName",
-          "account"."notes",
-          "account"."created_at" AS "createdAt",
-          "account"."modified_at" AS "modifiedAt",
-          "account"."parent_id" AS "parentId" /* </query_0> */"
-      `);
-   });
-
    test("serializes to UpsertNode when params are null", async () => {
       const query = sql`INSERT INTO ${Account} ${upsert(Account, ["accountId"])} RETURNING ${row(Account.$$)}`;
       const result = await serializeQuery(query, "xUpsert", "postgresql");

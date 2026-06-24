@@ -52,7 +52,9 @@ export class SqlUpsert<T extends SqlUpsertTypeArgs, ParamName extends string> ex
       }
 
       const rows = resolvePath(context.params as Record<string, unknown>, this.paramName) as Record<string, unknown>[] | null | undefined;
-      if (!rows?.length) return;
+      if (!rows?.length) {
+         throw new SqlBuildError(`upsert() requires a non-empty rows array in param '${this.paramName}'`);
+      }
 
       const dialect = context.dialect;
       if (dialect === "transactsql") {

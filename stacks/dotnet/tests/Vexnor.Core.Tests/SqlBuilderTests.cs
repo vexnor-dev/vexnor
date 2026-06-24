@@ -415,7 +415,7 @@ public class SqlBuilderEdgeCaseTests
     }
 
     [Fact]
-    public void Build_Set_EmptyObject_ProducesNoOutput()
+    public void Build_Set_EmptyObject_Throws()
     {
         var query = new QueryDefinition
         {
@@ -428,12 +428,12 @@ public class SqlBuilderEdgeCaseTests
             }
         };
 
-        var result = _builder.Build(query, new() { ["set"] = new Dictionary<string, object?>() });
-        Assert.Equal("UPDATE account ", result.Text);
+        Assert.Throws<InvalidOperationException>(() =>
+            _builder.Build(query, new() { ["set"] = new Dictionary<string, object?>() }));
     }
 
     [Fact]
-    public void Build_Set_MissingParam_ProducesNoOutput()
+    public void Build_Set_MissingParam_Throws()
     {
         var query = new QueryDefinition
         {
@@ -446,8 +446,8 @@ public class SqlBuilderEdgeCaseTests
             }
         };
 
-        var result = _builder.Build(query, new());
-        Assert.Equal("UPDATE account ", result.Text);
+        Assert.Throws<InvalidOperationException>(() =>
+            _builder.Build(query, new()));
     }
 
     [Fact]
@@ -470,7 +470,7 @@ public class SqlBuilderEdgeCaseTests
     }
 
     [Fact]
-    public void Build_Insert_EmptyRows_ProducesNoOutput()
+    public void Build_Insert_EmptyRows_Throws()
     {
         var query = new QueryDefinition
         {
@@ -482,8 +482,8 @@ public class SqlBuilderEdgeCaseTests
             }
         };
 
-        var result = _builder.Build(query, new() { ["rows"] = new List<Dictionary<string, object?>>() });
-        Assert.Equal("", result.Text);
+        Assert.Throws<InvalidOperationException>(() =>
+            _builder.Build(query, new() { ["rows"] = new List<Dictionary<string, object?>>() }));
     }
 
     [Fact]

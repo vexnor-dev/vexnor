@@ -5,10 +5,22 @@
  *
  * Run: node --experimental-vm-modules stacks/fixtures/generate-cross-runtime.mjs
  */
-import { sql, row, orderBy, filterBy, insert, set, when, param, SqlPagination, upsert } from "../../packages/vexnor/dist/core/core.js";
+import {
+   sql,
+   row,
+   orderBy,
+   filterBy,
+   insert,
+   set,
+   when,
+   param,
+   SqlPagination,
+   upsert,
+   serializeManifest,
+} from "@vexnor/core";
 import { Account } from "./codegen/postgres/vexnor_dev.account-table.js";
 import { writeFileSync, mkdirSync } from "node:fs";
-import { serializeManifest } from "../../packages/vexnor/dist/core/serialize/serialize-query.js";
+
 
 // ─── Define queries ──────────────────────────────────────────────────────────
 
@@ -34,11 +46,12 @@ const queries = {
    xUpsertSingle: sql`INSERT INTO ${Account} ${upsert(Account, ["accountId"])} RETURNING ${row(Account.$$)}`,
    xUpsertMulti: sql`INSERT INTO ${Account} ${upsert(Account, ["accountId"])} RETURNING ${row(Account.$$)}`,
    xUpsertMssql: sql`MERGE INTO ${Account} ${upsert(Account, ["accountId"])} OUTPUT inserted.*;`,
+   xInsertEmpty: sql`INSERT INTO ${Account} ${insert(Account)} RETURNING ${row(Account.$$)}`,
 };
 
 // ─── Test params per case ────────────────────────────────────────────────────
 
-const testParams = {
+const testParams: Record<string, any> = {
    xOrderBySingle: { orderBy: { createdAt: "DESC" } },
    xOrderByMulti: { orderBy: { status: "ASC", createdAt: "DESC" } },
    xOrderByNull: { orderBy: null },
@@ -60,11 +73,13 @@ const testParams = {
    xUpsertSingle: { rows: [{ accountId: "uuid-1", email: "a@test.com", firstName: "A", lastName: "B" }] },
    xUpsertMulti: { rows: [{ accountId: "uuid-1", email: "a@test.com", firstName: "A", lastName: "AA" }, { accountId: "uuid-2", email: "b@test.com", firstName: "B", lastName: "BB" }] },
    xUpsertMssql: { rows: [{ accountId: "uuid-1", email: "a@test.com", firstName: "A", lastName: "B" }] },
+   xInsertEmpty: { rows: [] },
 };
 
 // ─── Generate outputs ────────────────────────────────────────────────────────
 
-const results = {};
+const results: Record<string, { hash: string; text: string | null; values: unknown[] | null; error: string | null }> = {};
+
 for (const [name, query] of Object.entries(queries)) {
    const params = testParams[name];
    const hash = await query.hash;

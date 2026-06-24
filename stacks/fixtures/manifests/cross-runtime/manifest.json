@@ -116,8 +116,8 @@
       "authorization": []
     },
     "6b198c1e4f9a9b4e6adb67befcfbcde5eb1a6dc525a5d07f22c7320788e87556": {
-      "name": "xInsertMulti",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:24:18",
+      "name": "xInsertEmpty",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:37:18",
       "hash": "6b198c1e4f9a9b4e6adb67befcfbcde5eb1a6dc525a5d07f22c7320788e87556",
       "template": [
         {

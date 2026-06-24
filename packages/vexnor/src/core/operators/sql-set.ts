@@ -61,10 +61,14 @@ export class SqlSet<T extends SqlSetTypeArgs, ParamName extends string> extends 
 
       const obj = resolvePath(context.params as Record<string, unknown>, this.paramName) as Record<string, unknown> | null | undefined;
 
-      if (!obj || typeof obj !== "object") return;
+      if (!obj || typeof obj !== "object") {
+         throw new SqlBuildError(`set() requires a non-empty object in param '${this.paramName}'`);
+      }
 
       const entries = Object.entries(obj);
-      if (!entries.length) return;
+      if (!entries.length) {
+         throw new SqlBuildError(`set() requires at least one column in param '${this.paramName}'`);
+      }
 
       context.addStrings("set ");
 
