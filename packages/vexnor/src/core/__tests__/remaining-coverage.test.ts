@@ -49,10 +49,10 @@ describe("Coverage — remaining uncovered lines", () => {
       expect(text).toContain("item");
    });
 
-   test("sql-build-context — operator token in toText()", () => {
+   test("sql-build-context — operator token in toText()", async () => {
       const q = sql`SELECT ${row(Account.$$)} FROM ${Account} WHERE ${filterBy(Account)}`;
-      // serializeQuery builds with params=null which hits the operator token path
-      // The toText() method formats operator tokens as /* <type> */ comments
+      const result = await serializeQuery(q, "filterQuery", "postgresql");
+      expect(result.template.some((n) => n.type === "filter")).toBe(true);
    });
 
    test("sql-pagination — serialization mode (params=null)", async () => {
