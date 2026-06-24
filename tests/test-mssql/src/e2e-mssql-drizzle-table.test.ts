@@ -19,7 +19,8 @@ const accountDrizzle = schema.table("account", {
    notes: nvarchar("notes", { length: "max" }),
 });
 
-const Account = fromDrizzleTable(accountDrizzle);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const Account = fromDrizzleTable(accountDrizzle as any);
 
 describe.sequential("e2e drizzle/mssql — fromDrizzleTable works against real DB", (ctx) => {
    const TAG = getTag(ctx);
@@ -73,7 +74,7 @@ describe.sequential("e2e drizzle/mssql — fromDrizzleTable works against real D
    });
 
    test("crud: upsert", async () => {
-      const upserted = await Account.mssql.upsert({ MERGE_ON: [Account.$accountId] }).one({
+      const upserted = await Account.mssql.upsert({ MERGE_ON: [Account.$accountId!] }).one({
          db: pool.request(),
          params: { rows: [{ accountId: account.accountId, email: account.email, firstName: "Upserted", lastName: "Test" }] },
       });

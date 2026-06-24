@@ -16,7 +16,8 @@ const accountOrderSummaryDrizzle = mssqlSchema("vexnor_dev")
    })
    .existing();
 
-const View = fromDrizzleView(accountOrderSummaryDrizzle);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const View = fromDrizzleView(accountOrderSummaryDrizzle as any);
 
 describe("e2e drizzle/mssql — fromDrizzleView against real view", () => {
    test("crud is select-only", () => {
@@ -39,14 +40,14 @@ describe("e2e drizzle/mssql — fromDrizzleView against real view", () => {
       const emailParam = param<{ email: string }>("email");
       const results = await sql`
          SELECT ${row(View.$$)} FROM ${View}
-         WHERE ${View.$email} = ${emailParam}
+         WHERE ${View.$email!} = ${emailParam}
       `.mssql.all({ db: pool.request(), params: { email: "nonexistent@example.com" } });
       expect(results).toHaveLength(0);
    });
 
    test("SELECT specific columns", async () => {
       const results = await sql`
-         SELECT ${row(View.$accountId, View.$email, View.$orderCount)}
+         SELECT ${row(View.$accountId!, View.$email!, View.$orderCount!)}
          FROM ${View}
       `.mssql.all({ db: pool.request() });
       expect(Array.isArray(results)).toBe(true);
