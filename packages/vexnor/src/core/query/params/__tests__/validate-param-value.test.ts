@@ -97,7 +97,7 @@ describe("validateParamValue", () => {
       const val = new Date("2024-01-01");
       expect(validateParamValue(val, { min })).toMatchInlineSnapshot(`
         [
-          "expected value >= Sat Jun 01 2024 02:00:00 GMT+0200 (Central European Summer Time)",
+          "expected value >= 2024-06-01T00:00:00.000Z",
         ]
       `);
    });
@@ -137,7 +137,7 @@ describe("validateParamValue", () => {
       const val = new Date("2025-01-01");
       expect(validateParamValue(val, { max })).toMatchInlineSnapshot(`
         [
-          "expected value <= Mon Jan 01 2024 01:00:00 GMT+0100 (Central European Standard Time)",
+          "expected value <= 2024-01-01T00:00:00.000Z",
         ]
       `);
    });

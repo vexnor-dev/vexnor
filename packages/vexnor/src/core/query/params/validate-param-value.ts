@@ -27,11 +27,11 @@ export function validateParamValue<T>(value: unknown, rules: SqlParamValidation<
    }
 
    if (rules.min != null) {
-      if (!isAtLeast(value, rules.min)) errors.push(`expected value >= ${String(rules.min)}`);
+      if (!isAtLeast(value, rules.min)) errors.push(`expected value >= ${formatLimit(rules.min)}`);
    }
 
    if (rules.max != null) {
-      if (!isAtMost(value, rules.max)) errors.push(`expected value <= ${String(rules.max)}`);
+      if (!isAtMost(value, rules.max)) errors.push(`expected value <= ${formatLimit(rules.max)}`);
    }
 
    if (rules.values && !rules.values.some((item) => Object.is(item, value))) {
@@ -99,4 +99,8 @@ function isAtMost(value: unknown, max: unknown): boolean {
             code: "PARAM_VALIDATION_FAILED",
          });
    }
+}
+
+function formatLimit(val: unknown): string {
+   return val instanceof Date ? val.toISOString() : String(val);
 }
