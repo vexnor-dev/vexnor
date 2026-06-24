@@ -93,3 +93,45 @@ describe("fromSequelizeView", () => {
       expect(AccountOrderSummary.$accountId.columnName).toBe("account_id");
    });
 });
+
+describe("fromSequelizeTable — schema-qualified table", () => {
+   test("resolves schema from model tableName object", () => {
+      class SchemaModel extends Model<InferAttributes<SchemaModel>, InferCreationAttributes<SchemaModel>> {
+         declare id: string;
+      }
+
+      SchemaModel.init(
+         { id: { type: DataTypes.STRING, allowNull: false, primaryKey: true } },
+         { sequelize, modelName: "SchemaModel", tableName: "items", schema: "myschema" },
+      );
+
+      const table = fromSequelizeTable(SchemaModel);
+      expect(table.tableInfo.schema).toBe("myschema");
+      expect(table.tableInfo.name).toBe("items");
+   });
+
+   test("schemaOverride takes precedence", () => {
+      class OverrideModel extends Model<InferAttributes<OverrideModel>, InferCreationAttributes<OverrideModel>> {
+         declare id: string;
+      }
+
+      OverrideModel.init(
+         { id: { type: DataTypes.STRING, allowNull: false, primaryKey: true } },
+         { sequelize, modelName: "OverrideModel", tableName: "items", schema: "original" },
+      );
+
+      const table = fromSequelizeTable(OverrideModel, "overridden");
+      expect(table.tableInfo.schema).toBe("overridden");
+   });
+});
+
+describe("getDialect", () => {
+   test("maps sequelize dialects to vexnor dialects", async () => {
+      const { getDialect } = await import("#/dialect.js");
+      expect(getDialect("postgres")).toBe("postgresql");
+      expect(getDialect("mssql")).toBe("tsql");
+      expect(getDialect("sqlite")).toBe("sqlite");
+      expect(getDialect("mysql")).toBe("mysql");
+      expect(getDialect("unknown")).toBe("sql");
+   });
+});

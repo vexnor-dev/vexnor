@@ -43,3 +43,13 @@ describe("Empty params — mutation operators must throw", () => {
       });
    });
 });
+
+describe("insert.cols/values — paramName defaults", () => {
+   test("insert.cols() uses 'rows' as default paramName", () => {
+      const query = sql`INSERT INTO ${Account} (${insert.cols(Account)}) VALUES ${insert.values(Account)} RETURNING ${row(Account.$$)}`;
+      const { text } = query.getSql({
+         params: { rows: [{ email: "a@b.com", firstName: "A", lastName: "B" }] },
+      });
+      expect(text).toContain('"email"');
+   });
+});
