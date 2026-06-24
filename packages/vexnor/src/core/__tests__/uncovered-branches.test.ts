@@ -12,39 +12,53 @@ import { MockQueryHandler } from "#/test/mock-query-handler.js";
 import { filterBy } from "#/core/operators/sql-filter-by.js";
 
 describe("sql-each-object — non-SqlQuery body in colInTable (line 129)", () => {
-   test("direct build: colInTable with raw() body hits else branch", () => {
-      const body = raw("= ?");
-      const gate = colInTable(Account, eachKey(), body);
-      const context = new SqlBuildContext({ dialect: "postgresql", params: {} }) as any;
-      context._eachObjectCurrentKey = "email";
-      context._eachObjectCurrentValue = "val";
-      context._eachObjectTable = null;
-      (gate as any).write(context);
-      const textTokens = context.tokens.filter((t: any) => t.type === "text");
-      expect(textTokens.some((t: any) => t.value === "= ?")).toBe(true);
+   test("colInTable with raw() body — full pipeline execution", () => {
+      // raw("= ?") is SqlRaw (not SqlQuery) — forces the else branch at line 129
+      const gate = colInTable(Account, eachKey(), raw("= ?"));
+      const eachObj = eachObject<{ set: Record<string, unknown> }>("set", gate);
+      const query = sql`UPDATE ${Account} SET ${eachObj}`;
+      const { text } = query.getSql({
+         params: { set: { email: "test@example.com" } },
+      });
+      // raw("= ?") emits literal "= ?" (not parameterized)
+      expect(text).toMatchInlineSnapshot(`
+        "/* <query_0> */
+        UPDATE "main"."account"
+        SET
+          = ? /* </query_0> */"
+      `);
    });
 
    test("colInTable gate skips invalid columns (line 122)", () => {
-      const body = raw("= ?");
-      const gate = colInTable(Account, eachKey(), body);
-      const context = new SqlBuildContext({ dialect: "postgresql", params: {} }) as any;
-      context._eachObjectCurrentKey = "invalidCol";
-      context._eachObjectCurrentValue = "skip";
-      context._eachObjectTable = null;
-      const tokensBefore = context.tokens.length;
-      (gate as any).write(context);
-      // Gate returns early — no tokens added
-      expect(context.tokens.length).toBe(tokensBefore);
+      const gate = colInTable(Account, eachKey(), raw("= ?"));
+      const eachObj = eachObject<{ set: Record<string, unknown> }>("set", gate);
+      const query = sql`UPDATE ${Account} SET ${eachObj}`;
+      const { text } = query.getSql({
+         params: { set: { notAColumn: "skip", email: "keep" } },
+      });
+      // Only email passes gate — notAColumn is skipped
+      expect(text).toMatchInlineSnapshot(`
+        "/* <query_0> */
+        UPDATE "main"."account"
+        SET
+          = ? /* </query_0> */"
+      `);
    });
 });
 
 describe("sql-each-object — non-SqlQuery template in eachObject (line 222)", () => {
-   test("direct build: eachObject with raw() template hits else branch", () => {
+   test("eachObject with raw() template — full pipeline execution", () => {
+      // raw("?") is SqlRaw (not SqlQuery) — forces the else branch at line 222
       const eachObj = eachObject<{ vals: Record<string, unknown> }>("vals", raw("?"));
-      const context = new SqlBuildContext({ dialect: "postgresql", params: { vals: { a: "1", b: "2" } } });
-      (eachObj as any).write(context);
-      const textTokens = (context as any).tokens.filter((t: any) => t.type === "text");
-      expect(textTokens.filter((t: any) => t.value === "?").length).toBe(2);
+      const query = sql`VALUES (${eachObj})`;
+      const { text } = query.getSql({
+         params: { vals: { a: "1", b: "2" } },
+      });
+      expect(text).toMatchInlineSnapshot(`
+        "/* <query_0> */
+        VALUES
+          (?, ?) /* </query_0> */"
+      `);
    });
 });
 

@@ -124,12 +124,7 @@ export class SqlColInTable extends Sql {
       // Set table context for eachKey() resolution
       const prevTable = ctx._eachObjectTable;
       ctx._eachObjectTable = this.table;
-
-      if (this.body instanceof SqlQuery) {
-         this.body.build(context, options, { queryType: "inline" });
-      } else {
-         this.body.build(context, options);
-      }
+      this.body.build(context, options, this.body instanceof SqlQuery ? { queryType: "inline" } : undefined);
 
       ctx._eachObjectTable = prevTable;
    }
@@ -217,12 +212,7 @@ export class SqlEachObject<T extends Record<string, Record<string, unknown>>> ex
          }
 
          if (emitted > 0) context.addStrings(this.separator);
-
-         if (this.template instanceof SqlQuery) {
-            this.template.build(context, options, { queryType: "inline" });
-         } else {
-            this.template.build(context, options);
-         }
+         this.template.build(context, options, this.template instanceof SqlQuery ? { queryType: "inline" } : undefined);
 
          emitted++;
       }
