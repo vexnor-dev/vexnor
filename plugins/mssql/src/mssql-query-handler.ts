@@ -6,9 +6,11 @@ import {
    SqlRunError,
    SqlErrorCode,
    deserialize,
+   getQueryMeta,
    ok,
    RemoteClient, getQueryName,
    type QueryMeta,
+   setQueryMeta,
 } from "@vexnor/core";
 
 // MSSQL transient error numbers and codes safe to retry
@@ -102,7 +104,10 @@ export class MssqlQueryHandler<T extends { Params?: unknown; Row?: unknown }> ex
    serialize<TResult extends MssqlResult<T["Row"]> = MssqlResult<T["Row"]>>(value: TResult): TResult {
       const result = value as MssqlResult<T["Row"]>;
       const { recordsets, rowsAffected } = result;
-      return { recordsets, rowsAffected } as TResult;
+      const serialized = { recordsets, rowsAffected } as TResult;
+      const meta = getQueryMeta(value);
+      if (meta) setQueryMeta(serialized, meta);
+      return serialized;
    }
 
    /**

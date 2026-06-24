@@ -4,7 +4,7 @@ import { Account } from "@test-models/vexnor_dev.account-table.js";
 import { row } from "#/core/query/sql-select-row.js";
 import { MockQueryHandler } from "#/test/mock-query-handler.js";
 import type { MockConnection } from "#/test/mock-plugin.js";
-import { getQueryMeta } from "#/core/query/query-meta-store.js";
+import { getQueryMeta, setQueryMeta } from "#/core/query/query-meta-store.js";
 
 function createMockDb(rows: unknown[] = []): MockConnection {
    return {
@@ -73,5 +73,35 @@ describe("QueryMeta via getQueryMeta()", () => {
 
       expect(meta).toBeDefined();
       expect(meta!.duration).toBeGreaterThanOrEqual(9);
+   });
+
+   it("meta survives destructuring into a new object (serialize scenario)", () => {
+      const original = { rows: [{ id: 1 }], rowCount: 1, command: "SELECT", oid: 0 };
+      setQueryMeta(original, { sql: "SELECT 1", params: [], duration: 5 });
+
+      // Simulate what plugin serialize() does: destructure into new object
+      const { rows, rowCount, command, oid } = original;
+      const serialized = { rows, rowCount, command, oid };
+
+      // Forward meta (what fixed serialize does)
+      const meta = getQueryMeta(original);
+      if (meta) setQueryMeta(serialized, meta);
+
+      const result = getQueryMeta(serialized);
+      expect(result).toBeDefined();
+      expect(result!.sql).toBe("SELECT 1");
+      expect(result!.duration).toBe(5);
+   });
+
+   it("meta is accessible via __vexnor_meta__ fallback when WeakMap is unavailable", () => {
+      const obj = { rows: [] };
+      setQueryMeta(obj, { sql: "SELECT 2", params: [1], duration: 10 });
+
+      // Simulate a different WeakMap (bundler duplication) by reading the property directly
+      const meta = (obj as Record<string, unknown>)["__vexnor_meta__"] as { sql: string; params: unknown[]; duration: number };
+      expect(meta).toBeDefined();
+      expect(meta.sql).toBe("SELECT 2");
+      expect(meta.params).toEqual([1]);
+      expect(meta.duration).toBe(10);
    });
 });
