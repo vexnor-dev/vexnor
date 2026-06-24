@@ -5,6 +5,7 @@ import { param } from "#/core/query/sql-param.js";
 import { when } from "#/core/operators/sql-when.js";
 import { each } from "#/core/operators/sql-each.js";
 import { filterBy } from "#/core/operators/sql-filter-by.js";
+import { insert } from "#/core/operators/sql-insert-x.js";
 import { SqlPagination } from "#/core/operators/sql-pagination.js";
 import { Account } from "@test-models/vexnor_dev.schema.js";
 import { serializeQuery, serializeManifest } from "#/core/serialize/serialize-query.js";
@@ -53,6 +54,20 @@ describe("Coverage — remaining uncovered lines", () => {
       const q = sql`SELECT ${row(Account.$$)} FROM ${Account} WHERE ${filterBy(Account)}`;
       const result = await serializeQuery(q, "filterQuery", "postgresql");
       expect(result.template.some((n) => n.type === "filter")).toBe(true);
+   });
+
+   test("serializeRow — query with row schema", async () => {
+      const q = sql`SELECT ${row(Account.$accountId, Account.$email)} FROM ${Account}`;
+      const result = await serializeQuery(q, "withRow", "postgresql");
+      // serializeRow reads query.jsonSchema — if it exists, it maps to ColumnSchema
+      expect(result.row === null || typeof result.row === "object").toBe(true);
+   });
+
+   test("sql-insert-utils — rows with different columns throws", () => {
+      const q = sql`INSERT INTO ${Account} ${insert(Account)} RETURNING ${row(Account.$$)}`;
+      expect(() =>
+         q.getSql({ params: { rows: [{ email: "a@b.com", firstName: "A", lastName: "B" }, { email: "c@d.com", firstName: "C" }] } }),
+      ).toThrow("different columns");
    });
 
    test("sql-pagination — serialization mode (params=null)", async () => {

@@ -375,10 +375,15 @@ See [Telemetry](docs/telemetry.md) — span shape, OTLP exporters, combining wit
 - [Authorization](docs/authorization.md) — query authorization, audit logging, SOC2/HIPAA
 - [Telemetry](docs/telemetry.md) — OpenTelemetry integration, spans, OTLP exporters
 - [CLI](docs/cli.md) — `codegen`, `exec run`, `exec init`, config reference
+- [Serialize](docs/serialize.md) — `vexnor serialize`, manifest generation for cross-runtime execution
 - [Transactions](docs/transactions.md) — `transaction()`, `savepoint()`, isolation levels, all three drivers
 - [Databases](docs/databases.md) — PostgreSQL, MS SQL Server, SQLite — driver setup and dialect notes
 - [Plugins & Adaptors](docs/plugins.md) — Drizzle, Prisma, TypeORM, Sequelize adaptors, building your own plugin
+- [Portable Queries](docs/portable-queries.md) — conceptual overview of all portability axes (isomorphic, multi-dialect, multi-runtime)
+- [Cross-Stack Setup](docs/cross-stack-setup.md) — step-by-step guide to get TypeScript + .NET running together
 - [.NET SDK](docs/dotnet.md) — cross-runtime manifest, QueryRegistry, SqlBuilder, shared fixtures
+- [Workflow](docs/workflow.md) — migration/upgrade guide, day-to-day dev loop
+- [CI](docs/ci.md) — CI/deployment pipeline for cross-stack projects
 
 ## Examples
 
