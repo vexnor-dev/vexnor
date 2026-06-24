@@ -6,31 +6,31 @@
       "module": "ESNext",
       "moduleResolution": "bundler",
       "jsx": "react-jsx",
-      "lib": ["ES2022", "DOM", "DOM.Iterable"],
+      "lib": [
+         "ES2022",
+         "DOM",
+         "DOM.Iterable"
+      ],
       "noEmit": true,
       "resolveJsonModule": true,
       "noUnusedLocals": true,
       "noUnusedParameters": true,
       "paths": {
-         "#/*": ["./client/src/*"],
-         "#shared/*": ["./shared/*"],
-         "#shared/codegen/postgres/*": ["./shared/codegen/postgres/*"],
-         "#shared/codegen/mssql/*": ["./shared/codegen/mssql/*"]
+         "#/*": [
+            "./client/src/*"
+         ],
+         "#shared/*": [
+            "./shared/*"
+         ],
+         "#shared/codegen/postgres/*": [
+            "./shared/codegen/postgres/*"
+         ],
+         "#shared/codegen/mssql/*": [
+            "./shared/codegen/mssql/*"
+         ]
       }
    },
-   "include": ["client"],
-   "references": [
-      {
-         "path": "../../packages/vexnor"
-      },
-      {
-         "path": "../../plugins/mssql"
-      },
-      {
-         "path": "../../plugins/postgres"
-      },
-      {
-         "path": "../../plugins/sqlite3"
-      }
+   "include": [
+      "client"
    ]
 }

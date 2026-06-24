@@ -5,16 +5,18 @@
       "rootDir": "./src",
       "declaration": true,
       "declarationMap": true,
-      "composite": true,
       "paths": {
-         "#/*": ["./src/*"]
+         "#/*": [
+            "./src/*"
+         ]
       }
    },
-   "include": ["src/**/*"],
-   "exclude": ["dist", "node_modules", "src/schema/find-schema.vexnor.ts"],
-   "references": [
-      {
-         "path": "../../packages/vexnor"
-      }
+   "include": [
+      "src/**/*"
+   ],
+   "exclude": [
+      "dist",
+      "node_modules",
+      "src/schema/find-schema.vexnor.ts"
    ]
 }

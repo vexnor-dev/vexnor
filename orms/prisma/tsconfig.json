@@ -5,18 +5,19 @@
       "rootDir": "./src",
       "declaration": true,
       "declarationMap": true,
-      "composite": true,
       "paths": {
-         "#/*": ["./src/*", "../../*"]
+         "#/*": [
+            "./src/*",
+            "../../*"
+         ]
       }
    },
-   "include": ["src/**/*"],
-   "exclude": ["dist", "node_modules",
-      "src/__tests__/prisma.config.ts"
+   "include": [
+      "src/**/*"
    ],
-   "references": [
-      {
-         "path": "../../packages/vexnor"
-      }
+   "exclude": [
+      "dist",
+      "node_modules",
+      "src/__tests__/prisma.config.ts"
    ]
 }

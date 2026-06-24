@@ -1,9 +1,8 @@
-import { getViewConfig, type PgView } from "drizzle-orm/pg-core";
-import { Column } from "drizzle-orm";
+import { getViewConfig, type PgView, type PgViewWithSelection } from "drizzle-orm/pg-core";
 import { newSqlTable, type SqlTableExtended } from "@vexnor/core";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AnyPgView = PgView<string, boolean, Record<string, any>>;
+type AnyPgView = PgView<string, boolean, Record<string, any>> | PgViewWithSelection<any, any, any>;
 
 type FromDrizzleViewResult<T extends AnyPgView> = T extends {
    $inferSelect: Record<string, unknown>;
@@ -30,7 +29,7 @@ export function fromDrizzleView<T extends AnyPgView>(
    view: T,
    schema?: string,
 ): FromDrizzleViewResult<T> {
-   const config = getViewConfig(view);
+   const config = getViewConfig(view as PgView<string, boolean, Record<string, any>>);
 
    if (!config.name) {
       throw new Error(
@@ -40,7 +39,7 @@ export function fromDrizzleView<T extends AnyPgView>(
 
    const columns: Record<string, string> = {};
    for (const [jsKey, col] of Object.entries(config.selectedFields)) {
-      if (col instanceof Column) {
+      if (col !== null && typeof col === "object" && "name" in col && typeof col.name === "string" && "columnType" in col) {
          columns[jsKey] = col.name;
       }
    }

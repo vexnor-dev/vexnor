@@ -2,15 +2,13 @@
    "extends": "../../tsconfig.json",
    "compilerOptions": {
       "outDir": "./dist",
-      "rootDir": "./src",
-      "composite": true
+      "rootDir": "./src"
    },
-   "include": ["src/**/*"],
-   "exclude": ["dist", "node_modules"],
-   "references": [
-      { "path": "../../packages/vexnor" },
-      { "path": "../../plugins/postgres" },
-      { "path": "../../plugins/mssql" },
-      { "path": "../../plugins/sqlite3" }
+   "include": [
+      "src/**/*"
+   ],
+   "exclude": [
+      "dist",
+      "node_modules"
    ]
 }
