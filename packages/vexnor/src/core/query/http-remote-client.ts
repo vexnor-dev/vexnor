@@ -46,7 +46,6 @@ export class HttpRemoteClient implements RemoteClient {
          ? (typeof atob === "function" ? atob(sqlHeader) : Buffer.from(sqlHeader, "base64").toString())
          : undefined;
       const meta: QueryMeta = { sql, duration: performance.now() - start };
-      if (request.meta) Object.assign(request.meta, meta);
       setQueryMeta(json, meta);
       return json as TResult;
    }

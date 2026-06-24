@@ -681,14 +681,3 @@ const rows = await query.postgres.all({ db: remoteClient });
 getQueryMeta(rows); // { sql, duration } — params omitted (sensitive)
 ```
 
-### `options.meta` (alternative)
-
-You can also pass a mutable ref if you prefer not to call `getQueryMeta()`:
-
-```typescript
-const meta: QueryMeta = {};
-await query.postgres.all({ db: pool, options: { meta } });
-// meta is now populated
-```
-
-Both approaches yield the same data.

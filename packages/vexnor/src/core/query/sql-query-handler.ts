@@ -155,12 +155,13 @@ export abstract class SqlQueryHandler<
                location: this.source.location,
                mode,
                options: args.options,
-               meta: args.options?.meta,
             })
             .then((data) => {
                if (!this.isReadResult(data)) return data;
-
-               return this.deserialize(data, true);
+               const result = this.deserialize(data, true);
+               const meta = getQueryMeta(data);
+               if (meta) setQueryMeta(result, meta);
+               return result;
             });
       }
 
@@ -206,7 +207,7 @@ export abstract class SqlQueryHandler<
    ): Promise<typeof mode extends "write" ? T["Write"] : T["Read"]> {
       const { options } = args;
       const { timeout, retryable: retryableOption } = options ?? {};
-      const meta: QueryMeta = options?.meta ?? {};
+      const meta: QueryMeta = {};
       const queryName = (await getQueryName(this.source)) ?? this.source.info?.label ?? this.source.id;
 
       try {
@@ -264,7 +265,8 @@ export abstract class SqlQueryHandler<
       ok(rows.length === 1, `Expected one row, actual is ${rows.length} rows.`);
       const row = rows[0];
       ok(row, `The one row in result is not defined: ${row}`);
-
+      const meta = getQueryMeta(rows);
+      if (meta) setQueryMeta(row as object, meta);
       return row;
    }
 
@@ -278,8 +280,10 @@ export abstract class SqlQueryHandler<
    ): Promise<T["Row"] | undefined> {
       const rows = await this.all(args);
       if (!rows?.length) return undefined;
-
-      return rows[0]!;
+      const row = rows[0]!;
+      const meta = getQueryMeta(rows);
+      if (meta) setQueryMeta(row as object, meta);
+      return row;
    }
 
    /**
@@ -292,8 +296,10 @@ export abstract class SqlQueryHandler<
    ): Promise<T["Row"] | undefined> {
       const rows = await this.all(args);
       if (!rows?.length) return undefined;
-
-      return rows[0]!;
+      const row = rows[0]!;
+      const meta = getQueryMeta(rows);
+      if (meta) setQueryMeta(row as object, meta);
+      return row;
    }
 
    //TODO: refactor this, make serialize / deserialize and integrate it already in the query execution

@@ -75,8 +75,8 @@ export type SqlQueryRunArgs<
         };
 
 /**
- * Mutable ref object for capturing query execution metadata.
- * Pass an empty object via `options.meta` — the handler populates it after execution.
+ * Query execution metadata. Automatically stored for every query execution
+ * and retrievable via `getQueryMeta(result)`.
  */
 export type QueryMeta = {
    /** The SQL text sent to the database */
@@ -95,13 +95,11 @@ export type QueryMeta = {
  *   - `"default"` (or omitted) — plugin decides based on driver error codes
  *   - `true` — always marked as retryable regardless of the error
  *   - `false` — never marked as retryable regardless of error
- * - `meta` — mutable ref object; if provided, populated with sql text, params, and duration after execution
  */
 export type SqlRunOptions = {
    timeout?: number;
    retryable?: "default" | true | false;
    retry?: SqlRetryOptions | false;
-   meta?: QueryMeta;
 };
 
 export type SqlRetryArgs<TExecution = unknown> = {
@@ -162,7 +160,6 @@ export type RemoteClient = {
       location: string | null;
       mode?: SqlExecuteMode;
       options?: SqlRunOptions;
-      meta?: QueryMeta;
    }) => Promise<TResult>;
 };
 

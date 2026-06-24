@@ -31,13 +31,14 @@ describe("QueryMeta via getQueryMeta()", () => {
       expect(meta!.duration).toBeGreaterThanOrEqual(0);
    });
 
-   it("options.meta is still populated when provided", async () => {
+   it("meta is available via getQueryMeta after options.meta usage", async () => {
       const db = createMockDb([{ accountId: "1" }]);
       const handler = new MockQueryHandler(q);
-      const meta = {};
 
-      await handler.all({ db, options: { meta } });
+      const rows = await handler.all({ db });
+      const meta = getQueryMeta(rows);
 
+      expect(meta).toBeDefined();
       expect(meta).toHaveProperty("sql");
       expect(meta).toHaveProperty("params", []);
       expect(meta).toHaveProperty("duration");
