@@ -2,7 +2,6 @@ import { SqlInsert, SqlInsertTypeArgs } from "#/core/operators/sql-insert.js";
 import { SqlTable } from "#/core/schema/sql-table.js";
 import { SqlInsertCols } from "#/core/operators/sql-insert-cols.js";
 import { SqlInsertValues } from "#/core/operators/sql-insert-values.js";
-import { SqlInsertSrcRefs } from "#/core/operators/sql-insert-src-refs.js";
 
 export const insert = <T extends SqlInsertTypeArgs>(
    table: SqlTable<T>,
@@ -25,10 +24,3 @@ insert.values = function<T extends SqlInsertTypeArgs>(
    return new SqlInsertValues<T, string>(table, paramName ?? "rows");
 };
 
-insert.srcRefs = function<T extends SqlInsertTypeArgs>(
-   table: SqlTable<T>,
-   paramName?: string,
-   alias?: string,
-): SqlInsertSrcRefs<T, string> {
-   return new SqlInsertSrcRefs<T, string>(table, paramName ?? "rows", alias ?? "src");
-};

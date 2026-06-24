@@ -1,7 +1,5 @@
 export { SqlInsertValues } from "#/core/operators/sql-insert-values.js";
 export { SqlInsertCols } from "#/core/operators/sql-insert-cols.js";
-export { SqlInsertSrcRefs } from "#/core/operators/sql-insert-src-refs.js";
-export { SqlMergeSet } from "#/core/operators/sql-merge-set.js";
 
 export { SqlError } from "#/core/sql-error.js";
 export { SqlErrorCode } from "#/core/sql-error-code.js";
