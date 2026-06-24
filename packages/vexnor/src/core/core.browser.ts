@@ -27,7 +27,7 @@ export {
 } from "./query/sql-query.js";
 export { isQuery, toQuery } from "./query/sql-query.js";
 export { SqlQueryHandler, type SqlQueryHandlerAny, newSqlQueryHandler } from "./query/sql-query-handler.js";
-export { getQueryMeta } from "./query/query-meta-store.js";
+export { getQueryMeta, setQueryMeta } from "#/core/query/query-meta-store.js";
 export { SqlQueryRef, type SqlQueryRefAny, type SqlQueryRefExtended } from "./query/sql-query-ref.js";
 export { param, SqlParam, type SqlParamAny, ctx } from "./query/sql-param.js";
 export { contextValue, type ContextValue, isContextValue } from "./query/context-value.js";

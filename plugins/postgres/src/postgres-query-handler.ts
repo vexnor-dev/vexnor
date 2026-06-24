@@ -1,9 +1,11 @@
 import {
    deserialize,
+   getQueryMeta,
    getQueryName,
    ok,
    type QueryMeta,
    RemoteClient,
+   setQueryMeta,
    SqlErrorCode,
    SqlQuery,
    SqlQueryHandler,
@@ -82,7 +84,10 @@ export class PostgresQueryHandler<T extends { Row?: unknown; Params?: unknown }>
 
    serialize<TResult extends QueryResult<RowOrDefault<T["Row"]>> = QueryResult<RowOrDefault<T["Row"]>>>(value: TResult): TResult {
       const { rows, rowCount, command, oid } = value;
-      return { rows, rowCount, command, oid } as TResult;
+      const result = { rows, rowCount, command, oid } as TResult;
+      const meta = getQueryMeta(value);
+      if (meta) setQueryMeta(result, meta);
+      return result;
    }
 
    /**
