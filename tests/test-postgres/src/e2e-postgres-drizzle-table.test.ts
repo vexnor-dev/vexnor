@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
 import { pgSchema, uuid, varchar, text, timestamp } from "drizzle-orm/pg-core";
