@@ -188,13 +188,13 @@ jobs:
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: coverage
-          path: coverage
+          path: .
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@04b047e8bb82a0c002c8312c1c880fbc6a999d45 # v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: coverage/clover.xml,coverage/**/coverage.cobertura.xml
+          files: coverage/clover.xml
           flags: nodejs
           fail_ci_if_error: false
 
@@ -202,7 +202,7 @@ jobs:
         uses: codecov/codecov-action@04b047e8bb82a0c002c8312c1c880fbc6a999d45 # v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: coverage/**/coverage.cobertura.xml
+          files: stacks/dotnet/TestResults/**/coverage.cobertura.xml
           flags: dotnet
           fail_ci_if_error: false
 

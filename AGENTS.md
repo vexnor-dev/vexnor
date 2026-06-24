@@ -92,3 +92,29 @@ This is a serious, high-quality codebase. No shortcuts. No lazy work. Ever.
 
 - Before accepting a bug as real, write a test that exposes it and run it to confirm.
 - Do not suggest fixes until the test proves the assumption.
+
+## Permissions granted
+
+The following actions are pre-approved by the repo owner:
+
+- **Git push** to feature branches (never to main/master directly)
+- **Create commits** with comprehensive messages after build+test pass
+- **Delete dead/unused code** (unreferenced files, obsolete exports)
+- **Remove deprecated APIs** when they are replaced by new implementations in the same PR
+- **Modify CI workflows** (.github/workflows/) to fix broken steps
+- **Update snapshots** with `--update` flag when code changes legitimately alter output
+- **Rebuild packages** (`pnpm build`, `pnpm --filter ... build`) as needed
+- **Regenerate cross-runtime fixtures** (`npx tsx generate-cross-runtime.ts`)
+- **Run .NET build and tests** (`dotnet build`, `dotnet test`)
+- **Modify coverage exclusions** in vitest.config.ts for non-library code (CLI, test infrastructure, examples)
+
+## Workflow context
+
+- **Monorepo structure**: packages/ (core), plugins/ (postgres, mssql, sqlite3), orms/ (sequelize, prisma, typeorm, drizzle), tests/ (e2e), stacks/ (.NET SDK), examples/
+- **Test command**: `pnpm test` (runs vitest --coverage for all projects)
+- **Build command**: `pnpm build` (builds all packages in dependency order)
+- **.NET tests**: `dotnet test stacks/dotnet` (181 tests including cross-runtime snapshots)
+- **Cross-runtime fixtures**: `cd stacks/fixtures && npx tsx generate-cross-runtime.ts`
+- **DB connections**: env-dev.json at monorepo root (postgres, mssql environments)
+- **CI**: GitHub Actions — `build-and-test` (builds, tests with DBs), `report` (coverage upload)
+- **Coverage target**: min 90% on all metrics for new code
