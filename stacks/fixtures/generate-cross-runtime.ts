@@ -6,21 +6,20 @@
  * Run: node --experimental-vm-modules stacks/fixtures/generate-cross-runtime.mjs
  */
 import {
-   sql,
-   row,
-   orderBy,
    filterBy,
    insert,
+   orderBy,
+   param, ParamsOf,
+   row,
+   serializeManifest,
    set,
-   when,
-   param,
+   sql,
    SqlPagination,
    upsert,
-   serializeManifest,
+   when,
 } from "@vexnor/core";
 import { Account } from "./codegen/postgres/vexnor_dev.account-table.js";
-import { writeFileSync, mkdirSync } from "node:fs";
-
+import { mkdirSync, writeFileSync } from "node:fs";
 
 // ─── Define queries ──────────────────────────────────────────────────────────
 
@@ -51,16 +50,29 @@ const queries = {
 
 // ─── Test params per case ────────────────────────────────────────────────────
 
-const testParams: Record<string, any> = {
+const testParams: Record<string, unknown> = {
    xOrderBySingle: { orderBy: { createdAt: "DESC" } },
    xOrderByMulti: { orderBy: { status: "ASC", createdAt: "DESC" } },
    xOrderByNull: { orderBy: null },
    xFilterEquality: { filterBy: { email: "jane@example.com", status: "active" } },
-   xFilterOperators: { filterBy: [{ createdAt: [">=", "2024-01-01"] }, { status: ["in", "active", "confirmed"] }, { parentId: ["isNull"] }] },
-   xFilterOrGroup: { filterBy: [{ status: "active" }, { or: [{ email: ["like", "%@vip.com"] }, { parentId: ["isNotNull"] }] }] },
+   xFilterOperators: {
+      filterBy: [
+         { createdAt: [">=", "2024-01-01"] },
+         { status: ["in", "active", "confirmed"] },
+         { parentId: ["isNull"] },
+      ],
+   },
+   xFilterOrGroup: {
+      filterBy: [{ status: "active" }, { or: [{ email: ["like", "%@vip.com"] }, { parentId: ["isNotNull"] }] }],
+   },
    xFilterEmpty: { filterBy: null },
    xInsertSingle: { rows: [{ email: "a@test.com", firstName: "A", lastName: "B" }] },
-   xInsertMulti: { rows: [{ email: "a@test.com", firstName: "A", lastName: "AA" }, { email: "b@test.com", firstName: "B", lastName: "BB" }] },
+   xInsertMulti: {
+      rows: [
+         { email: "a@test.com", firstName: "A", lastName: "AA" },
+         { email: "b@test.com", firstName: "B", lastName: "BB" },
+      ],
+   },
    xSetSingle: { set: { email: "updated@test.com" }, accountId: "uuid-123" },
    xSetMulti: { set: { email: "new@test.com", firstName: "Jane", lastName: "Doe" }, accountId: "uuid-456" },
    xWhenTrue: { status: "active", hasEmail: true, email: "test@example.com" },
@@ -71,24 +83,30 @@ const testParams: Record<string, any> = {
    xPaginationLimitOnly: { filterBy: null, orderBy: null, limit: 10 },
    xCombined: { filterBy: [{ status: "active" }, { email: ["like", "%@vip%"] }], orderBy: { createdAt: "DESC" } },
    xUpsertSingle: { rows: [{ accountId: "uuid-1", email: "a@test.com", firstName: "A", lastName: "B" }] },
-   xUpsertMulti: { rows: [{ accountId: "uuid-1", email: "a@test.com", firstName: "A", lastName: "AA" }, { accountId: "uuid-2", email: "b@test.com", firstName: "B", lastName: "BB" }] },
+   xUpsertMulti: {
+      rows: [
+         { accountId: "uuid-1", email: "a@test.com", firstName: "A", lastName: "AA" },
+         { accountId: "uuid-2", email: "b@test.com", firstName: "B", lastName: "BB" },
+      ],
+   },
    xUpsertMssql: { rows: [{ accountId: "uuid-1", email: "a@test.com", firstName: "A", lastName: "B" }] },
    xInsertEmpty: { rows: [] },
 };
 
 // ─── Generate outputs ────────────────────────────────────────────────────────
 
-const results: Record<string, { hash: string; text: string | null; values: unknown[] | null; error: string | null }> = {};
+const results: Record<string, { hash: string; text: string | null; values: unknown[] | null; error: string | null }> =
+   {};
 
 for (const [name, query] of Object.entries(queries)) {
-   const params = testParams[name];
    const hash = await query.hash;
    const dialect = name.includes("Mssql") ? "transactsql" : "postgresql";
    try {
-      const { text, values } = query.getSql({ params, options: { dialect, format: false } });
+      const params = testParams[name] as ParamsOf<typeof query>;
+      const { text, values } = query.getSql({ params: params as never, options: { dialect, format: false } });
       results[name] = { hash, text, values, error: null };
    } catch (e) {
-      results[name] = { hash, text: null, values: null, error: e.message };
+      results[name] = { hash, text: null, values: null, error: String(e) };
    }
 }
 
@@ -116,6 +134,6 @@ for (const [name, result] of Object.entries(results)) {
    if (result.error) {
       console.log(`  ✗ ${name}: ${result.error}`);
    } else {
-      console.log(`  ✓ ${name}: ${result.values.length} params`);
+      console.log(`  ✓ ${name}: ${result.values?.length} params`);
    }
 }
