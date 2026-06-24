@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { HttpRemoteClient } from "#/core/query/http-remote-client.js";
+import { getQueryMeta } from "#/core/query/query-meta-store.js";
 
 const request = {
    plugin: "test",
@@ -34,6 +35,7 @@ describe("HttpRemoteClient", () => {
 
    test("remoteExecute — calls fetch with correct args and returns json", async () => {
       const rows = [{ id: 1 }];
+      // eslint-disable-next-line unused-imports/no-unused-vars
       const mockFetch = async (_url: string | URL | Request, _init?: RequestInit) =>
          new Response(JSON.stringify({ rows }), { status: 200 });
 
@@ -78,5 +80,56 @@ describe("HttpRemoteClient", () => {
       await expect(client.remoteExecute(request)).rejects.toMatchInlineSnapshot(
          `[Error: Query failed: 403]`,
       );
+   });
+
+   test("remoteExecute — stores meta via setQueryMeta when x-query-sql header present", async () => {
+      const sql = "SELECT * FROM users WHERE id = $1";
+      const mockFetch = async () =>
+         new Response(JSON.stringify({ rows: [] }), {
+            status: 200,
+            headers: { "x-query-sql": Buffer.from(sql).toString("base64") },
+         });
+
+      const client = new HttpRemoteClient({ targetUrl: "/api/db", fetch: mockFetch });
+      const result = await client.remoteExecute<{ rows: unknown[] }>(request);
+
+      const meta = getQueryMeta(result);
+      expect(meta).toBeDefined();
+      expect(meta!.sql).toBe(sql);
+      expect(meta!.duration).toBeTypeOf("number");
+   });
+
+   test("remoteExecute — meta.sql is undefined when no x-query-sql header", async () => {
+      const mockFetch = async () =>
+         new Response(JSON.stringify({ rows: [] }), { status: 200 });
+
+      const client = new HttpRemoteClient({ targetUrl: "/api/db", fetch: mockFetch });
+      const result = await client.remoteExecute<{ rows: unknown[] }>(request);
+
+      const meta = getQueryMeta(result);
+      expect(meta).toBeDefined();
+      expect(meta!.sql).toBeUndefined();
+      expect(meta!.duration).toBeTypeOf("number");
+   });
+
+   test("remoteExecute — decodes sql header via Buffer.from when atob unavailable", async () => {
+      const sql = "SELECT 1";
+      const originalAtob = globalThis.atob;
+      // @ts-expect-error — temporarily remove atob
+      globalThis.atob = undefined;
+
+      const mockFetch = async () =>
+         new Response(JSON.stringify({ rows: [] }), {
+            status: 200,
+            headers: { "x-query-sql": Buffer.from(sql).toString("base64") },
+         });
+
+      const client = new HttpRemoteClient({ targetUrl: "/api/db", fetch: mockFetch });
+      const result = await client.remoteExecute<{ rows: unknown[] }>(request);
+
+      globalThis.atob = originalAtob;
+
+      const meta = getQueryMeta(result);
+      expect(meta!.sql).toBe(sql);
    });
 });

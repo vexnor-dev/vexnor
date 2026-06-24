@@ -75,6 +75,19 @@ export type SqlQueryRunArgs<
         };
 
 /**
+ * Query execution metadata. Automatically stored for every query execution
+ * and retrievable via `getQueryMeta(result)`.
+ */
+export type QueryMeta = {
+   /** The SQL text sent to the database */
+   sql?: string;
+   /** Parameterized values */
+   params?: unknown[];
+   /** Execution duration in milliseconds */
+   duration?: number;
+};
+
+/**
  * Runtime execution options — separate from SQL build options.
  *
  * - `timeout` — abort the query after this many milliseconds; throws `SqlRunError` with code `QUERY_TIMEOUT`

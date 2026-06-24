@@ -4,7 +4,10 @@ import { tmpdir } from "node:os";
 import { dirname, isAbsolute, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 
-/** @param {string} cmd @param {string[]} args @param {import('node:child_process').SpawnSyncOptions} options */
+/** @param {string} cmd @param {string[]} args @param {import('node:child_process').SpawnSyncOptions} options
+ * @param args
+ * @param options
+ */
 function run(cmd, args, options) {
    const result = spawnSync(cmd, args, options);
    if (result.status !== 0) {
@@ -47,7 +50,9 @@ function normalizePathArgs(args) {
    return output;
 }
 
-/** @param {string[]} args */
+/** @param {string[]} args
+ * @param flagName
+ */
 function getArgValue(args, flagName) {
    for (let i = 0; i < args.length; i += 1) {
       const arg = args[i];
@@ -81,13 +86,11 @@ const prismaArgs = normalizedArgs.map((arg, index, all) => {
 
 try {
    run("pnpm", ["init"], { cwd: tempDir, stdio: "inherit", env: process.env });
-
-   // Remove devEngines.packageManager — pnpm init adds a semver range that newer pnpm rejects
+   // Remove devEngines.packageManager — pnpm init adds a range spec that pnpm rejects
    const pkgPath = resolve(tempDir, "package.json");
    const pkg = JSON.parse(readFileSync(pkgPath, "utf8"));
    delete pkg.devEngines;
    writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
-
    run("pnpm", ["add", "-D", "prisma@6", "@prisma/client@6", "--allow-build=prisma", "--allow-build=@prisma/client", "--allow-build=@prisma/engines"], { cwd: tempDir, stdio: "inherit", env: process.env });
 
    run("pnpm", ["prisma", "generate", ...prismaArgs], { cwd: tempDir, stdio: "inherit", env: process.env });

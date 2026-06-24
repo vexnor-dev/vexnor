@@ -31,6 +31,7 @@ export {
 } from "./query/sql-query.js";
 export { isQuery, toQuery } from "./query/sql-query.js";
 export { SqlQueryHandler, type SqlQueryHandlerAny, newSqlQueryHandler } from "./query/sql-query-handler.js";
+export { getQueryMeta, setQueryMeta } from "#/core/query/query-meta-store.js";
 export { SqlQueryRef, type SqlQueryRefAny, type SqlQueryRefExtended } from "./query/sql-query-ref.js";
 export { ctx, param, SqlParam, type SqlParamAny, type PathToNested, type LeafPaths, type PathType } from "./query/sql-param.js";
 export { contextValue, type ContextValue, isContextValue } from "./query/context-value.js";
@@ -75,6 +76,8 @@ export {
    type SqlInputArgs,
    type RemoteClient,
    type SqlExecuteMode,
+   type SqlQueryRunArgs,
+   type QueryMeta,
    isRemoteClient,
 } from "./query/sql-query-types.js";
 export {

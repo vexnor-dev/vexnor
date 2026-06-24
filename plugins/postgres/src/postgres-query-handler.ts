@@ -1,7 +1,11 @@
 import {
-   deserialize, getQueryName,
+   deserialize,
+   getQueryMeta,
+   getQueryName,
    ok,
+   type QueryMeta,
    RemoteClient,
+   setQueryMeta,
    SqlErrorCode,
    SqlQuery,
    SqlQueryHandler,
@@ -11,6 +15,8 @@ import {
 import type { QueryResult } from "pg";
 import { PostgresTokenizer } from "#/postgres-tokenizer.js";
 import pkg from "../package.json" with { type: "json" };
+
+type PostgresResult<T> = QueryResult<RowOrDefault<T>>
 
 // Postgres transient error codes that are safe to retry
 const RETRYABLE_PG_CODES = new Set(["57P01", "08006", "08001", "08004", "40001", "40P01"]);
@@ -32,8 +38,8 @@ export type RowOrDefault<T> = T extends object ? T : never;
 export class PostgresQueryHandler<T extends { Row?: unknown; Params?: unknown }> extends SqlQueryHandler<
    Pick<T, "Row" | "Params"> & {
       Connection: PostgresClient | RemoteClient;
-      Read: QueryResult<RowOrDefault<T["Row"]>>;
-      Write: QueryResult<RowOrDefault<T["Row"]>>;
+      Read: PostgresResult<T["Row"]>;
+      Write: PostgresResult<T["Row"]>;
    }
 > {
    constructor(readonly source: SqlQuery<Pick<T, "Row" | "Params">>) {
@@ -62,7 +68,7 @@ export class PostgresQueryHandler<T extends { Row?: unknown; Params?: unknown }>
       }
    }
 
-   resolveRows(result: QueryResult<RowOrDefault<T["Row"]>>): T["Row"][] {
+   resolveRows(result: PostgresResult<T["Row"]>): T["Row"][] {
       return result.rows;
    }
 
@@ -78,7 +84,10 @@ export class PostgresQueryHandler<T extends { Row?: unknown; Params?: unknown }>
 
    serialize<TResult extends QueryResult<RowOrDefault<T["Row"]>> = QueryResult<RowOrDefault<T["Row"]>>>(value: TResult): TResult {
       const { rows, rowCount, command, oid } = value;
-      return { rows, rowCount, command, oid } as TResult;
+      const result = { rows, rowCount, command, oid } as TResult;
+      const meta = getQueryMeta(value);
+      if (meta) setQueryMeta(result, meta);
+      return result;
    }
 
    /**
@@ -89,10 +98,14 @@ export class PostgresQueryHandler<T extends { Row?: unknown; Params?: unknown }>
     * `QueryResult` object (e.g. `rowCount`, `fields`).
     *
     * @param args - Database connection and query parameters.
+    * @param _mode
+    * @param meta
     */
    async execute(
       args: SqlRunArgs<{ Connection: PostgresClient; Params: T["Params"] }>,
-   ): Promise<QueryResult<RowOrDefault<T["Row"]>>> {
+      _mode?: unknown,
+      meta?: QueryMeta,
+   ) {
       const { db, options: { debug } = {} } = args;
       const resolvedDb = await db;
       let queryInput = undefined;
@@ -100,7 +113,9 @@ export class PostgresQueryHandler<T extends { Row?: unknown; Params?: unknown }>
          queryInput = this.getOptions(args);
          if (debug) debug(Object.freeze(queryInput));
          const { text, values } = queryInput;
-         return await resolvedDb.query({ text, values });
+         const result = await resolvedDb.query({ text, values });
+         if (meta) { meta.sql = text; meta.params = values; }
+         return result;
       } catch (err) {
          const queryName = await getQueryName(this.source);
          throw new SqlRunError(`Error running POSTGRES query '${queryName ?? this.source.id}' at ${this.source.location}.`, this.source, {

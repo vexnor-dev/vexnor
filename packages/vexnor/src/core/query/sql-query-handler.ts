@@ -1,8 +1,9 @@
 import { SqlQueryBase, SqlQueryBaseAny, SqlQuery, SqlQueryColumns } from "#/core/query/sql-query.js";
 import { ok } from "#/lib/assert.js";
-import { isRemoteClient, SqlExecuteMode, SqlQueryRunArgs, SqlRunArgs } from "#/core/query/sql-query-types.js";
+import { isRemoteClient, QueryMeta, SqlExecuteMode, SqlQueryRunArgs, SqlRunArgs } from "#/core/query/sql-query-types.js";
 import { SqlRunError } from "#/core/sql-run-error.js";
 import { SqlErrorCode } from "#/core/sql-error-code.js";
+import { setQueryMeta, getQueryMeta } from "#/core/query/query-meta-store.js";
 import type { SqlJsonSchema } from "#/core/utils/sql-json-schema.js";
 import { deserialize } from "#/core/utils/sql-json-schema.js";
 import { isContextValue } from "#/core/query/context-value.js";
@@ -67,7 +68,8 @@ export abstract class SqlQueryHandler<
     */
    abstract execute(
       args: SqlRunArgs<Pick<T, "Connection" | "Params">>,
-      mode?: SqlExecuteMode,
+      mode?: SqlExecuteMode | null,
+      meta?: QueryMeta,
    ): Promise<typeof mode extends "write" ? T["Write"] : T["Read"]>;
 
    /**
@@ -161,8 +163,10 @@ export abstract class SqlQueryHandler<
             })
             .then((data) => {
                if (!this.isReadResult(data)) return data;
-
-               return this.deserialize(data, true);
+               const result = this.deserialize(data, true);
+               const meta = getQueryMeta(data);
+               if (meta) setQueryMeta(result, meta);
+               return result;
             });
       }
 
@@ -208,10 +212,12 @@ export abstract class SqlQueryHandler<
    ): Promise<typeof mode extends "write" ? T["Write"] : T["Read"]> {
       const { options } = args;
       const { timeout, retryable: retryableOption } = options ?? {};
+      const meta: QueryMeta = {};
       const queryName = (await getQueryName(this.source)) ?? this.source.info?.label ?? this.source.id;
 
       try {
-         let execution = this.execute(args, mode);
+         const start = performance.now();
+         let execution = this.execute(args, mode, meta);
          if (timeout) {
             execution = withTimeout(
                execution,
@@ -225,9 +231,10 @@ export abstract class SqlQueryHandler<
          }
 
          return await execution.then((data) => {
-            if (this.isReadResult(data)) return this.deserialize(data, false);
-
-            return data;
+            meta.duration = performance.now() - start;
+            const result = this.isReadResult(data) ? this.deserialize(data, false) : data;
+            setQueryMeta(result, meta);
+            return result;
          });
       } catch (err) {
          if (err instanceof SqlRunError) {
@@ -273,8 +280,11 @@ export abstract class SqlQueryHandler<
    ): Promise<T["Row"]> {
       const rows = await this.all(args);
       ok(rows.length === 1, `Expected one row, actual is ${rows.length} rows.`);
-      ok(rows[0], `The one row in result is not defined: ${rows[0]}`);
-      return rows[0];
+      const row = rows[0];
+      ok(row, `The one row in result is not defined: ${row}`);
+      const meta = getQueryMeta(rows);
+      if (meta) setQueryMeta(row as object, meta);
+      return row;
    }
 
    /**
@@ -286,7 +296,11 @@ export abstract class SqlQueryHandler<
       args: SqlQueryRunArgs<Pick<T, "Connection" | "Params">, TContext>,
    ): Promise<T["Row"] | undefined> {
       const rows = await this.all(args);
-      return rows.length > 0 ? rows[0] : undefined;
+      if (!rows?.length) return undefined;
+      const row = rows[0]!;
+      const meta = getQueryMeta(rows);
+      if (meta) setQueryMeta(row as object, meta);
+      return row;
    }
 
    /**
@@ -298,7 +312,11 @@ export abstract class SqlQueryHandler<
       args: SqlQueryRunArgs<Pick<T, "Connection" | "Params">, TContext>,
    ): Promise<T["Row"] | undefined> {
       const rows = await this.all(args);
-      return rows.length > 0 ? rows[0] : undefined;
+      if (!rows?.length) return undefined;
+      const row = rows[0]!;
+      const meta = getQueryMeta(rows);
+      if (meta) setQueryMeta(row as object, meta);
+      return row;
    }
 
    //TODO: refactor this, make serialize / deserialize and integrate it already in the query execution
@@ -311,7 +329,11 @@ export abstract class SqlQueryHandler<
    async all<TContext extends typeof this._params>(
       args: SqlQueryRunArgs<Pick<T, "Connection" | "Params">, TContext>,
    ): Promise<T["Row"][]> {
-      return this.resolveRows(await this.run(args, "read"));
+      const raw = await this.run(args, "read");
+      const rows = this.resolveRows(raw);
+      const meta = getQueryMeta(raw);
+      if (meta) setQueryMeta(rows, meta);
+      return rows;
    }
 }
 
