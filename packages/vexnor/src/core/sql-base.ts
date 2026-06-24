@@ -40,12 +40,12 @@ export type ParamsOfArgs<T> = [CollectParams<T>] extends [never]
      ? CollectParams<T>
      : void;
 
-export declare const ROW: unique symbol;
-export declare const TYPE: unique symbol;
-export declare const PARAMS: unique symbol;
-export declare const ARGS: unique symbol;
-export declare const SQL_TOKEN: unique symbol;
-export declare const QUERY: unique symbol;
+export const ROW: unique symbol = Symbol("ROW");
+export const TYPE: unique symbol = Symbol("TYPE");
+export const PARAMS: unique symbol = Symbol("PARAMS");
+export const ARGS: unique symbol = Symbol("ARGS");
+export const SQL_TOKEN: unique symbol = Symbol("SQL_TOKEN");
+export const QUERY: unique symbol = Symbol("QUERY");
 
 export type SqlOptions = Pick<Sql, "id" | "hashId"> & Partial<Pick<Sql, "tag">> & { type?: string };
 
