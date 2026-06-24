@@ -8,7 +8,6 @@
       "target": "ESNext",
       "lib": ["ESNext"],
       "composite": true,
-      "baseUrl": ".",
       "paths": {
          "@test-models/*": ["./src/test/models/*"],
          "#/*": ["./src/*"]
