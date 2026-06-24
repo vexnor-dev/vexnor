@@ -1,7 +1,6 @@
 {
    "extends": "../../tsconfig.json",
    "compilerOptions": {
-      "ignoreDeprecations": "5.0",
       "rootDir": "src",
       "outDir": "./dist",
       "declaration": true,
@@ -9,7 +8,6 @@
       "target": "ESNext",
       "lib": ["ESNext"],
       "composite": true,
-      "baseUrl": ".",
       "paths": {
          "@test-models/*": ["./src/test/models/*"],
          "#/*": ["./src/*"]
