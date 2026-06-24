@@ -66,7 +66,7 @@ describe("Coverage — remaining uncovered lines", () => {
    test("sql-insert-utils — rows with different columns throws", () => {
       const q = sql`INSERT INTO ${Account} ${insert(Account)} RETURNING ${row(Account.$$)}`;
       expect(() =>
-         q.getSql({ params: { rows: [{ email: "a@b.com", firstName: "A", lastName: "B" }, { email: "c@d.com", firstName: "C" }] } }),
+         q.getSql({ params: { rows: [{ email: "a@b.com", firstName: "A", lastName: "B" }, { email: "c@d.com", firstName: "C" } as never] } }),
       ).toThrow("different columns");
    });
 
