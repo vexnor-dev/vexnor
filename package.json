@@ -31,7 +31,7 @@
       "build": "run-s 'build:*'",
       "build:1-core": "pnpm --filter './packages/*' run build",
       "build:4-install": "pnpm install --frozen-lockfile",
-      "build:5-rest": "pnpm -r run build",
+      "build:5-rest": "pnpm -r --filter='!@vexnor/core' run build",
       "test": "vitest --coverage run",
       "dotnet:build": "dotnet build stacks/dotnet",
       "dotnet:test": "dotnet test stacks/dotnet"
@@ -60,7 +60,7 @@
       "replace-in-file": "^8.4.0",
       "rimraf": "^6.1.3",
       "sqlite3": "^5.1.7",
-      "typescript": "5.9.3",
+      "typescript": "6.0.3",
       "typescript-eslint": "^8.61.0",
       "vite": "^8.0.16",
       "vitest": "^4.1.8"
