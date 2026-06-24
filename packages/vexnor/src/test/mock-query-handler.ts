@@ -1,7 +1,7 @@
 import { MockConnection, MockResult } from "#/test/mock-plugin.js";
 import { SqlQueryHandler } from "#/core/query/sql-query-handler.js";
 import { SqlQuery } from "#/core/query/sql-query.js";
-import { SqlRunArgs } from "#/core/query/sql-query-types.js";
+import { SqlRunArgs, type QueryMeta } from "#/core/query/sql-query-types.js";
 import { ok } from "#/lib/assert.js";
 
 export class MockQueryHandler<T extends { Row?: unknown; Params?: unknown }> extends SqlQueryHandler<
@@ -24,10 +24,12 @@ export class MockQueryHandler<T extends { Row?: unknown; Params?: unknown }> ext
       return { ...result, rows: this.deserializeRows(result.rows as T["Row"][], remote) };
    }
 
-   async execute(args: SqlRunArgs<{ Connection: MockConnection; Params: T["Params"] }>) {
+   async execute(args: SqlRunArgs<{ Connection: MockConnection; Params: T["Params"] }>, _mode?: unknown, meta?: QueryMeta) {
       const db = await args.db;
       const { text, values } = this.source.getSql(args);
-      return await db.query(text, values);
+      const result = await db.query(text, values);
+      if (meta) { meta.sql = text; meta.params = values; }
+      return result;
    }
 }
 

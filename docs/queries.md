@@ -635,3 +635,49 @@ await updateAccount.postgres.one({
   params: { accountId: '...', set: { firstName: 'Jane', email: 'jane@new.com' } },
 });
 ```
+
+---
+
+## Query Meta
+
+Every query execution automatically captures metadata (SQL text, parameters, duration). Retrieve it with `getQueryMeta()`:
+
+```typescript
+import { getQueryMeta } from 'vexnor';
+
+const rows = await revenue.postgres.all({ db: pool });
+const meta = getQueryMeta(rows);
+
+console.log(meta?.sql);      // "SELECT SUM(amount) FROM orders WHERE ..."
+console.log(meta?.params);   // ["completed"]
+console.log(meta?.duration); // 12 (ms)
+```
+
+### How it works
+
+- A module-level `WeakMap` stores metadata keyed by the result object reference.
+- Both local execution (via plugin handlers) and remote execution (via `HttpRemoteClient`) populate the store.
+- When the result is garbage-collected, the metadata is automatically cleaned up.
+
+### Type
+
+```typescript
+type QueryMeta = {
+   sql?: string;       // The SQL text sent to the database
+   params?: unknown[]; // Parameterized values
+   duration?: number;  // Execution time in milliseconds
+};
+```
+
+### Works everywhere
+
+```typescript
+// Server-side (local execution)
+const result = await query.postgres.all({ db: pool });
+getQueryMeta(result); // { sql, params, duration }
+
+// Client-side (remote execution via HttpRemoteClient)
+const rows = await query.postgres.all({ db: remoteClient });
+getQueryMeta(rows); // { sql, duration } — params omitted (sensitive)
+```
+
