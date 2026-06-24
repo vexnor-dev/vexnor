@@ -131,7 +131,7 @@ function operatorToNode(op: SqlOperatorToken): TemplateNode {
       case "pagination":
          return { type: "pagination" };
       case "upsert":
-         return { type: "upsert", param: op.param, columns: op.columns, conflictKeys: op.conflictKeys };
+         return { type: "upsert", param: op.param, columns: op.columns, conflictKeys: op.conflictKeys, tableName: op.tableName };
       default:
          return { type: "text", value: "" };
    }
@@ -159,7 +159,7 @@ function serializeParams(query: SqlQueryAny): Record<string, ParamDefinition> {
 }
 
 const FILTER_OPERATORS = [
-   "equal", "not", "greaterThan", "greaterOrEqual", "lowerThan", "lowerOrEqual",
+   "=", "not", "!=", ">", ">=", "<", "<=",
    "between", "in", "notIn", "like", "notLike", "isNull", "isNotNull",
 ];
 

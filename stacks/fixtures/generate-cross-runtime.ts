@@ -33,6 +33,7 @@ const queries = {
    xCombined: sql`SELECT ${row(Account.$$)} FROM ${Account} WHERE ${filterBy(Account)} ${orderBy(Account)}`,
    xUpsertSingle: sql`INSERT INTO ${Account} ${upsert(Account, ["accountId"])} RETURNING ${row(Account.$$)}`,
    xUpsertMulti: sql`INSERT INTO ${Account} ${upsert(Account, ["accountId"])} RETURNING ${row(Account.$$)}`,
+   xUpsertMssql: sql`MERGE INTO ${Account} ${upsert(Account, ["accountId"])} OUTPUT inserted.*;`,
 };
 
 // ─── Test params per case ────────────────────────────────────────────────────
@@ -58,6 +59,7 @@ const testParams = {
    xCombined: { filterBy: [{ status: "active" }, { email: ["like", "%@vip%"] }], orderBy: { createdAt: "DESC" } },
    xUpsertSingle: { rows: [{ accountId: "uuid-1", email: "a@test.com", firstName: "A", lastName: "B" }] },
    xUpsertMulti: { rows: [{ accountId: "uuid-1", email: "a@test.com", firstName: "A", lastName: "AA" }, { accountId: "uuid-2", email: "b@test.com", firstName: "B", lastName: "BB" }] },
+   xUpsertMssql: { rows: [{ accountId: "uuid-1", email: "a@test.com", firstName: "A", lastName: "B" }] },
 };
 
 // ─── Generate outputs ────────────────────────────────────────────────────────
@@ -66,8 +68,9 @@ const results = {};
 for (const [name, query] of Object.entries(queries)) {
    const params = testParams[name];
    const hash = await query.hash;
+   const dialect = name.includes("Mssql") ? "transactsql" : "postgresql";
    try {
-      const { text, values } = query.getSql({ params, options: { dialect: "postgresql", format: false } });
+      const { text, values } = query.getSql({ params, options: { dialect, format: false } });
       results[name] = { hash, text, values, error: null };
    } catch (e) {
       results[name] = { hash, text: null, values: null, error: e.message };

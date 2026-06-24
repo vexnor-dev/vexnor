@@ -696,6 +696,6 @@ public class SqlBuilderEdgeCaseTests
         };
 
         var result = sqliteBuilder.Build(query, new() { ["id"] = 1 });
-        Assert.Equal("SELECT * WHERE id = $1", result.Text);
+        Assert.Equal("SELECT * WHERE id = ?", result.Text);
     }
 }

@@ -560,6 +560,8 @@ public sealed class SqlBuilder
         {
             if (i > 0) sql.Add(" and ");
             var col = node.Columns[node.ConflictKeys[i]];
+            sql.Add(node.TableName);
+            sql.Add(".");
             sql.Add(col);
             sql.Add(" = src.");
             sql.Add(col);
@@ -598,12 +600,13 @@ public sealed class SqlBuilder
 
     private string FormatParam()
     {
+        var index = _paramIndex;
         _paramIndex++;
         return _dialect switch
         {
-            "postgresql" => $"${_paramIndex}",
-            "transactsql" => $"@p{_paramIndex - 1}",
-            "sqlite" => $"${_paramIndex}",
+            "postgresql" => $"${index + 1}",
+            "transactsql" => $"@param_{index}",
+            "sqlite" => "?",
             _ => "?",
         };
     }

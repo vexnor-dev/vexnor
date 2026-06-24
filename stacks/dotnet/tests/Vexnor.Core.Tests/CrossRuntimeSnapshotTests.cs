@@ -19,16 +19,19 @@ public class CrossRuntimeSnapshotTests
         Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "..", "fixtures", "manifests", "cross-runtime"));
 
     private readonly QueryRegistry _registry;
+    private readonly QueryRegistry _mssqlRegistry;
     private readonly Dictionary<string, ExpectedResult> _expected;
 
     public CrossRuntimeSnapshotTests()
     {
         _registry = new QueryRegistry("postgresql");
+        _mssqlRegistry = new QueryRegistry("transactsql");
 
         var manifestPath = Path.Combine(BaseDir, "manifest.json");
         if (File.Exists(manifestPath))
         {
             _registry.LoadFile(manifestPath);
+            _mssqlRegistry.LoadFile(manifestPath);
         }
 
         var expectedPath = Path.Combine(BaseDir, "expected.json");
@@ -147,6 +150,39 @@ public class CrossRuntimeSnapshotTests
         ));
 
     // ─── Helpers ─────────────────────────────────────────────────────────────
+
+    private void AssertMatchMssql(string testName, Dictionary<string, object?> parameters)
+    {
+        if (!_expected.TryGetValue(testName, out var expected))
+        {
+            Assert.Fail($"No expected output for test case: {testName}");
+            return;
+        }
+
+        var result = _mssqlRegistry.Build(expected.Hash!, parameters);
+        Assert.Equal(expected.Text, result.Text);
+        Assert.Equal(expected.Values!.Count, result.Values.Count);
+        for (int i = 0; i < expected.Values.Count; i++)
+        {
+            Assert.Equal(expected.Values[i]?.ToString(), result.Values[i]?.ToString());
+        }
+    }
+
+    // ─── upsert ──────────────────────────────────────────────────────────────
+
+    [Fact] public void Upsert_Single() => AssertMatch("xUpsertSingle", Params(
+        ("rows", new object?[] { Obj(("accountId", "uuid-1"), ("email", "a@test.com"), ("firstName", "A"), ("lastName", "B")) })
+    ));
+
+    [Fact] public void Upsert_Multi() => AssertMatch("xUpsertMulti", Params(
+        ("rows", new object?[] { Obj(("accountId", "uuid-1"), ("email", "a@test.com"), ("firstName", "A"), ("lastName", "AA")), Obj(("accountId", "uuid-2"), ("email", "b@test.com"), ("firstName", "B"), ("lastName", "BB")) })
+    ));
+
+    [Fact] public void Upsert_Mssql() => AssertMatchMssql("xUpsertMssql", Params(
+        ("rows", new object?[] { Obj(("accountId", "uuid-1"), ("email", "a@test.com"), ("firstName", "A"), ("lastName", "B")) })
+    ));
+
+    // ─── Static helpers ──────────────────────────────────────────────────────
 
     private static Dictionary<string, object?> Params(params (string key, object? value)[] entries) =>
         entries.ToDictionary(e => e.key, e => e.value);

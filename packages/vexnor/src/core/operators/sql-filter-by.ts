@@ -60,7 +60,7 @@ export type SqlFilterParams<T extends { Select: Record<string, unknown> }, Param
  * // Extended with operators + OR
  * params: { filterBy: [
  *   { status: 'active' },
- *   { createdAt: ['greaterOrEqual', '2024-01-01'] },
+ *   { createdAt: ['>=', '2024-01-01'] },
  *   { or: [{ email: ['like', '%@vip.com'] }, { parentId: ['isNotNull'] }] }
  * ]}
  */
@@ -241,6 +241,7 @@ export class SqlFilterBy<T extends { Select: Record<string, unknown> }, ParamNam
             context.addValues(args[0]);
             break;
          case "not":
+         case "!=":
             col.build(context);
             context.addStrings(" <> ");
             context.addValues(args[0]);

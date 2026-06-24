@@ -6,9 +6,38 @@
     "grep",
     "glob",
     "code",
+    "shell",
     "web_search",
     "knowledge",
     "subagent",
     "todo_list"
-  ]
+  ],
+  "toolsSettings": {
+    "shell": {
+      "allowedCommands": [
+        "pnpm test",
+        "pnpm build",
+        "pnpm install",
+        "pnpm run",
+        "pnpm --filter",
+        "pnpm dotnet:",
+        "npx vitest",
+        "npx tsc",
+        "dotnet build",
+        "dotnet test",
+        "git ",
+        "node ",
+        "grep ",
+        "head ",
+        "tail ",
+        "cat ",
+        "ls ",
+        "find ",
+        "wc ",
+        "sed ",
+        "rm "
+      ],
+      "autoAllowReadonly": true
+    }
+  }
 }

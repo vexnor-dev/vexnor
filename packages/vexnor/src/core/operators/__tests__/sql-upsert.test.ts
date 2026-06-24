@@ -289,6 +289,7 @@ describe("SqlUpsert", () => {
             "accountId",
           ],
           "param": "rows",
+          "tableName": ""account"",
           "type": "upsert",
         }
       `);
@@ -382,5 +383,27 @@ describe("SqlUpsert", () => {
 
         /* </query_0> */"
       `);
+   });
+});
+
+describe("SqlUpsert — empty SET edge case", () => {
+   test("postgres: all columns are conflict keys → emits DO NOTHING instead of empty SET", () => {
+      const query = sql`INSERT INTO ${Account} ${upsert(Account, ["accountId", "email", "firstName", "lastName"])} RETURNING ${row(Account.$$)}`;
+      const { text } = query.getSql({
+         params: { rows: [{ accountId: "id-1", email: "a@b.com", firstName: "A", lastName: "B" }] },
+         options: { dialect: "postgresql" },
+      });
+      // When all cols are conflict keys, there's nothing to update — should emit DO NOTHING
+      expect(text.toLowerCase()).toContain("do nothing");
+   });
+
+   test("mssql: all columns are conflict keys → omits WHEN MATCHED clause", () => {
+      const query = sql`MERGE INTO ${Account} ${upsert(Account, ["accountId", "email", "firstName", "lastName"])} OUTPUT inserted.*;`;
+      const { text } = query.getSql({
+         params: { rows: [{ accountId: "id-1", email: "a@b.com", firstName: "A", lastName: "B" }] },
+         options: { dialect: "transactsql" },
+      });
+      // When all cols are conflict keys, WHEN MATCHED should be omitted
+      expect(text).not.toContain("when matched");
    });
 });

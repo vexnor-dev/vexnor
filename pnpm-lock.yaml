@@ -487,14 +487,6 @@ importers:
         specifier: 7.8.0
         version: 7.8.0
 
-  orms/prisma/src/__tests__/fixtures-v6-client-js/generated: {}
-
-  orms/prisma/src/__tests__/fixtures-v7-client-js/generated:
-    dependencies:
-      '@prisma/client-runtime-utils':
-        specifier: 7.8.0
-        version: 7.8.0
-
   orms/sequelize:
     dependencies:
       '@vexnor/core':

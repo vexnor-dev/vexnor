@@ -253,12 +253,13 @@
               "modifiedAt"
             ],
             "operators": [
-              "equal",
+              "=",
               "not",
-              "greaterThan",
-              "greaterOrEqual",
-              "lowerThan",
-              "lowerOrEqual",
+              "!=",
+              ">",
+              ">=",
+              "<",
+              "<=",
               "between",
               "in",
               "notIn",

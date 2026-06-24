@@ -87,12 +87,13 @@
               "parentId"
             ],
             "operators": [
-              "equal",
+              "=",
               "not",
-              "greaterThan",
-              "greaterOrEqual",
-              "lowerThan",
-              "lowerOrEqual",
+              "!=",
+              ">",
+              ">=",
+              "<",
+              "<=",
               "between",
               "in",
               "notIn",
@@ -432,12 +433,13 @@
               "parentId"
             ],
             "operators": [
-              "equal",
+              "=",
               "not",
-              "greaterThan",
-              "greaterOrEqual",
-              "lowerThan",
-              "lowerOrEqual",
+              "!=",
+              ">",
+              ">=",
+              "<",
+              "<=",
               "between",
               "in",
               "notIn",
@@ -566,12 +568,13 @@
               "parentId"
             ],
             "operators": [
-              "equal",
+              "=",
               "not",
-              "greaterThan",
-              "greaterOrEqual",
-              "lowerThan",
-              "lowerOrEqual",
+              "!=",
+              ">",
+              ">=",
+              "<",
+              "<=",
               "between",
               "in",
               "notIn",
@@ -622,7 +625,8 @@
           },
           "conflictKeys": [
             "accountId"
-          ]
+          ],
+          "tableName": "\"account\""
         },
         {
           "type": "text",
@@ -643,6 +647,48 @@
           "type": "Date"
         }
       },
+      "authorization": []
+    },
+    "d360ea4f8e4d2337bbc0e655ba23c8f102e29bac19f107aac4e2c2114ed986bd": {
+      "name": "xUpsertMssql",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:36:18",
+      "hash": "d360ea4f8e4d2337bbc0e655ba23c8f102e29bac19f107aac4e2c2114ed986bd",
+      "template": [
+        {
+          "type": "text",
+          "value": "MERGE INTO \"vexnor_dev\".\"account\" "
+        },
+        {
+          "type": "upsert",
+          "param": "rows",
+          "columns": {
+            "accountId": "\"account_id\"",
+            "status": "\"status\"",
+            "email": "\"email\"",
+            "firstName": "\"first_name\"",
+            "lastName": "\"last_name\"",
+            "notes": "\"notes\"",
+            "createdAt": "\"created_at\"",
+            "modifiedAt": "\"modified_at\"",
+            "parentId": "\"parent_id\""
+          },
+          "conflictKeys": [
+            "accountId"
+          ],
+          "tableName": "\"account\""
+        },
+        {
+          "type": "text",
+          "value": " OUTPUT inserted.*;"
+        }
+      ],
+      "params": {
+        "rows": {
+          "name": "rows",
+          "isContext": false
+        }
+      },
+      "row": null,
       "authorization": []
     }
   }

@@ -11,13 +11,11 @@ public sealed class QueryRegistry
 {
     private readonly Dictionary<string, QueryDefinition> _queries = new();
     private readonly string _dialect;
-    private readonly SqlBuilder _builder;
     private readonly QueryPipeline _pipeline = new();
 
     public QueryRegistry(string dialect)
     {
         _dialect = dialect;
-        _builder = new SqlBuilder(dialect);
     }
 
     // ─── Pipeline ────────────────────────────────────────────────────────────
@@ -74,7 +72,7 @@ public sealed class QueryRegistry
         if (!_queries.TryGetValue(hash, out var query))
             throw new InvalidOperationException($"Unknown query hash: {hash}");
 
-        return _builder.Build(query, parameters);
+        return new SqlBuilder(_dialect).Build(query, parameters);
     }
 
     /// <summary>
@@ -105,7 +103,7 @@ public sealed class QueryRegistry
         return await _pipeline.ExecuteAsync(args, async () =>
         {
             ValidateStructuredParams(query, parameters);
-            var sql = _builder.Build(query, parameters);
+            var sql = new SqlBuilder(_dialect).Build(query, parameters);
             return await executeFn(sql);
         });
     }

@@ -46,6 +46,7 @@ export class SqlUpsert<T extends SqlUpsertTypeArgs, ParamName extends string> ex
             param: this.paramName,
             columns: getColumnMap(this.table),
             conflictKeys: this.conflictKeys,
+            tableName: `"${this.table.tableInfo.name}"`,
          });
          return;
       }
@@ -94,17 +95,20 @@ export class SqlUpsert<T extends SqlUpsertTypeArgs, ParamName extends string> ex
          const col = this.table.cols[`$${this.conflictKeys[i]}` as `$${string}`] as SqlTableColumnAny;
          context.addQuotes(col.columnName);
       }
-      context.addStrings(") do update set ");
 
-      let emitted = 0;
-      for (const key of keys) {
-         if (conflictColNames.has(this.table.cols[`$${key}` as `$${string}`]!.columnName)) continue;
-         if (emitted > 0) context.addStrings(", ");
-         const col = this.table.cols[`$${key}` as `$${string}`] as SqlTableColumnAny;
+      const updateKeys = keys.filter((k) => !conflictColNames.has(this.table.cols[`$${k}` as `$${string}`]!.columnName));
+      if (updateKeys.length === 0) {
+         context.addStrings(") do nothing");
+         return;
+      }
+
+      context.addStrings(") do update set ");
+      for (let i = 0; i < updateKeys.length; i++) {
+         if (i > 0) context.addStrings(", ");
+         const col = this.table.cols[`$${updateKeys[i]}` as `$${string}`] as SqlTableColumnAny;
          context.addQuotes(col.columnName);
          context.addStrings(` = excluded.`);
          context.addQuotes(col.columnName);
-         emitted++;
       }
    }
 
@@ -143,18 +147,20 @@ export class SqlUpsert<T extends SqlUpsertTypeArgs, ParamName extends string> ex
          context.addStrings(` = src.`);
          context.addQuotes(col.columnName);
       }
-      context.addStrings(") when matched then update set ");
 
-      // SET col = src.col (non-conflict keys only)
-      let emitted = 0;
-      for (const key of keys) {
-         if (conflictColNames.has(this.table.cols[`$${key}` as `$${string}`]!.columnName)) continue;
-         if (emitted > 0) context.addStrings(", ");
-         const col = this.table.cols[`$${key}` as `$${string}`] as SqlTableColumnAny;
-         context.addQuotes(col.columnName);
-         context.addStrings(` = src.`);
-         context.addQuotes(col.columnName);
-         emitted++;
+      // WHEN MATCHED — only emit if there are non-conflict columns to update
+      const updateKeys = keys.filter((k) => !conflictColNames.has(this.table.cols[`$${k}` as `$${string}`]!.columnName));
+      if (updateKeys.length > 0) {
+         context.addStrings(") when matched then update set ");
+         for (let i = 0; i < updateKeys.length; i++) {
+            if (i > 0) context.addStrings(", ");
+            const col = this.table.cols[`$${updateKeys[i]}` as `$${string}`] as SqlTableColumnAny;
+            context.addQuotes(col.columnName);
+            context.addStrings(` = src.`);
+            context.addQuotes(col.columnName);
+         }
+      } else {
+         context.addStrings(")");
       }
 
       // WHEN NOT MATCHED THEN INSERT (cols) VALUES (src.cols)

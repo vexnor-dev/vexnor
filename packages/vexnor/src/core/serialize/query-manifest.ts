@@ -191,4 +191,6 @@ export interface UpsertNode {
    columns: Record<string, string>;
    /** JS keys of columns forming the conflict/merge target. */
    conflictKeys: string[];
+   /** Quoted table name for MSSQL MERGE ON clause qualification. */
+   tableName: string;
 }

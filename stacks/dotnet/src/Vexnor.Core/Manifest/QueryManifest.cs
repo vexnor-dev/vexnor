@@ -216,4 +216,7 @@ public sealed class UpsertNode : TemplateNode
 
     [JsonPropertyName("conflictKeys")]
     public List<string> ConflictKeys { get; init; } = new();
+
+    [JsonPropertyName("tableName")]
+    public string TableName { get; init; } = "";
 }

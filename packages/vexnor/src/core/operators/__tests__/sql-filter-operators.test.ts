@@ -1074,3 +1074,12 @@ describe("SqlFilterBy — omit/include columns", () => {
       ).toThrow("Column not found: notes");
    });
 });
+
+describe("SqlFilter — != operator", () => {
+   test("!= emits col <> value", () => {
+      const { text, values } = buildFilter([{ status: ["!=", "inactive"] }]);
+      // This test exposes the bug: != has no case in writeOp, so it produces no output
+      expect(text).toContain("<>");
+      expect(values).toContain("inactive");
+   });
+});

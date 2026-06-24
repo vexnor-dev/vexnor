@@ -177,5 +177,16 @@
       "BB"
     ],
     "error": null
+  },
+  "xUpsertMssql": {
+    "hash": "d360ea4f8e4d2337bbc0e655ba23c8f102e29bac19f107aac4e2c2114ed986bd",
+    "text": "MERGE INTO \"vexnor_dev\".\"account\" using (values (@param_0, @param_1, @param_2, @param_3)) as src(\"account_id\", \"email\", \"first_name\", \"last_name\") on (\"account\".\"account_id\" = src.\"account_id\") when matched then update set \"email\" = src.\"email\", \"first_name\" = src.\"first_name\", \"last_name\" = src.\"last_name\" when not matched then insert (\"account_id\", \"email\", \"first_name\", \"last_name\") values (src.\"account_id\", src.\"email\", src.\"first_name\", src.\"last_name\") OUTPUT inserted.*;",
+    "values": [
+      "uuid-1",
+      "a@test.com",
+      "A",
+      "B"
+    ],
+    "error": null
   }
 }
