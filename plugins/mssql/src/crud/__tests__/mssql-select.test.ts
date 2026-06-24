@@ -25,6 +25,10 @@ describe("mssqlTableRead()", () => {
           "a_1"."parent_id" AS "parentId"
         FROM
           "main"."account" AS "a_1"
+          /* <query_1> */
+          /* </query_1> */
+          /* <query_2> */
+          /* </query_2> */
           /* </query_0> */"
       `);
    });
@@ -57,6 +61,8 @@ describe("mssqlTableRead()", () => {
           /* <query_1> */
         WHERE
           /* <query_2> */ "a_1"."account_id" = @param_0 /* </query_2> */ /* </query_1> */
+          /* <query_3> */
+          /* </query_3> */
           /* </query_0> */"
       `);
    });

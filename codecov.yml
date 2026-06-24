@@ -2,6 +2,30 @@ coverage:
   status:
     project:
       default:
-        target: 80%
+        target: 90%
+      nodejs:
+        flags: [nodejs]
+        target: 90%
+      dotnet:
+        flags: [dotnet]
+        target: 90%
+
+flags:
+  nodejs:
+    paths:
+      - packages/
+      - plugins/
+      - orms/
+  dotnet:
+    paths:
+      - stacks/dotnet/src/
+
 ignore:
   - "examples/**"
+  - "tests/**"
+  - "stacks/dotnet/tests/**"
+  - "stacks/dotnet/src/Vexnor.Example.Api/**"
+  - "stacks/fixtures/**"
+  - "**/__tests__/**"
+  - "**/*.test.ts"
+  - "**/*.test.tsx"

@@ -1,4 +1,4 @@
-import { SqlTable, row, ParamsOfArgs, SqlQueryExtended, raw, info, sql } from "@vexnor/core";
+import { SqlTable, row, ParamsOfArgs, SqlQueryExtended, info, sql } from "@vexnor/core";
 import type { SqlInsertFromArgs } from "@vexnor/core";
 import { ok } from "@vexnor/core";
 import { BetterSqlite3QueryHandler } from "#/better-sqlite3-query-handler.js";
@@ -23,7 +23,7 @@ export function sqlite3InsertFrom<
    ok(args?.FROM, `Args 'FROM' is required for 'insertFrom()' CRUD.`);
 
    return sql`
-      ${info({ driver: "sqlite" }) ?? raw.BLANK}
+      ${info({ driver: "sqlite" })}
       insert into ${table}
             ${args.FROM}
             returning ${row(table.$$)}

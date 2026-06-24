@@ -118,6 +118,8 @@ export class MssqlQueryHandler<T extends { Params?: unknown; Row?: unknown }> ex
     * `IResult` object (e.g. `recordsets`, `rowsAffected`).
     *
     * @param args - Database connection and query parameters.
+    * @param _mode
+    * @param meta
     */
    async execute(args: SqlRunArgs<{ Connection: MssqlClient; Params: T["Params"] }>, _mode?: unknown, meta?: QueryMeta) {
       const { db, options: { debug } = {} } = args;

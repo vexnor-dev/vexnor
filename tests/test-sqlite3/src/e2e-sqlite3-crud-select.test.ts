@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
 import { randomUUID } from "node:crypto";
-import { param, row } from "@vexnor/core";
+import { insert, param, row } from "@vexnor/core";
 import { sql, sqlite3Select } from "@vexnor/sqlite3";
 import "@vexnor/sqlite3";
 import { Account, IAccountInsert, IAccountSelect } from "./codegen/main.account-table.js";
@@ -21,8 +21,8 @@ describe.sequential("vexnor sqlite3 CRUD - select", () => {
          lastName: "Root",
       };
       rootAccount = await sql`
-         insert into ${Account} ${Account.insertColsVals(rootInsert)} returning ${row(Account.$$)}
-      `.sqlite.one({ db });
+         insert into ${Account} ${insert(Account, "rows")} returning ${row(Account.$$)}
+      `.sqlite.one({ db, params: { rows: [rootInsert] } });
 
       const childInsert: IAccountInsert = {
          accountId: randomUUID(),
@@ -32,13 +32,13 @@ describe.sequential("vexnor sqlite3 CRUD - select", () => {
          parentId: rootAccount.accountId,
       };
       childAccount = await sql`
-         insert into ${Account} ${Account.insertColsVals(childInsert)} returning ${row(Account.$$)}
-      `.sqlite.one({ db });
+         insert into ${Account} ${insert(Account, "rows")} returning ${row(Account.$$)}
+      `.sqlite.one({ db, params: { rows: [childInsert] } });
 
       const orderInsert: IOrderInsert = { accountId: rootAccount.accountId };
       order = await sql`
-         insert into ${Order} ${Order.insertColsVals(orderInsert)} returning ${row(Order.$$)}
-      `.sqlite.one({ db });
+         insert into ${Order} ${insert(Order, "rows")} returning ${row(Order.$$)}
+      `.sqlite.one({ db, params: { rows: [orderInsert] } });
    });
 
    test("select: basic select with WHERE", async () => {

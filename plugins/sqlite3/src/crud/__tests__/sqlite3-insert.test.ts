@@ -19,8 +19,7 @@ describe("sqlite3InsertRows()", () => {
         INSERT INTO
           "main"."account" ("email", "first_name", "last_name")
         VALUES
-          /* <query_1> */
-          (?, ?, ?) /* </query_1> */
+          (?, ?, ?)
         RETURNING
           "account"."account_id" AS "accountId",
           "account"."status",
@@ -53,9 +52,8 @@ describe("sqlite3InsertRows()", () => {
         INSERT INTO
           "main"."account" ("email", "first_name", "last_name")
         VALUES
-          /* <query_1> */
-          (?, ?, ?) /* </query_1> */,
-          /* <query_2> */ (?, ?, ?) /* </query_2> */
+          (?, ?, ?),
+          (?, ?, ?)
         RETURNING
           "account"."account_id" AS "accountId",
           "account"."status",

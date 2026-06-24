@@ -19,8 +19,7 @@ describe("SqlTableCreate", () => {
         INSERT INTO
           "main"."account" ("email", "first_name", "last_name")
         VALUES
-          /* <query_1> */
-          (?, ?, ?) /* </query_1> */
+          (?, ?, ?)
         RETURNING
           "account"."account_id" AS "accountId",
           "account"."status",
@@ -77,7 +76,7 @@ describe("SqlTableCreate", () => {
       `);
    });
 
-   test("should handle expand columns correctly", () => {
+   test("should handle insert columns correctly", () => {
       const query = sqlInsertRows(Account);
 
       const { text } = query.getSql({
@@ -89,8 +88,7 @@ describe("SqlTableCreate", () => {
         INSERT INTO
           "main"."account" ("email", "first_name", "last_name")
         VALUES
-          /* <query_1> */
-          (?, ?, ?) /* </query_1> */
+          (?, ?, ?)
         RETURNING
           "account"."account_id" AS "accountId",
           "account"."status",

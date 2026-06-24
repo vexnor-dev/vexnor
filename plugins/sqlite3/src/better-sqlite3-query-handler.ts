@@ -101,6 +101,7 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
     *
     * @param args - Database connection and query parameters.
     * @param mode
+    * @param meta
     */
    execute(
       args: SqlRunArgs<{ Connection: Sqlite3Client; Params: T["Params"] }>,

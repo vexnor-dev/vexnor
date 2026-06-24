@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { sqlSelect, expandFromClause } from "#/core/crud/sql-select.js";
+import { sqlSelect } from "#/core/crud/sql-select.js";
 import { sqlUpdate } from "#/core/crud/sql-update.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
 import { sql } from "#/core/sql.js";
@@ -69,18 +69,6 @@ describe("sqlUpdate — uncovered paths", () => {
 
    test("sqlUpdate with info", () => {
       const result = sqlUpdate(Account, {}, info({ label: "update-account" }));
-      expect(result).toBeDefined();
-   });
-});
-
-describe("expandFromClause", () => {
-   test("produces from clause with WHERE", () => {
-      const result = expandFromClause(Account, { WHERE: sql`${Account.$status} = ${"active"}` });
-      expect(result).toBeDefined();
-   });
-
-   test("produces from clause without any args", () => {
-      const result = expandFromClause(Account, {});
       expect(result).toBeDefined();
    });
 });

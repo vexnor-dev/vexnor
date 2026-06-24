@@ -81,9 +81,9 @@ describe("Context values", () => {
          expect(q.params).toHaveProperty("userId");
          expect(q.params).toHaveProperty("email");
          expect(q.params!["userId"]).toBeInstanceOf(SqlParam);
-         expect((q.params!["userId"] as SqlParam<{ Name: "userId"; Type: string }>).isContext).toBe(true);
+         expect(q.params!["userId"].isContext).toBe(true);
          expect(q.params!["email"]).toBeInstanceOf(SqlParam);
-         expect((q.params!["email"] as SqlParam<{ Name: "email"; Type: string }>).isContext).toBe(false);
+         expect(q.params!["email"].isContext).toBe(false);
       });
    });
 
@@ -172,7 +172,7 @@ describe("Context values", () => {
          expect(outer.params).toHaveProperty("userId");
          expect(outer.params).toHaveProperty("email");
          expect(outer.params!["userId"]).toBeInstanceOf(SqlParam);
-         expect((outer.params!["userId"] as SqlParam<{ Name: "userId"; Type: string }>).isContext).toBe(true);
+         expect(outer.params!["userId"].isContext).toBe(true);
       });
    });
 

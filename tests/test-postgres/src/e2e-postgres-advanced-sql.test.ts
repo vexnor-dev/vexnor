@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
-import { col, row } from "@vexnor/core";
+import { col, insert, row } from "@vexnor/core";
 import { jsonMany, sql } from "@vexnor/postgres";
 import { Account } from "./codegen/vexnor_dev.account-table.js";
 import { Order } from "./codegen/vexnor_dev.order-table.js";
@@ -347,13 +347,13 @@ describe.sequential("advanced SQL - postgres", async (ctx) => {
       // insert an account with no orders
       const orphan = await sql`
          insert into ${Account}
-            ${Account.insertColsVals({
+            ${insert(Account, "rows")}
+            returning ${row(Account.$$)}
+      `.one({ db: pool, params: { rows: [{
                email: `orphan-${dataManager.TAG}@example.com`,
                firstName: "Orphan",
                lastName: dataManager.TAG,
-            })}
-            returning ${row(Account.$$)}
-      `.one({ db: pool });
+            }] } });
 
       const result = await sql`
          select ${row(Account.$$)}

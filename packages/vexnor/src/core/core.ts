@@ -1,3 +1,6 @@
+export { SqlInsertValues } from "#/core/operators/sql-insert-values.js";
+export { SqlInsertCols } from "#/core/operators/sql-insert-cols.js";
+
 export { SqlError } from "#/core/sql-error.js";
 export { SqlErrorCode } from "#/core/sql-error-code.js";
 
@@ -28,13 +31,35 @@ export { isQuery, toQuery } from "./query/sql-query.js";
 export { SqlQueryHandler, type SqlQueryHandlerAny, newSqlQueryHandler } from "./query/sql-query-handler.js";
 export { getQueryMeta, setQueryMeta } from "#/core/query/query-meta-store.js";
 export { SqlQueryRef, type SqlQueryRefAny, type SqlQueryRefExtended } from "./query/sql-query-ref.js";
-export { ctx, param, SqlParam, type SqlParamAny } from "./query/sql-param.js";
+export { ctx, param, SqlParam, type SqlParamAny, type PathToNested, type LeafPaths, type PathType } from "./query/sql-param.js";
 export { contextValue, type ContextValue, isContextValue } from "./query/context-value.js";
 export { row, SqlSelectRow, type SqlSelectRowAny } from "./query/sql-select-row.js";
 export { val, SqlSelectValue, type SqlSelectValueAny } from "./query/sql-select-value.js";
 export { raw, quote, SqlRaw } from "./query/sql-raw.js";
 export { DEFAULT } from "./query/sql-default.js";
-export { expand, SqlExpand, type SqlExpandHandler, type SqlExpandHandlerAny } from "./query/sql-expand.js";
+export { when, SqlWhen } from "./operators/sql-when.js";
+export { set, SqlSet } from "./operators/sql-set.js";
+export { insert } from "./operators/sql-insert-x.js";
+export { SqlInsert } from "./operators/sql-insert.js";
+export { upsert, SqlUpsert } from "./operators/sql-upsert.js";
+
+export {
+   filterBy,
+   SqlFilterBy,
+   type SqlFilterParams,
+   type FilterOperator,
+   type FilterCondition,
+   type FilterConditionList,
+} from "./operators/sql-filter-by.js";
+export {
+   SqlProjectBy,
+   SqlProjectionGroupBy,
+   type SqlProjectByAggregation,
+   type SqlProjectByEntry,
+   type SqlProjectByParams,
+} from "./operators/sql-project-by.js";
+export { orderBy, SqlOrderBy, type SqlOrderByOption, type SqlOrderByParams } from "./operators/sql-order-by.js";
+export { SqlPagination, type SqlPaginationParams } from "./operators/sql-pagination.js";
 export { input, SqlInput, type SqlInputExtended } from "./query/sql-input.js";
 export { info, SqlQueryInfo, type SqlQueryInfoOptions } from "./charms/sql-query-info.js";
 export {
@@ -106,10 +131,8 @@ export { type PARAMS, type ROW, type TYPE, type ARGS } from "./sql-base.js";
 export { SqlQueryColumn, newSqlQueryColumn, type SqlQueryColumnAny } from "./query/sql-query-column.js";
 
 // crud
-export { expandInsertColumns, expandInsertValues } from "./crud/sql-crud-helper.js";
 export type { SqlInsertRowsResult, SqlInsertRowsParams, sqlInsertRows } from "./crud/sql-insert-rows.js";
 export type { SqlInsertFromResult, SqlInsertFromArgs, sqlInsertFrom } from "./crud/sql-insert-from.js";
-export { buildUpdateSetExpand } from "./crud/sql-update.js";
 export type { SqlUpdateArgs, SqlUpdateParameters, SqlTableUpdateResult } from "./crud/sql-update.js";
 export type { SqlDeleteArgs, SqlDeleteResult } from "./crud/sql-delete.js";
 export {
@@ -134,3 +157,14 @@ export { getQueryName } from "#/core/query/sql-query-name.js";
 export { SqlLiteralType } from "#/plugin/sql-literal.js";
 
 export { type SqlParamsList, params } from "#/core/query/sql-params-list.js";
+
+// serialize
+export { serializeQuery, serializeManifest } from "./serialize/serialize-query.js";
+export type {
+   QueryManifest,
+   QueryDefinition,
+   ParamDefinition,
+   ParamValidationSchema,
+   TemplateNode,
+   ColumnSchema,
+} from "./serialize/query-manifest.js";

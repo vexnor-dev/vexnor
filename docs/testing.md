@@ -289,9 +289,9 @@ test('inserts and retrieves an account', async () => {
 
     expect(inserted.email).toBe('test@example.com');
 
-    const found = await Account.postgres.findBy().any({
+    const found = await Account.postgres.select({}).any({
       db: client,
-      params: { email: 'test@example.com' },
+      params: { filter: { email: 'test@example.com' } },
     });
 
     expect(found).toMatchObject({ email: 'test@example.com' });

@@ -151,7 +151,7 @@ The `vexnor` package exposes multiple subpath exports:
 
 | Import Path | Contents |
 |-------------|----------|
-| `vexnor` | Core: `sql`, `row`, `col`, `param`, `ctx`, `expand`, `info`, `raw`, `connect`, types |
+| `vexnor` | Core: `sql`, `row`, `col`, `param`, `ctx`, `info`, `raw`, `connect`, types |
 | `vexnor/execution` | `SqlQueryRegistry`, `SqlQueryPipeline`, `AuditLogPlugin`, `TimeToLiveRateLimiter` |
 | `vexnor/telemetry` | `registerOpenTelemetry` augmentation (Node-only) |
 | `vexnor/plugin` | `VexnorPlugin`, `VexnorConnection`, plugin interfaces |

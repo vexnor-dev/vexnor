@@ -46,13 +46,7 @@
             "*.yml",
             "*.yaml"
          ],
-         "deniedPaths": [
-            "node_modules/**",
-            "**/node_modules/**",
-            "**/dist/**",
-            "**/*.tsbuildinfo",
-            "pnpm-lock.yaml"
-         ]
+         "deniedPaths": ["node_modules/**", "**/node_modules/**", "**/dist/**", "**/*.tsbuildinfo", "pnpm-lock.yaml"]
       },
       "shell": {
          "allowedCommands": [
@@ -89,12 +83,30 @@
             "uniq.*",
             "diff.*",
             "pwd.*",
-            "sleep.*"
+            "sleep.*",
+            "pnpm test",
+            "pnpm build",
+            "pnpm install",
+            "pnpm run",
+            "pnpm --filter",
+            "pnpm dotnet:",
+            "npx vitest",
+            "npx tsc",
+            "dotnet build",
+            "dotnet test",
+            "git ",
+            "node ",
+            "grep ",
+            "head ",
+            "tail ",
+            "cat ",
+            "ls ",
+            "find ",
+            "wc ",
+            "sed ",
+            "rm "
          ],
-         "deniedCommands": [
-            "rm -rf /.*",
-            "sudo.*"
-         ],
+         "deniedCommands": ["rm -rf /.*", "sudo.*"],
          "autoAllowReadonly": true,
          "denyByDefault": false
       },
@@ -112,10 +124,5 @@
          "blocked": []
       }
    },
-   "resources": [
-      "file://README.md",
-      "file://package.json",
-      "file://pnpm-workspace.yaml",
-      "file://tsconfig.json"
-   ]
+   "resources": ["file://README.md", "file://package.json", "file://pnpm-workspace.yaml", "file://tsconfig.json"]
 }

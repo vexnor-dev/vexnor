@@ -110,6 +110,19 @@ jobs:
       - name: Run tests
         run: pnpm test
 
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Build .NET solution
+        run: dotnet build stacks/dotnet/Vexnor.sln --nologo
+
+      - name: Run .NET tests
+        run: dotnet test stacks/dotnet/Vexnor.sln --nologo --no-build
+        env:
+          ConnectionStrings__Postgres: "Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=postgres"
+
       - name: Prepare publishable packages
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then

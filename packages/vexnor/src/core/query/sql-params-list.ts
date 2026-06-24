@@ -1,5 +1,5 @@
 import { SqlParam, SqlParamAny } from "#/core/query/sql-param.js";
-import { ParamValidation, ParamValidationAny } from "#/core/query/sql-param-validation.js";
+import { SqlParamValidation, SqlParamValidationAny } from "#/core/query/params/sql-param-validation.js";
 
 export type SqlParamsList<T extends Record<string, unknown>> = {
    [K in keyof T]: K extends string ? SqlParam<{ Name: K; Type: T[K] }> : never;
@@ -7,7 +7,7 @@ export type SqlParamsList<T extends Record<string, unknown>> = {
 
 export function params<T extends Record<string, unknown>>(
    validation?: Partial<{
-      [K in keyof T]: ParamValidation<T[K]>;
+      [K in keyof T]: SqlParamValidation<T[K]>;
    }>,
 ): SqlParamsList<T> {
    const cache = new Map<string, SqlParamAny>();
@@ -18,7 +18,7 @@ export function params<T extends Record<string, unknown>>(
          get: (_, name) => {
             const _name = String(name);
             if (!cache.has(_name)) {
-               const _validation: ParamValidationAny | undefined = validation?.[_name];
+               const _validation: SqlParamValidationAny | undefined = validation?.[_name];
                cache.set(_name, new SqlParam({ name: _name, validation: _validation }));
             }
 

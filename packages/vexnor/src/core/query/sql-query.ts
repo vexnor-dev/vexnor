@@ -21,13 +21,13 @@ import { SqlSelectValue } from "#/core/query/sql-select-value.js";
 import { newSqlQueryColumn, SqlQueryColumn } from "#/core/query/sql-query-column.js";
 import { SqlSelectRow } from "#/core/query/sql-select-row.js";
 import { SqlSelectColumn } from "#/core/query/sql-select-column.js";
+import { SqlProjectBy } from "#/core/operators/sql-project-by.js";
 import { SqlSelectCharm } from "#/core/query/sql-charm.js";
 import { getFormatter } from "#/format/formatter-registry.js";
 import { SqlTable } from "#/core/schema/sql-table.js";
 import { ok } from "#/lib/assert.js";
 import { isSqlLanguage } from "#/core/query/lib/is-sql-language.js";
 import { isPrimitive } from "#/lib/primitive.js";
-import { SqlExpand } from "#/core/query/sql-expand.js";
 import { isContextValue } from "#/core/query/context-value.js";
 import { getDefaultParamFormat } from "#/core/query/default-param-format.js";
 import { SqlJsonSchema } from "#/core/utils/sql-json-schema.js";
@@ -546,6 +546,15 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
                   };
                }
                break;
+            case rawValue instanceof SqlProjectBy:
+               // Projection contributes all table columns as the row shape
+               for (const [key, col] of Object.entries(rawValue.table.cols)) {
+                  row = {
+                     ...(row ?? {}),
+                     [key]: newSqlQueryColumn({ target: col, key: key.slice(1), query: this }),
+                  };
+               }
+               break;
          }
       }
 
@@ -553,22 +562,12 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
    }
 
    initParams(rawValues = this.rawValues): BuildSqlParams<T["Params"]> {
-      let params: Partial<BuildSqlParams<T["Params"]>> | null = null;
+      let params: Partial<BuildSqlParams<T["Params"]>> = {};
       const q = new Queue(rawValues);
       for (const rawValue of q.shift()) {
          switch (true) {
             case Array.isArray(rawValue):
                q.push(...rawValue);
-               break;
-            case rawValue instanceof SqlExpand:
-               if (rawValue.params)
-                  params = {
-                     ...(params ?? {}),
-                     ...(rawValue.params as Record<string, SqlParam<{ Name: string; Type: unknown }>>),
-                  };
-               break;
-            case rawValue instanceof SqlParam && rawValue.isContext:
-               params = { ...(params ?? {}), [rawValue.name]: rawValue };
                break;
             case rawValue instanceof SqlParam:
                params = { ...(params ?? {}), [rawValue.name]: rawValue };
@@ -649,13 +648,13 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
                   throw new SqlBuildError(`Param value not provided for param: ${token.name}`);
                }
 
-               const paramToken = this.params?.[token.name as keyof NonNullable<typeof this.params>] as
+               const sqlParam = this.params?.[token.name as keyof NonNullable<typeof this.params>] as
                   | SqlParam<{ Name: string; Type: unknown }>
                   | undefined;
-               ok(paramToken, `Param token not found for token: ${token.name}`);
+               ok(sqlParam, `Param token not found for token: ${token.name}`);
 
                const rawValue = args.params[token.name];
-               const value = isContextValue(rawValue) ? null : (paramToken.valueOrDefault(rawValue) ?? null);
+               const value = isContextValue(rawValue) ? null : (sqlParam.resolve(args.params as Record<string, unknown>) ?? null);
 
                if (Array.isArray(value)) {
                   for (let i = 0; i < value.length; i++) {

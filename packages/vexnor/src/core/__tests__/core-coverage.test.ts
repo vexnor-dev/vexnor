@@ -17,7 +17,8 @@ import { runWithRetry } from "#/core/query/sql-retry.js";
 import { HttpRemoteClient } from "#/core/query/http-remote-client.js";
 import { SqlSelectCharm } from "#/core/query/sql-charm.js";
 import { SqlParam } from "#/core/query/sql-param.js";
-import { isParamValueValid, validateParamValue } from "#/core/query/sql-param-validation.js";
+import { isParamValueValid } from "#/core/query/params/sql-param-validation.js";
+import { validateParamValue } from "#/core/query/params/validate-param-value.js";
 
 describe("sql-base.ts — uncovered", () => {
    test("Sql.toString() returns id", () => {
@@ -335,31 +336,9 @@ describe("SqlParam — uncovered paths", () => {
 });
 
 describe("isParamValueValid / validateParamValue — uncovered rules", () => {
-   test("enum validation", () => {
-      expect(isParamValueValid("a", { enum: ["a", "b"] })).toBe(true);
-      expect(isParamValueValid("c", { enum: ["a", "b"] })).toBe(false);
-   });
-
    test("values validation", () => {
       expect(isParamValueValid("x", { values: ["x", "y"] })).toBe(true);
       expect(isParamValueValid("z", { values: ["x", "y"] })).toBe(false);
-   });
-
-   test("custom validate function returning true", () => {
-      expect(isParamValueValid(5, { validate: () => true })).toBe(true);
-   });
-
-   test("custom validate function returning false", () => {
-      expect(isParamValueValid(5, { validate: () => false })).toBe(false);
-   });
-
-   test("custom validate function returning string", () => {
-      const errors = validateParamValue(5, { validate: () => "custom error" });
-      expect(errors).toMatchInlineSnapshot(`
-        [
-          "custom error",
-        ]
-      `);
    });
 
    test("Date range validation", () => {

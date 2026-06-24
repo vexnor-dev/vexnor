@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "generatorVersion": "1.0.0-beta.1",
+  "dialect": "postgresql",
+  "queries": {
+    "30e148b999f5a63cf01482efd65120e2497536b65f89c754cf3e60cf32d8b010": {
+      "name": "filterOperatorQuery",
+      "location": "stacks/fixtures/queries/filter-operators.ts:91:36",
+      "hash": "30e148b999f5a63cf01482efd65120e2497536b65f89c754cf3e60cf32d8b010",
+      "template": [
+        {
+          "type": "text",
+          "value": "\n   SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\"\n   FROM \"vexnor_dev\".\"account\" as \"a_1\"\n   WHERE "
+        },
+        {
+          "type": "filter",
+          "param": "filter",
+          "columns": {
+            "accountId": "\"a_1\".\"account_id\"",
+            "status": "\"a_1\".\"status\"",
+            "email": "\"a_1\".\"email\"",
+            "firstName": "\"a_1\".\"first_name\"",
+            "lastName": "\"a_1\".\"last_name\"",
+            "notes": "\"a_1\".\"notes\"",
+            "createdAt": "\"a_1\".\"created_at\"",
+            "modifiedAt": "\"a_1\".\"modified_at\"",
+            "parentId": "\"a_1\".\"parent_id\""
+          }
+        },
+        {
+          "type": "text",
+          "value": "\n"
+        }
+      ],
+      "params": {
+        "filter": {
+          "name": "filter",
+          "isContext": false
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    }
+  }
+}

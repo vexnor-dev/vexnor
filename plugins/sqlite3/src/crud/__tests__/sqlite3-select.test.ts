@@ -24,6 +24,10 @@ describe("sqlite3Select()", () => {
           "a_1"."parent_id" AS "parentId"
         FROM
           "main"."account" AS "a_1"
+          /* <query_1> */
+          /* </query_1> */
+          /* <query_2> */
+          /* </query_2> */
           /* </query_0> */"
       `);
    });
@@ -56,6 +60,8 @@ describe("sqlite3Select()", () => {
           /* <query_1> */
         WHERE
           /* <query_2> */ "a_1"."account_id" = ? /* </query_2> */ /* </query_1> */
+          /* <query_3> */
+          /* </query_3> */
           /* </query_0> */"
       `);
    });
@@ -388,6 +394,10 @@ describe("sqlite3Select()", () => {
           ) AS "query_1"
         FROM
           "main"."account" AS "a_3"
+          /* <query_2> */
+          /* </query_2> */
+          /* <query_3> */
+          /* </query_3> */
           /* </query_0> */"
       `);
    });

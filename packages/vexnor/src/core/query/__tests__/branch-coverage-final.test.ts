@@ -1,27 +1,17 @@
 import { describe, expect, test } from "vitest";
 import { sql } from "#/core/sql.js";
 import { row } from "#/core/query/sql-select-row.js";
+import { insert } from "#/core/operators/sql-insert-x.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
 import { AccountStatusUdt } from "@test-models/vexnor_dev-enums.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
 import { param } from "#/core/query/sql-param.js";
-import { expand } from "#/core/query/sql-expand.js";
-import { raw } from "#/core/query/sql-raw.js";
 
-describe("SqlBuildContext.text — param and expand tokens", () => {
+describe("SqlBuildContext.text — param token", () => {
    test("text with param token renders ?", () => {
       const context = new SqlBuildContext({ dialect: "sql" });
       context.addStrings("SELECT * FROM t WHERE id = ");
       context.addParam({ name: "id" });
-      expect(context.text).toContain("?");
-   });
-
-   test("text with expand token renders ?", () => {
-      const e = expand<{ ids: string[] }>({ ids: null }, ({ ids }) => ids.map(id => raw(id)));
-      const context = new SqlBuildContext({ dialect: "sql" });
-      context.addStrings("SELECT * FROM t WHERE id IN (");
-      context.addExpand(e);
-      context.addStrings(")");
       expect(context.text).toContain("?");
    });
 });
@@ -61,9 +51,9 @@ describe("SqlSelectRow.getRow — first-item branch (row ?? {})", () => {
 describe("SqlTable write — INSERT INTO/DELETE FROM/UPDATE context sets alias", () => {
    test("INSERT INTO context with schema.tableName", () => {
       const rendered = Account.render("schema.tableName");
-      const query = sql`INSERT INTO ${rendered} ${Account.insertColsVals({ accountId: "1", email: "a@b.com", firstName: "A", lastName: "B", status: AccountStatusUdt.CREATED })}`;
+      const query = sql`INSERT INTO ${rendered} ${insert(Account, "rows")}`;
       const context = new SqlBuildContext({ dialect: "sql" });
-      query.build(context, null, { queryType: "main" });
+      query.build(context, null, { queryType: "main", params: { rows: [{ accountId: "1", email: "a@b.com", firstName: "A", lastName: "B", status: AccountStatusUdt.CREATED }] } });
       expect(context.tokens.length).toBeGreaterThan(0);
    });
 

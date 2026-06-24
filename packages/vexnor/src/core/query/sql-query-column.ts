@@ -7,22 +7,18 @@ import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
 import { SqlQueryRefAny } from "#/core/query/sql-query-ref.js";
 import { SqlJsonSchema } from "#/core/utils/sql-json-schema.js";
 
-export type SqlQueryColumnArgs<
-   T extends {
-      Key: string;
-      Type: unknown;
-   },
-> = Pick<SqlQueryColumn<T>, "key" | "target" | "query"> & Partial<Pick<SqlQueryColumn<T>, "format">>;
+export type SqlQueryColumnTypeArgs = {
+   Key: string;
+   Type: unknown;
+};
+
+export type SqlQueryColumnArgs<T extends SqlQueryColumnTypeArgs> = Pick<SqlQueryColumn<T>, "key" | "target" | "query"> &
+   Partial<Pick<SqlQueryColumn<T>, "format">>;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlQueryColumnAny = SqlQueryColumn<any>;
 
-export class SqlQueryColumn<
-   T extends {
-      Key: string;
-      Type: unknown;
-   },
-> extends Sql {
+export class SqlQueryColumn<T extends SqlQueryColumnTypeArgs> extends Sql {
    declare readonly [TYPE]: Record<T["Key"], T["Type"]>;
 
    readonly params = null;
@@ -142,11 +138,6 @@ export class SqlQueryColumn<
    }
 }
 
-export function newSqlQueryColumn<
-   T extends {
-      Key: string;
-      Type: unknown;
-   },
->(options: SqlQueryColumnArgs<T>): SqlQueryColumn<T> {
+export function newSqlQueryColumn<T extends SqlQueryColumnTypeArgs>(options: SqlQueryColumnArgs<T>): SqlQueryColumn<T> {
    return new SqlQueryColumn(options);
 }

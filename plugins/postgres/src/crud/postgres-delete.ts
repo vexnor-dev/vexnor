@@ -23,7 +23,7 @@ export function postgresDelete<T extends { Select: Record<string, unknown>; Dele
    }
 
    return sql`
-      ${info({ driver: "postgres" }) ?? raw.BLANK}
+      ${info({ driver: "postgres" })}
       delete
       from ${table}
       ${where ? sql`where ${where.inline()}`.inline("default") : raw.BLANK}

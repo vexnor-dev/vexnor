@@ -35,6 +35,7 @@ describe("HttpRemoteClient", () => {
 
    test("remoteExecute — calls fetch with correct args and returns json", async () => {
       const rows = [{ id: 1 }];
+      // eslint-disable-next-line unused-imports/no-unused-vars
       const mockFetch = async (_url: string | URL | Request, _init?: RequestInit) =>
          new Response(JSON.stringify({ rows }), { status: 200 });
 

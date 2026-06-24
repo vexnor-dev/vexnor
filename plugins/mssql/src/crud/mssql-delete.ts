@@ -24,7 +24,7 @@ export function mssqlDelete<T extends { Select: Record<string, unknown>; Delete:
    }
 
    return sql`
-      ${info({ driver: "transactsql" }) ?? raw.BLANK}
+      ${info({ driver: "transactsql" })}
       delete
       from ${table}
       output ${row(table.as`deleted`.$$)}

@@ -150,16 +150,10 @@ import type { Point, Circle, Interval } from '@vexnor/postgres';
 Generated tables expose typed query factories on `.postgres`. Available methods depend on which operations are enabled in the table's `crud` config.
 
 ```typescript
-// Find by primary key
-const account = await Account.postgres.findById().any({
-  db: pool,
-  params: { accountId: '00000000-0000-0000-0000-000000000001' },
-});
-
 // Find by any column subset
-const account = await Account.postgres.findBy().any({
+const account = await Account.postgres.select({}).any({
   db: pool,
-  params: { email: 'jane@example.com' },
+  params: { filter: { email: 'jane@example.com' } },
 });
 
 // SELECT with optional clauses

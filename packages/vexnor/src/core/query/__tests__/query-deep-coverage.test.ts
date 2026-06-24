@@ -6,8 +6,7 @@ import { Account } from "@test-models/vexnor_dev.account-table.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
 import { val } from "#/core/query/sql-select-value.js";
 import { col as colFactory } from "#/core/query/sql-select-column.js";
-import { raw, quote } from "#/core/query/sql-raw.js";
-import { expand } from "#/core/query/sql-expand.js";
+import { quote } from "#/core/query/sql-raw.js";
 import { input } from "#/core/query/sql-input.js";
 import { info } from "#/core/charms/sql-query-info.js";
 import { SqlQueryFormatByKeyword } from "#/core/query/sql-query.js";
@@ -92,44 +91,6 @@ describe("SqlSelectValue — write", () => {
       const text = context.tokens.filter(t => t.type === "text").map(t => t.value).join("");
       expect(text).toContain("count(*)");
       expect(text).toContain("total");
-   });
-});
-
-describe("SqlQueryColumn — write formats", () => {
-   test("as() changes key", () => {
-      const query = sql`SELECT ${row(Account.$accountId)} FROM ${Account}`;
-      const col = query.$accountId;
-      const aliased = col.as("myId");
-      expect(aliased.key).toBe("myId");
-   });
-
-   test("render() changes format", () => {
-      const query = sql`SELECT ${row(Account.$accountId)} FROM ${Account}`;
-      const col = query.$accountId;
-      const rendered = col.render("columnName");
-      expect(rendered.format).toBe("columnName");
-   });
-
-   test("jsonSchema delegates to target", () => {
-      const query = sql`SELECT ${row(Account.$accountId)} FROM ${Account}`;
-      const col = query.$accountId;
-      expect(col.jsonSchema).toBeDefined();
-   });
-});
-
-describe("SqlExpand — write with and without params", () => {
-   test("expand without context params emits expand token", () => {
-      const e = expand<{ ids: string[] }>({ ids: null }, ({ ids }) => ids.map(id => raw(id)));
-      const context = new SqlBuildContext({ dialect: "sql" });
-      e.build(context);
-      expect(context.tokens.some(t => t.type === "expand")).toBe(true);
-   });
-
-   test("expand with null return from handler", () => {
-      const e = expand<{ mode: string }>({ mode: null }, () => null);
-      const context = new SqlBuildContext({ dialect: "sql", params: { mode: "test" } });
-      e.build(context);
-      // expand that returns null produces no additional tokens beyond the expand
    });
 });
 
@@ -254,5 +215,27 @@ describe("getSql with contextValue", () => {
           null,
         ]
       `);
+   });
+});
+
+describe("SqlQueryColumn — write formats", () => {
+   test("as() changes key", () => {
+      const query = sql`SELECT ${row(Account.$accountId)} FROM ${Account}`;
+      const col = query.$accountId;
+      const aliased = col.as("myId");
+      expect(aliased.key).toBe("myId");
+   });
+
+   test("render() changes format", () => {
+      const query = sql`SELECT ${row(Account.$accountId)} FROM ${Account}`;
+      const col = query.$accountId;
+      const rendered = col.render("columnName");
+      expect(rendered.format).toBe("columnName");
+   });
+
+   test("jsonSchema delegates to target", () => {
+      const query = sql`SELECT ${row(Account.$accountId)} FROM ${Account}`;
+      const col = query.$accountId;
+      expect(col.jsonSchema).toBeDefined();
    });
 });

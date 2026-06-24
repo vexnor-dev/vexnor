@@ -4,7 +4,10 @@ import { tmpdir } from "node:os";
 import { dirname, isAbsolute, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 
-/** @param {string} cmd @param {string[]} args @param {import('node:child_process').SpawnSyncOptions} options */
+/** @param {string} cmd @param {string[]} args @param {import('node:child_process').SpawnSyncOptions} options
+ * @param args
+ * @param options
+ */
 function run(cmd, args, options) {
    const result = spawnSync(cmd, args, options);
    if (result.status !== 0) {
@@ -47,7 +50,9 @@ function normalizePathArgs(args) {
    return output;
 }
 
-/** @param {string[]} args */
+/** @param {string[]} args
+ * @param flagName
+ */
 function getArgValue(args, flagName) {
    for (let i = 0; i < args.length; i += 1) {
       const arg = args[i];

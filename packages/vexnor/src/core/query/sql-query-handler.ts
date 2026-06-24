@@ -14,6 +14,7 @@ import { getQueryName } from "#/core/query/sql-query-name.js";
 import { ARGS, PARAMS, QUERY, Sql, TYPE } from "#/core/sql-base.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
 import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
+import { SqlParamAny } from "#/core/query/sql-param.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlQueryHandlerAny = SqlQueryHandler<any>;
@@ -141,11 +142,15 @@ export abstract class SqlQueryHandler<
       const resolvedDb = await db;
       const name = (await getQueryName(this.source)) ?? this.source.info?.label ?? this.source.id;
 
+      // Validate structured params once — covers both remote and local paths
+      const inputParams = this.getInputParams(args);
+      this.validateParams(inputParams);
+
       if (isRemoteClient(resolvedDb)) {
          const hash = await this.source.hash;
-         const rawParams = this.getInputParams(args);
          // Strip runtimeValue sentinels — these are injected server-side from registry context
-         const params = Object.fromEntries(Object.entries(rawParams).filter(([, v]) => !isContextValue(v)));
+         const params = Object.fromEntries(Object.entries(inputParams).filter(([, v]) => !isContextValue(v)));
+
          return await resolvedDb
             .remoteExecute<T["Write"]>({
                plugin: this.pluginName,
@@ -249,6 +254,18 @@ export abstract class SqlQueryHandler<
 
    private getInputParams(args: SqlQueryRunArgs<Pick<T, "Connection" | "Params">, never>): Record<string, unknown> {
       return (args as { params?: Record<string, unknown> }).params ?? {};
+   }
+
+   private validateParams(inputParams: Record<string, unknown>): void {
+      const queryParams = this.source.params as Record<string, SqlParamAny> | null;
+      if (!queryParams) return;
+
+      for (const p of Object.values(queryParams)) {
+         const value = p.resolve(inputParams);
+         if (value !== undefined && p.validation) {
+            p.validate(value);
+         }
+      }
    }
 
    /**

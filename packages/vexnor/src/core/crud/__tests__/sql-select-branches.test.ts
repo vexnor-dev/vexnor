@@ -15,7 +15,7 @@ describe("sqlSelect — clause branches", () => {
       const query = sqlSelect(Account, {
          JOIN: sql`JOIN ${Order} ON ${Order.$accountId} = ${Account.$accountId}`,
       });
-      const { text } = query.getSql({ options: { dialect: "sqlite" } });
+      const { text } = query.getSql({ params: {}, options: { dialect: "sqlite" } });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         SELECT
@@ -33,6 +33,10 @@ describe("sqlSelect — clause branches", () => {
             /* <query_1> */
             JOIN "main"."order" AS "o_2" ON "o_2"."account_id" = "a_3"."account_id" /* </query_1> */
           ) AS "query_1"
+          /* <query_2> */
+          /* </query_2> */
+          /* <query_3> */
+          /* </query_3> */
           /* </query_0> */"
       `);
    });
@@ -41,7 +45,7 @@ describe("sqlSelect — clause branches", () => {
       const query = sqlSelect(Account, {
          GROUP_BY: sql`${Account.$accountId}`,
       });
-      const { text } = query.getSql({ options: { dialect: "sqlite" } });
+      const { text } = query.getSql({ params: {}, options: { dialect: "sqlite" } });
       expect(text).toContain("GROUP BY");
       expect(text).toContain("account_id");
    });
@@ -51,7 +55,7 @@ describe("sqlSelect — clause branches", () => {
          GROUP_BY: sql`${Account.$accountId}`,
          HAVING: sql`count(*) > 1`,
       });
-      const { text } = query.getSql({ options: { dialect: "sqlite" } });
+      const { text } = query.getSql({ params: {}, options: { dialect: "sqlite" } });
       expect(text).toContain("HAVING");
    });
 
@@ -59,7 +63,7 @@ describe("sqlSelect — clause branches", () => {
       const query = sqlSelect(Account, {
          ORDER_BY: sql`${Account.$createdAt} DESC`,
       });
-      const { text } = query.getSql({ options: { dialect: "sqlite" } });
+      const { text } = query.getSql({ params: {}, options: { dialect: "sqlite" } });
       expect(text).toContain("ORDER BY");
    });
 
@@ -105,7 +109,7 @@ describe("sqlSelect — with info", () => {
       const { info } = await import("#/core/charms/sql-query-info.js");
       const query = sqlSelect(Account, {}, info({ label: "findAll" }));
       expect(query).toBeDefined();
-      const { text } = query.getSql({ options: { dialect: "sqlite" } });
+      const { text } = query.getSql({ params: {}, options: { dialect: "sqlite" } });
       expect(text).toContain("findAll");
    });
 });

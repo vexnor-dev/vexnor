@@ -129,9 +129,9 @@ describe("SqlQuery — rowType getter", () => {
 });
 
 describe("SqlQuery — getContext()", () => {
-   test("getContext throws for query with no parameters", () => {
+   test("getContext returns empty for query with no parameters", () => {
       const q = sql`SELECT 1`;
-      expect(() => q.getContext({} as never)).toThrow("Cannot get context for query with no parameters");
+      expect(q.getContext({} as never)).toMatchInlineSnapshot(`{}`);
    });
 
    test("getContext throws for null args", () => {

@@ -129,9 +129,7 @@ describe("SqlQuery.params", () => {
       `;
 
       assertType<ParamsOf<typeof query>>(void 0);
-      expect(query.params).toBeNull();
-      // @ts-expect-error - Testing runtime validation of missing property
-      expect(query.params?.accountId).toBeUndefined();
+      expect(query.params).toMatchInlineSnapshot(`{}`);
    });
 
    test("handles duplicate params", () => {
@@ -286,11 +284,11 @@ describe("SqlQuery.params", () => {
          select ${row(Account.$$)}
          from ${Account}
          where ${Account.$accountId} = ${param<{ accountId: string }>("accountId", {
-            validate: (value) => (typeof value === "string" && value.startsWith("acc_") ? true : "must start with acc_"),
+            pattern: /^acc_/,
          })}
       `;
 
-      expect(() => query.getSql({ params: { accountId: "123" } })).toThrow("must start with acc_");
+      expect(() => query.getSql({ params: { accountId: "123" } })).toThrow("pattern mismatch");
    });
 
    test("uses declared default when param is not provided", () => {

@@ -21,7 +21,7 @@ export function sqlite3Delete<T extends { Select: Record<string, unknown>; Delet
    }
 
    return sql`
-      ${info({ driver: "sqlite" }) ?? raw.BLANK}
+      ${info({ driver: "sqlite" })}
       delete
       from ${table}
       ${where ? sql`where ${where.inline()}`.inline("default") : raw.BLANK}

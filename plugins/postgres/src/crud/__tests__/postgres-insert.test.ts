@@ -18,8 +18,7 @@ describe("postgresInsertRows()", () => {
         INSERT INTO
           "main"."account" ("email", "first_name", "last_name")
         VALUES
-          /* <query_1> */
-          ($1, $2, $3) /* </query_1> */
+          ($1, $2, $3)
         RETURNING
           "account"."account_id" AS "accountId",
           "account"."status",
@@ -52,9 +51,8 @@ describe("postgresInsertRows()", () => {
         INSERT INTO
           "main"."account" ("email", "first_name", "last_name")
         VALUES
-          /* <query_1> */
-          ($1, $2, $3) /* </query_1> */,
-          /* <query_2> */ ($4, $5, $6) /* </query_2> */
+          ($1, $2, $3),
+          ($4, $5, $6)
         RETURNING
           "account"."account_id" AS "accountId",
           "account"."status",

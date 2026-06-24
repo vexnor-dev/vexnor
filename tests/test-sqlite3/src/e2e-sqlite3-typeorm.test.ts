@@ -4,7 +4,7 @@ import { ok } from "node:assert";
 import { randomUUID } from "node:crypto";
 import { DataSource, EntitySchema, Entity, PrimaryColumn, Column, ViewEntity, ViewColumn } from "typeorm";
 import { fromTypeORM } from "@vexnor/typeorm";
-import { row, sql, param, excluded } from "@vexnor/core";
+import { insert, row, sql, param } from "@vexnor/core";
 import "@vexnor/sqlite3";
 import { db, SQLITE_PATH } from "./config.js";
 
@@ -157,8 +157,8 @@ describe.sequential("e2e typeorm/sqlite — EntitySchema", () => {
       const accountId = randomUUID();
       await sql`
          INSERT INTO ${Account}
-            ${Account.insertColsVals({ accountId, email: `${TAG}-sql@example.com`, firstName: "SqlTypeORM", lastName: "Test" })}
-      `.sqlite.run({ db });
+            ${insert(Account, "rows")}
+      `.sqlite.run({ db, params: { rows: [{ accountId, email: `${TAG}-sql@example.com`, firstName: "SqlTypeORM", lastName: "Test" }] } });
 
       const selected = await sql`
          SELECT ${row(Account.$$)} FROM ${Account}
@@ -179,17 +179,6 @@ describe.sequential("e2e typeorm/sqlite — EntitySchema", () => {
       ok(account, "account not inserted");
       expect(account.email).toBe(`${TAG}@example.com`);
       expect(account.accountId).toBeDefined();
-   });
-
-   test("crud: findById", async () => {
-      const result = await Account.sqlite.findById().any({ db, params: { accountId: account.accountId } });
-      expect(result?.accountId).toBe(account.accountId);
-      expect(result?.email).toBe(account.email);
-   });
-
-   test("crud: findBy", async () => {
-      const result = await Account.sqlite.findBy().any({ db, params: { email: account.email } });
-      expect(result?.accountId).toBe(account.accountId);
    });
 
    test("crud: select with WHERE", async () => {
@@ -223,7 +212,6 @@ describe.sequential("e2e typeorm/sqlite — EntitySchema", () => {
       const upserted = await Account.sqlite
          .upsert({
             CONFLICT_ON: [Account.$accountId],
-            SET: sql`${Account.$firstName} = ${excluded(Account).$firstName}`,
          })
          .one({
             db,
@@ -258,8 +246,8 @@ describe.sequential("e2e typeorm/sqlite — decorator entity", () => {
       const accountId = randomUUID();
       await sql`
          INSERT INTO ${Account}
-            ${Account.insertColsVals({ accountId, email: `${TAG}-sql@example.com`, firstName: "SqlDecorator", lastName: "Test" })}
-      `.sqlite.run({ db });
+            ${insert(Account, "rows")}
+      `.sqlite.run({ db, params: { rows: [{ accountId, email: `${TAG}-sql@example.com`, firstName: "SqlDecorator", lastName: "Test" }] } });
 
       const selected = await sql`
          SELECT ${row(Account.$$)} FROM ${Account}
@@ -280,11 +268,6 @@ describe.sequential("e2e typeorm/sqlite — decorator entity", () => {
       ok(account, "account not inserted");
       expect(account.email).toBe(`${TAG}@example.com`);
       expect(account.accountId).toBeDefined();
-   });
-
-   test("crud: findById", async () => {
-      const result = await Account.sqlite.findById().any({ db, params: { accountId: account.accountId } });
-      expect(result?.accountId).toBe(account.accountId);
    });
 
    test("crud: update", async () => {

@@ -6,6 +6,8 @@
       "declaration": true,
       "declarationMap": true,
       "target": "ESNext",
+      "lib": ["ESNext"],
+      "composite": true,
       "paths": {
          "@test-models/*": ["./src/test/models/*"],
          "#/*": ["./src/*"]

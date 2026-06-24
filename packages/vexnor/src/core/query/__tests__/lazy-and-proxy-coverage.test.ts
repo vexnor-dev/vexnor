@@ -7,8 +7,6 @@ import { SqlQuery } from "#/core/query/sql-query.js";
 import { Order } from "@test-models/vexnor_dev.order-table.js";
 import { val } from "#/core/query/sql-select-value.js";
 import { info } from "#/core/charms/sql-query-info.js";
-import { expand } from "#/core/query/sql-expand.js";
-import { raw } from "#/core/query/sql-raw.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
 
 /**
@@ -50,37 +48,6 @@ describe("SqlQuery — force all lazy evaluations", () => {
       const query = sql`SELECT ${row(Account.$accountId)} FROM ${Account}`;
       const hash = await query.hash;
       expect(hash).toMatch(/^[a-f0-9]{64}$/);
-   });
-
-   test("subquery: innerQueries and authorization inheritance", () => {
-      const inner = sql`SELECT ${row(Order.$$)} FROM ${Order}`.authorize("user");
-      const outer = sql`SELECT * FROM (${inner})`;
-      expect(outer.innerQueries.length).toBeGreaterThan(0);
-      expect(outer.authorization).toContain("user");
-   });
-
-   test("query with val: row includes SelectValue", () => {
-      const query = sql`SELECT ${row(Account.$accountId, val`count(*)`.as<{ cnt: number }>("cnt"))} FROM ${Account}`;
-      expect(query.row).toBeDefined();
-      expect(query.row.$cnt).toBeDefined();
-   });
-
-   test("query $$ on query with row", () => {
-      const query = sql`SELECT ${row(Account.$accountId, Account.$email)} FROM ${Account}`;
-      const selectAll = query.$$;
-      expect(selectAll).toBeDefined();
-      expect(selectAll.row).toBeDefined();
-   });
-
-   test("query without row: $$ is null", () => {
-      const query = sql`SELECT 1`;
-      expect(query.$$).toBeNull();
-   });
-
-   test("query with expand: params include expand params", () => {
-      const query = sql`SELECT ${row(Account.$accountId)} FROM ${Account} WHERE ${Account.$accountId} IN (${expand<{ ids: string[] }>({ ids: null }, ({ ids }) => ids.map(id => raw(id)))})`;
-      expect(query.params).toBeDefined();
-      expect(query.params!.ids).toBeDefined();
    });
 
    test("out lazy: SqlQueryRef with out=true", () => {
@@ -257,5 +224,32 @@ describe("SqlBuildContext — remaining uncovered methods", () => {
       const context = new SqlBuildContext({ dialect: "sql" });
       context.next("SELECT row_number() over(");
       context.next("order by id)");
+   });
+});
+
+describe("SqlQuery — subqueries and $$ access", () => {
+   test("subquery: innerQueries and authorization inheritance", () => {
+      const inner = sql`SELECT ${row(Order.$$)} FROM ${Order}`.authorize("user");
+      const outer = sql`SELECT * FROM (${inner})`;
+      expect(outer.innerQueries.length).toBeGreaterThan(0);
+      expect(outer.authorization).toContain("user");
+   });
+
+   test("query with val: row includes SelectValue", () => {
+      const query = sql`SELECT ${row(Account.$accountId, val`count(*)`.as<{ cnt: number }>("cnt"))} FROM ${Account}`;
+      expect(query.row).toBeDefined();
+      expect(query.row.$cnt).toBeDefined();
+   });
+
+   test("query $$ on query with row", () => {
+      const query = sql`SELECT ${row(Account.$accountId, Account.$email)} FROM ${Account}`;
+      const selectAll = query.$$;
+      expect(selectAll).toBeDefined();
+      expect(selectAll!.row).toBeDefined();
+   });
+
+   test("query without row: $$ is null", () => {
+      const query = sql`SELECT 1`;
+      expect(query.$$).toBeNull();
    });
 });

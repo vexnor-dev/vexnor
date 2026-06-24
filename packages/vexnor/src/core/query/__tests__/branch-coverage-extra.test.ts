@@ -1,10 +1,10 @@
 import { describe, expect, test } from "vitest";
 import { sql } from "#/core/sql.js";
 import { row } from "#/core/query/sql-select-row.js";
+import { insert } from "#/core/operators/sql-insert-x.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
 import { AccountStatusUdt } from "@test-models/vexnor_dev-enums.js";
 import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { expand } from "#/core/query/sql-expand.js";
 import { newSqlTable } from "#/core/schema/sql-table.js";
 import { excluded } from "#/core/schema/sql-excluded.js";
 
@@ -121,9 +121,9 @@ describe("More branch coverage — sql-table-column write formats", () => {
 
    test("excluded column uses rawAlias.columnName format", () => {
       const excl = excluded(Account);
-      const query = sql`INSERT INTO ${Account} ${Account.insertColsVals({ accountId: "1", email: "a@b.com", firstName: "A", lastName: "B", status: AccountStatusUdt.CREATED })} ON CONFLICT DO UPDATE SET ${excl.$email}`;
+      const query = sql`INSERT INTO ${Account} ${insert(Account, "rows")} ON CONFLICT DO UPDATE SET ${excl.$email}`;
       const context = new SqlBuildContext({ dialect: "sql" });
-      query.build(context, null, { queryType: "main" });
+      query.build(context, null, { queryType: "main", params: { rows: [{ accountId: "1", email: "a@b.com", firstName: "A", lastName: "B", status: AccountStatusUdt.CREATED }] } });
       const text = context.tokens.filter(t => t.type === "text").map(t => t.value).join("");
       expect(text).toContain("EXCLUDED");
    });
@@ -138,19 +138,6 @@ describe("More branch coverage — sql-query initRow with SqlSelectAll from subq
    });
 });
 
-describe("More branch coverage — expand returning SqlQuery", () => {
-   test("expand handler returns SqlQuery directly", () => {
-      const e = expand<{ active: boolean }>(
-         { active: null },
-         ({ active }) => active ? sql`WHERE status = ${"active"}` : null,
-      );
-      const context = new SqlBuildContext({ dialect: "sql", params: { active: true } });
-      e.build(context);
-      const text = context.tokens.filter(t => t.type === "text").map(t => t.value).join("");
-      expect(text).toContain("WHERE");
-   });
-});
-
 describe("More branch coverage — sql-query-handler default mode arg", () => {
    test("SqlQuery.getSql uses inferred dialect from table", () => {
       const query = sql`SELECT ${row(Account.$accountId)} FROM ${Account}`;
@@ -160,21 +147,4 @@ describe("More branch coverage — sql-query-handler default mode arg", () => {
    });
 });
 
-describe("More branch coverage — charms table-update-set with object value throws", () => {
-   test("updateSet throws on object value", () => {
-      expect(() => {
-         Account.updateSet({ email: { nested: true } } as never);
-         const query = sql`UPDATE ${Account} SET ${Account.updateSet({ email: { nested: true } } as never)}`;
-         const context = new SqlBuildContext({ dialect: "sql" });
-         query.build(context, null, { queryType: "main" });
-      }).toThrow();
-   });
 
-   test("updateSet throws on function value", () => {
-      expect(() => {
-         const query = sql`UPDATE ${Account} SET ${Account.updateSet({ email: (() => {}) } as never)}`;
-         const context = new SqlBuildContext({ dialect: "sql" });
-         query.build(context, null, { queryType: "main" });
-      }).toThrow();
-   });
-});

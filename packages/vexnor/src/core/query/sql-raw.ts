@@ -45,7 +45,7 @@ export function quote(value: string): Sql {
    return new SqlRaw(value, { quote: true });
 }
 
-/** Empty SQL fragment — emits nothing. Useful as a no-op placeholder in `expand()` handlers. */
+/** Empty SQL fragment — emits nothing. Useful as a no-op placeholder. */
 raw.BLANK = new SqlRaw("", { quote: false });
 
 /** A single space SQL fragment. */

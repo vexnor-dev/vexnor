@@ -5,7 +5,7 @@ import { Product, IProductInsert, IProductSelect } from "./codegen/vexnor_dev.pr
 import { sql } from "@vexnor/mssql";
 import assert, { ok } from "node:assert";
 import { getTag } from "./tags.js";
-import { row, SqlQueryAny } from "@vexnor/core";
+import { insert, row, SqlQueryAny } from "@vexnor/core";
 import { expect } from "vitest";
 import { ConnectionPool } from "mssql";
 import "@vexnor/mssql";
@@ -53,11 +53,12 @@ export class TestDataManager {
       }
       const accounts = await sql`
             insert into ${Account}
-               ${Account.insertCols(...accountInserts)}
+               (${insert.cols(Account, "rows")})
                output ${row(Account.as(`inserted`).$$)}
-               ${Account.insertVals(...accountInserts)}
+               VALUES ${insert.values(Account, "rows")}
          `.mssql.all({
          db: pool.request(),
+         params: { rows: accountInserts },
          options: {
             debug: (data) => {
                console.log(data.text);
@@ -91,10 +92,10 @@ export class TestDataManager {
             };
             const account = await sql`
                insert into ${Account}
-                  ${Account.insertCols(accountInsert)}
+                  (${insert.cols(Account, "rows")})
                   output ${row(Account.as(`inserted`).$$)}
-                  ${Account.insertVals(accountInsert)}
-            `.mssql.one({ db: pool.request() });
+                  VALUES ${insert.values(Account, "rows")}
+            `.mssql.one({ db: pool.request(), params: { rows: [accountInsert] } });
             expect(account).toEqual(
                expect.objectContaining({
                   status: "CREATED",
@@ -116,10 +117,10 @@ export class TestDataManager {
       }));
       const inserted = await sql`
          insert into ${Product}
-            ${Product.insertCols(...inserts)}
+            (${insert.cols(Product, "rows")})
             output ${row(Product.as(`inserted`).$$)}
-            ${Product.insertVals(...inserts)}
-      `.mssql.all({ db: pool.request() });
+            VALUES ${insert.values(Product, "rows")}
+      `.mssql.all({ db: pool.request(), params: { rows: inserts } });
       ok(inserted?.length, "products not inserted");
       this.products.push(...inserted);
    }
@@ -134,10 +135,10 @@ export class TestDataManager {
          }));
          const inserted = await sql`
             insert into ${Order}
-               ${Order.insertCols(...inserts)}
+               (${insert.cols(Order, "rows")})
                output ${row(Order.as(`inserted`).$$)}
-               ${Order.insertVals(...inserts)}
-         `.mssql.all({ db: pool.request() });
+               VALUES ${insert.values(Order, "rows")}
+         `.mssql.all({ db: pool.request(), params: { rows: inserts } });
          ok(inserted?.length, "orders not inserted");
          this.orders.push(...inserted);
       }
@@ -153,10 +154,10 @@ export class TestDataManager {
          }));
          const inserted = await sql`
             insert into ${OrderItem}
-               ${OrderItem.insertCols(...inserts)}
+               (${insert.cols(OrderItem, "rows")})
                output ${row(OrderItem.as(`inserted`).$$)}
-               ${OrderItem.insertVals(...inserts)}
-         `.mssql.all({ db: pool.request() });
+               VALUES ${insert.values(OrderItem, "rows")}
+         `.mssql.all({ db: pool.request(), params: { rows: inserts } });
          ok(inserted?.length, "order items not inserted");
          this.orderItems.push(...inserted);
       }
