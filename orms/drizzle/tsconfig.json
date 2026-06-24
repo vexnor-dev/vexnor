@@ -7,11 +7,19 @@
       "declarationMap": true,
       "composite": true,
       "paths": {
-         "#/*": ["./src/*"]
-      }
+         "#/*": [
+            "./src/*"
+         ]
+      },
+      "stripInternal": true
    },
-   "include": ["src/**/*"],
-   "exclude": ["dist", "node_modules"],
+   "include": [
+      "src/**/*"
+   ],
+   "exclude": [
+      "dist",
+      "node_modules"
+   ],
    "references": [
       {
          "path": "../../packages/vexnor"
