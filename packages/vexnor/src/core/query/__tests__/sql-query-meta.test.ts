@@ -93,12 +93,12 @@ describe("QueryMeta via getQueryMeta()", () => {
       expect(result!.duration).toBe(5);
    });
 
-   it("meta is accessible via __vexnor_meta__ fallback when WeakMap is unavailable", () => {
+   it("meta is accessible via Symbol fallback when WeakMap is unavailable", () => {
       const obj = { rows: [] };
       setQueryMeta(obj, { sql: "SELECT 2", params: [1], duration: 10 });
 
-      // Simulate a different WeakMap (bundler duplication) by reading the property directly
-      const meta = (obj as Record<string, unknown>)["__vexnor_meta__"] as { sql: string; params: unknown[]; duration: number };
+      // Simulate a different WeakMap (bundler duplication) by reading the symbol directly
+      const meta = Object.getOwnPropertyDescriptor(obj, Symbol.for("vexnor.queryMeta"))?.value as { sql: string; params: unknown[]; duration: number };
       expect(meta).toBeDefined();
       expect(meta.sql).toBe("SELECT 2");
       expect(meta.params).toEqual([1]);

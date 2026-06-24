@@ -1,7 +1,7 @@
 import type { QueryMeta } from "#/core/query/sql-query-types.js";
 
 const store = new WeakMap<object, QueryMeta>();
-const META_KEY = "__vexnor_meta__";
+const META_SYM = Symbol.for("vexnor.queryMeta");
 
 /**
  * Stores query execution metadata keyed by the result object.
@@ -10,7 +10,7 @@ const META_KEY = "__vexnor_meta__";
 export function setQueryMeta(result: unknown, meta: QueryMeta): void {
    if (result && typeof result === "object") {
       store.set(result as object, meta);
-      Object.defineProperty(result, META_KEY, { value: meta, enumerable: false, configurable: true, writable: true });
+      Object.defineProperty(result, META_SYM, { value: meta, configurable: true, writable: true });
    }
 }
 
@@ -20,7 +20,7 @@ export function setQueryMeta(result: unknown, meta: QueryMeta): void {
  */
 export function getQueryMeta(result: unknown): QueryMeta | undefined {
    if (result && typeof result === "object") {
-      return store.get(result as object) ?? (result as Record<string, unknown>)[META_KEY] as QueryMeta | undefined;
+      return store.get(result as object) ?? Object.getOwnPropertyDescriptor(result, META_SYM)?.value as QueryMeta | undefined;
    }
    return undefined;
 }
