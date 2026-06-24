@@ -3,25 +3,19 @@
    "compilerOptions": {
       "rootDir": ".",
       "outDir": "dist",
-      "types": ["node"],
+      "types": [
+         "node"
+      ],
       "paths": {
-         "#/*": ["./server/src/*"],
-         "#shared/*": ["./shared/*"]
+         "#/*": [
+            "./server/src/*"
+         ],
+         "#shared/*": [
+            "./shared/*"
+         ]
       }
    },
-   "include": ["server"],
-   "references": [
-      {
-         "path": "../../packages/vexnor"
-      },
-      {
-         "path": "../../plugins/mssql"
-      },
-      {
-         "path": "../../plugins/postgres"
-      },
-      {
-         "path": "../../plugins/sqlite3"
-      }
+   "include": [
+      "server"
    ]
 }

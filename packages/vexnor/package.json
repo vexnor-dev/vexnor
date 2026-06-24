@@ -6,9 +6,6 @@
   "main": "./dist/core/index.js",
   "types": "./dist/core/index.d.ts",
   "module": "./dist/core/index.js",
-  "imports": {
-    "#/*": "./dist/*"
-  },
   "exports": {
     ".": {
       "types": "./dist/core/core.d.ts",

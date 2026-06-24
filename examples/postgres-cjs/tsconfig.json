@@ -3,18 +3,9 @@
    "compilerOptions": {
       "rootDir": "./src",
       "outDir": "./dist",
-      "composite": false,
       "target": "es2016",
       "module": "preserve",
       "moduleResolution": "bundler",
       "esModuleInterop": true
-   },
-   "references": [
-      {
-         "path": "../../packages/vexnor"
-      },
-      {
-         "path": "../../plugins/postgres"
-      }
-   ]
+   }
 }

@@ -1,9 +1,9 @@
-import { getViewConfig, type MsSqlView } from "drizzle-orm/mssql-core";
+import { getViewConfig, type MsSqlView, type MsSqlViewWithSelection } from "drizzle-orm/mssql-core";
 import { Column } from "drizzle-orm";
 import { newSqlTable, type SqlTableExtended } from "@vexnor/core";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AnyMsSqlView = MsSqlView<string, boolean, Record<string, any>>;
+type AnyMsSqlView = MsSqlView<string, boolean, Record<string, any>> | MsSqlViewWithSelection<any, any, any>;
 
 type FromDrizzleViewResult<T extends AnyMsSqlView> = T extends {
    $inferSelect: Record<string, unknown>;
@@ -30,7 +30,7 @@ export function fromDrizzleView<T extends AnyMsSqlView>(
    view: T,
    schema?: string,
 ): FromDrizzleViewResult<T> {
-   const config = getViewConfig(view);
+   const config = getViewConfig(view as MsSqlView<string, boolean, Record<string, any>>);
 
    if (!config.name) {
       throw new Error(

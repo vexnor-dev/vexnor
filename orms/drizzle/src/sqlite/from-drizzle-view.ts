@@ -1,9 +1,9 @@
-import { getViewConfig, type SQLiteView } from "drizzle-orm/sqlite-core";
+import { getViewConfig, type SQLiteView, type SQLiteViewWithSelection } from "drizzle-orm/sqlite-core";
 import { Column } from "drizzle-orm";
 import { newSqlTable, type SqlTableExtended } from "@vexnor/core";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AnySQLiteView = SQLiteView<string, boolean, Record<string, any>>;
+type AnySQLiteView = SQLiteView<string, boolean, Record<string, any>> | SQLiteViewWithSelection<any, any, any>;
 
 type FromDrizzleViewResult<T extends AnySQLiteView> = T extends {
    $inferSelect: Record<string, unknown>;
@@ -31,7 +31,7 @@ export function fromDrizzleView<T extends AnySQLiteView>(
    view: T,
    schema?: string,
 ): FromDrizzleViewResult<T> {
-   const config = getViewConfig(view);
+   const config = getViewConfig(view as SQLiteView<string, boolean, Record<string, any>>);
 
    if (!config.name) {
       throw new Error(
