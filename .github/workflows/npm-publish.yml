@@ -3,6 +3,20 @@ name: Publish Package to NPM
 on:
   release:
     types: [created]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run — detect changes and report without publishing'
+        required: true
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+      tag:
+        description: 'Tag to compare against (e.g. v1.0.0-beta.2). Uses latest tag if empty.'
+        required: false
+        type: string
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -98,7 +112,12 @@ jobs:
 
       - name: Prepare publishable packages
         run: |
-          VERSION=${GITHUB_REF#refs/tags/v}
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ inputs.tag || '0.0.0-dry-run' }}"
+            VERSION="${VERSION#v}"
+          else
+            VERSION=${GITHUB_REF#refs/tags/v}
+          fi
           echo "Setting version $VERSION on all packages"
 
           # Copy docs into @vexnor/core package
@@ -169,7 +188,7 @@ jobs:
   publish:
     needs: build-and-test
     runs-on: ubuntu-latest
-    environment: production
+    environment: ${{ (github.event_name == 'workflow_dispatch' && inputs.dry_run == 'true') && '' || 'production' }}
     permissions:
       contents: read
       id-token: write
@@ -195,6 +214,7 @@ jobs:
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           path: _source
+          fetch-depth: 0
 
       - name: Verify artifact integrity
         run: |
@@ -259,7 +279,19 @@ jobs:
       - name: Determine npm tag
         id: version
         run: |
-          VERSION=${GITHUB_REF#refs/tags/v}
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            # Use provided tag or latest tag
+            if [ -n "${{ inputs.tag }}" ]; then
+              VERSION="${{ inputs.tag }}"
+              VERSION="${VERSION#v}"
+            else
+              VERSION=$(cd _source && git describe --tags --abbrev=0)
+              VERSION="${VERSION#v}"
+            fi
+          else
+            VERSION=${GITHUB_REF#refs/tags/v}
+          fi
+
           if [[ "$VERSION" == *"-alpha"* ]]; then
             NPM_TAG="alpha"
           elif [[ "$VERSION" == *"-beta"* ]]; then
@@ -270,9 +302,11 @@ jobs:
             NPM_TAG="latest"
           fi
           echo "npm_tag=$NPM_TAG" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Publishing $VERSION with tag: $NPM_TAG"
 
       - name: Generate CHANGELOG.md from release notes
+        if: github.event_name == 'release'
         env:
           RELEASE_BODY: ${{ github.event.release.body }}
           RELEASE_URL: ${{ github.event.release.html_url }}
@@ -287,17 +321,78 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
         run: |
           NPM_TAG="${{ steps.version.outputs.npm_tag }}"
+          DRY_RUN="${{ inputs.dry_run || 'false' }}"
 
-          # Core first (others depend on it)
-          npm publish --ignore-scripts ./packages/vexnor --access public --tag "$NPM_TAG" --provenance
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ inputs.tag }}" ]; then
+            CURRENT_TAG="${{ inputs.tag }}"
+          elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            CURRENT_TAG=$(cd _source && git describe --tags --abbrev=0)
+          else
+            CURRENT_TAG="${GITHUB_REF#refs/tags/}"
+          fi
 
-          # Plugins
-          npm publish --ignore-scripts ./plugins/postgres --access public --tag "$NPM_TAG" --provenance
-          npm publish --ignore-scripts ./plugins/mssql --access public --tag "$NPM_TAG" --provenance
-          npm publish --ignore-scripts ./plugins/sqlite3 --access public --tag "$NPM_TAG" --provenance
+          # Find previous tag
+          PREV_TAG=$(cd _source && git tag --sort=-creatordate | grep -v "^${CURRENT_TAG}$" | head -1)
+          echo "Comparing $PREV_TAG...$CURRENT_TAG"
 
-          # ORMs
-          npm publish --ignore-scripts ./orms/prisma --access public --tag "$NPM_TAG" --provenance
-          npm publish --ignore-scripts ./orms/drizzle --access public --tag "$NPM_TAG" --provenance
-          npm publish --ignore-scripts ./orms/typeorm --access public --tag "$NPM_TAG" --provenance
-          npm publish --ignore-scripts ./orms/sequelize --access public --tag "$NPM_TAG" --provenance
+          if [ "$DRY_RUN" = "true" ]; then
+            echo "🏃 DRY RUN — no packages will be published"
+            echo "### 🏃 Dry Run Report" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### Publish Report" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          PUBLISHED=""
+          SKIPPED=""
+
+          publish_if_changed() {
+            local pkg_dir="$1"
+
+            # If no previous tag exists, publish everything
+            if [ -z "$PREV_TAG" ]; then
+              if [ "$DRY_RUN" = "true" ]; then
+                echo "✅ $pkg_dir — WOULD publish (no previous tag)"
+              else
+                npm publish --ignore-scripts "./$pkg_dir" --access public --tag "$NPM_TAG" --provenance
+              fi
+              PUBLISHED="${PUBLISHED}  ✅ $pkg_dir\n"
+              return
+            fi
+
+            if [ -n "$(cd _source && git diff --name-only "$PREV_TAG...$CURRENT_TAG" -- "$pkg_dir")" ]; then
+              if [ "$DRY_RUN" = "true" ]; then
+                echo "✅ $pkg_dir — WOULD publish"
+              else
+                npm publish --ignore-scripts "./$pkg_dir" --access public --tag "$NPM_TAG" --provenance
+              fi
+              PUBLISHED="${PUBLISHED}  ✅ $pkg_dir\n"
+            else
+              echo "⏭️  $pkg_dir — skipped (no changes)"
+              SKIPPED="${SKIPPED}  ⏭️ $pkg_dir (no changes)\n"
+            fi
+          }
+
+          publish_if_changed "packages/vexnor"
+          publish_if_changed "plugins/postgres"
+          publish_if_changed "plugins/mssql"
+          publish_if_changed "plugins/sqlite3"
+          publish_if_changed "orms/prisma"
+          publish_if_changed "orms/drizzle"
+          publish_if_changed "orms/typeorm"
+          publish_if_changed "orms/sequelize"
+
+          # Report
+          echo ""
+          echo "### Publish Report" >> $GITHUB_STEP_SUMMARY
+          if [ -n "$PUBLISHED" ]; then
+            echo "**Published:**" >> $GITHUB_STEP_SUMMARY
+            printf "$PUBLISHED" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ -n "$SKIPPED" ]; then
+            echo "**Skipped (no changes since $PREV_TAG):**" >> $GITHUB_STEP_SUMMARY
+            printf "$SKIPPED" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ -z "$PUBLISHED" ]; then
+            echo "⚠️ No packages were published — no changes detected since $PREV_TAG"
+            echo "⚠️ No packages were published" >> $GITHUB_STEP_SUMMARY
+          fi

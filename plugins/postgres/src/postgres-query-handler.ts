@@ -2,13 +2,13 @@ import {
    deserialize,
    getQueryName,
    ok,
+   type QueryMeta,
    RemoteClient,
    SqlErrorCode,
    SqlQuery,
    SqlQueryHandler,
    SqlRunArgs,
    SqlRunError,
-   type QueryMeta,
 } from "@vexnor/core";
 import type { QueryResult } from "pg";
 import { PostgresTokenizer } from "#/postgres-tokenizer.js";
@@ -82,7 +82,7 @@ export class PostgresQueryHandler<T extends { Row?: unknown; Params?: unknown }>
 
    serialize<TResult extends QueryResult<RowOrDefault<T["Row"]>> = QueryResult<RowOrDefault<T["Row"]>>>(value: TResult): TResult {
       const { rows, rowCount, command, oid } = value;
-      return { rows, rowCount, command, oid } as unknown as TResult;
+      return { rows, rowCount, command, oid } as TResult;
    }
 
    /**
@@ -93,6 +93,8 @@ export class PostgresQueryHandler<T extends { Row?: unknown; Params?: unknown }>
     * `QueryResult` object (e.g. `rowCount`, `fields`).
     *
     * @param args - Database connection and query parameters.
+    * @param _mode
+    * @param meta
     */
    async execute(
       args: SqlRunArgs<{ Connection: PostgresClient; Params: T["Params"] }>,

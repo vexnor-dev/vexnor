@@ -67,7 +67,7 @@ export abstract class SqlQueryHandler<
     */
    abstract execute(
       args: SqlRunArgs<Pick<T, "Connection" | "Params">>,
-      mode?: SqlExecuteMode,
+      mode?: SqlExecuteMode | null,
       meta?: QueryMeta,
    ): Promise<typeof mode extends "write" ? T["Write"] : T["Read"]>;
 
