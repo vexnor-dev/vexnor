@@ -104,6 +104,17 @@ public class SqlBuilderFilterOperatorTests
     }
 
     [Fact]
+    public void Filter_Between_EmptyArray_Produces_IsNull()
+    {
+        var result = _builder.Build(MakeFilterQuery(), new()
+        {
+            ["filter"] = new object?[] { new Dictionary<string, object?> { ["age"] = new object?[] { "between" } } }
+        });
+        Assert.Contains("\"age\" is null", result.Text);
+        Assert.Empty(result.Values);
+    }
+
+    [Fact]
     public void Filter_In_Operator()
     {
         var result = _builder.Build(MakeFilterQuery(), new()
@@ -116,13 +127,13 @@ public class SqlBuilderFilterOperatorTests
     }
 
     [Fact]
-    public void Filter_In_EmptyArray_Produces_FalseCondition()
+    public void Filter_In_EmptyArray_Produces_IsNull()
     {
         var result = _builder.Build(MakeFilterQuery(), new()
         {
             ["filter"] = new object?[] { new Dictionary<string, object?> { ["status"] = new object?[] { "in" } } }
         });
-        Assert.Contains("1 = 0", result.Text);
+        Assert.Contains("\"status\" is null", result.Text);
     }
 
     [Fact]
@@ -136,13 +147,13 @@ public class SqlBuilderFilterOperatorTests
     }
 
     [Fact]
-    public void Filter_NotIn_EmptyArray_Produces_TrueCondition()
+    public void Filter_NotIn_EmptyArray_Produces_IsNotNull()
     {
         var result = _builder.Build(MakeFilterQuery(), new()
         {
             ["filter"] = new object?[] { new Dictionary<string, object?> { ["status"] = new object?[] { "notIn" } } }
         });
-        Assert.Contains("1 = 1", result.Text);
+        Assert.Contains("\"status\" is not null", result.Text);
     }
 
     [Fact]

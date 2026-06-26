@@ -154,9 +154,9 @@ Each condition value is either a **bare value** (equality) or a **tuple** `[oper
 | `>=` | `[">=", value]` | `"col" >= $1` |
 | `<` | `["<", value]` | `"col" < $1` |
 | `<=` | `["<=", value]` | `"col" <= $1` |
-| `between` | `["between", low, high]` | `"col" BETWEEN $1 AND $2` |
-| `in` | `["in", v1, v2, ...]` | `"col" IN ($1, $2, ...)` |
-| `notIn` | `["notIn", v1, v2, ...]` | `"col" NOT IN ($1, $2, ...)` |
+| `between` | `["between", low, high]` | `"col" BETWEEN $1 AND $2` (empty: `"col" IS NULL`) |
+| `in` | `["in", v1, v2, ...]` | `"col" IN ($1, $2, ...)` (empty: `"col" IS NULL`) |
+| `notIn` | `["notIn", v1, v2, ...]` | `"col" NOT IN ($1, $2, ...)` (empty: `"col" IS NOT NULL`) |
 | `like` | `["like", pattern]` | `"col" LIKE $1` |
 | `notLike` | `["notLike", pattern]` | `"col" NOT LIKE $1` |
 | `isNull` | `["isNull"]` | `"col" IS NULL` |
@@ -249,7 +249,9 @@ params: {
 // → WHERE "account_id" NOT IN ($1, $2)
 ```
 
-Empty `in` emits `1 = 0` (always false). Empty `notIn` emits `1 = 1` (no-op).
+Empty `in` emits `"col" IS NULL`. Empty `notIn` emits `"col" IS NOT NULL`. Empty `between` emits `"col" IS NULL`.
+
+Array-receiving operators treat empty argument lists as null checks — this is consistent with the semantic intent that "no values provided" means "value is absent (null)".
 
 ### NULL Checks
 

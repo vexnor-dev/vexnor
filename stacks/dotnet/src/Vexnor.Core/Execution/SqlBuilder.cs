@@ -315,13 +315,14 @@ public sealed class SqlBuilder
                 sql.Add(colSql); sql.Add(" <= "); sql.Add(FormatParam()); values.Add(args[0]);
                 break;
             case "between":
+                if (args.Length == 0) { sql.Add(colSql); sql.Add(" is null"); break; }
                 sql.Add(colSql); sql.Add(" between "); sql.Add(FormatParam()); values.Add(args[0]);
                 sql.Add(" and "); sql.Add(FormatParam()); values.Add(args[1]);
                 break;
             case "in":
             {
                 var list = args.Length > 0 && args[0] is object?[] arr ? arr : args;
-                if (list.Length == 0) { sql.Add("1 = 0"); break; }
+                if (list.Length == 0) { sql.Add(colSql); sql.Add(" is null"); break; }
                 sql.Add(colSql); sql.Add(" in (");
                 for (int i = 0; i < list.Length; i++)
                 {
@@ -334,7 +335,7 @@ public sealed class SqlBuilder
             case "notIn":
             {
                 var list = args.Length > 0 && args[0] is object?[] arr ? arr : args;
-                if (list.Length == 0) { sql.Add("1 = 1"); break; }
+                if (list.Length == 0) { sql.Add(colSql); sql.Add(" is not null"); break; }
                 sql.Add(colSql); sql.Add(" not in (");
                 for (int i = 0; i < list.Length; i++)
                 {

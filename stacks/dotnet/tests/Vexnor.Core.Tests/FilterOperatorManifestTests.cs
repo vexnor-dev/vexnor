@@ -89,6 +89,13 @@ public class FilterOperatorManifestTests
     }
 
     [Fact]
+    public void Op_Between_EmptyArray()
+    {
+        var result = Build(new object?[] { new Dictionary<string, object?> { ["createdAt"] = new object?[] { "between" } } });
+        Assert.Contains("\"created_at\" is null", result.Text);
+    }
+
+    [Fact]
     public void Op_In()
     {
         var result = Build(new object?[] { new Dictionary<string, object?> { ["status"] = new object?[] { "in", "created", "confirmed" } } });
@@ -101,7 +108,7 @@ public class FilterOperatorManifestTests
     public void Op_In_EmptyArray()
     {
         var result = Build(new object?[] { new Dictionary<string, object?> { ["status"] = new object?[] { "in" } } });
-        Assert.Contains("1 = 0", result.Text);
+        Assert.Contains("\"status\" is null", result.Text);
     }
 
     [Fact]
@@ -115,7 +122,7 @@ public class FilterOperatorManifestTests
     public void Op_NotIn_EmptyArray()
     {
         var result = Build(new object?[] { new Dictionary<string, object?> { ["status"] = new object?[] { "notIn" } } });
-        Assert.Contains("1 = 1", result.Text);
+        Assert.Contains("\"status\" is not null", result.Text);
     }
 
     [Fact]

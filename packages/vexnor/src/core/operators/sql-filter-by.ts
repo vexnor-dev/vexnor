@@ -268,17 +268,23 @@ export class SqlFilterBy<T extends { Select: Record<string, unknown> }, ParamNam
             break;
          case "between":
             col.build(context);
+            if (!args.length) {
+               context.addStrings(" is null");
+               break;
+            }
+
             context.addStrings(" between ");
             context.addValues(args[0]);
             context.addStrings(" and ");
             context.addValues(args[1]);
             break;
          case "in": {
+            col.build(context);
             if (!args.length) {
-               context.addStrings("1 = 0");
+               context.addStrings(" is null");
                break;
             }
-            col.build(context);
+
             context.addStrings(" in (");
             for (let i = 0; i < args.length; i++) {
                if (i > 0) context.addStrings(", ");
@@ -288,11 +294,12 @@ export class SqlFilterBy<T extends { Select: Record<string, unknown> }, ParamNam
             break;
          }
          case "notIn": {
+            col.build(context);
             if (!args.length) {
-               context.addStrings("1 = 1");
+               context.addStrings(" is not null");
                break;
             }
-            col.build(context);
+
             context.addStrings(" not in (");
             for (let i = 0; i < args.length; i++) {
                if (i > 0) context.addStrings(", ");
