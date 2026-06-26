@@ -126,9 +126,9 @@ The .NET SDK supports the same operators as Node.js:
 | `>=` | `[">=", value]` | `"col" >= $1` |
 | `<` | `["<", value]` | `"col" < $1` |
 | `<=` | `["<=", value]` | `"col" <= $1` |
-| `between` | `["between", low, high]` | `"col" BETWEEN $1 AND $2` |
-| `in` | `["in", v1, v2, ...]` | `"col" IN ($1, $2, ...)` |
-| `notIn` | `["notIn", v1, v2, ...]` | `"col" NOT IN ($1, $2, ...)` |
+| `between` | `["between", low, high]` | `"col" BETWEEN $1 AND $2` (empty: `"col" IS NULL`) |
+| `in` | `["in", v1, v2, ...]` | `"col" IN ($1, $2, ...)` (empty: `"col" IS NULL`) |
+| `notIn` | `["notIn", v1, v2, ...]` | `"col" NOT IN ($1, $2, ...)` (empty: `"col" IS NOT NULL`) |
 | `like` | `["like", pattern]` | `"col" LIKE $1` |
 | `notLike` | `["notLike", pattern]` | `"col" NOT LIKE $1` |
 | `isNull` | `["isNull"]` | `"col" IS NULL` |

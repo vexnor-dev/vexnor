@@ -304,6 +304,29 @@ describe("SqlFilter — extended operators", () => {
            ]
          `);
       });
+
+      test("between with empty args emits is null", () => {
+         const { text, values } = buildFilter({ createdAt: ["between"] });
+         expect(text).toMatchInlineSnapshot(`
+           "/* <query_0> */
+           SELECT
+             "a_1"."account_id" AS "accountId",
+             "a_1"."status",
+             "a_1"."email",
+             "a_1"."first_name" AS "firstName",
+             "a_1"."last_name" AS "lastName",
+             "a_1"."notes",
+             "a_1"."created_at" AS "createdAt",
+             "a_1"."modified_at" AS "modifiedAt",
+             "a_1"."parent_id" AS "parentId"
+           FROM
+             "main"."account" AS "a_1"
+           WHERE
+             "a_1"."created_at" IS NULL
+             /* </query_0> */"
+         `);
+         expect(values).toMatchInlineSnapshot(`[]`);
+      });
    });
 
    describe("in operator", () => {
@@ -335,7 +358,7 @@ describe("SqlFilter — extended operators", () => {
          `);
       });
 
-      test("in with empty array emits 1=0", () => {
+      test("in with empty array emits is null", () => {
          const { text, values } = buildFilter({ status: ["in"] });
          expect(text).toMatchInlineSnapshot(`
            "/* <query_0> */
@@ -352,7 +375,7 @@ describe("SqlFilter — extended operators", () => {
            FROM
              "main"."account" AS "a_1"
            WHERE
-             1 = 0
+             "a_1"."status" IS NULL
              /* </query_0> */"
          `);
          expect(values).toMatchInlineSnapshot(`[]`);
@@ -388,7 +411,7 @@ describe("SqlFilter — extended operators", () => {
          `);
       });
 
-      test("notIn with empty array emits 1=1", () => {
+      test("notIn with empty array emits is not null", () => {
          const { text, values } = buildFilter({ status: ["notIn"] });
          expect(text).toMatchInlineSnapshot(`
            "/* <query_0> */
@@ -405,7 +428,7 @@ describe("SqlFilter — extended operators", () => {
            FROM
              "main"."account" AS "a_1"
            WHERE
-             1 = 1
+             "a_1"."status" IS NOT NULL
              /* </query_0> */"
          `);
          expect(values).toMatchInlineSnapshot(`[]`);
@@ -1081,5 +1104,37 @@ describe("SqlFilter — != operator", () => {
       // This test exposes the bug: != has no case in writeOp, so it produces no output
       expect(text).toContain("<>");
       expect(values).toContain("inactive");
+   });
+});
+
+describe("SqlFilterBy — serialize path (no params)", () => {
+   test("serializes to filter operator node with columns", async () => {
+      const { serializeQuery } = await import("#/core/serialize/serialize-query.js");
+      const query = sql`
+         SELECT ${row(Account.$$)}
+         FROM ${Account}
+         WHERE ${filterBy(Account, { paramName: "filter", prefix: "AND ", suffix: " AND 1=1" })}
+      `;
+      const result = await serializeQuery(query, "filterSerialize", "postgresql");
+      const filterNode = result.template.find((n: { type: string }) => n.type === "filter");
+      expect(filterNode).toMatchInlineSnapshot(`
+        {
+          "columns": {
+            "accountId": ""a_1"."account_id"",
+            "createdAt": ""a_1"."created_at"",
+            "email": ""a_1"."email"",
+            "firstName": ""a_1"."first_name"",
+            "lastName": ""a_1"."last_name"",
+            "modifiedAt": ""a_1"."modified_at"",
+            "notes": ""a_1"."notes"",
+            "parentId": ""a_1"."parent_id"",
+            "status": ""a_1"."status"",
+          },
+          "param": "filter",
+          "prefix": "AND ",
+          "suffix": " AND 1=1",
+          "type": "filter",
+        }
+      `);
    });
 });

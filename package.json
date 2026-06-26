@@ -30,8 +30,9 @@
       "format": "prettier --write \"./packages/**/*.{js,ts,jsx,tsx,json,md,yml,yaml}\"",
       "build": "run-s 'build:*'",
       "build:1-core": "pnpm --filter './packages/*' run build",
-      "build:4-install": "pnpm install --frozen-lockfile",
-      "build:5-rest": "pnpm -r --filter='!@vexnor/core' run build",
+      "build:2-install": "pnpm install --frozen-lockfile",
+      "build:3-libraries": "pnpm -r --filter './plugins/*' --filter './orms/*' run build",
+      "build:5-rest": "pnpm -r --workspace-concurrency=1 --filter='!@vexnor/core' --filter='!./plugins/*' --filter='!./orms/*' run build",
       "test": "vitest --coverage run",
       "dotnet:build": "dotnet build stacks/dotnet",
       "dotnet:test": "dotnet test stacks/dotnet"

@@ -7,6 +7,25 @@ import { BuildSqlParams, LeafPaths, PathToNested, SqlParam, SqlParamAny } from "
 
 export type SqlWhenTypeArgs = { Name: string; Type: unknown; OnTrue: Sql; OnFalse: Sql | null };
 
+type SqlWhenRecordParams<T> = T extends Record<string, unknown> ? T : unknown;
+
+type SqlWhenBranchParams<T extends SqlWhenTypeArgs> =
+   SqlWhenRecordParams<ParamsOf<T["OnTrue"]>> & SqlWhenRecordParams<ParamsOf<T["OnFalse"]>>;
+
+type SqlWhenFlagParams<T extends SqlWhenTypeArgs> =
+   SqlWhenBranchParams<T> extends PathToNested<T["Name"], unknown> ? unknown : PathToNested<T["Name"], T["Type"]>;
+
+type SqlWhenParams<T extends SqlWhenTypeArgs> = SqlWhenFlagParams<T> & SqlWhenBranchParams<T>;
+
+type SqlWhenWithParams<Params extends Record<string, unknown>> = SqlWhen<{
+   Name: string;
+   Type: unknown;
+   OnTrue: Sql;
+   OnFalse: Sql | null;
+}> & {
+   readonly [PARAMS]: Params;
+};
+
 /**
  * A portable conditional primitive that includes or excludes a SQL fragment
  * based on a boolean parameter.
@@ -40,7 +59,7 @@ export type SqlWhenTypeArgs = { Name: string; Type: unknown; OnTrue: Sql; OnFals
  * `
  */
 export class SqlWhen<T extends SqlWhenTypeArgs> extends Sql {
-   declare readonly [PARAMS]: PathToNested<T["Name"], T["Type"]> & ParamsOf<T["OnTrue"]>;
+   declare readonly [PARAMS]: SqlWhenParams<T>;
 
    readonly paramName: T["Name"];
    readonly negate: boolean;
@@ -150,6 +169,12 @@ export class SqlWhen<T extends SqlWhenTypeArgs> extends Sql {
  * @param onTrue - SQL fragment to include when condition is met
  * @param onFalse - Optional SQL fragment to include when condition is not met
  */
+export function when<T extends Record<string, unknown> = Record<never, never>>(
+   name: Extract<keyof NoInfer<T>, string>,
+   onTrue: Sql,
+   onFalse?: Sql | null,
+): SqlWhenWithParams<T>;
+
 export function when<
    T extends Record<string, unknown>,
    K extends LeafPaths<T> = LeafPaths<T>,
@@ -158,12 +183,23 @@ export function when<
 >(
    name: K,
    onTrue: OnTrue,
-   onFalse: OnFalse | null = null,
+   onFalse?: OnFalse | null,
 ): SqlWhen<{
    Name: typeof name;
    Type: T[K];
    OnTrue: OnTrue;
    OnFalse: OnFalse;
+}>;
+
+export function when(
+   name: string,
+   onTrue: Sql,
+   onFalse: Sql | null = null,
+): SqlWhen<{
+   Name: string;
+   Type: unknown;
+   OnTrue: Sql;
+   OnFalse: Sql | null;
 }> {
    return new SqlWhen({
       paramName: name,

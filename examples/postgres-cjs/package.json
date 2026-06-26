@@ -5,7 +5,7 @@
    "type": "commonjs",
    "main": "./dist/index.js",
    "scripts": {
-      "precodegen": "pnpm run -r --filter='vexnor' --filter='@vexnor/postgres' build",
+      "precodegen": "pnpm run -r --filter='@vexnor/core' --filter='@vexnor/postgres' build",
       "codegen": "env-cmd --no-override -x -r ../../env-dev.json -e postgres node ../../packages/vexnor/cli.mjs codegen --plugin @vexnor/postgres --schema vexnor_dev  --camelCaseColumns --host \\$POSTGRES_HOST --port \\$POSTGRES_PORT --database \\$POSTGRES_DATABASE --user \\$POSTGRES_USER --password \\$POSTGRES_PASSWORD --outDir './src/codegen' | pino-pretty",
       "prebuild": "run-s 'codegen'",
       "build": "tsc -b",
