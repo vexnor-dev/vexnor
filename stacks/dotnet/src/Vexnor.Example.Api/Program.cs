@@ -72,7 +72,6 @@ app.MapPost("/api/db", async (HttpRequest request) =>
     var json = JsonDocument.Parse(body).RootElement;
 
     var hash = json.GetProperty("hash").GetString() ?? "";
-    var mode = json.TryGetProperty("mode", out var modeEl) ? modeEl.GetString() ?? "all" : "all";
     var backend = json.TryGetProperty("backend", out var backendEl) ? backendEl.GetString() ?? "postgres" : "postgres";
     var paramsElement = json.GetProperty("params");
 
