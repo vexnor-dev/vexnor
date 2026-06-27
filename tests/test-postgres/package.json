@@ -7,7 +7,7 @@
    "license": "Apache-2.0",
    "scripts": {
       "precodegen": "pnpm --filter='@vexnor/core' --filter='@vexnor/postgres' run build",
-      "codegen:vexnor": "env-cmd --no-override -x -r ../../env-dev.json -e postgres node ../../packages/vexnor/cli.mjs codegen --plugin @vexnor/postgres --schema vexnor_dev  --camelCaseColumns --host \\$POSTGRES_HOST --port \\$POSTGRES_PORT --database \\$POSTGRES_DATABASE --user \\$POSTGRES_USER --password \\$POSTGRES_PASSWORD --outDir './src/codegen' | pino-pretty",
+      "codegen:vexnor": "env-cmd --no-override -x -r ../../env-dev.json -e postgres node ../../packages/core/cli.mjs codegen --plugin @vexnor/postgres --schema vexnor_dev  --camelCaseColumns --host \\$POSTGRES_HOST --port \\$POSTGRES_PORT --database \\$POSTGRES_DATABASE --user \\$POSTGRES_USER --password \\$POSTGRES_PASSWORD --outDir './src/codegen' | pino-pretty",
       "codegen:prisma": "pnpm exec prisma generate --schema prisma/schema.prisma --config prisma/prisma.config.ts",
       "codegen": "run-s 'codegen:*'",
       "build:dependencies": "pnpm --filter='@vexnor/drizzle' --filter='@vexnor/prisma' --filter='@vexnor/typeorm' run build",

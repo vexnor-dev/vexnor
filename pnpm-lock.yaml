@@ -23,7 +23,7 @@ importers:
         version: 22.19.21
       '@vexnor/core':
         specifier: workspace:^
-        version: link:packages/vexnor
+        version: link:packages/core
       '@vitest/coverage-v8':
         specifier: ^4.1.8
         version: 4.1.8(vitest@4.1.8)
@@ -98,7 +98,7 @@ importers:
     dependencies:
       '@vexnor/core':
         specifier: workspace:^
-        version: link:../../packages/vexnor
+        version: link:../../packages/core
       '@vexnor/postgres':
         specifier: workspace:^
         version: link:../../plugins/postgres
@@ -120,7 +120,7 @@ importers:
     dependencies:
       '@vexnor/core':
         specifier: workspace:^
-        version: link:../../packages/vexnor
+        version: link:../../packages/core
       '@vexnor/postgres':
         specifier: workspace:^1.0.0
         version: link:../../plugins/postgres
@@ -142,7 +142,7 @@ importers:
     dependencies:
       '@vexnor/core':
         specifier: workspace:*
-        version: link:../../packages/vexnor
+        version: link:../../packages/core
       '@vexnor/mssql':
         specifier: workspace:*
         version: link:../../plugins/mssql
@@ -263,7 +263,7 @@ importers:
         version: 7.6.13
       '@vexnor/core':
         specifier: workspace:*
-        version: link:../../packages/vexnor
+        version: link:../../packages/core
       '@vexnor/mssql':
         specifier: workspace:*
         version: link:../../plugins/mssql
@@ -357,7 +357,7 @@ importers:
         version: 1.170.15(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@vexnor/core':
         specifier: workspace:*
-        version: link:../../packages/vexnor
+        version: link:../../packages/core
       '@vexnor/mssql':
         specifier: workspace:*
         version: link:../../plugins/mssql
@@ -421,7 +421,7 @@ importers:
     dependencies:
       '@vexnor/core':
         specifier: workspace:^
-        version: link:../../packages/vexnor
+        version: link:../../packages/core
     devDependencies:
       '@types/mssql':
         specifier: ^12.3.0
@@ -452,7 +452,7 @@ importers:
         version: 7.8.0(magicast@0.5.3)(typescript@6.0.3)
       '@vexnor/core':
         specifier: workspace:^
-        version: link:../../packages/vexnor
+        version: link:../../packages/core
     devDependencies:
       '@prisma/client':
         specifier: 7.8.0
@@ -478,8 +478,6 @@ importers:
 
   orms/prisma/src/__tests__/fixtures-v6-client-js/generated: {}
 
-  orms/prisma/src/__tests__/fixtures-v6/generated: {}
-
   orms/prisma/src/__tests__/fixtures-v7-client-js/generated:
     dependencies:
       '@prisma/client-runtime-utils':
@@ -490,7 +488,7 @@ importers:
     dependencies:
       '@vexnor/core':
         specifier: workspace:^
-        version: link:../../packages/vexnor
+        version: link:../../packages/core
     devDependencies:
       '@vitest/coverage-v8':
         specifier: ^4.1.5
@@ -518,7 +516,7 @@ importers:
     dependencies:
       '@vexnor/core':
         specifier: workspace:^
-        version: link:../../packages/vexnor
+        version: link:../../packages/core
     devDependencies:
       '@types/better-sqlite3':
         specifier: ^7.6.13
@@ -548,7 +546,7 @@ importers:
         specifier: ^4.1.5
         version: 4.1.8(@opentelemetry/api@1.9.1)(@types/node@22.19.21)(@vitest/coverage-istanbul@4.1.8)(@vitest/coverage-v8@4.1.8)(jsdom@25.0.1)(vite@8.0.16(@types/node@22.19.21)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
 
-  packages/vexnor:
+  packages/core:
     dependencies:
       '@opentelemetry/api':
         specifier: ^1.0.0
@@ -583,7 +581,7 @@ importers:
     dependencies:
       '@vexnor/core':
         specifier: workspace:^
-        version: link:../../packages/vexnor
+        version: link:../../packages/core
       mssql:
         specifier: ^12.5.2
         version: 12.5.5
@@ -611,7 +609,7 @@ importers:
     dependencies:
       '@vexnor/core':
         specifier: workspace:^
-        version: link:../../packages/vexnor
+        version: link:../../packages/core
       pg:
         specifier: ^8.16.3
         version: 8.21.0
@@ -639,7 +637,7 @@ importers:
     dependencies:
       '@vexnor/core':
         specifier: workspace:*
-        version: link:../../packages/vexnor
+        version: link:../../packages/core
       better-sqlite3:
         specifier: ^12.2.0
         version: 12.10.0
@@ -667,7 +665,7 @@ importers:
     dependencies:
       '@vexnor/core':
         specifier: workspace:^
-        version: link:../../packages/vexnor
+        version: link:../../packages/core
       '@vexnor/mssql':
         specifier: workspace:^
         version: link:../../plugins/mssql
@@ -698,7 +696,7 @@ importers:
         version: 0.34.49
       '@vexnor/core':
         specifier: workspace:*
-        version: link:../../packages/vexnor
+        version: link:../../packages/core
       '@vexnor/drizzle':
         specifier: workspace:*
         version: link:../../orms/drizzle
@@ -759,7 +757,7 @@ importers:
         version: 0.34.49
       '@vexnor/core':
         specifier: workspace:*
-        version: link:../../packages/vexnor
+        version: link:../../packages/core
       '@vexnor/drizzle':
         specifier: workspace:*
         version: link:../../orms/drizzle
@@ -826,7 +824,7 @@ importers:
         version: 0.34.49
       '@vexnor/core':
         specifier: workspace:*
-        version: link:../../packages/vexnor
+        version: link:../../packages/core
       '@vexnor/mssql':
         specifier: workspace:*
         version: link:../../plugins/mssql
@@ -884,7 +882,7 @@ importers:
         version: 0.34.49
       '@vexnor/core':
         specifier: workspace:*
-        version: link:../../packages/vexnor
+        version: link:../../packages/core
       '@vexnor/drizzle':
         specifier: workspace:*
         version: link:../../orms/drizzle

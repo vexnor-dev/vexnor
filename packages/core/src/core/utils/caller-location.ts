@@ -14,7 +14,7 @@ function isInternalFrame(frame: string): boolean {
    // Plugin/ORM packages: plugins/postgres, orms/prisma, etc. (src or dist)
    if (/\/(plugins|orms)\/[^/]+\/(dist|src)\//.test(frame) || /\/@fs\/.*\/(plugins|orms)\/[^/]+\/(dist|src)\//.test(frame)) return true;
    // Core vexnor package src/dist (e.g. sql-base.ts, builder/, execution/)
-   return /\/vexnor\/(dist|src)\//.test(frame) || /\/@fs\/.*\/vexnor\/(dist|src)\//.test(frame);
+   return /\/packages\/(core|vexnor)\/(dist|src)\//.test(frame) || /\/@fs\/.*\/packages\/(core|vexnor)\/(dist|src)\//.test(frame);
 }
 
 export function parseCallerLocation(stack: string | undefined, internalUrl: string): { location: string | null; locationUrl: string | null } {
