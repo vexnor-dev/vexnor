@@ -270,6 +270,31 @@ public class ManifestLoaderTests
         Assert.Equal("findAccounts", query!.Name);
         Assert.Equal(2, query.Template.Count);
     }
+
+    [Fact]
+    public void LoadGlob_MultipleFiles_MergesManifests()
+    {
+        var dir = Path.Join(Path.GetTempPath(), $"vexnor_test_{Guid.NewGuid():N}");
+        Directory.CreateDirectory(dir);
+        try
+        {
+            File.WriteAllText(Path.Join(dir, "a.json"), """
+                { "version": 1, "dialect": "postgresql", "queries": { "h1": { "name": "q1", "hash": "h1", "template": [{"type":"text","value":"SELECT 1"}] } } }
+                """);
+            File.WriteAllText(Path.Join(dir, "b.json"), """
+                { "version": 1, "dialect": "postgresql", "queries": { "h2": { "name": "q2", "hash": "h2", "template": [{"type":"text","value":"SELECT 2"}] } } }
+                """);
+
+            var manifest = ManifestLoader.LoadGlob(dir);
+            Assert.Equal(2, manifest.Queries.Count);
+            Assert.True(manifest.Queries.ContainsKey("h1"));
+            Assert.True(manifest.Queries.ContainsKey("h2"));
+        }
+        finally
+        {
+            Directory.Delete(dir, recursive: true);
+        }
+    }
 }
 
 public class QueryRegistryTests
