@@ -9,6 +9,9 @@ coverage:
       dotnet:
         flags: [dotnet]
         target: 90%
+    patch:
+      default:
+        informational: true
 
 flags:
   nodejs:

@@ -134,10 +134,10 @@ jobs:
           echo "Setting version $VERSION on all packages"
 
           # Copy docs into @vexnor/core package
-          cp -r docs packages/vexnor/docs
+          cp -r docs packages/core/docs
 
           # Set version on all workspace packages
-          for pkg in packages/vexnor plugins/postgres plugins/mssql plugins/sqlite3 orms/prisma orms/drizzle orms/typeorm orms/sequelize; do
+          for pkg in packages/core plugins/postgres plugins/mssql plugins/sqlite3 orms/prisma orms/drizzle orms/typeorm orms/sequelize; do
             node -e "const f='$pkg/package.json'; const p=JSON.parse(require('fs').readFileSync(f)); p.version='$VERSION'; require('fs').writeFileSync(f, JSON.stringify(p, null, 2)+'\n')"
           done
 
@@ -152,7 +152,7 @@ jobs:
       - name: Verify package contents (dry-run)
         run: |
           echo "### Package contents" >> $GITHUB_STEP_SUMMARY
-          for pkg in packages/vexnor plugins/postgres plugins/mssql plugins/sqlite3 orms/prisma orms/drizzle orms/typeorm orms/sequelize; do
+          for pkg in packages/core plugins/postgres plugins/mssql plugins/sqlite3 orms/prisma orms/drizzle orms/typeorm orms/sequelize; do
             echo "#### $pkg" >> $GITHUB_STEP_SUMMARY
             echo '```' >> $GITHUB_STEP_SUMMARY
             cd "$pkg"
@@ -166,11 +166,11 @@ jobs:
         with:
           name: vexnor-publish
           path: |
-            packages/vexnor/package.json
-            packages/vexnor/dist/
-            packages/vexnor/docs/
-            packages/vexnor/cli.mjs
-            packages/vexnor/README.md
+            packages/core/package.json
+            packages/core/dist/
+            packages/core/docs/
+            packages/core/cli.mjs
+            packages/core/README.md
             plugins/postgres/package.json
             plugins/postgres/dist/
             plugins/postgres/README.md
@@ -233,7 +233,7 @@ jobs:
         run: |
           # Verify package names haven't been tampered with
           declare -A EXPECTED_NAMES=(
-            ["packages/vexnor"]="@vexnor/core"
+            ["packages/core"]="@vexnor/core"
             ["plugins/postgres"]="@vexnor/postgres"
             ["plugins/mssql"]="@vexnor/mssql"
             ["plugins/sqlite3"]="@vexnor/sqlite3"
@@ -325,7 +325,7 @@ jobs:
           RELEASE_URL: ${{ github.event.release.html_url }}
           RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
-          for pkg in packages/vexnor plugins/postgres plugins/mssql plugins/sqlite3 orms/prisma orms/drizzle orms/typeorm orms/sequelize; do
+          for pkg in packages/core plugins/postgres plugins/mssql plugins/sqlite3 orms/prisma orms/drizzle orms/typeorm orms/sequelize; do
             printf '# %s\n\n%s\n\n%s\n' "$RELEASE_TAG" "$RELEASE_URL" "$RELEASE_BODY" > "$pkg/CHANGELOG.md"
           done
 
@@ -385,7 +385,7 @@ jobs:
             fi
           }
 
-          publish_if_changed "packages/vexnor"
+          publish_if_changed "packages/core"
           publish_if_changed "plugins/postgres"
           publish_if_changed "plugins/mssql"
           publish_if_changed "plugins/sqlite3"

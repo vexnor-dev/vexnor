@@ -7,7 +7,7 @@
    "license": "Apache-2.0",
    "scripts": {
       "precodegen": "pnpm --filter='@vexnor/core' --filter='@vexnor/sqlite3' build",
-      "codegen:vexnor": "env-cmd --no-override -x -r ../../env-dev.json -e sqlite3 node ../../packages/vexnor/cli.mjs codegen --plugin @vexnor/sqlite3 --schema main  --camelCaseColumns --uri \\$SQLITE_PATH --omit migration_vexnor --outDir './src/codegen' | pino-pretty",
+      "codegen:vexnor": "env-cmd --no-override -x -r ../../env-dev.json -e sqlite3 node ../../packages/core/cli.mjs codegen --plugin @vexnor/sqlite3 --schema main  --camelCaseColumns --uri \\$SQLITE_PATH --omit migration_vexnor --outDir './src/codegen' | pino-pretty",
       "codegen:prisma": "pnpm exec prisma generate --schema prisma/schema.prisma --config prisma/prisma.config.ts",
       "codegen": "run-s 'codegen:*'",
       "build:dependencies": "pnpm --filter='@vexnor/drizzle' --filter='@vexnor/prisma' --filter='@vexnor/typeorm' run build",
