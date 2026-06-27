@@ -16,7 +16,7 @@ namespace Vexnor.Core.Tests;
 public class CrossRuntimeSnapshotTests
 {
     private static readonly string BaseDir = Path.GetFullPath(
-        Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "..", "fixtures", "manifests", "cross-runtime"));
+        Path.Join("..", "..", "..", "..", "..", "..", "fixtures", "manifests", "cross-runtime"), AppContext.BaseDirectory);
 
     private readonly QueryRegistry _registry;
     private readonly QueryRegistry _mssqlRegistry;
@@ -27,14 +27,14 @@ public class CrossRuntimeSnapshotTests
         _registry = new QueryRegistry("postgresql");
         _mssqlRegistry = new QueryRegistry("transactsql");
 
-        var manifestPath = Path.Combine(BaseDir, "manifest.json");
+        var manifestPath = Path.Join(BaseDir, "manifest.json");
         if (File.Exists(manifestPath))
         {
             _registry.LoadFile(manifestPath);
             _mssqlRegistry.LoadFile(manifestPath);
         }
 
-        var expectedPath = Path.Combine(BaseDir, "expected.json");
+        var expectedPath = Path.Join(BaseDir, "expected.json");
         var jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         _expected = File.Exists(expectedPath)
             ? JsonSerializer.Deserialize<Dictionary<string, ExpectedResult>>(File.ReadAllText(expectedPath), jsonOptions)!

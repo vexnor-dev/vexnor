@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Text.Json;
 
 namespace Vexnor.Core.Manifest;
@@ -51,9 +52,8 @@ public static class ManifestLoader
 
         QueryManifest? merged = null;
 
-        foreach (var file in files.OrderBy(f => f))
+        foreach (var manifest in files.OrderBy(f => f).Select(LoadFile))
         {
-            var manifest = LoadFile(file);
             if (merged == null)
             {
                 merged = manifest;

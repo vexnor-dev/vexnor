@@ -1,3 +1,4 @@
+using System.Linq;
 using Vexnor.Core.Manifest;
 
 namespace Vexnor.Core.Execution;
@@ -175,9 +176,8 @@ public sealed class QueryRegistry
 
         void ValidateConditions(IEnumerable<object?> conditions)
         {
-            foreach (var cond in conditions)
+            foreach (var dict in conditions.OfType<Dictionary<string, object?>>())
             {
-                if (cond is not Dictionary<string, object?> dict) continue;
                 if (dict.TryGetValue("or", out var orVal) && orVal is object?[] orArray)
                 {
                     ValidateConditions(orArray);
@@ -195,8 +195,8 @@ public sealed class QueryRegistry
 
         if (value is Dictionary<string, object?> legacyDict)
         {
-            foreach (var key in legacyDict.Keys)
-                if (!columns.Contains(key)) errors.Add($"Column not found: {key}");
+            foreach (var key in legacyDict.Keys.Where(key => !columns.Contains(key)))
+                errors.Add($"Column not found: {key}");
         }
         else if (value is object?[] array)
         {

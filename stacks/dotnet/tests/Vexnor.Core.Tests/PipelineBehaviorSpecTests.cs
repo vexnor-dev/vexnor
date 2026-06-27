@@ -12,7 +12,7 @@ namespace Vexnor.Core.Tests;
 public class PipelineBehaviorSpecTests
 {
     private static readonly string SpecPath = Path.GetFullPath(
-        Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "..", "fixtures", "pipeline-behavior-spec.json"));
+        Path.Join("..", "..", "..", "..", "..", "..", "fixtures", "pipeline-behavior-spec.json"), AppContext.BaseDirectory);
 
     // ─── Authorization ───────────────────────────────────────────────────────
 

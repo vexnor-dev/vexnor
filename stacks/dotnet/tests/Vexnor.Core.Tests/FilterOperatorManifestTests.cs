@@ -13,7 +13,7 @@ namespace Vexnor.Core.Tests;
 public class FilterOperatorManifestTests
 {
     private static readonly string ManifestPath = Path.GetFullPath(
-        Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "..", "fixtures", "manifests", "postgres", "queries", "filter-operators.json"));
+        Path.Join("..", "..", "..", "..", "..", "..", "fixtures", "manifests", "postgres", "queries", "filter-operators.json"), AppContext.BaseDirectory);
 
     private readonly QueryRegistry _registry;
     private readonly string _queryHash;

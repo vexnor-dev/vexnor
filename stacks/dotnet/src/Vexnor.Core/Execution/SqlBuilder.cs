@@ -1,3 +1,4 @@
+using System.Linq;
 using Vexnor.Core.Manifest;
 
 namespace Vexnor.Core.Execution;
@@ -521,9 +522,8 @@ public sealed class SqlBuilder
         sql.Add(") do update set ");
 
         int emitted = 0;
-        foreach (var key in keys)
+        foreach (var key in keys.Where(key => !conflictSet.Contains(key)))
         {
-            if (conflictSet.Contains(key)) continue;
             if (emitted > 0) sql.Add(", ");
             var col = node.Columns[key];
             sql.Add(col);
@@ -573,9 +573,8 @@ public sealed class SqlBuilder
 
         // SET col = src.col (non-conflict)
         int emitted = 0;
-        foreach (var key in keys)
+        foreach (var key in keys.Where(key => !conflictSet.Contains(key)))
         {
-            if (conflictSet.Contains(key)) continue;
             if (emitted > 0) sql.Add(", ");
             var col = node.Columns[key];
             sql.Add(col);
@@ -619,11 +618,7 @@ public sealed class SqlBuilder
         if (obj is List<Dictionary<string, object?>> list) return list;
         if (obj is object?[] array)
         {
-            var result = new List<Dictionary<string, object?>>();
-            foreach (var item in array)
-            {
-                if (item is Dictionary<string, object?> dict) result.Add(dict);
-            }
+            var result = array.OfType<Dictionary<string, object?>>().ToList();
             return result.Count > 0 ? result : null;
         }
         return null;

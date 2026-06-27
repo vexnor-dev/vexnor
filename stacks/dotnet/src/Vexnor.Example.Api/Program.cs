@@ -13,7 +13,7 @@ app.UseCors();
 
 // ─── Manifest directories ────────────────────────────────────────────────────
 var baseManifestDir = Environment.GetEnvironmentVariable("VEXNOR_MANIFEST_DIR")
-    ?? Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "fixtures", "manifests"));
+    ?? Path.GetFullPath(Path.Join("..", "..", "..", "fixtures", "manifests"), Directory.GetCurrentDirectory());
 
 // Load registries per dialect
 var registries = new Dictionary<string, QueryRegistry>();
@@ -21,6 +21,9 @@ var dialects = new[] { ("postgres", "postgresql"), ("mssql", "transactsql"), ("s
 
 foreach (var (name, dialect) in dialects)
 {
+    if (Path.IsPathRooted(name))
+        throw new InvalidOperationException($"Dialect manifest subdirectory must be relative, but got rooted path: {name}");
+
     var dir = Path.Combine(baseManifestDir, name);
     var registry = new QueryRegistry(dialect);
     if (Directory.Exists(dir))
@@ -50,7 +53,7 @@ executors["mssql"] = new MssqlExecutor(mssqlConn);
 
 // SQLite
 var sqlitePath = builder.Configuration.GetConnectionString("Sqlite3")
-    ?? Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "fixtures", "vexnor.db"));
+    ?? Path.GetFullPath(Path.Join("..", "..", "..", "fixtures", "vexnor.db"), Directory.GetCurrentDirectory());
 executors["sqlite3"] = Sqlite3Executor.FromPath(sqlitePath);
 
 // ─── Endpoints ───────────────────────────────────────────────────────────────
@@ -69,7 +72,6 @@ app.MapPost("/api/db", async (HttpRequest request) =>
     var json = JsonDocument.Parse(body).RootElement;
 
     var hash = json.GetProperty("hash").GetString() ?? "";
-    var mode = json.TryGetProperty("mode", out var modeEl) ? modeEl.GetString() ?? "all" : "all";
     var backend = json.TryGetProperty("backend", out var backendEl) ? backendEl.GetString() ?? "postgres" : "postgres";
     var paramsElement = json.GetProperty("params");
 

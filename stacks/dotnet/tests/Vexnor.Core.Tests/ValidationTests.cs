@@ -174,4 +174,58 @@ public class SqlBuilderValidationTests
         Assert.Contains("Invalid projection column in aggregate", ex.Message);
         Assert.Contains("hackedColumn", ex.Message);
     }
+
+    // ─── Legacy dict filter validation ───────────────────────────────────────
+
+    [Fact]
+    public async Task Filter_LegacyDict_InvalidColumn_Throws()
+    {
+        var registry = new QueryRegistry("postgresql");
+        var manifest = new QueryManifest();
+        manifest.Queries["h1"] = new QueryDefinition
+        {
+            Name = "test", Hash = "h1",
+            Template =
+            {
+                new TextNode { Value = "SELECT * WHERE " },
+                new FilterNode { Param = "filter", Columns = new() { ["email"] = "\"email\"", ["status"] = "\"status\"" } }
+            },
+            Params = new() { ["filter"] = new ParamDefinition { Name = "filter", Validation = new ParamValidationSchema { Type = "filter", Columns = new() { "email", "status" }, Operators = new() { "=", "like" } } } }
+        };
+        registry.Load(manifest);
+
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            registry.ExecuteAsync<object?>("h1",
+                new() { ["filter"] = new Dictionary<string, object?> { ["hackedColumn"] = "value" } },
+                new(),
+                _ => Task.FromResult<object?>(null)));
+        Assert.Contains("Column not found", ex.Message);
+        Assert.Contains("hackedColumn", ex.Message);
+    }
+
+    [Fact]
+    public async Task Filter_Array_InvalidColumn_ThrowsViaValidation()
+    {
+        var registry = new QueryRegistry("postgresql");
+        var manifest = new QueryManifest();
+        manifest.Queries["h1"] = new QueryDefinition
+        {
+            Name = "test", Hash = "h1",
+            Template =
+            {
+                new TextNode { Value = "SELECT * WHERE " },
+                new FilterNode { Param = "filter", Columns = new() { ["email"] = "\"email\"" } }
+            },
+            Params = new() { ["filter"] = new ParamDefinition { Name = "filter", Validation = new ParamValidationSchema { Type = "filter", Columns = new() { "email" }, Operators = new() { "=", "like" } } } }
+        };
+        registry.Load(manifest);
+
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            registry.ExecuteAsync<object?>("h1",
+                new() { ["filter"] = new object?[] { new Dictionary<string, object?> { ["badCol"] = "x" } } },
+                new(),
+                _ => Task.FromResult<object?>(null)));
+        Assert.Contains("Column not found", ex.Message);
+        Assert.Contains("badCol", ex.Message);
+    }
 }
