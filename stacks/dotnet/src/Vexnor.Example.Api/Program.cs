@@ -13,7 +13,7 @@ app.UseCors();
 
 // ─── Manifest directories ────────────────────────────────────────────────────
 var baseManifestDir = Environment.GetEnvironmentVariable("VEXNOR_MANIFEST_DIR")
-    ?? Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "fixtures", "manifests"));
+    ?? Path.GetFullPath(Path.Join("..", "..", "..", "fixtures", "manifests"), Directory.GetCurrentDirectory());
 
 // Load registries per dialect
 var registries = new Dictionary<string, QueryRegistry>();
@@ -53,7 +53,7 @@ executors["mssql"] = new MssqlExecutor(mssqlConn);
 
 // SQLite
 var sqlitePath = builder.Configuration.GetConnectionString("Sqlite3")
-    ?? Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "fixtures", "vexnor.db"));
+    ?? Path.GetFullPath(Path.Join("..", "..", "..", "fixtures", "vexnor.db"), Directory.GetCurrentDirectory());
 executors["sqlite3"] = Sqlite3Executor.FromPath(sqlitePath);
 
 // ─── Endpoints ───────────────────────────────────────────────────────────────
