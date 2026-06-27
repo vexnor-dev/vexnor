@@ -1,3 +1,4 @@
+using System.Linq;
 using Vexnor.Core.Manifest;
 
 namespace Vexnor.Core.Execution;
@@ -618,11 +619,7 @@ public sealed class SqlBuilder
         if (obj is List<Dictionary<string, object?>> list) return list;
         if (obj is object?[] array)
         {
-            var result = new List<Dictionary<string, object?>>();
-            foreach (var item in array)
-            {
-                if (item is Dictionary<string, object?> dict) result.Add(dict);
-            }
+            var result = array.OfType<Dictionary<string, object?>>().ToList();
             return result.Count > 0 ? result : null;
         }
         return null;
