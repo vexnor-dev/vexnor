@@ -21,6 +21,9 @@ var dialects = new[] { ("postgres", "postgresql"), ("mssql", "transactsql"), ("s
 
 foreach (var (name, dialect) in dialects)
 {
+    if (Path.IsPathRooted(name))
+        throw new InvalidOperationException($"Dialect manifest subdirectory must be relative, but got rooted path: {name}");
+
     var dir = Path.Combine(baseManifestDir, name);
     var registry = new QueryRegistry(dialect);
     if (Directory.Exists(dir))
