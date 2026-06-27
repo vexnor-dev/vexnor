@@ -266,9 +266,9 @@ public class ManifestLoaderTests
         Assert.Equal(1, manifest.Version);
         Assert.Equal("postgresql", manifest.Dialect);
         Assert.Single(manifest.Queries);
-        Assert.True(manifest.Queries.ContainsKey("abc123"));
-        Assert.Equal("findAccounts", manifest.Queries["abc123"].Name);
-        Assert.Equal(2, manifest.Queries["abc123"].Template.Count);
+        Assert.True(manifest.Queries.TryGetValue("abc123", out var query));
+        Assert.Equal("findAccounts", query!.Name);
+        Assert.Equal(2, query.Template.Count);
     }
 }
 
