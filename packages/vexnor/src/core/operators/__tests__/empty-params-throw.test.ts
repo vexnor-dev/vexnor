@@ -1,9 +1,9 @@
 import { describe, test, expect } from "vitest";
-import { sql } from "#/core/sql.js";
-import { row } from "#/core/query/sql-select-row.js";
-import { insert } from "#/core/operators/sql-insert-x.js";
-import { set } from "#/core/operators/sql-set.js";
-import { upsert } from "#/core/operators/sql-upsert.js";
+import { sql } from "#src/core/sql.js";
+import { row } from "#src/core/query/sql-select-row.js";
+import { insert } from "#src/core/operators/sql-insert-x.js";
+import { set } from "#src/core/operators/sql-set.js";
+import { upsert } from "#src/core/operators/sql-upsert.js";
 import { Account } from "@test-models/vexnor_dev.schema.js";
 
 describe("Empty params — mutation operators must throw", () => {

@@ -1,9 +1,9 @@
-import { ROW, TYPE } from "#/core/sql-base.js";
-import { Sql } from "#/core/sql-base.js";
-import { InferSelectRowByResult } from "#/core/query/sql-query-types.js";
-import { SqlQueryAny } from "#/core/query/sql-query.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
+import { ROW, TYPE } from "#src/core/sql-base.js";
+import { Sql } from "#src/core/sql-base.js";
+import { InferSelectRowByResult } from "#src/core/query/sql-query-types.js";
+import { SqlQueryAny } from "#src/core/query/sql-query.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { SqlBuildOptions } from "#src/core/builder/sql-build-options.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlSelectAllAny = SqlSelectAll<any>;

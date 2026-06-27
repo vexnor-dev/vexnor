@@ -1,14 +1,14 @@
 import "../../../test/mock-query-handler.js";
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { execCommand } from "#/cli/exec/exec-command.js";
+import { execCommand } from "#src/cli/exec/exec-command.js";
 import { join } from "path";
-import * as confirmPromptModule from "#/cli/exec/confirm-prompt.js";
-import type { MockResult } from "#/test/mock-plugin.js";
+import * as confirmPromptModule from "#src/cli/exec/confirm-prompt.js";
+import type { MockResult } from "#src/test/mock-plugin.js";
 import { testPlugin as queriesPlugin, mockDb } from "./fixtures/queries.vexnor.js";
 import { testPlugin as mutationPlugin } from "./fixtures/mutation-queries.vexnor.js";
 import { testPlugin as runtimePlugin } from "./fixtures/runtime-queries.vexnor.js";
 
-vi.mock("../confirm-prompt.js");
+vi.mock("#src/cli/exec/confirm-prompt.js");
 
 function setTestMockData(rows: unknown[]) {
    vi.mocked(mockDb.query).mockResolvedValueOnce({ rows } as MockResult<unknown>);

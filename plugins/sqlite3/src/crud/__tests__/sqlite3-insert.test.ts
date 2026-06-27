@@ -2,9 +2,9 @@ import "@vexnor/sqlite3";
 import { describe, expect, test } from "vitest";
 import { Account } from "@vexnor/core/testing";
 import { sql, row } from "@vexnor/core";
-import { sqlite3InsertRows } from "#/crud/sqlite3-insert-rows.js";
-import { sqlite3InsertFrom } from "#/crud/sqlite3-insert-from.js";
-import { defaultQueryOptions } from "#/crud/default-query-options.js";
+import { sqlite3InsertRows } from "#src/crud/sqlite3-insert-rows.js";
+import { sqlite3InsertFrom } from "#src/crud/sqlite3-insert-from.js";
+import { defaultQueryOptions } from "#src/crud/default-query-options.js";
 
 describe("sqlite3InsertRows()", () => {
    test("basic insert", () => {

@@ -1,13 +1,13 @@
 import { describe, expect, test } from "vitest";
-import { serializeQuery } from "#/core/serialize/serialize-query.js";
-import { sql } from "#/core/sql.js";
-import { param } from "#/core/query/sql-param.js";
-import { row } from "#/core/query/sql-select-row.js";
-import { when } from "#/core/operators/sql-when.js";
-import { set } from "#/core/operators/sql-set.js";
-import { insert } from "#/core/operators/sql-insert-x.js";
-import { filterBy } from "#/core/operators/sql-filter-by.js";
-import { orderBy } from "#/core/operators/sql-order-by.js";
+import { serializeQuery } from "#src/core/serialize/serialize-query.js";
+import { sql } from "#src/core/sql.js";
+import { param } from "#src/core/query/sql-param.js";
+import { row } from "#src/core/query/sql-select-row.js";
+import { when } from "#src/core/operators/sql-when.js";
+import { set } from "#src/core/operators/sql-set.js";
+import { insert } from "#src/core/operators/sql-insert-x.js";
+import { filterBy } from "#src/core/operators/sql-filter-by.js";
+import { orderBy } from "#src/core/operators/sql-order-by.js";
 import { Account } from "@test-models/vexnor_dev.schema.js";
 
 type P = { status: string; hasEmail: boolean; email: string };

@@ -1,21 +1,21 @@
 import { describe, expect, test, vi } from "vitest";
-import { SqlQueryRegistry, type ConnectionResolver } from "#/execution/sql-query-registry.js";
-import { TimeToLiveRateLimiter } from "#/execution/time-to-live-rate-limiter.js";
-import { AuditLogPlugin } from "#/execution/audit-log-plugin.js";
-import { sql } from "#/core/sql.js";
-import { row } from "#/core/query/sql-select-row.js";
-import { ctx, param } from "#/core/query/sql-param.js";
-import { SqlQueryAny } from "#/core/query/sql-query.js";
-import { type SqlExecuteMode } from "#/core/query/sql-query-types.js";
+import { SqlQueryRegistry, type ConnectionResolver } from "#src/execution/sql-query-registry.js";
+import { TimeToLiveRateLimiter } from "#src/execution/time-to-live-rate-limiter.js";
+import { AuditLogPlugin } from "#src/execution/audit-log-plugin.js";
+import { sql } from "#src/core/sql.js";
+import { row } from "#src/core/query/sql-select-row.js";
+import { ctx, param } from "#src/core/query/sql-param.js";
+import { SqlQueryAny } from "#src/core/query/sql-query.js";
+import { type SqlExecuteMode } from "#src/core/query/sql-query-types.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
 import { Order } from "@test-models/vexnor_dev.order-table.js";
-import { SqlRunError } from "#/core/sql-run-error.js";
-import { SqlErrorCode } from "#/core/sql-error-code.js";
+import { SqlRunError } from "#src/core/sql-run-error.js";
+import { SqlErrorCode } from "#src/core/sql-error-code.js";
 import { ok } from "node:assert";
-import { SqlPipelineEndArgs } from "#/execution/sql-query-pipeline-plugin.js";
-import { mockHandler } from "#/test/mock-query-handler.js";
-import { MockConnection, MockPlugin } from "#/test/mock-plugin.js";
-import { VexnorConnection } from "#/plugin/vexnor-connection.js";
+import { SqlPipelineEndArgs } from "#src/execution/sql-query-pipeline-plugin.js";
+import { mockHandler } from "#src/test/mock-query-handler.js";
+import { MockConnection, MockPlugin } from "#src/test/mock-plugin.js";
+import { VexnorConnection } from "#src/plugin/vexnor-connection.js";
 
 // Two distinct plugins
 const pluginA = new MockPlugin({ name: "pluginA" });

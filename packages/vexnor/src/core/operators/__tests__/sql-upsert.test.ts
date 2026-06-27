@@ -1,9 +1,9 @@
 import { describe, test, expect } from "vitest";
-import { sql } from "#/core/sql.js";
-import { row } from "#/core/query/sql-select-row.js";
-import { upsert } from "#/core/operators/sql-upsert.js";
+import { sql } from "#src/core/sql.js";
+import { row } from "#src/core/query/sql-select-row.js";
+import { upsert } from "#src/core/operators/sql-upsert.js";
 import { Account } from "@test-models/vexnor_dev.schema.js";
-import { serializeQuery } from "#/core/serialize/serialize-query.js";
+import { serializeQuery } from "#src/core/serialize/serialize-query.js";
 
 describe("SqlUpsert", () => {
    test("postgres: single row upsert", () => {

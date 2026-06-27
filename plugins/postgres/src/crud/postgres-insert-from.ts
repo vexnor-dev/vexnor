@@ -1,9 +1,9 @@
 import { SqlTable, row, ParamsOfArgs, info, SqlQueryColumns } from "@vexnor/core";
 import type { SqlInsertFromArgs } from "@vexnor/core";
-import { sql } from "#/postgres-sql.js";
+import { sql } from "#src/postgres-sql.js";
 import { ok } from "@vexnor/core";
-import { PostgresQueryHandler } from "#/postgres-query-handler.js";
-import "#/postgres-augment.js";
+import { PostgresQueryHandler } from "#src/postgres-query-handler.js";
+import "#src/postgres-augment.js";
 
 export type PostgresInsertFromResult<
    T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> },

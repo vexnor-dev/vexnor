@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { CodeWriter } from "#/lib/code-writer.js";
+import { CodeWriter } from "#src/lib/code-writer.js";
 
 describe("CodeWriter", () => {
    test("writes lines and blocks with indentation", () => {

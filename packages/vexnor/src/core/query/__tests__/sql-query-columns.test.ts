@@ -1,12 +1,12 @@
 import { describe, expect, test } from "vitest";
-import { sql } from "#/core/sql.js";
-import { row } from "#/core/query/sql-select-row.js";
+import { sql } from "#src/core/sql.js";
+import { row } from "#src/core/query/sql-select-row.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { param } from "#/core/query/sql-param.js";
+import { param } from "#src/core/query/sql-param.js";
 import { Order } from "@test-models/vexnor_dev.order-table.js";
 import { OrderItem } from "@test-models/vexnor_dev.order_item-table.js";
-import { SqlSelectAll } from "#/core/query/sql-select-all.js";
-import { Sql } from "#/core/sql-base.js";
+import { SqlSelectAll } from "#src/core/query/sql-select-all.js";
+import { Sql } from "#src/core/sql-base.js";
 
 describe("SqlQuery.$... tests", () => {
    const query = sql`

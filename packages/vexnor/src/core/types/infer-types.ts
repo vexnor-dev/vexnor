@@ -1,4 +1,4 @@
-import { SqlTableColumn } from "#/core/schema/sql-table-column.js";
+import { SqlTableColumn } from "#src/core/schema/sql-table-column.js";
 
 export type InferTable$RowBySelect<Select> =
    Select extends Record<string, unknown>

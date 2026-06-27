@@ -1,8 +1,8 @@
 import { info, ParamsOfArgs, SqlDeleteArgs, raw, row, SqlTable, SqlQueryColumns } from "@vexnor/core";
 import { ok } from "@vexnor/core";
-import { sql } from "#/postgres-sql.js";
-import { PostgresQueryHandler } from "#/postgres-query-handler.js";
-import "#/postgres-augment.js";
+import { sql } from "#src/postgres-sql.js";
+import { PostgresQueryHandler } from "#src/postgres-query-handler.js";
+import "#src/postgres-augment.js";
 
 export type PostgresDeleteResult<
    T extends { Select: Record<string, unknown>; Delete: true },

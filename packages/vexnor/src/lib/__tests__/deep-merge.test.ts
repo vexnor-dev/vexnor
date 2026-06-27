@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { deepMerge } from "#/lib/deep-merge.js";
+import { deepMerge } from "#src/lib/deep-merge.js";
 
 describe("deepMerge", () => {
    // ─── Object + Object ──────────────────────────────────────────────────────

@@ -1,7 +1,7 @@
-import { PARAMS, Sql, SqlOptions } from "#/core/sql-base.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
-import { SqlQuery } from "#/core/query/sql-query.js";
+import { PARAMS, Sql, SqlOptions } from "#src/core/sql-base.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { SqlBuildOptions } from "#src/core/builder/sql-build-options.js";
+import { SqlQuery } from "#src/core/query/sql-query.js";
 
 /**
  * Cursor reference for the current element inside an `each()` iteration.

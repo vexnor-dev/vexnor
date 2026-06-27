@@ -1,12 +1,12 @@
 import { describe, expect, test } from "vitest";
-import { sqlSelect } from "#/core/crud/sql-select.js";
+import { sqlSelect } from "#src/core/crud/sql-select.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
 import { Order } from "@test-models/vexnor_dev.order-table.js";
-import { sql } from "#/core/sql.js";
-import { SqlSelectAll } from "#/core/query/sql-select-all.js";
-import { SqlSelectRow } from "#/core/query/sql-select-row.js";
-import { newSqlQueryColumn } from "#/core/query/sql-query-column.js";
-import { newSqlTableColumn } from "#/core/schema/sql-table-column.js";
+import { sql } from "#src/core/sql.js";
+import { SqlSelectAll } from "#src/core/query/sql-select-all.js";
+import { SqlSelectRow } from "#src/core/query/sql-select-row.js";
+import { newSqlQueryColumn } from "#src/core/query/sql-query-column.js";
+import { newSqlTableColumn } from "#src/core/schema/sql-table-column.js";
 
 // ─── sqlSelect — uncovered clause branches ────────────────────────────────────
 
@@ -106,7 +106,7 @@ describe("SqlSelectRow.getRow — SqlSelectAll with SqlQueryColumn items", () =>
 
 describe("sqlSelect — with info", () => {
    test("passes info to generated query", async () => {
-      const { info } = await import("#/core/charms/sql-query-info.js");
+      const { info } = await import("#src/core/charms/sql-query-info.js");
       const query = sqlSelect(Account, {}, info({ label: "findAll" }));
       expect(query).toBeDefined();
       const { text } = query.getSql({ params: {}, options: { dialect: "sqlite" } });

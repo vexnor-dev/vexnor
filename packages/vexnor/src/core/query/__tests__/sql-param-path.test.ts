@@ -1,6 +1,6 @@
 import { assertType, describe, test, expect } from "vitest";
-import { param, ctx, SqlParam, PathToNested, LeafPaths, PathType } from "#/core/query/sql-param.js";
-import { PARAMS } from "#/core/sql-base.js";
+import { param, ctx, SqlParam, PathToNested, LeafPaths, PathType } from "#src/core/query/sql-param.js";
+import { PARAMS } from "#src/core/sql-base.js";
 
 describe("PathToNested — type utility", () => {
    test("single segment produces flat object", () => {

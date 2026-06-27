@@ -1,7 +1,7 @@
 // noinspection SqlNoDataSourceInspection,SqlResolve
-import { MockPlugin, type MockConnection } from "#/test/mock-plugin.js";
-import { defineQueryConfig } from "#/config/define-query-config.js";
-import { sql } from "#/test/mock-sql.js";
+import { MockPlugin, type MockConnection } from "#src/test/mock-plugin.js";
+import { defineQueryConfig } from "#src/config/define-query-config.js";
+import { sql } from "#src/test/mock-sql.js";
 import { vi } from "vitest";
 
 const mockDb: MockConnection = { query: vi.fn().mockResolvedValue({ rows: [] }) };

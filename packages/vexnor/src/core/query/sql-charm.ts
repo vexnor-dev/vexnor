@@ -1,8 +1,8 @@
-import { BuildSqlParams } from "#/core/query/sql-param.js";
-import { PARAMS, ROW, Sql, SqlOptions, TYPE } from "#/core/sql-base.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
-import { SqlJsonSchema } from "#/core/utils/sql-json-schema.js";
+import { BuildSqlParams } from "#src/core/query/sql-param.js";
+import { PARAMS, ROW, Sql, SqlOptions, TYPE } from "#src/core/sql-base.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { SqlBuildOptions } from "#src/core/builder/sql-build-options.js";
+import { SqlJsonSchema } from "#src/core/utils/sql-json-schema.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlCharmAny = SqlCharm<any>;

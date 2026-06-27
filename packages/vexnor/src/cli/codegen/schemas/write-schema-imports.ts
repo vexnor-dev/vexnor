@@ -1,5 +1,5 @@
-import { CodeWriter } from "#/lib/code-writer.js";
-import { SqlOutputFile } from "#/plugin/plugin.js";
+import { CodeWriter } from "#src/lib/code-writer.js";
+import { SqlOutputFile } from "#src/plugin/plugin.js";
 
 export function writeSchemaImports(writer: CodeWriter, files: SqlOutputFile[]) {
    files.forEach(({ fileName }) => {

@@ -1,13 +1,13 @@
 import { describe, expect, test } from "vitest";
-import { sql } from "#/core/sql.js";
-import { row } from "#/core/query/sql-select-row.js";
+import { sql } from "#src/core/sql.js";
+import { row } from "#src/core/query/sql-select-row.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { param } from "#/core/query/sql-param.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { raw } from "#/core/query/sql-raw.js";
-import { info } from "#/core/charms/sql-query-info.js";
-import { SqlQuery } from "#/core/query/sql-query.js";
-import { CodeWriter } from "#/lib/code-writer.js";
+import { param } from "#src/core/query/sql-param.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { raw } from "#src/core/query/sql-raw.js";
+import { info } from "#src/core/charms/sql-query-info.js";
+import { SqlQuery } from "#src/core/query/sql-query.js";
+import { CodeWriter } from "#src/lib/code-writer.js";
 
 describe("Branch coverage — sql-build-context keyword & paren tracking", () => {
    test("nested function call creates fn context", () => {

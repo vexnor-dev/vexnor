@@ -1,9 +1,9 @@
 import { assertType, describe, test } from "vitest";
-import { sql } from "#/core/sql.js";
-import { when } from "#/core/operators/sql-when.js";
-import { param } from "#/core/query/sql-param.js";
-import { row } from "#/core/query/sql-select-row.js";
-import { ParamsOf } from "#/core/sql-base.js";
+import { sql } from "#src/core/sql.js";
+import { when } from "#src/core/operators/sql-when.js";
+import { param } from "#src/core/query/sql-param.js";
+import { row } from "#src/core/query/sql-select-row.js";
+import { ParamsOf } from "#src/core/sql-base.js";
 import { Account } from "@test-models/vexnor_dev.schema.js";
 
 type P = { dateStart: Date | null; dateEnd: Date | null };

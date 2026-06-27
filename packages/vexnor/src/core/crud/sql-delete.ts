@@ -1,11 +1,11 @@
-import { SqlQuery, SqlQueryAny } from "#/core/query/sql-query.js";
-import { SqlTable } from "#/core/schema/sql-table.js";
-import { ok } from "#/lib/assert.js";
-import { sql } from "#/core/sql.js";
-import { raw } from "#/core/query/sql-raw.js";
-import { row } from "#/core/query/sql-select-row.js";
-import { ParamsOfArgs } from "#/core/sql-base.js";
-import { SqlQueryInfo } from "#/core/charms/sql-query-info.js";
+import { SqlQuery, SqlQueryAny } from "#src/core/query/sql-query.js";
+import { SqlTable } from "#src/core/schema/sql-table.js";
+import { ok } from "#src/lib/assert.js";
+import { sql } from "#src/core/sql.js";
+import { raw } from "#src/core/query/sql-raw.js";
+import { row } from "#src/core/query/sql-select-row.js";
+import { ParamsOfArgs } from "#src/core/sql-base.js";
+import { SqlQueryInfo } from "#src/core/charms/sql-query-info.js";
 
 /**
  * Arguments for the crud `delete` command.

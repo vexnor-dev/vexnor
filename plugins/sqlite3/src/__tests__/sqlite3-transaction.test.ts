@@ -1,6 +1,6 @@
 // noinspection SqlNoDataSourceInspection,SqlResolve
 import { describe, expect, test, beforeAll, afterAll } from "vitest";
-import { transaction, savepoint } from "#/sqlite3-transaction.js";
+import { transaction, savepoint } from "#src/sqlite3-transaction.js";
 import BetterSqlite3 from "better-sqlite3";
 
 let db: BetterSqlite3.Database;

@@ -1,8 +1,8 @@
-import { SqlInsertRowsResult } from "#/core/crud/sql-insert-rows.js";
-import { SqlSelectArgs, SqlSelectResult } from "#/core/crud/sql-select.js";
-import { SqlUpdateArgs, SqlTableUpdateResult } from "#/core/crud/sql-update.js";
-import { SqlDeleteArgs, SqlDeleteResult } from "#/core/crud/sql-delete.js";
-import { SqlInsertFromArgs, SqlInsertFromResult } from "#/core/crud/sql-insert-from.js";
+import { SqlInsertRowsResult } from "#src/core/crud/sql-insert-rows.js";
+import { SqlSelectArgs, SqlSelectResult } from "#src/core/crud/sql-select.js";
+import { SqlUpdateArgs, SqlTableUpdateResult } from "#src/core/crud/sql-update.js";
+import { SqlDeleteArgs, SqlDeleteResult } from "#src/core/crud/sql-delete.js";
+import { SqlInsertFromArgs, SqlInsertFromResult } from "#src/core/crud/sql-insert-from.js";
 
 export type SqlCrudCommands<
    T extends {

@@ -1,8 +1,8 @@
 import { describe, expect, test } from "vitest";
-import { newSqlQueryColumn } from "#/core/query/sql-query-column.js";
-import { newSqlTableColumn } from "#/core/schema/sql-table-column.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { sql } from "#/core/sql.js";
+import { newSqlQueryColumn } from "#src/core/query/sql-query-column.js";
+import { newSqlTableColumn } from "#src/core/schema/sql-table-column.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { sql } from "#src/core/sql.js";
 
 const tableInfo = { name: "account", schema: "main" };
 const target = newSqlTableColumn({ key: "accountId", columnName: "account_id", tableInfo });

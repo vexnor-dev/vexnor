@@ -1,17 +1,17 @@
 import { describe, test, expect } from "vitest";
-import { sql } from "#/core/sql.js";
-import { row } from "#/core/query/sql-select-row.js";
-import { param } from "#/core/query/sql-param.js";
-import { raw } from "#/core/query/sql-raw.js";
-import { when } from "#/core/operators/sql-when.js";
-import { each, SqlEachIt } from "#/core/operators/sql-each.js";
-import { insert } from "#/core/operators/sql-insert-x.js";
-import { filterBy } from "#/core/operators/sql-filter-by.js";
-import { eachObject, eachKey, eachValue, colInTable } from "#/core/operators/sql-each-object.js";
-import { SqlPagination } from "#/core/operators/sql-pagination.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
+import { sql } from "#src/core/sql.js";
+import { row } from "#src/core/query/sql-select-row.js";
+import { param } from "#src/core/query/sql-param.js";
+import { raw } from "#src/core/query/sql-raw.js";
+import { when } from "#src/core/operators/sql-when.js";
+import { each, SqlEachIt } from "#src/core/operators/sql-each.js";
+import { insert } from "#src/core/operators/sql-insert-x.js";
+import { filterBy } from "#src/core/operators/sql-filter-by.js";
+import { eachObject, eachKey, eachValue, colInTable } from "#src/core/operators/sql-each-object.js";
+import { SqlPagination } from "#src/core/operators/sql-pagination.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
 import { Account } from "@test-models/vexnor_dev.schema.js";
-import { serializeQuery, serializeManifest } from "#/core/serialize/serialize-query.js";
+import { serializeQuery, serializeManifest } from "#src/core/serialize/serialize-query.js";
 
 // raw() returns a Sql (NOT SqlQuery) — this is needed to hit the else branches
 

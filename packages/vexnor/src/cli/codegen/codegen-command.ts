@@ -1,16 +1,16 @@
 import path from "node:path";
 import fs from "node:fs/promises";
-import { loadPlugin } from "#/load-plugin.js";
-import { ok } from "#/lib/assert.js";
-import { CodegenCommandOptions } from "#/cli/codegen/types/types.js";
-import { CodegenContext, CodegenContextModel, getCodegenContext } from "#/cli/codegen/codegen-context.js";
-import { printEnums } from "#/cli/codegen/schemas/print-enums.js";
-import { printSchemas } from "#/cli/codegen/schemas/print-schema.js";
-import { printTables } from "#/cli/codegen/tables/print-tables.js";
-import { writeLibrary } from "#/cli/codegen/library/write-library.js";
-import { writeIndex } from "#/cli/codegen/write-index.js";
-import { loadConfig } from "#/config/load-config.js";
-import { GenerateConfig } from "#/config/config-types.js";
+import { loadPlugin } from "#src/load-plugin.js";
+import { ok } from "#src/lib/assert.js";
+import { CodegenCommandOptions } from "#src/cli/codegen/types/types.js";
+import { CodegenContext, CodegenContextModel, getCodegenContext } from "#src/cli/codegen/codegen-context.js";
+import { printEnums } from "#src/cli/codegen/schemas/print-enums.js";
+import { printSchemas } from "#src/cli/codegen/schemas/print-schema.js";
+import { printTables } from "#src/cli/codegen/tables/print-tables.js";
+import { writeLibrary } from "#src/cli/codegen/library/write-library.js";
+import { writeIndex } from "#src/cli/codegen/write-index.js";
+import { loadConfig } from "#src/config/load-config.js";
+import { GenerateConfig } from "#src/config/config-types.js";
 
 export async function codegenCommand(options: CodegenCommandOptions) {
    const {

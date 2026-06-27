@@ -1,11 +1,11 @@
 import { describe, expect, test } from "vitest";
-import { sql } from "#/core/sql.js";
-import { row } from "#/core/query/sql-select-row.js";
-import { newSqlQueryHandler, SqlQueryHandler } from "#/core/query/sql-query-handler.js";
-import { SqlQuery, SqlQueryExtended } from "#/core/query/sql-query.js";
-import { SqlRunArgs } from "#/core/query/sql-query-types.js";
+import { sql } from "#src/core/sql.js";
+import { row } from "#src/core/query/sql-select-row.js";
+import { newSqlQueryHandler, SqlQueryHandler } from "#src/core/query/sql-query-handler.js";
+import { SqlQuery, SqlQueryExtended } from "#src/core/query/sql-query.js";
+import { SqlRunArgs } from "#src/core/query/sql-query-types.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { SqlSelectCharm } from "#/core/query/sql-charm.js";
+import { SqlSelectCharm } from "#src/core/query/sql-charm.js";
 
 type MockResult = { rows: unknown[] };
 type MockConnection = { query: () => Promise<MockResult> };

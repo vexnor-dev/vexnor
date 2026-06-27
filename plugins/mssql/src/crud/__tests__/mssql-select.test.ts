@@ -3,9 +3,9 @@ import { describe, expect, test } from "vitest";
 import "@vexnor/mssql";
 import { Account, Order, OrderItem } from "@vexnor/core/testing";
 import { sql, row, param, input } from "@vexnor/core";
-import { jsonMany } from "#/charms/json-aggregation-mssql.js";
-import { mssqlSelect } from "#/crud/mssql-select.js";
-import { defaultQueryOptions } from "#/default-query-options.js";
+import { jsonMany } from "#src/charms/json-aggregation-mssql.js";
+import { mssqlSelect } from "#src/crud/mssql-select.js";
+import { defaultQueryOptions } from "#src/default-query-options.js";
 
 describe("mssqlTableRead()", () => {
    test("basic select", () => {

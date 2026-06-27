@@ -1,12 +1,12 @@
 import { describe, expect, test } from "vitest";
-import { sql } from "#/core/sql.js";
-import { SqlQueryHandler, newSqlQueryHandler } from "#/core/query/sql-query-handler.js";
-import { SqlQuery, SqlQueryExtended } from "#/core/query/sql-query.js";
-import { SqlExecuteMode, SqlRunArgs, RemoteClient } from "#/core/query/sql-query-types.js";
-import { SqlRunError } from "#/core/sql-run-error.js";
-import { SqlErrorCode } from "#/core/sql-error-code.js";
+import { sql } from "#src/core/sql.js";
+import { SqlQueryHandler, newSqlQueryHandler } from "#src/core/query/sql-query-handler.js";
+import { SqlQuery, SqlQueryExtended } from "#src/core/query/sql-query.js";
+import { SqlExecuteMode, SqlRunArgs, RemoteClient } from "#src/core/query/sql-query-types.js";
+import { SqlRunError } from "#src/core/sql-run-error.js";
+import { SqlErrorCode } from "#src/core/sql-error-code.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { row } from "#/core/query/sql-select-row.js";
+import { row } from "#src/core/query/sql-select-row.js";
 
 type MockResult = { rows: unknown[] };
 

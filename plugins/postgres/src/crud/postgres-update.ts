@@ -11,8 +11,8 @@ import {
    SqlQueryColumns,
 } from "@vexnor/core";
 import type { SqlUpdateArgs } from "@vexnor/core";
-import { PostgresQueryHandler } from "#/postgres-query-handler.js";
-import "#/postgres-augment.js";
+import { PostgresQueryHandler } from "#src/postgres-query-handler.js";
+import "#src/postgres-augment.js";
 
 export type PostgresTableUpdateResult<
    T extends { Select: Record<string, unknown>; Update: Record<string, unknown> },

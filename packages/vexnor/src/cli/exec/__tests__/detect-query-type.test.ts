@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { detectQueryType } from "#/cli/exec/detect-query-type.js";
+import { detectQueryType } from "#src/cli/exec/detect-query-type.js";
 
 describe("detectQueryType", () => {
    test("detects SELECT queries", () => {

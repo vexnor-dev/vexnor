@@ -1,4 +1,4 @@
-import { SqlErrorCode } from "#/core/sql-error-code.js";
+import { SqlErrorCode } from "#src/core/sql-error-code.js";
 
 export type SqlRunErrorOptions = ErrorOptions & {
    params?: Record<string, unknown>;

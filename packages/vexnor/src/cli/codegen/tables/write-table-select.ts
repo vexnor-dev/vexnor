@@ -1,8 +1,8 @@
-import { CodeWriter } from "#/lib/code-writer.js";
-import { ok } from "#/lib/assert.js";
+import { CodeWriter } from "#src/lib/code-writer.js";
+import { ok } from "#src/lib/assert.js";
 import to from "to-case";
-import { PrintTableArgs, SqlLiteralType } from "#/plugin/plugin.js";
-import { getCodegenContext } from "#/cli/codegen/codegen-context.js";
+import { PrintTableArgs, SqlLiteralType } from "#src/plugin/plugin.js";
+import { getCodegenContext } from "#src/cli/codegen/codegen-context.js";
 
 export function writeTableSelect(writer: CodeWriter, { table }: PrintTableArgs) {
    const { table_name, columns } = table;

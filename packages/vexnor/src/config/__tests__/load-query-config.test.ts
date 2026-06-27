@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { loadQueryConfig } from "#/config/load-query-config.js";
+import { loadQueryConfig } from "#src/config/load-query-config.js";
 import { join } from "path";
 
 describe("loadQueryConfig", () => {

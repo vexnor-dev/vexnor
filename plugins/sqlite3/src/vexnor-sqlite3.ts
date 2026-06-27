@@ -10,10 +10,10 @@ import {
    VexnorPlugin,
 } from "@vexnor/core/plugin";
 import BetterSqlite3 from "better-sqlite3";
-import { findForeignKeys, findPrimaryKeys, findTableColumns, findTables, findViews } from "#/schema/find-tables.js";
-import { getColumnType } from "#/schema/get-column-type.js";
+import { findForeignKeys, findPrimaryKeys, findTableColumns, findTables, findViews } from "#src/schema/find-tables.js";
+import { getColumnType } from "#src/schema/get-column-type.js";
 import { SqlQuery, SqlQueryHandler } from "@vexnor/core";
-import { BetterSqlite3QueryHandler } from "#/better-sqlite3-query-handler.js";
+import { BetterSqlite3QueryHandler } from "#src/better-sqlite3-query-handler.js";
 import pkg from "../package.json" with { type: "json" };
 
 export const PLUGIN_NAME = pkg.name;

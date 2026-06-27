@@ -1,13 +1,13 @@
 // noinspection SqlNoDataSourceInspection,SqlResolve
-import { SqlQueryAny, SqlQueryExtended } from "#/core/query/sql-query.js";
-import { ParamsOfArgs } from "#/core/sql-base.js";
-import { SqlTable } from "#/core/schema/sql-table.js";
-import { set } from "#/core/operators/sql-set.js";
-import { sql } from "#/core/sql.js";
-import { raw } from "#/core/query/sql-raw.js";
-import { row } from "#/core/query/sql-select-row.js";
-import { Void } from "#/core/utils/utility-types.js";
-import { SqlQueryInfo } from "#/core/charms/sql-query-info.js";
+import { SqlQueryAny, SqlQueryExtended } from "#src/core/query/sql-query.js";
+import { ParamsOfArgs } from "#src/core/sql-base.js";
+import { SqlTable } from "#src/core/schema/sql-table.js";
+import { set } from "#src/core/operators/sql-set.js";
+import { sql } from "#src/core/sql.js";
+import { raw } from "#src/core/query/sql-raw.js";
+import { row } from "#src/core/query/sql-select-row.js";
+import { Void } from "#src/core/utils/utility-types.js";
+import { SqlQueryInfo } from "#src/core/charms/sql-query-info.js";
 
 /**
  * Arguments for the crud `update` command.

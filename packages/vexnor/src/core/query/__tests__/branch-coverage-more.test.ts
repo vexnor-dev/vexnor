@@ -1,11 +1,11 @@
 import { describe, expect, test } from "vitest";
-import { sql } from "#/core/sql.js";
-import { row } from "#/core/query/sql-select-row.js";
-import { set } from "#/core/operators/sql-set.js";
+import { sql } from "#src/core/sql.js";
+import { row } from "#src/core/query/sql-select-row.js";
+import { set } from "#src/core/operators/sql-set.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { param } from "#/core/query/sql-param.js";
-import { SqlQuery } from "#/core/query/sql-query.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { param } from "#src/core/query/sql-param.js";
+import { SqlQuery } from "#src/core/query/sql-query.js";
 
 describe("Branch coverage push — SQL table write in update/delete/insert context", () => {
    test("UPDATE with schema.tableName sets alias to table name", () => {

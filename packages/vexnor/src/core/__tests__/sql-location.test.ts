@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
-import { sql } from "#/core/sql.js";
-import { parseCallerLocation } from "#/core/utils/caller-location.js";
+import { sql } from "#src/core/sql.js";
+import { parseCallerLocation } from "#src/core/utils/caller-location.js";
 
 const INTERNAL_URL_BROWSER =
    "http://localhost:5173/@fs/Users/adrian/Work/vexnor-dev/packages/vexnor/dist/core/query/sql-query.js";

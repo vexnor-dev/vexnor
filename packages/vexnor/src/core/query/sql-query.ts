@@ -4,34 +4,34 @@ import {
    SqlInputArgs,
    SqlQueryFormat,
    SqlQueryType,
-} from "#/core/query/sql-query-types.js";
-import { ARGS, PARAMS, Sql, TYPE } from "#/core/sql-base.js";
-import { Lazy } from "#/lib/lazy.js";
-import { BuildSqlParams, SqlParam, SqlParamAny } from "#/core/query/sql-param.js";
-import { SqlQueryAll, SqlQueryRow } from "#/core/query/sql-models.js";
-import { SqlQueryInfo } from "#/core/charms/sql-query-info.js";
-import { findQueryComment } from "#/core/utils/find-query-comment.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { SqlBuildOptions, sqlBuildDefaults } from "#/core/builder/sql-build-options.js";
-import { newSqlQueryRef, SqlQueryRef, SqlQueryRefAny, SqlQueryRefExtended } from "#/core/query/sql-query-ref.js";
-import { SqlBuildError } from "#/core/sql-build-error.js";
-import { Queue } from "#/lib/queue.js";
-import { SqlSelectAll } from "#/core/query/sql-select-all.js";
-import { SqlSelectValue } from "#/core/query/sql-select-value.js";
-import { newSqlQueryColumn, SqlQueryColumn } from "#/core/query/sql-query-column.js";
-import { SqlSelectRow } from "#/core/query/sql-select-row.js";
-import { SqlSelectColumn } from "#/core/query/sql-select-column.js";
-import { SqlProjectBy } from "#/core/operators/sql-project-by.js";
-import { SqlSelectCharm } from "#/core/query/sql-charm.js";
-import { getFormatter } from "#/format/formatter-registry.js";
-import { SqlTable } from "#/core/schema/sql-table.js";
-import { ok } from "#/lib/assert.js";
-import { isSqlLanguage } from "#/core/query/lib/is-sql-language.js";
-import { isPrimitive } from "#/lib/primitive.js";
-import { isContextValue } from "#/core/query/context-value.js";
-import { getDefaultParamFormat } from "#/core/query/default-param-format.js";
-import { SqlJsonSchema } from "#/core/utils/sql-json-schema.js";
-import { parseCallerLocation } from "#/core/utils/caller-location.js";
+} from "#src/core/query/sql-query-types.js";
+import { ARGS, PARAMS, Sql, TYPE } from "#src/core/sql-base.js";
+import { Lazy } from "#src/lib/lazy.js";
+import { BuildSqlParams, SqlParam, SqlParamAny } from "#src/core/query/sql-param.js";
+import { SqlQueryAll, SqlQueryRow } from "#src/core/query/sql-models.js";
+import { SqlQueryInfo } from "#src/core/charms/sql-query-info.js";
+import { findQueryComment } from "#src/core/utils/find-query-comment.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { SqlBuildOptions, sqlBuildDefaults } from "#src/core/builder/sql-build-options.js";
+import { newSqlQueryRef, SqlQueryRef, SqlQueryRefAny, SqlQueryRefExtended } from "#src/core/query/sql-query-ref.js";
+import { SqlBuildError } from "#src/core/sql-build-error.js";
+import { Queue } from "#src/lib/queue.js";
+import { SqlSelectAll } from "#src/core/query/sql-select-all.js";
+import { SqlSelectValue } from "#src/core/query/sql-select-value.js";
+import { newSqlQueryColumn, SqlQueryColumn } from "#src/core/query/sql-query-column.js";
+import { SqlSelectRow } from "#src/core/query/sql-select-row.js";
+import { SqlSelectColumn } from "#src/core/query/sql-select-column.js";
+import { SqlProjectBy } from "#src/core/operators/sql-project-by.js";
+import { SqlSelectCharm } from "#src/core/query/sql-charm.js";
+import { getFormatter } from "#src/format/formatter-registry.js";
+import { SqlTable } from "#src/core/schema/sql-table.js";
+import { ok } from "#src/lib/assert.js";
+import { isSqlLanguage } from "#src/core/query/lib/is-sql-language.js";
+import { isPrimitive } from "#src/lib/primitive.js";
+import { isContextValue } from "#src/core/query/context-value.js";
+import { getDefaultParamFormat } from "#src/core/query/default-param-format.js";
+import { SqlJsonSchema } from "#src/core/utils/sql-json-schema.js";
+import { parseCallerLocation } from "#src/core/utils/caller-location.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlQueryAny = SqlQuery<any>;

@@ -1,5 +1,5 @@
-import { SqlRunError } from "#/core/sql-run-error.js";
-import type { SqlRetryOptions, SqlRetryArgs } from "#/core/query/sql-query-types.js";
+import { SqlRunError } from "#src/core/sql-run-error.js";
+import type { SqlRetryOptions, SqlRetryArgs } from "#src/core/query/sql-query-types.js";
 
 export async function runWithRetry<TResult, TExecution = unknown>(
    retry: SqlRetryOptions<TExecution> | false | undefined,

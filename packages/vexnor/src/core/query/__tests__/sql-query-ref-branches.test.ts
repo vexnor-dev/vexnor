@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
-import { newSqlQueryRef } from "#/core/query/sql-query-ref.js";
-import { sql } from "#/core/sql.js";
-import { row } from "#/core/query/sql-select-row.js";
+import { newSqlQueryRef } from "#src/core/query/sql-query-ref.js";
+import { sql } from "#src/core/sql.js";
+import { row } from "#src/core/query/sql-select-row.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
 
 const innerQuery = sql`select ${row(Account.$accountId, Account.$email)} from ${Account}`;

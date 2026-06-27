@@ -1,19 +1,19 @@
 import { describe, expect, test } from "vitest";
-import { sql } from "#/core/sql.js";
-import { row } from "#/core/query/sql-select-row.js";
-import { ctx, SqlParam } from "#/core/query/sql-param.js";
+import { sql } from "#src/core/sql.js";
+import { row } from "#src/core/query/sql-select-row.js";
+import { ctx, SqlParam } from "#src/core/query/sql-param.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { val } from "#/core/query/sql-select-value.js";
-import { col as colFactory } from "#/core/query/sql-select-column.js";
-import { quote } from "#/core/query/sql-raw.js";
-import { input } from "#/core/query/sql-input.js";
-import { info } from "#/core/charms/sql-query-info.js";
-import { SqlQueryFormatByKeyword } from "#/core/query/sql-query.js";
-import { contextValue } from "#/core/query/context-value.js";
-import { runWithRetry } from "#/core/query/sql-retry.js";
-import { SqlRunError } from "#/core/sql-run-error.js";
-import { SqlErrorCode } from "#/core/sql-error-code.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { val } from "#src/core/query/sql-select-value.js";
+import { col as colFactory } from "#src/core/query/sql-select-column.js";
+import { quote } from "#src/core/query/sql-raw.js";
+import { input } from "#src/core/query/sql-input.js";
+import { info } from "#src/core/charms/sql-query-info.js";
+import { SqlQueryFormatByKeyword } from "#src/core/query/sql-query.js";
+import { contextValue } from "#src/core/query/context-value.js";
+import { runWithRetry } from "#src/core/query/sql-retry.js";
+import { SqlRunError } from "#src/core/sql-run-error.js";
+import { SqlErrorCode } from "#src/core/sql-error-code.js";
 
 describe("SqlQuery.getSql — format edge cases", () => {
    test("getSql with non-primitive value throws", () => {

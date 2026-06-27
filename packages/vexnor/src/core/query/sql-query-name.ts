@@ -1,4 +1,4 @@
-import { isQuery, SqlQueryBaseAny, toQuery } from "#/core/query/sql-query.js";
+import { isQuery, SqlQueryBaseAny, toQuery } from "#src/core/query/sql-query.js";
 
 const cache = new Map<string, Promise<Map<string, string>>>();
 

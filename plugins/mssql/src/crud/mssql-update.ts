@@ -11,8 +11,8 @@ import {
    SqlQueryColumns,
 } from "@vexnor/core";
 import type { SqlUpdateArgs } from "@vexnor/core";
-import { MssqlQueryHandler } from "#/mssql-query-handler.js";
-import "#/mssql-augment.js";
+import { MssqlQueryHandler } from "#src/mssql-query-handler.js";
+import "#src/mssql-augment.js";
 
 export type MssqlTableUpdateResult<
    T extends { Select: Record<string, unknown>; Update: Record<string, unknown> },

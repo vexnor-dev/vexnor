@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { getDefaultParamFormat } from "#/core/query/default-param-format.js";
+import { getDefaultParamFormat } from "#src/core/query/default-param-format.js";
 
 describe("getDefaultParamFormat — all dialects", () => {
    test("postgresql format uses $N", () => {

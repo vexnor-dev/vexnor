@@ -1,9 +1,9 @@
 import { describe, expect, test } from "vitest";
 import { Account } from "@test-models/vexnor_dev.schema.js";
-import { sql } from "#/core/sql.js";
-import { sqlInsertRows } from "#/core/crud/sql-insert-rows.js";
-import { row } from "#/core/query/sql-select-row.js";
-import { sqlInsertFrom } from "#/core/crud/sql-insert-from.js";
+import { sql } from "#src/core/sql.js";
+import { sqlInsertRows } from "#src/core/crud/sql-insert-rows.js";
+import { row } from "#src/core/query/sql-select-row.js";
+import { sqlInsertFrom } from "#src/core/crud/sql-insert-from.js";
 
 describe("SqlTableCreate", () => {
    test("should generate insert query without from clause", () => {

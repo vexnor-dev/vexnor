@@ -1,7 +1,7 @@
-import { newSqlQuery, SqlQuery, SqlQueryExtended } from "#/core/query/sql-query.js";
-import { ParamsOf, RowOf, Sql } from "#/core/sql-base.js";
-import { Void } from "#/core/utils/utility-types.js";
-import { sqlBuildDefaults } from "#/core/builder/sql-build-options.js";
+import { newSqlQuery, SqlQuery, SqlQueryExtended } from "#src/core/query/sql-query.js";
+import { ParamsOf, RowOf, Sql } from "#src/core/sql-base.js";
+import { Void } from "#src/core/utils/utility-types.js";
+import { sqlBuildDefaults } from "#src/core/builder/sql-build-options.js";
 
 type _SqlInlineValue_ = Sql | string | number | boolean | null | undefined | Date | bigint | Uint8Array;
 export type SqlQueryToken = _SqlInlineValue_ | _SqlInlineValue_[];

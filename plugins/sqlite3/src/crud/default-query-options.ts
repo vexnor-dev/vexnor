@@ -1,5 +1,5 @@
 import { SqlBuildOptions } from "@vexnor/core";
-import { Sqlite3Tokenizer } from "#/sqlite3-tokenizer.js";
+import { Sqlite3Tokenizer } from "#src/sqlite3-tokenizer.js";
 
 export const defaultQueryOptions: SqlBuildOptions = {
    dialect: "sqlite",

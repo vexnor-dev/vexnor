@@ -1,10 +1,10 @@
 import { describe, expect, test } from "vitest";
-import { sql } from "#/core/sql.js";
-import { row } from "#/core/query/sql-select-row.js";
+import { sql } from "#src/core/sql.js";
+import { row } from "#src/core/query/sql-select-row.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { mockHandler } from "#/test/mock-query-handler.js";
-import { newSqlQueryHandler } from "#/core/query/sql-query-handler.js";
-import { MockQueryHandler } from "#/test/mock-query-handler.js";
+import { mockHandler } from "#src/test/mock-query-handler.js";
+import { newSqlQueryHandler } from "#src/core/query/sql-query-handler.js";
+import { MockQueryHandler } from "#src/test/mock-query-handler.js";
 
 const findAccounts = sql`
    select ${row(Account.$accountId, Account.$email, Account.$createdAt)}

@@ -1,10 +1,10 @@
 import { describe, expect, test } from "vitest";
-import { Queue } from "#/lib/queue.js";
-import { Cache, resetAll, resetCache } from "#/lib/cache.js";
-import { Lazy } from "#/lib/lazy.js";
-import { isPrimitive } from "#/lib/primitive.js";
-import { isError } from "#/lib/is-error.js";
-import { raw } from "#/core/query/sql-raw.js";
+import { Queue } from "#src/lib/queue.js";
+import { Cache, resetAll, resetCache } from "#src/lib/cache.js";
+import { Lazy } from "#src/lib/lazy.js";
+import { isPrimitive } from "#src/lib/primitive.js";
+import { isError } from "#src/lib/is-error.js";
+import { raw } from "#src/core/query/sql-raw.js";
 
 describe("Queue — uncovered paths", () => {
    test("pop() yields items in reverse order", () => {

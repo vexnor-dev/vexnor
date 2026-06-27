@@ -1,5 +1,5 @@
-import { SqlParam, SqlParamAny } from "#/core/query/sql-param.js";
-import { SqlParamValidation, SqlParamValidationAny } from "#/core/query/params/sql-param-validation.js";
+import { SqlParam, SqlParamAny } from "#src/core/query/sql-param.js";
+import { SqlParamValidation, SqlParamValidationAny } from "#src/core/query/params/sql-param-validation.js";
 
 export type SqlParamsList<T extends Record<string, unknown>> = {
    [K in keyof T]: K extends string ? SqlParam<{ Name: K; Type: T[K] }> : never;

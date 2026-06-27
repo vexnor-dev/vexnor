@@ -1,9 +1,9 @@
-import { SqlColumnFormat } from "#/core/builder/default-formatter.js";
-import { Sql, TYPE } from "#/core/sql-base.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
-import { SqlTableIdentity } from "#/core/schema/sql-table-identity.js";
-import { SqlJsonSchema, SqlJsonType } from "#/core/utils/sql-json-schema.js";
+import { SqlColumnFormat } from "#src/core/builder/default-formatter.js";
+import { Sql, TYPE } from "#src/core/sql-base.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { SqlBuildOptions } from "#src/core/builder/sql-build-options.js";
+import { SqlTableIdentity } from "#src/core/schema/sql-table-identity.js";
+import { SqlJsonSchema, SqlJsonType } from "#src/core/utils/sql-json-schema.js";
 
 export type SqlTableColumnTypeArgs = {
    Key: string;

@@ -1,10 +1,10 @@
 import { describe, expect, test, vi } from "vitest";
-import { codegenCommand, resolveGenerateConfig } from "#/cli/codegen/codegen-command.js";
+import { codegenCommand, resolveGenerateConfig } from "#src/cli/codegen/codegen-command.js";
 import { join, resolve } from "node:path";
 import os from "node:os";
 import fs from "node:fs/promises";
 
-vi.mock("../../../load-plugin.js");
+vi.mock("#src/load-plugin.js");
 
 const FIXTURE_CONFIG = resolve(import.meta.dirname, "./fixtures/codegen.config.ts");
 

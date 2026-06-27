@@ -1,4 +1,4 @@
-import type { SqlBuildContext } from "#/core/builder/sql-build-context.js";
+import type { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
 
 export type SqlTableFormat = "tableName" | "schema.tableName" | "schema.tableName AS tableAlias" | "tableAlias";
 

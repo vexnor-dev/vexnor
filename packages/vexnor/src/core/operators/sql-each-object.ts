@@ -1,9 +1,9 @@
-import { PARAMS, Sql, SqlOptions } from "#/core/sql-base.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
-import { SqlQuery } from "#/core/query/sql-query.js";
-import { SqlTableAny } from "#/core/schema/sql-table.js";
-import { SqlTableColumnAny } from "#/core/schema/sql-table-column.js";
+import { PARAMS, Sql, SqlOptions } from "#src/core/sql-base.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { SqlBuildOptions } from "#src/core/builder/sql-build-options.js";
+import { SqlQuery } from "#src/core/query/sql-query.js";
+import { SqlTableAny } from "#src/core/schema/sql-table.js";
+import { SqlTableColumnAny } from "#src/core/schema/sql-table-column.js";
 
 // ─── Context extension for eachObject iteration ─────────────────────────────
 

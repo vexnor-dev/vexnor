@@ -3,8 +3,8 @@ import "@vexnor/sqlite3";
 import { assertType, describe, expect, test } from "vitest";
 import { Account, Order } from "@vexnor/core/testing";
 import { sql, row, col, param, input, ParamsOf } from "@vexnor/core";
-import { sqlite3Select } from "#/crud/sqlite3-select.js";
-import { defaultQueryOptions } from "#/crud/default-query-options.js";
+import { sqlite3Select } from "#src/crud/sqlite3-select.js";
+import { defaultQueryOptions } from "#src/crud/default-query-options.js";
 
 describe("sqlite3Select()", () => {
    test("basic select", () => {

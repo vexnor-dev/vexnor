@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { SqlRunArgs } from "#/core/query/sql-query-types.js";
+import { SqlRunArgs } from "#src/core/query/sql-query-types.js";
 
 describe("SqlQueryTypes Inference tests", () => {
    test("SqlRunArgs should include params", () => {

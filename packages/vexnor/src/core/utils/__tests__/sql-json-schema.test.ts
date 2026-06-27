@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
-import { deserialize } from "#/core/utils/sql-json-schema.js";
-import type { SqlJsonSchema } from "#/core/utils/sql-json-schema.js";
+import { deserialize } from "#src/core/utils/sql-json-schema.js";
+import type { SqlJsonSchema } from "#src/core/utils/sql-json-schema.js";
 
 describe("deserialize", () => {
    describe("primitives and empty input", () => {

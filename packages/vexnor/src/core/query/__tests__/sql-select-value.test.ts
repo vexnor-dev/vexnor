@@ -1,12 +1,12 @@
 import { assertType, describe, expect, test } from "vitest";
-import { SqlSelectValue, val } from "#/core/query/sql-select-value.js";
-import { row } from "#/core/query/sql-select-row.js";
-import { sql } from "#/core/sql.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
+import { SqlSelectValue, val } from "#src/core/query/sql-select-value.js";
+import { row } from "#src/core/query/sql-select-row.js";
+import { sql } from "#src/core/sql.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { param } from "#/core/query/sql-param.js";
-import { ParamsOf } from "#/core/sql-base.js";
-import { SqlQueryExtended } from "#/core/query/sql-query.js";
+import { param } from "#src/core/query/sql-param.js";
+import { ParamsOf } from "#src/core/sql-base.js";
+import { SqlQueryExtended } from "#src/core/query/sql-query.js";
 
 describe("SqlValue tests", () => {
    test("val with generic type parameter", () => {

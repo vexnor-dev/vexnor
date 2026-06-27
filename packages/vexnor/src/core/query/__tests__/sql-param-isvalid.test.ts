@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
-import { param } from "#/core/query/sql-param.js";
+import { param } from "#src/core/query/sql-param.js";
 
-import { validateParamValue } from "#/core/query/params/validate-param-value.js";
+import { validateParamValue } from "#src/core/query/params/validate-param-value.js";
 
 describe("validateParamValue", () => {
    test("returns empty array when valid", () => {

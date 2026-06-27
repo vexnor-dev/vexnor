@@ -1,8 +1,8 @@
 import { describe, expect, test } from "vitest";
-import { newMssqlTableHandler } from "#/crud/mssql-table-handler.js";
+import { newMssqlTableHandler } from "#src/crud/mssql-table-handler.js";
 import { Account } from "@vexnor/core/testing";
 import "@vexnor/mssql";
-import { defaultQueryOptions } from "#/default-query-options.js";
+import { defaultQueryOptions } from "#src/default-query-options.js";
 import { param, sql } from "@vexnor/core";
 
 describe("newMssqlTableHandler — SQL generation branches", () => {

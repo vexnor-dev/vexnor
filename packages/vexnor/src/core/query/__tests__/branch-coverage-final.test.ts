@@ -1,11 +1,11 @@
 import { describe, expect, test } from "vitest";
-import { sql } from "#/core/sql.js";
-import { row } from "#/core/query/sql-select-row.js";
-import { insert } from "#/core/operators/sql-insert-x.js";
+import { sql } from "#src/core/sql.js";
+import { row } from "#src/core/query/sql-select-row.js";
+import { insert } from "#src/core/operators/sql-insert-x.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
 import { AccountStatusUdt } from "@test-models/vexnor_dev-enums.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { param } from "#/core/query/sql-param.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { param } from "#src/core/query/sql-param.js";
 
 describe("SqlBuildContext.text — param token", () => {
    test("text with param token renders ?", () => {

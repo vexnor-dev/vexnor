@@ -1,7 +1,7 @@
 import { Account } from "@test-models/vexnor_dev.account-table.js";
 import { describe, expect, test } from "vitest";
-import { Sql } from "#/core/sql-base.js";
-import { SqlTableColumn } from "#/core/schema/sql-table-column.js";
+import { Sql } from "#src/core/sql-base.js";
+import { SqlTableColumn } from "#src/core/schema/sql-table-column.js";
 
 describe("SqlColumn tests", () => {
    test("SqlColumn should be defined", () => {

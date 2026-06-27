@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
-import { sql } from "#/core/sql.js";
-import { filterBy, SqlFilterBy } from "#/core/operators/sql-filter-by.js";
-import { row } from "#/core/query/sql-select-row.js";
+import { sql } from "#src/core/sql.js";
+import { filterBy, SqlFilterBy } from "#src/core/operators/sql-filter-by.js";
+import { row } from "#src/core/query/sql-select-row.js";
 import { Account, AccountStatusUdt } from "@test-models/vexnor_dev.schema.js";
 
 function buildFilter(filterData?: Record<string, unknown> | Record<string, unknown>[] | null) {
@@ -1109,7 +1109,7 @@ describe("SqlFilter — != operator", () => {
 
 describe("SqlFilterBy — serialize path (no params)", () => {
    test("serializes to filter operator node with columns", async () => {
-      const { serializeQuery } = await import("#/core/serialize/serialize-query.js");
+      const { serializeQuery } = await import("#src/core/serialize/serialize-query.js");
       const query = sql`
          SELECT ${row(Account.$$)}
          FROM ${Account}

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { MssqlTokenizer } from "#/mssql-tokenizer.js";
+import { MssqlTokenizer } from "#src/mssql-tokenizer.js";
 
 const tokenizer = new MssqlTokenizer();
 

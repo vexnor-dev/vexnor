@@ -1,9 +1,9 @@
 import { describe, expect, test } from "vitest";
 import { Account } from "@vexnor/core/testing";
 import { sql, row } from "@vexnor/core";
-import { mssqlInsertRows } from "#/crud/mssql-insert-rows.js";
-import { defaultQueryOptions } from "#/default-query-options.js";
-import { mssqlInsertFrom } from "#/crud/mssql-insert-from.js";
+import { mssqlInsertRows } from "#src/crud/mssql-insert-rows.js";
+import { defaultQueryOptions } from "#src/default-query-options.js";
+import { mssqlInsertFrom } from "#src/crud/mssql-insert-from.js";
 
 describe("mssqlTableCreate()", () => {
    test("basic insert", () => {

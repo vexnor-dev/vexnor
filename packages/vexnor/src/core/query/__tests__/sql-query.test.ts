@@ -1,12 +1,12 @@
 import { describe, expect, test } from "vitest";
-import { sql } from "#/core/sql.js";
-import { info } from "#/core/charms/sql-query-info.js";
-import { row } from "#/core/query/sql-select-row.js";
+import { sql } from "#src/core/sql.js";
+import { info } from "#src/core/charms/sql-query-info.js";
+import { row } from "#src/core/query/sql-select-row.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
 import { Order } from "@test-models/vexnor_dev.order-table.js";
 import { AccountStatusUdt } from "@test-models/vexnor_dev-enums.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { newSqlTable } from "#/core/schema/sql-table.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { newSqlTable } from "#src/core/schema/sql-table.js";
 
 describe("SqlQuery tests", () => {
    test("SqlQuery row type inference", () => {

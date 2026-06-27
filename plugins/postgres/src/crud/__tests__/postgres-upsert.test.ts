@@ -1,8 +1,8 @@
 // noinspection SqlNoDataSourceInspection,SqlResolve
 import { describe, expect, test } from "vitest";
 import { Account } from "@vexnor/core/testing";
-import { postgresUpsert } from "#/crud/postgres-upsert.js";
-import { defaultQueryOptions } from "#/default-query-options.js";
+import { postgresUpsert } from "#src/crud/postgres-upsert.js";
+import { defaultQueryOptions } from "#src/default-query-options.js";
 
 describe("postgresUpsert()", () => {
    test("auto SET: generates col = EXCLUDED.col for all non-conflict columns", () => {

@@ -15,7 +15,7 @@ export default defineQueryConfig({
       selectAccounts: {
          profile: "postgres",
          plugin: postgresPlugin,
-         params: { filter: undefined },
+         params: { filter: undefined, filterBy: undefined },
          environments: {
             filtered: { filter: "alice" },
          },
@@ -23,12 +23,12 @@ export default defineQueryConfig({
       selectAccountsForLogin: {
          profile: "postgres",
          plugin: postgresPlugin,
-         params: {},
+         params: { filterBy: undefined },
       },
       selectMyOrders: {
          profile: "postgres",
          plugin: postgresPlugin,
-         params: { userId: contextValue },
+         params: { userId: contextValue, filterBy: undefined },
       },
       deleteAccount: {
          profile: "postgres",

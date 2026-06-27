@@ -1,10 +1,10 @@
 import { describe, expect, test } from "vitest";
-import { SqlSelectRow, row } from "#/core/query/sql-select-row.js";
-import { SqlSelectValue } from "#/core/query/sql-select-value.js";
-import { col } from "#/core/query/sql-select-column.js";
-import { sql } from "#/core/sql.js";
+import { SqlSelectRow, row } from "#src/core/query/sql-select-row.js";
+import { SqlSelectValue } from "#src/core/query/sql-select-value.js";
+import { col } from "#src/core/query/sql-select-column.js";
+import { sql } from "#src/core/sql.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
 
 describe("SqlSelectRow.getRow() — SqlSelectValue branch", () => {
    test("SqlSelectValue entries produce query columns in row", () => {

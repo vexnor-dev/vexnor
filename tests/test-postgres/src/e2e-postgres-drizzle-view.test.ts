@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 import { describe, expect, test } from "vitest";
 import { pgSchema, uuid, varchar, bigint } from "drizzle-orm/pg-core";
 import { fromDrizzleView } from "@vexnor/drizzle/pg";

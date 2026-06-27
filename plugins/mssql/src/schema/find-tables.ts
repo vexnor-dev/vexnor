@@ -1,5 +1,5 @@
 import { col, param, row, sql } from "@vexnor/core";
-import { Columns, ConstraintColumnUsage, KeyColumnUsage, ReferentialConstraints, TableConstraints, Tables } from "#/schema/models.js";
+import { Columns, ConstraintColumnUsage, KeyColumnUsage, ReferentialConstraints, TableConstraints, Tables } from "#src/schema/models.js";
 
 const TableColumns = sql`
    SELECT ${row(Columns.$column_name, Columns.$column_default, Columns.$is_nullable, Columns.$udt_name, Columns.$domain_name, Columns.$numeric_precision_radix)},

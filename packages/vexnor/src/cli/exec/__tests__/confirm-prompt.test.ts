@@ -1,5 +1,5 @@
 import { describe, expect, test, beforeEach } from "vitest";
-import { confirmPrompt } from "#/cli/exec/confirm-prompt.js";
+import { confirmPrompt } from "#src/cli/exec/confirm-prompt.js";
 import { Readable, Writable } from "stream";
 import type { Interface } from "readline";
 

@@ -1,9 +1,9 @@
-import { SqlQuery, SqlQueryAny } from "#/core/query/sql-query.js";
-import { PARAMS, ROW, Sql, TYPE } from "#/core/sql-base.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
-import { SqlParams, SqlQueryToken } from "#/core/sql.js";
-import { SqlBuildError } from "#/core/sql-build-error.js";
+import { SqlQuery, SqlQueryAny } from "#src/core/query/sql-query.js";
+import { PARAMS, ROW, Sql, TYPE } from "#src/core/sql-base.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { SqlBuildOptions } from "#src/core/builder/sql-build-options.js";
+import { SqlParams, SqlQueryToken } from "#src/core/sql.js";
+import { SqlBuildError } from "#src/core/sql-build-error.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlSelectValueAny = SqlSelectValue<any>;

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { row, sql, SqlBuildContext } from "@vexnor/core";
-import { JsonAggregationPostgres, jsonMany, jsonOne } from "#/charms/json-aggregation-postgres.js";
+import { JsonAggregationPostgres, jsonMany, jsonOne } from "#src/charms/json-aggregation-postgres.js";
 import { Account } from "@vexnor/core/testing";
 
 describe("json-aggregation-postgres error branches", () => {

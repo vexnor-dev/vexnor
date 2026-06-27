@@ -1,6 +1,6 @@
-export { resetAll } from "#/lib/cache.js";
+export { resetAll } from "#src/lib/cache.js";
 
-export { resetIds } from "#/core/sql-base.js";
+export { resetIds } from "#src/core/sql-base.js";
 
 export { MockPlugin, type MockConnection, type MockResult } from "./mock-plugin.js";
 

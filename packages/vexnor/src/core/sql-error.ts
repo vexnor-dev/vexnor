@@ -1,4 +1,4 @@
-import { SqlErrorCode } from "#/core/sql-error-code.js";
+import { SqlErrorCode } from "#src/core/sql-error-code.js";
 
 /**
  * Thrown for registry-level errors — unknown query hash, startup validation failures.

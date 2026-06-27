@@ -1,10 +1,10 @@
 import { describe, expect, test } from "vitest";
-import { sql } from "#/core/sql.js";
-import { row } from "#/core/query/sql-select-row.js";
-import { param, ctx } from "#/core/query/sql-param.js";
+import { sql } from "#src/core/sql.js";
+import { row } from "#src/core/query/sql-select-row.js";
+import { param, ctx } from "#src/core/query/sql-param.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
 import { Order } from "@test-models/vexnor_dev.order-table.js";
-import { col } from "#/core/query/sql-select-column.js";
+import { col } from "#src/core/query/sql-select-column.js";
 
 describe("SqlQuery — uncovered function paths", () => {
    test("rowType getter throws", () => {

@@ -1,4 +1,4 @@
-import { ProfileConfig, VexnorConfig } from "#/config/config-types.js";
+import { ProfileConfig, VexnorConfig } from "#src/config/config-types.js";
 
 export function resolveProfile(profile: ProfileConfig | string | undefined, config: VexnorConfig): string | undefined {
    if (!profile) return undefined;

@@ -1,11 +1,11 @@
 import { assertType, describe, expect, test } from "vitest";
 import { Account, IAccountSelect } from "@test-models/vexnor_dev.account-table.js";
-import { InferTable$RowBySelect } from "#/core/types/infer-types.js";
-import { newSqlTableColumn } from "#/core/schema/sql-table-column.js";
-import { param, SqlParam } from "#/core/query/sql-param.js";
-import { ParamsOf, ParamsOfArgs } from "#/core/sql-base.js";
-import { sql } from "#/core/sql.js";
-import { Void } from "#/core/utils/utility-types.js";
+import { InferTable$RowBySelect } from "#src/core/types/infer-types.js";
+import { newSqlTableColumn } from "#src/core/schema/sql-table-column.js";
+import { param, SqlParam } from "#src/core/query/sql-param.js";
+import { ParamsOf, ParamsOfArgs } from "#src/core/sql-base.js";
+import { sql } from "#src/core/sql.js";
+import { Void } from "#src/core/utils/utility-types.js";
 
 describe("SqlBase tests", () => {
    test("InferSqlRowFromRecord", () => {

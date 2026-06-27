@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
-import { VexnorSqlite3 } from "#/vexnor-sqlite3.js";
-import { getColumnType } from "#/schema/get-column-type.js";
-import { sql } from "#/sqlite3-sql.js";
+import { VexnorSqlite3 } from "#src/vexnor-sqlite3.js";
+import { getColumnType } from "#src/schema/get-column-type.js";
+import { sql } from "#src/sqlite3-sql.js";
 
 describe("VexnorSqlite3 plugin class", () => {
    const plugin = new VexnorSqlite3();

@@ -1,4 +1,4 @@
-import { SqlParamFormat } from "#/core/query/sql-models.js";
+import { SqlParamFormat } from "#src/core/query/sql-models.js";
 
 const defaultParamFormatByDialect: Record<string, SqlParamFormat> = {
    transactsql: ({ index }) => `@param_${index}`,

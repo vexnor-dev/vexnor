@@ -1,5 +1,5 @@
-import { ObjectValidationAny } from "#/core/query/params/sql-param-validation.js";
-import { Queue } from "#/lib/queue.js";
+import { ObjectValidationAny } from "#src/core/query/params/sql-param-validation.js";
+import { Queue } from "#src/lib/queue.js";
 
 export function validateParamObject(
    obj: Record<string, unknown>,

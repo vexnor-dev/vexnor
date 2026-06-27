@@ -1,9 +1,9 @@
 // noinspection SqlNoDataSourceInspection,SqlResolve
 import { SqlTable, insert, row, info, SqlQueryColumns } from "@vexnor/core";
-import { sql } from "#/postgres-sql.js";
+import { sql } from "#src/postgres-sql.js";
 import { SqlInsertRowsParams } from "@vexnor/core";
-import { PostgresQueryHandler } from "#/postgres-query-handler.js";
-import "#/postgres-augment.js";
+import { PostgresQueryHandler } from "#src/postgres-query-handler.js";
+import "#src/postgres-augment.js";
 
 export type PostgresInsertRowsResult<T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> }> =
    PostgresQueryHandler<{

@@ -1,7 +1,7 @@
-import { InferTable$RowBySelect } from "#/core/types/infer-types.js";
-import { Sql, TYPE } from "#/core/sql-base.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
+import { InferTable$RowBySelect } from "#src/core/types/infer-types.js";
+import { Sql, TYPE } from "#src/core/sql-base.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { SqlBuildOptions } from "#src/core/builder/sql-build-options.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlTableAllAny = SqlTableAll<any>;

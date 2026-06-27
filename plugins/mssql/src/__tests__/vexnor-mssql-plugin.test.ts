@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from "vitest";
-import { VexnorMssql } from "#/vexnor-mssql.js";
-import { sql } from "#/mssql-sql.js";
+import { VexnorMssql } from "#src/vexnor-mssql.js";
+import { sql } from "#src/mssql-sql.js";
 
 describe("VexnorMssql plugin class", () => {
    const plugin = new VexnorMssql();

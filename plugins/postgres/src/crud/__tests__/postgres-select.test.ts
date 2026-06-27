@@ -2,9 +2,9 @@
 import { assertType, describe, expect, test } from "vitest";
 import { Account, Order, OrderItem, AccountStatusUdt } from "@vexnor/core/testing";
 import { sql, row, col, param, input, ParamsOf, TypeOf } from "@vexnor/core";
-import { jsonMany } from "#/charms/json-aggregation-postgres.js";
-import { postgresSelect } from "#/crud/postgres-select.js";
-import { defaultQueryOptions } from "#/default-query-options.js";
+import { jsonMany } from "#src/charms/json-aggregation-postgres.js";
+import { postgresSelect } from "#src/crud/postgres-select.js";
+import { defaultQueryOptions } from "#src/default-query-options.js";
 
 describe("postgresSelect()", () => {
    test("basic select", () => {

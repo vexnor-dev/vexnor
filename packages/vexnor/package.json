@@ -76,7 +76,6 @@
   "scripts": {
     "clean": "rimraf dist tsconfig.tsbuildinfo",
     "build": "rm -f tsconfig.tsbuildinfo && tsc -b",
-    "postbuild": "tsc-alias",
     "prepack:1-copy-readme": "copyfiles -f \"../../README.md\" .",
     "prepack:2-copy-docs": "copyfiles -u 2 \"../../docs/**\" docs",
     "prepack": "run-s 'build' 'prepack:*'",
@@ -112,12 +111,11 @@
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.1.5",
-    "tsc-alias": "^1.8.16",
     "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.1.5"
   },
   "changelog": "https://github.com/vexnor-dev/vexnor/releases",
   "imports": {
-    "#*": "./dist/*"
+    "#src/*": "./dist/*"
   }
 }

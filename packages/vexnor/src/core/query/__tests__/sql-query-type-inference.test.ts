@@ -1,11 +1,11 @@
 import { assertType, describe, expect, test } from "vitest";
-import { SqlParams, sql } from "#/core/sql.js";
+import { SqlParams, sql } from "#src/core/sql.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { SqlInputArgs } from "#/core/query/sql-query-types.js";
-import { param, SqlParam } from "#/core/query/sql-param.js";
-import { SqlQueryExtended } from "#/core/query/sql-query.js";
-import { SqlCharm } from "#/core/query/sql-charm.js";
-import { row } from "#/core/query/sql-select-row.js";
+import { SqlInputArgs } from "#src/core/query/sql-query-types.js";
+import { param, SqlParam } from "#src/core/query/sql-param.js";
+import { SqlQueryExtended } from "#src/core/query/sql-query.js";
+import { SqlCharm } from "#src/core/query/sql-charm.js";
+import { row } from "#src/core/query/sql-select-row.js";
 import { AccountStatusUdt } from "@test-models/vexnor_dev-enums.js";
 
 describe("SqlQuery Type inference", () => {

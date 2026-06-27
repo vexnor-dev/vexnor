@@ -1,9 +1,9 @@
 import { assertType, describe, expect, test } from "vitest";
 import { Account, IAccountSelect, IAccountUpdate } from "@test-models/vexnor_dev.schema.js";
-import { sql } from "#/core/sql.js";
-import { input } from "#/core/query/sql-input.js";
-import { sqlUpdate } from "#/core/crud/sql-update.js";
-import { SqlQuery } from "#/core/query/sql-query.js";
+import { sql } from "#src/core/sql.js";
+import { input } from "#src/core/query/sql-input.js";
+import { sqlUpdate } from "#src/core/crud/sql-update.js";
+import { SqlQuery } from "#src/core/query/sql-query.js";
 
 describe("SqlTableUpdate", () => {
    test("should generate update query without where clause", () => {

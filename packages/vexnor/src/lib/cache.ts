@@ -1,5 +1,5 @@
-import { ok } from "#/lib/assert.js";
-import { resetIds, Sql } from "#/core/sql-base.js";
+import { ok } from "#src/lib/assert.js";
+import { resetIds, Sql } from "#src/core/sql-base.js";
 
 export class Cache {
    private map = new Map<string, Sql>();

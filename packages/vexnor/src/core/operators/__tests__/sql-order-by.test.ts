@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
-import { sql } from "#/core/sql.js";
-import { orderBy, SqlOrderBy } from "#/core/operators/sql-order-by.js";
-import { row } from "#/core/query/sql-select-row.js";
+import { sql } from "#src/core/sql.js";
+import { orderBy, SqlOrderBy } from "#src/core/operators/sql-order-by.js";
+import { row } from "#src/core/query/sql-select-row.js";
 import { Account } from "@test-models/vexnor_dev.schema.js";
 
 describe("SqlOrderBy", () => {

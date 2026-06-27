@@ -9,13 +9,12 @@ export default mergeConfig(sharedConfig, {
    resolve: {
       alias: {
          "@test-models": path.resolve(__dirname, "./src/test/models"),
-         "#": path.resolve(__dirname, "./src"),
       },
    },
    test: {
       setupFiles: ["./src/test/setup-test.ts"],
       coverage: {
-         provider: "istanbul",
+         provider: "v8",
          reportsDirectory: "./coverage",
          reporter: ["text", "html", "json", "json-summary", "clover"],
          include: ["src/**/*"],

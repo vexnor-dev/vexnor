@@ -1,8 +1,8 @@
-import { SqlQueryHandlerAny } from "#/core/query/sql-query-handler.js";
-import { SqlQueryBaseAny } from "#/core/query/sql-query.js";
-import { ParamsOf } from "#/core/sql-base.js";
-import { ConnectionConfig, VexnorPluginAny } from "#/plugin/plugin.js";
-import { ContextValue } from "#/core/query/context-value.js";
+import { SqlQueryHandlerAny } from "#src/core/query/sql-query-handler.js";
+import { SqlQueryBaseAny } from "#src/core/query/sql-query.js";
+import { ParamsOf } from "#src/core/sql-base.js";
+import { ConnectionConfig, VexnorPluginAny } from "#src/plugin/plugin.js";
+import { ContextValue } from "#src/core/query/context-value.js";
 
 export interface VexnorConfig {
    profiles: Record<string, ProfileConfig>;

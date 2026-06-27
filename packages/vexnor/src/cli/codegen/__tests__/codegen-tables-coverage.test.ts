@@ -1,10 +1,10 @@
 import { describe, expect, test, vi, beforeEach } from "vitest";
-import { CodeWriter } from "#/lib/code-writer.js";
-import { writeTableInsert } from "#/cli/codegen/tables/write-table-insert.js";
-import { writeTableSelect } from "#/cli/codegen/tables/write-table-select.js";
-import { writeTableType } from "#/cli/codegen/tables/write-table-type.js";
-import { CodegenContext, CodegenContextModel } from "#/cli/codegen/codegen-context.js";
-import { SqlLiteralType } from "#/plugin/plugin.js";
+import { CodeWriter } from "#src/lib/code-writer.js";
+import { writeTableInsert } from "#src/cli/codegen/tables/write-table-insert.js";
+import { writeTableSelect } from "#src/cli/codegen/tables/write-table-select.js";
+import { writeTableType } from "#src/cli/codegen/tables/write-table-type.js";
+import { CodegenContext, CodegenContextModel } from "#src/cli/codegen/codegen-context.js";
+import { SqlLiteralType } from "#src/plugin/plugin.js";
 
 const mockPlugin = {
    dialect: "postgresql",
@@ -359,7 +359,7 @@ describe("writeTableType — dbSchema edge cases", () => {
 
 describe("resolveSource — fallback", () => {
    test("returns outDir when no package.json found anywhere", async () => {
-      const { resolveSource } = await import("#/cli/codegen/codegen-command.js");
+      const { resolveSource } = await import("#src/cli/codegen/codegen-command.js");
       // /tmp has no package.json up to root
       const result = await resolveSource("/tmp/some-random-path");
       expect(result).toMatchInlineSnapshot(`"/tmp/some-random-path"`);

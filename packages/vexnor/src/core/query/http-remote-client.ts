@@ -1,5 +1,5 @@
-import type { QueryMeta, RemoteClient } from "#/core/query/sql-query-types.js";
-import { setQueryMeta } from "#/core/query/query-meta-store.js";
+import type { QueryMeta, RemoteClient } from "#src/core/query/sql-query-types.js";
+import { setQueryMeta } from "#src/core/query/query-meta-store.js";
 
 type HeaderRecord = Record<string, string>;
 

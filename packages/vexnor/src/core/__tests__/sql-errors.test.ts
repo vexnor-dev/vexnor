@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
-import { SqlMetaError } from "#/core/sql-meta-error.js";
-import { SqlExecError } from "#/cli/exec/sql-exec-error.js";
+import { SqlMetaError } from "#src/core/sql-meta-error.js";
+import { SqlExecError } from "#src/cli/exec/sql-exec-error.js";
 
 describe("SqlMetaError", () => {
    test("sets message and name", () => {

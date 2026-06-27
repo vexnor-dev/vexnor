@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { sqlSelect } from "#/core/crud/sql-select.js";
+import { sqlSelect } from "#src/core/crud/sql-select.js";
 import { Account } from "@test-models/vexnor_dev.schema.js";
 
 describe("SqlPagination — runtime limit/offset", () => {

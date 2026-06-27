@@ -1,8 +1,8 @@
-import { MockConnection, MockResult } from "#/test/mock-plugin.js";
-import { SqlQueryHandler } from "#/core/query/sql-query-handler.js";
-import { SqlQuery } from "#/core/query/sql-query.js";
-import { SqlRunArgs, type QueryMeta } from "#/core/query/sql-query-types.js";
-import { ok } from "#/lib/assert.js";
+import { MockConnection, MockResult } from "#src/test/mock-plugin.js";
+import { SqlQueryHandler } from "#src/core/query/sql-query-handler.js";
+import { SqlQuery } from "#src/core/query/sql-query.js";
+import { SqlRunArgs, type QueryMeta } from "#src/core/query/sql-query-types.js";
+import { ok } from "#src/lib/assert.js";
 
 export class MockQueryHandler<T extends { Row?: unknown; Params?: unknown }> extends SqlQueryHandler<
    Pick<T, "Row" | "Params"> & {

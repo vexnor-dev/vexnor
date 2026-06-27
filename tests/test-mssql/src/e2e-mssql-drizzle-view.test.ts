@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { describe, expect, test } from "vitest";
 import { mssqlSchema, varchar, nvarchar, int } from "drizzle-orm/mssql-core";
 import { fromDrizzleView } from "@vexnor/drizzle/mssql";

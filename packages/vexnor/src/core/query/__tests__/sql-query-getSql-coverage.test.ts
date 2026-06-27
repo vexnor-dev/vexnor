@@ -1,10 +1,10 @@
 import { describe, expect, test } from "vitest";
-import { sql } from "#/core/sql.js";
-import { row } from "#/core/query/sql-select-row.js";
+import { sql } from "#src/core/sql.js";
+import { row } from "#src/core/query/sql-select-row.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { param } from "#/core/query/sql-param.js";
-import { SqlQuery } from "#/core/query/sql-query.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { param } from "#src/core/query/sql-param.js";
+import { SqlQuery } from "#src/core/query/sql-query.js";
 
 describe("SqlQuery.getSql — uncovered paths", () => {
    test("getSql with postgresql dialect", () => {

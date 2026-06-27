@@ -1,13 +1,13 @@
 import { describe, expect, test } from "vitest";
-import { sql } from "#/core/sql.js";
-import { row } from "#/core/query/sql-select-row.js";
-import { param } from "#/core/query/sql-param.js";
-import { col } from "#/core/query/sql-select-column.js";
-import { raw } from "#/core/query/sql-raw.js";
-import { val } from "#/core/query/sql-select-value.js";
-import { DEFAULT } from "#/core/query/sql-default.js";
-import { info } from "#/core/charms/sql-query-info.js";
-import { SqlSelectCharm } from "#/core/query/sql-charm.js";
+import { sql } from "#src/core/sql.js";
+import { row } from "#src/core/query/sql-select-row.js";
+import { param } from "#src/core/query/sql-param.js";
+import { col } from "#src/core/query/sql-select-column.js";
+import { raw } from "#src/core/query/sql-raw.js";
+import { val } from "#src/core/query/sql-select-value.js";
+import { DEFAULT } from "#src/core/query/sql-default.js";
+import { info } from "#src/core/charms/sql-query-info.js";
+import { SqlSelectCharm } from "#src/core/query/sql-charm.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
 import { Order } from "@test-models/vexnor_dev.order-table.js";
 

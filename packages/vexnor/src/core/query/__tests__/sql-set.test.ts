@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
-import { sql } from "#/core/sql.js";
-import { set } from "#/core/operators/sql-set.js";
-import { param } from "#/core/query/sql-param.js";
+import { sql } from "#src/core/sql.js";
+import { set } from "#src/core/operators/sql-set.js";
+import { param } from "#src/core/query/sql-param.js";
 import { Account } from "@test-models/vexnor_dev.schema.js";
 
 type UpdateParams = { set: Record<string, unknown>; accountId: string };

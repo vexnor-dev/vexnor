@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
 import { pgSchema, uuid, varchar, text, timestamp } from "drizzle-orm/pg-core";
@@ -40,7 +39,10 @@ describe.sequential("e2e drizzle/pg — fromDrizzleTable works against real DB",
          INSERT INTO ${Account}
             ${insert(Account, "rows")}
             RETURNING ${row(Account.$$)}
-      `.postgres.one({ db: pool, params: { rows: [{ email: `${TAG}-sql@example.com`, firstName: "SqlDrizzle", lastName: "Test" }] } });
+      `.postgres.one({
+         db: pool,
+         params: { rows: [{ email: `${TAG}-sql@example.com`, firstName: "SqlDrizzle", lastName: "Test" }] },
+      });
 
       expect(inserted.email).toBe(`${TAG}-sql@example.com`);
       expect(inserted.firstName).toBe("SqlDrizzle");
@@ -57,18 +59,22 @@ describe.sequential("e2e drizzle/pg — fromDrizzleTable works against real DB",
 
    test("crud: select with WHERE", async () => {
       const idParam = param<{ id: string }>("id");
-      const results = await Account.postgres.select({
-         WHERE: sql`${Account.$accountId} = ${idParam}`,
-      }).all({ db: pool, params: { id: account.accountId } });
+      const results = await Account.postgres
+         .select({
+            WHERE: sql`${Account.$accountId} = ${idParam}`,
+         })
+         .all({ db: pool, params: { id: account.accountId } });
       expect(results).toHaveLength(1);
       expect(results[0]!.accountId).toBe(account.accountId);
    });
 
    test("crud: update", async () => {
       const idParam = param<{ id: string }>("id");
-      const updated = await Account.postgres.update({
-         WHERE: sql`${Account.$accountId} = ${idParam}`,
-      }).one({ db: pool, params: { set: { firstName: "Updated" }, id: account.accountId } });
+      const updated = await Account.postgres
+         .update({
+            WHERE: sql`${Account.$accountId} = ${idParam}`,
+         })
+         .one({ db: pool, params: { set: { firstName: "Updated" }, id: account.accountId } });
       expect(updated.firstName).toBe("Updated");
       account = updated;
    });
@@ -76,7 +82,9 @@ describe.sequential("e2e drizzle/pg — fromDrizzleTable works against real DB",
    test("crud: upsert", async () => {
       const upserted = await Account.postgres.upsert({ CONFLICT_ON: [Account.$accountId] }).one({
          db: pool,
-         params: { rows: [{ accountId: account.accountId, email: account.email, firstName: "Upserted", lastName: "Test" }] },
+         params: {
+            rows: [{ accountId: account.accountId, email: account.email, firstName: "Upserted", lastName: "Test" }],
+         },
       });
       expect(upserted.accountId).toBe(account.accountId);
       expect(upserted.firstName).toBe("Upserted");
@@ -84,9 +92,11 @@ describe.sequential("e2e drizzle/pg — fromDrizzleTable works against real DB",
    });
 
    test("crud: delete", async () => {
-      const deleted = await Account.postgres.delete({
-         WHERE: sql`${Account.$accountId} = ${param<{ id: string }>("id")}`,
-      }).all({ db: pool, params: { id: account.accountId } });
+      const deleted = await Account.postgres
+         .delete({
+            WHERE: sql`${Account.$accountId} = ${param<{ id: string }>("id")}`,
+         })
+         .all({ db: pool, params: { id: account.accountId } });
       expect(deleted).toHaveLength(1);
       expect(deleted[0]!.accountId).toBe(account.accountId);
    });

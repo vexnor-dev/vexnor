@@ -1,20 +1,20 @@
-import { SqlQueryBase, SqlQueryBaseAny, SqlQuery, SqlQueryColumns } from "#/core/query/sql-query.js";
-import { ok } from "#/lib/assert.js";
-import { isRemoteClient, QueryMeta, SqlExecuteMode, SqlQueryRunArgs, SqlRunArgs } from "#/core/query/sql-query-types.js";
-import { SqlRunError } from "#/core/sql-run-error.js";
-import { SqlErrorCode } from "#/core/sql-error-code.js";
-import { setQueryMeta, getQueryMeta } from "#/core/query/query-meta-store.js";
-import type { SqlJsonSchema } from "#/core/utils/sql-json-schema.js";
-import { deserialize } from "#/core/utils/sql-json-schema.js";
-import { isContextValue } from "#/core/query/context-value.js";
-import { isVexnorConnection } from "#/plugin/vexnor-connection.js";
-import type { SqlPipelineExecutionArgs } from "#/execution/sql-query-pipeline-plugin.js";
-import { runWithRetry } from "#/core/query/sql-retry.js";
-import { getQueryName } from "#/core/query/sql-query-name.js";
-import { ARGS, PARAMS, QUERY, Sql, TYPE } from "#/core/sql-base.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
-import { SqlParamAny } from "#/core/query/sql-param.js";
+import { SqlQueryBase, SqlQueryBaseAny, SqlQuery, SqlQueryColumns } from "#src/core/query/sql-query.js";
+import { ok } from "#src/lib/assert.js";
+import { isRemoteClient, QueryMeta, SqlExecuteMode, SqlQueryRunArgs, SqlRunArgs } from "#src/core/query/sql-query-types.js";
+import { SqlRunError } from "#src/core/sql-run-error.js";
+import { SqlErrorCode } from "#src/core/sql-error-code.js";
+import { setQueryMeta, getQueryMeta } from "#src/core/query/query-meta-store.js";
+import type { SqlJsonSchema } from "#src/core/utils/sql-json-schema.js";
+import { deserialize } from "#src/core/utils/sql-json-schema.js";
+import { isContextValue } from "#src/core/query/context-value.js";
+import { isVexnorConnection } from "#src/plugin/vexnor-connection.js";
+import type { SqlPipelineExecutionArgs } from "#src/execution/sql-query-pipeline-plugin.js";
+import { runWithRetry } from "#src/core/query/sql-retry.js";
+import { getQueryName } from "#src/core/query/sql-query-name.js";
+import { ARGS, PARAMS, QUERY, Sql, TYPE } from "#src/core/sql-base.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { SqlBuildOptions } from "#src/core/builder/sql-build-options.js";
+import { SqlParamAny } from "#src/core/query/sql-param.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlQueryHandlerAny = SqlQueryHandler<any>;

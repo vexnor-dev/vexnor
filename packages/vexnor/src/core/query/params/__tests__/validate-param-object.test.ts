@@ -1,5 +1,5 @@
 import { describe, test, expect } from "vitest";
-import { validateParamObject } from "#/core/query/params/validate-param-object.js";
+import { validateParamObject } from "#src/core/query/params/validate-param-object.js";
 
 describe("validateParamObject", () => {
    test("valid keys and values — no errors", () => {

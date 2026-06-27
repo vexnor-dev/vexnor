@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { Queue } from "#/lib/queue.js";
+import { Queue } from "#src/lib/queue.js";
 
 describe("Queue", () => {
    describe("constructor", () => {

@@ -1,12 +1,12 @@
 import { assertType, describe, expect, test } from "vitest";
-import { param } from "#/core/query/sql-param.js";
-import { set } from "#/core/operators/sql-set.js";
-import { SqlQuery } from "#/core/query/sql-query.js";
-import { row } from "#/core/query/sql-select-row.js";
+import { param } from "#src/core/query/sql-param.js";
+import { set } from "#src/core/operators/sql-set.js";
+import { SqlQuery } from "#src/core/query/sql-query.js";
+import { row } from "#src/core/query/sql-select-row.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { sql, SqlRow } from "#/core/sql.js";
+import { sql, SqlRow } from "#src/core/sql.js";
 import { AccountStatusUdt } from "@test-models/vexnor_dev-enums.js";
-import { ParamsOf, RowOf } from "#/core/sql-base.js";
+import { ParamsOf, RowOf } from "#src/core/sql-base.js";
 
 describe("sql query type tests", () => {
    test("Infer row result type from sql-row", () => {

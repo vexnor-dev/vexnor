@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
-import { params } from "#/core/query/sql-params-list.js";
-import { sql, row } from "#/core/core.js";
+import { params } from "#src/core/query/sql-params-list.js";
+import { sql, row } from "#src/core/core.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
 
 describe("params()", () => {

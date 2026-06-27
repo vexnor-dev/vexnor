@@ -1,15 +1,15 @@
 import { describe, expect, test } from "vitest";
-import { sql } from "#/core/sql.js";
-import { row } from "#/core/query/sql-select-row.js";
+import { sql } from "#src/core/sql.js";
+import { row } from "#src/core/query/sql-select-row.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { when } from "#/core/operators/sql-when.js";
-import { eachObject, eachKey, colInTable } from "#/core/operators/sql-each-object.js";
-import { raw } from "#/core/query/sql-raw.js";
-import { expandFromClause } from "#/core/crud/sql-select.js";
-import { newSqlQueryHandler } from "#/core/query/sql-query-handler.js";
-import { MockQueryHandler } from "#/test/mock-query-handler.js";
-import { filterBy } from "#/core/operators/sql-filter-by.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { when } from "#src/core/operators/sql-when.js";
+import { eachObject, eachKey, colInTable } from "#src/core/operators/sql-each-object.js";
+import { raw } from "#src/core/query/sql-raw.js";
+import { expandFromClause } from "#src/core/crud/sql-select.js";
+import { newSqlQueryHandler } from "#src/core/query/sql-query-handler.js";
+import { MockQueryHandler } from "#src/test/mock-query-handler.js";
+import { filterBy } from "#src/core/operators/sql-filter-by.js";
 
 describe("sql-each-object — non-SqlQuery body in colInTable (line 129)", () => {
    test("colInTable with raw() body — full pipeline execution", () => {

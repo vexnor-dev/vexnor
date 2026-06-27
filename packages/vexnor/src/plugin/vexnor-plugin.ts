@@ -4,10 +4,10 @@ import {
    SqlColumnType,
    SqlEnumInfo,
    SqlTableInfo,
-} from "#/plugin/vexnor-schema-types.js";
-import { VexnorConnection } from "#/plugin/vexnor-connection.js";
-import { SqlQueryHandler } from "#/core/query/sql-query-handler.js";
-import { SqlQuery } from "#/core/query/sql-query.js";
+} from "#src/plugin/vexnor-schema-types.js";
+import { VexnorConnection } from "#src/plugin/vexnor-connection.js";
+import { SqlQueryHandler } from "#src/core/query/sql-query-handler.js";
+import { SqlQuery } from "#src/core/query/sql-query.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type VexnorPluginAny = VexnorPlugin<any>;

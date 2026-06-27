@@ -1,10 +1,10 @@
 import { writeFile } from "fs/promises";
 import path from "path";
 import to from "to-case";
-import { groupBy } from "#/cli/codegen/types/group-by.js";
-import { ok } from "#/lib/assert.js";
-import { SqlEnumInfo, SqlOutputFile } from "#/plugin/plugin.js";
-import { getCodegenContext } from "#/cli/codegen/codegen-context.js";
+import { groupBy } from "#src/cli/codegen/types/group-by.js";
+import { ok } from "#src/lib/assert.js";
+import { SqlEnumInfo, SqlOutputFile } from "#src/plugin/plugin.js";
+import { getCodegenContext } from "#src/cli/codegen/codegen-context.js";
 
 export interface WriteEnumsAgs {
    enums: SqlEnumInfo[];

@@ -1,13 +1,13 @@
 import { describe, expect, test } from "vitest";
 
 import { randomUUID } from "node:crypto";
-import { param } from "#/core/query/sql-param.js";
-import { row } from "#/core/query/sql-select-row.js";
-import { sql } from "#/core/sql.js";
+import { param } from "#src/core/query/sql-param.js";
+import { row } from "#src/core/query/sql-select-row.js";
+import { sql } from "#src/core/sql.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
 import { OrderItem } from "@test-models/vexnor_dev.order_item-table.js";
 import { Order } from "@test-models/vexnor_dev.order-table.js";
-import { col } from "#/core/query/sql-select-column.js";
+import { col } from "#src/core/query/sql-select-column.js";
 
 describe("sql() tests", () => {
    test("sql() select", () => {

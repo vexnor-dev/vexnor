@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { sqlSelect } from "#/core/crud/sql-select.js";
+import { sqlSelect } from "#src/core/crud/sql-select.js";
 import { Account } from "@test-models/vexnor_dev.schema.js";
 
 function buildWithSelect(selectData: unknown) {
@@ -221,10 +221,10 @@ describe("SqlProjection — runtime column selection", () => {
 
 describe("SqlProjectBy — serialization and error branches", () => {
    test("serializes to projection operator token when params=null", async () => {
-      const { serializeQuery } = await import("#/core/serialize/serialize-query.js");
-      const { SqlProjectBy } = await import("#/core/operators/sql-project-by.js");
+      const { serializeQuery } = await import("#src/core/serialize/serialize-query.js");
+      const { SqlProjectBy } = await import("#src/core/operators/sql-project-by.js");
       const { Account } = await import("@test-models/vexnor_dev.schema.js");
-      const { sql } = await import("#/core/sql.js");
+      const { sql } = await import("#src/core/sql.js");
 
       const projection = new SqlProjectBy(Account, "select");
       const query = sql`SELECT ${projection} FROM ${Account}`;
@@ -235,9 +235,9 @@ describe("SqlProjectBy — serialization and error branches", () => {
    });
 
    test("throws on invalid column reference in aggregate", async () => {
-      const { SqlProjectBy } = await import("#/core/operators/sql-project-by.js");
+      const { SqlProjectBy } = await import("#src/core/operators/sql-project-by.js");
       const { Account } = await import("@test-models/vexnor_dev.schema.js");
-      const { sql } = await import("#/core/sql.js");
+      const { sql } = await import("#src/core/sql.js");
 
       const projection = new SqlProjectBy(Account, "select");
       const query = sql`SELECT ${projection} FROM ${Account}`;

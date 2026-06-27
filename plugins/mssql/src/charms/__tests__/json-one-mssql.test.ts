@@ -1,6 +1,6 @@
 import { assertType, describe, expect, test } from "vitest";
 import { JsonRow, param, row, sql, SqlBuildContext, SqlCharm, SqlParam, SqlQueryExtended } from "@vexnor/core";
-import { jsonOne } from "#/charms/json-aggregation-mssql.js";
+import { jsonOne } from "#src/charms/json-aggregation-mssql.js";
 import { Account, IAccountSelect } from "@vexnor/core/testing";
 
 describe("json-one-mssql tests", () => {

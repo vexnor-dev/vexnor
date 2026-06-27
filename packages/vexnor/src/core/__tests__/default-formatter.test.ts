@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, test } from "vitest";
-import { DefaultFormatter } from "#/core/builder/default-formatter.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { DefaultTokenizer } from "#/core/builder/default-tokenizer.js";
+import { DefaultFormatter } from "#src/core/builder/default-formatter.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { DefaultTokenizer } from "#src/core/builder/default-tokenizer.js";
 
 describe("DefaultFormatter", () => {
    let formatter: DefaultFormatter;

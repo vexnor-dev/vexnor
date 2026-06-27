@@ -1,13 +1,13 @@
-import { SqlBuildError } from "#/core/sql-build-error.js";
-import { SqlTable } from "#/core/schema/sql-table.js";
-import { SqlInsertTypeArgs } from "#/core/operators/sql-insert.js";
-import { PARAMS, Sql, SqlOptions } from "#/core/sql-base.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { getCanonicalKeys } from "#/core/utils/sql-insert-utils.js";
-import { BuildSqlParams, PathToNested, SqlParam } from "#/core/query/sql-param.js";
-import { ok } from "#/lib/assert.js";
-import { isPrimitive } from "#/lib/primitive.js";
-import { resolvePath } from "#/core/query/resolve-path.js";
+import { SqlBuildError } from "#src/core/sql-build-error.js";
+import { SqlTable } from "#src/core/schema/sql-table.js";
+import { SqlInsertTypeArgs } from "#src/core/operators/sql-insert.js";
+import { PARAMS, Sql, SqlOptions } from "#src/core/sql-base.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { getCanonicalKeys } from "#src/core/utils/sql-insert-utils.js";
+import { BuildSqlParams, PathToNested, SqlParam } from "#src/core/query/sql-param.js";
+import { ok } from "#src/lib/assert.js";
+import { isPrimitive } from "#src/lib/primitive.js";
+import { resolvePath } from "#src/core/query/resolve-path.js";
 
 export class SqlInsertValues<T extends SqlInsertTypeArgs, ParamName extends string> extends Sql {
    declare readonly [PARAMS]: PathToNested<ParamName, T["Insert"] | T["Insert"][]>;

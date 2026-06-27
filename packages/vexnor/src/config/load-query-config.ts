@@ -1,9 +1,9 @@
 import { pathToFileURL } from "url";
-import { QueryConfig } from "#/config/config-types.js";
+import { QueryConfig } from "#src/config/config-types.js";
 import { access } from "fs/promises";
 import { resolve } from "path";
 import { register } from "tsx/esm/api";
-import { SqlQueryBaseAny } from "#/core/query/sql-query.js";
+import { SqlQueryBaseAny } from "#src/core/query/sql-query.js";
 
 // Register tsx loader once
 register();

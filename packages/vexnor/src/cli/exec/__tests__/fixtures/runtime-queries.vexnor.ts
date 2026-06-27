@@ -1,11 +1,11 @@
-import { contextValue } from "#/core/query/context-value.js";
-import { row } from "#/core/query/sql-select-row.js";
+import { contextValue } from "#src/core/query/context-value.js";
+import { row } from "#src/core/query/sql-select-row.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { sql } from "#/test/mock-sql.js";
-import { defineQueryConfig } from "#/config/define-query-config.js";
-import { MockPlugin, type MockConnection } from "#/test/mock-plugin.js";
+import { sql } from "#src/test/mock-sql.js";
+import { defineQueryConfig } from "#src/config/define-query-config.js";
+import { MockPlugin, type MockConnection } from "#src/test/mock-plugin.js";
 import { vi } from "vitest";
-import { ctx } from "#/core/query/sql-param.js";
+import { ctx } from "#src/core/query/sql-param.js";
 
 const mockDb: MockConnection = { query: vi.fn().mockResolvedValue({ rows: [] }) };
 export const testPlugin = new MockPlugin({ name: "test" }, mockDb);

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { row, sql } from "@vexnor/core";
-import { jsonOne, jsonMany } from "#/charms/json-aggregation-postgres.js";
+import { jsonOne, jsonMany } from "#src/charms/json-aggregation-postgres.js";
 import { Account } from "@vexnor/core/testing";
 import { Order } from "@vexnor/core/testing";
 

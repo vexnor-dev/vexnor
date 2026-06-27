@@ -1,7 +1,7 @@
 import { info, ParamsOfArgs, SqlDeleteArgs, raw, row, SqlTable, sql } from "@vexnor/core";
 import { ok } from "@vexnor/core";
-import { BetterSqlite3QueryHandler } from "#/better-sqlite3-query-handler.js";
-import "#/sqlite3-augment.js";
+import { BetterSqlite3QueryHandler } from "#src/better-sqlite3-query-handler.js";
+import "#src/sqlite3-augment.js";
 
 export type Sqlite3DeleteResult<
    T extends { Select: Record<string, unknown>; Delete: true },

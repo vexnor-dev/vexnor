@@ -1,8 +1,8 @@
 // noinspection SqlNoDataSourceInspection,SqlResolve
 import { describe, expect, test } from "vitest";
 import { Account } from "@vexnor/core/testing";
-import { mssqlUpsert } from "#/crud/mssql-upsert.js";
-import { defaultQueryOptions } from "#/default-query-options.js";
+import { mssqlUpsert } from "#src/crud/mssql-upsert.js";
+import { defaultQueryOptions } from "#src/default-query-options.js";
 
 describe("mssqlUpsert()", () => {
    test("auto SET: generates col = src.col for all non-merge columns", () => {

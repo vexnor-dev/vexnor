@@ -9,7 +9,7 @@ import {
    ParamsOfArgs,
    SqlQueryExtended,
    SqlSelectResultRow,
-} from "#/core/core.js";
+} from "#src/core/core.js";
 
 /**
  * Test-only drop-in for plugin selects (postgresSelect, sqlite3Select, mssqlSelect).

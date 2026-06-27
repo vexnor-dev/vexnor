@@ -1,9 +1,9 @@
 import { describe, expect, test } from "vitest";
 import { Account } from "@vexnor/core/testing";
 import { sql, row } from "@vexnor/core";
-import { postgresInsertRows } from "#/crud/postgres-insert-rows.js";
-import { defaultQueryOptions } from "#/default-query-options.js";
-import { postgresInsertFrom } from "#/crud/postgres-insert-from.js";
+import { postgresInsertRows } from "#src/crud/postgres-insert-rows.js";
+import { defaultQueryOptions } from "#src/default-query-options.js";
+import { postgresInsertFrom } from "#src/crud/postgres-insert-from.js";
 
 describe("postgresInsertRows()", () => {
    test("basic insert", () => {

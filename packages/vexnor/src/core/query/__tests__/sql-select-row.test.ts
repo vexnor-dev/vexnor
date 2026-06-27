@@ -1,17 +1,17 @@
 import { assertType, describe, expect, test } from "vitest";
-import { InferResultRowFromColumns, row, SqlSelectRow } from "#/core/query/sql-select-row.js";
+import { InferResultRowFromColumns, row, SqlSelectRow } from "#src/core/query/sql-select-row.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { sql } from "#/core/sql.js";
-import { param } from "#/core/query/sql-param.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { sql } from "#src/core/sql.js";
+import { param } from "#src/core/query/sql-param.js";
 import { AccountStatusUdt } from "@test-models/vexnor_dev-enums.js";
-import { newSqlQueryColumn, SqlQueryColumn } from "#/core/query/sql-query-column.js";
+import { newSqlQueryColumn, SqlQueryColumn } from "#src/core/query/sql-query-column.js";
 import { Order } from "@test-models/vexnor_dev.order-table.js";
-import { InferSelectRowByResult } from "#/core/query/sql-query-types.js";
-import { IAccountSelect } from "#/test/testing.js";
-import { SqlQuery } from "#/core/query/sql-query.js";
-import { newSqlTableColumn, SqlTableColumn } from "#/core/schema/sql-table-column.js";
-import { SqlTableIdentity } from "#/core/schema/sql-table-identity.js";
+import { InferSelectRowByResult } from "#src/core/query/sql-query-types.js";
+import { IAccountSelect } from "#src/test/testing.js";
+import { SqlQuery } from "#src/core/query/sql-query.js";
+import { newSqlTableColumn, SqlTableColumn } from "#src/core/schema/sql-table-column.js";
+import { SqlTableIdentity } from "#src/core/schema/sql-table-identity.js";
 
 describe("SqlSelectRow tests", () => {
    test("infer result row from select row", () => {

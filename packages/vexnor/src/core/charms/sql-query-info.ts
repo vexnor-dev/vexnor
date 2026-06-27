@@ -1,6 +1,6 @@
-import { Sql } from "#/core/sql-base.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { Queue } from "#/lib/queue.js";
+import { Sql } from "#src/core/sql-base.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { Queue } from "#src/lib/queue.js";
 
 export type SqlQueryInfoOptions = Partial<Pick<SqlQueryInfo, "label" | "driver">> & Record<string, unknown>;
 

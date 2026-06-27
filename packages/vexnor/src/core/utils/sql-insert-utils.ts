@@ -1,6 +1,6 @@
-import { SqlTableAny } from "#/core/schema/sql-table.js";
-import { SqlBuildError } from "#/core/sql-build-error.js";
-import { SqlTableColumnAny } from "#/core/schema/sql-table-column.js";
+import { SqlTableAny } from "#src/core/schema/sql-table.js";
+import { SqlBuildError } from "#src/core/sql-build-error.js";
+import { SqlTableColumnAny } from "#src/core/schema/sql-table-column.js";
 
 export function getCanonicalKeys(table: SqlTableAny, rows: Record<string, unknown>[]): string[] {
    const first = rows[0]!;

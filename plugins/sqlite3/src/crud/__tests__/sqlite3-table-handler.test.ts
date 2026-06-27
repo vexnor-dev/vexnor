@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { newSqlite3TableHandler } from "#/crud/sqlite3-table-handler.js";
+import { newSqlite3TableHandler } from "#src/crud/sqlite3-table-handler.js";
 import { Account } from "@vexnor/core/testing";
 import "@vexnor/sqlite3";
 

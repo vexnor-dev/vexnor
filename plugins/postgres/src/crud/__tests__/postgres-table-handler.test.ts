@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { newPostgresTableHandler } from "#/crud/postgres-table-handler.js";
+import { newPostgresTableHandler } from "#src/crud/postgres-table-handler.js";
 import { Account } from "@vexnor/core/testing";
 
 describe("newPostgresTableHandler", () => {

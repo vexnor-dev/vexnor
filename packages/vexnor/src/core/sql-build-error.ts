@@ -1,4 +1,4 @@
-import { SqlErrorCode } from "#/core/sql-error-code.js";
+import { SqlErrorCode } from "#src/core/sql-error-code.js";
 
 /**
  * Thrown when a SQL query fails to build — e.g. a missing param value,
