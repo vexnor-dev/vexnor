@@ -195,8 +195,8 @@ public sealed class QueryRegistry
 
         if (value is Dictionary<string, object?> legacyDict)
         {
-            foreach (var key in legacyDict.Keys)
-                if (!columns.Contains(key)) errors.Add($"Column not found: {key}");
+            foreach (var key in legacyDict.Keys.Where(key => !columns.Contains(key)))
+                errors.Add($"Column not found: {key}");
         }
         else if (value is object?[] array)
         {

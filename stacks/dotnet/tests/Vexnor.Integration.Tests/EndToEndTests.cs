@@ -26,8 +26,8 @@ public class EndToEndTests : IAsyncLifetime
     public Task InitializeAsync()
     {
         // Load manifests from the shared fixtures package (relative to solution root)
-        var solutionDir = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
-        var manifestDir = Path.Combine(solutionDir, "..", "fixtures", "manifests", "postgres");
+        var solutionDir = Path.GetFullPath(Path.Join("..", "..", "..", "..", ".."), AppContext.BaseDirectory);
+        var manifestDir = Path.GetFullPath(Path.Join("..", "fixtures", "manifests", "postgres"), solutionDir);
         if (Directory.Exists(manifestDir))
         {
             _registry.LoadDirectory(manifestDir);
