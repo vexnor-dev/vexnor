@@ -31,21 +31,7 @@
    ],
    "toolsSettings": {
       "write": {
-         "allowedPaths": [
-            "packages/**",
-            "plugins/**",
-            "orms/**",
-            "tests/**",
-            "examples/**",
-            "docs/**",
-            ".github/**",
-            ".kiro/**",
-            "*.json",
-            "*.ts",
-            "*.mjs",
-            "*.yml",
-            "*.yaml"
-         ],
+         "allowedPaths": ["**"],
          "deniedPaths": ["node_modules/**", "**/node_modules/**", "**/dist/**", "**/*.tsbuildinfo", "pnpm-lock.yaml"]
       },
       "shell": {
@@ -94,6 +80,7 @@
             "npx tsc",
             "dotnet build",
             "dotnet test",
+            "sqlite3.*",
             "git ",
             "node ",
             "grep ",
