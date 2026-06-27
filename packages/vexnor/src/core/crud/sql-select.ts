@@ -1,17 +1,17 @@
 // noinspection SqlNoDataSourceInspection,SqlResolve
-import { SqlQueryAny, SqlQueryBaseAny, SqlQueryExtended } from "#/core/query/sql-query.js";
-import { SqlParam } from "#/core/query/sql-param.js";
-import { Simplify } from "#/core/utils/utility-types.js";
-import { ParamsOfArgs, TypeOf } from "#/core/sql-base.js";
-import { SqlTable } from "#/core/schema/sql-table.js";
-import { ok } from "#/lib/assert.js";
-import { sql } from "#/core/sql.js";
-import { raw } from "#/core/query/sql-raw.js";
-import { SqlQueryInfo } from "#/core/charms/sql-query-info.js";
-import { SqlFilterBy, SqlFilterParams } from "#/core/operators/sql-filter-by.js";
-import { SqlProjectBy, SqlProjectionGroupBy, SqlProjectByParams } from "#/core/operators/sql-project-by.js";
-import { SqlOrderBy, SqlOrderByParams } from "#/core/operators/sql-order-by.js";
-import { SqlPagination, SqlPaginationParams } from "#/core/operators/sql-pagination.js";
+import { SqlQueryAny, SqlQueryBaseAny, SqlQueryExtended } from "#src/core/query/sql-query.js";
+import { SqlParam } from "#src/core/query/sql-param.js";
+import { Simplify } from "#src/core/utils/utility-types.js";
+import { ParamsOfArgs, TypeOf } from "#src/core/sql-base.js";
+import { SqlTable } from "#src/core/schema/sql-table.js";
+import { ok } from "#src/lib/assert.js";
+import { sql } from "#src/core/sql.js";
+import { raw } from "#src/core/query/sql-raw.js";
+import { SqlQueryInfo } from "#src/core/charms/sql-query-info.js";
+import { SqlFilterBy, SqlFilterParams } from "#src/core/operators/sql-filter-by.js";
+import { SqlProjectBy, SqlProjectionGroupBy, SqlProjectByParams } from "#src/core/operators/sql-project-by.js";
+import { SqlOrderBy, SqlOrderByParams } from "#src/core/operators/sql-order-by.js";
+import { SqlPagination, SqlPaginationParams } from "#src/core/operators/sql-pagination.js";
 
 /**
  * Arguments for the crud `select` command.

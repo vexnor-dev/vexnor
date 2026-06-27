@@ -1,8 +1,8 @@
 import { writeTableType } from "./write-table-type.js";
 import { writeTableInsert } from "./write-table-insert.js";
 import { writeTableSelect } from "./write-table-select.js";
-import { PrintTableArgs } from "#/plugin/plugin.js";
-import { getCodegenContext } from "#/cli/codegen/codegen-context.js";
+import { PrintTableArgs } from "#src/plugin/plugin.js";
+import { getCodegenContext } from "#src/cli/codegen/codegen-context.js";
 
 export function writeTable({ table }: PrintTableArgs): string {
    const writer = getCodegenContext().newWriter();

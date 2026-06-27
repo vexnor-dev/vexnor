@@ -1,13 +1,13 @@
 import { describe, expect, test } from "vitest";
-import { sql } from "#/core/sql.js";
-import { row } from "#/core/query/sql-select-row.js";
-import { param, ctx } from "#/core/query/sql-param.js";
+import { sql } from "#src/core/sql.js";
+import { row } from "#src/core/query/sql-select-row.js";
+import { param, ctx } from "#src/core/query/sql-param.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { SqlQuery } from "#/core/query/sql-query.js";
+import { SqlQuery } from "#src/core/query/sql-query.js";
 import { Order } from "@test-models/vexnor_dev.order-table.js";
-import { val } from "#/core/query/sql-select-value.js";
-import { info } from "#/core/charms/sql-query-info.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
+import { val } from "#src/core/query/sql-select-value.js";
+import { info } from "#src/core/charms/sql-query-info.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
 
 /**
  * This test exercises ALL lazy properties and proxy paths on SqlQuery objects.

@@ -1,12 +1,12 @@
-export { SqlInsertValues } from "#/core/operators/sql-insert-values.js";
-export { SqlInsertCols } from "#/core/operators/sql-insert-cols.js";
+export { SqlInsertValues } from "#src/core/operators/sql-insert-values.js";
+export { SqlInsertCols } from "#src/core/operators/sql-insert-cols.js";
 
-export { SqlError } from "#/core/sql-error.js";
-export { SqlErrorCode } from "#/core/sql-error-code.js";
+export { SqlError } from "#src/core/sql-error.js";
+export { SqlErrorCode } from "#src/core/sql-error-code.js";
 
 // format
-export { type SqlLanguage, SQL_LANGUAGES } from "#/format/sql-language.js";
-export { type SqlFormatterFn, type RegisterFormatterOptions, getFormatter } from "#/format/formatter-registry.js";
+export { type SqlLanguage, SQL_LANGUAGES } from "#src/format/sql-language.js";
+export { type SqlFormatterFn, type RegisterFormatterOptions, getFormatter } from "#src/format/formatter-registry.js";
 
 // sql template tag & types
 export { sql, type SqlRow, type SqlParams, type SqlQueryToken } from "./sql.js";
@@ -29,7 +29,7 @@ export {
 } from "./query/sql-query.js";
 export { isQuery, toQuery } from "./query/sql-query.js";
 export { SqlQueryHandler, type SqlQueryHandlerAny, newSqlQueryHandler } from "./query/sql-query-handler.js";
-export { getQueryMeta, setQueryMeta } from "#/core/query/query-meta-store.js";
+export { getQueryMeta, setQueryMeta } from "#src/core/query/query-meta-store.js";
 export { SqlQueryRef, type SqlQueryRefAny, type SqlQueryRefExtended } from "./query/sql-query-ref.js";
 export { ctx, param, SqlParam, type SqlParamAny, type PathToNested, type LeafPaths, type PathType } from "./query/sql-param.js";
 export { contextValue, type ContextValue, isContextValue } from "./query/context-value.js";
@@ -143,20 +143,20 @@ export {
    type SqlSelectResultRow,
 } from "./crud/sql-select.js";
 export type { SqlCrudCommands } from "./crud/sql-crud-commands.js";
-export { isPrimitive, type Primitive } from "#/lib/primitive.js";
-export { isError } from "#/lib/is-error.js";
-export { ok } from "#/lib/assert.js";
-export type { Bit } from "#/lib/bit.js";
+export { isPrimitive, type Primitive } from "#src/lib/primitive.js";
+export { isError } from "#src/lib/is-error.js";
+export { ok } from "#src/lib/assert.js";
+export type { Bit } from "#src/lib/bit.js";
 export { SqlRunError, type SqlRunErrorOptions, type SqlRunQueryRef } from "./sql-run-error.js";
 
 // CACHE
-export { CACHE } from "#/lib/cache.js";
+export { CACHE } from "#src/lib/cache.js";
 
-export { getQueryName } from "#/core/query/sql-query-name.js";
+export { getQueryName } from "#src/core/query/sql-query-name.js";
 
-export { SqlLiteralType } from "#/plugin/sql-literal.js";
+export { SqlLiteralType } from "#src/plugin/sql-literal.js";
 
-export { type SqlParamsList, params } from "#/core/query/sql-params-list.js";
+export { type SqlParamsList, params } from "#src/core/query/sql-params-list.js";
 
 // serialize
 export { serializeQuery, serializeManifest } from "./serialize/serialize-query.js";

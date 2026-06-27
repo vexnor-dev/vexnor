@@ -1,8 +1,8 @@
 import { assertType, describe, expect, test } from "vitest";
 import { param, row, sql, SqlBuildContext, SqlQuery, JsonRow } from "@vexnor/core";
-import { jsonMany } from "#/charms/json-aggregation-mssql.js";
+import { jsonMany } from "#src/charms/json-aggregation-mssql.js";
 import { Account, IAccountSelect } from "@vexnor/core/testing";
-import { defaultQueryOptions } from "#/default-query-options.js";
+import { defaultQueryOptions } from "#src/default-query-options.js";
 
 describe("json-agg-mssql tests", () => {
    test("should render select w/o alias", () => {

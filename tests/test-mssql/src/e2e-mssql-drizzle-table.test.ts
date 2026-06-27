@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 import { beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
 import { mssqlSchema, varchar, nvarchar } from "drizzle-orm/mssql-core";

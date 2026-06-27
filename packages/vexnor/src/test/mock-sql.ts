@@ -1,6 +1,6 @@
-import { SqlParams, SqlQueryToken, SqlRow } from "#/core/sql.js";
-import { MockQueryHandler } from "#/test/mock-query-handler.js";
-import { SqlQuery } from "#/core/query/sql-query.js";
+import { SqlParams, SqlQueryToken, SqlRow } from "#src/core/sql.js";
+import { MockQueryHandler } from "#src/test/mock-query-handler.js";
+import { SqlQuery } from "#src/core/query/sql-query.js";
 
 export function sql<Token extends SqlQueryToken = SqlQueryToken, Tokens extends Token[] = Token[]>(
    strings: TemplateStringsArray,

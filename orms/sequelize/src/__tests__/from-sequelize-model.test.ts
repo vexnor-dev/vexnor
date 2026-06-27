@@ -127,7 +127,7 @@ describe("fromSequelizeTable — schema-qualified table", () => {
 
 describe("getDialect", () => {
    test("maps sequelize dialects to vexnor dialects", async () => {
-      const { getDialect } = await import("#/dialect.js");
+      const { getDialect } = await import("#src/dialect.js");
       expect(getDialect("postgres")).toBe("postgresql");
       expect(getDialect("mssql")).toBe("tsql");
       expect(getDialect("sqlite")).toBe("sqlite");

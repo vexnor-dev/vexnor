@@ -1,6 +1,6 @@
-import { SqlTable, SqlTableAny } from "#/core/schema/sql-table.js";
-import { newSqlTableColumn } from "#/core/schema/sql-table-column.js";
-import { InferTable$RowBySelect } from "#/core/types/infer-types.js";
+import { SqlTable, SqlTableAny } from "#src/core/schema/sql-table.js";
+import { newSqlTableColumn } from "#src/core/schema/sql-table-column.js";
+import { InferTable$RowBySelect } from "#src/core/types/infer-types.js";
 
 const cache = new WeakMap<SqlTableAny, InferTable$RowBySelect<Record<string, unknown>>>();
 

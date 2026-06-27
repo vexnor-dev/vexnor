@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
-import { quoteText } from "#/core/utils/quote-text.js";
-import { parseCallerLocation } from "#/core/utils/caller-location.js";
+import { quoteText } from "#src/core/utils/quote-text.js";
+import { parseCallerLocation } from "#src/core/utils/caller-location.js";
 
 describe("quoteText — uncovered paths", () => {
    test("does not quote asterisk", () => {

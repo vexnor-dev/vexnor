@@ -1,8 +1,8 @@
 import { describe, expect, test } from "vitest";
-import { trim } from "#/core/utils/trim.js";
-import { findQueryComment } from "#/core/utils/find-query-comment.js";
-import { getCanonicalInsertKeys } from "#/core/utils/canonical-insert-keys.js";
-import { deserialize } from "#/core/utils/sql-json-schema.js";
+import { trim } from "#src/core/utils/trim.js";
+import { findQueryComment } from "#src/core/utils/find-query-comment.js";
+import { getCanonicalInsertKeys } from "#src/core/utils/canonical-insert-keys.js";
+import { deserialize } from "#src/core/utils/sql-json-schema.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
 
 describe("trim — uncovered paths", () => {

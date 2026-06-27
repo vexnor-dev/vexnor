@@ -1,7 +1,7 @@
-import { VexnorPlugin } from "#/plugin/plugin.js";
+import { VexnorPlugin } from "#src/plugin/plugin.js";
 import { fileURLToPath } from "url";
 import { dirname, resolve } from "path";
-import { VexnorPluginAny } from "#/plugin/plugin.js";
+import { VexnorPluginAny } from "#src/plugin/plugin.js";
 
 const VALID_PACKAGE_NAME = /^@vexnor\/[a-z0-9-]+$/;
 

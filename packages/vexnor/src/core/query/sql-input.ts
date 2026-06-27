@@ -1,8 +1,8 @@
-import { SqlBuildContext } from "#/core/core.js";
-import { ARGS, PARAMS, Sql } from "#/core/sql-base.js";
-import { SqlBuildOptions } from "#/core/core.js";
-import { SqlParam } from "#/core/query/sql-param.js";
-import { Cache } from "#/lib/cache.js";
+import { SqlBuildContext } from "#src/core/core.js";
+import { ARGS, PARAMS, Sql } from "#src/core/sql-base.js";
+import { SqlBuildOptions } from "#src/core/core.js";
+import { SqlParam } from "#src/core/query/sql-param.js";
+import { Cache } from "#src/lib/cache.js";
 
 export class SqlInput<T extends { Params: Record<string, unknown> }> extends Sql {
    declare readonly [PARAMS]: T["Params"];

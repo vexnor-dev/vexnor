@@ -1,4 +1,4 @@
-import type { SqlQueryPipeline } from "#/execution/sql-query-pipeline.js";
+import type { SqlQueryPipeline } from "#src/execution/sql-query-pipeline.js";
 
 export class VexnorConnection<T extends { Connection: unknown; Context: Record<string, unknown> }> {
    /**

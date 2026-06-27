@@ -9,9 +9,9 @@ import {
    SqlInsertRowsParams,
    SqlQueryColumns,
 } from "@vexnor/core";
-import { sql } from "#/postgres-sql.js";
-import { PostgresQueryHandler } from "#/postgres-query-handler.js";
-import "#/postgres-augment.js";
+import { sql } from "#src/postgres-sql.js";
+import { PostgresQueryHandler } from "#src/postgres-query-handler.js";
+import "#src/postgres-augment.js";
 
 /**
  * Arguments for an upsert (INSERT ... ON CONFLICT DO UPDATE) operation.

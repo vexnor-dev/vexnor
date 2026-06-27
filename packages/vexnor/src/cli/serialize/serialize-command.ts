@@ -1,10 +1,10 @@
 import * as path from "node:path";
 import * as fs from "node:fs";
 import { glob } from "node:fs/promises";
-import { SqlQuery } from "#/core/query/sql-query.js";
-import { SqlQueryHandler } from "#/core/query/sql-query-handler.js";
-import { serializeManifest } from "#/core/serialize/serialize-query.js";
-import type { SqlQueryAny } from "#/core/query/sql-query.js";
+import { SqlQuery } from "#src/core/query/sql-query.js";
+import { SqlQueryHandler } from "#src/core/query/sql-query-handler.js";
+import { serializeManifest } from "#src/core/serialize/serialize-query.js";
+import type { SqlQueryAny } from "#src/core/query/sql-query.js";
 
 export interface SerializeOptions {
    /** Path to the file(s) exporting queries (glob supported). */

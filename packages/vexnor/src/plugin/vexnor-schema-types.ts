@@ -1,4 +1,4 @@
-import { SqlLiteralType } from "#/plugin/sql-literal.js";
+import { SqlLiteralType } from "#src/plugin/sql-literal.js";
 
 export interface SqlColumnInfo {
    column_default: string | null;

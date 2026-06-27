@@ -1,5 +1,5 @@
 import { describe, test, expect } from "vitest";
-import { validateParamValue } from "#/core/query/params/validate-param-value.js";
+import { validateParamValue } from "#src/core/query/params/validate-param-value.js";
 
 describe("validateParamValue", () => {
    test("null rules → no errors", () => {

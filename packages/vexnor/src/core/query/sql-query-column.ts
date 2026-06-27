@@ -1,11 +1,11 @@
-import { Sql, TYPE } from "#/core/sql-base.js";
-import { SqlSelectFormat } from "#/core/builder/default-formatter.js";
-import { SqlRowColumnTarget } from "#/core/query/sql-models.js";
-import { SqlQueryAny } from "#/core/query/sql-query.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
-import { SqlQueryRefAny } from "#/core/query/sql-query-ref.js";
-import { SqlJsonSchema } from "#/core/utils/sql-json-schema.js";
+import { Sql, TYPE } from "#src/core/sql-base.js";
+import { SqlSelectFormat } from "#src/core/builder/default-formatter.js";
+import { SqlRowColumnTarget } from "#src/core/query/sql-models.js";
+import { SqlQueryAny } from "#src/core/query/sql-query.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { SqlBuildOptions } from "#src/core/builder/sql-build-options.js";
+import { SqlQueryRefAny } from "#src/core/query/sql-query-ref.js";
+import { SqlJsonSchema } from "#src/core/utils/sql-json-schema.js";
 
 export type SqlQueryColumnTypeArgs = {
    Key: string;

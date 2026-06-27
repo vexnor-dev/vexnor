@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
-import { resolveProfile } from "#/config/resolve-profile.js";
-import { VexnorConfig } from "#/config/config-types.js";
+import { resolveProfile } from "#src/config/resolve-profile.js";
+import { VexnorConfig } from "#src/config/config-types.js";
 
 describe("resolveProfile", () => {
    const config: VexnorConfig = {

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { VexnorConnection, connect, isVexnorConnection } from "#/plugin/vexnor-connection.js";
+import { VexnorConnection, connect, isVexnorConnection } from "#src/plugin/vexnor-connection.js";
 
 describe("VexnorConnection — uncovered paths", () => {
    test("connect() creates VexnorConnection", () => {

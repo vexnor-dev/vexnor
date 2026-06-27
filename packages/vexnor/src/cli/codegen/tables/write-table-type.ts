@@ -1,6 +1,6 @@
-import { CodeWriter } from "#/lib/code-writer.js";
-import { PrintTableArgs, SqlForeignKeyInfo, SqlLiteralType } from "#/plugin/plugin.js";
-import { getCodegenContext } from "#/cli/codegen/codegen-context.js";
+import { CodeWriter } from "#src/lib/code-writer.js";
+import { PrintTableArgs, SqlForeignKeyInfo, SqlLiteralType } from "#src/plugin/plugin.js";
+import { getCodegenContext } from "#src/cli/codegen/codegen-context.js";
 
 export function writeTableType(writer: CodeWriter, { table }: PrintTableArgs) {
    const { getTableName, getColumnName, plugin } = getCodegenContext();

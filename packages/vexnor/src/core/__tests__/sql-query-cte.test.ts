@@ -1,11 +1,11 @@
 import { describe, expect, test } from "vitest";
 import { Account } from "@test-models/vexnor_dev.schema.js";
-import { sql } from "#/core/sql.js";
-import { param } from "#/core/query/sql-param.js";
-import { row } from "#/core/query/sql-select-row.js";
-import { val } from "#/core/query/sql-select-value.js";
-import { info } from "#/core/charms/sql-query-info.js";
-import { col } from "#/core/query/sql-select-column.js";
+import { sql } from "#src/core/sql.js";
+import { param } from "#src/core/query/sql-param.js";
+import { row } from "#src/core/query/sql-select-row.js";
+import { val } from "#src/core/query/sql-select-value.js";
+import { info } from "#src/core/charms/sql-query-info.js";
+import { col } from "#src/core/query/sql-select-column.js";
 
 describe("sql CTE (with clause) tests", () => {
    test("simple CTE with label naming", () => {

@@ -1,9 +1,9 @@
 import { Command, Option } from "commander";
-import { execCommand, ExecOptions } from "#/cli/exec/exec-command.js";
-import { initCommand, InitOptions } from "#/cli/exec/init-command.js";
-import { codegenCommand } from "#/cli/codegen/codegen-command.js";
-import { CodegenCommandOptions } from "#/cli/codegen/types/types.js";
-import { serializeCommand, SerializeOptions } from "#/cli/serialize/serialize-command.js";
+import { execCommand, ExecOptions } from "#src/cli/exec/exec-command.js";
+import { initCommand, InitOptions } from "#src/cli/exec/init-command.js";
+import { codegenCommand } from "#src/cli/codegen/codegen-command.js";
+import { CodegenCommandOptions } from "#src/cli/codegen/types/types.js";
+import { serializeCommand, SerializeOptions } from "#src/cli/serialize/serialize-command.js";
 
 const main = new Command();
 

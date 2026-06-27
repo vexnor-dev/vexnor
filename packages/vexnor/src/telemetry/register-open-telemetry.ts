@@ -1,6 +1,6 @@
 import { SpanStatusCode, type Tracer } from "@opentelemetry/api";
-import { SqlQueryRegistry } from "#/execution/sql-query-registry.js";
-import { SqlRunError } from "#/core/sql-run-error.js";
+import { SqlQueryRegistry } from "#src/execution/sql-query-registry.js";
+import { SqlRunError } from "#src/core/sql-run-error.js";
 
 SqlQueryRegistry.prototype.registerOpenTelemetry = function (tracer: Tracer): void {
    this.use({

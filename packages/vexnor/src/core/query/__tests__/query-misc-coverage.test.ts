@@ -1,17 +1,17 @@
 import { describe, expect, test } from "vitest";
-import { sql } from "#/core/sql.js";
-import { row } from "#/core/query/sql-select-row.js";
+import { sql } from "#src/core/sql.js";
+import { row } from "#src/core/query/sql-select-row.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { val } from "#/core/query/sql-select-value.js";
-import { raw } from "#/core/query/sql-raw.js";
-import { col } from "#/core/query/sql-select-column.js";
-import { contextValue, isContextValue } from "#/core/query/context-value.js";
-import { isSqlLanguage } from "#/core/query/lib/is-sql-language.js";
-import { SqlDefault, DEFAULT } from "#/core/query/sql-default.js";
-import { input } from "#/core/query/sql-input.js";
-import { isQuery, toQuery } from "#/core/query/sql-query.js";
-import { hasParams, hasRow, isRemoteClient } from "#/core/query/sql-query-types.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { val } from "#src/core/query/sql-select-value.js";
+import { raw } from "#src/core/query/sql-raw.js";
+import { col } from "#src/core/query/sql-select-column.js";
+import { contextValue, isContextValue } from "#src/core/query/context-value.js";
+import { isSqlLanguage } from "#src/core/query/lib/is-sql-language.js";
+import { SqlDefault, DEFAULT } from "#src/core/query/sql-default.js";
+import { input } from "#src/core/query/sql-input.js";
+import { isQuery, toQuery } from "#src/core/query/sql-query.js";
+import { hasParams, hasRow, isRemoteClient } from "#src/core/query/sql-query-types.js";
 
 describe("context-value", () => {
    test("contextValue is defined", () => {

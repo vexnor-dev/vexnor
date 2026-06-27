@@ -1,7 +1,7 @@
-import { SqlParamValidation } from "#/core/query/params/sql-param-validation.js";
-import { SqlBuildError } from "#/core/sql-build-error.js";
-import { ok } from "#/lib/assert.js";
-import { validateParamObject } from "#/core/query/params/validate-param-object.js";
+import { SqlParamValidation } from "#src/core/query/params/sql-param-validation.js";
+import { SqlBuildError } from "#src/core/sql-build-error.js";
+import { ok } from "#src/lib/assert.js";
+import { validateParamObject } from "#src/core/query/params/validate-param-object.js";
 
 /**
  * Validates a param value against the given validation rules.

@@ -1,4 +1,4 @@
-import type { QueryMeta } from "#/core/query/sql-query-types.js";
+import type { QueryMeta } from "#src/core/query/sql-query-types.js";
 
 const store = new WeakMap<object, QueryMeta>();
 const META_SYM = Symbol.for("vexnor.queryMeta");

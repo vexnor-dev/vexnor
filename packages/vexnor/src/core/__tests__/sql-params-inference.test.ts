@@ -1,6 +1,6 @@
 import { assertType, describe, expect, test } from "vitest";
-import { sql, row, param, orderBy, filterBy, insert, set, when } from "#/core/core.js";
-import { ParamsOf } from "#/core/sql-base.js";
+import { sql, row, param, orderBy, filterBy, insert, set, when } from "#src/core/core.js";
+import { ParamsOf } from "#src/core/sql-base.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
 
 describe("ParamsOf inference with new operators", () => {

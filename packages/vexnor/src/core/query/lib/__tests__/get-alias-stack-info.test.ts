@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { getAliasStackInfo } from "#/core/query/lib/get-alias-stack-info.js";
+import { getAliasStackInfo } from "#src/core/query/lib/get-alias-stack-info.js";
 
 describe("getAliasStackInfo", () => {
    test("returns <none> for undefined stack", () => {

@@ -1,17 +1,17 @@
-import { SqlTableCrudConfig } from "#/core/crud/sql-table-crud-config.js";
-import { InferTable$RowBySelect } from "#/core/types/infer-types.js";
-import { Sql } from "#/core/sql-base.js";
-import { SqlTableIdentity } from "#/core/schema/sql-table-identity.js";
-import { SqlTableFormat } from "#/core/builder/default-formatter.js";
-import { Lazy } from "#/lib/lazy.js";
-import { SqlTableAll } from "#/core/charms/sql-table-all.js";
-import { newSqlTableColumn, SqlTableColumn, SqlTableColumnAny } from "#/core/schema/sql-table-column.js";
+import { SqlTableCrudConfig } from "#src/core/crud/sql-table-crud-config.js";
+import { InferTable$RowBySelect } from "#src/core/types/infer-types.js";
+import { Sql } from "#src/core/sql-base.js";
+import { SqlTableIdentity } from "#src/core/schema/sql-table-identity.js";
+import { SqlTableFormat } from "#src/core/builder/default-formatter.js";
+import { Lazy } from "#src/lib/lazy.js";
+import { SqlTableAll } from "#src/core/charms/sql-table-all.js";
+import { newSqlTableColumn, SqlTableColumn, SqlTableColumnAny } from "#src/core/schema/sql-table-column.js";
 
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
-import { CACHE, registerResetHook } from "#/lib/cache.js";
-import { SqlJsonType } from "#/core/utils/sql-json-schema.js";
-import { SqlLiteralType } from "#/plugin/sql-literal.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { SqlBuildOptions } from "#src/core/builder/sql-build-options.js";
+import { CACHE, registerResetHook } from "#src/lib/cache.js";
+import { SqlJsonType } from "#src/core/utils/sql-json-schema.js";
+import { SqlLiteralType } from "#src/plugin/sql-literal.js";
 
 export type SqlTableTypeArgs = {
    Select: Record<string, unknown>;

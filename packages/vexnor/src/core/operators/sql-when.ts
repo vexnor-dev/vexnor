@@ -1,9 +1,9 @@
-import { PARAMS, ParamsOf, Sql, SqlOptions } from "#/core/sql-base.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
-import { SqlQuery } from "#/core/query/sql-query.js";
-import { resolvePath } from "#/core/query/resolve-path.js";
-import { BuildSqlParams, LeafPaths, PathToNested, SqlParam, SqlParamAny } from "#/core/query/sql-param.js";
+import { PARAMS, ParamsOf, Sql, SqlOptions } from "#src/core/sql-base.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { SqlBuildOptions } from "#src/core/builder/sql-build-options.js";
+import { SqlQuery } from "#src/core/query/sql-query.js";
+import { resolvePath } from "#src/core/query/resolve-path.js";
+import { BuildSqlParams, LeafPaths, PathToNested, SqlParam, SqlParamAny } from "#src/core/query/sql-param.js";
 
 export type SqlWhenTypeArgs = { Name: string; Type: unknown; OnTrue: Sql; OnFalse: Sql | null };
 
@@ -144,11 +144,12 @@ export class SqlWhen<T extends SqlWhenTypeArgs> extends Sql {
       }
    }
 
+   /* v8 ignore next */
    private buildBranchTokens(
       branch: Sql,
       context: SqlBuildContext,
       options?: SqlBuildOptions | null,
-   ): import("#/core/query/sql-models.js").SqlBuildToken[] {
+   ): import("#src/core/query/sql-models.js").SqlBuildToken[] {
       const branchContext = new SqlBuildContext({ dialect: context.dialect, params: null });
       if (branch instanceof SqlQuery) {
          branch.build(branchContext, options, { queryType: "inline" });

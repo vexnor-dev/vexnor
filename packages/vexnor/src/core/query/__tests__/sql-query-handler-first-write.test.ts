@@ -1,10 +1,10 @@
 import { describe, expect, test } from "vitest";
-import { sql } from "#/core/sql.js";
-import { row } from "#/core/query/sql-select-row.js";
+import { sql } from "#src/core/sql.js";
+import { row } from "#src/core/query/sql-select-row.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { mockHandler } from "#/test/mock-query-handler.js";
-import { MockConnection } from "#/test/mock-plugin.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
+import { mockHandler } from "#src/test/mock-query-handler.js";
+import { MockConnection } from "#src/test/mock-plugin.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
 
 type MockAccount = { accountId: string; email: string };
 

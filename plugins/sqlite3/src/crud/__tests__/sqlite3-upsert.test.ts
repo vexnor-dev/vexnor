@@ -2,8 +2,8 @@
 import "@vexnor/sqlite3";
 import { describe, expect, test } from "vitest";
 import { Account } from "@vexnor/core/testing";
-import { sqlite3Upsert } from "#/crud/sqlite3-upsert.js";
-import { defaultQueryOptions } from "#/crud/default-query-options.js";
+import { sqlite3Upsert } from "#src/crud/sqlite3-upsert.js";
+import { defaultQueryOptions } from "#src/crud/default-query-options.js";
 
 describe("sqlite3Upsert()", () => {
    test("auto SET: generates col = EXCLUDED.col for all non-conflict columns", () => {

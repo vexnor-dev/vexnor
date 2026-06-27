@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, test } from "vitest";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { DefaultTokenizer } from "#/core/builder/default-tokenizer.js";
-import { DefaultFormatter } from "#/core/builder/default-formatter.js";
-import { SqlBuildError } from "#/core/sql-build-error.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { DefaultTokenizer } from "#src/core/builder/default-tokenizer.js";
+import { DefaultFormatter } from "#src/core/builder/default-formatter.js";
+import { SqlBuildError } from "#src/core/sql-build-error.js";
 
 describe("SqlBuildContext Engine - basic tests", () => {
    let context!: SqlBuildContext;

@@ -1,10 +1,10 @@
-import { SqlTable } from "#/core/schema/sql-table.js";
-import { sql } from "#/core/sql.js";
-import { row } from "#/core/query/sql-select-row.js";
-import { insert } from "#/core/operators/sql-insert-x.js";
-import { SqlQueryExtended } from "#/core/query/sql-query.js";
-import { SqlQueryInfo } from "#/core/charms/sql-query-info.js";
-import { raw } from "#/core/query/sql-raw.js";
+import { SqlTable } from "#src/core/schema/sql-table.js";
+import { sql } from "#src/core/sql.js";
+import { row } from "#src/core/query/sql-select-row.js";
+import { insert } from "#src/core/operators/sql-insert-x.js";
+import { SqlQueryExtended } from "#src/core/query/sql-query.js";
+import { SqlQueryInfo } from "#src/core/charms/sql-query-info.js";
+import { raw } from "#src/core/query/sql-raw.js";
 
 export type SqlInsertRowsParams<T extends { Insert: Record<string, unknown> }, Field extends string> = Record<
    Field,

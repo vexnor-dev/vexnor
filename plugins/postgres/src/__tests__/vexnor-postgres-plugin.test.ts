@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
-import { VexnorPostgres } from "#/vexnor-postgres.js";
-import { getColumnType } from "#/schema/get-column-type.js";
-import { sql } from "#/postgres-sql.js";
+import { VexnorPostgres } from "#src/vexnor-postgres.js";
+import { getColumnType } from "#src/schema/get-column-type.js";
+import { sql } from "#src/postgres-sql.js";
 
 describe("VexnorPostgres plugin class", () => {
    const plugin = new VexnorPostgres();

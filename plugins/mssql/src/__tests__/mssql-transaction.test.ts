@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from "vitest";
 import mssql from "mssql";
-import { savepoint } from "#/mssql-transaction.js";
+import { savepoint } from "#src/mssql-transaction.js";
 
 const mockTxInstances: {
    begin: ReturnType<typeof vi.fn>;
@@ -31,7 +31,7 @@ vi.mock("mssql", async (importOriginal) => {
 describe("transaction (mssql)", () => {
    test("commits on success with default isolation level", async () => {
       mockTxInstances.length = 0;
-      const { transaction } = await import("#/mssql-transaction.js");
+      const { transaction } = await import("#src/mssql-transaction.js");
       const result = await transaction({} as mssql.ConnectionPool, async () => 99);
       expect(result).toBe(99);
       const tx = mockTxInstances[0]!;
@@ -42,7 +42,7 @@ describe("transaction (mssql)", () => {
 
    test("rolls back and rethrows on callback error", async () => {
       mockTxInstances.length = 0;
-      const { transaction } = await import("#/mssql-transaction.js");
+      const { transaction } = await import("#src/mssql-transaction.js");
       await expect(
          transaction({} as mssql.ConnectionPool, async () => { throw new Error("fail"); }),
       ).rejects.toThrow("fail");
@@ -53,7 +53,7 @@ describe("transaction (mssql)", () => {
 
    test("passes custom isolation level to begin()", async () => {
       mockTxInstances.length = 0;
-      const { transaction } = await import("#/mssql-transaction.js");
+      const { transaction } = await import("#src/mssql-transaction.js");
       await transaction({} as mssql.ConnectionPool, async () => "ok", { isolationLevel: "SERIALIZABLE" });
       expect(mockTxInstances[0]!.begin).toHaveBeenCalledWith(mssql.ISOLATION_LEVEL.SERIALIZABLE);
    });

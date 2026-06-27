@@ -1,24 +1,24 @@
 import { describe, expect, test } from "vitest";
-import { Sql, nextId, resetIds } from "#/core/sql-base.js";
-import { SqlBuildError } from "#/core/sql-build-error.js";
-import { SqlError } from "#/core/sql-error.js";
-import { SqlRunError } from "#/core/sql-run-error.js";
-import { SqlErrorCode } from "#/core/sql-error-code.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { sql } from "#/core/sql.js";
+import { Sql, nextId, resetIds } from "#src/core/sql-base.js";
+import { SqlBuildError } from "#src/core/sql-build-error.js";
+import { SqlError } from "#src/core/sql-error.js";
+import { SqlRunError } from "#src/core/sql-run-error.js";
+import { SqlErrorCode } from "#src/core/sql-error-code.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { sql } from "#src/core/sql.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { excluded } from "#/core/schema/sql-excluded.js";
-import { getTableId } from "#/core/schema/sql-table-identity.js";
-import { ok, strictEqual } from "#/lib/assert.js";
-import { newSqlTableColumn } from "#/core/schema/sql-table-column.js";
-import { DefaultFormatter } from "#/core/builder/default-formatter.js";
-import { DefaultTokenizer } from "#/core/builder/default-tokenizer.js";
-import { runWithRetry } from "#/core/query/sql-retry.js";
-import { HttpRemoteClient } from "#/core/query/http-remote-client.js";
-import { SqlSelectCharm } from "#/core/query/sql-charm.js";
-import { SqlParam } from "#/core/query/sql-param.js";
-import { isParamValueValid } from "#/core/query/params/sql-param-validation.js";
-import { validateParamValue } from "#/core/query/params/validate-param-value.js";
+import { excluded } from "#src/core/schema/sql-excluded.js";
+import { getTableId } from "#src/core/schema/sql-table-identity.js";
+import { ok, strictEqual } from "#src/lib/assert.js";
+import { newSqlTableColumn } from "#src/core/schema/sql-table-column.js";
+import { DefaultFormatter } from "#src/core/builder/default-formatter.js";
+import { DefaultTokenizer } from "#src/core/builder/default-tokenizer.js";
+import { runWithRetry } from "#src/core/query/sql-retry.js";
+import { HttpRemoteClient } from "#src/core/query/http-remote-client.js";
+import { SqlSelectCharm } from "#src/core/query/sql-charm.js";
+import { SqlParam } from "#src/core/query/sql-param.js";
+import { isParamValueValid } from "#src/core/query/params/sql-param-validation.js";
+import { validateParamValue } from "#src/core/query/params/validate-param-value.js";
 
 describe("sql-base.ts — uncovered", () => {
    test("Sql.toString() returns id", () => {

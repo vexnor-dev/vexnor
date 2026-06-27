@@ -1,5 +1,5 @@
 import { SqlParam, PathToNested } from "./sql-param.js";
-import { ARGS, PARAMS } from "#/core/sql-base.js";
+import { ARGS, PARAMS } from "#src/core/sql-base.js";
 
 export class SqlParamRef<T extends { Name: string; Type: unknown }> extends SqlParam<T> {
    declare readonly [PARAMS]: PathToNested<T["Name"], T["Type"]>;

@@ -1,7 +1,7 @@
 import { defineQueryConfig } from "@vexnor/core/config";
-import { findEnums } from "#/schema/find-enums.js";
-import { vexnorPostgres } from "#/vexnor-postgres.js";
-import { findTables, findTableColumns, findPrimaryKeys } from "#/schema/find-tables.js";
+import { findEnums } from "#src/schema/find-enums.js";
+import { vexnorPostgres } from "#src/vexnor-postgres.js";
+import { findTables, findTableColumns, findPrimaryKeys } from "#src/schema/find-tables.js";
 
 export default defineQueryConfig({ findEnums, findTables, findTableColumns, findPrimaryKeys })({
    queries: {

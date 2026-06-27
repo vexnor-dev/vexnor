@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
-import { HttpRemoteClient } from "#/core/query/http-remote-client.js";
-import { getQueryMeta } from "#/core/query/query-meta-store.js";
+import { HttpRemoteClient } from "#src/core/query/http-remote-client.js";
+import { getQueryMeta } from "#src/core/query/query-meta-store.js";
 
 const request = {
    plugin: "test",

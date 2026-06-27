@@ -1,11 +1,11 @@
-import { SqlQueryAny } from "#/core/query/sql-query.js";
-import { SqlParamAny } from "#/core/query/sql-param.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import type { SqlBuildToken, SqlOperatorToken } from "#/core/query/sql-models.js";
-import type { SqlLanguage } from "#/format/sql-language.js";
+import { SqlQueryAny } from "#src/core/query/sql-query.js";
+import { SqlParamAny } from "#src/core/query/sql-param.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import type { SqlBuildToken, SqlOperatorToken } from "#src/core/query/sql-models.js";
+import type { SqlLanguage } from "#src/format/sql-language.js";
 import { createRequire } from "node:module";
-import { SqlFilterBy } from "#/core/operators/sql-filter-by.js";
-import { SqlProjectBy } from "#/core/operators/sql-project-by.js";
+import { SqlFilterBy } from "#src/core/operators/sql-filter-by.js";
+import { SqlProjectBy } from "#src/core/operators/sql-project-by.js";
 import type {
    QueryDefinition,
    QueryManifest,

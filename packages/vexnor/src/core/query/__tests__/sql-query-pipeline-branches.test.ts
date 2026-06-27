@@ -1,14 +1,14 @@
 import { describe, expect, test, vi } from "vitest";
-import { sql } from "#/core/sql.js";
-import { row } from "#/core/query/sql-select-row.js";
+import { sql } from "#src/core/sql.js";
+import { row } from "#src/core/query/sql-select-row.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { SqlQueryPipeline } from "#/execution/sql-query-pipeline.js";
-import { connect } from "#/plugin/vexnor-connection.js";
-import { MockConnection } from "#/test/mock-plugin.js";
-import { mockHandler } from "#/test/mock-query-handler.js";
-import { ctx } from "#/core/query/sql-param.js";
-import { SqlRunError } from "#/core/sql-run-error.js";
-import { SqlErrorCode } from "#/core/sql-error-code.js";
+import { SqlQueryPipeline } from "#src/execution/sql-query-pipeline.js";
+import { connect } from "#src/plugin/vexnor-connection.js";
+import { MockConnection } from "#src/test/mock-plugin.js";
+import { mockHandler } from "#src/test/mock-query-handler.js";
+import { ctx } from "#src/core/query/sql-param.js";
+import { SqlRunError } from "#src/core/sql-run-error.js";
+import { SqlErrorCode } from "#src/core/sql-error-code.js";
 
 const findAccounts = sql`
    select ${row(Account.$accountId, Account.$email)}

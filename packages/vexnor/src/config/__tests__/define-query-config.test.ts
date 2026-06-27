@@ -1,9 +1,9 @@
 import "../../test/mock-query-handler.js";
 import { describe, expect, test } from "vitest";
-import { defineQueryConfig } from "#/config/define-query-config.js";
-import { defineConfig } from "#/config/define-config.js";
-import { findAccountById, findAccountByEmail, listAccounts } from "#/config/__tests__/test-queries.js";
-import { MockPlugin } from "#/test/mock-plugin.js";
+import { defineQueryConfig } from "#src/config/define-query-config.js";
+import { defineConfig } from "#src/config/define-config.js";
+import { findAccountById, findAccountByEmail, listAccounts } from "#src/config/__tests__/test-queries.js";
+import { MockPlugin } from "#src/test/mock-plugin.js";
 
 const testPlugin = new MockPlugin({ name: "test-plugin" });
 

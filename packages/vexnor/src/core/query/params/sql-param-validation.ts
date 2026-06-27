@@ -1,5 +1,5 @@
-import { ValuesOf } from "#/core/schema/schema-types.js";
-import { validateParamValue } from "#/core/query/params/validate-param-value.js";
+import { ValuesOf } from "#src/core/schema/schema-types.js";
+import { validateParamValue } from "#src/core/query/params/validate-param-value.js";
 
 export type SqlParamValidation<T> = ParamInfo<T> &
    LengthRules &

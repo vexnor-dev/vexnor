@@ -1,9 +1,9 @@
 import { describe, expect, test } from "vitest";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { sql } from "#/core/sql.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { sql } from "#src/core/sql.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { row } from "#/core/query/sql-select-row.js";
-import { val } from "#/core/query/sql-select-value.js";
+import { row } from "#src/core/query/sql-select-row.js";
+import { val } from "#src/core/query/sql-select-value.js";
 
 describe("SqlBuildContext alias tests", () => {
    test("'account' should alias 'a_1'", () => {

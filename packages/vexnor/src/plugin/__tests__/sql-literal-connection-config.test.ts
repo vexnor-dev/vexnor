@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
-import { isSqlType, assertIsSqlLiteral, SqlLiteralType } from "#/plugin/sql-literal.js";
-import { newConnectionConfig } from "#/plugin/connection-config.js";
-import { throwError } from "#/lib/throw-error.js";
+import { isSqlType, assertIsSqlLiteral, SqlLiteralType } from "#src/plugin/sql-literal.js";
+import { newConnectionConfig } from "#src/plugin/connection-config.js";
+import { throwError } from "#src/lib/throw-error.js";
 
 describe("isSqlType", () => {
    test("returns true for valid SqlLiteralType values", () => {

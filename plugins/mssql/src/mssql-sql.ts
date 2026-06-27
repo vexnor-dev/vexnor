@@ -1,5 +1,5 @@
 import { SqlQuery, SqlQueryToken, SqlParams, SqlRow, SqlQueryExtended, newSqlQueryHandler, sqlBuildDefaults } from "@vexnor/core";
-import { MssqlQueryHandler } from "#/mssql-query-handler.js";
+import { MssqlQueryHandler } from "#src/mssql-query-handler.js";
 
 export type MssqlQueryExtended<T extends { Row?: unknown; Params?: unknown }> = MssqlQueryHandler<T> &
    SqlQueryExtended<T>;

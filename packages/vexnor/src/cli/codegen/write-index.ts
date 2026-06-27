@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { getCodegenContext } from "./codegen-context.js";
-import { LibraryOutputFile, SqlOutputFile } from "#/plugin/plugin.js";
+import { LibraryOutputFile, SqlOutputFile } from "#src/plugin/plugin.js";
 
 const writeFile = fs.promises.writeFile;
 

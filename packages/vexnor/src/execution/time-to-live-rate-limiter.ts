@@ -1,5 +1,5 @@
-import { SqlRunError } from "#/core/sql-run-error.js";
-import { SqlErrorCode } from "#/core/sql-error-code.js";
+import { SqlRunError } from "#src/core/sql-run-error.js";
+import { SqlErrorCode } from "#src/core/sql-error-code.js";
 import type {
    SqlQueryPipelinePlugin,
    SqlPipelineExecutionArgs,

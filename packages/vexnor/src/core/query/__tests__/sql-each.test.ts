@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
-import { sql } from "#/core/sql.js";
-import { each } from "#/core/operators/sql-each.js";
+import { sql } from "#src/core/sql.js";
+import { each } from "#src/core/operators/sql-each.js";
 import { Account } from "@test-models/vexnor_dev.schema.js";
 
 describe("SqlEach", () => {

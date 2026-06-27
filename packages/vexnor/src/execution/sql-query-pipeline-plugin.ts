@@ -1,5 +1,5 @@
-import type { SqlQueryAny } from "#/core/query/sql-query.js";
-import { SqlExecuteMode } from "#/core/query/sql-query-types.js";
+import type { SqlQueryAny } from "#src/core/query/sql-query.js";
+import { SqlExecuteMode } from "#src/core/query/sql-query-types.js";
 
 export type SqlQueryExecutionPluginRef = {
    readonly name: string;

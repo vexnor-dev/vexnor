@@ -1,13 +1,13 @@
-import { loadConfig, loadQueryConfig, resolveProfile } from "#/config/config.js";
-import { formatCsv, formatJson, formatTable } from "#/cli/exec/formatters.js";
-import { SqlQueryHandler, SqlQueryHandlerAny } from "#/core/query/sql-query-handler.js";
-import { SqlQuery } from "#/core/query/sql-query.js";
-import { detectQueryType } from "#/cli/exec/detect-query-type.js";
-import { confirmPrompt } from "#/cli/exec/confirm-prompt.js";
-import { isContextValue } from "#/core/query/context-value.js";
+import { loadConfig, loadQueryConfig, resolveProfile } from "#src/config/config.js";
+import { formatCsv, formatJson, formatTable } from "#src/cli/exec/formatters.js";
+import { SqlQueryHandler, SqlQueryHandlerAny } from "#src/core/query/sql-query-handler.js";
+import { SqlQuery } from "#src/core/query/sql-query.js";
+import { detectQueryType } from "#src/cli/exec/detect-query-type.js";
+import { confirmPrompt } from "#src/cli/exec/confirm-prompt.js";
+import { isContextValue } from "#src/core/query/context-value.js";
 import * as path from "node:path";
 import { glob } from "node:fs/promises";
-import { SqlExecError } from "#/cli/exec/sql-exec-error.js";
+import { SqlExecError } from "#src/cli/exec/sql-exec-error.js";
 
 export interface ExecOptions {
    config: string;

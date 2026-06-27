@@ -1,11 +1,11 @@
 // noinspection SqlNoDataSourceInspection,SqlResolve
 import { describe, expect, test } from "vitest";
 import { Account, AccountStatusUdt } from "@test-models/vexnor_dev.schema.js";
-import { sql } from "#/core/sql.js";
-import { info } from "#/core/charms/sql-query-info.js";
-import { param } from "#/core/query/sql-param.js";
-import { row } from "#/core/query/sql-select-row.js";
-import { ParamsOf } from "#/core/sql-base.js";
+import { sql } from "#src/core/sql.js";
+import { info } from "#src/core/charms/sql-query-info.js";
+import { param } from "#src/core/query/sql-param.js";
+import { row } from "#src/core/query/sql-select-row.js";
+import { ParamsOf } from "#src/core/sql-base.js";
 
 describe("sql subqueries tests", () => {
    test("sub-query CTE/with", () => {

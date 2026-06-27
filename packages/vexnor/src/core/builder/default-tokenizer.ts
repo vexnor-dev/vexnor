@@ -1,6 +1,6 @@
-import { ITokenizer } from "#/core/builder/sql-tokenizer.js";
-import { MAJOR_KEYWORDS } from "#/core/sql-constants.js";
-import { SqlBuildError } from "#/core/sql-build-error.js";
+import { ITokenizer } from "#src/core/builder/sql-tokenizer.js";
+import { MAJOR_KEYWORDS } from "#src/core/sql-constants.js";
+import { SqlBuildError } from "#src/core/sql-build-error.js";
 
 export class DefaultTokenizer implements ITokenizer {
    tokenize(text: string): string[] {

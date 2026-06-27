@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { SqlSelectCharm } from "@vexnor/core";
 import type { IResult } from "mssql";
-import { sql } from "#/mssql-sql.js";
+import { sql } from "#src/mssql-sql.js";
 
 describe("MssqlQueryHandler.deserialize", () => {
    test("deserializes both recordset and recordsets consistently", () => {

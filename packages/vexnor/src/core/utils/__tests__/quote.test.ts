@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { quoteText } from "#/core/utils/quote-text.js";
+import { quoteText } from "#src/core/utils/quote-text.js";
 
 describe("quoteText() tests", () => {
    test(`quoting: Account as a_1 should render "Account" as "a_1"`, () => {

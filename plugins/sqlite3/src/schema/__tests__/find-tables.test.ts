@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { findTables, findTableColumns, findPrimaryKeys, findForeignKeys } from "#/schema/find-tables.js";
+import { findTables, findTableColumns, findPrimaryKeys, findForeignKeys } from "#src/schema/find-tables.js";
 
 describe("Find Tables tests", () => {
    test("Find Tables query should match expected SQL", () => {

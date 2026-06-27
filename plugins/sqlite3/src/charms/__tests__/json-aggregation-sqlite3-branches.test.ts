@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { row, sql, SqlBuildContext } from "@vexnor/core";
-import { JsonAggregationSqlite3, jsonMany, jsonOne } from "#/charms/json-aggregation-sqlite3.js";
+import { JsonAggregationSqlite3, jsonMany, jsonOne } from "#src/charms/json-aggregation-sqlite3.js";
 import { Account } from "@vexnor/core/testing";
 
 describe("json-aggregation-sqlite3 error branches", () => {

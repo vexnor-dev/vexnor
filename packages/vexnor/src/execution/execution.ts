@@ -25,6 +25,6 @@ export {
    type ContextMetrics,
 } from "./time-to-live-rate-limiter.js";
 export { AuditLogPlugin, type AuditLogPluginOptions, type AuditLogArgs } from "./audit-log-plugin.js";
-export { SqlErrorCode } from "#/core/sql-error-code.js";
-export { SqlRunError, type SqlRunErrorOptions, type SqlRunQueryRef } from "#/core/sql-run-error.js";
-export { SqlError } from "#/core/sql-error.js";
+export { SqlErrorCode } from "#src/core/sql-error-code.js";
+export { SqlRunError, type SqlRunErrorOptions, type SqlRunQueryRef } from "#src/core/sql-run-error.js";
+export { SqlError } from "#src/core/sql-error.js";

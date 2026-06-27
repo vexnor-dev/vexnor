@@ -11,8 +11,8 @@ import {
    type QueryMeta,
 } from "@vexnor/core";
 import type { Database, RunResult } from "better-sqlite3";
-import { Sqlite3Formatter } from "#/sqlite3-formatter.js";
-import { Sqlite3Tokenizer } from "#/sqlite3-tokenizer.js";
+import { Sqlite3Formatter } from "#src/sqlite3-formatter.js";
+import { Sqlite3Tokenizer } from "#src/sqlite3-tokenizer.js";
 import pkg from "../package.json" with { type: "json" };
 
 // SQLite transient error codes safe to retry

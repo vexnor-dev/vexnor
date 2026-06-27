@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { findEnums } from "#/schema/find-enums.js";
+import { findEnums } from "#src/schema/find-enums.js";
 
 describe("Find Enums tests", () => {
    test("Find Enums query should match expected SQL", () => {

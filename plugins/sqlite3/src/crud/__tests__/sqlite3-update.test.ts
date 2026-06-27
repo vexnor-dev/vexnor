@@ -3,8 +3,8 @@ import "@vexnor/sqlite3";
 import { describe, expect, test } from "vitest";
 import { Account } from "@vexnor/core/testing";
 import { sql, input } from "@vexnor/core";
-import { sqlite3Update } from "#/crud/sqlite3-update.js";
-import { defaultQueryOptions } from "#/crud/default-query-options.js";
+import { sqlite3Update } from "#src/crud/sqlite3-update.js";
+import { defaultQueryOptions } from "#src/crud/default-query-options.js";
 
 describe("sqlite3Update()", () => {
    test("basic update", () => {

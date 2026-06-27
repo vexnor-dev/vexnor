@@ -1,5 +1,5 @@
-import { Sql } from "#/core/sql-base.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
+import { Sql } from "#src/core/sql-base.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
 
 export class SqlDefault extends Sql {
    constructor() {

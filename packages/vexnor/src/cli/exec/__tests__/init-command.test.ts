@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-import { initCommand } from "#/cli/exec/init-command.js";
+import { initCommand } from "#src/cli/exec/init-command.js";
 
 const TEST_DIR = path.join(process.cwd(), "test-init-output");
 

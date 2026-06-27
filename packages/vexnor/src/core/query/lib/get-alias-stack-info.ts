@@ -1,4 +1,4 @@
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
 
 export function getAliasStackInfo(stack: SqlBuildContext["_tableAliasStack"]): string {
    if (!stack) return "<none>";

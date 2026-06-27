@@ -6,7 +6,7 @@
       "declaration": true,
       "declarationMap": true,
       "paths": {
-         "#/*": [
+         "#src/*": [
             "./src/*"
          ]
       }

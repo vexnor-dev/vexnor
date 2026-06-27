@@ -1,17 +1,17 @@
 import { describe, expect, test, vi } from "vitest";
-import { col, SqlSelectColumn } from "#/core/query/sql-select-column.js";
-import { SqlSelectAll } from "#/core/query/sql-select-all.js";
-import { val } from "#/core/query/sql-select-value.js";
-import { raw } from "#/core/query/sql-raw.js";
-import { hasParams, hasRow } from "#/core/query/sql-query-types.js";
-import { excluded } from "#/core/schema/sql-excluded.js";
-import { newSqlQueryRef } from "#/core/query/sql-query-ref.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { sql } from "#/core/sql.js";
-import { row } from "#/core/query/sql-select-row.js";
+import { col, SqlSelectColumn } from "#src/core/query/sql-select-column.js";
+import { SqlSelectAll } from "#src/core/query/sql-select-all.js";
+import { val } from "#src/core/query/sql-select-value.js";
+import { raw } from "#src/core/query/sql-raw.js";
+import { hasParams, hasRow } from "#src/core/query/sql-query-types.js";
+import { excluded } from "#src/core/schema/sql-excluded.js";
+import { newSqlQueryRef } from "#src/core/query/sql-query-ref.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { sql } from "#src/core/sql.js";
+import { row } from "#src/core/query/sql-select-row.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { newSqlQueryColumn } from "#/core/query/sql-query-column.js";
-import { newSqlTableColumn } from "#/core/schema/sql-table-column.js";
+import { newSqlQueryColumn } from "#src/core/query/sql-query-column.js";
+import { newSqlTableColumn } from "#src/core/schema/sql-table-column.js";
 
 // ─── SqlSelectColumn ──────────────────────────────────────────────────────────
 
@@ -194,18 +194,18 @@ describe("newSqlQueryRef", () => {
 
 // ─── SqlQuery — uncovered edge cases ──────────────────────────────────────────
 
-import { toQuery, SqlQuery, SqlQueryAny } from "#/core/query/sql-query.js";
-import { ctx, param } from "#/core/query/sql-param.js";
+import { toQuery, SqlQuery, SqlQueryAny } from "#src/core/query/sql-query.js";
+import { ctx, param } from "#src/core/query/sql-param.js";
 import { Order } from "@test-models/vexnor_dev.order-table.js";
-import { mockHandler } from "#/test/mock-query-handler.js";
-import { setupFormatter } from "#/format/index.js";
-import { SqlQueryPipeline } from "#/execution/sql-query-pipeline.js";
-import type { VexnorPluginAny } from "#/plugin/vexnor-plugin.js";
-import { connect } from "#/plugin/vexnor-connection.js";
-import { MockConnection } from "#/test/mock-plugin.js";
-import { SqlErrorCode } from "#/core/sql-error-code.js";
-import { TimeToLiveRateLimiter } from "#/execution/time-to-live-rate-limiter.js";
-import { SqlQueryRegistry } from "#/execution/sql-query-registry.js";
+import { mockHandler } from "#src/test/mock-query-handler.js";
+import { setupFormatter } from "#src/format/index.js";
+import { SqlQueryPipeline } from "#src/execution/sql-query-pipeline.js";
+import type { VexnorPluginAny } from "#src/plugin/vexnor-plugin.js";
+import { connect } from "#src/plugin/vexnor-connection.js";
+import { MockConnection } from "#src/test/mock-plugin.js";
+import { SqlErrorCode } from "#src/core/sql-error-code.js";
+import { TimeToLiveRateLimiter } from "#src/execution/time-to-live-rate-limiter.js";
+import { SqlQueryRegistry } from "#src/execution/sql-query-registry.js";
 
 describe("toQuery", () => {
    test("returns SqlQuery instance directly", () => {

@@ -1,9 +1,9 @@
 import { describe, expect, test } from "vitest";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { trim } from "#/core/utils/trim.js";
-import { SqlTableAll } from "#/core/charms/sql-table-all.js";
-import { SqlTableColumn } from "#/core/schema/sql-table-column.js";
+import { trim } from "#src/core/utils/trim.js";
+import { SqlTableAll } from "#src/core/charms/sql-table-all.js";
+import { SqlTableColumn } from "#src/core/schema/sql-table-column.js";
 
 describe("SqlTableAll (*) tests", () => {
    test("new value should be defined", () => {

@@ -49,7 +49,7 @@ export function getSelectAccountParams(args: {
    searchParams?: URLSearchParams;
    values?: Partial<SelectAccountsParams>;
 }): SelectAccountsParams {
-   const col = args.searchParams?.get("accountOrderBy") ?? "created_at";
+   const col = args.searchParams?.get("accountOrderBy") ?? "createdAt";
    const dir = args.searchParams?.get("orderDir") ?? "DESC";
    return Object.assign(
       {

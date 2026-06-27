@@ -1,8 +1,8 @@
 import { describe, expect, test } from "vitest";
-import { SqlTable, newSqlTable } from "#/core/schema/sql-table.js";
-import { SqlTableColumn } from "#/core/schema/sql-table-column.js";
+import { SqlTable, newSqlTable } from "#src/core/schema/sql-table.js";
+import { SqlTableColumn } from "#src/core/schema/sql-table-column.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { Sql } from "#/core/sql-base.js";
+import { Sql } from "#src/core/sql-base.js";
 
 describe("SqlTable tests", () => {
    test("SqlTable inherits SqlBase", () => {

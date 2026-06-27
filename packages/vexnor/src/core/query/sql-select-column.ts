@@ -1,7 +1,7 @@
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
-import { PARAMS, ROW, Sql, TYPE } from "#/core/sql-base.js";
-import { BuildSqlParams } from "#/core/query/sql-param.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { SqlBuildOptions } from "#src/core/builder/sql-build-options.js";
+import { PARAMS, ROW, Sql, TYPE } from "#src/core/sql-base.js";
+import { BuildSqlParams } from "#src/core/query/sql-param.js";
 
 export type SqlWriteHandler = (context: SqlBuildContext, options?: SqlBuildOptions | null) => void;
 

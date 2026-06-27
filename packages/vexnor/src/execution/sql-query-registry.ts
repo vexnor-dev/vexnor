@@ -1,10 +1,10 @@
-import { ok } from "#/lib/assert.js";
-import { SqlQuery, type SqlQueryAny } from "#/core/query/sql-query.js";
-import type { VexnorPluginAny } from "#/plugin/vexnor-plugin.js";
-import { SqlError } from "#/core/sql-error.js";
-import { SqlErrorCode } from "#/core/sql-error-code.js";
-import type { SqlExecuteMode, SqlRunOptions } from "#/core/query/sql-query-types.js";
-import { isVexnorConnection } from "#/plugin/vexnor-connection.js";
+import { ok } from "#src/lib/assert.js";
+import { SqlQuery, type SqlQueryAny } from "#src/core/query/sql-query.js";
+import type { VexnorPluginAny } from "#src/plugin/vexnor-plugin.js";
+import { SqlError } from "#src/core/sql-error.js";
+import { SqlErrorCode } from "#src/core/sql-error-code.js";
+import type { SqlExecuteMode, SqlRunOptions } from "#src/core/query/sql-query-types.js";
+import { isVexnorConnection } from "#src/plugin/vexnor-connection.js";
 import type { SqlPipelineExecutionArgs, SqlQueryPipelinePlugin } from "./sql-query-pipeline-plugin.js";
 import {
    SqlQueryPipeline,
@@ -15,8 +15,8 @@ import {
    type AuthorizeHook,
    type SqlQueryPipelineOptions,
 } from "./sql-query-pipeline.js";
-import { SqlParamAny } from "#/core/query/sql-param.js";
-import { SqlQueryHandler, SqlQueryHandlerAny } from "#/core/query/sql-query-handler.js";
+import { SqlParamAny } from "#src/core/query/sql-param.js";
+import { SqlQueryHandler, SqlQueryHandlerAny } from "#src/core/query/sql-query-handler.js";
 
 export type { AuthorizeArgs, AuthorizeHook };
 export { InitQueryEvent, BeforeQueryEvent, EndQueryEvent };

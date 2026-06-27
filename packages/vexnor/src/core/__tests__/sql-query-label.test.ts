@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { sql } from "#/core/sql.js";
+import { sql } from "#src/core/sql.js";
 
 describe("SqlQuery.label (initLabel)", () => {
    test("primitive string value appears in label", () => {

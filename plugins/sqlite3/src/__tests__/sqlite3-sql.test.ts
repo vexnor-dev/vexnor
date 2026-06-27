@@ -1,11 +1,11 @@
 // noinspection SqlNoDataSourceInspection,SqlResolve
 import { describe, expect, test, beforeAll, afterAll } from "vitest";
-import { sql as sqlite3Sql } from "#/sqlite3-sql.js";
+import { sql as sqlite3Sql } from "#src/sqlite3-sql.js";
 import { row, param } from "@vexnor/core";
 import { Account } from "@vexnor/core/testing";
 import BetterSqlite3 from "better-sqlite3";
 import "@vexnor/sqlite3";
-import "#/sqlite3-augment.js";
+import "#src/sqlite3-augment.js";
 
 let db: BetterSqlite3.Database;
 

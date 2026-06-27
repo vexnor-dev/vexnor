@@ -1,10 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { sql } from "#/core/sql.js";
+import { sql } from "#src/core/sql.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { row } from "#/core/query/sql-select-row.js";
-import { MockQueryHandler } from "#/test/mock-query-handler.js";
-import type { MockConnection } from "#/test/mock-plugin.js";
-import { getQueryMeta, setQueryMeta } from "#/core/query/query-meta-store.js";
+import { row } from "#src/core/query/sql-select-row.js";
+import { MockQueryHandler } from "#src/test/mock-query-handler.js";
+import type { MockConnection } from "#src/test/mock-plugin.js";
+import { getQueryMeta, setQueryMeta } from "#src/core/query/query-meta-store.js";
 
 function createMockDb(rows: unknown[] = []): MockConnection {
    return {

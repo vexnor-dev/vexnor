@@ -1,12 +1,12 @@
 import { describe, expect, test } from "vitest";
-import { sql } from "#/core/sql.js";
-import { row } from "#/core/query/sql-select-row.js";
-import { ctx, param, SqlParam } from "#/core/query/sql-param.js";
-import { isContextValue, contextValue } from "#/core/query/context-value.js";
+import { sql } from "#src/core/sql.js";
+import { row } from "#src/core/query/sql-select-row.js";
+import { ctx, param, SqlParam } from "#src/core/query/sql-param.js";
+import { isContextValue, contextValue } from "#src/core/query/context-value.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { type ConnectionResolver, SqlQueryRegistry } from "#/execution/sql-query-registry.js";
-import { type SqlExecuteMode } from "#/core/query/sql-query-types.js";
-import { MockConnection, MockPlugin } from "#/test/mock-plugin.js";
+import { type ConnectionResolver, SqlQueryRegistry } from "#src/execution/sql-query-registry.js";
+import { type SqlExecuteMode } from "#src/core/query/sql-query-types.js";
+import { MockConnection, MockPlugin } from "#src/test/mock-plugin.js";
 
 const plugin = new MockPlugin({ name: "mock" });
 

@@ -13,9 +13,9 @@ import {
    SqlFilterBy,
    SqlFilterParams,
 } from "@vexnor/core";
-import { jsonMany, jsonOne } from "#/charms/json-aggregation-postgres.js";
-import { PostgresQueryHandler } from "#/postgres-query-handler.js";
-import "#/postgres-augment.js";
+import { jsonMany, jsonOne } from "#src/charms/json-aggregation-postgres.js";
+import { PostgresQueryHandler } from "#src/postgres-query-handler.js";
+import "#src/postgres-augment.js";
 
 export type PostgresSelectResult<
    T extends { Select: Record<string, unknown> },

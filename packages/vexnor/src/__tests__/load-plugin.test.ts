@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { loadPlugin } from "#/load-plugin.js";
+import { loadPlugin } from "#src/load-plugin.js";
 
 describe("loadPlugin — validation", () => {
    test("rejects invalid package name — no scope", async () => {

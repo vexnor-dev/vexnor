@@ -1,8 +1,8 @@
 import { describe, expect, test } from "vitest";
-import { newSqlite3TableHandler } from "#/crud/sqlite3-table-handler.js";
+import { newSqlite3TableHandler } from "#src/crud/sqlite3-table-handler.js";
 import { Account } from "@vexnor/core/testing";
 import "@vexnor/sqlite3";
-import { defaultQueryOptions } from "#/crud/default-query-options.js";
+import { defaultQueryOptions } from "#src/crud/default-query-options.js";
 import { param, sql } from "@vexnor/core";
 
 describe("newSqlite3TableHandler — SQL generation branches", () => {

@@ -1,10 +1,10 @@
 import { describe, expect, test } from "vitest";
-import { sql } from "#/core/sql.js";
-import { row } from "#/core/query/sql-select-row.js";
-import { param } from "#/core/query/sql-param.js";
-import { col } from "#/core/query/sql-select-column.js";
-import { val } from "#/core/query/sql-select-value.js";
-import { raw } from "#/core/query/sql-raw.js";
+import { sql } from "#src/core/sql.js";
+import { row } from "#src/core/query/sql-select-row.js";
+import { param } from "#src/core/query/sql-param.js";
+import { col } from "#src/core/query/sql-select-column.js";
+import { val } from "#src/core/query/sql-select-value.js";
+import { raw } from "#src/core/query/sql-raw.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
 import { Order } from "@test-models/vexnor_dev.order-table.js";
 

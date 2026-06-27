@@ -1,7 +1,7 @@
-import { DefaultFormatter } from "#/core/builder/default-formatter.js";
-import { DefaultTokenizer } from "#/core/builder/default-tokenizer.js";
-import { type SqlLanguage } from "#/format/sql-language.js";
-import { SqlParamFormat } from "#/core/query/sql-models.js";
+import { DefaultFormatter } from "#src/core/builder/default-formatter.js";
+import { DefaultTokenizer } from "#src/core/builder/default-tokenizer.js";
+import { type SqlLanguage } from "#src/format/sql-language.js";
+import { SqlParamFormat } from "#src/core/query/sql-models.js";
 
 /**
  * Options that control how a query is built and formatted.

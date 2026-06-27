@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
 
 describe("SqlTable.write() — format branches", () => {
    test("tableName format emits only the table name", () => {
@@ -151,7 +151,7 @@ describe("SqlTable.write() — tableAlias format not exercised by default", () =
    });
 });
 
-import { newSqlTableColumn } from "#/core/schema/sql-table-column.js";
+import { newSqlTableColumn } from "#src/core/schema/sql-table-column.js";
 
 const tableInfo = { name: "account", schema: "main", alias: null, out: false };
 const col = newSqlTableColumn({ key: "firstName", columnName: "first_name", tableInfo });

@@ -1,9 +1,9 @@
 import { describe, expect, test } from "vitest";
-import { sql } from "#/core/sql.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { SqlBuildError } from "#/core/sql-build-error.js";
-import { info } from "#/core/charms/sql-query-info.js";
-import { SqlQuery, SqlQueryFormatByKeyword } from "#/core/query/sql-query.js";
+import { sql } from "#src/core/sql.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { SqlBuildError } from "#src/core/sql-build-error.js";
+import { info } from "#src/core/charms/sql-query-info.js";
+import { SqlQuery, SqlQueryFormatByKeyword } from "#src/core/query/sql-query.js";
 
 describe("SqlQuery.buildInternalQuery()", () => {
    test("'with' case (happy path): emits `\"name\" as (` ... `)` around the token", () => {

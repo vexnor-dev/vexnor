@@ -1,5 +1,5 @@
-import { JsonRow } from "#/core/schema/schema-types.js";
-import { newSqlTable } from "#/core/schema/sql-table.js";
+import { JsonRow } from "#src/core/schema/schema-types.js";
+import { newSqlTable } from "#src/core/schema/sql-table.js";
 
 export const OrderItem = newSqlTable<{
    Select: IOrderItemSelect;

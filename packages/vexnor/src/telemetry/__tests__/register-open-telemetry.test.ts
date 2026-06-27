@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { SpanStatusCode } from "@opentelemetry/api";
-import "#/telemetry/register-open-telemetry.js";
-import { type ConnectionResolver, SqlQueryRegistry } from "#/execution/sql-query-registry.js";
-import { type SqlExecuteMode } from "#/core/query/sql-query-types.js";
-import { sql } from "#/core/sql.js";
-import { row } from "#/core/query/sql-select-row.js";
+import "#src/telemetry/register-open-telemetry.js";
+import { type ConnectionResolver, SqlQueryRegistry } from "#src/execution/sql-query-registry.js";
+import { type SqlExecuteMode } from "#src/core/query/sql-query-types.js";
+import { sql } from "#src/core/sql.js";
+import { row } from "#src/core/query/sql-select-row.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { SqlErrorCode } from "#/core/sql-error-code.js";
-import { MockConnection, MockPlugin } from "#/test/mock-plugin.js";
+import { SqlErrorCode } from "#src/core/sql-error-code.js";
+import { MockConnection, MockPlugin } from "#src/test/mock-plugin.js";
 
 const plugin = new MockPlugin({ name: "mockPlugin" });
 const findAccounts = sql`select ${row(Account.$accountId)} from ${Account}`;

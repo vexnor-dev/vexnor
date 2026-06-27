@@ -1,9 +1,9 @@
 import { describe, expect, test } from "vitest";
-import { sql } from "#/core/sql.js";
-import { when, SqlWhen } from "#/core/operators/sql-when.js";
-import { param } from "#/core/query/sql-param.js";
-import { row } from "#/core/query/sql-select-row.js";
-import { raw } from "#/core/query/sql-raw.js";
+import { sql } from "#src/core/sql.js";
+import { when, SqlWhen } from "#src/core/operators/sql-when.js";
+import { param } from "#src/core/query/sql-param.js";
+import { row } from "#src/core/query/sql-select-row.js";
+import { raw } from "#src/core/query/sql-raw.js";
 import { Account } from "@test-models/vexnor_dev.schema.js";
 
 type FilterParams = { status: string; hasEmail: boolean; email: string };

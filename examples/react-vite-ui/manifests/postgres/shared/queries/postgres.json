@@ -37,10 +37,10 @@
       },
       "authorization": []
     },
-    "06111e0734926e0d387e44e0fe7d9a2fbef080017018da4100839aad64995249": {
+    "9ee763eea1406421c8f1214176212bde152a9cdf2e6be7f442a6a677c624e6b8": {
       "name": "insertAccount",
       "location": "examples/react-vite-ui/shared/queries/postgres.ts:64:47",
-      "hash": "06111e0734926e0d387e44e0fe7d9a2fbef080017018da4100839aad64995249",
+      "hash": "9ee763eea1406421c8f1214176212bde152a9cdf2e6be7f442a6a677c624e6b8",
       "template": [
         {
           "type": "text",
@@ -66,7 +66,12 @@
           "value": "\n      returning \"account\".\"account_id\" as \"accountId\", \"account\".\"status\", \"account\".\"email\", \"account\".\"first_name\" as \"firstName\", \"account\".\"last_name\" as \"lastName\", \"account\".\"notes\", \"account\".\"created_at\" as \"createdAt\", \"account\".\"modified_at\" as \"modifiedAt\", \"account\".\"parent_id\" as \"parentId\"\n   "
         }
       ],
-      "params": {},
+      "params": {
+        "rows": {
+          "name": "rows",
+          "isContext": false
+        }
+      },
       "row": {
         "createdAt": {
           "type": "Date"
@@ -77,10 +82,10 @@
       },
       "authorization": []
     },
-    "ed660822a35c69840c3120a2b2e62486dd993090c5e3474c77da745525ef725b": {
+    "8560044a77dc31cf335029616f03c28449c11eb1ae803ba1ede6ba0830b3e9fb": {
       "name": "selectAccounts",
       "location": "examples/react-vite-ui/shared/queries/postgres.ts:25:48",
-      "hash": "ed660822a35c69840c3120a2b2e62486dd993090c5e3474c77da745525ef725b",
+      "hash": "8560044a77dc31cf335029616f03c28449c11eb1ae803ba1ede6ba0830b3e9fb",
       "template": [
         {
           "type": "text",
@@ -88,7 +93,7 @@
         },
         {
           "type": "filter",
-          "param": "filter",
+          "param": "filterBy",
           "columns": {
             "accountId": "\"a_1\".\"account_id\"",
             "status": "\"a_1\".\"status\"",
@@ -140,6 +145,10 @@
         }
       ],
       "params": {
+        "filterBy": {
+          "name": "filterBy",
+          "isContext": false
+        },
         "filter": {
           "name": "filter",
           "isContext": false
@@ -152,10 +161,10 @@
       },
       "authorization": []
     },
-    "1a905b62f1ad38028175b3cec45cfb38584f05e1b75e28701f9e3b13de47f48c": {
+    "49ec136ee0a3df3b27859cce93b6eeedd3809cc5b9647d1285c90c7e79c66eb4": {
       "name": "selectAccountsForLogin",
       "location": "examples/react-vite-ui/shared/queries/postgres.ts:41:56",
-      "hash": "1a905b62f1ad38028175b3cec45cfb38584f05e1b75e28701f9e3b13de47f48c",
+      "hash": "49ec136ee0a3df3b27859cce93b6eeedd3809cc5b9647d1285c90c7e79c66eb4",
       "template": [
         {
           "type": "text",
@@ -163,7 +172,7 @@
         },
         {
           "type": "filter",
-          "param": "filter",
+          "param": "filterBy",
           "columns": {
             "accountId": "\"a_1\".\"account_id\"",
             "status": "\"a_1\".\"status\"",
@@ -183,8 +192,8 @@
         }
       ],
       "params": {
-        "filter": {
-          "name": "filter",
+        "filterBy": {
+          "name": "filterBy",
           "isContext": false
         }
       },
@@ -201,10 +210,10 @@
       },
       "authorization": []
     },
-    "b12e254e5f16738c79042c17dbb61fcb17fe296fbeda678386d22c22164938c2": {
+    "d50d14e0a360199c864456e175eb9797a7c3f65cd793b7bd92224f5c64b102b7": {
       "name": "selectMyOrders",
       "location": "examples/react-vite-ui/shared/queries/postgres.ts:54:46",
-      "hash": "b12e254e5f16738c79042c17dbb61fcb17fe296fbeda678386d22c22164938c2",
+      "hash": "d50d14e0a360199c864456e175eb9797a7c3f65cd793b7bd92224f5c64b102b7",
       "template": [
         {
           "type": "text",
@@ -212,7 +221,7 @@
         },
         {
           "type": "filter",
-          "param": "filter",
+          "param": "filterBy",
           "columns": {
             "orderId": "\"o_1\".\"order_id\"",
             "status": "\"o_1\".\"status\"",
@@ -236,8 +245,8 @@
         }
       ],
       "params": {
-        "filter": {
-          "name": "filter",
+        "filterBy": {
+          "name": "filterBy",
           "isContext": false
         },
         "userId": {

@@ -1,12 +1,12 @@
 // noinspection SqlNoDataSourceInspection,SqlResolve
 import { describe, expect, test, beforeAll, afterAll } from "vitest";
-import { VexnorSqlite3 } from "#/vexnor-sqlite3.js";
+import { VexnorSqlite3 } from "#src/vexnor-sqlite3.js";
 import BetterSqlite3 from "better-sqlite3";
 import { sql, param, row } from "@vexnor/core";
 import { Account } from "@vexnor/core/testing";
-import { jsonOne, jsonMany } from "#/charms/json-aggregation-sqlite3.js";
+import { jsonOne, jsonMany } from "#src/charms/json-aggregation-sqlite3.js";
 import "@vexnor/sqlite3";
-import "#/sqlite3-augment.js";
+import "#src/sqlite3-augment.js";
 
 describe("integration tests", () => {
    let db: BetterSqlite3.Database;

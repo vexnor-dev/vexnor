@@ -1,8 +1,8 @@
-import { SqlQueryColumn } from "#/core/query/sql-query-column.js";
-import { SqlParamAny } from "#/core/query/sql-param.js";
-import { Sql } from "#/core/sql-base.js";
-import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
-import { ContextValue } from "#/core/query/context-value.js";
+import { SqlQueryColumn } from "#src/core/query/sql-query-column.js";
+import { SqlParamAny } from "#src/core/query/sql-param.js";
+import { Sql } from "#src/core/sql-base.js";
+import { SqlBuildOptions } from "#src/core/builder/sql-build-options.js";
+import { ContextValue } from "#src/core/query/context-value.js";
 
 export type SqlExecuteMode = "read" | "write";
 

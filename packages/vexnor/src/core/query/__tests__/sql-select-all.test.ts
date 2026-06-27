@@ -1,8 +1,8 @@
 import { describe, expect, test } from "vitest";
-import { SqlSelectAll } from "#/core/query/sql-select-all.js";
-import { newSqlQueryColumn } from "#/core/query/sql-query-column.js";
-import { newSqlTableColumn } from "#/core/schema/sql-table-column.js";
-import { sql } from "#/core/sql.js";
+import { SqlSelectAll } from "#src/core/query/sql-select-all.js";
+import { newSqlQueryColumn } from "#src/core/query/sql-query-column.js";
+import { newSqlTableColumn } from "#src/core/schema/sql-table-column.js";
+import { sql } from "#src/core/sql.js";
 
 describe("SqlSelectAll tests", () => {
    const tableInfo = { name: "account", schema: "vexnor_dev" };

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
-import { VexnorSqlite3 } from "#/vexnor-sqlite3.js";
-import "#/sqlite3-augment.js";
+import { VexnorSqlite3 } from "#src/vexnor-sqlite3.js";
+import "#src/sqlite3-augment.js";
 
 describe("VexnorSqlite3 — createConnection", () => {
    const plugin = new VexnorSqlite3();

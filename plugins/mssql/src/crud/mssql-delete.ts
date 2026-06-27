@@ -2,8 +2,8 @@
 import { info, ParamsOfArgs, sql, SqlDeleteArgs, SqlQueryColumns } from "@vexnor/core";
 import { raw, row, SqlTable } from "@vexnor/core";
 import { ok } from "@vexnor/core";
-import { MssqlQueryHandler } from "#/mssql-query-handler.js";
-import "#/mssql-augment.js";
+import { MssqlQueryHandler } from "#src/mssql-query-handler.js";
+import "#src/mssql-augment.js";
 
 export type MssqlDeleteResult<
    T extends { Select: Record<string, unknown>; Delete: true },

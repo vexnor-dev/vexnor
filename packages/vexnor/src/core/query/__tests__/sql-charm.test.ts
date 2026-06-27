@@ -1,12 +1,12 @@
 import { assertType, describe, expect, test } from "vitest";
-import { SqlCharm, SqlSelectCharm } from "#/core/query/sql-charm.js";
-import { BuildSqlParams, InferSqlParams, param, SqlParam } from "#/core/query/sql-param.js";
-import { sql } from "#/core/sql.js";
-import { row } from "#/core/query/sql-select-row.js";
+import { SqlCharm, SqlSelectCharm } from "#src/core/query/sql-charm.js";
+import { BuildSqlParams, InferSqlParams, param, SqlParam } from "#src/core/query/sql-param.js";
+import { sql } from "#src/core/sql.js";
+import { row } from "#src/core/query/sql-select-row.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
-import { SqlQuery } from "#/core/query/sql-query.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { SqlBuildOptions } from "#src/core/builder/sql-build-options.js";
+import { SqlQuery } from "#src/core/query/sql-query.js";
 import { AccountStatusUdt } from "@test-models/vexnor_dev-enums.js";
 
 describe("SqlCharm tests", () => {

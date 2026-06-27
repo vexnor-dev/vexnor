@@ -1,11 +1,11 @@
 import { describe, expect, test } from "vitest";
-import { sql } from "#/core/sql.js";
-import { row } from "#/core/query/sql-select-row.js";
-import { col } from "#/core/query/sql-select-column.js";
+import { sql } from "#src/core/sql.js";
+import { row } from "#src/core/query/sql-select-row.js";
+import { col } from "#src/core/query/sql-select-column.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
 import { Order } from "@test-models/vexnor_dev.order-table.js";
-import { SqlSelectCharm } from "#/core/query/sql-charm.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
+import { SqlSelectCharm } from "#src/core/query/sql-charm.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
 
 describe("SqlQuery.jsonSchema", () => {
    test("returns empty schema when no Date or charm columns selected", () => {

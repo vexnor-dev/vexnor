@@ -1,6 +1,6 @@
 import { defineQueryConfig } from "../../../../config/config.js";
-import { findAccountById } from "#/config/__tests__/test-queries.js";
-import { MockPlugin, type MockConnection } from "#/test/mock-plugin.js";
+import { findAccountById } from "#src/config/__tests__/test-queries.js";
+import { MockPlugin, type MockConnection } from "#src/test/mock-plugin.js";
 import { vi } from "vitest";
 
 const mockDb: MockConnection = { query: vi.fn().mockResolvedValue({ rows: [] }) };

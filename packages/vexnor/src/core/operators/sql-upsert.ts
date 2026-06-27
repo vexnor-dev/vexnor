@@ -1,11 +1,11 @@
-import { PARAMS, Sql, SqlOptions } from "#/core/sql-base.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { SqlTableAny } from "#/core/schema/sql-table.js";
-import { SqlTableColumnAny } from "#/core/schema/sql-table-column.js";
-import { BuildSqlParams, PathToNested, SqlParam } from "#/core/query/sql-param.js";
-import { SqlBuildError } from "#/core/sql-build-error.js";
-import { resolvePath } from "#/core/query/resolve-path.js";
-import { isPrimitive } from "#/lib/primitive.js";
+import { PARAMS, Sql, SqlOptions } from "#src/core/sql-base.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { SqlTableAny } from "#src/core/schema/sql-table.js";
+import { SqlTableColumnAny } from "#src/core/schema/sql-table-column.js";
+import { BuildSqlParams, PathToNested, SqlParam } from "#src/core/query/sql-param.js";
+import { SqlBuildError } from "#src/core/sql-build-error.js";
+import { resolvePath } from "#src/core/query/resolve-path.js";
+import { isPrimitive } from "#src/lib/primitive.js";
 
 export type SqlUpsertTypeArgs = { Select: Record<string, unknown>; Insert: Record<string, unknown> };
 

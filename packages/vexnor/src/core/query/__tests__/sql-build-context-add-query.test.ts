@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
-import { sql } from "#/core/sql.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { info } from "#/core/charms/sql-query-info.js";
+import { sql } from "#src/core/sql.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { info } from "#src/core/charms/sql-query-info.js";
 
 describe("SqlBuildContext.addQuery()", () => {
    test("happy path: registers a new query with auto-generated name and cte=false", () => {

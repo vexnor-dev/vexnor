@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from "vitest";
-import { loadPlugin } from "#/load-plugin.js";
-import { MockConnection, MockPlugin } from "#/test/mock-plugin.js";
+import { loadPlugin } from "#src/load-plugin.js";
+import { MockConnection, MockPlugin } from "#src/test/mock-plugin.js";
 
 const mockDb: MockConnection = {
    query: vi.fn().mockResolvedValue({ rows: [] }),

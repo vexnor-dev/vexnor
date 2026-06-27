@@ -1,7 +1,7 @@
-import { SqlInsert, SqlInsertTypeArgs } from "#/core/operators/sql-insert.js";
-import { SqlTable } from "#/core/schema/sql-table.js";
-import { SqlInsertCols } from "#/core/operators/sql-insert-cols.js";
-import { SqlInsertValues } from "#/core/operators/sql-insert-values.js";
+import { SqlInsert, SqlInsertTypeArgs } from "#src/core/operators/sql-insert.js";
+import { SqlTable } from "#src/core/schema/sql-table.js";
+import { SqlInsertCols } from "#src/core/operators/sql-insert-cols.js";
+import { SqlInsertValues } from "#src/core/operators/sql-insert-values.js";
 
 export const insert = <T extends SqlInsertTypeArgs>(
    table: SqlTable<T>,

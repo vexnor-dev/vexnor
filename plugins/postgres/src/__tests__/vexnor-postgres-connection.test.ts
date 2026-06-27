@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from "vitest";
-import { VexnorPostgres } from "#/vexnor-postgres.js";
-import { getColumnType } from "#/schema/get-column-type.js";
+import { VexnorPostgres } from "#src/vexnor-postgres.js";
+import { getColumnType } from "#src/schema/get-column-type.js";
 
 describe("VexnorPostgres — createConnection", () => {
    const plugin = new VexnorPostgres();

@@ -1,12 +1,12 @@
-import { SqlBuildError } from "#/core/sql-build-error.js";
-import { SqlTable, SqlTableAny } from "#/core/schema/sql-table.js";
-import { SqlInsertTypeArgs } from "#/core/operators/sql-insert.js";
-import { PARAMS, Sql, SqlOptions } from "#/core/sql-base.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { getCanonicalKeys, getColumnMap } from "#/core/utils/sql-insert-utils.js";
-import { SqlTableColumnAny } from "#/core/schema/sql-table-column.js";
-import { BuildSqlParams, PathToNested, SqlParam } from "#/core/query/sql-param.js";
-import { resolvePath } from "#/core/query/resolve-path.js";
+import { SqlBuildError } from "#src/core/sql-build-error.js";
+import { SqlTable, SqlTableAny } from "#src/core/schema/sql-table.js";
+import { SqlInsertTypeArgs } from "#src/core/operators/sql-insert.js";
+import { PARAMS, Sql, SqlOptions } from "#src/core/sql-base.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { getCanonicalKeys, getColumnMap } from "#src/core/utils/sql-insert-utils.js";
+import { SqlTableColumnAny } from "#src/core/schema/sql-table-column.js";
+import { BuildSqlParams, PathToNested, SqlParam } from "#src/core/query/sql-param.js";
+import { resolvePath } from "#src/core/query/resolve-path.js";
 
 export class SqlInsertCols<T extends SqlInsertTypeArgs, ParamName extends string> extends Sql {
    declare readonly [PARAMS]: PathToNested<ParamName, T["Insert"] | T["Insert"][]>;

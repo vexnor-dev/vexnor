@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { getQueryName } from "#/core/query/sql-query-name.js";
+import { getQueryName } from "#src/core/query/sql-query-name.js";
 
 const fixtureUrl = new URL("./fixtures/query-name-exports.mjs", import.meta.url).href;
 

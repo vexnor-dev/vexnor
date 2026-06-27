@@ -1,10 +1,10 @@
 import { describe, expect, test } from "vitest";
-import { sql } from "#/core/sql.js";
-import { row } from "#/core/query/sql-select-row.js";
-import { newSqlQueryHandler } from "#/core/query/sql-query-handler.js";
-import { MockQueryHandler } from "#/test/mock-query-handler.js";
+import { sql } from "#src/core/sql.js";
+import { row } from "#src/core/query/sql-select-row.js";
+import { newSqlQueryHandler } from "#src/core/query/sql-query-handler.js";
+import { MockQueryHandler } from "#src/test/mock-query-handler.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { SqlQuery } from "#/core/query/sql-query.js";
+import { SqlQuery } from "#src/core/query/sql-query.js";
 
 function handlerSql<T extends { Row?: unknown; Params?: unknown }>(query: SqlQuery<T>) {
    return newSqlQueryHandler<T, MockQueryHandler<T>>(new MockQueryHandler(query));

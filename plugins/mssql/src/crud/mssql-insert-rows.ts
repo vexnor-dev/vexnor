@@ -1,8 +1,8 @@
 import { SqlTable, insert, row, info, SqlQueryColumns } from "@vexnor/core";
-import { sql } from "#/mssql-sql.js";
+import { sql } from "#src/mssql-sql.js";
 import { SqlInsertRowsParams } from "@vexnor/core";
-import { MssqlQueryHandler } from "#/mssql-query-handler.js";
-import "#/mssql-augment.js";
+import { MssqlQueryHandler } from "#src/mssql-query-handler.js";
+import "#src/mssql-augment.js";
 
 export type MssqlInsertRowsResult<T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> }> =
    MssqlQueryHandler<{

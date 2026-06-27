@@ -1,10 +1,10 @@
 import { describe, expect, test } from "vitest";
-import { sql } from "#/core/sql.js";
-import { row } from "#/core/query/sql-select-row.js";
+import { sql } from "#src/core/sql.js";
+import { row } from "#src/core/query/sql-select-row.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { val } from "#/core/query/sql-select-value.js";
-import { col } from "#/core/query/sql-select-column.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { val } from "#src/core/query/sql-select-value.js";
+import { col } from "#src/core/query/sql-select-column.js";
 
 describe("Branch coverage — sql-select-row edge cases", () => {
    test("row with SqlTableAll column type", () => {

@@ -2,16 +2,16 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 import { mkdir, readFile, rm } from "node:fs/promises";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { codegenCommand } from "#/cli/codegen/codegen-command.js";
+import { codegenCommand } from "#src/cli/codegen/codegen-command.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-import { loadPlugin } from "#/load-plugin.js";
-import { MockPlugin } from "#/test/mock-plugin.js";
-import { SqlColumnInfo, SqlColumnType } from "#/plugin/plugin.js";
-import { SqlLiteralType } from "#/plugin/sql-literal.js";
-import { groupForeignKeys } from "#/cli/codegen/tables/write-table-type.js";
+import { loadPlugin } from "#src/load-plugin.js";
+import { MockPlugin } from "#src/test/mock-plugin.js";
+import { SqlColumnInfo, SqlColumnType } from "#src/plugin/plugin.js";
+import { SqlLiteralType } from "#src/plugin/sql-literal.js";
+import { groupForeignKeys } from "#src/cli/codegen/tables/write-table-type.js";
 
-vi.mock("../../../../load-plugin.js", () => ({
+vi.mock("#src/load-plugin.js", () => ({
    loadPlugin: vi.fn(),
 }));
 

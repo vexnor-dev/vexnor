@@ -1,8 +1,8 @@
 import { describe, expect, test, vi } from "vitest";
-import { TimeToLiveRateLimiter } from "#/execution/time-to-live-rate-limiter.js";
-import { SqlRunError } from "#/core/sql-run-error.js";
-import { SqlErrorCode } from "#/core/sql-error-code.js";
-import type { SqlPipelineExecutionArgs, SqlPipelineEndArgs } from "#/execution/sql-query-pipeline-plugin.js";
+import { TimeToLiveRateLimiter } from "#src/execution/time-to-live-rate-limiter.js";
+import { SqlRunError } from "#src/core/sql-run-error.js";
+import { SqlErrorCode } from "#src/core/sql-error-code.js";
+import type { SqlPipelineExecutionArgs, SqlPipelineEndArgs } from "#src/execution/sql-query-pipeline-plugin.js";
 
 // ── minimal stubs ─────────────────────────────────────────────────────────────
 

@@ -3,8 +3,8 @@ import { describe, expect, test } from "vitest";
 import "@vexnor/mssql";
 import { Account } from "@vexnor/core/testing";
 import { sql, input } from "@vexnor/core";
-import { mssqlUpdate } from "#/crud/mssql-update.js";
-import { defaultQueryOptions } from "#/default-query-options.js";
+import { mssqlUpdate } from "#src/crud/mssql-update.js";
+import { defaultQueryOptions } from "#src/default-query-options.js";
 
 describe("mssqlTableUpdate()", () => {
    test("basic update", () => {

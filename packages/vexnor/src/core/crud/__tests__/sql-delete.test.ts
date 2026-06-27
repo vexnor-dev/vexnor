@@ -1,8 +1,8 @@
 import { describe, expect, test } from "vitest";
 import { Account } from "@test-models/vexnor_dev.schema.js";
-import { sql } from "#/core/sql.js";
-import { param } from "#/core/query/sql-param.js";
-import { sqlDelete } from "#/core/crud/sql-delete.js";
+import { sql } from "#src/core/sql.js";
+import { param } from "#src/core/query/sql-param.js";
+import { sqlDelete } from "#src/core/crud/sql-delete.js";
 
 describe("sqlTableDelete()", () => {
    test("should throw error without where or force", () => {

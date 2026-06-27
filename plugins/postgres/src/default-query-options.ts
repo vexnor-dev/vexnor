@@ -1,5 +1,5 @@
 import { SqlBuildOptions } from "@vexnor/core";
-import { PostgresTokenizer } from "#/postgres-tokenizer.js";
+import { PostgresTokenizer } from "#src/postgres-tokenizer.js";
 
 export const defaultQueryOptions: SqlBuildOptions = {
    dialect: "postgresql",

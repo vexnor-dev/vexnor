@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { info } from "#/core/charms/sql-query-info.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { info } from "#src/core/charms/sql-query-info.js";
 
 describe("SqlQueryInfo — uncovered paths", () => {
    test("info() write outputs comment", () => {

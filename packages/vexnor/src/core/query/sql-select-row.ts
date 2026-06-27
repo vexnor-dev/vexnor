@@ -1,15 +1,15 @@
-import { ROW, Sql, TYPE, TypeOf } from "#/core/sql-base.js";
-import { InferSelectRowByResult } from "#/core/query/sql-query-types.js";
-import { SqlQueryAny } from "#/core/query/sql-query.js";
-import { SqlSelectAll } from "#/core/query/sql-select-all.js";
-import { SqlTableColumn } from "#/core/schema/sql-table-column.js";
-import { newSqlQueryColumn, SqlQueryColumn } from "#/core/query/sql-query-column.js";
-import { SqlBuildError } from "#/core/sql-build-error.js";
-import { SqlTableAll } from "#/core/charms/sql-table-all.js";
-import { SqlSelectValue } from "#/core/query/sql-select-value.js";
-import { SqlSelectColumn } from "#/core/query/sql-select-column.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
+import { ROW, Sql, TYPE, TypeOf } from "#src/core/sql-base.js";
+import { InferSelectRowByResult } from "#src/core/query/sql-query-types.js";
+import { SqlQueryAny } from "#src/core/query/sql-query.js";
+import { SqlSelectAll } from "#src/core/query/sql-select-all.js";
+import { SqlTableColumn } from "#src/core/schema/sql-table-column.js";
+import { newSqlQueryColumn, SqlQueryColumn } from "#src/core/query/sql-query-column.js";
+import { SqlBuildError } from "#src/core/sql-build-error.js";
+import { SqlTableAll } from "#src/core/charms/sql-table-all.js";
+import { SqlSelectValue } from "#src/core/query/sql-select-value.js";
+import { SqlSelectColumn } from "#src/core/query/sql-select-column.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { SqlBuildOptions } from "#src/core/builder/sql-build-options.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlSelectRowAny = SqlSelectRow<any>;

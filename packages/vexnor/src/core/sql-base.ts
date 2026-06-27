@@ -1,8 +1,8 @@
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
-import { isError } from "#/lib/is-error.js";
-import { SqlJsonSchema } from "#/core/utils/sql-json-schema.js";
-import { ok } from "#/lib/assert.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { SqlBuildOptions } from "#src/core/builder/sql-build-options.js";
+import { isError } from "#src/lib/is-error.js";
+import { SqlJsonSchema } from "#src/core/utils/sql-json-schema.js";
+import { ok } from "#src/lib/assert.js";
 
 export type TypeOf<S> = S extends { readonly [TYPE]?: infer R } ? R : void;
 export type ArgsOf<S> = S extends { readonly [ARGS]?: infer R } ? R : void;

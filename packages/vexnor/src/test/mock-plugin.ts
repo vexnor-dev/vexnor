@@ -1,6 +1,6 @@
-import { VexnorPlugin, VexnorConnection, SqlColumnInfo, SqlColumnType, SqlSchema } from "#/plugin/plugin.js";
-import { SqlQuery } from "#/core/query/sql-query.js";
-import { MockQueryHandler } from "#/test/mock-query-handler.js";
+import { VexnorPlugin, VexnorConnection, SqlColumnInfo, SqlColumnType, SqlSchema } from "#src/plugin/plugin.js";
+import { SqlQuery } from "#src/core/query/sql-query.js";
+import { MockQueryHandler } from "#src/test/mock-query-handler.js";
 import { ok } from "node:assert";
 
 export type MockResult<TRow> = { rows: TRow[] };

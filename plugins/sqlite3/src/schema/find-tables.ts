@@ -1,5 +1,5 @@
 import { col, param, row, sql, val } from "@vexnor/core";
-import { PragmaForeignKeyList, PragmaTableInfo, SqliteMaster } from "#/schema/models.js";
+import { PragmaForeignKeyList, PragmaTableInfo, SqliteMaster } from "#src/schema/models.js";
 
 export const findTables = sql`
    SELECT 

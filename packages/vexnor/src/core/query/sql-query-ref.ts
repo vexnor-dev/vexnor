@@ -1,13 +1,13 @@
-import { ARGS, PARAMS, QUERY, Sql, TYPE } from "#/core/sql-base.js";
-import { SqlQuery, SqlQueryColumns } from "#/core/query/sql-query.js";
-import { SqlQueryOptions } from "#/core/query/sql-query-types.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { SqlBuildOptions } from "#/core/builder/sql-build-options.js";
-import { CACHE } from "#/lib/cache.js";
-import { SqlBuildError } from "#/core/sql-build-error.js";
-import { SqlQueryRow } from "#/core/query/sql-models.js";
-import { newSqlQueryColumn } from "#/core/query/sql-query-column.js";
-import { Lazy } from "#/lib/lazy.js";
+import { ARGS, PARAMS, QUERY, Sql, TYPE } from "#src/core/sql-base.js";
+import { SqlQuery, SqlQueryColumns } from "#src/core/query/sql-query.js";
+import { SqlQueryOptions } from "#src/core/query/sql-query-types.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { SqlBuildOptions } from "#src/core/builder/sql-build-options.js";
+import { CACHE } from "#src/lib/cache.js";
+import { SqlBuildError } from "#src/core/sql-build-error.js";
+import { SqlQueryRow } from "#src/core/query/sql-models.js";
+import { newSqlQueryColumn } from "#src/core/query/sql-query-column.js";
+import { Lazy } from "#src/lib/lazy.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlQueryRefAny = SqlQueryRef<any>;

@@ -1,5 +1,5 @@
 import { describe, expect, test, vi } from "vitest";
-import { transaction, savepoint } from "#/postgres-transaction.js";
+import { transaction, savepoint } from "#src/postgres-transaction.js";
 import type { Pool, PoolClient } from "pg";
 
 function makeMockClient(): PoolClient & { queries: string[] } {

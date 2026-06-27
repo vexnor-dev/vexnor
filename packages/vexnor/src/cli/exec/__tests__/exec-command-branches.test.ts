@@ -1,12 +1,12 @@
 import "../../../test/mock-query-handler.js";
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { execCommand } from "#/cli/exec/exec-command.js";
+import { execCommand } from "#src/cli/exec/exec-command.js";
 import { join } from "path";
-import * as confirmPromptModule from "#/cli/exec/confirm-prompt.js";
+import * as confirmPromptModule from "#src/cli/exec/confirm-prompt.js";
 import { mockDb } from "./fixtures/queries.vexnor.js";
 import { testPlugin as mutationPlugin } from "./fixtures/mutation-queries.vexnor.js";
 
-vi.mock("../confirm-prompt.js");
+vi.mock("#src/cli/exec/confirm-prompt.js");
 
 describe("execCommand — additional branches", () => {
    const mockMutationCreateConnection = vi.spyOn(mutationPlugin, "createConnection");

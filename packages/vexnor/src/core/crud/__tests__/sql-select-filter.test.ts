@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
-import { sql } from "#/core/sql.js";
-import { sqlSelect } from "#/core/crud/sql-select.js";
-import { param } from "#/core/query/sql-param.js";
+import { sql } from "#src/core/sql.js";
+import { sqlSelect } from "#src/core/crud/sql-select.js";
+import { param } from "#src/core/query/sql-param.js";
 import { Account } from "@test-models/vexnor_dev.schema.js";
 import { AccountStatusUdt } from "@test-models/vexnor_dev-enums.js";
 

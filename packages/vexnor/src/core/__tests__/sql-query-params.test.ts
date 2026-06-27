@@ -1,13 +1,13 @@
 import { assertType, describe, expect, test } from "vitest";
-import { SqlParams, sql } from "#/core/sql.js";
-import { param, SqlParam } from "#/core/query/sql-param.js";
-import { SqlInputArgs } from "#/core/query/sql-query-types.js";
-import { SqlQueryExtended } from "#/core/query/sql-query.js";
-import { row } from "#/core/query/sql-select-row.js";
+import { SqlParams, sql } from "#src/core/sql.js";
+import { param, SqlParam } from "#src/core/query/sql-param.js";
+import { SqlInputArgs } from "#src/core/query/sql-query-types.js";
+import { SqlQueryExtended } from "#src/core/query/sql-query.js";
+import { row } from "#src/core/query/sql-select-row.js";
 import { Account, AccountStatusUdt, IAccountSelect } from "@test-models//vexnor_dev.schema.js";
-import { info } from "#/core/charms/sql-query-info.js";
-import { ParamsOf } from "#/core/sql-base.js";
-import { Simplify, Void } from "#/core/utils/utility-types.js";
+import { info } from "#src/core/charms/sql-query-info.js";
+import { ParamsOf } from "#src/core/sql-base.js";
+import { Simplify, Void } from "#src/core/utils/utility-types.js";
 
 describe("SqlQuery.params", () => {
    test("Infer params from sql-query", () => {

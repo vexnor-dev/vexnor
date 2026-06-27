@@ -1,14 +1,14 @@
 import { beforeEach, describe, expect, test } from "vitest";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { sql } from "#/core/sql.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { sql } from "#src/core/sql.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { row, SqlSelectRow } from "#/core/query/sql-select-row.js";
-import { SqlBuildError } from "#/core/sql-build-error.js";
-import { param } from "#/core/query/sql-param.js";
+import { row, SqlSelectRow } from "#src/core/query/sql-select-row.js";
+import { SqlBuildError } from "#src/core/sql-build-error.js";
+import { param } from "#src/core/query/sql-param.js";
 import { Order } from "@test-models/vexnor_dev.order-table.js";
-import { info } from "#/core/charms/sql-query-info.js";
+import { info } from "#src/core/charms/sql-query-info.js";
 import { OrderItem } from "@test-models/vexnor_dev.order_item-table.js";
-import { SqlQueryColumn } from "#/core/query/sql-query-column.js";
+import { SqlQueryColumn } from "#src/core/query/sql-query-column.js";
 
 describe("SqlBuildContext getQueryName", () => {
    const findOrderItems = sql`

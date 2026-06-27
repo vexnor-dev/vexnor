@@ -1,6 +1,6 @@
-import { JsonRow } from "#/core/schema/schema-types.js";
-import { newSqlTable } from "#/core/schema/sql-table.js";
-import { AccountStatusUdt } from "#/test/models/vexnor_dev-enums.js";
+import { JsonRow } from "#src/core/schema/schema-types.js";
+import { newSqlTable } from "#src/core/schema/sql-table.js";
+import { AccountStatusUdt } from "#src/test/models/vexnor_dev-enums.js";
 
 export const Account = newSqlTable<{
    Select: IAccountSelect;

@@ -2,8 +2,8 @@
 import { describe, expect, test } from "vitest";
 import { Account } from "@vexnor/core/testing";
 import { sql, param } from "@vexnor/core";
-import { mssqlDelete } from "#/crud/mssql-delete.js";
-import { defaultQueryOptions } from "#/default-query-options.js";
+import { mssqlDelete } from "#src/crud/mssql-delete.js";
+import { defaultQueryOptions } from "#src/default-query-options.js";
 
 describe("mssqlTableDelete()", () => {
    test("throws without WHERE or force", () => {

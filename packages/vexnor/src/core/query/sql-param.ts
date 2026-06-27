@@ -1,10 +1,10 @@
-import { ARGS, PARAMS, ParamsOfArgs, Sql, SqlOptions } from "#/core/sql-base.js";
-import { SqlBuildContext } from "#/core/builder/sql-build-context.js";
-import { isParamValueValid, SqlParamValidation } from "#/core/query/params/sql-param-validation.js";
-import { SqlBuildError } from "#/core/sql-build-error.js";
-import { SqlErrorCode } from "#/core/sql-error-code.js";
-import { resolvePath } from "#/core/query/resolve-path.js";
-import { validateParamValue } from "#/core/query/params/validate-param-value.js";
+import { ARGS, PARAMS, ParamsOfArgs, Sql, SqlOptions } from "#src/core/sql-base.js";
+import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { isParamValueValid, SqlParamValidation } from "#src/core/query/params/sql-param-validation.js";
+import { SqlBuildError } from "#src/core/sql-build-error.js";
+import { SqlErrorCode } from "#src/core/sql-error-code.js";
+import { resolvePath } from "#src/core/query/resolve-path.js";
+import { validateParamValue } from "#src/core/query/params/validate-param-value.js";
 
 export type SqlParamTypeArgs = { Name: string; Type: unknown };
 

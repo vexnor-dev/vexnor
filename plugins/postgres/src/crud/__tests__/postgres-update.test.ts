@@ -2,8 +2,8 @@
 import { describe, expect, test } from "vitest";
 import { Account } from "@vexnor/core/testing";
 import { sql, input } from "@vexnor/core";
-import { postgresUpdate } from "#/crud/postgres-update.js";
-import { defaultQueryOptions } from "#/default-query-options.js";
+import { postgresUpdate } from "#src/crud/postgres-update.js";
+import { defaultQueryOptions } from "#src/default-query-options.js";
 
 describe("postgresUpdate()", () => {
    test("basic update", () => {

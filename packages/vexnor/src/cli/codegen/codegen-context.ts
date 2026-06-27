@@ -1,8 +1,8 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 import to from "to-case";
-import { CodeWriter } from "#/lib/code-writer.js";
-import { VexnorPluginAny, SqlEnumInfo } from "#/plugin/plugin.js";
-import { GenerateConfig } from "#/config/config-types.js";
+import { CodeWriter } from "#src/lib/code-writer.js";
+import { VexnorPluginAny, SqlEnumInfo } from "#src/plugin/plugin.js";
+import { GenerateConfig } from "#src/config/config-types.js";
 
 export class CodegenContextModel {
    readonly outDir: string;

@@ -1,5 +1,5 @@
 import { assertType, describe, test } from "vitest";
-import { Simplify } from "#/core/utils/utility-types.js";
+import { Simplify } from "#src/core/utils/utility-types.js";
 
 describe("Simplify<{}> tests", () => {
    test("simplify {} without voids", () => {

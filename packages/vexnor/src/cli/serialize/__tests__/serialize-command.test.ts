@@ -1,5 +1,5 @@
 import { describe, test, expect } from "vitest";
-import { serializeCommand } from "#/cli/serialize/serialize-command.js";
+import { serializeCommand } from "#src/cli/serialize/serialize-command.js";
 
 describe("serializeCommand", () => {
    test("throws when no files match the glob", async () => {

@@ -1,15 +1,15 @@
 import { describe, expect, test, vi } from "vitest";
-import { sql } from "#/core/sql.js";
-import { row } from "#/core/query/sql-select-row.js";
-import { ctx, param } from "#/core/query/sql-param.js";
-import { SqlRunError } from "#/core/sql-run-error.js";
+import { sql } from "#src/core/sql.js";
+import { row } from "#src/core/query/sql-select-row.js";
+import { ctx, param } from "#src/core/query/sql-param.js";
+import { SqlRunError } from "#src/core/sql-run-error.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
-import { SqlQueryPipeline } from "#/execution/sql-query-pipeline.js";
-import { connect } from "#/plugin/vexnor-connection.js";
+import { SqlQueryPipeline } from "#src/execution/sql-query-pipeline.js";
+import { connect } from "#src/plugin/vexnor-connection.js";
 import { ok } from "node:assert";
-import { MockConnection } from "#/test/mock-plugin.js";
-import { mockHandler } from "#/test/mock-query-handler.js";
-import { SqlPipelineExecutionArgs } from "#/execution/sql-query-pipeline-plugin.js";
+import { MockConnection } from "#src/test/mock-plugin.js";
+import { mockHandler } from "#src/test/mock-query-handler.js";
+import { SqlPipelineExecutionArgs } from "#src/execution/sql-query-pipeline-plugin.js";
 
 type MockAccount = { accountId: string; email: string; firstName: string };
 
@@ -199,7 +199,7 @@ describe("SqlQueryHandler mock execution", () => {
    });
 
    test("all() uses info label as queryName when set", async () => {
-      const { info } = await import("#/core/charms/sql-query-info.js");
+      const { info } = await import("#src/core/charms/sql-query-info.js");
       const labelledQuery = sql`
          ${info({ label: "myQuery" })}
          select ${row(Account.$accountId)} from ${Account}

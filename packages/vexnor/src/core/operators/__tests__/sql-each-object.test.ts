@@ -1,6 +1,6 @@
 import { describe, test, expect } from "vitest";
-import { sql } from "#/core/sql.js";
-import { eachObject, eachKey, eachValue, colInTable } from "#/core/operators/sql-each-object.js";
+import { sql } from "#src/core/sql.js";
+import { eachObject, eachKey, eachValue, colInTable } from "#src/core/operators/sql-each-object.js";
 import { Account } from "@test-models/vexnor_dev.schema.js";
 
 describe("eachObject", () => {
