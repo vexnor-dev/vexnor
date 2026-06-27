@@ -573,9 +573,8 @@ public sealed class SqlBuilder
 
         // SET col = src.col (non-conflict)
         int emitted = 0;
-        foreach (var key in keys)
+        foreach (var key in keys.Where(key => !conflictSet.Contains(key)))
         {
-            if (conflictSet.Contains(key)) continue;
             if (emitted > 0) sql.Add(", ");
             var col = node.Columns[key];
             sql.Add(col);
