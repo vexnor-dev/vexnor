@@ -93,7 +93,7 @@ export class SqlProjectBy<T extends Record<string, unknown>> extends Sql {
             name: paramName,
             validation: {
                obj: {
-                  fieldNames: columns,
+                  fieldValues: columns,
                   aggregates: ["sum", "count", "avg", "min", "max"],
                },
             },

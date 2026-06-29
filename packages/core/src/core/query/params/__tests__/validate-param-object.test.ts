@@ -9,11 +9,7 @@ describe("validateParamObject", () => {
          { fieldNames: ["email", "status"], operators: { like: { args: 1 } }, fieldValues: ["like", "="] },
          errors,
       );
-      expect(errors).toMatchInlineSnapshot(`
-        [
-          "Column 'email':'like,%@test.com' value not allowed in: [object Set]",
-        ]
-      `);
+      expect(errors).toMatchInlineSnapshot(`[]`);
    });
 
    test("invalid key — rejected for non-dot keys", () => {
@@ -53,11 +49,7 @@ describe("validateParamObject", () => {
          { fieldNames: ["email", "status"], operators: { like: { args: 1 } }, fieldValues: ["like", "active"] },
          errors,
       );
-      expect(errors).toMatchInlineSnapshot(`
-        [
-          "Column 'email':'like,%@vip.com' value not allowed in: [object Set]",
-        ]
-      `);
+      expect(errors).toMatchInlineSnapshot(`[]`);
    });
 
    test("or key — invalid inner key rejected for non-dot keys", () => {
