@@ -24,6 +24,8 @@ describe("SqlPagination — runtime limit/offset", () => {
           /* </query_1> */
           /* <query_2> */
           /* </query_2> */
+          /* <query_3> */
+          /* </query_3> */
         LIMIT
           ?
           /* </query_0> */"
@@ -56,6 +58,8 @@ describe("SqlPagination — runtime limit/offset", () => {
           /* </query_1> */
           /* <query_2> */
           /* </query_2> */
+          /* <query_3> */
+          /* </query_3> */
         OFFSET
           ?
           /* </query_0> */"
@@ -88,6 +92,8 @@ describe("SqlPagination — runtime limit/offset", () => {
           /* </query_1> */
           /* <query_2> */
           /* </query_2> */
+          /* <query_3> */
+          /* </query_3> */
         LIMIT
           ?
         OFFSET
@@ -123,6 +129,8 @@ describe("SqlPagination — runtime limit/offset", () => {
           /* </query_1> */
           /* <query_2> */
           /* </query_2> */
+          /* <query_3> */
+          /* </query_3> */
           /* </query_0> */"
       `);
       expect(values).toMatchInlineSnapshot(`[]`);
@@ -149,6 +157,8 @@ describe("SqlPagination — runtime limit/offset", () => {
           /* </query_1> */
           /* <query_2> */
           /* </query_2> */
+          /* <query_3> */
+          /* </query_3> */
           /* </query_0> */"
       `);
       expect(values).toMatchInlineSnapshot(`[]`);
@@ -158,10 +168,10 @@ describe("SqlPagination — runtime limit/offset", () => {
       const query = sqlSelect(Account, {});
       const { text, values } = query.getSql({
          params: {
-            filterBy: [{ status: ["=", "active"] }],
-            orderBy: { createdAt: "DESC" },
-            limit: 10,
-            offset: 0,
+             filterBy: [{ status: ["=", "active"] }],
+             orderBy: { createdAt: "DESC" },
+             limit: 10,
+             offset: 0
          },
          options: { dialect: "sqlite" },
       });
@@ -180,9 +190,12 @@ describe("SqlPagination — runtime limit/offset", () => {
         FROM
           "main"."account" AS "a_1"
           /* <query_1> */
-          /* </query_1> */
+        WHERE
+          "a_1"."status" = ? /* </query_1> */
           /* <query_2> */
           /* </query_2> */
+          /* <query_3> */
+          /* </query_3> */
         ORDER BY
           "a_1"."created_at" DESC
         LIMIT
@@ -193,6 +206,7 @@ describe("SqlPagination — runtime limit/offset", () => {
       `);
       expect(values).toMatchInlineSnapshot(`
         [
+          "active",
           10,
           0,
         ]

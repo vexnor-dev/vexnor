@@ -598,6 +598,28 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
    }
 
    /**
+    * Collect AI documentation from all operator tokens in this query.
+    * Uses a FIFO queue to iterate tokens without recursion.
+    */
+   getAiPrompt(): string {
+      const prompts: string[] = [];
+      const seen = new Set<string>();
+      const queue = new Queue<unknown>(this.rawValues);
+      for (const { item } of queue.each()) {
+         if (item instanceof Sql) {
+            const prompt = item.aiPrompt;
+            if (prompt && !seen.has(prompt)) {
+               seen.add(prompt);
+               prompts.push(prompt);
+            }
+            if ("rawValues" in item) queue.push(...(item as SqlQuery<never>).rawValues);
+            if ("innerQuery" in item) queue.push(...(item as { innerQuery: SqlQuery<never> }).innerQuery.rawValues);
+         }
+      }
+      return prompts.join("\n");
+   }
+
+   /**
     * Builds the final SQL text and parameter values array.
     *
     * The output format (placeholder style, quoting, keyword casing) is

@@ -72,6 +72,10 @@ export class SqlFilterBy<T extends { Select: Record<string, unknown> }, ParamNam
    readonly params: BuildSqlParams<T>;
    readonly suffix: string | null;
    readonly prefix: string | null;
+
+   get aiPrompt() {
+      return `filterBy: [{col: value}] or [{col: ["op", ...args]}]. Ops: =, not, !=, >, >=, <, <=, between, in, notIn, like, notLike, isNull, isNotNull. OR groups: {or: [...]}. ONLY real table columns — never aggregate aliases.`;
+   }
    readonly allowedColumns: Set<string>;
 
    constructor(
@@ -82,6 +86,7 @@ export class SqlFilterBy<T extends { Select: Record<string, unknown> }, ParamNam
          prefix?: string;
          omit?: (keyof T["Select"] & string)[];
          include?: (keyof T["Select"] & string)[];
+         fieldNames?: string[];
       },
    ) {
       super({
@@ -95,8 +100,8 @@ export class SqlFilterBy<T extends { Select: Record<string, unknown> }, ParamNam
       this.suffix = options?.suffix ?? null;
       this.prefix = options?.prefix ?? null;
 
-      const keys = new Set(options.include ?? table.colKeys);
-      if (options.omit) for (const k of options.omit) keys.delete(k);
+      const keys = new Set(options.fieldNames ?? (options.include ?? table.colKeys));
+      if (!options.fieldNames && options.omit) for (const k of options.omit) keys.delete(k);
       const fieldNames = [...keys, "or", "and"];
       this.allowedColumns = keys;
 
@@ -212,6 +217,23 @@ export class SqlFilterBy<T extends { Select: Record<string, unknown> }, ParamNam
     * Emit a single column condition.
     */
    private writeEntry(context: SqlBuildContext, key: string, value: unknown): void {
+      // When joinBy has populated a columnMap, resolve from there (supports Table.column keys)
+      if (context.columnCount > 0) {
+         const col = context.getColumn(key);
+         if (!col) throw new SqlBuildError(`Column not found: ${key}. Available: ${Object.keys(context.columns).filter(k => !k.includes(".")).join(", ")}`);
+         if (Array.isArray(value)) {
+            const [op, ...args] = value as [string, ...unknown[]];
+            if (!filterOperators.has(op)) throw new SqlBuildError(`Invalid filter operator: ${op}`);
+            this.writeOp(context, col, op as FilterOperator, args);
+         } else {
+            if (!isPrimitive(value)) throw new SqlBuildError(`Filter value is not a primitive: ${String(value)}`);
+            col.build(context);
+            context.addStrings(" = ");
+            context.addValues(value);
+         }
+         return;
+      }
+
       if (!this.allowedColumns.has(key)) throw new SqlBuildError(`Column not found: ${key}`);
       const col = this.table.cols[`$${key}` as `$${string}`] as SqlTableColumnAny | undefined;
       if (!col) throw new SqlBuildError(`Column not found: ${key}`);
@@ -328,6 +350,10 @@ export class SqlFilterBy<T extends { Select: Record<string, unknown> }, ParamNam
             break;
       }
    }
+
+   /**
+    * Emit SQL for a specific operator using a raw qualified column string.
+    */
 }
 
 /**
@@ -337,12 +363,12 @@ export class SqlFilterBy<T extends { Select: Record<string, unknown> }, ParamNam
  * Validates column names and operator types at build time.
  *
  * @param table - The table to resolve column names from
- * @param paramName - The parameter name containing the filter data
+ * @param options
  */
 export function filterBy<
    T extends { Select: Record<string, unknown> },
    ParamName extends string | "filterBy" = "filterBy",
->(table: SqlTable<T>, options?: ParamName | { paramName?: ParamName; omit?: (keyof T["Select"] & string)[]; include?: (keyof T["Select"] & string)[]; suffix?: string; prefix?: string }): SqlFilterBy<T, ParamName> {
+>(table: SqlTable<T>, options?: ParamName | { paramName?: ParamName; omit?: (keyof T["Select"] & string)[]; include?: (keyof T["Select"] & string)[]; suffix?: string; prefix?: string; fieldNames?: string[] }): SqlFilterBy<T, ParamName> {
    const opts = typeof options === "string" ? { paramName: options } : options ?? {};
    return new SqlFilterBy(table, { paramName: (opts.paramName ?? "filterBy") as ParamName, ...opts });
 }

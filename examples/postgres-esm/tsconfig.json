@@ -3,5 +3,14 @@
    "compilerOptions": {
       "rootDir": "./src",
       "outDir": "./dist"
-   }
+   },
+   "references": [{
+      "path": "../../packages/vexnor"
+   }, {
+      "path": "../../plugins/postgres"
+   },{
+      "path": "../../plugins/mssql"
+   },{
+      "path": "../../plugins/sqlite3"
+   }]
 }

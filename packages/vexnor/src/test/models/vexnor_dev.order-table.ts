@@ -12,6 +12,10 @@ export const Order = newSqlTable<{ Select: IOrderSelect; Insert: IOrderInsert; U
    },
    tableInfo: { name: "order", schema: "main", out: false, alias: null },
    pk: ["orderId"],
+   source: "@vexnor/test:models",
+   fk: [
+      { from: ["accountId"], to: { schema: "main", table: "account", columns: ["accountId"] } },
+   ],
    jsonSchema: {
       createdAt: "Date",
       modifiedAt: "Date",

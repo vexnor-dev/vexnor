@@ -9,6 +9,10 @@ export class Lazy<T> {
       this._value = null;
    }
 
+   get computed(): boolean {
+      return this._computed;
+   }
+
    get value(): T {
       if (this._computed) {
          return this._value!;

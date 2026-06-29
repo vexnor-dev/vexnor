@@ -183,6 +183,11 @@ describe("fromTypeORM — decorator entities", () => {
             "select": true,
             "update": true,
           },
+          "_fk": Lazy {
+            "_computed": false,
+            "_value": null,
+            "callback": [Function],
+          },
           "_out": Lazy {
             "_computed": false,
             "_value": null,
@@ -191,7 +196,6 @@ describe("fromTypeORM — decorator entities", () => {
           "columnTypes": {},
           "dbSchema": {},
           "dialect": "sqlite",
-          "fk": [],
           "format": null,
           "hashId": "SqlTable#(main.account)",
           "id": "SqlTable#2(main.account)",

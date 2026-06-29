@@ -9,9 +9,10 @@ import { defaultQueryOptions } from "#src/default-query-options.js";
 describe("postgresSelect()", () => {
    test("basic select", () => {
       const query = postgresSelect(Account, {});
-      const { text } = query.source.getSql({ options: defaultQueryOptions });
+      const { text } = query.source.getSql({ params: {}, options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
+        /* driver: postgres */
         SELECT
           "a_1"."account_id" AS "accountId",
           "a_1"."status",
@@ -28,6 +29,8 @@ describe("postgresSelect()", () => {
           /* </query_1> */
           /* <query_2> */
           /* </query_2> */
+          /* <query_3> */
+          /* </query_3> */
           /* </query_0> */"
       `);
    });
@@ -45,6 +48,7 @@ describe("postgresSelect()", () => {
       const { text } = query.source.getSql({ params: { id: "test-id" }, options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
+        /* driver: postgres */
         SELECT
           "a_1"."account_id" AS "accountId",
           "a_1"."status",
@@ -59,9 +63,12 @@ describe("postgresSelect()", () => {
           "main"."account" AS "a_1"
           /* <query_1> */
         WHERE
-          /* <query_2> */ "a_1"."account_id" = $1 /* </query_2> */ /* </query_1> */
+          /* <query_2> */
+          "a_1"."account_id" = $1 /* </query_2> */ /* </query_1> */
           /* <query_3> */
           /* </query_3> */
+          /* <query_4> */
+          /* </query_4> */
           /* </query_0> */"
       `);
    });
@@ -93,14 +100,17 @@ describe("postgresSelect()", () => {
           /* <query_1> */
           /* </query_1> */
           /* <query_2> */
-        ORDER BY
-          /* <query_3> */ "a_1"."created_at" DESC /* </query_3> */ /* </query_2> */
+          /* </query_2> */
+          /* <query_3> */
+          /* </query_3> */
           /* <query_4> */
-        LIMIT
-          $1 /* </query_4> */
+        ORDER BY
           /* <query_5> */
+          "a_1"."created_at" DESC /* </query_5> */ /* </query_4> */
+        LIMIT
+          $1
         OFFSET
-          $2 /* </query_5> */
+          $2
           /* </query_0> */"
       `);
       expect(values).toMatchObject([10, 0]);
@@ -113,7 +123,7 @@ describe("postgresSelect()", () => {
          where ${Account.as("children").$parentId} = ${Account.$accountId}
       `;
       const query = postgresSelect(Account, { includeMany: { children } });
-      const { text } = query.source.getSql({ options: defaultQueryOptions });
+      const { text } = query.source.getSql({ params: {}, options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         /* driver: postgres */
@@ -129,7 +139,8 @@ describe("postgresSelect()", () => {
           "a_1"."parent_id" AS "parentId",
           "query_1_result" AS "children"
         FROM
-          "main"."account" AS "a_1" /* <query_2> */
+          "main"."account" AS "a_1"
+          /* <query_2> */
           /* inline: true */
           LEFT JOIN LATERAL (
             SELECT
@@ -157,6 +168,10 @@ describe("postgresSelect()", () => {
           /* </query_2> */
           /* <query_3> */
           /* </query_3> */
+          /* <query_4> */
+          /* </query_4> */
+          /* <query_5> */
+          /* </query_5> */
           /* </query_0> */"
       `);
    });
@@ -180,7 +195,7 @@ describe("postgresSelect()", () => {
          where ${Order.$accountId} = ${Account.$accountId}
       `;
       const query = postgresSelect(Account, { includeOne: { firstOrder } });
-      const { text } = query.source.getSql({});
+      const { text } = query.source.getSql({ params: {} });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         /* driver: postgres */
@@ -196,7 +211,8 @@ describe("postgresSelect()", () => {
           "a_1"."parent_id" AS "parentId",
           "query_1_result" AS "firstOrder"
         FROM
-          "main"."account" AS "a_1" /* <query_3> */
+          "main"."account" AS "a_1"
+          /* <query_3> */
           /* inline: true */
           LEFT JOIN LATERAL (
             SELECT
@@ -228,6 +244,10 @@ describe("postgresSelect()", () => {
           /* </query_3> */
           /* <query_4> */
           /* </query_4> */
+          /* <query_5> */
+          /* </query_5> */
+          /* <query_6> */
+          /* </query_6> */
           /* </query_0> */"
       `);
    });
@@ -257,7 +277,7 @@ describe("postgresSelect()", () => {
          where ${Account.as("children").$parentId} = ${Account.$accountId}
       `;
       const select = postgresSelect(Account, { includeOne: { firstOrder }, includeMany: { children } });
-      const { text } = select.source.getSql({ options: defaultQueryOptions });
+      const { text } = select.source.getSql({ params: {}, options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         /* driver: postgres */
@@ -274,7 +294,8 @@ describe("postgresSelect()", () => {
           "query_1_result" AS "firstOrder",
           "query_3_result" AS "children"
         FROM
-          "main"."account" AS "a_1" /* <query_4> */
+          "main"."account" AS "a_1"
+          /* <query_4> */
           /* inline: true */
           LEFT JOIN LATERAL (
             SELECT
@@ -332,6 +353,10 @@ describe("postgresSelect()", () => {
           /* </query_5> */
           /* <query_6> */
           /* </query_6> */
+          /* <query_7> */
+          /* </query_7> */
+          /* <query_8> */
+          /* </query_8> */
           /* </query_0> */"
       `);
    });
@@ -348,7 +373,7 @@ describe("postgresSelect()", () => {
          where ${Order.$accountId} = ${Account.$accountId}
       `;
       const select = postgresSelect(Account, { includeMany: { orders: ordersWithItems } });
-      const { text } = select.source.getSql({});
+      const { text } = select.source.getSql({ params: {} });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         /* driver: postgres */
@@ -364,7 +389,8 @@ describe("postgresSelect()", () => {
           "a_1"."parent_id" AS "parentId",
           "query_1_result" AS "orders"
         FROM
-          "main"."account" AS "a_1" /* <query_2> */
+          "main"."account" AS "a_1"
+          /* <query_2> */
           /* inline: true */
           LEFT JOIN LATERAL (
             SELECT
@@ -413,6 +439,10 @@ describe("postgresSelect()", () => {
           /* </query_2> */
           /* <query_5> */
           /* </query_5> */
+          /* <query_6> */
+          /* </query_6> */
+          /* <query_7> */
+          /* </query_7> */
           /* </query_0> */"
       `);
    });
@@ -422,12 +452,14 @@ describe("postgresSelect()", () => {
       const select = postgresSelect(Account, {
          SELECT: sql`${row(Account.$$)}, (select count(*) from ${Order} where ${Order.$accountId} = ${Account.$accountId}) as ${orderCount}`,
       });
-      const { text } = select.source.getSql({ options: defaultQueryOptions });
+      const { text } = select.source.getSql({ params: {}, options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
+        /* driver: postgres */
         SELECT
           (
-            /* <query_1> */ "a_1"."account_id",
+            /* <query_1> */
+            "a_1"."account_id",
             "a_1"."status",
             "a_1"."email",
             "a_1"."first_name",
@@ -451,6 +483,8 @@ describe("postgresSelect()", () => {
           /* </query_2> */
           /* <query_3> */
           /* </query_3> */
+          /* <query_4> */
+          /* </query_4> */
           /* </query_0> */"
       `);
    });

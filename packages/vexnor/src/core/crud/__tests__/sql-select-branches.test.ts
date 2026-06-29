@@ -37,6 +37,8 @@ describe("sqlSelect — clause branches", () => {
           /* </query_2> */
           /* <query_3> */
           /* </query_3> */
+          /* <query_4> */
+          /* </query_4> */
           /* </query_0> */"
       `);
    });

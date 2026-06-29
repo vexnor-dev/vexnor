@@ -8,6 +8,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export default mergeConfig(sharedConfig, {
    resolve: {
       alias: {
+         "#src": path.resolve(__dirname, "./src"),
          "@test-models": path.resolve(__dirname, "./src/test/models"),
       },
    },

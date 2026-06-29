@@ -1,9 +1,6 @@
 import {
    SqlTable,
-   sql,
-   raw,
-   set,
-   row,
+   sqlUpdate,
    SqlUpdateParameters,
    Void,
    ParamsOfArgs,
@@ -27,11 +24,5 @@ export function postgresUpdate<
    T extends { Select: Record<string, unknown>; Update: Record<string, unknown> },
    Args extends SqlUpdateArgs,
 >(table: SqlTable<T>, args: Args): PostgresTableUpdateResult<T, Args> {
-   return sql`
-      ${info({ driver: "postgres" })}
-      update ${table}
-         ${set(table)}
-         ${args.WHERE ? sql`where ${args.WHERE.inline()}`.inline() : raw.BLANK}
-      returning ${row(table.$$)}
-   `.postgres as unknown as PostgresTableUpdateResult<T, Args>;
+   return sqlUpdate(table, args, info({ driver: "postgres" })).postgres as unknown as PostgresTableUpdateResult<T, Args>;
 }

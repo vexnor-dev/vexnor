@@ -18,7 +18,7 @@ describe("newPostgresTableHandler", () => {
    });
 
    test("insertFrom() — builds query object", () => {
-      const query = handler.insertFrom({ FROM: Account.postgres.select({}).source });
+      const query = handler.insertFrom({ FROM: Account.postgres.select({}).source as never });
       expect(query).toBeDefined();
       expect(query.source).toBeDefined();
    });

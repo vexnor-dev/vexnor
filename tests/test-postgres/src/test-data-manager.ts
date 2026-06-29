@@ -39,6 +39,14 @@ export class TestDataManager {
       }
    }
 
+   async setup(pool: Pool) {
+      await this.initRootAccounts(pool);
+      if (this.ACCOUNT_CHILD_FACTOR > 0) await this.initChildAccounts(pool);
+      await this.initProducts(pool);
+      await this.initOrders(pool);
+      await this.initOrderItems(pool);
+   }
+
    async initRootAccounts(pool: Pool) {
       const accountInserts: IAccountInsert[] = [];
       for (let i = 0; i < this.ACCOUNT_ROOT_COUNT; i++) {
@@ -114,7 +122,7 @@ export class TestDataManager {
    }
 
    async initOrders(pool: Pool) {
-      ok(this.rootAccounts.length > 0 && this.childAccounts.length > 0, "must initialize accounts first");
+      ok(this.rootAccounts.length > 0, "must initialize root accounts first");
 
       const allAccounts = [...this.rootAccounts, ...this.childAccounts];
       for (const account of allAccounts) {

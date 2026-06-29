@@ -1,6 +1,5 @@
-import { info, ParamsOfArgs, SqlDeleteArgs, raw, row, SqlTable, SqlQueryColumns } from "@vexnor/core";
+import { info, ParamsOfArgs, SqlDeleteArgs, SqlTable, SqlQueryColumns, raw, row, sql } from "@vexnor/core";
 import { ok } from "@vexnor/core";
-import { sql } from "#src/postgres-sql.js";
 import { PostgresQueryHandler } from "#src/postgres-query-handler.js";
 import "#src/postgres-augment.js";
 
@@ -24,8 +23,7 @@ export function postgresDelete<T extends { Select: Record<string, unknown>; Dele
 
    return sql`
       ${info({ driver: "postgres" })}
-      delete
-      from ${table}
+      delete from ${table}
       ${where ? sql`where ${where.inline()}`.inline("default") : raw.BLANK}
       returning ${row(table.$$)}
    `.postgres as unknown as PostgresDeleteResult<T, Args>;

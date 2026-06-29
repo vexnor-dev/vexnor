@@ -40,7 +40,11 @@ export class SqlOrderBy<T extends { Select: Record<string, unknown> }, ParamName
    readonly paramName: ParamName;
    readonly params: BuildSqlParams<PathToNested<ParamName, T[keyof T]>>;
 
-   constructor(table: SqlTable<T>, { paramName }: { paramName: ParamName }) {
+   get aiPrompt() {
+      return `orderBy: {"columnName": "ASC"|"DESC"}. Key is the column name, value is direction. Aggregate aliases from select also work.`;
+   }
+
+   constructor(table: SqlTable<T>, { paramName, fieldNames }: { paramName: ParamName; fieldNames?: string[] }) {
       super({
          type: "SqlOrderBy",
          id: `${table.tableInfo.name}.${paramName}`,
@@ -54,7 +58,7 @@ export class SqlOrderBy<T extends { Select: Record<string, unknown> }, ParamName
             name: paramName,
             validation: {
                obj: {
-                  fieldNames: table.colKeys,
+                  fieldNames: fieldNames ?? table.colKeys,
                   fieldValues: ["ASC", "DESC", "asc", "desc"],
                },
             },
@@ -94,15 +98,25 @@ export class SqlOrderBy<T extends { Select: Record<string, unknown> }, ParamName
 
       let emitted = 0;
       for (const [field, dir] of entries) {
-         const col = this.table.cols[`$${field}` as `$${string}`] as SqlTableColumnAny | undefined;
-         if (!col) throw new SqlBuildError(`Column not found for orderBy: ${field}`);
-
          if (dir && !VALID_DIRECTIONS.has(dir)) {
             throw new SqlBuildError(`Invalid order direction: ${dir}. Must be 'asc' or 'desc'.`);
          }
-
          if (emitted > 0) context.addStrings(", ");
-         col.build(context);
+
+         // Resolve from columnMap (joinBy) if available
+         if (context.columnCount > 0) {
+            const col = context.getColumn(field);
+            if (col) {
+               col.build(context);
+            } else {
+               // Allow aggregate aliases (e.g. "totalRevenue") and positional refs to pass through
+               context.addStrings(`"${field}"`);
+            }
+         } else {
+            const col = this.table.cols[`$${field}` as `$${string}`] as SqlTableColumnAny | undefined;
+            if (!col) throw new SqlBuildError(`Column not found for orderBy: ${field}`);
+            col.build(context);
+         }
          context.addStrings(` ${dir ? dir.toUpperCase() : "ASC"}`);
          emitted++;
       }

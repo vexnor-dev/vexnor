@@ -324,6 +324,11 @@ describe("SqlTable tests", () => {
             "select": true,
             "update": true,
           },
+          "_fk": Lazy {
+            "_computed": false,
+            "_value": null,
+            "callback": [Function],
+          },
           "_out": Lazy {
             "_computed": false,
             "_value": null,
@@ -335,14 +340,13 @@ describe("SqlTable tests", () => {
           },
           "dbSchema": {},
           "dialect": "sql",
-          "fk": [],
           "format": null,
           "hashId": "SqlTable#(main.account)",
           "id": "SqlTable#1(main.account)",
           "pk": [
             "accountId",
           ],
-          "source": "",
+          "source": "@vexnor/test:models",
           "tableInfo": {
             "alias": null,
             "name": "account",
@@ -663,6 +667,11 @@ describe("SqlTable tests", () => {
             "select": true,
             "update": true,
           },
+          "_fk": Lazy {
+            "_computed": false,
+            "_value": null,
+            "callback": [Function],
+          },
           "_out": Lazy {
             "_computed": false,
             "_value": null,
@@ -674,7 +683,6 @@ describe("SqlTable tests", () => {
           },
           "dbSchema": {},
           "dialect": "sql",
-          "fk": [],
           "format": null,
           "hashId": "SqlTable#(main.account as parent)",
           "id": "SqlTable#1(main.account as parent)",
@@ -874,6 +882,7 @@ describe("SqlTable tests", () => {
 
    test("SqlTable with fk and dbSchema options stores them correctly", () => {
       const TableWithFk = newSqlTable<{
+         Name: "order";
          Select: { id: string; accountId: string };
          Insert: { id?: string; accountId: string };
          Update: { accountId?: string };

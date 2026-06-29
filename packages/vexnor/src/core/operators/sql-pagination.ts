@@ -30,6 +30,9 @@ export class SqlPagination extends Sql {
 
    readonly params: Record<string, SqlParam<{ Name: string; Type: unknown }>>;
 
+   get aiPrompt() {
+      return `limit: number (max rows). offset: number (skip rows). ALWAYS pass limit.`;
+   }
    constructor() {
       super({
          type: "SqlPagination",

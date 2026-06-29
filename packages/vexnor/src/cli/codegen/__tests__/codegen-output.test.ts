@@ -220,7 +220,7 @@ describe("codegenCommand output", () => {
            "
          `);
          expect(files["index.ts"]).toMatchInlineSnapshot(`
-           "export * as public from "./public.schema.js";
+           "export * as publicSchema from "./public.schema.js";
            "
          `);
       } finally {

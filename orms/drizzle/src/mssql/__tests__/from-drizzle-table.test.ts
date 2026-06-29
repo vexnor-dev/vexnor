@@ -248,6 +248,11 @@ describe("fromDrizzleTable (mssql) — metadata", () => {
             "select": true,
             "update": true,
           },
+          "_fk": Lazy {
+            "_computed": false,
+            "_value": null,
+            "callback": [Function],
+          },
           "_out": Lazy {
             "_computed": false,
             "_value": null,
@@ -256,7 +261,6 @@ describe("fromDrizzleTable (mssql) — metadata", () => {
           "columnTypes": {},
           "dbSchema": {},
           "dialect": "tsql",
-          "fk": [],
           "format": null,
           "hashId": "SqlTable#(account)",
           "id": "SqlTable#4(account)",
@@ -406,6 +410,11 @@ describe("fromDrizzleTable (mssql) — metadata", () => {
             "select": true,
             "update": true,
           },
+          "_fk": Lazy {
+            "_computed": false,
+            "_value": null,
+            "callback": [Function],
+          },
           "_out": Lazy {
             "_computed": false,
             "_value": null,
@@ -414,7 +423,6 @@ describe("fromDrizzleTable (mssql) — metadata", () => {
           "columnTypes": {},
           "dbSchema": {},
           "dialect": "tsql",
-          "fk": [],
           "format": null,
           "hashId": "SqlTable#(vexnor_dev.account)",
           "id": "SqlTable#5(vexnor_dev.account)",
@@ -525,7 +533,8 @@ describe("fromDrizzleTable (mssql) — SQL generation", () => {
         "/* <query_0> */
         SELECT
           "a_1"."account_id" AS "accountId",
-          /* <query_1> */ COUNT(*) /* </query_1> */ AS "total"
+          /* <query_1> */
+          COUNT(*) /* </query_1> */ AS "total"
         FROM
           "vexnor_dev"."account" AS "a_1"
         GROUP BY

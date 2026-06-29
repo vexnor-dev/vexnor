@@ -3,6 +3,7 @@ import { newSqlTable } from "#src/core/schema/sql-table.js";
 import { AccountStatusUdt } from "#src/test/models/vexnor_dev-enums.js";
 
 export const Account = newSqlTable<{
+   Name: "account";
    Select: IAccountSelect;
    Insert: IAccountInsert;
    Update: IAccountUpdate;
@@ -21,6 +22,10 @@ export const Account = newSqlTable<{
       alias: null,
    },
    pk: ["accountId"],
+   source: "@vexnor/test:models",
+   fk: [
+      { from: ["parentId"], to: { schema: "main", table: "account", columns: ["accountId"] } },
+   ],
    jsonSchema: {
       createdAt: "Date",
       modifiedAt: "Date",

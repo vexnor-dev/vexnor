@@ -13,6 +13,7 @@ describe("mssqlTableRead()", () => {
       const { text } = query.source.getSql({ options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
+        /* driver: transactsql */
         SELECT
           "a_1"."account_id" AS "accountId",
           "a_1"."status",
@@ -29,6 +30,8 @@ describe("mssqlTableRead()", () => {
           /* </query_1> */
           /* <query_2> */
           /* </query_2> */
+          /* <query_3> */
+          /* </query_3> */
           /* </query_0> */"
       `);
    });
@@ -46,6 +49,7 @@ describe("mssqlTableRead()", () => {
       const { text } = query.source.getSql({ params: { id: "test-id" }, options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
+        /* driver: transactsql */
         SELECT
           "a_1"."account_id" AS "accountId",
           "a_1"."status",
@@ -60,9 +64,12 @@ describe("mssqlTableRead()", () => {
           "main"."account" AS "a_1"
           /* <query_1> */
         WHERE
-          /* <query_2> */ "a_1"."account_id" = @param_0 /* </query_2> */ /* </query_1> */
+          /* <query_2> */
+          "a_1"."account_id" = @param_0 /* </query_2> */ /* </query_1> */
           /* <query_3> */
           /* </query_3> */
+          /* <query_4> */
+          /* </query_4> */
           /* </query_0> */"
       `);
    });
@@ -92,14 +99,19 @@ describe("mssqlTableRead()", () => {
         FROM
           "main"."account" AS "a_1"
           /* <query_1> */
-        ORDER BY
-          /* <query_2> */ "a_1"."created_at" DESC /* </query_2> */ /* </query_1> */
+          /* </query_1> */
+          /* <query_2> */
+          /* </query_2> */
           /* <query_3> */
-        OFFSET
-          @param_0 rows /* </query_3> */
+          /* </query_3> */
           /* <query_4> */
+        ORDER BY
+          /* <query_5> */
+          "a_1"."created_at" DESC /* </query_5> */ /* </query_4> */
+        OFFSET
+          @param_0 rows
         FETCH NEXT
-          @param_1 rows only /* </query_4> */
+          @param_1 rows only
           /* </query_0> */"
       `);
       expect(values).toMatchObject([0, 10]);
@@ -128,7 +140,8 @@ describe("mssqlTableRead()", () => {
           "a_1"."parent_id" AS "parentId",
           "query_1_result"."query_1" AS "children"
         FROM
-          "main"."account" AS "a_1" /* <query_2> */
+          "main"."account" AS "a_1"
+          /* <query_2> */
           OUTER APPLY (
             SELECT
               coalesce(
@@ -156,6 +169,12 @@ describe("mssqlTableRead()", () => {
                 '[]'
               ) AS "query_1"
           ) AS "query_1_result" /* </query_2> */
+          /* <query_3> */
+          /* </query_3> */
+          /* <query_4> */
+          /* </query_4> */
+          /* <query_5> */
+          /* </query_5> */
           /* </query_0> */"
       `);
    });
@@ -196,7 +215,9 @@ describe("mssqlTableRead()", () => {
           "a_1"."parent_id" AS "parentId",
           "query_1_result"."query_1" AS "firstOrder"
         FROM
-          "main"."account" AS "a_1" /* <query_3> */ OUTER apply (
+          "main"."account" AS "a_1"
+          /* <query_3> */
+          OUTER apply (
             SELECT
               coalesce(
                 (
@@ -224,6 +245,12 @@ describe("mssqlTableRead()", () => {
                 NULL
               ) AS "query_1"
           ) AS "query_1_result" /* </query_3> */
+          /* <query_4> */
+          /* </query_4> */
+          /* <query_5> */
+          /* </query_5> */
+          /* <query_6> */
+          /* </query_6> */
           /* </query_0> */"
       `);
    });
@@ -270,7 +297,9 @@ describe("mssqlTableRead()", () => {
           "query_1_result"."query_1" AS "firstOrder",
           "query_3_result"."query_3" AS "children"
         FROM
-          "main"."account" AS "a_1" /* <query_4> */ OUTER apply (
+          "main"."account" AS "a_1"
+          /* <query_4> */
+          OUTER apply (
             SELECT
               coalesce(
                 (
@@ -323,6 +352,12 @@ describe("mssqlTableRead()", () => {
                 '[]'
               ) AS "query_3"
           ) AS "query_3_result" /* </query_5> */
+          /* <query_6> */
+          /* </query_6> */
+          /* <query_7> */
+          /* </query_7> */
+          /* <query_8> */
+          /* </query_8> */
           /* </query_0> */"
       `);
    });
@@ -355,7 +390,9 @@ describe("mssqlTableRead()", () => {
           "a_1"."parent_id" AS "parentId",
           "query_1_result"."query_1" AS "orders"
         FROM
-          "main"."account" AS "a_1" /* <query_2> */ OUTER apply (
+          "main"."account" AS "a_1"
+          /* <query_2> */
+          OUTER apply (
             SELECT
               coalesce(
                 (
@@ -402,6 +439,12 @@ describe("mssqlTableRead()", () => {
                 '[]'
               ) AS "query_1"
           ) AS "query_1_result" /* </query_2> */
+          /* <query_5> */
+          /* </query_5> */
+          /* <query_6> */
+          /* </query_6> */
+          /* <query_7> */
+          /* </query_7> */
           /* </query_0> */"
       `);
    });

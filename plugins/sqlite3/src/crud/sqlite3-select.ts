@@ -1,7 +1,4 @@
 import {
-   sql,
-   raw,
-   row,
    SqlTable,
    sqlSelect,
    SqlSelectArgs,
@@ -28,31 +25,14 @@ export function sqlite3Select<T extends { Select: Record<string, unknown> }, Arg
    table: SqlTable<T>,
    args: Args,
 ): Sqlite3SelectResult<T, Args> {
-   const { offset, limit, includeOne, includeMany, ...baseArgs } = args;
-
-   if (!includeOne && !includeMany && !offset && !limit) {
-      return sqlSelect(table, baseArgs as Args).sqlite as Sqlite3SelectResult<T, Args>;
-   }
-
-   if (offset || limit) {
-      if (!args.ORDER_BY) throw new Error("ORDER_BY is required when using offset/limit");
-   }
+   const { includeOne, includeMany, ...baseArgs } = args;
 
    const ones = Object.entries(includeOne ?? {}).map(([k, q]) => ({ key: k, charm: jsonOne((q as SqlQueryBaseAny).source) }));
    const manys = Object.entries(includeMany ?? {}).map(([k, q]) => ({ key: k, charm: jsonMany((q as SqlQueryBaseAny).source) }));
 
-   const includes = [...ones, ...manys].map(({ key, charm }) => charm.as(key));
+   const hooks = (ones.length || manys.length) ? {
+      afterSelect: [...ones, ...manys].map(({ key, charm }) => charm.as(key)),
+   } : undefined;
 
-   return sql`
-      ${info({ driver: "sqlite" })}
-      select ${args.SELECT ? args.SELECT.source.inline("default") : row(table.$$)}
-                ${includes.length > 0 ? raw(", ") : raw.BLANK} ${includes}
-      from ${table} ${baseArgs.JOIN ? baseArgs.JOIN.source.inline() : raw.BLANK}
-         ${baseArgs.WHERE ? sql`where ${baseArgs.WHERE.source.inline()}`.inline("default") : raw.BLANK}
-         ${baseArgs.GROUP_BY ? sql`group by ${baseArgs.GROUP_BY.source.inline()}`.inline("default") : raw.BLANK}
-         ${baseArgs.HAVING ? sql`having ${baseArgs.HAVING.source.inline()}`.inline("default") : raw.BLANK}
-         ${baseArgs.ORDER_BY ? sql`order by ${baseArgs.ORDER_BY.source.inline()}`.inline("default") : raw.BLANK}
-         ${limit ? sql`limit ${limit}`.inline("default") : raw.BLANK}
-         ${offset ? sql`offset ${offset}`.inline("default") : raw.BLANK}
-   `.sqlite as Sqlite3SelectResult<T, Args>;
+   return sqlSelect(table, baseArgs as Args, info({ driver: "sqlite" }), undefined, undefined, hooks).sqlite as Sqlite3SelectResult<T, Args>;
 }

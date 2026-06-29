@@ -16,14 +16,14 @@ describe("validateParamObject", () => {
       `);
    });
 
-   test("invalid key — error", () => {
+   test("invalid key — rejected for non-dot keys", () => {
       const errors: string[] = [];
       validateParamObject(
          { badCol: "value" },
          { fieldNames: ["email", "status"] },
          errors,
       );
-      expect(errors.length).toBeGreaterThan(0);
+      expect(errors.length).toBe(1);
    });
 
    test("invalid value when fieldValues set — error", () => {
@@ -60,14 +60,14 @@ describe("validateParamObject", () => {
       `);
    });
 
-   test("or key — invalid inner key reports error", () => {
+   test("or key — invalid inner key rejected for non-dot keys", () => {
       const errors: string[] = [];
       validateParamObject(
          { or: [{ badCol: "value" }] },
          { fieldNames: ["email"] },
          errors,
       );
-      expect(errors.length).toBeGreaterThan(0);
+      expect(errors.length).toBe(1);
    });
 
    test("invalid operator — error", () => {

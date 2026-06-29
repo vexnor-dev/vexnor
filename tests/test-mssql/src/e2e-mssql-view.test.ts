@@ -221,6 +221,11 @@ describe("view — AccountOrderSummary (mssql)", () => {
             "select": true,
             "update": false,
           },
+          "_fk": Lazy {
+            "_computed": false,
+            "_value": null,
+            "callback": [Function],
+          },
           "_out": Lazy {
             "_computed": false,
             "_value": null,
@@ -262,7 +267,6 @@ describe("view — AccountOrderSummary (mssql)", () => {
             },
           },
           "dialect": "tsql",
-          "fk": [],
           "format": null,
           "hashId": "SqlTable#(vexnor_dev.account_order_summary)",
           "id": "SqlTable#7(vexnor_dev.account_order_summary)",

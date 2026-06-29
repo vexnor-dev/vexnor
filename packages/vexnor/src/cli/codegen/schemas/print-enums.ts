@@ -22,8 +22,10 @@ export async function printEnums({ enums }: WriteEnumsAgs): Promise<SqlOutputFil
          const udtName = `${to.pascal(enum_name)}Udt`;
          writer.write(`export const ${udtName} =`).inlineBlock(() => {
             enum_values.forEach(({ enum_label }) => {
+               const key = enum_label.toUpperCase();
+               const needsQuote = !/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key);
                writer
-                  .write(enum_label.toUpperCase())
+                  .write(needsQuote ? `"${key}"` : key)
                   .write(": ")
                   .quote()
                   .write(enum_label)

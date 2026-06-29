@@ -13,6 +13,7 @@ import { getAliasStackInfo } from "#src/core/query/lib/get-alias-stack-info.js";
 import { SqlSelectAll, SqlSelectAllAny } from "#src/core/query/sql-select-all.js";
 import { SqlQueryColumn, SqlQueryColumnAny } from "#src/core/query/sql-query-column.js";
 import { Queue } from "#src/lib/queue.js";
+import { SqlTableColumnAny } from "#src/core/schema/sql-table-column.js";
 import { SqlQueryScope } from "#src/core/query/sql-query-types.js";
 import { quoteText } from "#src/core/utils/quote-text.js";
 import { trim } from "#src/core/utils/trim.js";
@@ -33,6 +34,9 @@ export class SqlBuildContext {
    readonly queries = new Map<string, QueryInfo>();
    readonly params: Readonly<Record<string, unknown>> | null;
    readonly tag: string | null;
+
+   /** Populated by joinBy operator — maps column keys to qualified SQL expressions */
+   private readonly _columns: Record<string, SqlTableColumnAny> = {};
 
    private readonly _tokens: SqlBuildToken[];
    private readonly _keywordStacks: string[][];
@@ -331,6 +335,22 @@ export class SqlBuildContext {
       }
 
       return this.queries.get(query.id)!;
+   }
+
+   getColumn(name: string): SqlTableColumnAny | undefined {
+      return this._columns[name.toLocaleLowerCase()];
+   }
+
+   addColumns(cols: Record<string, SqlTableColumnAny>) {
+      Object.assign(this._columns, Object.fromEntries(Object.entries(cols).map(([k, v]) => [k.toLocaleLowerCase(), v])));
+   }
+
+   get columns() {
+      return this._columns;
+   }
+
+   get columnCount() {
+      return Object.keys(this._columns).length;
    }
 
    scope<Result = undefined>(

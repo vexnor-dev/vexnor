@@ -38,5 +38,19 @@
    ],
    "exclude": [
       "node_modules"
+   ],
+   "references": [
+      {
+         "path": "../../packages/vexnor"
+      },
+      {
+         "path": "../../plugins/postgres"
+      },
+      {
+         "path": "../../plugins/mssql"
+      },
+      {
+         "path": "../../plugins/sqlite3"
+      }
    ]
 }

@@ -761,6 +761,11 @@ describe("sql subqueries tests", () => {
                     "select": true,
                     "update": true,
                   },
+                  "_fk": Lazy {
+                    "_computed": false,
+                    "_value": null,
+                    "callback": [Function],
+                  },
                   "_out": Lazy {
                     "_computed": false,
                     "_value": null,
@@ -772,14 +777,13 @@ describe("sql subqueries tests", () => {
                   },
                   "dbSchema": {},
                   "dialect": "sql",
-                  "fk": [],
                   "format": null,
                   "hashId": "SqlTable#(main.account)",
                   "id": "SqlTable#1(main.account)",
                   "pk": [
                     "accountId",
                   ],
-                  "source": "",
+                  "source": "@vexnor/test:models",
                   "tableInfo": {
                     "alias": null,
                     "name": "account",
@@ -1553,6 +1557,11 @@ describe("sql subqueries tests", () => {
                     "select": true,
                     "update": true,
                   },
+                  "_fk": Lazy {
+                    "_computed": false,
+                    "_value": null,
+                    "callback": [Function],
+                  },
                   "_out": Lazy {
                     "_computed": false,
                     "_value": null,
@@ -1564,14 +1573,13 @@ describe("sql subqueries tests", () => {
                   },
                   "dbSchema": {},
                   "dialect": "sql",
-                  "fk": [],
                   "format": null,
                   "hashId": "SqlTable#(main.account)",
                   "id": "SqlTable#1(main.account)",
                   "pk": [
                     "accountId",
                   ],
-                  "source": "",
+                  "source": "@vexnor/test:models",
                   "tableInfo": {
                     "alias": null,
                     "name": "account",
@@ -2345,6 +2353,11 @@ describe("sql subqueries tests", () => {
                     "select": true,
                     "update": true,
                   },
+                  "_fk": Lazy {
+                    "_computed": false,
+                    "_value": null,
+                    "callback": [Function],
+                  },
                   "_out": Lazy {
                     "_computed": false,
                     "_value": null,
@@ -2356,14 +2369,13 @@ describe("sql subqueries tests", () => {
                   },
                   "dbSchema": {},
                   "dialect": "sql",
-                  "fk": [],
                   "format": null,
                   "hashId": "SqlTable#(main.account)",
                   "id": "SqlTable#1(main.account)",
                   "pk": [
                     "accountId",
                   ],
-                  "source": "",
+                  "source": "@vexnor/test:models",
                   "tableInfo": {
                     "alias": null,
                     "name": "account",
@@ -3137,6 +3149,11 @@ describe("sql subqueries tests", () => {
                     "select": true,
                     "update": true,
                   },
+                  "_fk": Lazy {
+                    "_computed": false,
+                    "_value": null,
+                    "callback": [Function],
+                  },
                   "_out": Lazy {
                     "_computed": false,
                     "_value": null,
@@ -3148,14 +3165,13 @@ describe("sql subqueries tests", () => {
                   },
                   "dbSchema": {},
                   "dialect": "sql",
-                  "fk": [],
                   "format": null,
                   "hashId": "SqlTable#(main.account)",
                   "id": "SqlTable#1(main.account)",
                   "pk": [
                     "accountId",
                   ],
-                  "source": "",
+                  "source": "@vexnor/test:models",
                   "tableInfo": {
                     "alias": null,
                     "name": "account",
@@ -3929,6 +3945,11 @@ describe("sql subqueries tests", () => {
                     "select": true,
                     "update": true,
                   },
+                  "_fk": Lazy {
+                    "_computed": false,
+                    "_value": null,
+                    "callback": [Function],
+                  },
                   "_out": Lazy {
                     "_computed": false,
                     "_value": null,
@@ -3940,14 +3961,13 @@ describe("sql subqueries tests", () => {
                   },
                   "dbSchema": {},
                   "dialect": "sql",
-                  "fk": [],
                   "format": null,
                   "hashId": "SqlTable#(main.account)",
                   "id": "SqlTable#1(main.account)",
                   "pk": [
                     "accountId",
                   ],
-                  "source": "",
+                  "source": "@vexnor/test:models",
                   "tableInfo": {
                     "alias": null,
                     "name": "account",
@@ -4721,6 +4741,11 @@ describe("sql subqueries tests", () => {
                     "select": true,
                     "update": true,
                   },
+                  "_fk": Lazy {
+                    "_computed": false,
+                    "_value": null,
+                    "callback": [Function],
+                  },
                   "_out": Lazy {
                     "_computed": false,
                     "_value": null,
@@ -4732,14 +4757,13 @@ describe("sql subqueries tests", () => {
                   },
                   "dbSchema": {},
                   "dialect": "sql",
-                  "fk": [],
                   "format": null,
                   "hashId": "SqlTable#(main.account)",
                   "id": "SqlTable#1(main.account)",
                   "pk": [
                     "accountId",
                   ],
-                  "source": "",
+                  "source": "@vexnor/test:models",
                   "tableInfo": {
                     "alias": null,
                     "name": "account",
@@ -5513,6 +5537,11 @@ describe("sql subqueries tests", () => {
                     "select": true,
                     "update": true,
                   },
+                  "_fk": Lazy {
+                    "_computed": false,
+                    "_value": null,
+                    "callback": [Function],
+                  },
                   "_out": Lazy {
                     "_computed": false,
                     "_value": null,
@@ -5524,14 +5553,13 @@ describe("sql subqueries tests", () => {
                   },
                   "dbSchema": {},
                   "dialect": "sql",
-                  "fk": [],
                   "format": null,
                   "hashId": "SqlTable#(main.account)",
                   "id": "SqlTable#1(main.account)",
                   "pk": [
                     "accountId",
                   ],
-                  "source": "",
+                  "source": "@vexnor/test:models",
                   "tableInfo": {
                     "alias": null,
                     "name": "account",
@@ -6305,6 +6333,11 @@ describe("sql subqueries tests", () => {
                     "select": true,
                     "update": true,
                   },
+                  "_fk": Lazy {
+                    "_computed": false,
+                    "_value": null,
+                    "callback": [Function],
+                  },
                   "_out": Lazy {
                     "_computed": false,
                     "_value": null,
@@ -6316,14 +6349,13 @@ describe("sql subqueries tests", () => {
                   },
                   "dbSchema": {},
                   "dialect": "sql",
-                  "fk": [],
                   "format": null,
                   "hashId": "SqlTable#(main.account)",
                   "id": "SqlTable#1(main.account)",
                   "pk": [
                     "accountId",
                   ],
-                  "source": "",
+                  "source": "@vexnor/test:models",
                   "tableInfo": {
                     "alias": null,
                     "name": "account",
@@ -7097,6 +7129,11 @@ describe("sql subqueries tests", () => {
                     "select": true,
                     "update": true,
                   },
+                  "_fk": Lazy {
+                    "_computed": false,
+                    "_value": null,
+                    "callback": [Function],
+                  },
                   "_out": Lazy {
                     "_computed": false,
                     "_value": null,
@@ -7108,14 +7145,13 @@ describe("sql subqueries tests", () => {
                   },
                   "dbSchema": {},
                   "dialect": "sql",
-                  "fk": [],
                   "format": null,
                   "hashId": "SqlTable#(main.account)",
                   "id": "SqlTable#1(main.account)",
                   "pk": [
                     "accountId",
                   ],
-                  "source": "",
+                  "source": "@vexnor/test:models",
                   "tableInfo": {
                     "alias": null,
                     "name": "account",

@@ -17,6 +17,7 @@ describe("newPostgresTableHandler — SQL generation branches", () => {
       });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
+        /* driver: postgres */
         SELECT
           "a_1"."account_id" AS "accountId",
           "a_1"."status",
@@ -31,9 +32,12 @@ describe("newPostgresTableHandler — SQL generation branches", () => {
           "main"."account" AS "a_1"
           /* <query_1> */
         WHERE
-          /* <query_2> */ "a_1"."status" = $1 /* </query_2> */ /* </query_1> */
+          /* <query_2> */
+          "a_1"."status" = $1 /* </query_2> */ /* </query_1> */
           /* <query_3> */
           /* </query_3> */
+          /* <query_4> */
+          /* </query_4> */
           /* </query_0> */"
       `);
       expect(values).toMatchInlineSnapshot(`
@@ -65,7 +69,8 @@ describe("newPostgresTableHandler — SQL generation branches", () => {
         DELETE FROM "main"."account"
         /* <query_1> */
         WHERE
-          /* <query_2> */ "account"."account_id" = $1 /* </query_2> */ /* </query_1> */
+          /* <query_2> */
+          "account"."account_id" = $1 /* </query_2> */ /* </query_1> */
         RETURNING
           "account"."account_id" AS "accountId",
           "account"."status",

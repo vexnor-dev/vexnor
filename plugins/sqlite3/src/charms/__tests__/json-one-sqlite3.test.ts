@@ -154,7 +154,8 @@ describe("json-one-sqlite3 tests", () => {
           "a_1"."created_at" AS "createdAt",
           "a_1"."modified_at" AS "modifiedAt",
           "a_1"."parent_id" AS "parentId",
-          /* <query_1> */ (
+          /* <query_1> */
+          (
             SELECT
               json_object(
                 'accountId',

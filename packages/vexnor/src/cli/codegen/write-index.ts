@@ -10,11 +10,14 @@ export interface WriteIndexArgs {
    schemaFiles: Pick<SqlOutputFile, "moduleName" | "fileName">[];
 }
 
+const RESERVED_WORDS = new Set(["public", "private", "protected", "static", "class", "enum", "export", "import", "default", "return", "function", "new", "delete", "typeof", "void", "interface", "type"]);
+
 export async function writeIndex({ schemaFiles, libraryFiles }: WriteIndexArgs): Promise<void> {
    const { outDir, newWriter } = getCodegenContext();
    const writer = newWriter();
    for (const file of schemaFiles) {
-      writer.writeLine(`export * as ${file.moduleName} from "./${file.fileName}.js";`);
+      const alias = RESERVED_WORDS.has(file.moduleName) ? `${file.moduleName}Schema` : file.moduleName;
+      writer.writeLine(`export * as ${alias} from "./${file.fileName}.js";`);
    }
 
    for (const file of libraryFiles) {

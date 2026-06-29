@@ -12,6 +12,7 @@ describe("sqlite3Select()", () => {
       const { text } = query.source.getSql({ options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
+        /* driver: sqlite */
         SELECT
           "a_1"."account_id" AS "accountId",
           "a_1"."status",
@@ -28,6 +29,8 @@ describe("sqlite3Select()", () => {
           /* </query_1> */
           /* <query_2> */
           /* </query_2> */
+          /* <query_3> */
+          /* </query_3> */
           /* </query_0> */"
       `);
    });
@@ -45,6 +48,7 @@ describe("sqlite3Select()", () => {
       const { text } = query.source.getSql({ params: { id: "test-id" }, options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
+        /* driver: sqlite */
         SELECT
           "a_1"."account_id" AS "accountId",
           "a_1"."status",
@@ -59,9 +63,12 @@ describe("sqlite3Select()", () => {
           "main"."account" AS "a_1"
           /* <query_1> */
         WHERE
-          /* <query_2> */ "a_1"."account_id" = ? /* </query_2> */ /* </query_1> */
+          /* <query_2> */
+          "a_1"."account_id" = ? /* </query_2> */ /* </query_1> */
           /* <query_3> */
           /* </query_3> */
+          /* <query_4> */
+          /* </query_4> */
           /* </query_0> */"
       `);
    });
@@ -91,14 +98,19 @@ describe("sqlite3Select()", () => {
         FROM
           "main"."account" AS "a_1"
           /* <query_1> */
-        ORDER BY
-          /* <query_2> */ "a_1"."created_at" DESC /* </query_2> */ /* </query_1> */
+          /* </query_1> */
+          /* <query_2> */
+          /* </query_2> */
           /* <query_3> */
-        LIMIT
-          ? /* </query_3> */
+          /* </query_3> */
           /* <query_4> */
+        ORDER BY
+          /* <query_5> */
+          "a_1"."created_at" DESC /* </query_5> */ /* </query_4> */
+        LIMIT
+          ?
         OFFSET
-          ? /* </query_4> */
+          ?
           /* </query_0> */"
       `);
       expect(values).toMatchObject([10, 0]);
@@ -125,7 +137,8 @@ describe("sqlite3Select()", () => {
           "a_1"."created_at" AS "createdAt",
           "a_1"."modified_at" AS "modifiedAt",
           "a_1"."parent_id" AS "parentId",
-          /* <query_1> */ (
+          /* <query_1> */
+          (
             SELECT
               coalesce(
                 json_group_array(
@@ -174,6 +187,12 @@ describe("sqlite3Select()", () => {
           ) AS "children" /* </query_1> */
         FROM
           "main"."account" AS "a_1"
+          /* <query_3> */
+          /* </query_3> */
+          /* <query_4> */
+          /* </query_4> */
+          /* <query_5> */
+          /* </query_5> */
           /* </query_0> */"
       `);
    });
@@ -199,7 +218,8 @@ describe("sqlite3Select()", () => {
           "a_1"."created_at" AS "createdAt",
           "a_1"."modified_at" AS "modifiedAt",
           "a_1"."parent_id" AS "parentId",
-          /* <query_1> */ (
+          /* <query_1> */
+          (
             SELECT
               json_object(
                 'orderId',
@@ -241,6 +261,12 @@ describe("sqlite3Select()", () => {
           ) AS "firstOrder" /* </query_1> */
         FROM
           "main"."account" AS "a_1"
+          /* <query_4> */
+          /* </query_4> */
+          /* <query_5> */
+          /* </query_5> */
+          /* <query_6> */
+          /* </query_6> */
           /* </query_0> */"
       `);
    });
@@ -271,7 +297,8 @@ describe("sqlite3Select()", () => {
           "a_1"."created_at" AS "createdAt",
           "a_1"."modified_at" AS "modifiedAt",
           "a_1"."parent_id" AS "parentId",
-          /* <query_1> */ (
+          /* <query_1> */
+          (
             SELECT
               json_object(
                 'orderId',
@@ -311,7 +338,8 @@ describe("sqlite3Select()", () => {
             LIMIT
               1
           ) AS "firstOrder" /* </query_1> */,
-          /* <query_4> */ (
+          /* <query_4> */
+          (
             SELECT
               coalesce(
                 json_group_array(
@@ -360,6 +388,12 @@ describe("sqlite3Select()", () => {
           ) AS "children" /* </query_4> */
         FROM
           "main"."account" AS "a_1"
+          /* <query_6> */
+          /* </query_6> */
+          /* <query_7> */
+          /* </query_7> */
+          /* <query_8> */
+          /* </query_8> */
           /* </query_0> */"
       `);
    });
@@ -372,9 +406,11 @@ describe("sqlite3Select()", () => {
       const { text } = query.source.getSql({ options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
+        /* driver: sqlite */
         SELECT
           (
-            /* <query_1> */ "a_1"."account_id",
+            /* <query_1> */
+            "a_1"."account_id",
             "a_1"."status",
             "a_1"."email",
             "a_1"."first_name",
@@ -398,6 +434,8 @@ describe("sqlite3Select()", () => {
           /* </query_2> */
           /* <query_3> */
           /* </query_3> */
+          /* <query_4> */
+          /* </query_4> */
           /* </query_0> */"
       `);
    });

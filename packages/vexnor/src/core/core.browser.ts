@@ -55,10 +55,14 @@ export {
    SqlProjectBy,
    SqlProjectionGroupBy,
    type SqlProjectByAggregation,
-   type SqlProjectByEntry,
+   type SqlProjectByTransform,
+   type SqlProjectByFnEntry,
+   type SqlProjectByEntryValue,
+   type SqlProjectBySelect,
    type SqlProjectByParams,
 } from "./operators/sql-project-by.js";
 export { orderBy, SqlOrderBy, type SqlOrderByOption, type SqlOrderByParams } from "./operators/sql-order-by.js";
+export { havingBy, SqlHavingBy, type SqlHavingByParams, type HavingCondition, type HavingConditionList } from "./operators/sql-having-by.js";
 export { input, SqlInput, type SqlInputExtended } from "./query/sql-input.js";
 export { info, SqlQueryInfo, type SqlQueryInfoOptions } from "./charms/sql-query-info.js";
 export {
@@ -91,6 +95,7 @@ export {
    type SqlTableAny,
    type SqlTableExtended,
    type SqlTableOptions,
+   type SqlTableForeignKey,
 } from "./schema/sql-table.js";
 export { SqlTableColumn, newSqlTableColumn, type SqlTableColumnAny } from "./schema/sql-table-column.js";
 export { type SqlTableIdentity } from "./schema/sql-table-identity.js";
@@ -130,10 +135,10 @@ export { type PARAMS, type ROW, type TYPE, type ARGS } from "./sql-base.js";
 export { SqlQueryColumn, newSqlQueryColumn, type SqlQueryColumnAny } from "./query/sql-query-column.js";
 
 // crud
-export type { SqlInsertRowsResult, SqlInsertRowsParams, sqlInsertRows } from "./crud/sql-insert-rows.js";
-export type { SqlInsertFromResult, SqlInsertFromArgs, sqlInsertFrom } from "./crud/sql-insert-from.js";
-export type { SqlUpdateArgs, SqlUpdateParameters, SqlTableUpdateResult } from "./crud/sql-update.js";
-export type { SqlDeleteArgs, SqlDeleteResult } from "./crud/sql-delete.js";
+export { sqlInsertRows, type SqlInsertRowsResult, type SqlInsertRowsParams } from "./crud/sql-insert-rows.js";
+export { sqlInsertFrom, type SqlInsertFromResult, type SqlInsertFromArgs } from "./crud/sql-insert-from.js";
+export { sqlUpdate, type SqlUpdateArgs, type SqlUpdateParameters, type SqlTableUpdateResult } from "./crud/sql-update.js";
+export { sqlDelete, type SqlDeleteArgs, type SqlDeleteResult } from "./crud/sql-delete.js";
 export {
    sqlSelect,
    expandFromClause,

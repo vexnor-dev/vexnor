@@ -29,12 +29,21 @@ describe("sqlSelect with filter", () => {
         FROM
           "main"."account" AS "a_1"
           /* <query_1> */
-          /* </query_1> */
+        WHERE
+          "a_1"."email" = ?
+          AND "a_1"."status" = ? /* </query_1> */
           /* <query_2> */
           /* </query_2> */
+          /* <query_3> */
+          /* </query_3> */
           /* </query_0> */"
       `);
-      expect(result.values).toMatchInlineSnapshot(`[]`);
+      expect(result.values).toMatchInlineSnapshot(`
+        [
+          "jane@example.com",
+          "confirmed",
+        ]
+      `);
    });
 
    test("filter with single key", () => {
@@ -60,12 +69,19 @@ describe("sqlSelect with filter", () => {
         FROM
           "main"."account" AS "a_1"
           /* <query_1> */
-          /* </query_1> */
+        WHERE
+          "a_1"."email" = ? /* </query_1> */
           /* <query_2> */
           /* </query_2> */
+          /* <query_3> */
+          /* </query_3> */
           /* </query_0> */"
       `);
-      expect(result.values).toMatchInlineSnapshot(`[]`);
+      expect(result.values).toMatchInlineSnapshot(`
+        [
+          "jane@example.com",
+        ]
+      `);
    });
 
    test("no filter — empty object produces no WHERE", () => {
@@ -94,6 +110,8 @@ describe("sqlSelect with filter", () => {
           /* </query_1> */
           /* <query_2> */
           /* </query_2> */
+          /* <query_3> */
+          /* </query_3> */
           /* </query_0> */"
       `);
       expect(result.values).toMatchInlineSnapshot(`[]`);
@@ -125,6 +143,8 @@ describe("sqlSelect with filter", () => {
           /* </query_1> */
           /* <query_2> */
           /* </query_2> */
+          /* <query_3> */
+          /* </query_3> */
           /* </query_0> */"
       `);
       expect(result.values).toMatchInlineSnapshot(`[]`);
@@ -156,13 +176,17 @@ describe("sqlSelect with filter", () => {
           "main"."account" AS "a_1"
           /* <query_1> */
         WHERE
-          /* <query_2> */ "a_1"."created_at" > ? /* </query_2> */ /* </query_1> */
+          "a_1"."status" = ?
+          AND /* <query_2> */ "a_1"."created_at" > ? /* </query_2> */ /* </query_1> */
           /* <query_3> */
           /* </query_3> */
+          /* <query_4> */
+          /* </query_4> */
           /* </query_0> */"
       `);
       expect(result.values).toMatchInlineSnapshot(`
         [
+          "confirmed",
           "2024-01-01",
         ]
       `);
@@ -194,9 +218,12 @@ describe("sqlSelect with filter", () => {
           "main"."account" AS "a_1"
           /* <query_1> */
         WHERE
-          /* <query_2> */ "a_1"."created_at" > ? /* </query_2> */ /* </query_1> */
+          /* <query_2> */
+          "a_1"."created_at" > ? /* </query_2> */ /* </query_1> */
           /* <query_3> */
           /* </query_3> */
+          /* <query_4> */
+          /* </query_4> */
           /* </query_0> */"
       `);
       expect(result.values).toMatchInlineSnapshot(`
@@ -208,7 +235,7 @@ describe("sqlSelect with filter", () => {
 
    test("filter params are discoverable on the query", () => {
       const query = sqlSelect(Account, {});
-      expect(query.params).toHaveProperty("filter");
+      expect(query.params).toHaveProperty("filterBy");
    });
 
    test("filter skips undefined values within filter object", () => {
@@ -234,11 +261,20 @@ describe("sqlSelect with filter", () => {
         FROM
           "main"."account" AS "a_1"
           /* <query_1> */
-          /* </query_1> */
+        WHERE
+          "a_1"."email" = ?
+          AND "a_1"."status" = ? /* </query_1> */
           /* <query_2> */
           /* </query_2> */
+          /* <query_3> */
+          /* </query_3> */
           /* </query_0> */"
       `);
-      expect(result.values).toMatchInlineSnapshot(`[]`);
+      expect(result.values).toMatchInlineSnapshot(`
+        [
+          "test@test.com",
+          "created",
+        ]
+      `);
    });
 });

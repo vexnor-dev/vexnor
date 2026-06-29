@@ -19,9 +19,11 @@ export type SqlOperatorToken =
    | { type: "insertValues"; param: string; keys: string[] }
    | { type: "filter"; param: string; columns: Record<string, string>; prefix?: string; suffix?: string }
    | { type: "orderBy"; param: string; columns: Record<string, string> }
+   | { type: "joinBy"; param: string }
    | { type: "when"; param: string; negate?: boolean; onTrue: SqlBuildToken[]; onFalse?: SqlBuildToken[] }
    | { type: "projection"; param: string; columns: Record<string, string> }
    | { type: "pagination" }
+   | { type: "havingBy"; param: string }
    | { type: "upsert"; param: string; columns: Record<string, string>; conflictKeys: string[]; tableName: string };
 
 export type SqlParamFormat = (args: { name?: string; index: number }) => string;

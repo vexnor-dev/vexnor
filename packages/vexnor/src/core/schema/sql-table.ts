@@ -6,6 +6,7 @@ import { SqlTableFormat } from "#src/core/builder/default-formatter.js";
 import { Lazy } from "#src/lib/lazy.js";
 import { SqlTableAll } from "#src/core/charms/sql-table-all.js";
 import { newSqlTableColumn, SqlTableColumn, SqlTableColumnAny } from "#src/core/schema/sql-table-column.js";
+import { SqlTableJoin } from "#src/core/schema/sql-table-join.js";
 
 import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
 import { SqlBuildOptions } from "#src/core/builder/sql-build-options.js";
@@ -13,11 +14,21 @@ import { CACHE, registerResetHook } from "#src/lib/cache.js";
 import { SqlJsonType } from "#src/core/utils/sql-json-schema.js";
 import { SqlLiteralType } from "#src/plugin/sql-literal.js";
 
+export const TABLE: unique symbol = Symbol("TABLE");
+export type TableOf<S> = S extends { readonly [TABLE]?: infer R } ? R : void;
+
 export type SqlTableTypeArgs = {
    Select: Record<string, unknown>;
    Insert?: Record<string, unknown>;
    Update?: Record<string, unknown>;
    Delete?: boolean;
+};
+
+export type SqlJoinType = "inner" | "left" | "right" | "full" | "cross";
+
+/** Extracts the SqlTableAny from a join map value (either bare table or [Table, kind] tuple). */
+export type ExtractJoinTables<M extends Record<string, SqlTableAny | [SqlTableAny, SqlJoinType]>> = {
+   [K in keyof M]: M[K] extends [infer T, SqlJoinType] ? T extends SqlTableAny ? T : never : M[K] extends SqlTableAny ? M[K] : never;
 };
 
 export type SqlTableForeignKey = {
@@ -58,14 +69,17 @@ export type SqlTableExtended<T extends SqlTableTypeArgs> = SqlTable<T> & SqlTabl
 export type SqlTableExtendedAny = SqlTableExtended<any>;
 
 export class SqlTable<T extends SqlTableTypeArgs> extends Sql {
+   declare readonly [TABLE]?: typeof this.tableInfo.name;
+
    private static registry = new Map<string, SqlTableAny>();
+   private static _connections = new Map<string, SqlTableForeignKey[]>();
    readonly tableInfo: SqlTableIdentity;
    readonly format: SqlTableFormat | null;
    readonly pk: Array<keyof T["Select"]>;
    readonly dialect: string;
    readonly source: string;
    readonly columnTypes: Partial<Record<keyof T["Select"], SqlJsonType>>;
-   readonly fk: SqlTableForeignKey[];
+   private readonly _fk: Lazy<SqlTableForeignKey[]>;
    readonly dbSchema: Partial<Record<keyof T["Select"], SqlTableDbColumnSchema>>;
    private readonly _cols: Lazy<InferTable$RowBySelect<T["Select"]>>;
    private readonly _out: Lazy<InferTable$RowBySelect<T["Select"]>>;
@@ -99,7 +113,9 @@ export class SqlTable<T extends SqlTableTypeArgs> extends Sql {
       this.dialect = dialect || "sql";
       this.source = (args instanceof SqlTable ? args.source : args.source) ?? "";
       this.columnTypes = (args instanceof SqlTable ? args.columnTypes : args.jsonSchema) ?? {};
-      this.fk = (args instanceof SqlTable ? args.fk : args.fk) ?? [];
+      const codegenFk: SqlTableForeignKey[] = (args instanceof SqlTable ? args.fk : args.fk) ?? [];
+      const fkKey = `${tableInfo.schema}.${tableInfo.name}`;
+      this._fk = new Lazy(() => [...codegenFk, ...(SqlTable._connections.get(fkKey) ?? [])]);
       this.dbSchema = (args instanceof SqlTable ? args.dbSchema : args.dbSchema) ?? {};
       this._$$ = new Lazy(() => new SqlTableAll<T["Select"]>(this.cols));
       this._crudConfig = crud;
@@ -152,11 +168,62 @@ export class SqlTable<T extends SqlTableTypeArgs> extends Sql {
 
    static clearRegistry(): void {
       SqlTable.registry.clear();
+      SqlTable._connections.clear();
    }
 
    static register(table: SqlTableAny): void {
       if (table.source && !table.tableInfo.alias) {
          SqlTable.registry.set(`${table.source}:${table.tableInfo.schema}.${table.tableInfo.name}`, table);
+      }
+   }
+
+   get fk(): SqlTableForeignKey[] {
+      return this._fk.value;
+   }
+
+   /**
+    * Defines a logical FK relationship between two tables for auto-join path resolution.
+    * Must be called BEFORE the source table's FK list is evaluated.
+    * Throws if the source table's lazy FK has already been built.
+    *
+    * @note This must run before any code reads `.fk` on the source table.
+    * In practice, call `connect()` in a dedicated connections file that is imported
+    * before any code that uses `.fk` (e.g., before auto-join resolution or codegen).
+    *
+    * @param source - The table that holds the FK column: `{ table, fields: [col] }`
+    * @param target - The table being referenced: `{ table, fields: [col] }`
+    *
+    * @example
+    * SqlTable.connect(
+    *   { table: Payment, fields: [Payment.$customerId] },
+    *   { table: Customer, fields: [Customer.$customerId] },
+    * );
+    */
+   static connect(
+      source: { table: SqlTableAny; fields: SqlTableColumnAny[] },
+      target: { table: SqlTableAny; fields: SqlTableColumnAny[] },
+   ): void {
+      const srcTable = source.table as SqlTable<SqlTableTypeArgs>;
+      if (srcTable._fk.computed) {
+         throw new Error(
+            `SqlTable.connect(): Cannot add relationships to "${srcTable.tableInfo.name}" — FK list has already been evaluated. ` +
+            `Call SqlTable.connect() before any code reads .fk (e.g. before auto-join resolution).`,
+         );
+      }
+      const fk: SqlTableForeignKey = {
+         from: source.fields.map((f) => f.key),
+         to: {
+            schema: target.table.tableInfo.schema ?? "",
+            table: target.table.tableInfo.name,
+            columns: target.fields.map((f) => f.key),
+         },
+      };
+      const key = `${source.table.tableInfo.schema}.${source.table.tableInfo.name}`;
+      const existing = SqlTable._connections.get(key);
+      if (existing) {
+         existing.push(fk);
+      } else {
+         SqlTable._connections.set(key, [fk]);
       }
    }
 
@@ -215,7 +282,9 @@ export class SqlTable<T extends SqlTableTypeArgs> extends Sql {
    column<Key extends Extract<keyof T["Select"], string>>(
       key: Key,
    ): SqlTableColumn<{ Key: Key; Type: T["Select"][Key] }> {
-      const result = this.cols[key as keyof T["Select"]];
+      const colKey = key.includes(".") ? key.slice(key.indexOf(".") + 1) : key;
+      const lookup = colKey.startsWith("$") ? colKey : `$${colKey}`;
+      const result = this.cols[lookup as keyof T["Select"]];
       if (!result) throw new Error(`Column not found: ${this.tableInfo.name}.${String(key)}`);
 
       return result as unknown as SqlTableColumnAny;
@@ -276,6 +345,43 @@ export class SqlTable<T extends SqlTableTypeArgs> extends Sql {
             crud: this._crudConfig,
          }),
       );
+   }
+
+   /**
+    * Declares joined tables for typed filterBy/orderBy/select dot-notation columns.
+    * Returns a builder whose .select() method has fully typed Params including joined columns.
+    *
+    * @example
+    * Order.join({ account: Account }).select({}).all({
+    *   db,
+    *   params: {
+    *     joinBy: { account: [["accountId", "accountId"]] },
+    *     filterBy: [{ "account.email": "test@example.com" }],
+    *     orderBy: { "account.lastName": "ASC" },
+    *   }
+    * })
+    *
+    * // With explicit join kinds:
+    * Payment.join({
+    *   customer: Customer,
+    *   city: [City, "left"],
+    * })
+    */
+   join<const M extends Record<string, SqlTableAny | [SqlTableAny, SqlJoinType]>>(
+      map: M,
+   ): SqlTableJoin<T, ExtractJoinTables<M>> {
+      // Normalize map: extract tables from tuples
+      const normalized: Record<string, SqlTableAny> = {};
+      const types: Record<string, SqlJoinType> = {};
+      for (const [key, value] of Object.entries(map)) {
+         if (Array.isArray(value)) {
+            normalized[key] = value[0] as SqlTableAny;
+            types[key] = value[1] as SqlJoinType;
+         } else {
+            normalized[key] = value as SqlTableAny;
+         }
+      }
+      return new SqlTableJoin(this, normalized as ExtractJoinTables<M>, types);
    }
 
    private initCols(

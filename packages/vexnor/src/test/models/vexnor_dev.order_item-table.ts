@@ -2,6 +2,7 @@ import { JsonRow } from "#src/core/schema/schema-types.js";
 import { newSqlTable } from "#src/core/schema/sql-table.js";
 
 export const OrderItem = newSqlTable<{
+   Name: "order_item";
    Select: IOrderItemSelect;
    Insert: IOrderItemInsert;
    Update: IOrderItemUpdate;
@@ -15,6 +16,11 @@ export const OrderItem = newSqlTable<{
    },
    tableInfo: { name: "order_item", schema: "main", out: false, alias: null },
    pk: ["orderId", "productId"],
+   source: "@vexnor/test:models",
+   fk: [
+      { from: ["orderId"], to: { schema: "main", table: "order", columns: ["orderId"] } },
+      { from: ["productId"], to: { schema: "main", table: "product", columns: ["productId"] } },
+   ],
    columns: {
       /**
        * product_price numeric

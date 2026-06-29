@@ -48,7 +48,8 @@ describe("postgresUpdate()", () => {
           "email" = $1
           /* <query_1> */
         WHERE
-          /* <query_2> */ "account"."account_id" = $2 /* </query_2> */ /* </query_1> */
+          /* <query_2> */
+          "account"."account_id" = $2 /* </query_2> */ /* </query_1> */
         RETURNING
           "account"."account_id" AS "accountId",
           "account"."status",

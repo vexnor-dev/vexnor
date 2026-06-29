@@ -2,6 +2,7 @@ import { JsonRow } from "#src/core/schema/schema-types.js";
 import { newSqlTable } from "#src/core/schema/sql-table.js";
 
 export const Product = newSqlTable<{
+   Name: "product";
    Select: IProductSelect;
    Insert: IProductInsert;
    Update: IProductUpdate;

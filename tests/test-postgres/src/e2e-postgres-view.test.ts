@@ -221,6 +221,11 @@ describe("view — AccountOrderSummary (postgres)", () => {
             "select": true,
             "update": false,
           },
+          "_fk": Lazy {
+            "_computed": false,
+            "_value": null,
+            "callback": [Function],
+          },
           "_out": Lazy {
             "_computed": false,
             "_value": null,
@@ -272,7 +277,6 @@ describe("view — AccountOrderSummary (postgres)", () => {
             },
           },
           "dialect": "postgresql",
-          "fk": [],
           "format": null,
           "hashId": "SqlTable#(vexnor_dev.account_order_summary)",
           "id": "SqlTable#11(vexnor_dev.account_order_summary)",

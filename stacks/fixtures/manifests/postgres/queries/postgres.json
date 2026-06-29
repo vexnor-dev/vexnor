@@ -3,14 +3,14 @@
   "generatorVersion": "1.0.0-beta.1",
   "dialect": "postgresql",
   "queries": {
-    "4b614629e43f82ca09a5549f34216f9fd3ab384b3b01a6b17bc4a87709b56ae3": {
+    "1423ce4b4b52e5284473a1f29016c5943d4e649c7486a063cb4cf1edc4231153": {
       "name": "deleteAccount",
       "location": "stacks/fixtures/queries/postgres.ts:160:47",
-      "hash": "4b614629e43f82ca09a5549f34216f9fd3ab384b3b01a6b17bc4a87709b56ae3",
+      "hash": "1423ce4b4b52e5284473a1f29016c5943d4e649c7486a063cb4cf1edc4231153",
       "template": [
         {
           "type": "text",
-          "value": "\n      \n/* driver: postgres */\n\n      delete\n      from \"vexnor_dev\".\"account\"\n      where \"account\".\"account_id\" = "
+          "value": "\n      \n/* driver: postgres */\n\n      delete from \"vexnor_dev\".\"account\"\n      where \"account\".\"account_id\" = "
         },
         {
           "type": "param",
@@ -37,14 +37,14 @@
       },
       "authorization": []
     },
-    "9ee763eea1406421c8f1214176212bde152a9cdf2e6be7f442a6a677c624e6b8": {
+    "299dddf0ee59d5d67ff108c6c07405c174d86e1ca522f432ea249edc86f153b4": {
       "name": "insertAccountCrud",
       "location": "stacks/fixtures/queries/postgres.ts:150:51",
-      "hash": "9ee763eea1406421c8f1214176212bde152a9cdf2e6be7f442a6a677c624e6b8",
+      "hash": "299dddf0ee59d5d67ff108c6c07405c174d86e1ca522f432ea249edc86f153b4",
       "template": [
         {
           "type": "text",
-          "value": "\n      \n/* driver: postgres */\n\n      insert into \"vexnor_dev\".\"account\"\n      "
+          "value": "\n      \n/* driver: postgres */\n\n      insert into \"vexnor_dev\".\"account\"\n         "
         },
         {
           "type": "insert",
@@ -63,7 +63,7 @@
         },
         {
           "type": "text",
-          "value": "\n      returning \"account\".\"account_id\" as \"accountId\", \"account\".\"status\", \"account\".\"email\", \"account\".\"first_name\" as \"firstName\", \"account\".\"last_name\" as \"lastName\", \"account\".\"notes\", \"account\".\"created_at\" as \"createdAt\", \"account\".\"modified_at\" as \"modifiedAt\", \"account\".\"parent_id\" as \"parentId\"\n   "
+          "value": "\n         returning \"account\".\"account_id\" as \"accountId\", \"account\".\"status\", \"account\".\"email\", \"account\".\"first_name\" as \"firstName\", \"account\".\"last_name\" as \"lastName\", \"account\".\"notes\", \"account\".\"created_at\" as \"createdAt\", \"account\".\"modified_at\" as \"modifiedAt\", \"account\".\"parent_id\" as \"parentId\"\n   "
         }
       ],
       "params": {
@@ -191,14 +191,14 @@
       },
       "authorization": []
     },
-    "ab5f0a3fe9bf528105c0abc2fceccee8ee05aff03f0638f89970af83c2c290f3": {
+    "9d3209d52416b3899b761c61d6c2aef373b1e56ed45239a096d2ca19ba92b245": {
       "name": "selectAccountsCrud",
       "location": "stacks/fixtures/queries/postgres.ts:41:52",
-      "hash": "ab5f0a3fe9bf528105c0abc2fceccee8ee05aff03f0638f89970af83c2c290f3",
+      "hash": "9d3209d52416b3899b761c61d6c2aef373b1e56ed45239a096d2ca19ba92b245",
       "template": [
         {
           "type": "text",
-          "value": "\n         \n         select\n         "
+          "value": "\n         \n/* driver: postgres */\n\n         \n         select\n         "
         },
         {
           "type": "projection",
@@ -217,11 +217,11 @@
         },
         {
           "type": "text",
-          "value": "\n         from \"vexnor_dev\".\"account\" as \"a_1\"\n         \n         "
+          "value": "\n          \n         from \"vexnor_dev\".\"account\" as \"a_1\"\n          \n         \n         "
         },
         {
           "type": "filter",
-          "param": "filter",
+          "param": "filterBy",
           "columns": {
             "accountId": "\"a_1\".\"account_id\"",
             "status": "\"a_1\".\"status\"",
@@ -237,7 +237,11 @@
         },
         {
           "type": "text",
-          "value": "\n         \n         \n         order by \"a_1\".\"created_at\" DESC\n         "
+          "value": "\n         \n         "
+        },
+        {
+          "type": "text",
+          "value": "\n         order by \"a_1\".\"created_at\" DESC\n         "
         },
         {
           "type": "pagination"
@@ -273,8 +277,12 @@
             ]
           }
         },
-        "filter": {
-          "name": "filter",
+        "filterBy": {
+          "name": "filterBy",
+          "isContext": false
+        },
+        "havingBy": {
+          "name": "havingBy",
           "isContext": false
         },
         "limit": {
@@ -296,14 +304,33 @@
       },
       "authorization": []
     },
-    "0a8cd04bb98c6beb2eaae42a3b4cddec4fa087b15e09e504e6bb7100912851d4": {
+    "637c5bc17a1860ee85b5214fb31d5ffdd355b8d98d1bba6c6f633c7d08bc91be": {
       "name": "selectAccountsWithLastOrder",
       "location": "stacks/fixtures/queries/postgres.ts:127:61",
-      "hash": "0a8cd04bb98c6beb2eaae42a3b4cddec4fa087b15e09e504e6bb7100912851d4",
+      "hash": "637c5bc17a1860ee85b5214fb31d5ffdd355b8d98d1bba6c6f633c7d08bc91be",
       "template": [
         {
           "type": "text",
-          "value": "\n      \n/* driver: postgres */\n\n      select \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\"\n                ,  \"query_1_result\" as \"lastOrder\"\n      from \"vexnor_dev\".\"account\" as \"a_1\" \n                \n/* inline: true */\n\n               left join lateral (\n               select coalesce(to_jsonb(\"query_1\".*), null) as \"query_1_result\"\n               from (select \"query_2\".* from (\n   SELECT \"o_2\".\"order_id\" as \"orderId\", \"o_2\".\"status\", \"o_2\".\"created_at\" as \"createdAt\", \"o_2\".\"modified_at\" as \"modifiedAt\", \"o_2\".\"account_id\" as \"accountId\"\n   FROM \"vexnor_dev\".\"order\" as \"o_2\"\n   WHERE \"o_2\".\"account_id\" = \"a_1\".\"account_id\"\n   ORDER BY \"o_2\".\"created_at\" DESC\n) as \"query_2\" limit 1) as \"query_1\") as \"query_1\"\n               on true\n              \n         where "
+          "value": "\n         \n/* driver: postgres */\n\n         \n         select\n         "
+        },
+        {
+          "type": "projection",
+          "param": "select",
+          "columns": {
+            "accountId": "\"a_1\".\"account_id\" as \"accountId\"",
+            "status": "\"a_1\".\"status\"",
+            "email": "\"a_1\".\"email\"",
+            "firstName": "\"a_1\".\"first_name\" as \"firstName\"",
+            "lastName": "\"a_1\".\"last_name\" as \"lastName\"",
+            "notes": "\"a_1\".\"notes\"",
+            "createdAt": "\"a_1\".\"created_at\" as \"createdAt\"",
+            "modifiedAt": "\"a_1\".\"modified_at\" as \"modifiedAt\"",
+            "parentId": "\"a_1\".\"parent_id\" as \"parentId\""
+          }
+        },
+        {
+          "type": "text",
+          "value": "\n         ,  \"query_1_result\" as \"lastOrder\"\n         from \"vexnor_dev\".\"account\" as \"a_1\"\n         \n                \n/* inline: true */\n\n               left join lateral (\n               select coalesce(to_jsonb(\"query_1\".*), null) as \"query_1_result\"\n               from (select \"query_2\".* from (\n   SELECT \"o_2\".\"order_id\" as \"orderId\", \"o_2\".\"status\", \"o_2\".\"created_at\" as \"createdAt\", \"o_2\".\"modified_at\" as \"modifiedAt\", \"o_2\".\"account_id\" as \"accountId\"\n   FROM \"vexnor_dev\".\"order\" as \"o_2\"\n   WHERE \"o_2\".\"account_id\" = \"a_1\".\"account_id\"\n   ORDER BY \"o_2\".\"created_at\" DESC\n) as \"query_2\" limit 1) as \"query_1\") as \"query_1\"\n               on true\n             \n         \n         where "
         },
         {
           "type": "filter",
@@ -331,16 +358,64 @@
         },
         {
           "type": "text",
-          "value": "\n         \n         \n         order by \"a_1\".\"created_at\" DESC\n         \n         \n   "
+          "value": "\n         \n         "
+        },
+        {
+          "type": "text",
+          "value": "\n         order by \"a_1\".\"created_at\" DESC\n         "
+        },
+        {
+          "type": "pagination"
+        },
+        {
+          "type": "text",
+          "value": "\n      "
         }
       ],
       "params": {
+        "select": {
+          "name": "select",
+          "isContext": false,
+          "validation": {
+            "type": "projection",
+            "columns": [
+              "accountId",
+              "status",
+              "email",
+              "firstName",
+              "lastName",
+              "notes",
+              "createdAt",
+              "modifiedAt",
+              "parentId"
+            ],
+            "functions": [
+              "sum",
+              "count",
+              "avg",
+              "min",
+              "max"
+            ]
+          }
+        },
         "filterBy": {
           "name": "filterBy",
           "isContext": false
         },
         "status": {
           "name": "status",
+          "isContext": false
+        },
+        "havingBy": {
+          "name": "havingBy",
+          "isContext": false
+        },
+        "limit": {
+          "name": "limit",
+          "isContext": false
+        },
+        "offset": {
+          "name": "offset",
           "isContext": false
         }
       },
@@ -357,18 +432,18 @@
       },
       "authorization": []
     },
-    "78fe726f3887fd88cc3a63c4495e7f37cfe694cedf87387bb1a2813d758738e5": {
+    "9474c8fa8cd69b55504f1ea273686309c650e812af9da35f2ee2bef0308f1e11": {
       "name": "selectAccountsWithOrderCount",
       "location": "stacks/fixtures/queries/postgres.ts:135:62",
-      "hash": "78fe726f3887fd88cc3a63c4495e7f37cfe694cedf87387bb1a2813d758738e5",
+      "hash": "9474c8fa8cd69b55504f1ea273686309c650e812af9da35f2ee2bef0308f1e11",
       "template": [
         {
           "type": "text",
-          "value": "\n         \n         select\n         (\"a_1\".\"account_id\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\", \"a_1\".\"last_name\", \"a_1\".\"notes\", \"a_1\".\"created_at\", \"a_1\".\"modified_at\", \"a_1\".\"parent_id\", (SELECT count(*) FROM \"vexnor_dev\".\"order\" as \"o_2\" WHERE \"o_2\".\"account_id\" = \"a_1\".\"account_id\") AS \"orderCount\") as \"query_1\"\n         from \"vexnor_dev\".\"account\" as \"a_3\"\n         \n         "
+          "value": "\n         \n/* driver: postgres */\n\n         \n         select\n         (\"a_1\".\"account_id\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\", \"a_1\".\"last_name\", \"a_1\".\"notes\", \"a_1\".\"created_at\", \"a_1\".\"modified_at\", \"a_1\".\"parent_id\", (SELECT count(*) FROM \"vexnor_dev\".\"order\" as \"o_2\" WHERE \"o_2\".\"account_id\" = \"a_1\".\"account_id\") AS \"orderCount\") as \"query_1\"\n          \n         from \"vexnor_dev\".\"account\" as \"a_3\"\n          \n         \n         "
         },
         {
           "type": "filter",
-          "param": "filter",
+          "param": "filterBy",
           "columns": {
             "accountId": "\"a_3\".\"account_id\"",
             "status": "\"a_3\".\"status\"",
@@ -384,7 +459,11 @@
         },
         {
           "type": "text",
-          "value": "\n         \n         \n         order by \"a_3\".\"created_at\" DESC\n         "
+          "value": "\n         \n         "
+        },
+        {
+          "type": "text",
+          "value": "\n         order by \"a_3\".\"created_at\" DESC\n         "
         },
         {
           "type": "pagination"
@@ -395,8 +474,12 @@
         }
       ],
       "params": {
-        "filter": {
-          "name": "filter",
+        "filterBy": {
+          "name": "filterBy",
+          "isContext": false
+        },
+        "havingBy": {
+          "name": "havingBy",
           "isContext": false
         },
         "limit": {
@@ -411,14 +494,33 @@
       "row": null,
       "authorization": []
     },
-    "6e8230e745569dfe097860da2d89be9918d9c85f031592d07214a3a2622354c8": {
+    "a838c52b2c1ea9b92f9ae81bb3dab7aaec1b4b2da9adf1e81d706dbbbe1b5ccf": {
       "name": "selectAccountsWithOrders",
       "location": "stacks/fixtures/queries/postgres.ts:119:58",
-      "hash": "6e8230e745569dfe097860da2d89be9918d9c85f031592d07214a3a2622354c8",
+      "hash": "a838c52b2c1ea9b92f9ae81bb3dab7aaec1b4b2da9adf1e81d706dbbbe1b5ccf",
       "template": [
         {
           "type": "text",
-          "value": "\n      \n/* driver: postgres */\n\n      select \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\"\n                ,  \"query_1_result\" as \"orders\"\n      from \"vexnor_dev\".\"account\" as \"a_1\"  \n                \n/* inline: true */\n\n               left join lateral (\n               select coalesce(jsonb_agg(\"query_1\".*), '[]') as \"query_1_result\"\n               from (\n   SELECT \"o_2\".\"order_id\" as \"orderId\", \"o_2\".\"status\", \"o_2\".\"created_at\" as \"createdAt\", \"o_2\".\"modified_at\" as \"modifiedAt\", \"o_2\".\"account_id\" as \"accountId\"\n   FROM \"vexnor_dev\".\"order\" as \"o_2\"\n   WHERE \"o_2\".\"account_id\" = \"a_1\".\"account_id\"\n   ORDER BY \"o_2\".\"created_at\" DESC\n) as \"query_1\") as \"query_1\"\n               on true\n             \n         where "
+          "value": "\n         \n/* driver: postgres */\n\n         \n         select\n         "
+        },
+        {
+          "type": "projection",
+          "param": "select",
+          "columns": {
+            "accountId": "\"a_1\".\"account_id\" as \"accountId\"",
+            "status": "\"a_1\".\"status\"",
+            "email": "\"a_1\".\"email\"",
+            "firstName": "\"a_1\".\"first_name\" as \"firstName\"",
+            "lastName": "\"a_1\".\"last_name\" as \"lastName\"",
+            "notes": "\"a_1\".\"notes\"",
+            "createdAt": "\"a_1\".\"created_at\" as \"createdAt\"",
+            "modifiedAt": "\"a_1\".\"modified_at\" as \"modifiedAt\"",
+            "parentId": "\"a_1\".\"parent_id\" as \"parentId\""
+          }
+        },
+        {
+          "type": "text",
+          "value": "\n         ,  \"query_1_result\" as \"orders\"\n         from \"vexnor_dev\".\"account\" as \"a_1\"\n         \n                \n/* inline: true */\n\n               left join lateral (\n               select coalesce(jsonb_agg(\"query_1\".*), '[]') as \"query_1_result\"\n               from (\n   SELECT \"o_2\".\"order_id\" as \"orderId\", \"o_2\".\"status\", \"o_2\".\"created_at\" as \"createdAt\", \"o_2\".\"modified_at\" as \"modifiedAt\", \"o_2\".\"account_id\" as \"accountId\"\n   FROM \"vexnor_dev\".\"order\" as \"o_2\"\n   WHERE \"o_2\".\"account_id\" = \"a_1\".\"account_id\"\n   ORDER BY \"o_2\".\"created_at\" DESC\n) as \"query_1\") as \"query_1\"\n               on true\n             \n         \n         where "
         },
         {
           "type": "filter",
@@ -446,16 +548,64 @@
         },
         {
           "type": "text",
-          "value": "\n         \n         \n         order by \"a_1\".\"created_at\" DESC\n         \n         \n   "
+          "value": "\n         \n         "
+        },
+        {
+          "type": "text",
+          "value": "\n         order by \"a_1\".\"created_at\" DESC\n         "
+        },
+        {
+          "type": "pagination"
+        },
+        {
+          "type": "text",
+          "value": "\n      "
         }
       ],
       "params": {
+        "select": {
+          "name": "select",
+          "isContext": false,
+          "validation": {
+            "type": "projection",
+            "columns": [
+              "accountId",
+              "status",
+              "email",
+              "firstName",
+              "lastName",
+              "notes",
+              "createdAt",
+              "modifiedAt",
+              "parentId"
+            ],
+            "functions": [
+              "sum",
+              "count",
+              "avg",
+              "min",
+              "max"
+            ]
+          }
+        },
         "filterBy": {
           "name": "filterBy",
           "isContext": false
         },
         "status": {
           "name": "status",
+          "isContext": false
+        },
+        "havingBy": {
+          "name": "havingBy",
+          "isContext": false
+        },
+        "limit": {
+          "name": "limit",
+          "isContext": false
+        },
+        "offset": {
+          "name": "offset",
           "isContext": false
         }
       },
@@ -796,14 +946,29 @@
       },
       "authorization": []
     },
-    "56c5bfb286ca994111088f4fdd12b60ac19a2d82b3a32cee4162088fb21ee493": {
+    "0e6da71e28037b21f2e09baef4c0de9954d2819fe6f3e9149097b5317d5bc636": {
       "name": "selectMyOrders",
       "location": "stacks/fixtures/queries/postgres.ts:142:46",
-      "hash": "56c5bfb286ca994111088f4fdd12b60ac19a2d82b3a32cee4162088fb21ee493",
+      "hash": "0e6da71e28037b21f2e09baef4c0de9954d2819fe6f3e9149097b5317d5bc636",
       "template": [
         {
           "type": "text",
-          "value": "\n      \n/* driver: postgres */\n\n      select \"o_1\".\"order_id\" as \"orderId\", \"o_1\".\"status\", \"o_1\".\"created_at\" as \"createdAt\", \"o_1\".\"modified_at\" as \"modifiedAt\", \"o_1\".\"account_id\" as \"accountId\"\n                ,  \"query_1_result\" as \"items\"\n      from \"vexnor_dev\".\"order\" as \"o_1\"  \n                \n/* inline: true */\n\n               left join lateral (\n               select coalesce(jsonb_agg(\"query_1\".*), '[]') as \"query_1_result\"\n               from (\n   SELECT \"oi_2\".\"order_id\" as \"orderId\", \"oi_2\".\"product_id\" as \"productId\", \"oi_2\".\"created_at\" as \"createdAt\", \"oi_2\".\"modified_at\" as \"modifiedAt\", \"oi_2\".\"product_price\" as \"productPrice\", \"oi_2\".\"discount_price\" as \"discountPrice\", \"oi_2\".\"quantity\", \"oi_2\".\"metadata\"\n   FROM \"vexnor_dev\".\"order_item\" as \"oi_2\"\n   WHERE \"oi_2\".\"order_id\" = \"o_1\".\"order_id\"\n) as \"query_1\") as \"query_1\"\n               on true\n             \n         where "
+          "value": "\n         \n/* driver: postgres */\n\n         \n         select\n         "
+        },
+        {
+          "type": "projection",
+          "param": "select",
+          "columns": {
+            "orderId": "\"o_1\".\"order_id\" as \"orderId\"",
+            "status": "\"o_1\".\"status\"",
+            "createdAt": "\"o_1\".\"created_at\" as \"createdAt\"",
+            "modifiedAt": "\"o_1\".\"modified_at\" as \"modifiedAt\"",
+            "accountId": "\"o_1\".\"account_id\" as \"accountId\""
+          }
+        },
+        {
+          "type": "text",
+          "value": "\n         ,  \"query_1_result\" as \"items\"\n         from \"vexnor_dev\".\"order\" as \"o_1\"\n         \n                \n/* inline: true */\n\n               left join lateral (\n               select coalesce(jsonb_agg(\"query_1\".*), '[]') as \"query_1_result\"\n               from (\n   SELECT \"oi_2\".\"order_id\" as \"orderId\", \"oi_2\".\"product_id\" as \"productId\", \"oi_2\".\"created_at\" as \"createdAt\", \"oi_2\".\"modified_at\" as \"modifiedAt\", \"oi_2\".\"product_price\" as \"productPrice\", \"oi_2\".\"discount_price\" as \"discountPrice\", \"oi_2\".\"quantity\", \"oi_2\".\"metadata\"\n   FROM \"vexnor_dev\".\"order_item\" as \"oi_2\"\n   WHERE \"oi_2\".\"order_id\" = \"o_1\".\"order_id\"\n) as \"query_1\") as \"query_1\"\n               on true\n             \n         \n         where "
         },
         {
           "type": "filter",
@@ -827,10 +992,42 @@
         },
         {
           "type": "text",
-          "value": "\n         \n         \n         order by \"o_1\".\"created_at\" DESC\n         \n         \n   "
+          "value": "\n         \n         "
+        },
+        {
+          "type": "text",
+          "value": "\n         order by \"o_1\".\"created_at\" DESC\n         "
+        },
+        {
+          "type": "pagination"
+        },
+        {
+          "type": "text",
+          "value": "\n      "
         }
       ],
       "params": {
+        "select": {
+          "name": "select",
+          "isContext": false,
+          "validation": {
+            "type": "projection",
+            "columns": [
+              "orderId",
+              "status",
+              "createdAt",
+              "modifiedAt",
+              "accountId"
+            ],
+            "functions": [
+              "sum",
+              "count",
+              "avg",
+              "min",
+              "max"
+            ]
+          }
+        },
         "filterBy": {
           "name": "filterBy",
           "isContext": false
@@ -838,6 +1035,18 @@
         "userId": {
           "name": "userId",
           "isContext": true
+        },
+        "havingBy": {
+          "name": "havingBy",
+          "isContext": false
+        },
+        "limit": {
+          "name": "limit",
+          "isContext": false
+        },
+        "offset": {
+          "name": "offset",
+          "isContext": false
         }
       },
       "row": {
@@ -1088,10 +1297,10 @@
       },
       "authorization": []
     },
-    "03241dcce6a50c6f8ea8aaee1243a79fc5b8a5d352e3f7c250925027c090a47a": {
+    "67915e037b94dcfcd90541f4738b39a15bebca373594e71a9c1d1b61abc87fc7": {
       "name": "updateAccountCrud",
       "location": "stacks/fixtures/queries/postgres.ts:154:51",
-      "hash": "03241dcce6a50c6f8ea8aaee1243a79fc5b8a5d352e3f7c250925027c090a47a",
+      "hash": "67915e037b94dcfcd90541f4738b39a15bebca373594e71a9c1d1b61abc87fc7",
       "template": [
         {
           "type": "text",
@@ -1114,7 +1323,7 @@
         },
         {
           "type": "text",
-          "value": "\n         where \"account\".\"account_id\" = "
+          "value": "\n         \n                  where\n                  \"account\".\"account_id\" = "
         },
         {
           "type": "param",
@@ -1122,7 +1331,7 @@
         },
         {
           "type": "text",
-          "value": "\n      returning \"account\".\"account_id\" as \"accountId\", \"account\".\"status\", \"account\".\"email\", \"account\".\"first_name\" as \"firstName\", \"account\".\"last_name\" as \"lastName\", \"account\".\"notes\", \"account\".\"created_at\" as \"createdAt\", \"account\".\"modified_at\" as \"modifiedAt\", \"account\".\"parent_id\" as \"parentId\"\n   "
+          "value": "\n         returning \"account\".\"account_id\" as \"accountId\", \"account\".\"status\", \"account\".\"email\", \"account\".\"first_name\" as \"firstName\", \"account\".\"last_name\" as \"lastName\", \"account\".\"notes\", \"account\".\"created_at\" as \"createdAt\", \"account\".\"modified_at\" as \"modifiedAt\", \"account\".\"parent_id\" as \"parentId\"\n   "
         }
       ],
       "params": {

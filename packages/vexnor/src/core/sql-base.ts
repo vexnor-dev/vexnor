@@ -90,6 +90,11 @@ export abstract class Sql {
       return {};
    }
 
+   /** AI documentation for this operator. Override in subclasses to contribute docs. */
+   get aiPrompt(): string | null {
+      return null;
+   }
+
    protected abstract write<T>(context: SqlBuildContext, options?: SqlBuildOptions | null, scope?: T | null): void;
 
    build(context: SqlBuildContext, options?: SqlBuildOptions | null, ...args: unknown[]) {

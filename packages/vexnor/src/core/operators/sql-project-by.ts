@@ -5,9 +5,13 @@ import { SqlTableColumnAny } from "#src/core/schema/sql-table-column.js";
 import { BuildSqlParams, SqlParam } from "#src/core/query/sql-param.js";
 import { SqlBuildError } from "#src/core/sql-build-error.js";
 import { resolvePath } from "#src/core/query/resolve-path.js";
+import { SqlLanguage } from "#src/format/sql-language.js";
 
-export const SqlProjectByAggregation = ["sum" , "count" , "avg" , "min" , "max"] as const;
+export const SqlProjectByAggregation = ["sum", "count", "avg", "min", "max"] as const;
 export type SqlProjectByAggregation = (typeof SqlProjectByAggregation)[number];
+
+export const SqlProjectByTransform = ["dateTrunc", "coalesce", "round", "abs", "concat"] as const;
+export type SqlProjectByTransform = (typeof SqlProjectByTransform)[number];
 
 /**
  * Supported aggregate functions.
@@ -15,22 +19,43 @@ export type SqlProjectByAggregation = (typeof SqlProjectByAggregation)[number];
 export const sqlProjectByAggregations: Set<string> = new Set(SqlProjectByAggregation);
 
 /**
- * A single select entry — column reference or aggregate function call.
+ * Supported transform functions (included in GROUP BY).
  */
-export type SqlProjectByEntry<T extends Record<string, unknown> = Record<string, unknown>> =
-   | (keyof T & string)
-   | [SqlProjectByAggregation, "*", string]
-   | [SqlProjectByAggregation, keyof T & string, string];
+export const sqlProjectByTransforms: Set<string> = new Set(SqlProjectByTransform);
+
+/**
+ * A function/aggregate entry in the select object.
+ */
+export type SqlProjectByFnEntry = {
+   fn: SqlProjectByAggregation | SqlProjectByTransform;
+   col: string;
+   args?: unknown | unknown[];
+};
+
+/**
+ * A single select entry value in the object format.
+ * - `true` → select column where alias matches key name
+ * - `"colName"` → select column with rename (key is alias, value is source)
+ * - `{ fn, col, args? }` → function/aggregate (key is alias)
+ */
+export type SqlProjectByEntryValue = true | string | SqlProjectByFnEntry;
+
+/**
+ * Object-format select param. Keys are aliases.
+ */
+export type SqlProjectBySelect<T extends Record<string, unknown> = Record<string, unknown>> = {
+   [alias: string]: SqlProjectByEntryValue;
+} & { [K in keyof T]?: SqlProjectByEntryValue };
 
 /**
  * Standard projection params shape for CRUD select.
  */
 export type SqlProjectByParams<T extends { Select: Record<string, unknown> }> = {
-   select?: SqlProjectByEntry<T["Select"]>[];
+   select?: SqlProjectBySelect<T["Select"]>;
 };
 
 /**
- * Emits the SELECT column list from a runtime `select` param.
+ * Emits the SELECT column list from a runtime `select` param (object format).
  * If param is absent/empty, emits nothing (caller should fall back to row(table.$$)).
  */
 export class SqlProjectBy<T extends Record<string, unknown>> extends Sql {
@@ -40,7 +65,18 @@ export class SqlProjectBy<T extends Record<string, unknown>> extends Sql {
    readonly paramName: string;
    readonly params: BuildSqlParams<T>;
 
-   constructor(table: SqlTableAny, paramName: string) {
+   get aiPrompt() {
+      return `select: object where key=output alias. Values: true (same-name column), "sourceCol" (rename column), or {fn,col,args?} for functions.
+  Aggregates (fn): ${SqlProjectByAggregation.join(", ")}. Example: {"fn":"count","col":"*"}, {"fn":"sum","col":"amount"}
+  Transforms (fn): ${SqlProjectByTransform.join(", ")}.
+    dateTrunc: args = "year"|"month"|"day"|"hour". Example: {"fn":"dateTrunc","col":"paymentDate","args":"month"}
+    coalesce: args = default value or [fallback1, fallback2]. Example: {"fn":"coalesce","col":"notes","args":"N/A"}
+    round: args = [precision]. Example: {"fn":"round","col":"amount","args":[2]}
+    abs: no args needed. Example: {"fn":"abs","col":"amount"}
+    concat: args = [parts to append]. Example: {"fn":"concat","col":"firstName","args":[" ","lastName"]}`;
+   }
+
+   constructor(table: SqlTableAny, paramName: string, fieldNames?: string[]) {
       super({
          type: "SqlProjection",
          id: `${table.tableInfo.name}.${paramName}`,
@@ -49,7 +85,7 @@ export class SqlProjectBy<T extends Record<string, unknown>> extends Sql {
 
       this.table = table;
       this.paramName = paramName;
-      const columns = Object.keys(this.table.cols).map((k) => k.slice(1));
+      const columns = fieldNames ?? Object.keys(this.table.cols).map((k) => k.slice(1));
       this.params = {
          [paramName]: new SqlParam({
             name: paramName,
@@ -78,8 +114,8 @@ export class SqlProjectBy<T extends Record<string, unknown>> extends Sql {
          return;
       }
 
-      const entries = this.getEntries(context);
-      if (!entries) {
+      const selectObj = this.getSelectObject(context);
+      if (!selectObj) {
          // No select param — emit all columns using their build() which handles aliasing
          const cols = Object.values(this.table.cols) as SqlTableColumnAny[];
          for (let i = 0; i < cols.length; i++) {
@@ -89,55 +125,165 @@ export class SqlProjectBy<T extends Record<string, unknown>> extends Sql {
          return;
       }
 
+      const entries = Object.entries(selectObj);
       for (let i = 0; i < entries.length; i++) {
          if (i > 0) context.addStrings(", ");
-         const entry = entries[i]!;
+         const [alias, value] = entries[i]!;
 
-         if (Array.isArray(entry)) {
-            this.writeAggregate(context, entry as [string, unknown, string]);
-         } else if (typeof entry === "string") {
-            const col = this.resolveColumn(entry);
-            col.build(context);
+         if (value === true) {
+            this.writeColumn(context, alias, alias);
+         } else if (typeof value === "string") {
+            this.writeColumn(context, value, alias);
+         } else if (typeof value === "object" && value !== null && "fn" in value) {
+            this.writeFn(context, alias, value as SqlProjectByFnEntry);
          } else {
-            throw new SqlBuildError(`Invalid select entry: ${String(entry)}`);
+            throw new SqlBuildError(`Invalid select entry for alias '${alias}': ${String(value)}`);
          }
       }
    }
 
-   private writeAggregate(context: SqlBuildContext, entry: [string, unknown, string]): void {
-      const [fn, colRef, alias] = entry;
-      if (!sqlProjectByAggregations.has(fn)) throw new SqlBuildError(`Invalid aggregate function: ${fn}`);
-      if (!alias) throw new SqlBuildError(`Aggregate function '${fn}' requires an alias`);
+   private writeColumn(context: SqlBuildContext, name: string, alias: string): void {
+      const col = context.columnCount > 0
+         ? (context.getColumn(name) ?? this.resolveColumn(name))
+         : this.resolveColumn(name);
+      if (alias === name) {
+         // Same alias as source — use the column's natural rendering (includes AS if key != colName)
+         col.build(context);
+      } else {
+         // Custom alias — render raw column ref, then add explicit alias
+         col.render("tableAlias.columnName").build(context);
+         context.addStrings(` as "${alias}"`);
+      }
+   }
 
+   private writeFn(context: SqlBuildContext, alias: string, entry: SqlProjectByFnEntry): void {
+      const { fn, col: colRef, args } = entry;
+      const isAggregate = sqlProjectByAggregations.has(fn);
+      const isTransform = sqlProjectByTransforms.has(fn);
+      if (!isAggregate && !isTransform) throw new SqlBuildError(`Invalid function: ${fn}`);
+
+      if (isAggregate) {
+         this.writeAggregate(context, alias, fn, colRef);
+      } else {
+         this.writeTransform(context, alias, fn as SqlProjectByTransform, colRef, args);
+      }
+   }
+
+   private writeAggregate(context: SqlBuildContext, alias: string, fn: string, colRef: string): void {
       context.addStrings(`${fn}(`);
-
       if (colRef === "*") {
          context.addStrings("*");
       } else if (typeof colRef === "string") {
-         const col = this.resolveColumn(colRef);
+         const col = context.columnCount > 0
+            ? (context.getColumn(colRef) ?? context.getColumn(colRef.split(".").pop()!) ?? this.resolveColumn(colRef))
+            : this.resolveColumn(colRef);
          col.render("tableAlias.columnName").build(context);
       } else {
          throw new SqlBuildError(`Invalid column reference in aggregate: ${String(colRef)}`);
       }
-
       context.addStrings(`) as "${alias}"`);
+   }
+
+   private writeTransform(context: SqlBuildContext, alias: string, fn: SqlProjectByTransform, colRef: string, args: unknown): void {
+      const dialect = context.dialect;
+      const colSql = this.renderColRef(context, colRef);
+
+      let expr: string;
+      switch (fn) {
+         case "dateTrunc":
+            expr = this.renderDateTrunc(dialect, colSql, args as string);
+            break;
+         case "coalesce": {
+            const argsArr = Array.isArray(args) ? args : [args];
+            expr = `coalesce(${colSql}, ${argsArr.map((a) => this.renderLiteral(a)).join(", ")})`;
+            break;
+         }
+         case "round": {
+            const precision = Array.isArray(args) ? args[0] : args;
+            expr = precision != null ? `round(${colSql}, ${String(precision)})` : `round(${colSql})`;
+            break;
+         }
+         case "abs":
+            expr = `abs(${colSql})`;
+            break;
+         case "concat": {
+            const parts = Array.isArray(args) ? args : [args];
+            if (dialect === "transactsql" || dialect === "tsql") {
+               expr = `CONCAT(${colSql}, ${parts.map((a) => this.renderLiteral(a)).join(", ")})`;
+            } else {
+               expr = `${colSql} || ${parts.map((a) => this.renderLiteral(a)).join(" || ")}`;
+            }
+            break;
+         }
+         default:
+            throw new SqlBuildError(`Unsupported transform: ${fn}`);
+      }
+
+      context.addStrings(`${expr} as "${alias}"`);
+   }
+
+   private renderDateTrunc(dialect: SqlLanguage, colSql: string, granularity: string): string {
+      if (dialect === "sqlite") {
+         const fmtMap: Record<string, string> = {
+            year: "%Y-01-01",
+            month: "%Y-%m-01",
+            day: "%Y-%m-%d",
+            hour: "%Y-%m-%d %H:00:00",
+         };
+         const fmt = fmtMap[granularity];
+         if (!fmt) throw new SqlBuildError(`Unsupported dateTrunc granularity for SQLite: ${granularity}`);
+         return `strftime('${fmt}', ${colSql})`;
+      }
+      if (dialect === "transactsql" || dialect === "tsql") {
+         return `DATETRUNC(${granularity}, ${colSql})`;
+      }
+      // PostgreSQL and others
+      return `date_trunc('${granularity}', ${colSql})`;
+   }
+
+   private renderColRef(context: SqlBuildContext, colRef: string): string {
+      if (colRef === "*") return "*";
+      const col = context.columnCount > 0
+         ? (context.getColumn(colRef) ?? context.getColumn(colRef.split(".").pop()!) ?? this.resolveColumn(colRef))
+         : this.resolveColumn(colRef);
+      // Build the column reference into a temporary context to get its SQL string
+      const before = context.tokens.length;
+      col.render("tableAlias.columnName").build(context);
+      const tokens = context.tokens.slice(before);
+      const sql = tokens.map((t) => (t as { value: string }).value ?? "").join("");
+      (context as unknown as { _tokens: unknown[] })._tokens.length = before;
+      return sql;
+   }
+
+   private renderLiteral(val: unknown): string {
+      if (typeof val === "string") return `'${val.replace(/'/g, "''")}'`;
+      if (typeof val === "number" || typeof val === "bigint") return String(val);
+      if (val === null || val === undefined) return "NULL";
+      return String(val);
    }
 
    private resolveColumn(name: string): SqlTableColumnAny {
       const col = this.table.cols[`$${name}` as `$${string}`] as SqlTableColumnAny | undefined;
-      if (!col) throw new SqlBuildError(`Column not found: ${name}`);
-      return col;
+      if (col) return col;
+      const dot = name.indexOf(".");
+      if (dot !== -1) {
+         const colKey = name.slice(dot + 1);
+         const stripped = this.table.cols[`$${colKey}` as `$${string}`] as SqlTableColumnAny | undefined;
+         if (stripped) return stripped;
+      }
+      throw new SqlBuildError(`Column not found: ${name}`);
    }
 
-   private getEntries(context: SqlBuildContext): SqlProjectByEntry[] | null {
-      const entries = resolvePath(context.params as Record<string, unknown>, this.paramName) as SqlProjectByEntry[] | null | undefined;
-      if (!entries || !entries.length) return null;
-      return entries;
+   private getSelectObject(context: SqlBuildContext): Record<string, SqlProjectByEntryValue> | null {
+      const val = resolvePath(context.params as Record<string, unknown>, this.paramName) as Record<string, SqlProjectByEntryValue> | null | undefined;
+      if (!val || typeof val !== "object" || Object.keys(val).length === 0) return null;
+      return val;
    }
 }
 
 /**
  * Emits GROUP BY for non-aggregate columns when a `select` param has aggregates.
+ * Transforms are included in GROUP BY; aggregates are excluded.
  * Produces no output if no aggregates or no select param.
  */
 export class SqlProjectionGroupBy<T extends Record<string, unknown>> extends Sql {
@@ -160,29 +306,112 @@ export class SqlProjectionGroupBy<T extends Record<string, unknown>> extends Sql
    write(context: SqlBuildContext): void {
       if (!context.params) return;
 
-      const entries = resolvePath(context.params as Record<string, unknown>, this.paramName) as SqlProjectByEntry[] | null | undefined;
-      if (!entries || !entries.length) return;
+      const selectObj = resolvePath(context.params as Record<string, unknown>, this.paramName) as Record<string, SqlProjectByEntryValue> | null | undefined;
+      if (!selectObj || typeof selectObj !== "object" || Object.keys(selectObj).length === 0) return;
 
-      // Collect non-aggregate columns
-      const groupByCols: SqlTableColumnAny[] = [];
+      const groupByExprs: string[] = [];
       let hasAggregate = false;
 
-      for (const entry of entries) {
-         if (Array.isArray(entry)) {
-            hasAggregate = true;
-         } else if (typeof entry === "string") {
-            const col = this.table.cols[`$${entry}` as `$${string}`] as SqlTableColumnAny | undefined;
-            if (col) groupByCols.push(col);
+      for (const [alias, value] of Object.entries(selectObj)) {
+         if (typeof value === "object" && value !== null && "fn" in value) {
+            const entry = value as SqlProjectByFnEntry;
+            if (sqlProjectByAggregations.has(entry.fn)) {
+               hasAggregate = true;
+            } else if (sqlProjectByTransforms.has(entry.fn)) {
+               // Transforms go into GROUP BY — render same expression
+               const expr = this.renderTransformForGroupBy(context, entry);
+               if (expr) groupByExprs.push(expr);
+            }
+         } else {
+            // Plain column reference — resolve and render
+            const colName = value === true ? alias : (value as string);
+            const col = context.columnCount > 0
+               ? (context.getColumn(colName) ?? this.resolveColumn(colName))
+               : this.resolveColumn(colName);
+            if (col) {
+               const before = context.tokens.length;
+               col.build(context);
+               const tokens = context.tokens.slice(before);
+               const sql = tokens.map((t) => (t as { value: string }).value ?? "").join("");
+               (context as unknown as { _tokens: unknown[] })._tokens.length = before;
+               groupByExprs.push(sql);
+            }
          }
       }
 
-      if (!hasAggregate || !groupByCols.length) return;
+      if (!hasAggregate || !groupByExprs.length) return;
 
-      context.addStrings("group by ");
-      for (let i = 0; i < groupByCols.length; i++) {
-         if (i > 0) context.addStrings(", ");
-         groupByCols[i]!.build(context);
+      context.addStrings("group by " + groupByExprs.join(", "));
+   }
+
+   private renderTransformForGroupBy(context: SqlBuildContext, entry: SqlProjectByFnEntry): string | null {
+      const { fn, col: colRef, args } = entry;
+      const colSql = this.renderColRef(context, colRef);
+      const dialect = context.dialect;
+
+      switch (fn) {
+         case "dateTrunc": {
+            const granularity = args as string;
+            if (dialect === "sqlite") {
+               const fmtMap: Record<string, string> = { year: "%Y-01-01", month: "%Y-%m-01", day: "%Y-%m-%d", hour: "%Y-%m-%d %H:00:00" };
+               const fmt = fmtMap[granularity];
+               if (!fmt) return null;
+               return `strftime('${fmt}', ${colSql})`;
+            }
+            if (dialect === "transactsql" || dialect === "tsql") return `DATETRUNC(${granularity}, ${colSql})`;
+            return `date_trunc('${granularity}', ${colSql})`;
+         }
+         case "coalesce": {
+            const argsArr = Array.isArray(args) ? args : [args];
+            return `coalesce(${colSql}, ${argsArr.map((a) => this.renderLiteral(a)).join(", ")})`;
+         }
+         case "round": {
+            const precision = Array.isArray(args) ? args[0] : args;
+            return precision != null ? `round(${colSql}, ${String(precision)})` : `round(${colSql})`;
+         }
+         case "abs":
+            return `abs(${colSql})`;
+         case "concat": {
+            const parts = Array.isArray(args) ? args : [args];
+            if (dialect === "transactsql" || dialect === "tsql") {
+               return `CONCAT(${colSql}, ${parts.map((a) => this.renderLiteral(a)).join(", ")})`;
+            }
+            return `${colSql} || ${parts.map((a) => this.renderLiteral(a)).join(" || ")}`;
+         }
+         default:
+            return null;
       }
+   }
+
+   private renderColRef(context: SqlBuildContext, colRef: string): string {
+      const col = context.columnCount > 0
+         ? (context.getColumn(colRef) ?? context.getColumn(colRef.split(".").pop()!) ?? this.resolveColumn(colRef))
+         : this.resolveColumn(colRef);
+      const before = context.tokens.length;
+      col.render("tableAlias.columnName").build(context);
+      const tokens = context.tokens.slice(before);
+      const sql = tokens.map((t) => (t as { value: string }).value ?? "").join("");
+      (context as unknown as { _tokens: unknown[] })._tokens.length = before;
+      return sql;
+   }
+
+   private resolveColumn(name: string): SqlTableColumnAny {
+      const col = this.table.cols[`$${name}` as `$${string}`] as SqlTableColumnAny | undefined;
+      if (col) return col;
+      const dot = name.indexOf(".");
+      if (dot !== -1) {
+         const colKey = name.slice(dot + 1);
+         const stripped = this.table.cols[`$${colKey}` as `$${string}`] as SqlTableColumnAny | undefined;
+         if (stripped) return stripped;
+      }
+      throw new SqlBuildError(`Column not found: ${name}`);
+   }
+
+   private renderLiteral(val: unknown): string {
+      if (typeof val === "string") return `'${val.replace(/'/g, "''")}'`;
+      if (typeof val === "number" || typeof val === "bigint") return String(val);
+      if (val === null || val === undefined) return "NULL";
+      return String(val);
    }
 }
 
