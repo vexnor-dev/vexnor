@@ -5,12 +5,12 @@ import { Suspense } from "react";
 import "@vexnor/postgres";
 import { AccountStatusUdt } from "#shared/codegen/postgres/vexnor_dev-enums";
 import type { IAccountSelect } from "#shared/codegen/postgres/vexnor_dev.account-table";
-import { AuthProvider } from "#/auth-context.js";
+import { AuthProvider } from "#src/auth-context.js";
 
 const mockRemoteExecute = vi.fn();
 const mockRemoteClient = { remoteExecute: mockRemoteExecute };
 
-vi.mock("#/use-remote-client.js", () => ({
+vi.mock("#src/use-remote-client.js", () => ({
    useRemoteClient: () => mockRemoteClient,
 }));
 
@@ -21,11 +21,11 @@ vi.mock("@tanstack/react-router", async (importActual) => ({
    useNavigate: () => mockNavigate,
 }));
 
-vi.mock("#/components/search-input.js", () => ({
+vi.mock("#src/components/search-input.js", () => ({
    SearchInput: () => null,
 }));
 
-const { default: PostgresAccountsPage } = await import("#/pages/postgres-accounts.js");
+const { default: PostgresAccountsPage } = await import("#src/pages/postgres-accounts.js");
 
 const mockAccounts: (IAccountSelect & { lastOrder: { orderId: string; status: string; createdAt: Date; productCount: number } | null })[] = [
    {

@@ -20,7 +20,7 @@ describe("validateParamObject", () => {
       const errors: string[] = [];
       validateParamObject(
          { badCol: "value" },
-         { fieldNames: ["email", "status"] },
+         { fieldNames: ["email", "status"], operators: { "=": { args: 1 } } },
          errors,
       );
       expect(errors.length).toBe(1);
@@ -64,7 +64,7 @@ describe("validateParamObject", () => {
       const errors: string[] = [];
       validateParamObject(
          { or: [{ badCol: "value" }] },
-         { fieldNames: ["email"] },
+         { fieldNames: ["email"], operators: { "=": { args: 1 } } },
          errors,
       );
       expect(errors.length).toBe(1);

@@ -17,6 +17,7 @@ import { SqlHavingBy, SqlHavingByParams } from "#src/core/operators/sql-having-b
 import { JoinByMap, JoinedTablesDotCols } from "#src/core/operators/sql-join-types.js";
 import { SqlTableColumnAny } from "#src/core/schema/sql-table-column.js";
 import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
+import { SqlBuildError } from "#src/core/sql-build-error.js";
 
 /**
  * Arguments for the crud `select` command.
@@ -123,13 +124,38 @@ export function sqlSelect<
    // Compute dot-notation fieldNames from joined tables
    const joinedFieldNames: string[] = [];
    const joinedTables = joinMap ? Object.values(joinMap) : [];
+   const joinKeyRegistry = new Map<string, string>(); // key → "schema.table" for conflict detection
+
    if (joinMap) {
       for (const [alias, jt] of Object.entries(joinMap)) {
-         for (const key of (jt as SqlTableAny).colKeys) {
+         const jtAny = jt as SqlTableAny;
+         joinKeyRegistry.set(alias, `${jtAny.tableInfo.schema}.${jtAny.tableInfo.name}`);
+         for (const key of jtAny.colKeys) {
             joinedFieldNames.push(`${alias}.${key}`);
          }
       }
    }
+
+   // Extract tables from compile-time JOIN arg
+   const joinArgTables: Record<string, SqlTableAny> = {};
+   if (args.JOIN) {
+      for (const rawValue of args.JOIN.source.rawValues) {
+         if (rawValue instanceof SqlTable) {
+            const name = rawValue.tableInfo.name;
+            const fqn = `${rawValue.tableInfo.schema}.${name}`;
+            if (joinKeyRegistry.has(name)) {
+               const existing = [...joinKeyRegistry.entries()].map(([k, v]) => `${k}:${v}`).join(", ");
+               throw new SqlBuildError(`[select] JOIN table "${name}" (${fqn}) conflicts with existing join key. Registered: ${existing}`);
+            }
+            joinKeyRegistry.set(name, fqn);
+            joinArgTables[name] = rawValue;
+            for (const key of rawValue.colKeys) {
+               joinedFieldNames.push(`${name}.${key}`);
+            }
+         }
+      }
+   }
+
    const allFieldNames = [...table.colKeys, ...joinedFieldNames];
 
    const userWhere = args.WHERE?.source.inline();
@@ -155,29 +181,26 @@ export function sqlSelect<
 
    // JoinBy: runtime table joins — only for joined queries (SqlTableJoin.select()).
    const hasJoinMap = joinedTables.length > 0;
-   const joinByNode = hasJoinMap ? new SqlJoinBy(table, "joinBy", joinTypes) : raw.BLANK;
+   const joinByNode = hasJoinMap ? new SqlJoinBy(table, "joinBy", joinTypes, joinMap as Record<string, SqlTableAny>) : raw.BLANK;
 
    // Pre-populate columnMap so projection/filter/orderBy can resolve dot-notation keys
    // before the joinBy node emits its SQL (which comes after FROM in the template).
-   const preColumnMap = joinedTables.length
-      ? new SqlPreColumnMap(table, joinMap as Record<string, SqlTableAny>)
-      : new SqlPreColumnMap(table, null);
+   const preColumnMap = joinedTables.length || Object.keys(joinArgTables).length
+      ? new SqlPreColumnMap(table, joinMap as Record<string, SqlTableAny>, joinArgTables, joinKeyRegistry)
+      : new SqlPreColumnMap(table, null, joinArgTables, joinKeyRegistry);
 
    return sql`
-         ${info ?? raw.BLANK}
-         ${preColumnMap}
-         select
-         ${args.SELECT ? args.SELECT.source.inline() : projectionNode}
-         ${hooks?.afterSelect?.length ? raw(", ") : raw.BLANK} ${hooks?.afterSelect ?? raw.BLANK}
-         from ${table}
-         ${hooks?.afterFrom?.length ? new SqlSpacedList(hooks.afterFrom) : raw.BLANK} ${args.JOIN ? args.JOIN.source.inline() : raw.BLANK}
-         ${joinByNode}
+      ${info ?? raw.BLANK}
+      ${preColumnMap}
+      select ${args.SELECT ? args.SELECT.source.inline() : projectionNode}
+                ${hooks?.afterSelect?.length ? raw(", ") : raw.BLANK} ${hooks?.afterSelect ?? raw.BLANK}
+      from ${table} ${hooks?.afterFrom?.length ? new SqlSpacedList(hooks.afterFrom) : raw.BLANK} ${args.JOIN ? args.JOIN.source.inline() : raw.BLANK} ${joinByNode}
          ${userWhere ? sql`where ${filterNode} ${userWhere}`.inline("default") : sql`${filterNode}`.inline("default")}
          ${args.GROUP_BY ? sql`group by ${args.GROUP_BY.source.inline()}`.inline("default") : sql`${projectionGroupByNode}`.inline("default")}
          ${args.HAVING ? sql`having ${args.HAVING.source.inline()}`.inline("default") : sql`${havingByNode}`.inline("default")}
          ${args.ORDER_BY ? sql`order by ${args.ORDER_BY.source.inline()}`.inline("default") : orderByNode}
          ${hooks?.pagination ?? paginationNode}
-      ` as unknown as SqlSelectResult<T, Args, M>;
+   ` as unknown as SqlSelectResult<T, Args, M>;
 }
 
 export function expandFromClause<T extends { Select: Record<string, unknown> }>(
@@ -224,6 +247,8 @@ class SqlPreColumnMap extends Sql {
    constructor(
       private readonly rootTable: SqlTableAny,
       private readonly joinMap: Record<string, SqlTableAny> | null,
+      private readonly joinArgTables: Record<string, SqlTableAny>,
+      private readonly joinKeyRegistry: Map<string, string>,
    ) {
       super({ type: "SqlPreColumnMap", id: "preColumnMap", hashId: "preColumnMap" });
    }
@@ -234,9 +259,9 @@ class SqlPreColumnMap extends Sql {
       // Only activate when there are actual joins to resolve
       const params = context.params as Record<string, unknown>;
       const hasJoinMap = this.joinMap && Object.keys(this.joinMap).length > 0;
+      const hasJoinArgTables = Object.keys(this.joinArgTables).length > 0;
       const hasJoinByParam = !this.joinMap && params["joinBy"] != null;
-      if (!hasJoinMap && !hasJoinByParam) return;
-
+      if (!hasJoinMap && !hasJoinArgTables && !hasJoinByParam) return;
 
       for (const [key, col] of Object.entries(this.rootTable.cols)) {
          const column = col as SqlTableColumnAny;
@@ -253,14 +278,29 @@ class SqlPreColumnMap extends Sql {
                context.addColumns({[`${alias}.${colKey}`]: column, [colKey]: column});
             }
          }
-      } else {
+      }
+
+      // Populate columns from compile-time JOIN arg tables
+      for (const [alias, jt] of Object.entries(this.joinArgTables)) {
+         for (const [key, col] of Object.entries(jt.cols)) {
+            const column = col as SqlTableColumnAny;
+            const colKey = key.slice(1);
+            context.addColumns({ [`${alias}.${colKey}`]: column, [colKey]: column });
+         }
+      }
+
+      // Populate columns from runtime joinBy param (with conflict detection)
+      if (!this.joinMap) {
          const joinByParam = params["joinBy"];
          if (joinByParam && typeof joinByParam === "object") {
-            // Extract table names from either format
             const tableNames: string[] = Array.isArray(joinByParam)
                ? (joinByParam as { table: string }[]).map((e) => e.table)
                : Object.keys(joinByParam as Record<string, unknown>);
             for (const alias of tableNames) {
+               if (this.joinKeyRegistry.has(alias)) {
+                  const existing = [...this.joinKeyRegistry.entries()].map(([k, v]) => `${k}:${v}`).join(", ");
+                  throw new SqlBuildError(`[joinBy] Table "${alias}" conflicts with existing join key. Registered: ${existing}`);
+               }
                const jt = SqlTable.resolve({
                   source: this.rootTable.source,
                   schema: this.rootTable.tableInfo.schema ?? "public",

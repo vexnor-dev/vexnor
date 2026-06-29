@@ -24,7 +24,7 @@ describe("SqlTable.join() + joinBy map shape", () => {
    });
 
    test("joinBy map shape emits JOIN clause", () => {
-      const joinBy = new SqlJoinBy(Order, "joinBy");
+      const joinBy = new SqlJoinBy(Order, "joinBy", undefined, { account: Account });
       const context = new SqlBuildContext({
          dialect: "sqlite",
          params: {
@@ -38,7 +38,7 @@ describe("SqlTable.join() + joinBy map shape", () => {
    });
 
    test("joinBy map shape with explicit operator", () => {
-      const joinBy = new SqlJoinBy(Order, "joinBy");
+      const joinBy = new SqlJoinBy(Order, "joinBy", undefined, { account: Account });
       const context = new SqlBuildContext({
          dialect: "sqlite",
          params: {
@@ -52,7 +52,7 @@ describe("SqlTable.join() + joinBy map shape", () => {
    });
 
    test("joinBy map shape populates columnMap with dot-notation keys", () => {
-      const joinBy = new SqlJoinBy(Order, "joinBy");
+      const joinBy = new SqlJoinBy(Order, "joinBy", undefined, { account: Account });
       const context = new SqlBuildContext({
          dialect: "sqlite",
          params: {
@@ -68,7 +68,7 @@ describe("SqlTable.join() + joinBy map shape", () => {
    });
 
    test("joinBy map shape with chained join", () => {
-      const joinBy = new SqlJoinBy(OrderItem, "joinBy");
+      const joinBy = new SqlJoinBy(OrderItem, "joinBy", undefined, { order: Order, account: Account });
       const context = new SqlBuildContext({
          dialect: "sqlite",
          params: {

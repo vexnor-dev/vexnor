@@ -12,7 +12,7 @@ describe("Find Enums tests", () => {
             SELECT
               "pe_1"."oid",
               "pe_1"."enumtypid",
-              "pe_1"."enumlabel" AS "enum_label",
+              "pe_1"."enumlabel",
               "pe_1"."enumsortorder"
             FROM
               "pg_catalog"."pg_enum" AS "pe_1"

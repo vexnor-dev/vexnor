@@ -11,7 +11,7 @@ describe("SqlJoinBy", () => {
       SqlTable.register(OrderItem);
    });
    test("emits nothing when joinBy param is absent", () => {
-      const joinBy = new SqlJoinBy(Order, "joinBy");
+      const joinBy = new SqlJoinBy(Order, "joinBy", undefined, { account: Account });
       const context = new SqlBuildContext({ dialect: "sqlite", params: {} });
       joinBy.write(context);
       expect(context.text).toBe("");
@@ -19,7 +19,7 @@ describe("SqlJoinBy", () => {
    });
 
    test("emits nothing when joinBy param is null", () => {
-      const joinBy = new SqlJoinBy(Order, "joinBy");
+      const joinBy = new SqlJoinBy(Order, "joinBy", undefined, { account: Account });
       const context = new SqlBuildContext({ dialect: "sqlite", params: { joinBy: null } });
       joinBy.write(context);
       expect(context.text).toBe("");
@@ -27,7 +27,7 @@ describe("SqlJoinBy", () => {
    });
 
    test("emits nothing when joinBy param is empty object", () => {
-      const joinBy = new SqlJoinBy(Order, "joinBy");
+      const joinBy = new SqlJoinBy(Order, "joinBy", undefined, { account: Account });
       const context = new SqlBuildContext({ dialect: "sqlite", params: { joinBy: {} } });
       joinBy.write(context);
       expect(context.text).toBe("");
@@ -35,7 +35,7 @@ describe("SqlJoinBy", () => {
    });
 
    test("emits JOIN clause for single table", () => {
-      const joinBy = new SqlJoinBy(Order, "joinBy");
+      const joinBy = new SqlJoinBy(Order, "joinBy", undefined, { account: Account });
       const context = new SqlBuildContext({
          dialect: "sqlite",
          params: {
@@ -47,7 +47,7 @@ describe("SqlJoinBy", () => {
    });
 
    test("emits chained JOINs for multiple tables", () => {
-      const joinBy = new SqlJoinBy(OrderItem, "joinBy");
+      const joinBy = new SqlJoinBy(OrderItem, "joinBy", undefined, { order: Order, account: Account });
       const context = new SqlBuildContext({
          dialect: "sqlite",
          params: {
@@ -65,7 +65,7 @@ describe("SqlJoinBy", () => {
    });
 
    test("populates columnMap with all joined table columns", () => {
-      const joinBy = new SqlJoinBy(Order, "joinBy");
+      const joinBy = new SqlJoinBy(Order, "joinBy", undefined, { account: Account });
       const context = new SqlBuildContext({
          dialect: "sqlite",
          params: {
@@ -79,7 +79,7 @@ describe("SqlJoinBy", () => {
    });
 
    test("emits LEFT JOIN when type is specified", () => {
-      const joinBy = new SqlJoinBy(Order, "joinBy");
+      const joinBy = new SqlJoinBy(Order, "joinBy", undefined, { account: Account });
       const context = new SqlBuildContext({
          dialect: "sqlite",
          params: {
@@ -91,7 +91,7 @@ describe("SqlJoinBy", () => {
    });
 
    test("throws when table not found in registry", () => {
-      const joinBy = new SqlJoinBy(Order, "joinBy");
+      const joinBy = new SqlJoinBy(Order, "joinBy", undefined, { account: Account });
       const context = new SqlBuildContext({
          dialect: "sqlite",
          params: {
@@ -102,7 +102,7 @@ describe("SqlJoinBy", () => {
    });
 
    test("throws when column not found", () => {
-      const joinBy = new SqlJoinBy(Order, "joinBy");
+      const joinBy = new SqlJoinBy(Order, "joinBy", undefined, { account: Account });
       const context = new SqlBuildContext({
          dialect: "sqlite",
          params: {
@@ -113,7 +113,7 @@ describe("SqlJoinBy", () => {
    });
 
    test("serialization mode emits joinBy operator token", () => {
-      const joinBy = new SqlJoinBy(Order, "joinBy");
+      const joinBy = new SqlJoinBy(Order, "joinBy", undefined, { account: Account });
       const context = new SqlBuildContext({ dialect: "sqlite", params: null });
       joinBy.write(context);
       const opToken = context.tokens.find((t) => t.type === "operator");
@@ -129,7 +129,7 @@ describe("SqlJoinBy", () => {
    });
 
    test("resolves bare column name (no dot prefix) in ON condition", () => {
-      const joinByOp = new SqlJoinBy(Order, "joinBy");
+      const joinByOp = new SqlJoinBy(Order, "joinBy", undefined, { account: Account });
       const context = new SqlBuildContext({
          dialect: "sqlite",
          params: {
@@ -141,7 +141,7 @@ describe("SqlJoinBy", () => {
    });
 
    test("resolves cross-schema table reference", () => {
-      newSqlTable<{ Select: { accountId: string; email: string }; Insert: { accountId?: string; email: string }; Update: { accountId?: string; email?: string }; Delete: true }>({
+      const otherAccount = newSqlTable<{ Select: { accountId: string; email: string }; Insert: { accountId?: string; email: string }; Update: { accountId?: string; email?: string }; Delete: true }>({
          tableInfo: { name: "account", schema: "otherSchema", out: false, alias: null },
          pk: ["accountId"],
          source: "@vexnor/test:models",
@@ -150,15 +150,15 @@ describe("SqlJoinBy", () => {
          crud: { select: true, insert: true, update: true, delete: true },
       });
 
-      const joinByOp = new SqlJoinBy(Order, "joinBy");
+      const joinByOp = new SqlJoinBy(Order, "joinBy", undefined, { otherAccount });
       const context = new SqlBuildContext({
          dialect: "sqlite",
          params: {
-            joinBy: { "otherSchema.account": { on: [["_.accountId", "=", "accountId"]] } },
+            joinBy: { otherAccount: { on: [["_.accountId", "=", "otherAccount.accountId"]] } },
          },
       });
       joinByOp.write(context);
-      expect(context.text).toMatchInlineSnapshot(`"JOIN "otherSchema"."account" ON "o_1"."account_id" = "o_1"."account_id""`);
+      expect(context.text).toMatchInlineSnapshot(`"JOIN "otherSchema"."account" ON "o_1"."account_id" = "a_2"."account_id""`);
    });
 
    test("joinBy() factory creates instance with default param name", () => {
@@ -168,7 +168,7 @@ describe("SqlJoinBy", () => {
    });
 
    test("throws when bare column name not found in any table", () => {
-      const joinByOp = new SqlJoinBy(Order, "joinBy");
+      const joinByOp = new SqlJoinBy(Order, "joinBy", undefined, { account: Account });
       const context = new SqlBuildContext({
          dialect: "sqlite",
          params: {

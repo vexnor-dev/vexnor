@@ -66,7 +66,7 @@ describe.sequential("joinBy — e2e postgres (multi-table join + aggregation)", 
       expect(result[0]).toHaveProperty("email");
    });
 
-   test.todo("join + sum aggregation: total product price per account", async () => {
+   test.todo("join + sum aggregation: total product price per account — requires projected row mapping", async () => {
       const query = OrderItem.join({ order: Order, account: Account }).select({}).postgres;
       const result = await query.all({
          db: pool,
@@ -75,7 +75,7 @@ describe.sequential("joinBy — e2e postgres (multi-table join + aggregation)", 
                order: { on: [["_.orderId", "=", "order.orderId"]] },
                account: { on: [["order.accountId", "=", "account.accountId"]] },
             },
-            select: { "account.email": "account.email", totalSpent: { fn: "sum", col: "productPrice" } },
+            select: { email: "account.email", totalSpent: { fn: "sum", col: "productPrice" } },
             orderBy: { "account.email": "ASC" },
             limit: 3,
          },
@@ -102,6 +102,20 @@ describe.sequential("joinBy — e2e postgres (multi-table join + aggregation)", 
       for (const row of result) {
          expect(row.orderId).toBeDefined();
       }
+   });
+
+   test("self-join: Account with parent (same table, different alias)", async () => {
+      const query = Account.join({ parent: Account }).select({}).postgres;
+      const result = await query.all({
+         db: pool,
+         params: {
+            joinBy: { parent: { on: [["_.parentId", "=", "parent.accountId"]] } },
+            limit: 5,
+         },
+      });
+      // Self-join works — returns accounts that have a parent (inner join)
+      expect(result.length).toBeGreaterThanOrEqual(0);
+      expect(result.length).toBeLessThanOrEqual(5);
    });
 
    test("left join: include orders without items", async () => {

@@ -12,8 +12,7 @@ export function validateParamObject(
       const allowedKeys = fieldNames ? new Set([...fieldNames, ...aggregates ?? []]) : null;
       for (const entry of obj) {
          if (typeof entry === "string") {
-            // Dot-notation entries (e.g. "City.city") are resolved at build time via joinBy columnMap
-            if (allowedKeys && !allowedKeys.has(entry) && !entry.includes(".")) errors.push(`Column '${entry}' not allowed in: ${allowedKeys}`);
+            if (allowedKeys && !allowedKeys.has(entry)) errors.push(`Column '${entry}' not allowed in: ${allowedKeys}`);
          }
          // Tuple entries like ["count", "*", "alias"] are aggregation — skip key validation
       }
@@ -38,7 +37,7 @@ export function validateParamObject(
          continue;
       }
 
-      if (allowedKeys && !allowedKeys.has(propKey) && !propKey.includes(".") && (typeof propValue !== "object" || propValue === null || Array.isArray(propValue))) errors.push(`Column key '${propKey}' not allowed in: ${allowedKeys}`);
+      if (allowedKeys && !allowedKeys.has(propKey) && (typeof propValue !== "object" || propValue === null || Array.isArray(propValue))) errors.push(`Column key '${propKey}' not allowed in: ${allowedKeys}`);
       if (allowedValues && !allowedValues.has(propValue)) errors.push(`Column '${propKey}':'${propValue}' value not allowed in: ${allowedValues}`);
 
       if (operators && Array.isArray(propValue) && propValue.length >= 1) {

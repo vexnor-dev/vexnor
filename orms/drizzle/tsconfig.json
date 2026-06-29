@@ -7,7 +7,7 @@
       "declarationMap": true,
       "composite": true,
       "paths": {
-         "#/*": [
+         "#src/*": [
             "./src/*"
          ]
       },

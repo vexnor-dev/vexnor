@@ -163,7 +163,7 @@ describe("validateParamValue", () => {
    });
 
    test("obj — delegates to validateParamObject (unknown keys rejected)", () => {
-      const errors = validateParamValue({ badKey: "val" }, { obj: { fieldNames: ["goodKey"] } });
+      const errors = validateParamValue({ badKey: "val" }, { obj: { fieldNames: ["goodKey"], operators: { "=": { args: 1 } } } });
       expect(errors.length).toBe(1);
    });
 

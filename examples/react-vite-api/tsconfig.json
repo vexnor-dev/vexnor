@@ -16,7 +16,7 @@
       "noUnusedLocals": true,
       "noUnusedParameters": true,
       "paths": {
-         "#/*": [
+         "#src/*": [
             "./client/src/*"
          ],
          "#shared/*": [

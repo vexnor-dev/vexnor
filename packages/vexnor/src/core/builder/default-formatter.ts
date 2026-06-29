@@ -51,12 +51,19 @@ export class DefaultFormatter {
     * Gets the column format for the given column and query context
     * @param context
     */
-   getColumnFormat(context: Pick<SqlBuildContext, "keyword">): SqlColumnFormat {
+   getColumnFormat(context: Pick<SqlBuildContext, "keyword" | "exprDepth">): SqlColumnFormat {
       if (!context.keyword) {
          return DEFAULT_COLUMN_FORMAT;
       }
 
-      return SQL_COLUMN_FORMATS[context.keyword] ?? DEFAULT_COLUMN_FORMAT;
+      const format = SQL_COLUMN_FORMATS[context.keyword] ?? DEFAULT_COLUMN_FORMAT;
+
+      // Suppress AS alias when inside an expression (parens, functions, operators)
+      if (context.exprDepth > 0 && format === "tableAlias.columnName AS columnAlias") {
+         return "tableAlias.columnName";
+      }
+
+      return format;
    }
 
    /**

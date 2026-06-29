@@ -402,13 +402,12 @@ describe("TimeToLiveRateLimiter — context metrics in end()", () => {
 // ─── SqlQueryRegistry — invalid query warning ─────────────────────────────────
 
 describe("SqlQueryRegistry — register edge cases", () => {
-   test("register warns and skips non-SqlQuery values", async () => {
-      const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+   test("register throws for non-SqlQuery values", async () => {
       const registry = new SqlQueryRegistry();
       const mockPlugin = { name: "mock", getLibrary: () => null } as unknown as VexnorPluginAny;
-      await registry.register(mockPlugin, { notAQuery: "hello" as unknown as SqlQueryAny });
-      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("skipping"));
-      warnSpy.mockRestore();
+      await expect(
+         registry.register(mockPlugin, { notAQuery: "hello" as unknown as SqlQueryAny }),
+      ).rejects.toThrow("notAQuery");
    });
 
    test("register accepts SqlQueryHandler instances", async () => {

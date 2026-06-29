@@ -353,26 +353,14 @@ describe("QueryRegistry", () => {
       );
    });
 
-   test("register skips non-SqlQuery values and warns", async () => {
+   test("register throws on non-SqlQuery values", async () => {
       const registry = new SqlQueryRegistry();
-      const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
 
-      await registry.register(pluginA, {
-         findAccounts,
-         notAQuery: "some string" as unknown as SqlQueryAny,
-         alsoNotAQuery: 42 as unknown as SqlQueryAny,
-      });
-
-      expect(registry.getQueries()).toHaveLength(1);
-      expect(warnSpy).toHaveBeenCalledTimes(2);
-      expect(warnSpy).toHaveBeenCalledWith(
-         `[vexnor] QueryRegistry.register: skipping "notAQuery" — not a SqlQuery instance`,
-      );
-      expect(warnSpy).toHaveBeenCalledWith(
-         `[vexnor] QueryRegistry.register: skipping "alsoNotAQuery" — not a SqlQuery instance`,
-      );
-
-      warnSpy.mockRestore();
+      await expect(
+         registry.register(pluginA, {
+            notAQuery: "some string" as unknown as SqlQueryAny,
+         }),
+      ).rejects.toThrow('QueryRegistry.register: "notAQuery" is not a SqlQuery or SqlQueryHandler instance');
    });
 
    test("register accepts SqlQueryHandler instances alongside SqlQuery", async () => {

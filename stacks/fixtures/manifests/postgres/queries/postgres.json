@@ -191,14 +191,14 @@
       },
       "authorization": []
     },
-    "9d3209d52416b3899b761c61d6c2aef373b1e56ed45239a096d2ca19ba92b245": {
+    "fef501beab3fd9fa67a8994b4cdf45bd2c20aee5e9389790301a8a3ff76396c9": {
       "name": "selectAccountsCrud",
       "location": "stacks/fixtures/queries/postgres.ts:41:52",
-      "hash": "9d3209d52416b3899b761c61d6c2aef373b1e56ed45239a096d2ca19ba92b245",
+      "hash": "fef501beab3fd9fa67a8994b4cdf45bd2c20aee5e9389790301a8a3ff76396c9",
       "template": [
         {
           "type": "text",
-          "value": "\n         \n/* driver: postgres */\n\n         \n         select\n         "
+          "value": "\n      \n/* driver: postgres */\n\n      \n      select "
         },
         {
           "type": "projection",
@@ -217,7 +217,7 @@
         },
         {
           "type": "text",
-          "value": "\n          \n         from \"vexnor_dev\".\"account\" as \"a_1\"\n          \n         \n         "
+          "value": "\n                 \n      from \"vexnor_dev\".\"account\" as \"a_1\"   \n         "
         },
         {
           "type": "filter",
@@ -248,7 +248,7 @@
         },
         {
           "type": "text",
-          "value": "\n      "
+          "value": "\n   "
         }
       ],
       "params": {
@@ -304,14 +304,14 @@
       },
       "authorization": []
     },
-    "637c5bc17a1860ee85b5214fb31d5ffdd355b8d98d1bba6c6f633c7d08bc91be": {
+    "41ab89cbb8a4f9223cf33dfb1b68819880a8944611c3c2d5af5d2d52af1a227b": {
       "name": "selectAccountsWithLastOrder",
       "location": "stacks/fixtures/queries/postgres.ts:127:61",
-      "hash": "637c5bc17a1860ee85b5214fb31d5ffdd355b8d98d1bba6c6f633c7d08bc91be",
+      "hash": "41ab89cbb8a4f9223cf33dfb1b68819880a8944611c3c2d5af5d2d52af1a227b",
       "template": [
         {
           "type": "text",
-          "value": "\n         \n/* driver: postgres */\n\n         \n         select\n         "
+          "value": "\n      \n/* driver: postgres */\n\n      \n      select "
         },
         {
           "type": "projection",
@@ -330,7 +330,7 @@
         },
         {
           "type": "text",
-          "value": "\n         ,  \"query_1_result\" as \"lastOrder\"\n         from \"vexnor_dev\".\"account\" as \"a_1\"\n         \n                \n/* inline: true */\n\n               left join lateral (\n               select coalesce(to_jsonb(\"query_1\".*), null) as \"query_1_result\"\n               from (select \"query_2\".* from (\n   SELECT \"o_2\".\"order_id\" as \"orderId\", \"o_2\".\"status\", \"o_2\".\"created_at\" as \"createdAt\", \"o_2\".\"modified_at\" as \"modifiedAt\", \"o_2\".\"account_id\" as \"accountId\"\n   FROM \"vexnor_dev\".\"order\" as \"o_2\"\n   WHERE \"o_2\".\"account_id\" = \"a_1\".\"account_id\"\n   ORDER BY \"o_2\".\"created_at\" DESC\n) as \"query_2\" limit 1) as \"query_1\") as \"query_1\"\n               on true\n             \n         \n         where "
+          "value": "\n                ,  \"query_1_result\" as \"lastOrder\"\n      from \"vexnor_dev\".\"account\" as \"a_1\" \n                \n/* inline: true */\n\n               left join lateral (\n               select coalesce(to_jsonb(\"query_1\".*), null) as \"query_1_result\"\n               from (select \"query_2\".* from (\n   SELECT \"o_2\".\"order_id\" as \"orderId\", \"o_2\".\"status\", \"o_2\".\"created_at\" as \"createdAt\", \"o_2\".\"modified_at\" as \"modifiedAt\", \"o_2\".\"account_id\" as \"accountId\"\n   FROM \"vexnor_dev\".\"order\" as \"o_2\"\n   WHERE \"o_2\".\"account_id\" = \"a_1\".\"account_id\"\n   ORDER BY \"o_2\".\"created_at\" DESC\n) as \"query_2\" limit 1) as \"query_1\") as \"query_1\"\n               on true\n              \n         where "
         },
         {
           "type": "filter",
@@ -369,7 +369,7 @@
         },
         {
           "type": "text",
-          "value": "\n      "
+          "value": "\n   "
         }
       ],
       "params": {
@@ -432,14 +432,14 @@
       },
       "authorization": []
     },
-    "9474c8fa8cd69b55504f1ea273686309c650e812af9da35f2ee2bef0308f1e11": {
+    "b5f1e8087fe1c569a9779b201ad9707ec4b1351a0e809304dfded0884d9e6b99": {
       "name": "selectAccountsWithOrderCount",
       "location": "stacks/fixtures/queries/postgres.ts:135:62",
-      "hash": "9474c8fa8cd69b55504f1ea273686309c650e812af9da35f2ee2bef0308f1e11",
+      "hash": "b5f1e8087fe1c569a9779b201ad9707ec4b1351a0e809304dfded0884d9e6b99",
       "template": [
         {
           "type": "text",
-          "value": "\n         \n/* driver: postgres */\n\n         \n         select\n         (\"a_1\".\"account_id\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\", \"a_1\".\"last_name\", \"a_1\".\"notes\", \"a_1\".\"created_at\", \"a_1\".\"modified_at\", \"a_1\".\"parent_id\", (SELECT count(*) FROM \"vexnor_dev\".\"order\" as \"o_2\" WHERE \"o_2\".\"account_id\" = \"a_1\".\"account_id\") AS \"orderCount\") as \"query_1\"\n          \n         from \"vexnor_dev\".\"account\" as \"a_3\"\n          \n         \n         "
+          "value": "\n      \n/* driver: postgres */\n\n      \n      select (\"a_1\".\"account_id\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\", \"a_1\".\"last_name\", \"a_1\".\"notes\", \"a_1\".\"created_at\", \"a_1\".\"modified_at\", \"a_1\".\"parent_id\", (SELECT count(*) FROM \"vexnor_dev\".\"order\" as \"o_2\" WHERE \"o_2\".\"account_id\" = \"a_1\".\"account_id\") AS \"orderCount\") as \"query_1\"\n                 \n      from \"vexnor_dev\".\"account\" as \"a_3\"   \n         "
         },
         {
           "type": "filter",
@@ -470,7 +470,7 @@
         },
         {
           "type": "text",
-          "value": "\n      "
+          "value": "\n   "
         }
       ],
       "params": {
@@ -494,14 +494,14 @@
       "row": null,
       "authorization": []
     },
-    "a838c52b2c1ea9b92f9ae81bb3dab7aaec1b4b2da9adf1e81d706dbbbe1b5ccf": {
+    "7ac8ffc41c9e5a32b0782f036bf4b23a4a5ad9510030a7f3fbc0230c7244d3cf": {
       "name": "selectAccountsWithOrders",
       "location": "stacks/fixtures/queries/postgres.ts:119:58",
-      "hash": "a838c52b2c1ea9b92f9ae81bb3dab7aaec1b4b2da9adf1e81d706dbbbe1b5ccf",
+      "hash": "7ac8ffc41c9e5a32b0782f036bf4b23a4a5ad9510030a7f3fbc0230c7244d3cf",
       "template": [
         {
           "type": "text",
-          "value": "\n         \n/* driver: postgres */\n\n         \n         select\n         "
+          "value": "\n      \n/* driver: postgres */\n\n      \n      select "
         },
         {
           "type": "projection",
@@ -520,7 +520,7 @@
         },
         {
           "type": "text",
-          "value": "\n         ,  \"query_1_result\" as \"orders\"\n         from \"vexnor_dev\".\"account\" as \"a_1\"\n         \n                \n/* inline: true */\n\n               left join lateral (\n               select coalesce(jsonb_agg(\"query_1\".*), '[]') as \"query_1_result\"\n               from (\n   SELECT \"o_2\".\"order_id\" as \"orderId\", \"o_2\".\"status\", \"o_2\".\"created_at\" as \"createdAt\", \"o_2\".\"modified_at\" as \"modifiedAt\", \"o_2\".\"account_id\" as \"accountId\"\n   FROM \"vexnor_dev\".\"order\" as \"o_2\"\n   WHERE \"o_2\".\"account_id\" = \"a_1\".\"account_id\"\n   ORDER BY \"o_2\".\"created_at\" DESC\n) as \"query_1\") as \"query_1\"\n               on true\n             \n         \n         where "
+          "value": "\n                ,  \"query_1_result\" as \"orders\"\n      from \"vexnor_dev\".\"account\" as \"a_1\" \n                \n/* inline: true */\n\n               left join lateral (\n               select coalesce(jsonb_agg(\"query_1\".*), '[]') as \"query_1_result\"\n               from (\n   SELECT \"o_2\".\"order_id\" as \"orderId\", \"o_2\".\"status\", \"o_2\".\"created_at\" as \"createdAt\", \"o_2\".\"modified_at\" as \"modifiedAt\", \"o_2\".\"account_id\" as \"accountId\"\n   FROM \"vexnor_dev\".\"order\" as \"o_2\"\n   WHERE \"o_2\".\"account_id\" = \"a_1\".\"account_id\"\n   ORDER BY \"o_2\".\"created_at\" DESC\n) as \"query_1\") as \"query_1\"\n               on true\n              \n         where "
         },
         {
           "type": "filter",
@@ -559,7 +559,7 @@
         },
         {
           "type": "text",
-          "value": "\n      "
+          "value": "\n   "
         }
       ],
       "params": {
@@ -946,14 +946,14 @@
       },
       "authorization": []
     },
-    "0e6da71e28037b21f2e09baef4c0de9954d2819fe6f3e9149097b5317d5bc636": {
+    "7c516836610fb2a0dfe488b8626eb059eae8c347587ba80588137d7fc60daf74": {
       "name": "selectMyOrders",
       "location": "stacks/fixtures/queries/postgres.ts:142:46",
-      "hash": "0e6da71e28037b21f2e09baef4c0de9954d2819fe6f3e9149097b5317d5bc636",
+      "hash": "7c516836610fb2a0dfe488b8626eb059eae8c347587ba80588137d7fc60daf74",
       "template": [
         {
           "type": "text",
-          "value": "\n         \n/* driver: postgres */\n\n         \n         select\n         "
+          "value": "\n      \n/* driver: postgres */\n\n      \n      select "
         },
         {
           "type": "projection",
@@ -968,7 +968,7 @@
         },
         {
           "type": "text",
-          "value": "\n         ,  \"query_1_result\" as \"items\"\n         from \"vexnor_dev\".\"order\" as \"o_1\"\n         \n                \n/* inline: true */\n\n               left join lateral (\n               select coalesce(jsonb_agg(\"query_1\".*), '[]') as \"query_1_result\"\n               from (\n   SELECT \"oi_2\".\"order_id\" as \"orderId\", \"oi_2\".\"product_id\" as \"productId\", \"oi_2\".\"created_at\" as \"createdAt\", \"oi_2\".\"modified_at\" as \"modifiedAt\", \"oi_2\".\"product_price\" as \"productPrice\", \"oi_2\".\"discount_price\" as \"discountPrice\", \"oi_2\".\"quantity\", \"oi_2\".\"metadata\"\n   FROM \"vexnor_dev\".\"order_item\" as \"oi_2\"\n   WHERE \"oi_2\".\"order_id\" = \"o_1\".\"order_id\"\n) as \"query_1\") as \"query_1\"\n               on true\n             \n         \n         where "
+          "value": "\n                ,  \"query_1_result\" as \"items\"\n      from \"vexnor_dev\".\"order\" as \"o_1\" \n                \n/* inline: true */\n\n               left join lateral (\n               select coalesce(jsonb_agg(\"query_1\".*), '[]') as \"query_1_result\"\n               from (\n   SELECT \"oi_2\".\"order_id\" as \"orderId\", \"oi_2\".\"product_id\" as \"productId\", \"oi_2\".\"created_at\" as \"createdAt\", \"oi_2\".\"modified_at\" as \"modifiedAt\", \"oi_2\".\"product_price\" as \"productPrice\", \"oi_2\".\"discount_price\" as \"discountPrice\", \"oi_2\".\"quantity\", \"oi_2\".\"metadata\"\n   FROM \"vexnor_dev\".\"order_item\" as \"oi_2\"\n   WHERE \"oi_2\".\"order_id\" = \"o_1\".\"order_id\"\n) as \"query_1\") as \"query_1\"\n               on true\n              \n         where "
         },
         {
           "type": "filter",
@@ -1003,7 +1003,7 @@
         },
         {
           "type": "text",
-          "value": "\n      "
+          "value": "\n   "
         }
       ],
       "params": {

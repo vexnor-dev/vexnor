@@ -3,11 +3,11 @@ import { render, screen, waitFor, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Suspense } from "react";
 import "@vexnor/sqlite3";
-import { AuthProvider } from "#/auth-context.js";
+import { AuthProvider } from "#src/auth-context.js";
 
 const mockRemoteExecute = vi.fn();
 
-vi.mock("#/remote-client.js", () => ({
+vi.mock("#src/remote-client.js", () => ({
    remoteClient: { remoteExecute: mockRemoteExecute },
 }));
 
@@ -17,7 +17,7 @@ vi.mock("@tanstack/react-router", async (importActual) => ({
    useNavigate: () => mockNavigate,
 }));
 
-const { default: Sqlite3LoginPage } = await import("#/pages/sqlite3-login.js");
+const { default: Sqlite3LoginPage } = await import("#src/pages/sqlite3-login.js");
 
 const mockLoginAccounts = [
    {

@@ -2,13 +2,13 @@ import { describe, test, expect, vi } from "vitest";
 import { render, screen, waitFor, act } from "@testing-library/react";
 import { Suspense } from "react";
 import "@vexnor/sqlite3";
-import { AuthProvider } from "#/auth-context.js";
+import { AuthProvider } from "#src/auth-context.js";
 
-vi.mock("#/use-remote-client.js", () => ({
+vi.mock("#src/use-remote-client.js", () => ({
    useRemoteClient: () => ({ remoteExecute: vi.fn() }),
 }));
 
-const { MyOrders } = await import("#/components/my-orders.js");
+const { MyOrders } = await import("#src/components/my-orders.js");
 
 const mockOrders = [
    {

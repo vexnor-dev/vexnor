@@ -2,7 +2,10 @@ import { SqlQueryBase, SqlQueryBaseAny, SqlQuery, SqlQueryColumns } from "#src/c
 import { ok } from "#src/lib/assert.js";
 import { isRemoteClient, QueryMeta, SqlExecuteMode, SqlQueryRunArgs, SqlRunArgs } from "#src/core/query/sql-query-types.js";
 import { SqlRunError } from "#src/core/sql-run-error.js";
+import { SqlBuildError } from "#src/core/sql-build-error.js";
 import { SqlErrorCode } from "#src/core/sql-error-code.js";
+import { validateParamValue } from "#src/core/query/params/validate-param-value.js";
+import { resolvePath } from "#src/core/query/resolve-path.js";
 import { setQueryMeta, getQueryMeta } from "#src/core/query/query-meta-store.js";
 import type { SqlJsonSchema } from "#src/core/utils/sql-json-schema.js";
 import { deserialize } from "#src/core/utils/sql-json-schema.js";
@@ -260,10 +263,27 @@ export abstract class SqlQueryHandler<
       const queryParams = this.source.params as Record<string, SqlParamAny> | null;
       if (!queryParams) return;
 
+      // Extract select alias keys so orderBy/havingBy can reference aggregate aliases
+      const selectParam = inputParams.select;
+      const selectAliases: string[] = selectParam && typeof selectParam === "object" && !Array.isArray(selectParam)
+         ? Object.keys(selectParam)
+         : [];
+
       for (const p of Object.values(queryParams)) {
-         const value = p.resolve(inputParams);
-         if (value !== undefined && p.validation) {
-            p.validate(value);
+         // For orderBy/havingBy with select aliases: resolve raw value and validate with extended fieldNames
+         if (selectAliases.length && (p.name === "orderBy" || p.name === "havingBy") && p.validation?.obj) {
+            const value = resolvePath(inputParams, p.name);
+            if (value === undefined) continue;
+            const extended = { ...p.validation, obj: { ...p.validation.obj, fieldNames: [...p.validation.obj.fieldNames, ...selectAliases] } };
+            const errors = validateParamValue(value, extended);
+            if (errors.length) {
+               throw new SqlBuildError(`Invalid param '${p.name}': ${errors.join("; ")}`, { code: SqlErrorCode.PARAM_VALIDATION_FAILED });
+            }
+         } else {
+            const value = p.resolve(inputParams);
+            if (value !== undefined && p.validation) {
+               p.validate(value);
+            }
          }
       }
    }

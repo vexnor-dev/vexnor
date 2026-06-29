@@ -13,6 +13,8 @@ export type SqlProjectByAggregation = (typeof SqlProjectByAggregation)[number];
 export const SqlProjectByTransform = ["dateTrunc", "coalesce", "round", "abs", "concat"] as const;
 export type SqlProjectByTransform = (typeof SqlProjectByTransform)[number];
 
+const VALID_DATE_TRUNC_GRANULARITIES: Set<string> = new Set(["year", "month", "day", "hour"]);
+
 /**
  * Supported aggregate functions.
  */
@@ -152,7 +154,7 @@ export class SqlProjectBy<T extends Record<string, unknown>> extends Sql {
       } else {
          // Custom alias — render raw column ref, then add explicit alias
          col.render("tableAlias.columnName").build(context);
-         context.addStrings(` as "${alias}"`);
+         context.addStrings(` as "${alias.replace(/"/g, '""')}"`);
       }
    }
 
@@ -181,48 +183,73 @@ export class SqlProjectBy<T extends Record<string, unknown>> extends Sql {
       } else {
          throw new SqlBuildError(`Invalid column reference in aggregate: ${String(colRef)}`);
       }
-      context.addStrings(`) as "${alias}"`);
+      context.addStrings(`) as "${alias.replace(/"/g, '""')}"`);
    }
 
    private writeTransform(context: SqlBuildContext, alias: string, fn: SqlProjectByTransform, colRef: string, args: unknown): void {
       const dialect = context.dialect;
       const colSql = this.renderColRef(context, colRef);
+      const escapedAlias = alias.replace(/"/g, '""');
 
-      let expr: string;
       switch (fn) {
-         case "dateTrunc":
-            expr = this.renderDateTrunc(dialect, colSql, args as string);
+         case "dateTrunc": {
+            const expr = this.renderDateTrunc(context, dialect, colSql, args as string);
+            context.addStrings(`${expr} as "${escapedAlias}"`);
             break;
+         }
          case "coalesce": {
             const argsArr = Array.isArray(args) ? args : [args];
-            expr = `coalesce(${colSql}, ${argsArr.map((a) => this.renderLiteral(a)).join(", ")})`;
+            context.addStrings(`coalesce(${colSql}, `);
+            for (let i = 0; i < argsArr.length; i++) {
+               if (i > 0) context.addStrings(", ");
+               context.addValues(argsArr[i]);
+            }
+            context.addStrings(`) as "${escapedAlias}"`);
             break;
          }
          case "round": {
             const precision = Array.isArray(args) ? args[0] : args;
-            expr = precision != null ? `round(${colSql}, ${String(precision)})` : `round(${colSql})`;
+            if (precision != null) {
+               if (typeof precision !== "number" || !Number.isFinite(precision)) {
+                  throw new SqlBuildError(`Invalid round precision: "${precision}". Must be a finite number.`);
+               }
+               context.addStrings(`round(${colSql}, ${precision}) as "${escapedAlias}"`);
+            } else {
+               context.addStrings(`round(${colSql}) as "${escapedAlias}"`);
+            }
             break;
          }
          case "abs":
-            expr = `abs(${colSql})`;
+            context.addStrings(`abs(${colSql}) as "${escapedAlias}"`);
             break;
          case "concat": {
             const parts = Array.isArray(args) ? args : [args];
             if (dialect === "transactsql" || dialect === "tsql") {
-               expr = `CONCAT(${colSql}, ${parts.map((a) => this.renderLiteral(a)).join(", ")})`;
+               context.addStrings(`CONCAT(${colSql}, `);
+               for (let i = 0; i < parts.length; i++) {
+                  if (i > 0) context.addStrings(", ");
+                  context.addValues(parts[i]);
+               }
+               context.addStrings(`) as "${escapedAlias}"`);
             } else {
-               expr = `${colSql} || ${parts.map((a) => this.renderLiteral(a)).join(" || ")}`;
+               context.addStrings(`${colSql} || `);
+               for (let i = 0; i < parts.length; i++) {
+                  if (i > 0) context.addStrings(" || ");
+                  context.addValues(parts[i]);
+               }
+               context.addStrings(` as "${escapedAlias}"`);
             }
             break;
          }
          default:
             throw new SqlBuildError(`Unsupported transform: ${fn}`);
       }
-
-      context.addStrings(`${expr} as "${alias}"`);
    }
 
-   private renderDateTrunc(dialect: SqlLanguage, colSql: string, granularity: string): string {
+   private renderDateTrunc(_context: SqlBuildContext, dialect: SqlLanguage, colSql: string, granularity: string): string {
+      if (!VALID_DATE_TRUNC_GRANULARITIES.has(granularity)) {
+         throw new SqlBuildError(`Invalid dateTrunc granularity: "${granularity}". Allowed: ${[...VALID_DATE_TRUNC_GRANULARITIES].join(", ")}`);
+      }
       if (dialect === "sqlite") {
          const fmtMap: Record<string, string> = {
             year: "%Y-01-01",
@@ -230,9 +257,7 @@ export class SqlProjectBy<T extends Record<string, unknown>> extends Sql {
             day: "%Y-%m-%d",
             hour: "%Y-%m-%d %H:00:00",
          };
-         const fmt = fmtMap[granularity];
-         if (!fmt) throw new SqlBuildError(`Unsupported dateTrunc granularity for SQLite: ${granularity}`);
-         return `strftime('${fmt}', ${colSql})`;
+         return `strftime('${fmtMap[granularity]!}', ${colSql})`;
       }
       if (dialect === "transactsql" || dialect === "tsql") {
          return `DATETRUNC(${granularity}, ${colSql})`;
@@ -253,13 +278,6 @@ export class SqlProjectBy<T extends Record<string, unknown>> extends Sql {
       const sql = tokens.map((t) => (t as { value: string }).value ?? "").join("");
       (context as unknown as { _tokens: unknown[] })._tokens.length = before;
       return sql;
-   }
-
-   private renderLiteral(val: unknown): string {
-      if (typeof val === "string") return `'${val.replace(/'/g, "''")}'`;
-      if (typeof val === "number" || typeof val === "bigint") return String(val);
-      if (val === null || val === undefined) return "NULL";
-      return String(val);
    }
 
    private resolveColumn(name: string): SqlTableColumnAny {
@@ -352,31 +370,31 @@ export class SqlProjectionGroupBy<T extends Record<string, unknown>> extends Sql
       switch (fn) {
          case "dateTrunc": {
             const granularity = args as string;
+            if (!VALID_DATE_TRUNC_GRANULARITIES.has(granularity)) return null;
             if (dialect === "sqlite") {
                const fmtMap: Record<string, string> = { year: "%Y-01-01", month: "%Y-%m-01", day: "%Y-%m-%d", hour: "%Y-%m-%d %H:00:00" };
-               const fmt = fmtMap[granularity];
-               if (!fmt) return null;
-               return `strftime('${fmt}', ${colSql})`;
+               return `strftime('${fmtMap[granularity]!}', ${colSql})`;
             }
             if (dialect === "transactsql" || dialect === "tsql") return `DATETRUNC(${granularity}, ${colSql})`;
             return `date_trunc('${granularity}', ${colSql})`;
          }
          case "coalesce": {
             const argsArr = Array.isArray(args) ? args : [args];
-            return `coalesce(${colSql}, ${argsArr.map((a) => this.renderLiteral(a)).join(", ")})`;
+            return `coalesce(${colSql}, ${argsArr.map(() => "?").join(", ")})`;
          }
          case "round": {
             const precision = Array.isArray(args) ? args[0] : args;
-            return precision != null ? `round(${colSql}, ${String(precision)})` : `round(${colSql})`;
+            if (precision != null && (typeof precision !== "number" || !Number.isFinite(precision))) return null;
+            return precision != null ? `round(${colSql}, ${precision})` : `round(${colSql})`;
          }
          case "abs":
             return `abs(${colSql})`;
          case "concat": {
             const parts = Array.isArray(args) ? args : [args];
             if (dialect === "transactsql" || dialect === "tsql") {
-               return `CONCAT(${colSql}, ${parts.map((a) => this.renderLiteral(a)).join(", ")})`;
+               return `CONCAT(${colSql}, ${parts.map(() => "?").join(", ")})`;
             }
-            return `${colSql} || ${parts.map((a) => this.renderLiteral(a)).join(" || ")}`;
+            return `${colSql} || ${parts.map(() => "?").join(" || ")}`;
          }
          default:
             return null;
@@ -405,13 +423,6 @@ export class SqlProjectionGroupBy<T extends Record<string, unknown>> extends Sql
          if (stripped) return stripped;
       }
       throw new SqlBuildError(`Column not found: ${name}`);
-   }
-
-   private renderLiteral(val: unknown): string {
-      if (typeof val === "string") return `'${val.replace(/'/g, "''")}'`;
-      if (typeof val === "number" || typeof val === "bigint") return String(val);
-      if (val === null || val === undefined) return "NULL";
-      return String(val);
    }
 }
 

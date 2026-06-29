@@ -80,6 +80,14 @@ export class SqlTableColumn<T extends SqlTableColumnTypeArgs> extends Sql {
    }
 
    /**
+    * Shortcut: renders as `"alias"."col"` without AS alias.
+    * Use when the column is inside an expression, cast, or function.
+    */
+   get raw(): SqlTableColumn<T> {
+      return this.render("tableAlias.columnName");
+   }
+
+   /**
     * Returns a copy of this column with a specific output format.
     *
     * Use this to control how the column is rendered in SQL — e.g., without

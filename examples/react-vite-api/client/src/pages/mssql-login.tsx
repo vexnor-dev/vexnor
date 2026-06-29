@@ -2,8 +2,8 @@ import "@vexnor/mssql";
 import { Suspense, use, useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { selectAccountsForLogin } from "#shared/queries/mssql";
-import { remoteClient } from "#/remote-client.js";
-import { useAuth } from "#/auth-context.js";
+import { remoteClient } from "#src/remote-client.js";
+import { useAuth } from "#src/auth-context.js";
 import type { IAccountSelect } from "#shared/codegen/mssql/vexnor_dev.account-table.js";
 import type { IOrderSelect } from "#shared/codegen/mssql/vexnor_dev.order-table.js";
 

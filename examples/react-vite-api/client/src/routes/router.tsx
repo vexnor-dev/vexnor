@@ -6,7 +6,7 @@ import Sqlite3AccountsPage from "../pages/sqlite3-accounts";
 import Sqlite3LoginPage from "../pages/sqlite3-login";
 import PostgresLoginPage from "../pages/postgres-login";
 import MssqlLoginPage from "../pages/mssql-login";
-import { useAuthSessions, type DbKey } from "#/auth-context";
+import { useAuthSessions, type DbKey } from "#src/auth-context";
 
 const DB_LABELS: Record<DbKey, string> = {
    postgres: "PostgreSQL",

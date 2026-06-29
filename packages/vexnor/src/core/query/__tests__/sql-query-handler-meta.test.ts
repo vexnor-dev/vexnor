@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { sql } from "#src/core/sql.js";
+import { sqlSelect } from "#src/core/crud/sql-select.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
 import { row } from "#src/core/query/sql-select-row.js";
 import { MockQueryHandler } from "#src/test/mock-query-handler.js";
@@ -142,5 +143,41 @@ describe("SqlQueryHandler.serialize() — base class", () => {
         }
       `);
       expect(output).toBe(input);
+   });
+});
+
+describe("SqlQueryHandler.validateParams — cross-param awareness", () => {
+   it("orderBy accepts aggregate aliases from select param (passes validation)", async () => {
+      const handler = new MockQueryHandler(
+         sqlSelect(Account, {}),
+      );
+      const db = createMockDb([{ revenue: 100 }]);
+      // Should NOT throw PARAM_VALIDATION_FAILED — "revenue" is a valid alias from select
+      // May throw at SQL build time (column resolution) which is a separate concern
+      try {
+         await handler.all({
+            db,
+            params: {
+               select: { revenue: { fn: "sum", col: "createdAt" } },
+               orderBy: { revenue: "DESC" },
+               limit: 5,
+            } as never,
+         });
+      } catch (err: unknown) {
+         const msg = err instanceof Error ? err.message : String(err);
+         // Validation error = bug. Build error = expected (mock doesn't fully resolve projections)
+         expect(msg).not.toContain("PARAM_VALIDATION_FAILED");
+         expect(msg).not.toContain("Invalid param 'orderBy'");
+      }
+   });
+
+   it("orderBy still rejects truly invalid keys", () => {
+      const handler = new MockQueryHandler(
+         sqlSelect(Account, {}),
+      );
+      const db = createMockDb([]);
+      expect(
+         handler.all({ db, params: { orderBy: { totallyFake: "ASC" } } as never }),
+      ).rejects.toThrow("Invalid param 'orderBy'");
    });
 });

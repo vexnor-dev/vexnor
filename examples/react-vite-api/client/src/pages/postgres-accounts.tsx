@@ -3,12 +3,12 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearch, useNavigate } from "@tanstack/react-router";
 import { contextValue } from "@vexnor/core";
 import { deleteAccount, insertAccount, selectAccounts, selectMyOrders } from "#shared/queries/postgres";
-import { AccountGrid } from "#/components/account-grid.js";
-import { CreateAccountForm } from "#/components/create-account-form.js";
-import { SearchInput } from "#/components/search-input.js";
-import { MyOrders } from "#/components/my-orders.js";
-import { useRemoteClient } from "#/use-remote-client.js";
-import { useAuth } from "#/auth-context.js";
+import { AccountGrid } from "#src/components/account-grid.js";
+import { CreateAccountForm } from "#src/components/create-account-form.js";
+import { SearchInput } from "#src/components/search-input.js";
+import { MyOrders } from "#src/components/my-orders.js";
+import { useRemoteClient } from "#src/use-remote-client.js";
+import { useAuth } from "#src/auth-context.js";
 
 type Tab = "orders" | "accounts";
 

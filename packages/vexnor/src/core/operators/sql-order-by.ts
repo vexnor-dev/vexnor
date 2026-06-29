@@ -110,12 +110,16 @@ export class SqlOrderBy<T extends { Select: Record<string, unknown> }, ParamName
                col.build(context);
             } else {
                // Allow aggregate aliases (e.g. "totalRevenue") and positional refs to pass through
-               context.addStrings(`"${field}"`);
+               context.addStrings(`"${field.replace(/"/g, '""')}"`);
             }
          } else {
             const col = this.table.cols[`$${field}` as `$${string}`] as SqlTableColumnAny | undefined;
-            if (!col) throw new SqlBuildError(`Column not found for orderBy: ${field}`);
-            col.build(context);
+            if (col) {
+               col.build(context);
+            } else {
+               // Allow aggregate aliases from select to pass through as quoted identifiers
+               context.addStrings(`"${field.replace(/"/g, '""')}"`);
+            }
          }
          context.addStrings(` ${dir ? dir.toUpperCase() : "ASC"}`);
          emitted++;

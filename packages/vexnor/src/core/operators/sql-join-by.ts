@@ -1,10 +1,13 @@
 import { PARAMS, Sql, SqlOptions } from "#src/core/sql-base.js";
 import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
 import { BuildSqlParams, PathToNested, SqlParam } from "#src/core/query/sql-param.js";
-import { SqlTable, SqlTableAny } from "#src/core/schema/sql-table.js";
+import { SqlTableAny } from "#src/core/schema/sql-table.js";
 import { SqlTableColumnAny } from "#src/core/schema/sql-table-column.js";
 import { JoinOperator } from "#src/core/operators/sql-join-types.js";
 import { SqlBuildError } from "#src/core/sql-build-error.js";
+
+const VALID_JOIN_OPERATORS: Set<string> = new Set(["=", "<", "<=", ">", ">=", "<>"]);
+const VALID_JOIN_TYPES: Set<string> = new Set(["inner", "left", "right", "full", "cross"]);
 
 /**
  * Runtime shape of a single join condition (3-tuple after normalization).
@@ -68,9 +71,10 @@ export class SqlJoinBy<ParamName extends string = "joinBy"> extends Sql {
    readonly table: SqlTableAny;
    readonly paramName: ParamName;
    readonly joinTypes: Record<string, string>;
+   readonly joinMap: Record<string, SqlTableAny>;
    readonly params: BuildSqlParams<unknown>;
 
-   constructor(table: SqlTableAny, paramName: ParamName, joinTypes?: Record<string, string>) {
+   constructor(table: SqlTableAny, paramName: ParamName, joinTypes?: Record<string, string>, joinMap?: Record<string, SqlTableAny>) {
       super({
          type: "SqlJoinBy",
          id: `${table.tableInfo.name}.${paramName}`,
@@ -80,6 +84,7 @@ export class SqlJoinBy<ParamName extends string = "joinBy"> extends Sql {
       this.table = table;
       this.paramName = paramName;
       this.joinTypes = joinTypes ?? {};
+      this.joinMap = joinMap ?? {};
       this.params = {
          [paramName]: new SqlParam({
             name: paramName,
@@ -111,6 +116,9 @@ export class SqlJoinBy<ParamName extends string = "joinBy"> extends Sql {
          }
 
          const joinType = (entry.type ?? this.joinTypes[entry.table] ?? "inner").toUpperCase();
+         if (!VALID_JOIN_TYPES.has((entry.type ?? this.joinTypes[entry.table] ?? "inner").toLowerCase())) {
+            throw new SqlBuildError(`[joinBy] Invalid join type: "${entry.type}". Allowed: ${[...VALID_JOIN_TYPES].join(", ")}`);
+         }
          const keyword = joinType === "INNER" ? "JOIN" : `${joinType} JOIN`;
 
          context.addStrings(` ${keyword} `);
@@ -123,6 +131,10 @@ export class SqlJoinBy<ParamName extends string = "joinBy"> extends Sql {
             for (const [left, op, right] of entry.on) {
                if (!first) context.addStrings(" AND ");
                first = false;
+
+               if (!VALID_JOIN_OPERATORS.has(op)) {
+                  throw new SqlBuildError(`[joinBy] Invalid ON operator: "${op}". Allowed: ${[...VALID_JOIN_OPERATORS].join(", ")}`);
+               }
 
                const leftCol = this.resolveColRef(left, tablesByAlias);
                const rightCol = this.resolveColRef(right, tablesByAlias);
@@ -169,14 +181,7 @@ export class SqlJoinBy<ParamName extends string = "joinBy"> extends Sql {
    }
 
    private resolveTable(name: string): SqlTableAny | undefined {
-      const dot = name.indexOf(".");
-      const schema = dot !== -1 ? name.slice(0, dot) : (this.table.tableInfo.schema ?? "public");
-      const table = dot !== -1 ? name.slice(dot + 1) : name;
-      return SqlTable.resolve({
-         source: this.table.source,
-         schema,
-         table,
-      });
+      return this.joinMap[name];
    }
 }
 

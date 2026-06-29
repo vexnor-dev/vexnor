@@ -2,8 +2,8 @@ import "@vexnor/sqlite3";
 import { Suspense, use, useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { selectAccountsForLogin } from "#shared/queries/sqlite3";
-import { remoteClient } from "#/remote-client.js";
-import { useAuth } from "#/auth-context.js";
+import { remoteClient } from "#src/remote-client.js";
+import { useAuth } from "#src/auth-context.js";
 import type { IAccountSelect } from "#shared/codegen/sqlite3/main.account-table.js";
 import type { IOrderSelect } from "#shared/codegen/sqlite3/main.order-table.js";
 

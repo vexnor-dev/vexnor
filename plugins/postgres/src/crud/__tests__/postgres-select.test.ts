@@ -139,8 +139,7 @@ describe("postgresSelect()", () => {
           "a_1"."parent_id" AS "parentId",
           "query_1_result" AS "children"
         FROM
-          "main"."account" AS "a_1"
-          /* <query_2> */
+          "main"."account" AS "a_1" /* <query_2> */
           /* inline: true */
           LEFT JOIN LATERAL (
             SELECT
@@ -211,8 +210,7 @@ describe("postgresSelect()", () => {
           "a_1"."parent_id" AS "parentId",
           "query_1_result" AS "firstOrder"
         FROM
-          "main"."account" AS "a_1"
-          /* <query_3> */
+          "main"."account" AS "a_1" /* <query_3> */
           /* inline: true */
           LEFT JOIN LATERAL (
             SELECT
@@ -294,8 +292,7 @@ describe("postgresSelect()", () => {
           "query_1_result" AS "firstOrder",
           "query_3_result" AS "children"
         FROM
-          "main"."account" AS "a_1"
-          /* <query_4> */
+          "main"."account" AS "a_1" /* <query_4> */
           /* inline: true */
           LEFT JOIN LATERAL (
             SELECT
@@ -389,8 +386,7 @@ describe("postgresSelect()", () => {
           "a_1"."parent_id" AS "parentId",
           "query_1_result" AS "orders"
         FROM
-          "main"."account" AS "a_1"
-          /* <query_2> */
+          "main"."account" AS "a_1" /* <query_2> */
           /* inline: true */
           LEFT JOIN LATERAL (
             SELECT

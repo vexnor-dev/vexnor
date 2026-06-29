@@ -160,8 +160,10 @@ export class SqlQueryRegistry<TContext extends Record<string, unknown> = Record<
                map.set(await value.source.hash, { query: value.source, name });
                break;
             default:
-               console.warn(`[vexnor] QueryRegistry.register: skipping "${name}" — not a SqlQuery instance`);
-               break;
+               throw new SqlError(
+                  `QueryRegistry.register: "${name}" is not a SqlQuery or SqlQueryHandler instance`,
+                  { code: SqlErrorCode.QUERY_BUILD_FAILED },
+               );
          }
       }
    }

@@ -168,16 +168,15 @@ describe("SqlOrderBy", () => {
       expect(result.values).toMatchInlineSnapshot(`[]`);
    });
 
-   test("throws on unknown column", () => {
+   test("unknown column emits quoted identifier (for aggregate aliases)", () => {
       const query = sql`
          SELECT ${row(Account.$$)}
          FROM ${Account}
          ${orderBy(Account)}
       `;
       // @ts-expect-error column not found
-      expect(() => query.getSql({ params: { orderBy: { badCol: "ASC" } } })).toThrow(
-         "Column not found for orderBy: badCol",
-      );
+      const result = query.getSql({ params: { orderBy: { badCol: "ASC" } } });
+      expect(result.text).toContain('"badCol" ASC');
    });
 
    test("throws on invalid direction", () => {

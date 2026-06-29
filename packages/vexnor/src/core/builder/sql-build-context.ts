@@ -42,6 +42,7 @@ export class SqlBuildContext {
    private readonly _keywordStacks: string[][];
    private readonly _contextParentDepths: number[];
    private _parentDepth: number = 0;
+   private _exprDepth: number = 0;
    private _queryStack: SqlQueryAny[];
    private readonly _tableAliasStack: Map<TableId, TableAlias>[];
    private _aliasCounter = 1;
@@ -125,6 +126,11 @@ export class SqlBuildContext {
    get keywordStack(): string[] {
       ok(this._keywordStacks.length, `Current stack is empty`);
       return this._keywordStacks.at(-1)!;
+   }
+
+   /** Tracks parenthesis nesting. When > 0, we're inside an expression (not top-level SELECT item). */
+   get exprDepth(): number {
+      return this._exprDepth;
    }
 
    get tableAliasStack() {
@@ -272,6 +278,10 @@ export class SqlBuildContext {
    addStrings(...strings: string[]) {
       ok(strings[0], `strings is required`);
       const tokens: SqlBuildToken[] = strings.map((value) => {
+         for (const ch of value) {
+            if (ch === "(") this._exprDepth++;
+            else if (ch === ")") this._exprDepth--;
+         }
          return { type: "text", value };
       });
       try {
@@ -380,9 +390,12 @@ export class SqlBuildContext {
             throw new SqlBuildError(`Unknown query type: ${args.queryType}`);
       }
 
+      const savedExprDepth = this._exprDepth;
+      if (args.queryType === "main") this._exprDepth = 0;
       try {
          return typeof callback === "function" ? callback() : (undefined as Result);
       } finally {
+         this._exprDepth = savedExprDepth;
          if (args.queryType === "main") {
             this._queryStack.pop();
             this._keywordStacks.pop();

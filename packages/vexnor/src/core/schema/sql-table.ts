@@ -370,16 +370,18 @@ export class SqlTable<T extends SqlTableTypeArgs> extends Sql {
    join<const M extends Record<string, SqlTableAny | [SqlTableAny, SqlJoinType]>>(
       map: M,
    ): SqlTableJoin<T, ExtractJoinTables<M>> {
-      // Normalize map: extract tables from tuples
+      // Normalize map: extract tables from tuples, auto-alias self-joins
       const normalized: Record<string, SqlTableAny> = {};
       const types: Record<string, SqlJoinType> = {};
+      const seen = new Set<SqlTableAny>([this as unknown as SqlTableAny]);
       for (const [key, value] of Object.entries(map)) {
+         const table = (Array.isArray(value) ? value[0] : value) as SqlTableAny;
          if (Array.isArray(value)) {
-            normalized[key] = value[0] as SqlTableAny;
             types[key] = value[1] as SqlJoinType;
-         } else {
-            normalized[key] = value as SqlTableAny;
          }
+         // If this table was already used (self-join or same table twice), create an alias
+         normalized[key] = seen.has(table) ? table.as(key) : table;
+         seen.add(table);
       }
       return new SqlTableJoin(this, normalized as ExtractJoinTables<M>, types);
    }

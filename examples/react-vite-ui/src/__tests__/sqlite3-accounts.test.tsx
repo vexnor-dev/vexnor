@@ -4,12 +4,12 @@ import userEvent from "@testing-library/user-event";
 import { Suspense } from "react";
 import "@vexnor/sqlite3";
 import type { IAccountSelect } from "#shared/codegen/sqlite3/main.account-table";
-import { AuthProvider } from "#/auth-context.js";
+import { AuthProvider } from "#src/auth-context.js";
 
 const mockRemoteExecute = vi.fn();
 const mockRemoteClient = { remoteExecute: mockRemoteExecute };
 
-vi.mock("#/use-remote-client.js", () => ({
+vi.mock("#src/use-remote-client.js", () => ({
    useRemoteClient: () => mockRemoteClient,
 }));
 
@@ -20,11 +20,11 @@ vi.mock("@tanstack/react-router", async (importActual) => ({
    useNavigate: () => mockNavigate,
 }));
 
-vi.mock("#/components/search-input.js", () => ({
+vi.mock("#src/components/search-input.js", () => ({
    SearchInput: () => null,
 }));
 
-const { default: Sqlite3AccountsPage } = await import("#/pages/sqlite3-accounts.js");
+const { default: Sqlite3AccountsPage } = await import("#src/pages/sqlite3-accounts.js");
 
 const mockAccounts: (IAccountSelect & {
    orderCount: number;

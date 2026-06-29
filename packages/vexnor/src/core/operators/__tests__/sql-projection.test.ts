@@ -377,7 +377,7 @@ describe("SqlProjection — runtime column selection (object format)", () => {
       });
 
       test("invalid granularity for sqlite throws", () => {
-         expect(() => buildWithSelect({ p: { fn: "dateTrunc", col: "createdAt", args: "quarter" } }, "sqlite")).toThrow("Unsupported dateTrunc granularity for SQLite");
+         expect(() => buildWithSelect({ p: { fn: "dateTrunc", col: "createdAt", args: "quarter" } }, "sqlite")).toThrow("Invalid dateTrunc granularity");
       });
    });
 
@@ -387,7 +387,7 @@ describe("SqlProjection — runtime column selection (object format)", () => {
          expect(text).toMatchInlineSnapshot(`
            "/* <query_0> */
            SELECT
-             coalesce("a_1"."notes", 'N/A') AS "notes"
+             coalesce("a_1"."notes", ?) AS "notes"
            FROM
              "main"."account" AS "a_1"
              /* <query_1> */
@@ -405,7 +405,7 @@ describe("SqlProjection — runtime column selection (object format)", () => {
          expect(text).toMatchInlineSnapshot(`
            "/* <query_0> */
            SELECT
-             coalesce("a_1"."notes", 0) AS "notes"
+             coalesce("a_1"."notes", ?) AS "notes"
            FROM
              "main"."account" AS "a_1"
              /* <query_1> */
@@ -423,7 +423,7 @@ describe("SqlProjection — runtime column selection (object format)", () => {
          expect(text).toMatchInlineSnapshot(`
            "/* <query_0> */
            SELECT
-             coalesce("a_1"."notes", 'unknown', 'N/A') AS "notes"
+             coalesce("a_1"."notes", ?, ?) AS "notes"
            FROM
              "main"."account" AS "a_1"
              /* <query_1> */
@@ -443,7 +443,7 @@ describe("SqlProjection — runtime column selection (object format)", () => {
          expect(text).toMatchInlineSnapshot(`
            "/* <query_0> */
            SELECT
-             "a_1"."first_name" || ' ' || 'lastName' AS "fullName"
+             "a_1"."first_name" || ? || ? AS "fullName"
            FROM
              "main"."account" AS "a_1"
              /* <query_1> */
@@ -461,7 +461,7 @@ describe("SqlProjection — runtime column selection (object format)", () => {
          expect(text).toMatchInlineSnapshot(`
            "/* <query_0> */
            SELECT
-             CONCAT("a_1"."first_name", ' ', 'lastName') AS "fullName"
+             CONCAT("a_1"."first_name", @param_0, @param_1) AS "fullName"
            FROM
              "main"."account" AS "a_1"
              /* <query_1> */

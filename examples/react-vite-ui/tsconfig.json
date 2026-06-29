@@ -11,7 +11,7 @@
       "noEmit": true,
       "paths": {
          "#shared/*": ["./shared/*"],
-         "#/*": ["./src/*"]
+         "#src/*": ["./src/*"]
       }
    },
    "include": ["src", "shared"],

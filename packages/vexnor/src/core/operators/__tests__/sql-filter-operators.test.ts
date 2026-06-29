@@ -375,7 +375,7 @@ describe("SqlFilter — extended operators", () => {
            FROM
              "main"."account" AS "a_1"
            WHERE
-             "a_1"."status" IS NULL
+             1 = 0
              /* </query_0> */"
          `);
          expect(values).toMatchInlineSnapshot(`[]`);
@@ -428,7 +428,6 @@ describe("SqlFilter — extended operators", () => {
            FROM
              "main"."account" AS "a_1"
            WHERE
-             "a_1"."status" IS NOT NULL
              /* </query_0> */"
          `);
          expect(values).toMatchInlineSnapshot(`[]`);

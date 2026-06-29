@@ -140,8 +140,7 @@ describe("mssqlTableRead()", () => {
           "a_1"."parent_id" AS "parentId",
           "query_1_result"."query_1" AS "children"
         FROM
-          "main"."account" AS "a_1"
-          /* <query_2> */
+          "main"."account" AS "a_1" /* <query_2> */
           OUTER APPLY (
             SELECT
               coalesce(
@@ -215,9 +214,7 @@ describe("mssqlTableRead()", () => {
           "a_1"."parent_id" AS "parentId",
           "query_1_result"."query_1" AS "firstOrder"
         FROM
-          "main"."account" AS "a_1"
-          /* <query_3> */
-          OUTER apply (
+          "main"."account" AS "a_1" /* <query_3> */ OUTER apply (
             SELECT
               coalesce(
                 (
@@ -297,9 +294,7 @@ describe("mssqlTableRead()", () => {
           "query_1_result"."query_1" AS "firstOrder",
           "query_3_result"."query_3" AS "children"
         FROM
-          "main"."account" AS "a_1"
-          /* <query_4> */
-          OUTER apply (
+          "main"."account" AS "a_1" /* <query_4> */ OUTER apply (
             SELECT
               coalesce(
                 (
@@ -390,9 +385,7 @@ describe("mssqlTableRead()", () => {
           "a_1"."parent_id" AS "parentId",
           "query_1_result"."query_1" AS "orders"
         FROM
-          "main"."account" AS "a_1"
-          /* <query_2> */
-          OUTER apply (
+          "main"."account" AS "a_1" /* <query_2> */ OUTER apply (
             SELECT
               coalesce(
                 (
