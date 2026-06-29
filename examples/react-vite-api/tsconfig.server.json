@@ -19,7 +19,7 @@
       "server"
    ],
    "references": [{
-      "path": "../../packages/vexnor"
+      "path": "../../packages/core"
    }, {
       "path": "../../plugins/postgres"
    },{

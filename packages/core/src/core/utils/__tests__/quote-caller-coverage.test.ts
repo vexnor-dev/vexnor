@@ -64,4 +64,12 @@ describe("parseCallerLocation — uncovered paths", () => {
       const result = parseCallerLocation(stack, "file:///Users/test/project/packages/vexnor/src/core/query/sql-query.ts");
       expect(result.location).toBeNull();
    });
+
+   test("returns null when only internal frames (packages/core path)", () => {
+      const stack = `Error
+    at new SqlQuery (/Users/test/project/packages/core/src/core/query/sql-query.ts:105:10)
+    at sql (/Users/test/project/packages/core/src/core/sql.ts:50:10)`;
+      const result = parseCallerLocation(stack, "file:///Users/test/project/packages/core/src/core/query/sql-query.ts");
+      expect(result.location).toBeNull();
+   });
 });
