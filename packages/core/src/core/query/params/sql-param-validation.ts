@@ -1,4 +1,3 @@
-import { ValuesOf } from "#src/core/schema/schema-types.js";
 import { validateParamValue } from "#src/core/query/params/validate-param-value.js";
 
 export type SqlParamValidation<T> = ParamInfo<T> &
@@ -15,8 +14,10 @@ export type OperatorDef = { args: number | "variadic" };
 export type ObjectValidationAny = ObjectValidation<any>;
 
 export type ObjectValidation<T> = {
-   fieldNames: Extract<keyof T, string>[];
-   fieldValues?: ValuesOf<T>[] | null;
+   /** Allowed keys — when present, object keys are validated against this list */
+   fieldNames?: Extract<keyof T, string>[] | null;
+   /** Allowed values — when present, string values are validated against this list */
+   fieldValues?: Extract<keyof T, string>[] | null;
    /** Allowed filter operators with arity definitions */
    operators?: Record<string, OperatorDef> | null;
    /** Allowed aggregate functions */

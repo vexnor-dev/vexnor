@@ -4,7 +4,7 @@ import { isRemoteClient, QueryMeta, SqlExecuteMode, SqlQueryRunArgs, SqlRunArgs 
 import { SqlRunError } from "#src/core/sql-run-error.js";
 import { SqlBuildError } from "#src/core/sql-build-error.js";
 import { SqlErrorCode } from "#src/core/sql-error-code.js";
-import { validateParamValue } from "#src/core/query/params/validate-param-value.js";
+import { validateParamObject } from "#src/core/query/params/validate-param-object.js";
 import { resolvePath } from "#src/core/query/resolve-path.js";
 import { setQueryMeta, getQueryMeta } from "#src/core/query/query-meta-store.js";
 import type { SqlJsonSchema } from "#src/core/utils/sql-json-schema.js";
@@ -265,17 +265,23 @@ export abstract class SqlQueryHandler<
 
       // Extract select alias keys so orderBy/havingBy can reference aggregate aliases
       const selectParam = inputParams.select;
-      const selectAliases: string[] = selectParam && typeof selectParam === "object" && !Array.isArray(selectParam)
+      const selectAliases: string[] | null = selectParam && typeof selectParam === "object" && !Array.isArray(selectParam)
          ? Object.keys(selectParam)
-         : [];
+         : null;
 
       for (const p of Object.values(queryParams)) {
          // For orderBy/havingBy with select aliases: resolve raw value and validate with extended fieldNames
-         if (selectAliases.length && (p.name === "orderBy" || p.name === "havingBy") && p.validation?.obj) {
+         if (selectAliases?.length && (p.name === "orderBy" || p.name === "havingBy") && p.validation?.obj) {
             const value = resolvePath(inputParams, p.name);
             if (value === undefined) continue;
-            const extended = { ...p.validation, obj: { ...p.validation.obj, fieldNames: [...p.validation.obj.fieldNames, ...selectAliases] } };
-            const errors = validateParamValue(value, extended);
+            const extended = Object.create(p.validation);
+            if (selectAliases?.length && !extended.obj.fieldNames) {
+               extended.obj.fieldNames = [];
+            }
+            extended.obj.fieldNames.push(...selectAliases);
+
+            const errors: string[] = [];
+            validateParamObject(value as Record<string, unknown>, extended.obj, errors);
             if (errors.length) {
                throw new SqlBuildError(`Invalid param '${p.name}': ${errors.join("; ")}`, { code: SqlErrorCode.PARAM_VALIDATION_FAILED });
             }
