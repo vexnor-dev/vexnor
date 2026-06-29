@@ -63,7 +63,8 @@ describe("postgresSelect()", () => {
           "main"."account" AS "a_1"
           /* <query_1> */
         WHERE
-          /* <query_2> */ "a_1"."account_id" = $1 /* </query_2> */ /* </query_1> */
+          /* <query_2> */
+          "a_1"."account_id" = $1 /* </query_2> */ /* </query_1> */
           /* <query_3> */
           /* </query_3> */
           /* <query_4> */
@@ -104,7 +105,8 @@ describe("postgresSelect()", () => {
           /* </query_3> */
           /* <query_4> */
         ORDER BY
-          /* <query_5> */ "a_1"."created_at" DESC /* </query_5> */ /* </query_4> */
+          /* <query_5> */
+          "a_1"."created_at" DESC /* </query_5> */ /* </query_4> */
         LIMIT
           $1
         OFFSET
@@ -452,7 +454,8 @@ describe("postgresSelect()", () => {
         /* driver: postgres */
         SELECT
           (
-            /* <query_1> */ "a_1"."account_id",
+            /* <query_1> */
+            "a_1"."account_id",
             "a_1"."status",
             "a_1"."email",
             "a_1"."first_name",

@@ -106,7 +106,8 @@ describe("SqlValue tests", () => {
         "/* <query_0> */
         SELECT
           "a_1"."account_id" AS "accountId",
-          /* <query_1> */ COUNT(*) /* </query_1> */ AS "total"
+          /* <query_1> */
+          COUNT(*) /* </query_1> */ AS "total"
         FROM
           "main"."account" AS "a_1"
         GROUP BY
@@ -131,7 +132,8 @@ describe("SqlValue tests", () => {
         "/* <query_0> */
         SELECT
           "a_1"."account_id" AS "accountId",
-          /* <query_1> */ COUNT(*) /* </query_1> */ AS "total"
+          /* <query_1> */
+          COUNT(*) /* </query_1> */ AS "total"
         FROM
           "main"."account" AS "a_1"
         GROUP BY

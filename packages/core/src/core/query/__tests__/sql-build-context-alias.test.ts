@@ -104,7 +104,8 @@ describe("SqlBuildContext alias tests", () => {
           (
             /* <query_1> */
             SELECT
-              /* <query_2> */ count(*) /* </query_2> */ AS "total"
+              /* <query_2> */
+              count(*) /* </query_2> */ AS "total"
             FROM
               "main"."account" AS "a_2"
             WHERE

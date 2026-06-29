@@ -63,7 +63,8 @@ describe("sqlite3Select()", () => {
           "main"."account" AS "a_1"
           /* <query_1> */
         WHERE
-          /* <query_2> */ "a_1"."account_id" = ? /* </query_2> */ /* </query_1> */
+          /* <query_2> */
+          "a_1"."account_id" = ? /* </query_2> */ /* </query_1> */
           /* <query_3> */
           /* </query_3> */
           /* <query_4> */
@@ -104,7 +105,8 @@ describe("sqlite3Select()", () => {
           /* </query_3> */
           /* <query_4> */
         ORDER BY
-          /* <query_5> */ "a_1"."created_at" DESC /* </query_5> */ /* </query_4> */
+          /* <query_5> */
+          "a_1"."created_at" DESC /* </query_5> */ /* </query_4> */
         LIMIT
           ?
         OFFSET
@@ -135,7 +137,8 @@ describe("sqlite3Select()", () => {
           "a_1"."created_at" AS "createdAt",
           "a_1"."modified_at" AS "modifiedAt",
           "a_1"."parent_id" AS "parentId",
-          /* <query_1> */ (
+          /* <query_1> */
+          (
             SELECT
               coalesce(
                 json_group_array(
@@ -215,7 +218,8 @@ describe("sqlite3Select()", () => {
           "a_1"."created_at" AS "createdAt",
           "a_1"."modified_at" AS "modifiedAt",
           "a_1"."parent_id" AS "parentId",
-          /* <query_1> */ (
+          /* <query_1> */
+          (
             SELECT
               json_object(
                 'orderId',
@@ -293,7 +297,8 @@ describe("sqlite3Select()", () => {
           "a_1"."created_at" AS "createdAt",
           "a_1"."modified_at" AS "modifiedAt",
           "a_1"."parent_id" AS "parentId",
-          /* <query_1> */ (
+          /* <query_1> */
+          (
             SELECT
               json_object(
                 'orderId',
@@ -333,7 +338,8 @@ describe("sqlite3Select()", () => {
             LIMIT
               1
           ) AS "firstOrder" /* </query_1> */,
-          /* <query_4> */ (
+          /* <query_4> */
+          (
             SELECT
               coalesce(
                 json_group_array(
@@ -403,7 +409,8 @@ describe("sqlite3Select()", () => {
         /* driver: sqlite */
         SELECT
           (
-            /* <query_1> */ "a_1"."account_id",
+            /* <query_1> */
+            "a_1"."account_id",
             "a_1"."status",
             "a_1"."email",
             "a_1"."first_name",
