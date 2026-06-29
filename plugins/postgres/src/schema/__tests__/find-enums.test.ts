@@ -12,7 +12,7 @@ describe("Find Enums tests", () => {
             SELECT
               "pe_1"."oid",
               "pe_1"."enumtypid",
-              "pe_1"."enumlabel",
+              "pe_1"."enumlabel" AS "enum_label",
               "pe_1"."enumsortorder"
             FROM
               "pg_catalog"."pg_enum" AS "pe_1"
@@ -20,8 +20,7 @@ describe("Find Enums tests", () => {
         SELECT
           "pt_2"."typname" AS "enum_name",
           "pn_3"."nspname" AS "enum_schema",
-          /* <query_1> */
-          json_agg ("enum_values") /* </query_1> */ AS "enum_values"
+          /* <query_1> */ json_agg ("enum_values") /* </query_1> */ AS "enum_values"
         FROM
           "pg_catalog"."pg_type" AS "pt_2"
           JOIN "enum_values" ON "pt_2"."oid" = "enum_values"."enumtypid"

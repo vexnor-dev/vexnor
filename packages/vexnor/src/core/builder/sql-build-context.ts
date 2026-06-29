@@ -278,9 +278,21 @@ export class SqlBuildContext {
    addStrings(...strings: string[]) {
       ok(strings[0], `strings is required`);
       const tokens: SqlBuildToken[] = strings.map((value) => {
-         for (const ch of value) {
-            if (ch === "(") this._exprDepth++;
-            else if (ch === ")") this._exprDepth--;
+         for (let i = 0; i < value.length; i++) {
+            const ch = value[i]!;
+            if (ch === "(") {
+               // Don't count parens that open a subquery/CTE context
+               // CTE pattern: "name" as (SELECT ...) — the ( after 'as' opens a subquery
+               const before = value.slice(0, i).trimEnd().toLowerCase();
+               const lastWord = before.split(/\s+/).pop() ?? "";
+               if (lastWord === "as" || lastWord === "exists") {
+                  // subquery paren — don't increment
+               } else {
+                  this._exprDepth++;
+               }
+            } else if (ch === ")") {
+               if (this._exprDepth > 0) this._exprDepth--;
+            }
          }
          return { type: "text", value };
       });

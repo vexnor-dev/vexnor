@@ -64,8 +64,7 @@ describe("mssqlTableRead()", () => {
           "main"."account" AS "a_1"
           /* <query_1> */
         WHERE
-          /* <query_2> */
-          "a_1"."account_id" = @param_0 /* </query_2> */ /* </query_1> */
+          /* <query_2> */ "a_1"."account_id" = @param_0 /* </query_2> */ /* </query_1> */
           /* <query_3> */
           /* </query_3> */
           /* <query_4> */
@@ -106,8 +105,7 @@ describe("mssqlTableRead()", () => {
           /* </query_3> */
           /* <query_4> */
         ORDER BY
-          /* <query_5> */
-          "a_1"."created_at" DESC /* </query_5> */ /* </query_4> */
+          /* <query_5> */ "a_1"."created_at" DESC /* </query_5> */ /* </query_4> */
         OFFSET
           @param_0 rows
         FETCH NEXT

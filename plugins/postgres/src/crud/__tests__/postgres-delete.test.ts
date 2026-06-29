@@ -46,8 +46,7 @@ describe("postgresDelete()", () => {
         DELETE FROM "main"."account"
         /* <query_1> */
         WHERE
-          /* <query_2> */
-          "account"."account_id" = ? /* </query_2> */ /* </query_1> */ returning "account"."account_id" AS "accountId",
+          /* <query_2> */ "account"."account_id" = ? /* </query_2> */ /* </query_1> */ returning "account"."account_id" AS "accountId",
           "account"."status",
           "account"."email",
           "account"."first_name" AS "firstName",

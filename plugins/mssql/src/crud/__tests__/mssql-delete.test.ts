@@ -52,8 +52,7 @@ describe("mssqlTableDelete()", () => {
         "deleted"."parent_id" AS "parentId"
         /* <query_1> */
         WHERE
-          /* <query_2> */
-          "account"."account_id" = ? /* </query_2> */ /* </query_1> */
+          /* <query_2> */ "account"."account_id" = ? /* </query_2> */ /* </query_1> */
           /* </query_0> */"
       `);
    });
