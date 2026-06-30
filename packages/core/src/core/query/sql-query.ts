@@ -374,6 +374,18 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
 
                const child = children.shift();
 
+               // Look-ahead: the literal template text that immediately follows
+               // this interpolation — from the next character until the next
+               // interpolation (or end of template). Formatters inspect this to
+               // detect expression operators like ::, ||, or ) and suppress alias.
+               context.nextText =
+                  i + 1 < this.rawStrings.length ? (this.rawStrings[i + 1] ?? null) : null;
+
+               // Look-behind: the literal template text that precedes this
+               // interpolation. Formatters inspect trailing operators (||, ::)
+               // to detect that this column is inside an expression.
+               context.prevText = rawString ?? null;
+
                if (Array.isArray(child)) {
                   for (let k = 0; k < child.length; k++) {
                      if (k > 0) {
@@ -385,6 +397,9 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
                } else {
                   SqlQuery.buildInnerToken(child, context, options);
                }
+
+               context.nextText = null;
+               context.prevText = null;
             }
 
             if (options?.boundaryComments ?? sqlBuildDefaults.boundaryComments)

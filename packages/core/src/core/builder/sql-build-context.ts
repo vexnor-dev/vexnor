@@ -43,6 +43,8 @@ export class SqlBuildContext {
    private readonly _contextParentDepths: number[];
    private _parentDepth: number = 0;
    private _exprDepth: number = 0;
+   private _nextText: string | null = null;
+   private _prevText: string | null = null;
    private _queryStack: SqlQueryAny[];
    private readonly _tableAliasStack: Map<TableId, TableAlias>[];
    private _aliasCounter = 1;
@@ -131,6 +133,34 @@ export class SqlBuildContext {
    /** Tracks parenthesis nesting. When > 0, we're inside an expression (not top-level SELECT item). */
    get exprDepth(): number {
       return this._exprDepth;
+   }
+
+   /**
+    * Look-ahead hint: the raw template string that follows the current interpolation.
+    * Set by the build loop before building each token so the formatter can inspect
+    * what comes next (e.g., `::`, `||`, `)`) and suppress the alias accordingly.
+    * Reset to null after each token is built.
+    */
+   get nextText(): string | null {
+      return this._nextText;
+   }
+
+   set nextText(value: string | null) {
+      this._nextText = value;
+   }
+
+   /**
+    * Look-behind hint: the raw template string that precedes the current interpolation.
+    * Set by the build loop before building each token so the formatter can inspect
+    * what came before (e.g., trailing `||` or `::`) and suppress the alias accordingly.
+    * Reset to null after each token is built.
+    */
+   get prevText(): string | null {
+      return this._prevText;
+   }
+
+   set prevText(value: string | null) {
+      this._prevText = value;
    }
 
    get tableAliasStack() {
