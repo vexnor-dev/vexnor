@@ -600,10 +600,10 @@ public class JoinByManifestTests
         Assert.Equal("joinBy", nonNullJoinByNode.Param);
         Assert.Equal(2, nonNullJoinByNode.JoinMap.Count);
         Assert.True(nonNullJoinByNode.JoinMap.ContainsKey("_"));
-        Assert.True(nonNullJoinByNode.JoinMap.ContainsKey("account"));
-        Assert.Equal("main", nonNullJoinByNode.JoinMap["account"].Schema);
-        Assert.Equal("account", nonNullJoinByNode.JoinMap["account"].Table);
-        Assert.Equal("\"a_2\".\"account_id\"", nonNullJoinByNode.JoinMap["account"].Columns["accountId"]);
+        Assert.True(nonNullJoinByNode.JoinMap.TryGetValue("account", out var accountJoinDef));
+        Assert.Equal("main", accountJoinDef.Schema);
+        Assert.Equal("account", accountJoinDef.Table);
+        Assert.Equal("\"a_2\".\"account_id\"", accountJoinDef.Columns["accountId"]);
         Assert.Single(nonNullJoinByNode.JoinTypes);
         Assert.Equal("left", nonNullJoinByNode.JoinTypes["account"]);
     }
