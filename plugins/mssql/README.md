@@ -7,7 +7,7 @@ Provides schema introspection, type mapping, query execution, JSON aggregation, 
 ## Install
 
 ```bash
-npm install vexnor @vexnor/mssql mssql
+npm install @vexnor/core @vexnor/mssql mssql
 ```
 
 ## Setup
@@ -24,7 +24,7 @@ const pool = await mssql.connect(process.env.MSSQL_CONNECTION_STRING!);
 ## Executing Queries
 
 ```typescript
-import { sql, row, param } from 'vexnor';
+import { sql, row, param } from '@vexnor/core';
 import { Account } from './models/dbo.account-table.js';
 
 const findByEmail = sql`

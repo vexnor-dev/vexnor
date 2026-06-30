@@ -234,7 +234,7 @@ const result = await sql`
 Use `col<T>()` to introduce a typed column for expressions that are not table columns (aggregates, functions, computed values):
 
 ```typescript
-import { col } from 'vexnor';
+import { col } from '@vexnor/core';
 
 const result = await sql`
   SELECT ${row(Account.$accountId)},
@@ -316,7 +316,7 @@ See [Databases](databases.md) for how each driver implements JSON aggregation.
 Use `info()` to attach a label to a query. The label appears as a SQL comment and is used as the CTE name when the query is used in a `WITH` clause.
 
 ```typescript
-import { info } from 'vexnor';
+import { info } from '@vexnor/core';
 
 const ActiveAccounts = sql`
   ${info({ label: 'ActiveAccounts' })}
@@ -507,7 +507,7 @@ const result = await findAccounts.postgres.all({
 `val` creates a named, typed column from an inline SQL expression or an existing subquery. Use it when `col` isn't enough — when the expression is multi-token or wraps a subquery.
 
 ```typescript
-import { sql, row, val } from 'vexnor';
+import { sql, row, val } from '@vexnor/core';
 
 // Inline expression
 const query = sql`
@@ -533,7 +533,7 @@ const query2 = sql`
 For manual `ON CONFLICT ... DO UPDATE SET` statements, `excluded(table)` gives you typed column references to the `EXCLUDED` pseudo-table:
 
 ```typescript
-import { sql, row, excluded } from 'vexnor';
+import { sql, row, excluded } from '@vexnor/core';
 
 const upsert = sql`
   INSERT INTO ${Account}
@@ -552,7 +552,7 @@ const upsert = sql`
 Use `DEFAULT` in insert or update values to explicitly apply a column's database default:
 
 ```typescript
-import { sql, DEFAULT } from 'vexnor';
+import { sql, DEFAULT } from '@vexnor/core';
 
 const insert = sql`
   INSERT INTO ${Account}
@@ -572,7 +572,7 @@ const insert = sql`
 Attach a label and metadata to a query for debugging, audit logging, and telemetry:
 
 ```typescript
-import { sql, row, info } from 'vexnor';
+import { sql, row, info } from '@vexnor/core';
 
 const findActiveAccounts = sql`
   ${info({ label: 'findActiveAccounts' })}
@@ -601,7 +601,7 @@ For CRUD factories that build INSERT/UPDATE SQL dynamically from runtime params,
 Build the column list and VALUES clause from a `{ rows: [...] }` param at execution time:
 
 ```typescript
-import { sql, row, expandInsertColumns, expandInsertValues } from 'vexnor';
+import { sql, row, expandInsertColumns, expandInsertValues } from '@vexnor/core';
 
 const insertAccounts = sql`
   INSERT INTO ${Account} (${expandInsertColumns(Account)})
@@ -621,7 +621,7 @@ await insertAccounts.postgres.all({
 Build the `SET col = ?, col = ?` clause from a `{ set: {...} }` param at execution time:
 
 ```typescript
-import { sql, row, buildUpdateSetExpand, param } from 'vexnor';
+import { sql, row, buildUpdateSetExpand, param } from '@vexnor/core';
 
 const updateAccount = sql`
   UPDATE ${Account}

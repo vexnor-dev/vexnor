@@ -9,7 +9,7 @@ Converts Sequelize model definitions into Vexnor runtime tables — no codegen a
 ## Install
 
 ```bash
-npm install vexnor @vexnor/sequelize
+npm install @vexnor/core @vexnor/sequelize
 ```
 
 ## Usage
@@ -20,7 +20,7 @@ Pass a Sequelize `ModelStatic` to `fromSequelizeTable` or `fromSequelizeView`. T
 import { fromSequelizeTable, fromSequelizeView } from '@vexnor/sequelize';
 import { AccountModel } from './account.model.js';
 import { AccountOrderSummaryModel } from './account-order-summary.model.js';
-import { sql, row, param } from 'vexnor';
+import { sql, row, param } from '@vexnor/core';
 import '@vexnor/postgres';
 
 const Account = fromSequelizeTable(AccountModel);
@@ -58,7 +58,7 @@ The adapted table works identically to a codegen-produced table — compose subq
 
 ```typescript
 import { OrderModel } from './order.model.js';
-import { col } from 'vexnor';
+import { col } from '@vexnor/core';
 
 const Order = fromSequelizeTable(OrderModel);
 

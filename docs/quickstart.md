@@ -4,13 +4,13 @@
 
 ```bash
 # PostgreSQL
-npm install vexnor @vexnor/postgres pg
+npm install @vexnor/core @vexnor/postgres pg
 
 # MS SQL Server
-npm install vexnor @vexnor/mssql mssql
+npm install @vexnor/core @vexnor/mssql mssql
 
 # SQLite
-npm install vexnor @vexnor/sqlite3 better-sqlite3
+npm install @vexnor/core @vexnor/sqlite3 better-sqlite3
 ```
 
 ## Generate Types
@@ -62,7 +62,7 @@ Column naming convention: `account_id` → `Account.$accountId`, `first_name` �
 
 ```typescript
 import { Account } from './models/public.account-table.js';
-import { sql, row, param } from 'vexnor';
+import { sql, row, param } from '@vexnor/core';
 import '@vexnor/postgres';
 import { Pool } from 'pg';
 
@@ -104,7 +104,7 @@ const account = await query.postgres.one({ db: pool });
 Use `col` to give a raw SQL expression a name and a TypeScript type:
 
 ```typescript
-import { sql, row, col } from 'vexnor';
+import { sql, row, col } from '@vexnor/core';
 
 const result = await sql`
   SELECT
@@ -240,7 +240,7 @@ Define queries in a shared module imported by both server and client:
 ```typescript
 // shared/queries.ts
 import { Account } from './models/public.account-table.js';
-import { sql, row, param } from 'vexnor';
+import { sql, row, param } from '@vexnor/core';
 import '@vexnor/postgres';
 
 export const selectAccounts = sql`
@@ -264,7 +264,7 @@ const accounts = await selectAccounts.postgres.all({
 ### Browser — remote execution
 
 ```typescript
-import { HttpRemoteClient } from 'vexnor';
+import { HttpRemoteClient } from '@vexnor/core';
 
 const remoteClient = new HttpRemoteClient({ targetUrl: '/api/db' });
 
@@ -280,7 +280,7 @@ The client sends a stable hash (not SQL). The server looks it up in a `SqlQueryR
 ### Server endpoint (any framework)
 
 ```typescript
-import { SqlQueryRegistry } from 'vexnor/execution';
+import { SqlQueryRegistry } from '@vexnor/core/execution';
 import { vexnorPostgres } from '@vexnor/postgres';
 import { selectAccounts } from '../shared/queries.js';
 
