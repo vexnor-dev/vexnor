@@ -275,7 +275,7 @@ export abstract class SqlQueryHandler<
             const value = resolvePath(inputParams, p.name);
             if (value === undefined) continue;
             const extended = Object.create(p.validation);
-            if (selectAliases?.length && !extended.obj.fieldNames) {
+            if (!extended.obj.fieldNames) {
                extended.obj.fieldNames = [];
             }
             extended.obj.fieldNames.push(...selectAliases);
