@@ -52,6 +52,7 @@ public sealed class QueryDefinition
 [JsonDerivedType(typeof(InsertValuesNode), "insertValues")]
 [JsonDerivedType(typeof(FilterNode), "filter")]
 [JsonDerivedType(typeof(OrderByNode), "orderBy")]
+[JsonDerivedType(typeof(JoinByNode), "joinBy")]
 [JsonDerivedType(typeof(ProjectionNode), "projection")]
 [JsonDerivedType(typeof(PaginationNode), "pagination")]
 [JsonDerivedType(typeof(UpsertNode), "upsert")]
@@ -199,6 +200,30 @@ public sealed class ProjectionNode : TemplateNode
 {
     [JsonPropertyName("param")]
     public string Param { get; init; } = "";
+
+    [JsonPropertyName("columns")]
+    public Dictionary<string, string> Columns { get; init; } = new();
+}
+
+public sealed class JoinByNode : TemplateNode
+{
+    [JsonPropertyName("param")]
+    public string Param { get; init; } = "";
+
+    [JsonPropertyName("joinMap")]
+    public Dictionary<string, JoinByTableDef> JoinMap { get; init; } = new();
+
+    [JsonPropertyName("joinTypes")]
+    public Dictionary<string, string> JoinTypes { get; init; } = new();
+}
+
+public sealed class JoinByTableDef
+{
+    [JsonPropertyName("schema")]
+    public string Schema { get; init; } = "";
+
+    [JsonPropertyName("table")]
+    public string Table { get; init; } = "";
 
     [JsonPropertyName("columns")]
     public Dictionary<string, string> Columns { get; init; } = new();

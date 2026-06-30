@@ -53,6 +53,7 @@ export type TemplateNode =
    | InsertValuesNode
    | FilterNode
    | OrderByNode
+   | JoinByNode
    | ProjectionNode
    | PaginationNode
    | UpsertNode;
@@ -137,6 +138,26 @@ export interface OrderByNode {
    columns: Record<string, string>;
 }
 
+/** Serialized table info for a joinBy table entry. */
+export interface JoinByTableEntry {
+   /** Table schema (e.g., "main", "public"). */
+   schema: string;
+   /** Table name. */
+   table: string;
+   /** Map of JS key → quoted SQL column expression for the table. */
+   columns: Record<string, string>;
+}
+
+export interface JoinByNode {
+   type: "joinBy";
+   /** Param name containing the join specification. */
+   param: string;
+   /** Map of alias → table info with columns for each joinable table. */
+   joinMap: Record<string, JoinByTableEntry>;
+   /** Default join types per alias (e.g., { account: "left" }). */
+   joinTypes: Record<string, string>;
+}
+
 /** Parameter metadata. */
 export interface ParamDefinition {
    /** Parameter name. */
@@ -158,10 +179,10 @@ export interface ParamDefinition {
 /** Validation schema for structured params — serialized into the manifest for cross-stack validation. */
 export interface ParamValidationSchema {
    /** Param type discriminator. */
-   type: "filter" | "projection";
+   type: "filter" | "projection" | "joinBy";
    /** Allowed column keys (camelCase property names). */
    columns: string[];
-   /** Allowed operators (for filter params). */
+   /** Allowed operators (for filter and joinBy params). */
    operators?: string[];
    /** Allowed aggregate functions (for projection params). */
    functions?: string[];

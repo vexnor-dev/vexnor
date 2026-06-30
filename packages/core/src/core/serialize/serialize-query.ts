@@ -6,6 +6,7 @@ import type { SqlLanguage } from "#src/format/sql-language.js";
 import { createRequire } from "node:module";
 import { SqlFilterBy } from "#src/core/operators/sql-filter-by.js";
 import { SqlProjectBy } from "#src/core/operators/sql-project-by.js";
+import { SqlJoinBy } from "#src/core/operators/sql-join-by.js";
 import type {
    QueryDefinition,
    QueryManifest,
@@ -118,6 +119,8 @@ function operatorToNode(op: SqlOperatorToken): TemplateNode {
          };
       case "orderBy":
          return { type: "orderBy", param: op.param, columns: op.columns };
+      case "joinBy":
+         return { type: "joinBy", param: op.param, joinMap: op.joinMap, joinTypes: op.joinTypes };
       case "when":
          return {
             type: "when",
@@ -163,6 +166,8 @@ const FILTER_OPERATORS = [
    "between", "in", "notIn", "like", "notLike", "isNull", "isNotNull",
 ];
 
+const JOIN_OPERATORS = ["=", "<", "<=", ">", ">=", "<>"];
+
 const PROJECTION_FUNCTIONS = ["sum", "count", "avg", "min", "max"];
 
 function extractValidationSchemas(query: SqlQueryAny): Record<string, ParamValidationSchema> {
@@ -183,6 +188,18 @@ function extractValidationSchemas(query: SqlQueryAny): Record<string, ParamValid
             type: "projection",
             columns,
             functions: PROJECTION_FUNCTIONS,
+         };
+      } else if (value instanceof SqlJoinBy) {
+         const allColumns: string[] = [];
+         for (const [alias, table] of Object.entries(value.joinMap)) {
+            for (const key of Object.keys(table.cols)) {
+               allColumns.push(`${alias}.${key.slice(1)}`);
+            }
+         }
+         schemas[value.paramName] = {
+            type: "joinBy",
+            columns: allColumns,
+            operators: JOIN_OPERATORS,
          };
       }
    }
