@@ -29,8 +29,8 @@ const DEFAULTS: Required<PostgresTransactionOptions> = {
  *
  * @example
  * await transaction(pool, async (client) => {
- *   await sql`INSERT INTO ${Account} ${Account.insertColsVals(data)}`.getOneRequired({ db: client });
- *   await sql`UPDATE ${Order} SET ${Order.updateSet({ status: "confirmed" })} WHERE ...`.getOneRequired({ db: client });
+ *   await sql`INSERT INTO ${Account} ${insert(Account)}`.one({ db: client, params: { rows: [data] } });
+ *   await sql`UPDATE ${Order} ${set(Order)} WHERE ...`.one({ db: client, params: { set: { status: "confirmed" } } });
  * });
  */
 export async function transaction<T>(

@@ -22,7 +22,7 @@ const DEFAULTS: Required<Sqlite3TransactionOptions> = {
  *
  * @example
  * await transaction(database, async (db) => {
- *   await sql`INSERT INTO ${Account} ${Account.insertColsVals(data)}`.getOneRequired({ db });
+ *   await sql`INSERT INTO ${Account} ${insert(Account)}`.one({ db, params: { rows: [data] } });
  * });
  */
 export async function transaction<T>(

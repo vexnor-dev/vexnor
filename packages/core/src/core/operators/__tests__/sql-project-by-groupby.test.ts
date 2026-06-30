@@ -124,7 +124,7 @@ describe("SqlProjectionGroupBy — coverage", () => {
       groupBy.write(context);
       expect(context.text).toMatchInlineSnapshot(`
         "GROUP BY
-          coalesce("a_1"."notes", ?)"
+          coalesce("a_1"."notes", 'N/A')"
       `);
    });
 
@@ -289,7 +289,7 @@ describe("SqlProjectBy.renderColRef — with context columns", () => {
 });
 
 describe("SqlProjectionGroupBy — concat transform parameterization", () => {
-   test.todo("concat in GROUP BY uses positional params instead of raw ?", () => {
+   test("concat in GROUP BY uses positional params instead of raw ?", () => {
       const groupBy = new SqlProjectionGroupBy(Account, "select");
       const context = new SqlBuildContext({
          dialect: "postgresql",
@@ -304,11 +304,14 @@ describe("SqlProjectionGroupBy — concat transform parameterization", () => {
       groupBy.write(context);
       // Should produce parameterized GROUP BY — no raw ? characters
       expect(context.text).not.toContain("?");
-      expect(context.text).toMatchInlineSnapshot();
-      expect(context.values).toMatchInlineSnapshot();
+      expect(context.text).toMatchInlineSnapshot(`
+        "GROUP BY
+          "a_1"."first_name" || ' ' || 'lastName'"
+      `);
+      expect(context.values).toMatchInlineSnapshot(`[]`);
    });
 
-   test.todo("coalesce in GROUP BY uses positional params", () => {
+   test("coalesce in GROUP BY uses positional params", () => {
       const groupBy = new SqlProjectionGroupBy(Account, "select");
       const context = new SqlBuildContext({
          dialect: "postgresql",
@@ -322,8 +325,11 @@ describe("SqlProjectionGroupBy — concat transform parameterization", () => {
       context.setAlias(Account.tableInfo, { alias: "a_1" });
       groupBy.write(context);
       expect(context.text).not.toContain("?");
-      expect(context.text).toMatchInlineSnapshot();
-      expect(context.values).toMatchInlineSnapshot();
+      expect(context.text).toMatchInlineSnapshot(`
+        "GROUP BY
+          coalesce("a_1"."first_name", 'unknown')"
+      `);
+      expect(context.values).toMatchInlineSnapshot(`[]`);
    });
 
    test("dateTrunc in GROUP BY has no params (literal granularity)", () => {
@@ -343,6 +349,46 @@ describe("SqlProjectionGroupBy — concat transform parameterization", () => {
       expect(context.text).toMatchInlineSnapshot(`
         "GROUP BY
           date_trunc('month', "a_1"."created_at")"
+      `);
+      expect(context.values).toMatchInlineSnapshot(`[]`);
+   });
+
+   test("coalesce with null arg emits NULL literal", () => {
+      const groupBy = new SqlProjectionGroupBy(Account, "select");
+      const context = new SqlBuildContext({
+         dialect: "postgresql",
+         params: {
+            select: {
+               safeName: { fn: "coalesce", col: "notes", args: [null] },
+               total: { fn: "count", col: "*" },
+            },
+         },
+      });
+      context.setAlias(Account.tableInfo, { alias: "a_1" });
+      groupBy.write(context);
+      expect(context.text).toMatchInlineSnapshot(`
+        "GROUP BY
+          coalesce("a_1"."notes", NULL)"
+      `);
+      expect(context.values).toMatchInlineSnapshot(`[]`);
+   });
+
+   test("coalesce with boolean arg emits stringified value", () => {
+      const groupBy = new SqlProjectionGroupBy(Account, "select");
+      const context = new SqlBuildContext({
+         dialect: "postgresql",
+         params: {
+            select: {
+               safeName: { fn: "coalesce", col: "notes", args: [true] },
+               total: { fn: "count", col: "*" },
+            },
+         },
+      });
+      context.setAlias(Account.tableInfo, { alias: "a_1" });
+      groupBy.write(context);
+      expect(context.text).toMatchInlineSnapshot(`
+        "GROUP BY
+          coalesce("a_1"."notes", 'true')"
       `);
       expect(context.values).toMatchInlineSnapshot(`[]`);
    });

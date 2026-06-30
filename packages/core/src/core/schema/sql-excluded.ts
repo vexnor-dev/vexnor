@@ -11,7 +11,7 @@ const cache = new WeakMap<SqlTableAny, InferTable$RowBySelect<Record<string, unk
  *
  * @example
  * sql`
- *   INSERT INTO ${Account} ${Account.insertColsVals(data)}
+ *   INSERT INTO ${Account} (${insert.cols(Account)}) VALUES (${insert.values(Account)})
  *   ON CONFLICT (${Account.$accountId}) DO UPDATE SET
  *     ${Account.$firstName} = ${excluded(Account).$firstName}
  * `
