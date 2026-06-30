@@ -635,3 +635,194 @@ await updateAccount.postgres.one({
   params: { accountId: '...', set: { firstName: 'Jane', email: 'jane@new.com' } },
 });
 ```
+
+---
+
+## `when()` — Conditional SQL Fragments
+
+Include or exclude a SQL fragment based on a parameter's presence. The condition is evaluated at build time — only the matching branch is emitted into the final SQL.
+
+A value is considered **present** if it is not `null`, `undefined`, or `false`. Notably, `0` and `""` (empty string) are treated as **truthy** — they count as present values.
+
+Fully serializable for cross-stack execution (the manifest stores both branches and the condition).
+
+### Basic Usage
+
+```typescript
+type P = { status: string; hasEmail: boolean; email: string };
+
+const query = sql`
+  SELECT ${row(Account.$$)} FROM ${Account}
+  WHERE ${Account.$status} = ${param<P>('status')}
+  ${when<P>('hasEmail', sql`AND ${Account.$email} = ${param<P>('email')}`)}
+`;
+
+// hasEmail: true  → AND "email" = $2
+// hasEmail: false → (nothing)
+```
+
+### Negation — `"!"` Prefix
+
+Prefix the param name with `"!"` to negate the condition — the `onTrue` branch is included when the param is **absent** (null, undefined, or false):
+
+```typescript
+// Include when hasEmail is absent (null/undefined/false)
+${when<P>('!hasEmail', sql`AND ${Account.$email} IS NULL`)}
+
+// hasEmail: false/null/undefined → AND "email" IS NULL
+// hasEmail: true  → (nothing)
+```
+
+### Else Branch (`onFalse`)
+
+Pass a second SQL fragment for the absent case:
+
+```typescript
+${when<P>('sortAsc', sql`ASC`, sql`DESC`)}
+
+// sortAsc: present (not null/undefined/false) → ASC
+// sortAsc: absent (null/undefined/false)      → DESC
+```
+
+With negation:
+
+```typescript
+${when<P>('!isAdmin', sql`AND "tier" = 'basic'`, sql`AND "tier" = 'admin'`)}
+
+// isAdmin: present → AND "tier" = 'admin' (onFalse, because negated + present = false)
+// isAdmin: absent  → AND "tier" = 'basic' (onTrue, because negated + absent = true)
+```
+
+### Type Safety
+
+The `flag` parameter must be a key of the params type. The value is considered present if not `null`, `undefined`, or `false` — this means `0` and `""` are truthy. Invalid keys produce compile errors:
+
+```typescript
+type P = { status: string; hasEmail: boolean };
+
+when<P>('hasEmail', ...)   // ✓ valid key
+when<P>('!hasEmail', ...)  // ✓ negated valid key
+when<P>('status', ...)     // ✓ valid key — present when not null/undefined/false
+when<P>('badKey', ...)     // ✗ compile error — not in P
+```
+
+### Serialization (Cross-Stack)
+
+The manifest includes a `negate` field:
+
+```json
+{
+  "type": "when",
+  "param": "hasEmail",
+  "negate": true,
+  "onTrue": [...],
+  "onFalse": [...]
+}
+```
+
+Any stack reads `negate` and flips the boolean evaluation accordingly.
+
+---
+
+## `upsert()` — Portable Upsert Operator
+
+A single operator that emits dialect-specific upsert SQL at build time and serializes to a `UpsertNode` for cross-stack execution (.NET, etc.).
+
+- **PostgreSQL/SQLite**: `INSERT ... ON CONFLICT (keys) DO UPDATE SET col = EXCLUDED.col`
+- **MSSQL**: `MERGE INTO ... USING (VALUES ...) AS src(cols) ON (...) WHEN MATCHED ... WHEN NOT MATCHED ...`
+
+### Usage
+
+```typescript
+import { upsert, sql, row, info, raw } from 'vexnor';
+
+// PostgreSQL / SQLite
+const upsertAccount = sql`
+  ${info({ driver: "postgres" }) ?? raw.BLANK}
+  insert into ${Account}
+  ${upsert(Account, ["accountId"])}
+  returning ${row(Account.$$)}
+`.postgres;
+
+await upsertAccount.all({
+  db: pool,
+  params: {
+    rows: [{ accountId: "acc-1", email: "new@example.com", firstName: "Jane", lastName: "Doe" }],
+  },
+});
+
+// MSSQL — same operator, different dialect output
+const upsertAccount = sql`
+  ${info({ driver: "transactsql" }) ?? raw.BLANK}
+  merge into ${Account}
+  ${upsert(Account, ["accountId"])}
+  output ${row(Account.as`inserted`.$$)};
+`.mssql;
+```
+
+### How it works
+
+1. `conflictKeys` — JS property keys (e.g., `["accountId"]`) identifying the conflict/merge target
+2. At build time, the operator reads `params.rows` to determine which columns are being inserted
+3. Only columns present in the rows are included in INSERT and SET clauses
+4. Conflict key columns are excluded from SET (they're the match condition)
+
+### Cross-Stack Serialization
+
+When serialized (no params), emits:
+
+```json
+{
+  "type": "upsert",
+  "param": "rows",
+  "columns": { "accountId": "\"account_id\"", "email": "\"email\"", ... },
+  "conflictKeys": ["accountId"]
+}
+```
+
+The .NET `SqlBuilder` reconstructs identical SQL from this node — verified by shared cross-runtime fixtures.
+
+---
+
+## Query Meta
+
+Every query execution automatically captures metadata (SQL text, parameters, duration). Retrieve it with `getQueryMeta()`:
+
+```typescript
+import { getQueryMeta } from 'vexnor';
+
+const rows = await revenue.postgres.all({ db: pool });
+const meta = getQueryMeta(rows);
+
+console.log(meta?.sql);      // "SELECT SUM(amount) FROM orders WHERE ..."
+console.log(meta?.params);   // ["completed"]
+console.log(meta?.duration); // 12 (ms)
+```
+
+### How it works
+
+- A module-level `WeakMap` stores metadata keyed by the result object reference.
+- Both local execution (via plugin handlers) and remote execution (via `HttpRemoteClient`) populate the store.
+- When the result is garbage-collected, the metadata is automatically cleaned up.
+
+### Type
+
+```typescript
+type QueryMeta = {
+   sql?: string;       // The SQL text sent to the database
+   params?: unknown[]; // Parameterized values
+   duration?: number;  // Execution time in milliseconds
+};
+```
+
+### Works everywhere
+
+```typescript
+// Server-side (local execution)
+const result = await query.postgres.all({ db: pool });
+getQueryMeta(result); // { sql, params, duration }
+
+// Client-side (remote execution via HttpRemoteClient)
+const rows = await query.postgres.all({ db: remoteClient });
+getQueryMeta(rows); // { sql, duration } — params omitted (sensitive)
+```

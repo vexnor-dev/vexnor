@@ -89,9 +89,9 @@ const inserted = await Account.postgres.insertRows().all({
 });
 
 // Find by columns
-const found = await Account.postgres.findBy().any({
+const found = await Account.postgres.select({}).any({
   db: pool,
-  params: { email: 'jane@example.com' },
+  params: { filter: { email: 'jane@example.com' } },
 });
 ```
 

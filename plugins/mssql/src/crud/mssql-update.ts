@@ -2,7 +2,7 @@ import {
    SqlTable,
    sql,
    raw,
-   buildUpdateSetExpand,
+   set,
    row,
    SqlUpdateParameters,
    Void,
@@ -11,8 +11,8 @@ import {
    SqlQueryColumns,
 } from "@vexnor/core";
 import type { SqlUpdateArgs } from "@vexnor/core";
-import { MssqlQueryHandler } from "#/mssql-query-handler.js";
-import "#/mssql-augment.js";
+import { MssqlQueryHandler } from "#src/mssql-query-handler.js";
+import "#src/mssql-augment.js";
 
 export type MssqlTableUpdateResult<
    T extends { Select: Record<string, unknown>; Update: Record<string, unknown> },
@@ -28,9 +28,9 @@ export function mssqlUpdate<
    Args extends SqlUpdateArgs,
 >(table: SqlTable<T>, args: Args): MssqlTableUpdateResult<T, Args> {
    return sql`
-      ${info({ driver: "transactsql" }) ?? raw.BLANK}
+      ${info({ driver: "transactsql" })}
       update ${table}
-         ${buildUpdateSetExpand(table)}
+         ${set(table)}
          output ${row(table.as`inserted`.$$)}
          ${args.WHERE ? sql`where ${args.WHERE.source.inline()}`.inline() : raw.BLANK}
    `.mssql as unknown as MssqlTableUpdateResult<T, Args>;

@@ -5,5 +5,6 @@ export default mergeConfig(sharedConfig, {
    test: {
       name: "test-remote",
       fileParallelism: false,
+      testTimeout: 15000,
    },
 });

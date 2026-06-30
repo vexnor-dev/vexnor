@@ -1,12 +1,13 @@
 // noinspection SqlNoDataSourceInspection,SqlResolve
 import { beforeAll, describe, expect, test } from "vitest";
-import { info, param, row, type RemoteClient } from "@vexnor/core";
+import { info, insert, param, row, type RemoteClient } from "@vexnor/core";
 import { SqlQueryRegistry } from "@vexnor/core/execution";
-import { Account, IAccountSelect, IOrderSelect, Order } from "./codegen/vexnor_dev.schema.js";
+import { Account, IAccountSelect, IOrderInsert, IOrderSelect, Order } from "./codegen/vexnor_dev.schema.js";
 import { jsonMany, sql } from "@vexnor/mssql";
 import vexnorMssql from "@vexnor/mssql";
 import { pool } from "./mssql-pool.js";
 import { getTag } from "./tags.js";
+
 
 const AccountOrders = sql`
    ${info({ label: "AccountOrders" })}
@@ -49,18 +50,18 @@ describe.sequential("mssql remote execution", (ctx) => {
 
       account = await sql`
          insert into ${Account}
-            ${Account.insertCols({ status: "CREATED", firstName: "Remote-Test", lastName: "User", email: `remote-test-${TAG}@example.com` })}
+            (${insert.cols(Account, "rows")})
             output ${row(Account.as("inserted").$$)}
-            ${Account.insertVals({ status: "CREATED", firstName: "Remote-Test", lastName: "User", email: `remote-test-${TAG}@example.com` })}
-      `.mssql.one({ db: pool.request() });
+            VALUES ${insert.values(Account, "rows")}
+      `.mssql.one({ db: pool.request(), params: { rows: [{ status: "CREATED", firstName: "Remote-Test", lastName: "User", email: `remote-test-${TAG}@example.com` }] } });
 
-      const orderInserts = [{ accountId: account.accountId }, { accountId: account.accountId }];
+      const orderInserts: IOrderInsert[] = [{ accountId: account.accountId }, { accountId: account.accountId }];
       orders = await sql`
          insert into ${Order}
-            ${Order.insertCols(...orderInserts)}
+            (${insert.cols(Order, "rows")})
             output ${row(Order.as("inserted").$$)}
-            ${Order.insertVals(...orderInserts)}
-      `.mssql.all({ db: pool.request() });
+            VALUES ${insert.values(Order, "rows")}
+      `.mssql.all({ db: pool.request(), params: { rows: orderInserts } });
    });
 
    test("all() via remote returns rows", async () => {
@@ -113,10 +114,10 @@ describe.sequential("mssql remote execution", (ctx) => {
    test("run() via remote returns IResult for write op", async () => {
       const tempAccount = await sql`
          insert into ${Account}
-            ${Account.insertCols({ email: `remote-run-${TAG}@example.com`, firstName: "Tmp", lastName: "Tmp" })}
+            (${insert.cols(Account, "rows")})
             output ${row(Account.as("inserted").$$)}
-            ${Account.insertVals({ email: `remote-run-${TAG}@example.com`, firstName: "Tmp", lastName: "Tmp" })}
-      `.mssql.one({ db: pool.request() });
+            VALUES ${insert.values(Account, "rows")}
+      `.mssql.one({ db: pool.request(), params: { rows: [{ email: `remote-run-${TAG}@example.com`, firstName: "Tmp", lastName: "Tmp" }] } });
 
       const result = await deleteAccount.run({
          db: remoteClient,

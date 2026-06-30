@@ -18,6 +18,7 @@ export default defineConfig({
       setupFiles: ["./vitest.setup.ts"],
       alias: {
          "#": path.resolve(__dirname, "client/src"),
+         "#src": path.resolve(__dirname, "client/src"),
          "#shared": path.resolve(__dirname, "shared"),
       },
    },

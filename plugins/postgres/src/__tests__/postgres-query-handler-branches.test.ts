@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from "vitest";
-import { PostgresQueryHandler } from "#/postgres-query-handler.js";
-import { sql } from "#/postgres-sql.js";
+import { PostgresQueryHandler } from "#src/postgres-query-handler.js";
+import { sql } from "#src/postgres-sql.js";
 import { SqlRunError } from "@vexnor/core";
 
 const simpleQuery = sql`SELECT 1 as id`;

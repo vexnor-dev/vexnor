@@ -6,7 +6,7 @@ import { Product, IProductInsert, IProductSelect } from "./codegen/vexnor_dev.pr
 import { sql } from "@vexnor/postgres";
 import assert, { ok } from "node:assert";
 import { getTag } from "./tags.js";
-import { row } from "@vexnor/core";
+import { row, insert } from "@vexnor/core";
 import { expect } from "vitest";
 import { Pool } from "pg";
 
@@ -39,6 +39,14 @@ export class TestDataManager {
       }
    }
 
+   async setup(pool: Pool) {
+      await this.initRootAccounts(pool);
+      if (this.ACCOUNT_CHILD_FACTOR > 0) await this.initChildAccounts(pool);
+      await this.initProducts(pool);
+      await this.initOrders(pool);
+      await this.initOrderItems(pool);
+   }
+
    async initRootAccounts(pool: Pool) {
       const accountInserts: IAccountInsert[] = [];
       for (let i = 0; i < this.ACCOUNT_ROOT_COUNT; i++) {
@@ -53,9 +61,9 @@ export class TestDataManager {
       }
       const accounts = await sql`
             insert into ${Account}
-               ${Account.insertColsVals(...accountInserts)}
+               ${insert(Account, "rows")}
                returning ${row(Account.$$)}
-         `.all({ db: pool });
+         `.all({ db: pool, params: { rows: accountInserts } });
 
       ok(accounts?.length, "root accounts not inserted");
       assert.deepEqual(accounts.length, this.ACCOUNT_ROOT_COUNT);
@@ -82,9 +90,9 @@ export class TestDataManager {
             };
             const account = await sql`
                insert into ${Account}
-                  ${Account.insertColsVals(accountInsert)}
+                  ${insert(Account, "rows")}
                   returning ${row(Account.$$)}
-            `.one({ db: pool });
+            `.one({ db: pool, params: { rows: [accountInsert] } });
             expect(account).toEqual(
                expect.objectContaining({
                   status: "created",
@@ -106,15 +114,15 @@ export class TestDataManager {
       }));
       const inserted = await sql`
          insert into ${Product}
-            ${Product.insertColsVals(...inserts)}
+            ${insert(Product, "rows")}
             returning ${row(Product.$$)}
-      `.all({ db: pool });
+      `.all({ db: pool, params: { rows: inserts } });
       ok(inserted?.length, "products not inserted");
       this.products.push(...inserted);
    }
 
    async initOrders(pool: Pool) {
-      ok(this.rootAccounts.length > 0 && this.childAccounts.length > 0, "must initialize accounts first");
+      ok(this.rootAccounts.length > 0, "must initialize root accounts first");
 
       const allAccounts = [...this.rootAccounts, ...this.childAccounts];
       for (const account of allAccounts) {
@@ -123,9 +131,9 @@ export class TestDataManager {
          }));
          const inserted = await sql`
             insert into ${Order}
-               ${Order.insertColsVals(...inserts)}
+               ${insert(Order, "rows")}
                returning ${row(Order.$$)}
-         `.all({ db: pool });
+         `.all({ db: pool, params: { rows: inserts } });
          ok(inserted?.length, "orders not inserted");
          this.orders.push(...inserted);
       }
@@ -141,9 +149,9 @@ export class TestDataManager {
          }));
          const inserted = await sql`
             insert into ${OrderItem}
-               ${OrderItem.insertColsVals(...inserts)}
+               ${insert(OrderItem, "rows")}
                returning ${row(OrderItem.$$)}
-         `.all({ db: pool });
+         `.all({ db: pool, params: { rows: inserts } });
          ok(inserted?.length, "order items not inserted");
          this.orderItems.push(...inserted);
       }

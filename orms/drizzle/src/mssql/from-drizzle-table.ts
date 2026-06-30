@@ -1,7 +1,10 @@
-import { getTableConfig, type AnyMsSqlTable } from "drizzle-orm/mssql-core";
+import { getTableConfig, type AnyMsSqlTable, type MsSqlTableWithColumns } from "drizzle-orm/mssql-core";
 import { newSqlTable, type SqlTableExtended } from "@vexnor/core";
 
-type FromDrizzleResult<T extends AnyMsSqlTable> = T extends {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyMsSqlTableCompat = AnyMsSqlTable | MsSqlTableWithColumns<any>;
+
+type FromDrizzleResult<T extends AnyMsSqlTableCompat> = T extends {
    $inferSelect: Record<string, unknown>;
    $inferInsert: Record<string, unknown>;
 }
@@ -23,13 +26,15 @@ type FromDrizzleResult<T extends AnyMsSqlTable> = T extends {
  *
  * export const Account = fromDrizzleTable(accountDrizzle, 'dbo');
  */
-export function fromDrizzleTable<T extends AnyMsSqlTable>(table: T, schema?: string): FromDrizzleResult<T> {
-   const config = getTableConfig(table);
+export function fromDrizzleTable<T extends AnyMsSqlTableCompat>(table: T, schema?: string): FromDrizzleResult<T> {
+   const config = getTableConfig(table as AnyMsSqlTable);
 
    const jsKeyBySqlName = new Map<string, string>();
-   for (const [jsKey, col] of Object.entries(table)) {
-      if (col !== null && typeof col === "object" && "name" in col && typeof col.name === "string") {
-         jsKeyBySqlName.set(col.name, jsKey);
+   if (table !== null && typeof table === "object") {
+      for (const [jsKey, col] of Object.entries(table)) {
+         if (col !== null && typeof col === "object" && "name" in col && typeof col.name === "string") {
+            jsKeyBySqlName.set(col.name, jsKey);
+         }
       }
    }
 

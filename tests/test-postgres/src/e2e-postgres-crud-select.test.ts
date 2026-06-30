@@ -77,7 +77,7 @@ describe.sequential("vexnor postgres CRUD - select", async (ctx) => {
             WHERE: sql`${Account.$accountId} = ${rootAccount.accountId}`,
             includeMany: { children },
          })
-         .all({ db: pool });
+         .all({ db: pool, params: {} });
       expect(results).toHaveLength(1);
       expect(results[0]!.children).toHaveLength(1);
       expect(results[0]!.children[0]!.accountId).toBe(childAccount.accountId);
@@ -93,7 +93,7 @@ describe.sequential("vexnor postgres CRUD - select", async (ctx) => {
                }),
             },
          })
-         .all({ db: pool });
+         .all({ db: pool, params: {} });
       expect(results).toHaveLength(1);
       expect(results[0]!.firstOrder?.orderId).toBe(order.orderId);
    });
@@ -108,7 +108,7 @@ describe.sequential("vexnor postgres CRUD - select", async (ctx) => {
                }),
             },
          })
-         .all({ db: pool });
+         .all({ db: pool, params: {} });
       expect(results).toHaveLength(1);
       expect(results[0]!.firstOrder).toBeNull();
    });
@@ -125,7 +125,7 @@ describe.sequential("vexnor postgres CRUD - select", async (ctx) => {
             WHERE: sql`${Account.$accountId} = ${childAccount.accountId}`,
             includeMany: { children },
          })
-         .all({ db: pool });
+         .all({ db: pool, params: {} });
       expect(results).toHaveLength(1);
       expect(results[0]!.children).toEqual([]);
    });
@@ -147,7 +147,7 @@ describe.sequential("vexnor postgres CRUD - select", async (ctx) => {
                }),
             },
          })
-         .all({ db: pool });
+         .all({ db: pool, params: {} });
       expect(results).toHaveLength(1);
       expect(results[0]!.children).toHaveLength(1);
       expect(results[0]!.children[0]!.accountId).toBe(childAccount.accountId);

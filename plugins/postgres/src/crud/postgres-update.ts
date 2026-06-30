@@ -1,9 +1,6 @@
 import {
    SqlTable,
-   sql,
-   raw,
-   buildUpdateSetExpand,
-   row,
+   sqlUpdate,
    SqlUpdateParameters,
    Void,
    ParamsOfArgs,
@@ -11,8 +8,8 @@ import {
    SqlQueryColumns,
 } from "@vexnor/core";
 import type { SqlUpdateArgs } from "@vexnor/core";
-import { PostgresQueryHandler } from "#/postgres-query-handler.js";
-import "#/postgres-augment.js";
+import { PostgresQueryHandler } from "#src/postgres-query-handler.js";
+import "#src/postgres-augment.js";
 
 export type PostgresTableUpdateResult<
    T extends { Select: Record<string, unknown>; Update: Record<string, unknown> },
@@ -27,11 +24,5 @@ export function postgresUpdate<
    T extends { Select: Record<string, unknown>; Update: Record<string, unknown> },
    Args extends SqlUpdateArgs,
 >(table: SqlTable<T>, args: Args): PostgresTableUpdateResult<T, Args> {
-   return sql`
-      ${info({ driver: "postgres" }) ?? raw.BLANK}
-      update ${table}
-         ${buildUpdateSetExpand(table)}
-         ${args.WHERE ? sql`where ${args.WHERE.inline()}`.inline() : raw.BLANK}
-      returning ${row(table.$$)}
-   `.postgres as unknown as PostgresTableUpdateResult<T, Args>;
+   return sqlUpdate(table, args, info({ driver: "postgres" })).postgres as unknown as PostgresTableUpdateResult<T, Args>;
 }

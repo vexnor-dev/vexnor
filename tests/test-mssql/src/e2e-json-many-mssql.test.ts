@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, test } from "vitest";
-import { info, param, row } from "@vexnor/core";
-import { Account, IAccountSelect, IOrderSelect, Order } from "./codegen/vexnor_dev.schema.js";
+import { info, insert, param, row } from "@vexnor/core";
+import { Account, IAccountInsert, IAccountSelect, IOrderInsert, IOrderSelect, Order } from "./codegen/vexnor_dev.schema.js";
 import { jsonMany, sql } from "@vexnor/mssql";
 import { pool } from "./mssql-pool.js";
 import { getTag } from "./tags.js";
@@ -13,23 +13,23 @@ describe.sequential("jsonMany() tests", (ctx) => {
    beforeAll(async () => {
       parentAccount = await sql`
          insert into ${Account}
-            ${Account.insertCols({
-               status: "created",
-               firstName: `John-0-${TAG}`,
-               lastName: `Doe-0-${TAG}`,
-               email: `john.doe-${TAG}@example.com`,
-            })}
+            (${insert.cols(Account, "rows")})
             output ${row(Account.as(`inserted`).$$)}
-            ${Account.insertVals({
+            VALUES ${insert.values(Account, "rows")}
+      `.one({
+         db: pool.request(),
+         params: {
+            rows: [{
                status: "created",
                firstName: `John-0-${TAG}`,
                lastName: `Doe-0-${TAG}`,
                email: `john.doe-${TAG}@example.com`,
-            })}
-      `.one({ db: pool.request() });
+            }],
+         },
+      });
       expect(parentAccount.accountId).toBeDefined();
 
-      const childrenInserts = [
+      const childrenInserts: IAccountInsert[] = [
          {
             status: "created" as const,
             firstName: `John-1-${TAG}`,
@@ -48,19 +48,19 @@ describe.sequential("jsonMany() tests", (ctx) => {
 
       const childrenAccounts = await sql`
          insert into ${Account}
-            ${Account.insertCols(...childrenInserts)}
+            (${insert.cols(Account, "rows")})
             output ${row(Account.as(`inserted`).$$)}
-            ${Account.insertVals(...childrenInserts)}
-      `.all({ db: pool.request() });
+            VALUES ${insert.values(Account, "rows")}
+      `.all({ db: pool.request(), params: { rows: childrenInserts } });
       expect(childrenAccounts).toHaveLength(2);
 
-      const orderInserts = [{ accountId: parentAccount.accountId }, { accountId: parentAccount.accountId }];
+      const orderInserts: IOrderInsert[] = [{ accountId: parentAccount.accountId }, { accountId: parentAccount.accountId }];
       orders = await sql`
          insert into ${Order}
-            ${Order.insertCols(...orderInserts)}
+            (${insert.cols(Order, "rows")})
             output ${row(Order.as(`inserted`).$$)}
-            ${Order.insertVals(...orderInserts)}
-      `.mssql.all({ db: pool.request() });
+            VALUES ${insert.values(Order, "rows")}
+      `.mssql.all({ db: pool.request(), params: { rows: orderInserts } });
       expect(orders).toHaveLength(2);
    });
 
@@ -125,10 +125,10 @@ describe.sequential("jsonMany() tests", (ctx) => {
    test("jsonMany() E2E: returns empty array when no orders", async () => {
       const accountWithNoOrders = await sql`
          insert into ${Account}
-            ${Account.insertCols({ status: "created", firstName: "No-orders", lastName: "Account", email: `no-orders-${TAG}@example.com` })}
+            (${insert.cols(Account, "rows")})
             output ${row(Account.as(`inserted`).$$)}
-            ${Account.insertVals({ status: "created", firstName: "No-orders", lastName: "Account", email: `no-orders-${TAG}@example.com` })}
-      `.one({ db: pool.request() });
+            VALUES ${insert.values(Account, "rows")}
+      `.one({ db: pool.request(), params: { rows: [{ status: "created", firstName: "No-orders", lastName: "Account", email: `no-orders-${TAG}@example.com` }] } });
 
       const query = sql`
          select ${row(Account.$$)}, ${jsonMany(AccountOrders).as("orders")}

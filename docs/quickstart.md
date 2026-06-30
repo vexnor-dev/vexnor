@@ -344,8 +344,8 @@ See [Isomorphic SQL](isomorphic-sql.md) for the full architecture, security mode
 ## Next Steps
 
 - [Queries](queries.md) — subqueries, CTEs, recursive CTEs, window functions
-- [Params](params.md) — `param()`, `expand()`, validation rules, inline injection
-- [CRUD](crud.md) — typed query factories (`findBy`, `select`, `insertRows`, `upsert`, ...)
+- [Params](params.md) — `param()`, validation rules, inline injection
+- [CRUD](crud.md) — typed query factories (`select`, `insertRows`, `upsert`, ...)
 - [Registry](registry.md) — SqlQueryRegistry, isomorphic SQL, remote execution
 - [CLI](cli.md) — `exec run`, `exec init`, config reference
 - [Databases](databases.md) — per-DB driver setup and dialect notes
