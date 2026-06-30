@@ -1,9 +1,9 @@
 import { describe, expect, test } from "vitest";
 import { Account } from "@vexnor/core/testing";
 import { sql, row } from "@vexnor/core";
-import { postgresInsertRows } from "#/crud/postgres-insert-rows.js";
-import { defaultQueryOptions } from "#/default-query-options.js";
-import { postgresInsertFrom } from "#/crud/postgres-insert-from.js";
+import { postgresInsertRows } from "#src/crud/postgres-insert-rows.js";
+import { defaultQueryOptions } from "#src/default-query-options.js";
+import { postgresInsertFrom } from "#src/crud/postgres-insert-from.js";
 
 describe("postgresInsertRows()", () => {
    test("basic insert", () => {
@@ -18,8 +18,7 @@ describe("postgresInsertRows()", () => {
         INSERT INTO
           "main"."account" ("email", "first_name", "last_name")
         VALUES
-          /* <query_1> */
-          ($1, $2, $3) /* </query_1> */
+          ($1, $2, $3)
         RETURNING
           "account"."account_id" AS "accountId",
           "account"."status",
@@ -52,9 +51,8 @@ describe("postgresInsertRows()", () => {
         INSERT INTO
           "main"."account" ("email", "first_name", "last_name")
         VALUES
-          /* <query_1> */
-          ($1, $2, $3) /* </query_1> */,
-          /* <query_2> */ ($4, $5, $6) /* </query_2> */
+          ($1, $2, $3),
+          ($4, $5, $6)
         RETURNING
           "account"."account_id" AS "accountId",
           "account"."status",

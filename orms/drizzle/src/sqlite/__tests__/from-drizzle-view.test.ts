@@ -176,6 +176,11 @@ describe("fromDrizzleView (sqlite) — metadata", () => {
             "select": true,
             "update": false,
           },
+          "_fk": Lazy {
+            "_computed": false,
+            "_value": null,
+            "callback": [Function],
+          },
           "_out": Lazy {
             "_computed": false,
             "_value": null,
@@ -184,7 +189,6 @@ describe("fromDrizzleView (sqlite) — metadata", () => {
           "columnTypes": {},
           "dbSchema": {},
           "dialect": "sqlite",
-          "fk": [],
           "format": null,
           "hashId": "SqlTable#(main.account_order_summary)",
           "id": "SqlTable#7(main.account_order_summary)",

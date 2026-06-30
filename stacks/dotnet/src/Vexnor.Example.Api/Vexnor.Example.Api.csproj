@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Vexnor.Example.Api</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Vexnor.Core\Vexnor.Core.csproj" />
+    <ProjectReference Include="..\Vexnor.Postgres\Vexnor.Postgres.csproj" />
+    <ProjectReference Include="..\Vexnor.Mssql\Vexnor.Mssql.csproj" />
+    <ProjectReference Include="..\Vexnor.Sqlite3\Vexnor.Sqlite3.csproj" />
+  </ItemGroup>
+
+</Project>

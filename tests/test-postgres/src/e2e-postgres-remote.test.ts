@@ -1,6 +1,6 @@
 // noinspection SqlNoDataSourceInspection,SqlResolve
 import { beforeAll, describe, expect, test } from "vitest";
-import { info, param, row, type RemoteClient } from "@vexnor/core";
+import { info, insert, param, row, type RemoteClient } from "@vexnor/core";
 import { SqlQueryRegistry } from "@vexnor/core/execution";
 import { Account, AccountStatusUdt, IAccountSelect, IOrderSelect, Order } from "./codegen/vexnor_dev.schema.js";
 import { jsonMany, sql } from "@vexnor/postgres";
@@ -47,20 +47,20 @@ describe.sequential("postgres remote execution", () => {
 
       account = await sql`
          insert into ${Account}
-            ${Account.insertColsVals({
+            ${insert(Account, "rows")}
+            returning ${row(Account.$$)}
+      `.one({ db: pool, params: { rows: [{
                status: AccountStatusUdt.CREATED,
                firstName: "Remote-Test",
                lastName: "User",
                email: `remote-test-${TAG}@example.com`,
-            })}
-            returning ${row(Account.$$)}
-      `.one({ db: pool });
+            }] } });
 
       orders = await sql`
          insert into ${Order}
-            ${Order.insertColsVals({ accountId: account.accountId }, { accountId: account.accountId })}
+            ${insert(Order, "rows")}
             returning ${row(Order.$$)}
-      `.all({ db: pool });
+      `.all({ db: pool, params: { rows: [{ accountId: account.accountId }, { accountId: account.accountId }] } });
    });
 
    test("all() via remote returns rows", async () => {
@@ -113,9 +113,9 @@ describe.sequential("postgres remote execution", () => {
    test("run() via remote returns QueryResult for write op", async () => {
       const tempAccount = await sql`
          insert into ${Account}
-            ${Account.insertColsVals({ email: `remote-run-${TAG}@example.com`, firstName: "Tmp", lastName: "Tmp" })}
+            ${insert(Account, "rows")}
             returning ${row(Account.$$)}
-      `.one({ db: pool });
+      `.one({ db: pool, params: { rows: [{ email: `remote-run-${TAG}@example.com`, firstName: "Tmp", lastName: "Tmp" }] } });
 
       const result = await deleteAccount.run({
          db: remoteClient,

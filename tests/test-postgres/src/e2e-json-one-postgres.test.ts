@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, test } from "vitest";
-import { info, row, SqlBuildContext } from "@vexnor/core";
+import { info, insert, row, SqlBuildContext } from "@vexnor/core";
 import { Account, AccountStatusUdt } from "./codegen/vexnor_dev.schema.js";
 import { jsonOne, PostgresTokenizer, sql } from "@vexnor/postgres";
 import { pool } from "./postgres-pool.js";
@@ -10,19 +10,21 @@ describe.sequential("jsonOne() tests", () => {
    beforeAll(async () => {
       const parentAccount = await sql`
          insert into ${Account}
-            ${Account.insertColsVals({
+            ${insert(Account, "rows")}
+            returning ${row(Account.$$)}
+      `.one({ db: pool, params: { rows: [{
                status: AccountStatusUdt.CREATED,
                firstName: "John-0-json-one",
                lastName: "Doe-0-json-one",
                email: `john.doe-${TAG}@example.com`,
-            })}
-            returning ${row(Account.$$)}
-      `.one({ db: pool });
+            }] } });
       expect(parentAccount.parentId).toBeDefined();
 
       const childrenAccounts = await sql`
          insert into ${Account}
-            ${Account.insertColsVals(
+            ${insert(Account, "rows")}
+            returning ${row(Account.$$)}
+      `.all({ db: pool, params: { rows: [
                {
                   status: AccountStatusUdt.CREATED,
                   firstName: "John-1-json-one",
@@ -37,9 +39,7 @@ describe.sequential("jsonOne() tests", () => {
                   email: `john.doe-2-${TAG}@example.com`,
                   parentId: parentAccount.accountId,
                },
-            )}
-            returning ${row(Account.$$)}
-      `.all({ db: pool });
+            ] } });
       expect(childrenAccounts).toHaveLength(2);
    });
 

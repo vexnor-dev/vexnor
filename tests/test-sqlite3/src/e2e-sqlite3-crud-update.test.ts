@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
 import { randomUUID } from "node:crypto";
-import { param, row } from "@vexnor/core";
+import { insert, param, row } from "@vexnor/core";
 import { sql, sqlite3Update } from "@vexnor/sqlite3";
 import { Account, IAccountInsert, IAccountSelect } from "./codegen/main.account-table.js";
 import { db } from "./config.js";
@@ -26,9 +26,9 @@ describe.sequential("vexnor sqlite3 CRUD - update", () => {
       ];
       const rows = await sql`
          insert into ${Account}
-            ${Account.insertColsVals(...inserts)}
+            ${insert(Account, "rows")}
          returning ${row(Account.$$)}
-      `.sqlite.all({ db });
+      `.sqlite.all({ db, params: { rows: inserts } });
       inserted.push(...rows);
    });
 

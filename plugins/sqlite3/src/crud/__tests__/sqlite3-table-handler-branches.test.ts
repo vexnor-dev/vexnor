@@ -1,74 +1,12 @@
 import { describe, expect, test } from "vitest";
-import { newSqlite3TableHandler } from "#/crud/sqlite3-table-handler.js";
+import { newSqlite3TableHandler } from "#src/crud/sqlite3-table-handler.js";
 import { Account } from "@vexnor/core/testing";
 import "@vexnor/sqlite3";
-import { defaultQueryOptions } from "#/crud/default-query-options.js";
+import { defaultQueryOptions } from "#src/crud/default-query-options.js";
 import { param, sql } from "@vexnor/core";
 
 describe("newSqlite3TableHandler — SQL generation branches", () => {
    const handler = newSqlite3TableHandler(Account);
-
-   test("findBy() — multiple fields SQL", () => {
-      const { text, values } = handler.findBy().source.getSql({
-         params: { email: "a@b.com", firstName: "Jane" },
-         options: defaultQueryOptions,
-      });
-      expect(text).toMatchInlineSnapshot(`
-        "/* <query_0> */
-        /* driver: sqlite */
-        SELECT
-          "a_1"."account_id" AS "accountId",
-          "a_1"."status",
-          "a_1"."email",
-          "a_1"."first_name" AS "firstName",
-          "a_1"."last_name" AS "lastName",
-          "a_1"."notes",
-          "a_1"."created_at" AS "createdAt",
-          "a_1"."modified_at" AS "modifiedAt",
-          "a_1"."parent_id" AS "parentId"
-        FROM
-          "main"."account" AS "a_1"
-          /* <query_1> */
-        WHERE
-          /* <query_2> */ /* <query_3> */ "a_1"."email" = ? /* </query_3> */
-          AND /* <query_4> */ "a_1"."first_name" = ? /* </query_4> */ /* </query_2> */ /* </query_1> */
-          /* </query_0> */"
-      `);
-      expect(values).toMatchInlineSnapshot(`
-        [
-          "a@b.com",
-          "Jane",
-        ]
-      `);
-   });
-
-   test("findBy() — empty params produces no WHERE values", () => {
-      const { text, values } = handler.findBy().source.getSql({
-         params: {},
-         options: defaultQueryOptions,
-      });
-      expect(text).toMatchInlineSnapshot(`
-        "/* <query_0> */
-        /* driver: sqlite */
-        SELECT
-          "a_1"."account_id" AS "accountId",
-          "a_1"."status",
-          "a_1"."email",
-          "a_1"."first_name" AS "firstName",
-          "a_1"."last_name" AS "lastName",
-          "a_1"."notes",
-          "a_1"."created_at" AS "createdAt",
-          "a_1"."modified_at" AS "modifiedAt",
-          "a_1"."parent_id" AS "parentId"
-        FROM
-          "main"."account" AS "a_1"
-          /* <query_1> */
-        WHERE
-          /* </query_1> */
-          /* </query_0> */"
-      `);
-      expect(values).toMatchInlineSnapshot(`[]`);
-   });
 
    test("select() — with WHERE clause", () => {
       const query = handler.select({
@@ -80,6 +18,7 @@ describe("newSqlite3TableHandler — SQL generation branches", () => {
       });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
+        /* driver: sqlite */
         SELECT
           "a_1"."account_id" AS "accountId",
           "a_1"."status",
@@ -95,6 +34,10 @@ describe("newSqlite3TableHandler — SQL generation branches", () => {
           /* <query_1> */
         WHERE
           /* <query_2> */ "a_1"."status" = ? /* </query_2> */ /* </query_1> */
+          /* <query_3> */
+          /* </query_3> */
+          /* <query_4> */
+          /* </query_4> */
           /* </query_0> */"
       `);
       expect(values).toMatchInlineSnapshot(`
@@ -159,8 +102,7 @@ describe("newSqlite3TableHandler — SQL generation branches", () => {
         INSERT INTO
           "main"."account" ("email", "first_name", "last_name")
         VALUES
-          /* <query_1> */
-          (?, ?, ?) /* </query_1> */
+          (?, ?, ?)
         RETURNING
           "account"."account_id" AS "accountId",
           "account"."status",
@@ -178,13 +120,11 @@ describe("newSqlite3TableHandler — SQL generation branches", () => {
    test("upsert() — SQL generation", () => {
       const query = handler.upsert({
          CONFLICT_ON: [Account.$accountId],
-         SET: sql`${Account.$email} = ${param<{ email: string }>("email")}`,
       });
       const { text } = query.source.getSql({
          params: {
             rows: [{ email: "test@test.com", firstName: "Test", lastName: "User" }],
-            email: "updated@test.com",
-         } as never,
+         },
          options: defaultQueryOptions,
       });
       expect(text).toMatchInlineSnapshot(`
@@ -193,11 +133,12 @@ describe("newSqlite3TableHandler — SQL generation branches", () => {
         INSERT INTO
           "main"."account" ("email", "first_name", "last_name")
         VALUES
-          /* <query_1> */
-          (?, ?, ?) /* </query_1> */
+          (?, ?, ?)
         ON CONFLICT ("account_id") DO UPDATE
         SET
-          /* <query_2> */ /* <query_3> */ "email" = ? /* </query_3> */ /* </query_2> */
+          "email" = excluded."email",
+          "first_name" = excluded."first_name",
+          "last_name" = excluded."last_name"
         RETURNING
           "account"."account_id" AS "accountId",
           "account"."status",

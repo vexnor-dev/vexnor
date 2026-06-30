@@ -2,7 +2,7 @@
 import { describe, expect, test } from "vitest";
 import { Account } from "@vexnor/core/testing";
 import { sql, row } from "@vexnor/core";
-import "#/sqlite3-augment.js";
+import "#src/sqlite3-augment.js";
 import "@vexnor/sqlite3";
 
 describe("Sqlite3Formatter", () => {

@@ -1,6 +1,6 @@
 import { defineQueryConfig } from "@vexnor/core/config";
-import { findTables, findPrimaryKeys } from "#/schema/find-tables.js";
-import { vexnorMssql } from "#/vexnor-mssql.js";
+import { findTables, findPrimaryKeys } from "#src/schema/find-tables.js";
+import { vexnorMssql } from "#src/vexnor-mssql.js";
 
 export default defineQueryConfig({ findTables, findPrimaryKeys })({
    queries: {

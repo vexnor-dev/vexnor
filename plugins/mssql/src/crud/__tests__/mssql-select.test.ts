@@ -3,9 +3,9 @@ import { describe, expect, test } from "vitest";
 import "@vexnor/mssql";
 import { Account, Order, OrderItem } from "@vexnor/core/testing";
 import { sql, row, param, input } from "@vexnor/core";
-import { jsonMany } from "#/charms/json-aggregation-mssql.js";
-import { mssqlSelect } from "#/crud/mssql-select.js";
-import { defaultQueryOptions } from "#/default-query-options.js";
+import { jsonMany } from "#src/charms/json-aggregation-mssql.js";
+import { mssqlSelect } from "#src/crud/mssql-select.js";
+import { defaultQueryOptions } from "#src/default-query-options.js";
 
 describe("mssqlTableRead()", () => {
    test("basic select", () => {
@@ -13,6 +13,7 @@ describe("mssqlTableRead()", () => {
       const { text } = query.source.getSql({ options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
+        /* driver: transactsql */
         SELECT
           "a_1"."account_id" AS "accountId",
           "a_1"."status",
@@ -25,6 +26,12 @@ describe("mssqlTableRead()", () => {
           "a_1"."parent_id" AS "parentId"
         FROM
           "main"."account" AS "a_1"
+          /* <query_1> */
+          /* </query_1> */
+          /* <query_2> */
+          /* </query_2> */
+          /* <query_3> */
+          /* </query_3> */
           /* </query_0> */"
       `);
    });
@@ -42,6 +49,7 @@ describe("mssqlTableRead()", () => {
       const { text } = query.source.getSql({ params: { id: "test-id" }, options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
+        /* driver: transactsql */
         SELECT
           "a_1"."account_id" AS "accountId",
           "a_1"."status",
@@ -57,6 +65,10 @@ describe("mssqlTableRead()", () => {
           /* <query_1> */
         WHERE
           /* <query_2> */ "a_1"."account_id" = @param_0 /* </query_2> */ /* </query_1> */
+          /* <query_3> */
+          /* </query_3> */
+          /* <query_4> */
+          /* </query_4> */
           /* </query_0> */"
       `);
    });
@@ -86,14 +98,18 @@ describe("mssqlTableRead()", () => {
         FROM
           "main"."account" AS "a_1"
           /* <query_1> */
-        ORDER BY
-          /* <query_2> */ "a_1"."created_at" DESC /* </query_2> */ /* </query_1> */
+          /* </query_1> */
+          /* <query_2> */
+          /* </query_2> */
           /* <query_3> */
-        OFFSET
-          @param_0 rows /* </query_3> */
+          /* </query_3> */
           /* <query_4> */
+        ORDER BY
+          /* <query_5> */ "a_1"."created_at" DESC /* </query_5> */ /* </query_4> */
+        OFFSET
+          @param_0 rows
         FETCH NEXT
-          @param_1 rows only /* </query_4> */
+          @param_1 rows only
           /* </query_0> */"
       `);
       expect(values).toMatchObject([0, 10]);
@@ -150,6 +166,12 @@ describe("mssqlTableRead()", () => {
                 '[]'
               ) AS "query_1"
           ) AS "query_1_result" /* </query_2> */
+          /* <query_3> */
+          /* </query_3> */
+          /* <query_4> */
+          /* </query_4> */
+          /* <query_5> */
+          /* </query_5> */
           /* </query_0> */"
       `);
    });
@@ -218,6 +240,12 @@ describe("mssqlTableRead()", () => {
                 NULL
               ) AS "query_1"
           ) AS "query_1_result" /* </query_3> */
+          /* <query_4> */
+          /* </query_4> */
+          /* <query_5> */
+          /* </query_5> */
+          /* <query_6> */
+          /* </query_6> */
           /* </query_0> */"
       `);
    });
@@ -317,6 +345,12 @@ describe("mssqlTableRead()", () => {
                 '[]'
               ) AS "query_3"
           ) AS "query_3_result" /* </query_5> */
+          /* <query_6> */
+          /* </query_6> */
+          /* <query_7> */
+          /* </query_7> */
+          /* <query_8> */
+          /* </query_8> */
           /* </query_0> */"
       `);
    });
@@ -396,6 +430,12 @@ describe("mssqlTableRead()", () => {
                 '[]'
               ) AS "query_1"
           ) AS "query_1_result" /* </query_2> */
+          /* <query_5> */
+          /* </query_5> */
+          /* <query_6> */
+          /* </query_6> */
+          /* <query_7> */
+          /* </query_7> */
           /* </query_0> */"
       `);
    });

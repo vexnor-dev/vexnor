@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { Sqlite3Tokenizer } from "#/sqlite3-tokenizer.js";
+import { Sqlite3Tokenizer } from "#src/sqlite3-tokenizer.js";
 
 const tokenizer = new Sqlite3Tokenizer();
 

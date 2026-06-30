@@ -1,7 +1,6 @@
-import { AccountOrderBy, getSelectAccountParams, SelectAccountsParams } from "@/shared/queries/postgres";
+import { getSelectAccountParams, SelectAccountsParams } from "@/shared/queries/postgres";
 import { useSearchParams } from "next/navigation";
 import { useMemo } from "react";
-import { OrderDirection } from "@/shared/queries/params";
 
 export function useSelectAccountParams(): SelectAccountsParams {
    const searchParams = useSearchParams();
@@ -13,7 +12,10 @@ export function useSelectAccountParams(): SelectAccountsParams {
    return useMemo(
       () =>
          getSelectAccountParams({
-            values: { filter, accountOrderBy: accountOrderBy as AccountOrderBy, orderDir: orderDir as OrderDirection },
+            values: {
+               filter,
+               ...(accountOrderBy ? { orderBy: { [accountOrderBy]: orderDir ?? "DESC" } } : {}),
+            },
          }),
       [filter, accountOrderBy, orderDir],
    );

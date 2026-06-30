@@ -3,8 +3,8 @@ import "@vexnor/sqlite3";
 import { describe, expect, test } from "vitest";
 import { Account } from "@vexnor/core/testing";
 import { sql, param } from "@vexnor/core";
-import { sqlite3Delete } from "#/crud/sqlite3-delete.js";
-import { defaultQueryOptions } from "#/crud/default-query-options.js";
+import { sqlite3Delete } from "#src/crud/sqlite3-delete.js";
+import { defaultQueryOptions } from "#src/crud/default-query-options.js";
 
 describe("sqlite3Delete()", () => {
    test("throws without WHERE or force", () => {

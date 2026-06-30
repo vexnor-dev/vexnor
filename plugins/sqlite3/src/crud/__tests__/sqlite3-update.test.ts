@@ -3,8 +3,8 @@ import "@vexnor/sqlite3";
 import { describe, expect, test } from "vitest";
 import { Account } from "@vexnor/core/testing";
 import { sql, input } from "@vexnor/core";
-import { sqlite3Update } from "#/crud/sqlite3-update.js";
-import { defaultQueryOptions } from "#/crud/default-query-options.js";
+import { sqlite3Update } from "#src/crud/sqlite3-update.js";
+import { defaultQueryOptions } from "#src/crud/default-query-options.js";
 
 describe("sqlite3Update()", () => {
    test("basic update", () => {
@@ -17,9 +17,8 @@ describe("sqlite3Update()", () => {
         "/* <query_0> */
         /* driver: sqlite */
         UPDATE "main"."account"
-        /* <query_1> */
         SET
-          /* <query_2> */ "email" = ? /* </query_2> */ /* </query_1> */
+          "email" = ?
         RETURNING
           "account"."account_id" AS "accountId",
           "account"."status",
@@ -46,12 +45,12 @@ describe("sqlite3Update()", () => {
         "/* <query_0> */
         /* driver: sqlite */
         UPDATE "main"."account"
-        /* <query_1> */
         SET
-          /* <query_2> */ "email" = ? /* </query_2> */ /* </query_1> */
-          /* <query_3> */
+          "email" = ?
+          /* <query_1> */
         WHERE
-          /* <query_4> */ "account"."account_id" = ? /* </query_4> */ /* </query_3> */
+          /* <query_2> */
+          "account"."account_id" = ? /* </query_2> */ /* </query_1> */
         RETURNING
           "account"."account_id" AS "accountId",
           "account"."status",

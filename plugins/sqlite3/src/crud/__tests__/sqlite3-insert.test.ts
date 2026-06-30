@@ -2,9 +2,9 @@ import "@vexnor/sqlite3";
 import { describe, expect, test } from "vitest";
 import { Account } from "@vexnor/core/testing";
 import { sql, row } from "@vexnor/core";
-import { sqlite3InsertRows } from "#/crud/sqlite3-insert-rows.js";
-import { sqlite3InsertFrom } from "#/crud/sqlite3-insert-from.js";
-import { defaultQueryOptions } from "#/crud/default-query-options.js";
+import { sqlite3InsertRows } from "#src/crud/sqlite3-insert-rows.js";
+import { sqlite3InsertFrom } from "#src/crud/sqlite3-insert-from.js";
+import { defaultQueryOptions } from "#src/crud/default-query-options.js";
 
 describe("sqlite3InsertRows()", () => {
    test("basic insert", () => {
@@ -19,8 +19,7 @@ describe("sqlite3InsertRows()", () => {
         INSERT INTO
           "main"."account" ("email", "first_name", "last_name")
         VALUES
-          /* <query_1> */
-          (?, ?, ?) /* </query_1> */
+          (?, ?, ?)
         RETURNING
           "account"."account_id" AS "accountId",
           "account"."status",
@@ -53,9 +52,8 @@ describe("sqlite3InsertRows()", () => {
         INSERT INTO
           "main"."account" ("email", "first_name", "last_name")
         VALUES
-          /* <query_1> */
-          (?, ?, ?) /* </query_1> */,
-          /* <query_2> */ (?, ?, ?) /* </query_2> */
+          (?, ?, ?),
+          (?, ?, ?)
         RETURNING
           "account"."account_id" AS "accountId",
           "account"."status",

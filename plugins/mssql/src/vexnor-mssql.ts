@@ -13,7 +13,7 @@ import {
 } from "@vexnor/core/plugin";
 import { MssqlQueryHandler, PLUGIN_NAME } from "./mssql-query-handler.js";
 import { SqlQueryHandler, SqlQuery } from "@vexnor/core";
-import "#/mssql-augment.js";
+import "#src/mssql-augment.js";
 import { getColumnType } from "./get-column-type.js";
 import { findForeignKeys, findTables, findViews } from "./schema/find-tables.js";
 import mssql from "mssql";

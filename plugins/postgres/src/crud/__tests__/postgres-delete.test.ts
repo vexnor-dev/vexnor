@@ -2,8 +2,8 @@
 import { describe, expect, test } from "vitest";
 import { Account } from "@vexnor/core/testing";
 import { sql, param } from "@vexnor/core";
-import { postgresDelete } from "#/crud/postgres-delete.js";
-import { defaultQueryOptions } from "#/default-query-options.js";
+import { postgresDelete } from "#src/crud/postgres-delete.js";
+import { defaultQueryOptions } from "#src/default-query-options.js";
 
 describe("postgresDelete()", () => {
    test("throws without WHERE or force", () => {

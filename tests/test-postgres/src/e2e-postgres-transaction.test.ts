@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { row, SqlRunError } from "@vexnor/core";
+import { row, insert, SqlRunError } from "@vexnor/core";
 import { sql } from "@vexnor/postgres";
 import { transaction, savepoint } from "@vexnor/postgres";
 import { Account } from "./codegen/vexnor_dev.account-table.js";
@@ -9,9 +9,9 @@ describe.sequential("transaction() - postgres", () => {
    test("commits on success", async () => {
       const account = await transaction(pool, async (tx) => {
          return sql`
-            INSERT INTO ${Account} ${Account.insertColsVals({ email: "tx-commit@test.com", firstName: "Tx", lastName: "Commit" })}
+            INSERT INTO ${Account} ${insert(Account, "rows")}
             RETURNING ${row(Account.$$)}
-         `.one({ db: tx });
+         `.one({ db: tx, params: { rows: [{ email: "tx-commit@test.com", firstName: "Tx", lastName: "Commit" }] } });
       });
 
       expect(account.email).toMatchInlineSnapshot(`"tx-commit@test.com"`);
@@ -25,9 +25,9 @@ describe.sequential("transaction() - postgres", () => {
       await expect(
          transaction(pool, async (tx) => {
             const account = await sql`
-               INSERT INTO ${Account} ${Account.insertColsVals({ email: "tx-rollback@test.com", firstName: "Tx", lastName: "Rollback" })}
+               INSERT INTO ${Account} ${insert(Account, "rows")}
                RETURNING ${row(Account.$$)}
-            `.one({ db: tx });
+            `.one({ db: tx, params: { rows: [{ email: "tx-rollback@test.com", firstName: "Tx", lastName: "Rollback" }] } });
             insertedId = account.accountId;
             throw new Error("forced rollback");
          }),
@@ -40,9 +40,9 @@ describe.sequential("transaction() - postgres", () => {
    test("respects isolation level option", async () => {
       const account = await transaction(pool, async (tx) => {
          return sql`
-            INSERT INTO ${Account} ${Account.insertColsVals({ email: "tx-serializable@test.com", firstName: "Tx", lastName: "Serializable" })}
+            INSERT INTO ${Account} ${insert(Account, "rows")}
             RETURNING ${row(Account.$$)}
-         `.one({ db: tx });
+         `.one({ db: tx, params: { rows: [{ email: "tx-serializable@test.com", firstName: "Tx", lastName: "Serializable" }] } });
       }, { isolationLevel: "SERIALIZABLE" });
 
       expect(account.email).toMatchInlineSnapshot(`"tx-serializable@test.com"`);
@@ -53,8 +53,8 @@ describe.sequential("transaction() - postgres", () => {
    test("respects READ ONLY access mode", async () => {
       const error = await transaction(pool, async (tx) => {
          await sql`
-            INSERT INTO ${Account} ${Account.insertColsVals({ email: "tx-readonly@test.com", firstName: "Tx", lastName: "ReadOnly" })}
-         `.postgres.run({ db: tx });
+            INSERT INTO ${Account} ${insert(Account, "rows")}
+         `.postgres.run({ db: tx, params: { rows: [{ email: "tx-readonly@test.com", firstName: "Tx", lastName: "ReadOnly" }] } });
       }, { accessMode: "READ ONLY" }).catch((err) => err);
 
       expect(error).toBeInstanceOf(SqlRunError);
@@ -76,15 +76,15 @@ describe.sequential("savepoint() - postgres", () => {
    test("releases savepoint on success, outer transaction commits", async () => {
       const result = await transaction(pool, async (tx) => {
          const outer = await sql`
-            INSERT INTO ${Account} ${Account.insertColsVals({ email: "sp-outer@test.com", firstName: "Sp", lastName: "Outer" })}
+            INSERT INTO ${Account} ${insert(Account, "rows")}
             RETURNING ${row(Account.$$)}
-         `.one({ db: tx });
+         `.one({ db: tx, params: { rows: [{ email: "sp-outer@test.com", firstName: "Sp", lastName: "Outer" }] } });
 
          const inner = await savepoint(tx, async (tx2) => {
             return sql`
-               INSERT INTO ${Account} ${Account.insertColsVals({ email: "sp-inner@test.com", firstName: "Sp", lastName: "Inner" })}
+               INSERT INTO ${Account} ${insert(Account, "rows")}
                RETURNING ${row(Account.$$)}
-            `.one({ db: tx2 });
+            `.one({ db: tx2, params: { rows: [{ email: "sp-inner@test.com", firstName: "Sp", lastName: "Inner" }] } });
          });
 
          return { outer, inner };
@@ -99,15 +99,15 @@ describe.sequential("savepoint() - postgres", () => {
    test("rolls back savepoint on error, outer transaction continues", async () => {
       const result = await transaction(pool, async (tx) => {
          const outer = await sql`
-            INSERT INTO ${Account} ${Account.insertColsVals({ email: "sp-outer-err@test.com", firstName: "Sp", lastName: "OuterErr" })}
+            INSERT INTO ${Account} ${insert(Account, "rows")}
             RETURNING ${row(Account.$$)}
-         `.one({ db: tx });
+         `.one({ db: tx, params: { rows: [{ email: "sp-outer-err@test.com", firstName: "Sp", lastName: "OuterErr" }] } });
 
          const inner = await savepoint(tx, async (tx2) => {
             await sql`
-               INSERT INTO ${Account} ${Account.insertColsVals({ email: "sp-inner-err@test.com", firstName: "Sp", lastName: "InnerErr" })}
+               INSERT INTO ${Account} ${insert(Account, "rows")}
                RETURNING ${row(Account.$$)}
-            `.one({ db: tx2 });
+            `.one({ db: tx2, params: { rows: [{ email: "sp-inner-err@test.com", firstName: "Sp", lastName: "InnerErr" }] } });
             throw new Error("savepoint rollback");
          });
 
@@ -123,14 +123,14 @@ describe.sequential("savepoint() - postgres", () => {
    test("savepoint with explicit name", async () => {
       const result = await transaction(pool, async (tx) => {
          const outer = await sql`
-            INSERT INTO ${Account} ${Account.insertColsVals({ email: "sp-named@test.com", firstName: "Sp", lastName: "Named" })}
+            INSERT INTO ${Account} ${insert(Account, "rows")}
             RETURNING ${row(Account.$$)}
-         `.one({ db: tx });
+         `.one({ db: tx, params: { rows: [{ email: "sp-named@test.com", firstName: "Sp", lastName: "Named" }] } });
 
          await savepoint(tx, "my_savepoint", async (tx2) => {
             await sql`
-               INSERT INTO ${Account} ${Account.insertColsVals({ email: "sp-named-inner@test.com", firstName: "Sp", lastName: "NamedInner" })}
-            `.postgres.run({ db: tx2 });
+               INSERT INTO ${Account} ${insert(Account, "rows")}
+            `.postgres.run({ db: tx2, params: { rows: [{ email: "sp-named-inner@test.com", firstName: "Sp", lastName: "NamedInner" }] } });
             throw new Error("rollback named savepoint");
          });
 
