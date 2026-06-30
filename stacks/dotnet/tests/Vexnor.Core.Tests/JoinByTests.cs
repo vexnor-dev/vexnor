@@ -596,7 +596,7 @@ public class JoinByManifestTests
 
         var joinByNode = query.Template[1] as JoinByNode;
         Assert.NotNull(joinByNode);
-        Assert.Equal("joinBy", joinByNode!.Param);
+        Assert.Equal("joinBy", joinByNode.Param);
         Assert.Equal(2, joinByNode.JoinMap.Count);
         Assert.True(joinByNode.JoinMap.ContainsKey("_"));
         Assert.True(joinByNode.JoinMap.ContainsKey("account"));
