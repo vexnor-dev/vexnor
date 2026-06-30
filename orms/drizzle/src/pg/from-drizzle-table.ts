@@ -1,7 +1,10 @@
-import { getTableConfig, type AnyPgTable } from "drizzle-orm/pg-core";
+import { getTableConfig, type AnyPgTable, type PgTableWithColumns } from "drizzle-orm/pg-core";
 import { newSqlTable, type SqlTableExtended } from "@vexnor/core";
 
-type FromDrizzleResult<T extends AnyPgTable> = T extends {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyPgTableCompat = AnyPgTable | PgTableWithColumns<any>;
+
+type FromDrizzleResult<T extends AnyPgTableCompat> = T extends {
    $inferSelect: Record<string, unknown>;
    $inferInsert: Record<string, unknown>;
 }
@@ -21,13 +24,15 @@ type FromDrizzleResult<T extends AnyPgTable> = T extends {
  *
  * export const Account = fromDrizzleTable(accountDrizzle);
  */
-export function fromDrizzleTable<T extends AnyPgTable>(table: T, schema?: string): FromDrizzleResult<T> {
-   const config = getTableConfig(table);
+export function fromDrizzleTable<T extends AnyPgTableCompat>(table: T, schema?: string): FromDrizzleResult<T> {
+   const config = getTableConfig(table as AnyPgTable);
 
    const jsKeyBySqlName = new Map<string, string>();
-   for (const [jsKey, col] of Object.entries(table)) {
-      if (col !== null && typeof col === "object" && "name" in col && typeof col.name === "string") {
-         jsKeyBySqlName.set(col.name, jsKey);
+   if (table !== null && typeof table === "object") {
+      for (const [jsKey, col] of Object.entries(table)) {
+         if (col !== null && typeof col === "object" && "name" in col && typeof col.name === "string") {
+            jsKeyBySqlName.set(col.name, jsKey);
+         }
       }
    }
 

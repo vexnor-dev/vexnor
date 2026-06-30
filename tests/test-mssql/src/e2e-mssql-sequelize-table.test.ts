@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
 import { CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, Model, Sequelize } from "sequelize";
 import { fromSequelizeTable } from "@vexnor/sequelize";
-import { row, sql, param } from "@vexnor/core";
+import { insert, row, sql, param } from "@vexnor/core";
 import "@vexnor/mssql";
 import { pool } from "./mssql-pool.js";
 import { getTag } from "./tags.js";
@@ -74,10 +74,10 @@ describe.sequential("e2e sequelize/mssql — fromSequelizeTable works against re
    test("sql: insert and select", async () => {
       const inserted = await sql`
          INSERT INTO ${Account}
-            ${Account.insertCols({ email: `${TAG}-sql@example.com`, firstName: "SqlSequelize", lastName: "Test" })}
+            (${insert.cols(Account, "rows")})
             OUTPUT ${row(Account.as("inserted").$$)}
-            ${Account.insertVals({ email: `${TAG}-sql@example.com`, firstName: "SqlSequelize", lastName: "Test" })}
-      `.mssql.one({ db: pool.request() });
+            VALUES ${insert.values(Account, "rows")}
+      `.mssql.one({ db: pool.request(), params: { rows: [{ email: `${TAG}-sql@example.com`, firstName: "SqlSequelize", lastName: "Test" }] } });
 
       expect(inserted.email).toBe(`${TAG}-sql@example.com`);
       expect(inserted.firstName).toBe("SqlSequelize");
@@ -90,17 +90,6 @@ describe.sequential("e2e sequelize/mssql — fromSequelizeTable works against re
       expect(account.email).toBe(`${TAG}@example.com`);
       expect(account.firstName).toBe("Sequelize");
       expect(account.accountId).toBeDefined();
-   });
-
-   test("crud: findById", async () => {
-      const result = await Account.mssql.findById().any({ db: pool.request(), params: { accountId: account.accountId } });
-      expect(String(result?.accountId).toLowerCase()).toBe(String(account.accountId).toLowerCase());
-      expect(result?.email).toBe(account.email);
-   });
-
-   test("crud: findBy", async () => {
-      const result = await Account.mssql.findBy().any({ db: pool.request(), params: { email: account.email } });
-      expect(String(result?.accountId).toLowerCase()).toBe(String(account.accountId).toLowerCase());
    });
 
    test("crud: select with WHERE", async () => {

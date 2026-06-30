@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { PostgresTokenizer } from "#/postgres-tokenizer.js";
+import { PostgresTokenizer } from "#src/postgres-tokenizer.js";
 
 const tokenizer = new PostgresTokenizer("test_query");
 

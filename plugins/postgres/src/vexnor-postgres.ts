@@ -10,12 +10,12 @@ import {
    VexnorPlugin,
 } from "@vexnor/core/plugin";
 import { Pool } from "pg";
-import { findEnums } from "#/schema/find-enums.js";
-import { findTables, findViews } from "#/schema/find-tables.js";
-import { getColumnType } from "#/schema/get-column-type.js";
-import { PLUGIN_NAME, PostgresQueryHandler } from "#/postgres-query-handler.js";
+import { findEnums } from "#src/schema/find-enums.js";
+import { findTables, findViews } from "#src/schema/find-tables.js";
+import { getColumnType } from "#src/schema/get-column-type.js";
+import { PLUGIN_NAME, PostgresQueryHandler } from "#src/postgres-query-handler.js";
 import { SqlQuery, SqlQueryHandler } from "@vexnor/core";
-import "#/postgres-augment.js";
+import "#src/postgres-augment.js";
 
 /**
  * Vexnor plugin for postgres.

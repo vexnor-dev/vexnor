@@ -1,9 +1,9 @@
 import { describe, expect, test } from "vitest";
 import { Account } from "@vexnor/core/testing";
 import { sql, row } from "@vexnor/core";
-import { mssqlInsertRows } from "#/crud/mssql-insert-rows.js";
-import { defaultQueryOptions } from "#/default-query-options.js";
-import { mssqlInsertFrom } from "#/crud/mssql-insert-from.js";
+import { mssqlInsertRows } from "#src/crud/mssql-insert-rows.js";
+import { defaultQueryOptions } from "#src/default-query-options.js";
+import { mssqlInsertFrom } from "#src/crud/mssql-insert-from.js";
 
 describe("mssqlTableCreate()", () => {
    test("basic insert", () => {
@@ -26,8 +26,7 @@ describe("mssqlTableCreate()", () => {
           "inserted"."modified_at" AS "modifiedAt",
           "inserted"."parent_id" AS "parentId"
         VALUES
-          /* <query_1> */
-          (@param_0, @param_1, @param_2) /* </query_1> */
+          (@param_0, @param_1, @param_2)
           /* </query_0> */"
       `);
       expect(values).toMatchObject(["a@b.com", "John", "Doe"]);
@@ -58,9 +57,8 @@ describe("mssqlTableCreate()", () => {
           "inserted"."modified_at" AS "modifiedAt",
           "inserted"."parent_id" AS "parentId"
         VALUES
-          /* <query_1> */
-          (@param_0, @param_1, @param_2) /* </query_1> */,
-          /* <query_2> */ (@param_3, @param_4, @param_5) /* </query_2> */
+          (@param_0, @param_1, @param_2),
+          (@param_3, @param_4, @param_5)
           /* </query_0> */"
       `);
       expect(values).toMatchObject(["a@b.com", "John", "Doe", "b@b.com", "Jane", "Smith"]);

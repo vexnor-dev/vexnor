@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { findForeignKeys, findTables } from "#/schema/find-tables.js";
+import { findForeignKeys, findTables } from "#src/schema/find-tables.js";
 
 describe("findTables() tests", () => {
    test("findTables() snapshot match", () => {

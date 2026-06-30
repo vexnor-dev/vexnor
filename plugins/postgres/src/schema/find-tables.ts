@@ -1,6 +1,6 @@
 import { col, param, row, sql } from "@vexnor/core";
 import { SqlColumnInfo, SqlForeignKeyInfo, SqlPrimaryKeyInfo } from "@vexnor/core/plugin";
-import { Columns, ConstraintColumnUsage, KeyColumnUsage, ReferentialConstraints, TableConstraints } from "#/schema/models.js";
+import { Columns, ConstraintColumnUsage, KeyColumnUsage, ReferentialConstraints, TableConstraints } from "#src/schema/models.js";
 
 export const findTableColumns = sql`
    select ${row(Columns.$table_name, Columns.$table_schema)},

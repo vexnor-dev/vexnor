@@ -4,13 +4,17 @@ packages:
   - orms/**
   - examples/**
   - tests/**
+  - stacks/fixtures
   - '!**/dist/**'
   - '!**/build/**'
   - '!**/deploy/**'
 
 overrides:
   drizzle-orm: 1.0.0-rc.4-5d5b77c
+  jsdom: 25.0.1
   sql-formatter: 15.7.4
+  tar: ">=7.4.0"
+  undici: ">=7.28.0"
 
 peerDependencyRules:
   ignoreMissing:

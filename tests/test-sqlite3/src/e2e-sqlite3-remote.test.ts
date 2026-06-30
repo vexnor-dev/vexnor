@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, test } from "vitest";
-import { info, param, row, type RemoteClient } from "@vexnor/core";
+import { info, insert, param, row, type RemoteClient } from "@vexnor/core";
 import { SqlQueryRegistry } from "@vexnor/core/execution";
 import { Account, IAccountSelect, IOrderSelect, Order } from "./codegen/main.schema.js";
 import { jsonMany, sql } from "@vexnor/sqlite3";
@@ -44,15 +44,15 @@ describe.sequential("sqlite3 remote execution", () => {
 
       account = await sql`
          insert into ${Account}
-            ${Account.insertColsVals({ status: "created", firstName: "Remote-Test", lastName: "User", email: `remote-test-sqlite3@example.com` })}
+            ${insert(Account, "rows")}
             returning ${row(Account.$$)}
-      `.sqlite.one({ db });
+      `.sqlite.one({ db, params: { rows: [{ status: "created", firstName: "Remote-Test", lastName: "User", email: `remote-test-sqlite3@example.com` }] } });
 
       orders = await sql`
          insert into ${Order}
-            ${Order.insertColsVals({ accountId: account.accountId }, { accountId: account.accountId })}
+            ${insert(Order, "rows")}
             returning ${row(Order.$$)}
-      `.sqlite.all({ db });
+      `.sqlite.all({ db, params: { rows: [{ accountId: account.accountId }, { accountId: account.accountId }] } });
    });
 
    test("all() via remote returns rows", async () => {
@@ -85,9 +85,9 @@ describe.sequential("sqlite3 remote execution", () => {
    test("run() via remote returns RunResult with changes for write op", async () => {
       const tempAccount = await sql`
          insert into ${Account}
-            ${Account.insertColsVals({ email: "remote-run-sqlite3@example.com", firstName: "Tmp", lastName: "Tmp" })}
+            ${insert(Account, "rows")}
             returning ${row(Account.$$)}
-      `.sqlite.one({ db });
+      `.sqlite.one({ db, params: { rows: [{ email: "remote-run-sqlite3@example.com", firstName: "Tmp", lastName: "Tmp" }] } });
 
       const result = await deleteAccountRaw.sqlite.run({
          db: remoteClient,

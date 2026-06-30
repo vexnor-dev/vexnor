@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
-import { param, row, sql } from "@vexnor/core";
+import { insert, param, row, sql } from "@vexnor/core";
 import { sqlite3Update } from "@vexnor/sqlite3";
 import { ITypeCoverageSelect, TypeCoverage } from "./codegen/main.type_coverage-table.js";
 import { db } from "./config.js";
@@ -9,7 +9,9 @@ describe("sqlite3 type coverage", () => {
 
    beforeAll(async () => {
       inserted = await sql`
-         insert into ${TypeCoverage} ${TypeCoverage.insertColsVals({
+         insert into ${TypeCoverage} ${insert(TypeCoverage, "rows")}
+         returning ${row(TypeCoverage.$$)}
+      `.sqlite.one({ db, params: { rows: [{
             colText: "hello",
             colVarchar: "world",
             colChar: "char      ",
@@ -28,9 +30,7 @@ describe("sqlite3 type coverage", () => {
             colDatetime: "2024-01-15 10:30:00",
             colTimestamp: "2024-01-15 10:30:00",
             colBlob: new Uint8Array([1, 2, 3, 4]),
-         })}
-         returning ${row(TypeCoverage.$$)}
-      `.sqlite.one({ db });
+         }] } });
    });
 
    afterAll(async () => {

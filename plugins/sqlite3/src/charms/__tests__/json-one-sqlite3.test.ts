@@ -1,6 +1,6 @@
 import { assertType, beforeEach, describe, expect, test } from "vitest";
 import { param, row, sql, SqlBuildContext, SqlCharm, SqlParam } from "@vexnor/core";
-import { jsonOne } from "#/charms/json-aggregation-sqlite3.js";
+import { jsonOne } from "#src/charms/json-aggregation-sqlite3.js";
 import { Account, resetAll } from "@vexnor/core/testing";
 
 beforeEach(() => resetAll());

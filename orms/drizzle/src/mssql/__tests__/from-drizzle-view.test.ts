@@ -162,6 +162,11 @@ describe("fromDrizzleView (mssql) — metadata", () => {
             "select": true,
             "update": false,
           },
+          "_fk": Lazy {
+            "_computed": false,
+            "_value": null,
+            "callback": [Function],
+          },
           "_out": Lazy {
             "_computed": false,
             "_value": null,
@@ -170,7 +175,6 @@ describe("fromDrizzleView (mssql) — metadata", () => {
           "columnTypes": {},
           "dbSchema": {},
           "dialect": "tsql",
-          "fk": [],
           "format": null,
           "hashId": "SqlTable#(vexnor_dev.account_order_summary)",
           "id": "SqlTable#3(vexnor_dev.account_order_summary)",

@@ -3,7 +3,7 @@ import * as crypto from "node:crypto";
 import { ok } from "node:assert";
 import { Pool } from "pg";
 import { Account, AccountStatusUdt, Order, OrderStatusUdt } from "./codegen/vexnor_dev.schema.js";
-import { param, row, sql } from "@vexnor/core";
+import { insert, param, row, set, sql } from "@vexnor/core";
 import { jsonMany } from "@vexnor/postgres";
 
 const pool = new Pool({
@@ -15,14 +15,19 @@ const pool = new Pool({
 const id = crypto.randomUUID().slice(0, 4);
 const newAccount = await sql`
    insert into ${Account}
-      ${Account.insertColsVals({
+      ${insert(Account, "rows")}
+      returning ${row(Account.$$)}
+`.postgres.one({
+   db: pool,
+   params: {
+      rows: [{
          status: AccountStatusUdt.CREATED,
          firstName: `John_${id}`,
          lastName: `Doe_${id}`,
          email: `john.doe_${id}@example.com`,
-      })}
-      returning ${row(Account.$$)}
-`.postgres.one({ db: pool });
+      }],
+   },
+});
 console.log("new account:", newAccount);
 ok(newAccount?.accountId, "accountId is required");
 
@@ -41,7 +46,12 @@ console.log(`account (id=${newAccount.accountId}`, account);
 
 const newOrders = await sql`
    INSERT INTO ${Order}
-      ${Order.insertColsVals(
+      ${insert(Order, "rows")}
+      RETURNING ${row(Order.$$)}
+`.postgres.all({
+   db: pool,
+   params: {
+      rows: [
          {
             accountId: newAccount.accountId,
             status: OrderStatusUdt.CREATED,
@@ -54,19 +64,23 @@ const newOrders = await sql`
             createdAt: new Date(),
             modifiedAt: new Date(),
          },
-      )}
-      RETURNING ${row(Order.$$)}
-`.postgres.all({ db: pool });
+      ],
+   },
+});
 ok(newOrders?.length);
 
 const accountUpdated = await sql`
    update ${Account}
-   set ${Account.updateSet({
-      status: AccountStatusUdt.CONFIRMED,
-   })}
-   where ${Account.$accountId} = ${newAccount.accountId}
+   ${set(Account)}
+   where ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}
    returning ${row(Account.$$)}
-`.postgres.one({ db: pool });
+`.postgres.one({
+   db: pool,
+   params: {
+      set: { status: AccountStatusUdt.CONFIRMED },
+      accountId: newAccount.accountId,
+   },
+});
 console.log("account updated:", accountUpdated);
 
 const UserOrders = sql`
@@ -80,12 +94,13 @@ const findAccountsWithOrders = sql`
    SELECT ${row(Account.$$)},
           ${jsonMany(UserOrders).as("orders")}
    FROM ${Account} ${jsonMany(UserOrders)}
-   WHERE ${Account.$accountId} = ${newAccount.accountId}`;
+   WHERE ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}`;
 
 const accountWithLimitedOrders = await findAccountsWithOrders.postgres.one({
    db: pool,
    params: {
       limit: 1,
+      accountId: newAccount.accountId,
    },
 });
 

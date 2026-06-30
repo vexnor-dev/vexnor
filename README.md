@@ -1,8 +1,8 @@
 # vexnor
 
-One query. Server or browser. No API layer.
+Typesafe, real SQL data framework for AI-native apps.
 
-Write a SQL query once — execute it on the server against your database, or dispatch it from the browser over HTTP. Same code, same types, no REST endpoints to define. The query is the contract.
+Write SQL with full type inference — execute server-side or browser-side with zero API layer. Let AI agents discover your schema, resolve FK paths, and compose typed queries at runtime. The query is the contract.
 
 [![CI](https://github.com/vexnor-dev/vexnor/actions/workflows/ci_github.yml/badge.svg)](https://github.com/vexnor-dev/vexnor/actions/workflows/ci_github.yml)
 [![codecov](https://codecov.io/gh/vexnor-dev/vexnor/branch/main/graph/badge.svg)](https://codecov.io/gh/vexnor-dev/vexnor)
@@ -27,6 +27,8 @@ const accounts = await selectAccounts.postgres.all({ db: remoteClient });
 ```
 
 Result types and required params are **inferred at compile time** from what you select — no manual type annotations, no codegen step after schema changes.
+
+For AI agents: `SchemaGraph` discovers tables, resolves FK join paths via BFS, and composes typed multi-table queries at runtime — no predefined endpoints, no manual SQL. The schema graph IS the API.
 
 Mix raw SQL with CRUD — compose subqueries into typed includes:
 
@@ -68,12 +70,16 @@ const myOrders = sql`
 Zero-SQL CRUD — same types, same pipeline:
 
 ```typescript
-// Find by any column subset — no SQL needed
-const account = await Account.postgres.findBy().any({
+// Zero-config select with runtime filtering, sorting, and pagination
+const accounts = await Account.postgres.select({}).all({
   db: pool,
-  params: { email: 'jane@example.com' },
+  params: {
+    filterBy: [{ email: ["like", "%@example.com"] }],
+    orderBy: { createdAt: "DESC" },
+    limit: 10,
+  },
 });
-// account: IAccountSelect | null
+// accounts: IAccountSelect[]
 ```
 
 The client never sends SQL. It sends a stable hash that identifies a pre-registered query. The server looks it up, runs it, and returns typed results. No REST endpoints, no tRPC procedures, no GraphQL resolvers — the query is the API.
@@ -221,13 +227,41 @@ const inserted = await Account.postgres.insertRows().all({
 });
 // inserted: IAccountSelect[]
 
-// Find by any column subset
-const found = await Account.postgres.findBy().any({
+// Zero-config select with runtime filtering, sorting, and pagination
+const found = await Account.postgres.select({}).all({
   db: pool,
-  params: { email: 'jane@example.com' },
+  params: {
+    filterBy: [{ status: ["in", "active", "confirmed"] }],
+    orderBy: { createdAt: "DESC" },
+    limit: 25,
+    offset: 0,
+  },
 });
-// found: IAccountSelect | null
+// found: IAccountSelect[]
 ```
+
+## AI Agent CRUD
+
+Runtime filtering, sorting, and pagination — no query definitions needed. An AI agent (or any dynamic caller) can construct queries from column metadata alone:
+
+```typescript
+// AI agent fetches data with runtime filtering, sorting, and pagination
+const accounts = await Account.postgres.select({}).all({
+  db: pool,
+  params: {
+    filterBy: [
+      { status: ["in", "active", "confirmed"] },
+      { createdAt: [">=", "2024-01-01"] },
+      { or: [{ email: ["like", "%@vip.com"] }, { parentId: ["isNotNull"] }] },
+    ],
+    orderBy: { createdAt: "DESC" },
+    limit: 25,
+    offset: 0,
+  },
+});
+```
+
+All operators (`in`, `>=`, `like`, `between`, `isNull`, `isNotNull`, etc.) are validated at runtime against the table schema. Invalid columns or operators throw before any SQL is built.
 
 ## Transactions
 
@@ -331,18 +365,28 @@ See [Telemetry](docs/telemetry.md) — span shape, OTLP exporters, combining wit
 
 ## Documentation
 
+> 📖 See [Cheat Sheet](docs/cheat-sheet.md) for the full composable API reference (`.as()`, `.out`, `col()`, `param()`, CLI troubleshooting).
+
+- [Cheat Sheet](docs/cheat-sheet.md) — quick reference for all composable APIs
 - [Quickstart](docs/quickstart.md) — full onboarding, all core APIs
 - [Queries](docs/queries.md) — subqueries, CTEs, recursive CTEs, window functions
-- [Params](docs/params.md) — inline injection, `param()`, `expand()`, runtime validation
+- [Params](docs/params.md) — inline injection, `param()`, runtime validation
 - [CRUD](docs/crud.md) — typed query factories, execution methods
 - [Isomorphic SQL](docs/isomorphic-sql.md) — same query on server and client, how it works, comparison with REST/tRPC/GraphQL
 - [Registry](docs/registry.md) — SqlQueryRegistry, query pipelines, `connect()`, isomorphic SQL, remote execution
+- [Schema Graph](docs/schema-graph.md) — FK-based table introspection, BFS join path resolution, AI prompt formatting
 - [Authorization](docs/authorization.md) — query authorization, audit logging, SOC2/HIPAA
 - [Telemetry](docs/telemetry.md) — OpenTelemetry integration, spans, OTLP exporters
 - [CLI](docs/cli.md) — `codegen`, `exec run`, `exec init`, config reference
+- [Serialize](docs/serialize.md) — `vexnor serialize`, manifest generation for cross-runtime execution
 - [Transactions](docs/transactions.md) — `transaction()`, `savepoint()`, isolation levels, all three drivers
 - [Databases](docs/databases.md) — PostgreSQL, MS SQL Server, SQLite — driver setup and dialect notes
 - [Plugins & Adaptors](docs/plugins.md) — Drizzle, Prisma, TypeORM, Sequelize adaptors, building your own plugin
+- [Portable Queries](docs/portable-queries.md) — conceptual overview of all portability axes (isomorphic, multi-dialect, multi-runtime)
+- [Cross-Stack Setup](docs/cross-stack-setup.md) — step-by-step guide to get TypeScript + .NET running together
+- [.NET SDK](docs/dotnet.md) — cross-runtime manifest, QueryRegistry, SqlBuilder, shared fixtures
+- [Workflow](docs/workflow.md) — migration/upgrade guide, day-to-day dev loop
+- [CI](docs/ci.md) — CI/deployment pipeline for cross-stack projects
 
 ## Examples
 

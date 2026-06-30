@@ -1,4 +1,5 @@
 import {
+   getQueryName,
    ok,
    type RemoteClient,
    SqlErrorCode,
@@ -7,10 +8,11 @@ import {
    SqlQueryHandler,
    SqlRunArgs,
    SqlRunError,
+   type QueryMeta,
 } from "@vexnor/core";
 import type { Database, RunResult } from "better-sqlite3";
-import { Sqlite3Formatter } from "#/sqlite3-formatter.js";
-import { Sqlite3Tokenizer } from "#/sqlite3-tokenizer.js";
+import { Sqlite3Formatter } from "#src/sqlite3-formatter.js";
+import { Sqlite3Tokenizer } from "#src/sqlite3-tokenizer.js";
 import pkg from "../package.json" with { type: "json" };
 
 // SQLite transient error codes safe to retry
@@ -26,13 +28,14 @@ export const PLUGIN_NAME = pkg.name;
 
 export type Sqlite3Client = Database;
 
-export type ReadResult<T> = { rows: T[] };
+export type Sqlite3ReadResult<T> = { rows: T[] };
+export type Sqlite3WriteResult = RunResult;
 
 export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unknown }> extends SqlQueryHandler<
    Pick<T, "Row" | "Params"> & {
       Connection: Sqlite3Client | RemoteClient;
-      Read: ReadResult<T["Row"]>;
-      Write: RunResult;
+      Read: Sqlite3ReadResult<T["Row"]>;
+      Write: Sqlite3WriteResult;
    }
 > {
    static Formatter = new Sqlite3Formatter();
@@ -42,12 +45,12 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
    }
 
    // eslint-disable-next-line unused-imports/no-unused-vars
-   resolveRows(_res: ReadResult<T["Row"]>): T["Row"][] {
+   resolveRows(_res: Sqlite3ReadResult<T["Row"]>): T["Row"][] {
       throw new Error("Method not supported: better-sqlite3 result doesn't include any rows");
    }
 
    // RunResult has no rows — deserialization is a no-op for write results
-   deserialize(result: ReadResult<T["Row"]>): ReadResult<T["Row"]> {
+   deserialize(result: Sqlite3ReadResult<T["Row"]>): Sqlite3ReadResult<T["Row"]> {
       if (this.isReadResult(result)) {
          return {
             ...result,
@@ -58,7 +61,7 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
       return result;
    }
 
-   isReadResult(result: unknown): result is ReadResult<T["Row"]> {
+   isReadResult(result: unknown): result is Sqlite3ReadResult<T["Row"]> {
       return typeof result === "object" && result !== null && "rows" in result && Array.isArray(result.rows);
    }
 
@@ -98,16 +101,19 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
     *
     * @param args - Database connection and query parameters.
     * @param mode
+    * @param meta
     */
    execute(
       args: SqlRunArgs<{ Connection: Sqlite3Client; Params: T["Params"] }>,
       mode: "read",
-   ): Promise<ReadResult<T["Row"]>>;
-   execute(args: SqlRunArgs<{ Connection: Sqlite3Client; Params: T["Params"] }>, mode?: "write"): Promise<RunResult>;
+      meta?: QueryMeta,
+   ): Promise<Sqlite3ReadResult<T["Row"]>>;
+   execute(args: SqlRunArgs<{ Connection: Sqlite3Client; Params: T["Params"] }>, mode?: "write", meta?: QueryMeta): Promise<Sqlite3WriteResult>;
    async execute(
       args: SqlRunArgs<{ Connection: Sqlite3Client; Params: T["Params"] }>,
       mode: SqlExecuteMode = "write",
-   ): Promise<ReadResult<T["Row"]> | RunResult> {
+      meta?: QueryMeta,
+   ): Promise<Sqlite3ReadResult<T["Row"]> | Sqlite3WriteResult> {
       const { db, options: { debug } = {} } = args;
       const resolvedDb = await db;
 
@@ -116,14 +122,17 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
          queryConfig = this.getOptions(args);
          if (debug) debug(Object.freeze(queryConfig));
          const statement = (resolvedDb as Database).prepare<unknown[] | object, T["Row"]>(queryConfig.sql);
+         if (meta) { meta.sql = queryConfig.sql; meta.params = queryConfig.values; }
          if (mode === "read" /*|| statement.reader*/) {
             const rows = statement.all(queryConfig.values);
             return Promise.resolve({ rows });
          }
 
-         return Promise.resolve(statement.run(queryConfig.values));
+         const result = statement.run(queryConfig.values);
+         return Promise.resolve(result);
       } catch (err) {
-         throw new SqlRunError(`Error running sqlite query '${this.source.id}'`, this.source, {
+         const queryName = await getQueryName(this.source);
+         throw new SqlRunError(`Error running SQLITE3 query '${queryName ?? this.source.id}' at ${this.source.location}.`, this.source, {
             cause: err,
             sql: queryConfig?.sql,
             code: isRetryableSqliteError(err)
@@ -150,30 +159,30 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
    override run(
       args: SqlRunArgs<
          Pick<
-            Pick<T, "Row" | "Params"> & { Connection: Sqlite3Client | RemoteClient; Write: RunResult },
+            Pick<T, "Row" | "Params"> & { Connection: Sqlite3Client | RemoteClient; Write: Sqlite3WriteResult },
             "Connection" | "Params"
          >
       >,
       mode: "read",
-   ): Promise<ReadResult<T["Row"]>>;
+   ): Promise<Sqlite3ReadResult<T["Row"]>>;
    override run(
       args: SqlRunArgs<
          Pick<
-            Pick<T, "Row" | "Params"> & { Connection: Sqlite3Client | RemoteClient; Write: RunResult },
+            Pick<T, "Row" | "Params"> & { Connection: Sqlite3Client | RemoteClient; Write: Sqlite3WriteResult },
             "Connection" | "Params"
          >
       >,
       mode?: "write",
-   ): Promise<RunResult>;
+   ): Promise<Sqlite3WriteResult>;
    override async run(
       args: SqlRunArgs<
          Pick<
-            Pick<T, "Row" | "Params"> & { Connection: Sqlite3Client | RemoteClient; Write: RunResult },
+            Pick<T, "Row" | "Params"> & { Connection: Sqlite3Client | RemoteClient; Write: Sqlite3WriteResult },
             "Connection" | "Params"
          >
       >,
       mode: SqlExecuteMode = "write",
-   ): Promise<ReadResult<T["Row"]> | RunResult> {
+   ): Promise<Sqlite3ReadResult<T["Row"]> | Sqlite3WriteResult> {
       return await super.run(args, mode);
    }
 }

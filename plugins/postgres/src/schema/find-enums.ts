@@ -1,5 +1,5 @@
 import { param, row, sql, val } from "@vexnor/core";
-import { PgEnum, PgNamespace, PgType } from "#/schema/models.js";
+import { PgEnum, PgNamespace, PgType } from "#src/schema/models.js";
 import { SqlEnumValue } from "@vexnor/core/plugin";
 
 export const findEnums = sql`

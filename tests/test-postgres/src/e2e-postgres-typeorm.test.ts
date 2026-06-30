@@ -3,7 +3,7 @@ import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
 import { DataSource, EntitySchema, Entity, PrimaryGeneratedColumn, Column, ViewEntity, ViewColumn } from "typeorm";
 import { fromTypeORM } from "@vexnor/typeorm";
-import { row, sql, param, excluded } from "@vexnor/core";
+import { row, sql, param, insert } from "@vexnor/core";
 import "@vexnor/postgres";
 import { pool } from "./postgres-pool.js";
 import { POSTGRES_HOST, POSTGRES_PORT, POSTGRES_DATABASE, POSTGRES_USER, POSTGRES_PASSWORD } from "./config.js";
@@ -160,9 +160,9 @@ describe.sequential("e2e typeorm/pg — EntitySchema", () => {
    test("sql: insert and select", async () => {
       const inserted = await sql`
          INSERT INTO ${Account}
-            ${Account.insertColsVals({ email: `${TAG}-sql@example.com`, firstName: "SqlTypeORM", lastName: "Test" })}
+            ${insert(Account, "rows")}
             RETURNING ${row(Account.$$)}
-      `.postgres.one({ db: pool });
+      `.postgres.one({ db: pool, params: { rows: [{ email: `${TAG}-sql@example.com`, firstName: "SqlTypeORM", lastName: "Test" }] } });
 
       expect(inserted.email).toBe(`${TAG}-sql@example.com`);
       expect(inserted.firstName).toBe("SqlTypeORM");
@@ -179,17 +179,6 @@ describe.sequential("e2e typeorm/pg — EntitySchema", () => {
       ok(account, "account not inserted");
       expect(account.email).toBe(`${TAG}@example.com`);
       expect(account.accountId).toBeDefined();
-   });
-
-   test("crud: findById", async () => {
-      const result = await Account.postgres.findById().any({ db: pool, params: { accountId: account.accountId } });
-      expect(result?.accountId).toBe(account.accountId);
-      expect(result?.email).toBe(account.email);
-   });
-
-   test("crud: findBy", async () => {
-      const result = await Account.postgres.findBy().any({ db: pool, params: { email: account.email } });
-      expect(result?.accountId).toBe(account.accountId);
    });
 
    test("crud: select with WHERE", async () => {
@@ -252,9 +241,9 @@ describe.sequential("e2e typeorm/pg — decorator entity", () => {
    test("sql: insert and select", async () => {
       const inserted = await sql`
          INSERT INTO ${Account}
-            ${Account.insertColsVals({ email: `${TAG}-sql@example.com`, firstName: "SqlDecorator", lastName: "Test" })}
+            ${insert(Account, "rows")}
             RETURNING ${row(Account.$$)}
-      `.postgres.one({ db: pool });
+      `.postgres.one({ db: pool, params: { rows: [{ email: `${TAG}-sql@example.com`, firstName: "SqlDecorator", lastName: "Test" }] } });
 
       expect(inserted.email).toBe(`${TAG}-sql@example.com`);
       expect(inserted.firstName).toBe("SqlDecorator");
@@ -272,11 +261,6 @@ describe.sequential("e2e typeorm/pg — decorator entity", () => {
       expect(account.accountId).toBeDefined();
    });
 
-   test("crud: findById", async () => {
-      const result = await Account.postgres.findById().any({ db: pool, params: { accountId: account.accountId } });
-      expect(result?.accountId).toBe(account.accountId);
-   });
-
    test("crud: update", async () => {
       const idParam = param<{ id: string }>("id");
       const updated = await Account.postgres
@@ -292,7 +276,6 @@ describe.sequential("e2e typeorm/pg — decorator entity", () => {
       const upserted = await Account.postgres
          .upsert({
             CONFLICT_ON: [Account.$accountId!],
-            SET: sql`${Account.$firstName!} = ${excluded(Account).$firstName!}`,
          })
          .one({
             db: pool,
