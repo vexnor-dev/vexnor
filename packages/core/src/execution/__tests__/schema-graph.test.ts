@@ -760,7 +760,7 @@ describe("SchemaGraph", () => {
                                  "min",
                                  "max",
                                ],
-                               "fieldNames": [
+                               "fieldValues": [
                                  "paymentId",
                                  "customerId",
                                  "amount",
@@ -3187,7 +3187,7 @@ describe("SchemaGraph", () => {
                                  "min",
                                  "max",
                                ],
-                               "fieldNames": [
+                               "fieldValues": [
                                  "paymentId",
                                  "customerId",
                                  "amount",
@@ -5614,7 +5614,7 @@ describe("SchemaGraph", () => {
                                  "min",
                                  "max",
                                ],
-                               "fieldNames": [
+                               "fieldValues": [
                                  "paymentId",
                                  "customerId",
                                  "amount",
@@ -8042,7 +8042,7 @@ describe("SchemaGraph", () => {
                                      "min",
                                      "max",
                                    ],
-                                   "fieldNames": [
+                                   "fieldValues": [
                                      "paymentId",
                                      "customerId",
                                      "amount",
@@ -10411,7 +10411,7 @@ describe("SchemaGraph", () => {
                                      "min",
                                      "max",
                                    ],
-                                   "fieldNames": [
+                                   "fieldValues": [
                                      "paymentId",
                                      "customerId",
                                      "amount",
@@ -12780,7 +12780,7 @@ describe("SchemaGraph", () => {
                                      "min",
                                      "max",
                                    ],
-                                   "fieldNames": [
+                                   "fieldValues": [
                                      "paymentId",
                                      "customerId",
                                      "amount",
@@ -15088,7 +15088,7 @@ describe("SchemaGraph", () => {
                              "min",
                              "max",
                            ],
-                           "fieldNames": [
+                           "fieldValues": [
                              "paymentId",
                              "customerId",
                              "amount",

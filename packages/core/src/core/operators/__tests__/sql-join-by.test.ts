@@ -120,6 +120,24 @@ describe("SqlJoinBy", () => {
       expect(opToken).toMatchInlineSnapshot(`
         {
           "operator": {
+            "joinMap": {
+              "account": {
+                "columns": {
+                  "accountId": ""a_1"."account_id"",
+                  "createdAt": ""a_1"."created_at"",
+                  "email": ""a_1"."email"",
+                  "firstName": ""a_1"."first_name"",
+                  "lastName": ""a_1"."last_name"",
+                  "modifiedAt": ""a_1"."modified_at"",
+                  "notes": ""a_1"."notes"",
+                  "parentId": ""a_1"."parent_id"",
+                  "status": ""a_1"."status"",
+                },
+                "schema": "main",
+                "table": "account",
+              },
+            },
+            "joinTypes": {},
             "param": "joinBy",
             "type": "joinBy",
           },

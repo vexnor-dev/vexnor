@@ -95,7 +95,27 @@ export class SqlJoinBy<ParamName extends string = "joinBy"> extends Sql {
 
    write(context: SqlBuildContext): void {
       if (!context.params) {
-         context.addOperator({ type: "joinBy", param: this.paramName });
+         const serializedJoinMap: Record<string, { schema: string; table: string; columns: Record<string, string> }> = {};
+         for (const [alias, table] of Object.entries(this.joinMap)) {
+            const columns: Record<string, string> = {};
+            for (const [key, col] of Object.entries(table.cols)) {
+               const column = col as SqlTableColumnAny;
+               const before = context.tokens.length;
+               column.build(context);
+               const added = context.tokens
+                  .slice(before)
+                  .map((t) => (t as { value: string }).value ?? "")
+                  .join("");
+               (context as unknown as { _tokens: unknown[] })._tokens.length = before;
+               columns[key.slice(1)] = added;
+            }
+            serializedJoinMap[alias] = {
+               schema: table.tableInfo.schema ?? "",
+               table: table.tableInfo.name,
+               columns,
+            };
+         }
+         context.addOperator({ type: "joinBy", param: this.paramName, joinMap: serializedJoinMap, joinTypes: this.joinTypes });
          return;
       }
 
