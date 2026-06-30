@@ -46,6 +46,13 @@ This is a serious, high-quality codebase. No shortcuts. No lazy work. Ever.
 - It is always better to ask one more question than to make one wrong change.
 - **If you cannot solve a problem without reverting to a solution the user already rejected — whether explicitly or by updating a file after you — stop immediately and ask for clarification. Never silently revert.**
 
+## No legacy assumptions
+
+- Never assume a feature exists for legacy reasons and silently accommodate it.
+- If a type error or constraint suggests a runtime path exists beyond the current type contract (e.g., array format where only objects are typed), **ask the developer** whether that path is intentional and should be supported, or whether it should be removed.
+- Do not widen types, add union alternatives, or introduce fallback code paths to support formats that may not be required. Ask first.
+- Do not use `as never`, `as any`, or `as unknown` to silence type errors caused by passing data in an unsupported format. Fix the test or the code to use the correct format.
+
 ## No speculative fixes
 
 - Do not touch things that have not been confirmed broken.
