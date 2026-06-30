@@ -122,3 +122,20 @@ interface JoinResult {
 
 type JoinType = "inner" | "left" | "right" | "full" | "cross";
 ```
+
+## Cross-Runtime (Schema Manifest)
+
+To use `SchemaGraph` outside of Node.js (e.g., in .NET), serialize your schema to a JSON manifest:
+
+```typescript
+import { serializeSchema } from 'vexnor';
+import * as schema from './models/public.schema.js';
+
+const manifest = serializeSchema(schema, 'postgresql');
+// Write to disk for .NET or AI agent consumption
+```
+
+The .NET SDK loads this manifest to build its own `SchemaGraph` — resolving FK join paths and composing queries without a live database connection.
+
+See [Serialize — Schema Manifest](serialize.md#schema-manifest) for the output format and build integration.  
+See [.NET SDK](dotnet.md) for loading manifests and `QueryRegistry` usage.
