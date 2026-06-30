@@ -334,7 +334,7 @@ const accounts = await Account.postgres.select({}).all({
 ### TypeScript Types
 
 ```typescript
-import { FilterOp, FilterCondition, FilterConditionList } from 'vexnor';
+import { FilterOp, FilterCondition, FilterConditionList } from '@vexnor/core';
 
 // FilterOp: "=" | "not" | "!=" | ">" | ">=" | "<" | "<="
 //         | "between" | "in" | "notIn" | "like" | "notLike" | "isNull" | "isNotNull"
@@ -348,7 +348,7 @@ import { FilterOp, FilterCondition, FilterConditionList } from 'vexnor';
 Use `filterBy()` inside a `sql` tag to restrict which columns are filterable at runtime. By default, all columns are available. Use `omit` to exclude sensitive columns, or `include` to whitelist a subset:
 
 ```typescript
-import { filterBy } from 'vexnor';
+import { filterBy } from '@vexnor/core';
 
 // Exclude sensitive columns — all other columns remain filterable
 filterBy(Account, { paramName: "filterBy", omit: ["password", "internalNotes"] })
@@ -366,7 +366,7 @@ filterBy(Account, { paramName: "filterBy", include: ["email", "status"] })
 Use `orderBy()` inside a `sql` tag to accept a runtime sort param. The format is `{ col: dir }` where key order determines sort priority:
 
 ```typescript
-import { orderBy } from 'vexnor';
+import { orderBy } from '@vexnor/core';
 
 const accounts = await sql`
   SELECT ${row(Account.$$)} FROM ${Account}
@@ -449,7 +449,7 @@ params: {
 Use `set()` inside a `sql` tag to accept a runtime `set` param for dynamic UPDATE columns:
 
 ```typescript
-import { set } from 'vexnor';
+import { set } from '@vexnor/core';
 
 const updateAccount = sql`
   UPDATE ${Account}

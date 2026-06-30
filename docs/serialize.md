@@ -103,7 +103,7 @@ Non-query exports (types, constants, helper functions) are ignored.
 
 ```typescript
 // src/queries/accounts.ts
-import { sql, row, param, filterBy, orderBy } from 'vexnor';
+import { sql, row, param, filterBy, orderBy } from '@vexnor/core';
 import { Account } from '../models/public.schema.js';
 
 // ✓ Serialized — SqlQuery instance
@@ -169,6 +169,7 @@ Each generated JSON file has this structure:
 | `orderBy` | `ORDER BY col DIR` | `params.orderBy` |
 | `projection` | Column selection | `params.select` |
 | `pagination` | `LIMIT $N OFFSET $N` | `params.limit` / `params.offset` |
+| `joinBy` | Runtime JOIN clauses | `params.joinBy` |
 
 ## Full Workflow Example
 
@@ -214,7 +215,7 @@ Running serialize is **idempotent** — the same inputs always produce the same 
 The serialize logic is also available as a library function for custom build scripts:
 
 ```typescript
-import { serializeManifest } from 'vexnor';
+import { serializeManifest } from '@vexnor/core';
 
 const queries = [
   { query: findActiveAccounts, name: 'findActiveAccounts', hash: await findActiveAccounts.hash },
@@ -225,10 +226,63 @@ const manifest = await serializeManifest(queries, 'postgresql');
 // manifest is a plain object — JSON.stringify() to write to disk
 ```
 
+## Schema Manifest
+
+`serializeSchema()` exports your table metadata (columns, primary keys, foreign keys) as a standalone JSON manifest — separate from query manifests. This powers the .NET `SchemaGraph` and gives AI agents a machine-readable schema without a live database connection.
+
+```typescript
+import { serializeSchema } from '@vexnor/core';
+import * as schema from './models/public.schema.js';
+
+const manifest = serializeSchema(schema, 'postgresql');
+// manifest: { version: 1, dialect: "postgresql", tables: [...] }
+```
+
+### Output Shape
+
+```json
+{
+  "version": 1,
+  "dialect": "postgresql",
+  "tables": [
+    {
+      "id": "public.account",
+      "name": "account",
+      "schema": "public",
+      "columns": [
+        { "name": "accountId", "dbName": "account_id", "type": "uuid", "nullable": false },
+        { "name": "email", "dbName": "email", "type": "text", "nullable": false }
+      ],
+      "pk": ["accountId"],
+      "fk": [
+        { "columns": ["parentId"], "references": { "schema": "public", "table": "account", "columns": ["accountId"] } }
+      ]
+    }
+  ]
+}
+```
+
+### When to Use
+
+- **Cross-runtime**: The .NET SDK's `SchemaGraph` loads this manifest to resolve FK join paths without introspecting a live database.
+- **AI agents**: Feed the JSON to an LLM so it can discover tables, columns, and relationships at runtime.
+- **CI/CD**: Generate once during build and ship alongside query manifests.
+
+```bash
+# Example: generate schema manifest in a build script
+npx tsx -e "
+  import { serializeSchema } from '@vexnor/core';
+  import * as schema from './src/models/public.schema.js';
+  import { writeFileSync } from 'fs';
+  writeFileSync('manifests/schema.json', JSON.stringify(serializeSchema(schema, 'postgresql'), null, 2));
+"
+```
+
 ## Cross-Reference
 
-- [CLI](cli.md) — `codegen`, `exec run`, `exec init`
+- [CLI](cli.md) — `codegen`, `exec run`, `exec init`, `serialize`
 - [.NET SDK](dotnet.md) — consuming manifests in C#
+- [Schema Graph](schema-graph.md) — FK-based introspection, AI prompt formatting
 - [Cross-Stack Setup](cross-stack-setup.md) — end-to-end guide
 - [Workflow](workflow.md) — when and how to re-serialize in your dev loop
 - [Portable Queries](portable-queries.md) — conceptual overview

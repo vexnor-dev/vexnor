@@ -96,7 +96,7 @@ The command imports each matched file and discovers all exported `SqlQuery` and 
 
 ```typescript
 // src/queries/accounts.ts
-import { sql, row, param, filterBy, orderBy } from 'vexnor';
+import { sql, row, param, filterBy, orderBy } from '@vexnor/core';
 import { Account } from '../models/public.schema.js';
 
 // All three exports become entries in manifests/src/queries/accounts.json

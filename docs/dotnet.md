@@ -144,6 +144,54 @@ The builder formats parameter placeholders per dialect:
 | `transactsql` | `@p0`, `@p1`, ... |
 | `sqlite` | `$1`, `$2`, ... |
 
+### JoinBy
+
+Query manifests can include `joinBy` template nodes — runtime JOIN clauses resolved from `params.joinBy`. The .NET `BuildJoinBy` method generates JOIN SQL from these params.
+
+**Param format:**
+
+```json
+{
+  "joinBy": {
+    "customer": {
+      "on": [["_.customerId", "=", "customer.customerId"]],
+      "type": "inner"
+    },
+    "address": {
+      "on": [["customer.addressId", "=", "address.addressId"]],
+      "type": "left"
+    }
+  }
+}
+```
+
+**Column reference format:**
+
+- `_.col` — column on the root (FROM) table
+- `alias.col` — column on a joined table
+
+**Supported join types:** `inner`, `left`, `right`, `full`, `cross`
+
+**Example — building SQL:**
+
+```csharp
+var sql = registry.Build(queryHash, new Dictionary<string, object?>
+{
+    ["joinBy"] = new Dictionary<string, object?>
+    {
+        ["customer"] = new Dictionary<string, object?>
+        {
+            ["on"] = new object[] { new object[] { "_.customerId", "=", "customer.customerId" } },
+            ["type"] = "inner",
+        },
+    },
+    ["filterBy"] = new object?[] { new Dictionary<string, object?> { ["status"] = "active" } },
+});
+// sql.Text: SELECT ... FROM "payment" INNER JOIN "customer" ON "payment"."customer_id" = "customer"."customer_id" WHERE "status" = $1
+```
+
+The `joinBy` node is evaluated before `filter` and `orderBy`, so joined columns are available for filtering and sorting.
+
 ## Complete Example
 
 ```csharp

@@ -174,6 +174,35 @@ Use `--no-confirm` to skip all prompts (useful in scripts).
 
 ---
 
+## `vexnor serialize`
+
+Converts TypeScript query definitions into portable JSON manifests for cross-runtime execution (e.g., .NET, AI agents). Each source file maps to its own manifest JSON.
+
+```bash
+npx vexnor serialize [options]
+```
+
+### Options
+
+| Option | Description | Required |
+|--------|-------------|----------|
+| `-i, --input <glob>` | Glob pattern for files exporting queries | yes |
+| `-o, --output <dir>` | Output directory for manifest JSON files | yes |
+| `-d, --dialect <dialect>` | SQL dialect: `postgresql`, `transactsql`, `sqlite` | yes |
+
+### Example
+
+```bash
+npx vexnor serialize \
+  --input "src/queries/**/*.ts" \
+  --output manifests/ \
+  --dialect postgresql
+```
+
+See [Serialize](serialize.md) for the full manifest format, schema manifest API, and workflow details.
+
+---
+
 ## Config Reference
 
 ### `vexnor.config.ts`

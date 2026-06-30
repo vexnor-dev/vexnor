@@ -166,7 +166,7 @@ import { SqlQuery, SqlTable, newSqlQueryHandler } from '@vexnor/core';
 import { PostgresQueryHandler, newPostgresTableHandler, type PostgresTableHandler } from '@vexnor/postgres';
 import '@vexnor/postgres';
 
-declare module 'vexnor' {
+declare module '@vexnor/core' {
   interface SqlQuery<T extends { Row?: unknown; Params?: unknown }> {
     readonly myProject: PostgresQueryHandler<T>;
   }

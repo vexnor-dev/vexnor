@@ -734,7 +734,7 @@ A single operator that emits dialect-specific upsert SQL at build time and seria
 ### Usage
 
 ```typescript
-import { upsert, sql, row, info, raw } from 'vexnor';
+import { upsert, sql, row, info, raw } from '@vexnor/core';
 
 // PostgreSQL / SQLite
 const upsertAccount = sql`
@@ -789,7 +789,7 @@ The .NET `SqlBuilder` reconstructs identical SQL from this node — verified by 
 Every query execution automatically captures metadata (SQL text, parameters, duration). Retrieve it with `getQueryMeta()`:
 
 ```typescript
-import { getQueryMeta } from 'vexnor';
+import { getQueryMeta } from '@vexnor/core';
 
 const rows = await revenue.postgres.all({ db: pool });
 const meta = getQueryMeta(rows);
