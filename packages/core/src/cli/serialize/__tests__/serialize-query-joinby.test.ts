@@ -72,6 +72,17 @@ describe("serializeQuery — joinBy operator", () => {
             },
             {
               "joinMap": {
+                "_": {
+                  "columns": {
+                    "accountId": ""o_1"."account_id"",
+                    "createdAt": ""o_1"."created_at"",
+                    "modifiedAt": ""o_1"."modified_at"",
+                    "orderId": ""o_1"."order_id"",
+                    "status": ""o_1"."status"",
+                  },
+                  "schema": "main",
+                  "table": "order",
+                },
                 "account": {
                   "columns": {
                     "accountId": ""a_2"."account_id"",
@@ -164,6 +175,20 @@ describe("serializeQuery — joinBy operator", () => {
             },
             {
               "joinMap": {
+                "_": {
+                  "columns": {
+                    "createdAt": ""oi_1"."created_at"",
+                    "discountPrice": ""oi_1"."discount_price"",
+                    "modifiedAt": ""oi_1"."modified_at"",
+                    "orderId": ""oi_1"."order_id"",
+                    "orderItemId": ""oi_1"."order_item_id"",
+                    "productId": ""oi_1"."product_id"",
+                    "productPrice": ""oi_1"."product_price"",
+                    "quantity": ""oi_1"."quantity"",
+                  },
+                  "schema": "main",
+                  "table": "order_item",
+                },
                 "account": {
                   "columns": {
                     "accountId": ""a_3"."account_id"",
@@ -271,6 +296,17 @@ describe("serializeQuery — joinBy operator", () => {
             },
             {
               "joinMap": {
+                "_": {
+                  "columns": {
+                    "accountId": ""o_1"."account_id"",
+                    "createdAt": ""o_1"."created_at"",
+                    "modifiedAt": ""o_1"."modified_at"",
+                    "orderId": ""o_1"."order_id"",
+                    "status": ""o_1"."status"",
+                  },
+                  "schema": "main",
+                  "table": "order",
+                },
                 "account": {
                   "columns": {
                     "accountId": ""a_2"."account_id"",
@@ -403,6 +439,17 @@ describe("serializeQuery — joinBy operator", () => {
             },
             {
               "joinMap": {
+                "_": {
+                  "columns": {
+                    "accountId": ""o_1"."account_id"",
+                    "createdAt": ""o_1"."created_at"",
+                    "modifiedAt": ""o_1"."modified_at"",
+                    "orderId": ""o_1"."order_id"",
+                    "status": ""o_1"."status"",
+                  },
+                  "schema": "main",
+                  "table": "order",
+                },
                 "account": {
                   "columns": {
                     "accountId": ""a_2"."account_id"",
@@ -520,7 +567,19 @@ describe("serializeQuery — joinBy operator", () => {
       const joinByNode = result.template.find((n) => n.type === "joinBy");
       expect(joinByNode).toMatchInlineSnapshot(`
         {
-          "joinMap": {},
+          "joinMap": {
+            "_": {
+              "columns": {
+                "accountId": ""o_1"."account_id"",
+                "createdAt": ""o_1"."created_at"",
+                "modifiedAt": ""o_1"."modified_at"",
+                "orderId": ""o_1"."order_id"",
+                "status": ""o_1"."status"",
+              },
+              "schema": "main",
+              "table": "order",
+            },
+          },
           "joinTypes": {},
           "param": "joinBy",
           "type": "joinBy",
@@ -543,6 +602,17 @@ describe("serializeQuery — joinBy operator", () => {
       expect(joinByNode).toMatchInlineSnapshot(`
         {
           "joinMap": {
+            "_": {
+              "columns": {
+                "accountId": ""o_1"."account_id"",
+                "createdAt": ""o_1"."created_at"",
+                "modifiedAt": ""o_1"."modified_at"",
+                "orderId": ""o_1"."order_id"",
+                "status": ""o_1"."status"",
+              },
+              "schema": "main",
+              "table": "order",
+            },
             "account": {
               "columns": {
                 "accountId": ""a_2"."account_id"",

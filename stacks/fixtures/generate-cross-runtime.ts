@@ -14,11 +14,13 @@ import {
    serializeManifest,
    set,
    sql,
+   SqlJoinBy,
    SqlPagination,
    upsert,
    when,
 } from "@vexnor/core";
 import { Account } from "./codegen/postgres/vexnor_dev.account-table.js";
+import { Order } from "./codegen/postgres/vexnor_dev.order-table.js";
 import { mkdirSync, writeFileSync } from "node:fs";
 
 // ─── Define queries ──────────────────────────────────────────────────────────
@@ -46,6 +48,9 @@ const queries = {
    xUpsertMulti: sql`INSERT INTO ${Account} ${upsert(Account, ["accountId"])} RETURNING ${row(Account.$$)}`,
    xUpsertMssql: sql`MERGE INTO ${Account} ${upsert(Account, ["accountId"])} OUTPUT inserted.*;`,
    xInsertEmpty: sql`INSERT INTO ${Account} ${insert(Account)} RETURNING ${row(Account.$$)}`,
+   xJoinBySingle: sql`SELECT ${row(Order.$$)} FROM ${Order} ${new SqlJoinBy(Order, "joinBy", {}, { account: Account })}`,
+   xJoinByWithType: sql`SELECT ${row(Order.$$)} FROM ${Order} ${new SqlJoinBy(Order, "joinBy", { account: "left" }, { account: Account })}`,
+   xJoinByMultiCondition: sql`SELECT ${row(Order.$$)} FROM ${Order} ${new SqlJoinBy(Order, "joinBy", {}, { account: Account })}`,
 };
 
 // ─── Test params per case ────────────────────────────────────────────────────
@@ -91,6 +96,9 @@ const testParams: Record<string, unknown> = {
    },
    xUpsertMssql: { rows: [{ accountId: "uuid-1", email: "a@test.com", firstName: "A", lastName: "B" }] },
    xInsertEmpty: { rows: [] },
+   xJoinBySingle: { joinBy: { account: { on: [["_.accountId", "=", "account.accountId"]], type: "inner" } } },
+   xJoinByWithType: { joinBy: { account: { on: [["_.accountId", "=", "account.accountId"]] } } },
+   xJoinByMultiCondition: { joinBy: { account: { on: [["_.accountId", "=", "account.accountId"], ["_.status", "=", "account.status"]], type: "inner" } } },
 };
 
 // ─── Generate outputs ────────────────────────────────────────────────────────
@@ -99,24 +107,32 @@ const results: Record<string, { hash: string; text: string | null; values: unkno
    {};
 
 for (const [name, query] of Object.entries(queries)) {
-   const hash = await query.hash;
    const dialect = name.includes("Mssql") ? "transactsql" : "postgresql";
    try {
       const params = testParams[name] as ParamsOf<typeof query>;
       const { text, values } = query.getSql({ params: params as never, options: { dialect, format: false } });
-      results[name] = { hash, text, values, error: null };
+      results[name] = { hash: name, text, values, error: null };
    } catch (e) {
-      results[name] = { hash, text: null, values: null, error: String(e) };
+      results[name] = { hash: name, text: null, values: null, error: String(e) };
    }
 }
 
 // ─── Serialize manifest ──────────────────────────────────────────────────────
 
-const queryEntries = [];
+// Build manifest using test names as keys to avoid hash collisions
+// (queries with same template but different joinTypes share a hash)
+const manifest = await serializeManifest(
+   Object.entries(queries).map(([name, query]) => ({ query, name, hash: name })),
+   "postgresql",
+);
+
+// Re-serialize entries that need a different dialect (e.g., MSSQL)
 for (const [name, query] of Object.entries(queries)) {
-   queryEntries.push({ query, name, hash: await query.hash });
+   if (name.includes("Mssql")) {
+      const mssqlManifest = await serializeManifest([{ query, name, hash: name }], "transactsql");
+      manifest.queries[name] = mssqlManifest.queries[name]!;
+   }
 }
-const manifest = await serializeManifest(queryEntries, "postgresql");
 
 // ─── Write outputs ───────────────────────────────────────────────────────────
 

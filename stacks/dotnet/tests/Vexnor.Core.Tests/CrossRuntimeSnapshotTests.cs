@@ -149,6 +149,17 @@ public class CrossRuntimeSnapshotTests
             ("limit", 100)
         ));
 
+    // ─── joinBy ──────────────────────────────────────────────────────────────
+
+    [Fact] public void JoinBy_Single() => AssertMatch("xJoinBySingle",
+        Params(("joinBy", Obj(("account", Obj(("on", new object?[] { new object?[] { "_.accountId", "=", "account.accountId" } }), ("type", "inner")))))));
+
+    [Fact] public void JoinBy_WithDefaultType() => AssertMatch("xJoinByWithType",
+        Params(("joinBy", Obj(("account", Obj(("on", new object?[] { new object?[] { "_.accountId", "=", "account.accountId" } })))))));
+
+    [Fact] public void JoinBy_MultiCondition() => AssertMatch("xJoinByMultiCondition",
+        Params(("joinBy", Obj(("account", Obj(("on", new object?[] { new object?[] { "_.accountId", "=", "account.accountId" }, new object?[] { "_.status", "=", "account.status" } }), ("type", "inner")))))));
+
     // ─── Helpers ─────────────────────────────────────────────────────────────
 
     private void AssertMatchMssql(string testName, Dictionary<string, object?> parameters)

@@ -121,17 +121,28 @@ describe("SqlJoinBy", () => {
         {
           "operator": {
             "joinMap": {
+              "_": {
+                "columns": {
+                  "accountId": ""o_1"."account_id"",
+                  "createdAt": ""o_1"."created_at"",
+                  "modifiedAt": ""o_1"."modified_at"",
+                  "orderId": ""o_1"."order_id"",
+                  "status": ""o_1"."status"",
+                },
+                "schema": "main",
+                "table": "order",
+              },
               "account": {
                 "columns": {
-                  "accountId": ""a_1"."account_id"",
-                  "createdAt": ""a_1"."created_at"",
-                  "email": ""a_1"."email"",
-                  "firstName": ""a_1"."first_name"",
-                  "lastName": ""a_1"."last_name"",
-                  "modifiedAt": ""a_1"."modified_at"",
-                  "notes": ""a_1"."notes"",
-                  "parentId": ""a_1"."parent_id"",
-                  "status": ""a_1"."status"",
+                  "accountId": ""a_2"."account_id"",
+                  "createdAt": ""a_2"."created_at"",
+                  "email": ""a_2"."email"",
+                  "firstName": ""a_2"."first_name"",
+                  "lastName": ""a_2"."last_name"",
+                  "modifiedAt": ""a_2"."modified_at"",
+                  "notes": ""a_2"."notes"",
+                  "parentId": ""a_2"."parent_id"",
+                  "status": ""a_2"."status"",
                 },
                 "schema": "main",
                 "table": "account",
