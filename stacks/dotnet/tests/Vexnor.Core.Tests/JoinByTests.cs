@@ -827,4 +827,100 @@ public class JoinByManifestTests
         // Should use "account" as fallback alias since column value has no dot
         Assert.Contains("\"account\"", result.Text);
     }
+
+    [Fact]
+    public void Build_JoinBy_Throws_WhenOnConditionEntryIsNull()
+    {
+        var json = """
+                   {
+                       "version": 1,
+                       "dialect": "postgresql",
+                       "queries": {
+                           "hash1": {
+                               "hash": "hash1",
+                               "name": "testQuery",
+                               "template": [
+                                   { "type": "text", "value": "SELECT * FROM \"main\".\"order\" as \"o_1\" " },
+                                   {
+                                       "type": "joinBy",
+                                       "param": "joinBy",
+                                       "joinMap": {
+                                           "_": { "schema": "main", "table": "order", "columns": { "orderId": "\"o_1\".\"order_id\"" } },
+                                           "account": { "schema": "main", "table": "account", "columns": { "accountId": "\"a_2\".\"account_id\"" } }
+                                       },
+                                       "joinTypes": {}
+                                   }
+                               ],
+                               "params": {},
+                               "row": null,
+                               "authorization": []
+                           }
+                       }
+                   }
+                   """;
+
+        var registry = new QueryRegistry("postgresql");
+        registry.Load(ManifestLoader.Load(json));
+
+        var joinByParam = new Dictionary<string, object?>
+        {
+            ["account"] = new Dictionary<string, object?>
+            {
+                ["on"] = new object?[] { null },
+                ["type"] = "inner"
+            }
+        };
+
+        var ex = Assert.Throws<InvalidOperationException>(() =>
+            registry.Build("hash1", new() { ["joinBy"] = joinByParam }));
+        Assert.Contains("3-tuple", ex.Message);
+    }
+
+    [Fact]
+    public void Build_JoinBy_Throws_WhenOnConditionTupleHasNullValues()
+    {
+        var json = """
+                   {
+                       "version": 1,
+                       "dialect": "postgresql",
+                       "queries": {
+                           "hash1": {
+                               "hash": "hash1",
+                               "name": "testQuery",
+                               "template": [
+                                   { "type": "text", "value": "SELECT * FROM \"main\".\"order\" as \"o_1\" " },
+                                   {
+                                       "type": "joinBy",
+                                       "param": "joinBy",
+                                       "joinMap": {
+                                           "_": { "schema": "main", "table": "order", "columns": { "orderId": "\"o_1\".\"order_id\"" } },
+                                           "account": { "schema": "main", "table": "account", "columns": { "accountId": "\"a_2\".\"account_id\"" } }
+                                       },
+                                       "joinTypes": {}
+                                   }
+                               ],
+                               "params": {},
+                               "row": null,
+                               "authorization": []
+                           }
+                       }
+                   }
+                   """;
+
+        var registry = new QueryRegistry("postgresql");
+        registry.Load(ManifestLoader.Load(json));
+
+        var joinByParam = new Dictionary<string, object?>
+        {
+            ["account"] = new Dictionary<string, object?>
+            {
+                ["on"] = new object?[] { new object?[] { null, null, null } },
+                ["type"] = "inner"
+            }
+        };
+
+        var ex = Assert.Throws<InvalidOperationException>(() =>
+            registry.Build("hash1", new() { ["joinBy"] = joinByParam }));
+        Assert.Contains("Invalid joinBy ON operator", ex.Message);
+    }
 }
