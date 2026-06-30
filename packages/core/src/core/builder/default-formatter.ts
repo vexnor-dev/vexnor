@@ -51,7 +51,7 @@ export class DefaultFormatter {
     * Gets the column format for the given column and query context
     * @param context
     */
-   getColumnFormat(context: Pick<SqlBuildContext, "keyword" | "exprDepth">): SqlColumnFormat {
+   getColumnFormat(context: Pick<SqlBuildContext, "keyword" | "exprDepth" | "nextText" | "prevText">): SqlColumnFormat {
       if (!context.keyword) {
          return DEFAULT_COLUMN_FORMAT;
       }
@@ -61,6 +61,26 @@ export class DefaultFormatter {
       // Suppress AS alias when inside an expression (parens, functions, operators)
       if (context.exprDepth > 0 && format === "tableAlias.columnName AS columnAlias") {
          return "tableAlias.columnName";
+      }
+
+      // Suppress AS alias when look-ahead shows the column is followed by an
+      // expression operator (::cast, ||concat) or closing paren — emitting
+      // AS alias here would produce invalid SQL.
+      if (format === "tableAlias.columnName AS columnAlias" && context.nextText) {
+         const trimmed = context.nextText.trimStart();
+         if (trimmed.startsWith("::") || trimmed.startsWith("||") || trimmed.startsWith(")")) {
+            return "tableAlias.columnName";
+         }
+      }
+
+      // Suppress AS alias when look-behind shows the column is preceded by an
+      // expression operator (||, ::) — the column is part of an expression
+      // and the alias should only appear at the end of the full expression.
+      if (format === "tableAlias.columnName AS columnAlias" && context.prevText) {
+         const trimmed = context.prevText.trimEnd();
+         if (trimmed.endsWith("||") || trimmed.endsWith("::")) {
+            return "tableAlias.columnName";
+         }
       }
 
       return format;
