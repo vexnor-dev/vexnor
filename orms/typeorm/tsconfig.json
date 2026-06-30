@@ -1,0 +1,23 @@
+{
+   "extends": "../../tsconfig.json",
+   "compilerOptions": {
+      "outDir": "./dist",
+      "rootDir": "./src",
+      "declaration": true,
+      "declarationMap": true,
+      "experimentalDecorators": true,
+      "emitDecoratorMetadata": true,
+      "paths": {
+         "#src/*": [
+            "./src/*"
+         ]
+      }
+   },
+   "include": [
+      "src/**/*"
+   ],
+   "exclude": [
+      "dist",
+      "node_modules"
+   ]
+}

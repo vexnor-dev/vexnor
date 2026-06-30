@@ -1,11 +1,11 @@
-import { defineConfig } from "vexnor/config";
+import { defineConfig } from "@vexnor/core/config";
 import { GetEnvVars } from "env-cmd";
 import { ok } from "node:assert";
 
 const postgresEnv = await GetEnvVars({
    rc: {
       environments: ["postgres"],
-      filePath: "../../env-dev.json",
+      filePath: "./env-dev.json",
    },
    verbose: true,
 });
@@ -20,7 +20,7 @@ ok(process.env.POSTGRES_DATABASE, "POSTGRES_DATABASE is required");
 const mssqlEnv = await GetEnvVars({
    rc: {
       environments: ["mssql"],
-      filePath: "../../env-dev.json",
+      filePath: "./env-dev.json",
    },
    verbose: true,
 });
@@ -44,7 +44,7 @@ export default defineConfig({
             database: process.env.POSTGRES_DATABASE,
          },
          generate: {
-            plugin: "vexnor-postgres",
+            plugin: "@vexnor/postgres",
             schema: [],
             outDir: "",
          },
@@ -58,7 +58,7 @@ export default defineConfig({
             database: process.env.MSSQL_DATABASE,
          },
          generate: {
-            plugin: "vexnor-mssql",
+            plugin: "@vexnor/mssql",
             schema: [],
             outDir: "",
          },
@@ -72,7 +72,7 @@ export default defineConfig({
             database: process.env.POSTGRES_DATABASE,
          },
          generate: {
-            plugin: "vexnor-postgres",
+            plugin: "@vexnor/postgres",
             schema: [],
             outDir: "",
          },

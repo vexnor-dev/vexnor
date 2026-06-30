@@ -30,6 +30,29 @@ runs:
         restore-keys: |
           ${{ runner.os }}-pnpm-
 
+    - name: Setup build cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          packages/*/dist
+          packages/*/tsconfig.tsbuildinfo
+          plugins/*/dist
+          plugins/*/tsconfig.tsbuildinfo
+          orms/*/dist
+          orms/*/tsconfig.tsbuildinfo
+          tests/*/dist
+          tests/*/tsconfig.tsbuildinfo
+          examples/*/dist
+          examples/*/tsconfig.tsbuildinfo
+          orms/prisma/src/__tests__/fixtures-v6-client/generated
+          orms/prisma/src/__tests__/fixtures-v6-client-js/generated
+          orms/prisma/src/__tests__/fixtures-v7-client/generated
+          orms/prisma/src/__tests__/fixtures-v7-client-js/generated
+          tests/*/prisma/generated
+        key: ${{ runner.os }}-build-${{ hashFiles('packages/*/src/**', 'plugins/*/src/**', 'orms/*/src/**', 'tests/*/src/**', 'packages/*/tsconfig.json', 'plugins/*/tsconfig.json', 'orms/*/tsconfig.json', 'tests/*/tsconfig.json') }}
+        restore-keys: |
+          ${{ runner.os }}-build-
+
     - name: Install dependencies
       shell: bash
       run: pnpm install --frozen-lockfile
@@ -52,15 +75,49 @@ runs:
       shell: bash
       run: pnpm test
 
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+
+    - name: Build .NET solution
+      shell: bash
+      run: dotnet build stacks/dotnet/Vexnor.sln --nologo
+
+    - name: Run .NET tests with coverage
+      shell: bash
+      run: |
+        dotnet test stacks/dotnet/Vexnor.sln --nologo --no-build \
+          --collect:"XPlat Code Coverage" \
+          --results-directory stacks/dotnet/TestResults
+      env:
+        ConnectionStrings__Postgres: "Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=postgres"
+
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v5
       with:
         token: ${{ inputs.CODECOV_TOKEN }}
         files: ./coverage/clover.xml
+        flags: nodejs
         fail_ci_if_error: false
+
+    - name: Upload .NET coverage to Codecov
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ inputs.CODECOV_TOKEN }}
+        files: stacks/dotnet/TestResults/**/coverage.cobertura.xml
+        flags: dotnet
+        fail_ci_if_error: false
+
+    - name: Codecov summary link
+      shell: bash
+      run: |
+        echo "### Coverage" >> $GITHUB_STEP_SUMMARY
+        echo "[View on Codecov](https://app.codecov.io/github/vexnor-dev/vexnor/commit/${GITHUB_SHA})" >> $GITHUB_STEP_SUMMARY
 
     - name: Test summary
       uses: davelosert/vitest-coverage-report-action@v2
       with:
         json-summary-path: ./coverage/coverage-summary.json
         github-token: ${{ inputs.GITHUB_TOKEN }}
+        comment-on: pr,commit

@@ -1,0 +1,19 @@
+import { SqlTable, SqlUpdateParameters, Void, ParamsOfArgs, info, sqlUpdate } from "@vexnor/core";
+import type { SqlUpdateArgs } from "@vexnor/core";
+import { BetterSqlite3QueryHandler } from "#src/better-sqlite3-query-handler.js";
+import "#src/sqlite3-augment.js";
+
+export type Sqlite3TableUpdateResult<
+   T extends { Select: Record<string, unknown>; Update: Record<string, unknown> },
+   Args extends SqlUpdateArgs,
+> = BetterSqlite3QueryHandler<{
+   Params: Void<SqlUpdateParameters<T> & ParamsOfArgs<Args>>;
+   Row: T["Select"];
+}>;
+
+export function sqlite3Update<
+   T extends { Select: Record<string, unknown>; Update: Record<string, unknown> },
+   Args extends SqlUpdateArgs,
+>(table: SqlTable<T>, args: Args): Sqlite3TableUpdateResult<T, Args> {
+   return sqlUpdate(table, args, info({ driver: "sqlite" })).sqlite as unknown as Sqlite3TableUpdateResult<T, Args>;
+}

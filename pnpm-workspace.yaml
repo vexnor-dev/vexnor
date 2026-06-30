@@ -1,15 +1,39 @@
 packages:
   - packages/**
+  - plugins/**
+  - orms/**
   - examples/**
   - tests/**
+  - stacks/fixtures
   - '!**/dist/**'
   - '!**/build/**'
   - '!**/deploy/**'
 
-ignoredBuiltDependencies:
-  - esbuild
+overrides:
+  drizzle-orm: 1.0.0-rc.4-5d5b77c
+  jsdom: 25.0.1
+  sql-formatter: 15.7.4
+  tar: ">=7.4.0"
+  undici: ">=7.28.0"
 
-onlyBuiltDependencies:
-  - better-sqlite3
-  - core-js
-  - sqlite3
+peerDependencyRules:
+  ignoreMissing:
+    - '@electric-sql/pglite'
+    - '@types/mssql'
+    - mssql
+    - '@sinclair/typebox'
+
+allowBuilds:
+  '@prisma/client': true
+  '@prisma/engines': true
+  better-sqlite3: true
+  esbuild: true
+  prisma: true
+  sqlite3: true
+  sharp: true
+  unrs-resolver: true
+  protobufjs: true
+
+ignoredBuiltDependencies:
+  - sharp
+  - unrs-resolver

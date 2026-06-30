@@ -12,7 +12,7 @@ yarn-error.log*
 .idea
 .run
 
-db
+/db
 dist
 deploy*
 *.tsbuildinfo
@@ -29,3 +29,4 @@ mailmap.txt
 
 **/prisma/generated/
 **/__tests__/fixtures-*/generated/
+.tmp-*
