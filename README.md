@@ -1,8 +1,8 @@
 # vexnor
 
-One query. Server or browser. No API layer.
+Typesafe, real SQL data framework for AI-native apps.
 
-Write a SQL query once — execute it on the server against your database, or dispatch it from the browser over HTTP. Same code, same types, no REST endpoints to define. The query is the contract.
+Write SQL with full type inference — execute server-side or browser-side with zero API layer. Let AI agents discover your schema, resolve FK paths, and compose typed queries at runtime. The query is the contract.
 
 [![CI](https://github.com/vexnor-dev/vexnor/actions/workflows/ci_github.yml/badge.svg)](https://github.com/vexnor-dev/vexnor/actions/workflows/ci_github.yml)
 [![codecov](https://codecov.io/gh/vexnor-dev/vexnor/branch/main/graph/badge.svg)](https://codecov.io/gh/vexnor-dev/vexnor)
@@ -27,6 +27,8 @@ const accounts = await selectAccounts.postgres.all({ db: remoteClient });
 ```
 
 Result types and required params are **inferred at compile time** from what you select — no manual type annotations, no codegen step after schema changes.
+
+For AI agents: `SchemaGraph` discovers tables, resolves FK join paths via BFS, and composes typed multi-table queries at runtime — no predefined endpoints, no manual SQL. The schema graph IS the API.
 
 Mix raw SQL with CRUD — compose subqueries into typed includes:
 
@@ -372,6 +374,7 @@ See [Telemetry](docs/telemetry.md) — span shape, OTLP exporters, combining wit
 - [CRUD](docs/crud.md) — typed query factories, execution methods
 - [Isomorphic SQL](docs/isomorphic-sql.md) — same query on server and client, how it works, comparison with REST/tRPC/GraphQL
 - [Registry](docs/registry.md) — SqlQueryRegistry, query pipelines, `connect()`, isomorphic SQL, remote execution
+- [Schema Graph](docs/schema-graph.md) — FK-based table introspection, BFS join path resolution, AI prompt formatting
 - [Authorization](docs/authorization.md) — query authorization, audit logging, SOC2/HIPAA
 - [Telemetry](docs/telemetry.md) — OpenTelemetry integration, spans, OTLP exporters
 - [CLI](docs/cli.md) — `codegen`, `exec run`, `exec init`, config reference
