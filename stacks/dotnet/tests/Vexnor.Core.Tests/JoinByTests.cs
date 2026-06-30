@@ -596,15 +596,16 @@ public class JoinByManifestTests
 
         var joinByNode = query.Template[1] as JoinByNode;
         Assert.NotNull(joinByNode);
-        Assert.Equal("joinBy", joinByNode.Param);
-        Assert.Equal(2, joinByNode.JoinMap.Count);
-        Assert.True(joinByNode.JoinMap.ContainsKey("_"));
-        Assert.True(joinByNode.JoinMap.ContainsKey("account"));
-        Assert.Equal("main", joinByNode.JoinMap["account"].Schema);
-        Assert.Equal("account", joinByNode.JoinMap["account"].Table);
-        Assert.Equal("\"a_2\".\"account_id\"", joinByNode.JoinMap["account"].Columns["accountId"]);
-        Assert.Single(joinByNode.JoinTypes);
-        Assert.Equal("left", joinByNode.JoinTypes["account"]);
+        var nonNullJoinByNode = joinByNode!;
+        Assert.Equal("joinBy", nonNullJoinByNode.Param);
+        Assert.Equal(2, nonNullJoinByNode.JoinMap.Count);
+        Assert.True(nonNullJoinByNode.JoinMap.ContainsKey("_"));
+        Assert.True(nonNullJoinByNode.JoinMap.ContainsKey("account"));
+        Assert.Equal("main", nonNullJoinByNode.JoinMap["account"].Schema);
+        Assert.Equal("account", nonNullJoinByNode.JoinMap["account"].Table);
+        Assert.Equal("\"a_2\".\"account_id\"", nonNullJoinByNode.JoinMap["account"].Columns["accountId"]);
+        Assert.Single(nonNullJoinByNode.JoinTypes);
+        Assert.Equal("left", nonNullJoinByNode.JoinTypes["account"]);
     }
 
     [Fact]
