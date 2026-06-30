@@ -1,8 +1,8 @@
 import { describe, expect, test } from "vitest";
 import { param, row, sql } from "@vexnor/core";
 import { Account } from "@vexnor/core/testing";
-import { BetterSqlite3QueryHandler } from "#/better-sqlite3-query-handler.js";
-import "#/sqlite3-augment.js";
+import { BetterSqlite3QueryHandler } from "#src/better-sqlite3-query-handler.js";
+import "#src/sqlite3-augment.js";
 
 describe("BetterSqlite3QueryHandler — branches", () => {
    test("resolveRows throws — not supported for better-sqlite3", () => {
@@ -72,7 +72,7 @@ describe("BetterSqlite3QueryHandler — branches", () => {
          },
       };
       await expect(handler.execute({ db: fakeDb as never }, "read")).rejects.toThrow(
-         "Error running sqlite query",
+         "Error running SQLITE3 query",
       );
    });
 

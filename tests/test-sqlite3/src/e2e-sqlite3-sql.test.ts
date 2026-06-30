@@ -4,7 +4,7 @@ import { Account } from "./codegen/main.account-table.js";
 import { randomUUID } from "node:crypto";
 import Database from "better-sqlite3";
 import { SQLITE_PATH } from "./config.js";
-import { row } from "@vexnor/core";
+import { insert, row } from "@vexnor/core";
 
 describe("vexnor postgres sql tests", () => {
    const db = new Database(SQLITE_PATH);
@@ -17,14 +17,14 @@ describe("vexnor postgres sql tests", () => {
       const accountId = randomUUID();
       await sql`
          insert into ${Account}
-            ${Account.insertColsVals({
+            ${insert(Account, "rows")}
+      `.run({ db, params: { rows: [{
                accountId,
                status: "created",
                firstName: "John",
                lastName: "Doe",
                email: "john.doe@example.com",
-            })}
-      `.run({ db });
+            }] } });
 
       const account = await sql`
         select ${row(Account.$$)}

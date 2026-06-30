@@ -1,8 +1,7 @@
-import { SqlTable, row, ParamsOfArgs, SqlQueryExtended, raw, info, sql } from "@vexnor/core";
+import { SqlTable, ParamsOfArgs, SqlQueryExtended, info, sqlInsertFrom } from "@vexnor/core";
 import type { SqlInsertFromArgs } from "@vexnor/core";
-import { ok } from "@vexnor/core";
-import { BetterSqlite3QueryHandler } from "#/better-sqlite3-query-handler.js";
-import "#/sqlite3-augment.js";
+import { BetterSqlite3QueryHandler } from "#src/better-sqlite3-query-handler.js";
+import "#src/sqlite3-augment.js";
 
 export type Sqlite3InsertFromResult<
    T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> },
@@ -20,12 +19,5 @@ export function sqlite3InsertFrom<
    T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> },
    Args extends SqlInsertFromArgs<T>,
 >(table: SqlTable<T>, args: Args): Sqlite3InsertFromResult<T, Args> {
-   ok(args?.FROM, `Args 'FROM' is required for 'insertFrom()' CRUD.`);
-
-   return sql`
-      ${info({ driver: "sqlite" }) ?? raw.BLANK}
-      insert into ${table}
-            ${args.FROM}
-            returning ${row(table.$$)}
-   `.sqlite as unknown as Sqlite3InsertFromResult<T, Args>;
+   return sqlInsertFrom(table, args, info({ driver: "sqlite" })).sqlite as unknown as Sqlite3InsertFromResult<T, Args>;
 }

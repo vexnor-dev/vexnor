@@ -1,5 +1,5 @@
 import { SqlBuildOptions } from "@vexnor/core";
-import { MssqlTokenizer } from "#/mssql-tokenizer.js";
+import { MssqlTokenizer } from "#src/mssql-tokenizer.js";
 
 export const defaultQueryOptions: SqlBuildOptions = {
    dialect: "transactsql",

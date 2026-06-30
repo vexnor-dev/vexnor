@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { pgTable, pgSchema, uuid, varchar, text, timestamp, integer, boolean, primaryKey } from "drizzle-orm/pg-core";
-import { sql, row, val, param, SqlTable } from "@vexnor/core";
+import { sql, row, val, param, insert, set, SqlTable } from "@vexnor/core";
 import { fromDrizzleTable } from "../index.js";
 
 const accountDrizzle = pgTable("account", {
@@ -277,6 +277,11 @@ describe("fromDrizzleTable (pg) — metadata", () => {
             "select": true,
             "update": true,
           },
+          "_fk": Lazy {
+            "_computed": false,
+            "_value": null,
+            "callback": [Function],
+          },
           "_out": Lazy {
             "_computed": false,
             "_value": null,
@@ -285,7 +290,6 @@ describe("fromDrizzleTable (pg) — metadata", () => {
           "columnTypes": {},
           "dbSchema": {},
           "dialect": "postgresql",
-          "fk": [],
           "format": null,
           "hashId": "SqlTable#(account)",
           "id": "SqlTable#4(account)",
@@ -435,6 +439,11 @@ describe("fromDrizzleTable (pg) — metadata", () => {
             "select": true,
             "update": true,
           },
+          "_fk": Lazy {
+            "_computed": false,
+            "_value": null,
+            "callback": [Function],
+          },
           "_out": Lazy {
             "_computed": false,
             "_value": null,
@@ -443,7 +452,6 @@ describe("fromDrizzleTable (pg) — metadata", () => {
           "columnTypes": {},
           "dbSchema": {},
           "dialect": "postgresql",
-          "fk": [],
           "format": null,
           "hashId": "SqlTable#(vexnor_dev.account)",
           "id": "SqlTable#5(vexnor_dev.account)",
@@ -598,10 +606,10 @@ describe("fromDrizzleTable (pg) — SQL generation", () => {
       `);
    });
 
-   test("INSERT insertColsVals", () => {
+   test("INSERT with insert() operator", () => {
       expect(
-         sql`INSERT INTO ${Account} ${Account.insertColsVals({ email: "a@b.com", firstName: "John" })} RETURNING ${row(Account.$$)}`.getSql(
-            {},
+         sql`INSERT INTO ${Account} ${insert(Account, "rows")} RETURNING ${row(Account.$$)}`.getSql(
+            { params: { rows: [{ email: "a@b.com", firstName: "John" }] } },
          ).text,
       ).toMatchInlineSnapshot(`
         "/* <query_0> */
@@ -617,10 +625,10 @@ describe("fromDrizzleTable (pg) — SQL generation", () => {
       `);
    });
 
-   test("UPDATE updateSet", () => {
+   test("UPDATE with set() operator", () => {
       expect(
-         sql`UPDATE ${Account} SET ${Account.updateSet({ email: "new@b.com" })} WHERE ${Account.$accountId} = ${"some-id"}`.getSql(
-            {},
+         sql`UPDATE ${Account} ${set(Account)} WHERE ${Account.$accountId} = ${param<{ set: Record<string, unknown>; accountId: string }>("accountId")}`.getSql(
+            { params: { set: { email: "new@b.com" }, accountId: "some-id" } },
          ).text,
       ).toMatchInlineSnapshot(`
         "/* <query_0> */

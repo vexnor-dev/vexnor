@@ -1,6 +1,6 @@
 import { ObjectLiteral, Repository } from "typeorm";
 import { newSqlTable, SqlTableExtended } from "@vexnor/core";
-import { getDialect } from "#/dialect.js";
+import { getDialect } from "#src/dialect.js";
 
 type FromTypeORMResult<T> = SqlTableExtended<{
    // eslint-disable-next-line @typescript-eslint/no-explicit-any

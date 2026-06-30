@@ -52,7 +52,7 @@ describe("PostgresQueryHandler — execute()", () => {
          query: vi.fn(async () => { throw Object.assign(new Error("syntax error"), { code: "42601" }); }),
       };
       const q = sql`SELECT ${Account.$$} FROM ${Account}`;
-      await expect(q.postgres.execute({ db } as never)).rejects.toThrow("Error running postgres query");
+      await expect(q.postgres.execute({ db } as never)).rejects.toThrow("Error running POSTGRES query");
    });
 
    test("marks retryable on known pg error code 40001 (serialization failure)", async () => {

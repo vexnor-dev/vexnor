@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { DataSource, EntitySchema } from "typeorm";
-import { sql, row, val, param } from "@vexnor/core";
+import { sql, row, val, param, insert, set } from "@vexnor/core";
 import { fromTypeORM } from "../index.js";
 
 interface IAccount extends Record<string, unknown> {
@@ -168,9 +168,9 @@ describe("fromTypeORM — EntitySchema SQL generation", () => {
       `);
    });
 
-   test("INSERT insertColsVals", () => {
+   test("INSERT with insert() operator", () => {
       expect(
-         sql`INSERT INTO ${Account} ${Account.insertColsVals({ accountId: "some-id", email: "a@b.com", firstName: "John", notes: null, parentId: null })} RETURNING ${row(Account.$$)}`.getSql({}).text,
+         sql`INSERT INTO ${Account} ${insert(Account, "rows")} RETURNING ${row(Account.$$)}`.getSql({ params: { rows: [{ accountId: "some-id", email: "a@b.com", firstName: "John", notes: null, parentId: null }] } }).text,
       ).toMatchInlineSnapshot(`
         "/* <query_0> */
         INSERT INTO
@@ -192,9 +192,9 @@ describe("fromTypeORM — EntitySchema SQL generation", () => {
       `);
    });
 
-   test("UPDATE updateSet", () => {
+   test("UPDATE with set() operator", () => {
       expect(
-         sql`UPDATE ${Account} SET ${Account.updateSet({ email: "new@b.com" })} WHERE ${Account.$accountId} = ${"some-id"}`.getSql({}).text,
+         sql`UPDATE ${Account} ${set(Account)} WHERE ${Account.$accountId} = ${param<{ set: Record<string, unknown>; accountId: string }>("accountId")}`.getSql({ params: { set: { email: "new@b.com" }, accountId: "some-id" } }).text,
       ).toMatchInlineSnapshot(`
         "/* <query_0> */
         UPDATE "main"."account"

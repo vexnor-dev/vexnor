@@ -1,7 +1,7 @@
 // noinspection SqlNoDataSourceInspection,SqlResolve
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
-import { HttpRemoteClient, info, param, row } from "@vexnor/core";
+import { HttpRemoteClient, info, insert, param, row } from "@vexnor/core";
 import { sql, jsonMany } from "@vexnor/postgres";
 import "@vexnor/postgres";
 import { createTestServer } from "./test-server.js";
@@ -53,9 +53,9 @@ describe.sequential("postgres — remote execution via HttpRemoteClient", () => 
 
       orders = await sql`
          insert into ${Order}
-            ${Order.insertColsVals({ accountId: account.accountId }, { accountId: account.accountId })}
+            ${insert(Order, 'rows')}
             returning ${row(Order.$$)}
-      `.all({ db: pgPool });
+      `.all({ db: pgPool, params: { rows: [{ accountId: account.accountId }, { accountId: account.accountId }] } });
    });
 
    afterAll(async () => {

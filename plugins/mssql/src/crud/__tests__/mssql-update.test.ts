@@ -3,8 +3,8 @@ import { describe, expect, test } from "vitest";
 import "@vexnor/mssql";
 import { Account } from "@vexnor/core/testing";
 import { sql, input } from "@vexnor/core";
-import { mssqlUpdate } from "#/crud/mssql-update.js";
-import { defaultQueryOptions } from "#/default-query-options.js";
+import { mssqlUpdate } from "#src/crud/mssql-update.js";
+import { defaultQueryOptions } from "#src/default-query-options.js";
 
 describe("mssqlTableUpdate()", () => {
    test("basic update", () => {
@@ -14,9 +14,8 @@ describe("mssqlTableUpdate()", () => {
         "/* <query_0> */
         /* driver: transactsql */
         UPDATE "main"."account"
-        /* <query_1> */
         SET
-          /* <query_2> */ "email" = @param_0 /* </query_2> */ /* </query_1> */ output "inserted"."account_id" AS "accountId",
+          "email" = @param_0 output "inserted"."account_id" AS "accountId",
           "inserted"."status",
           "inserted"."email",
           "inserted"."first_name" AS "firstName",
@@ -41,9 +40,8 @@ describe("mssqlTableUpdate()", () => {
         "/* <query_0> */
         /* driver: transactsql */
         UPDATE "main"."account"
-        /* <query_1> */
         SET
-          /* <query_2> */ "email" = @param_0 /* </query_2> */ /* </query_1> */ output "inserted"."account_id" AS "accountId",
+          "email" = @param_0 output "inserted"."account_id" AS "accountId",
           "inserted"."status",
           "inserted"."email",
           "inserted"."first_name" AS "firstName",
@@ -52,9 +50,9 @@ describe("mssqlTableUpdate()", () => {
           "inserted"."created_at" AS "createdAt",
           "inserted"."modified_at" AS "modifiedAt",
           "inserted"."parent_id" AS "parentId"
-          /* <query_3> */
+          /* <query_1> */
         WHERE
-          /* <query_4> */ "account"."account_id" = @param_1 /* </query_4> */ /* </query_3> */
+          /* <query_2> */ "account"."account_id" = @param_1 /* </query_2> */ /* </query_1> */
           /* </query_0> */"
       `);
    });

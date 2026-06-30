@@ -221,6 +221,11 @@ describe("view — AccountOrderSummary (sqlite)", () => {
             "select": true,
             "update": false,
           },
+          "_fk": Lazy {
+            "_computed": false,
+            "_value": null,
+            "callback": [Function],
+          },
           "_out": Lazy {
             "_computed": false,
             "_value": null,
@@ -265,7 +270,6 @@ describe("view — AccountOrderSummary (sqlite)", () => {
             },
           },
           "dialect": "sqlite",
-          "fk": [],
           "format": null,
           "hashId": "SqlTable#(main.account_order_summary)",
           "id": "SqlTable#6(main.account_order_summary)",

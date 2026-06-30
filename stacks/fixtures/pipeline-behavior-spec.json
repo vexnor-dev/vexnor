@@ -1,0 +1,167 @@
+{
+  "$comment": "Cross-runtime pipeline test fixtures. Both Node.js and .NET test runners read this file and assert identical behavior for each case.",
+  "version": 1,
+
+  "authorization_cases": [
+    {
+      "id": "deny_tagged_no_hook",
+      "description": "checkAuthorization throws when tagged queries exist but no hook registered",
+      "input": {
+        "queries": [{ "name": "deleteAccount", "hash": "h1", "authorization": ["admin"] }],
+        "hooks": []
+      },
+      "expected": { "action": "checkAuthorization", "throws": true, "errorContains": "deleteAccount" }
+    },
+    {
+      "id": "allow_tagged_with_hook",
+      "description": "checkAuthorization passes when hook is registered",
+      "input": {
+        "queries": [{ "name": "deleteAccount", "hash": "h1", "authorization": ["admin"] }],
+        "hooks": ["allow_all"]
+      },
+      "expected": { "action": "checkAuthorization", "throws": false }
+    },
+    {
+      "id": "deny_execution",
+      "description": "execute throws when authorization hook denies",
+      "input": {
+        "queries": [{ "name": "deleteAccount", "hash": "h1", "authorization": ["admin"], "template": [{"type":"text","value":"SELECT 1"}] }],
+        "hooks": ["deny_all"],
+        "executeHash": "h1",
+        "params": {},
+        "context": { "roles": "user" }
+      },
+      "expected": { "action": "execute", "throws": true, "errorContains": "denied" }
+    },
+    {
+      "id": "allow_untagged",
+      "description": "execute succeeds for untagged query even with deny hook",
+      "input": {
+        "queries": [{ "name": "publicQuery", "hash": "h2", "authorization": [], "template": [{"type":"text","value":"SELECT 1"}] }],
+        "hooks": ["deny_all"],
+        "executeHash": "h2",
+        "params": {},
+        "context": {}
+      },
+      "expected": { "action": "execute", "throws": false }
+    }
+  ],
+
+  "rate_limiting_cases": [
+    {
+      "id": "within_limit",
+      "description": "allows concurrent calls within maxConcurrent",
+      "input": { "maxConcurrent": 2, "concurrentCalls": 2 },
+      "expected": { "allSucceed": true }
+    },
+    {
+      "id": "exceeds_limit",
+      "description": "rejects when maxConcurrent exceeded",
+      "input": { "maxConcurrent": 1, "concurrentCalls": 2 },
+      "expected": { "rejected": true, "errorContains": "Rate limited" }
+    },
+    {
+      "id": "per_context_exceeded",
+      "description": "rejects per-context when exceeded",
+      "input": { "maxConcurrentPerContext": 1, "concurrentCalls": 2, "contextKey": "userId", "contextValue": "user-1" },
+      "expected": { "rejected": true, "errorContains": "Rate limited" }
+    },
+    {
+      "id": "per_context_independent",
+      "description": "different context keys don't interfere",
+      "input": { "maxConcurrentPerContext": 1, "contexts": [{ "userId": "user-1" }, { "userId": "user-2" }] },
+      "expected": { "allSucceed": true }
+    },
+    {
+      "id": "decrements_on_complete",
+      "description": "sequential calls succeed (counter resets after each)",
+      "input": { "maxConcurrent": 1, "sequentialCalls": 3 },
+      "expected": { "allSucceed": true }
+    }
+  ],
+
+  "lifecycle_cases": [
+    {
+      "id": "full_sequence",
+      "description": "successful execution fires init→check→before→end",
+      "input": { "plugins": ["tracker"] },
+      "expected": { "lifecycle": ["init", "check", "before", "end"], "throws": false }
+    },
+    {
+      "id": "auth_denial_skips_before",
+      "description": "auth denial fires init→end, skips check/before",
+      "input": { "plugins": ["tracker"], "hooks": ["deny_all"], "authorization": ["admin"] },
+      "expected": { "lifecycle": ["init", "end"], "throws": true }
+    },
+    {
+      "id": "end_has_null_error_on_success",
+      "description": "end args error is null on success",
+      "input": { "plugins": ["tracker"] },
+      "expected": { "endError": null, "durationMsGte": 0 }
+    },
+    {
+      "id": "end_has_error_on_failure",
+      "description": "end args error is populated on failure",
+      "input": { "plugins": ["tracker"], "executionThrows": true },
+      "expected": { "endError": "not_null" }
+    }
+  ],
+
+  "context_injection_cases": [
+    {
+      "id": "injects_value",
+      "description": "context param is injected from context dict into query params",
+      "input": {
+        "query": {
+          "name": "myOrders", "hash": "ctx1",
+          "template": [{"type":"text","value":"SELECT * WHERE user_id = "},{"type":"param","name":"userId"}],
+          "params": { "userId": { "name": "userId", "isContext": true } }
+        },
+        "params": {},
+        "context": { "userId": "user-42" }
+      },
+      "expected": { "throws": false, "valuesContain": ["user-42"] }
+    },
+    {
+      "id": "throws_when_missing",
+      "description": "throws when required context value not provided",
+      "input": {
+        "query": {
+          "name": "myOrders", "hash": "ctx2",
+          "template": [{"type":"text","value":"SELECT 1"}],
+          "params": { "userId": { "name": "userId", "isContext": true } }
+        },
+        "params": {},
+        "context": {}
+      },
+      "expected": { "throws": true, "errorContains": "userId" }
+    }
+  ],
+
+  "audit_log_cases": [
+    {
+      "id": "logs_on_success",
+      "description": "audit log fires with query name, null error, duration >= 0",
+      "input": { "queryName": "selectAccounts" },
+      "expected": { "logEntry": { "name": "selectAccounts", "error": null, "durationMsGte": 0 } }
+    },
+    {
+      "id": "logs_on_failure",
+      "description": "audit log fires with error message on failure",
+      "input": { "queryName": "failQuery", "executionThrows": true },
+      "expected": { "logEntry": { "error": "not_null" } }
+    },
+    {
+      "id": "projects_context",
+      "description": "contextLogResolver projects only specified keys",
+      "input": { "queryName": "q", "contextLogKeys": ["userId"], "context": { "userId": "u-1", "secret": "s3cr3t" } },
+      "expected": { "logEntry": { "contextIncludes": { "userId": "u-1" }, "contextExcludes": ["secret"] } }
+    },
+    {
+      "id": "null_context_without_resolver",
+      "description": "no resolver means null context in log entry",
+      "input": { "queryName": "q", "contextLogKeys": null, "context": { "secret": "s3cr3t" } },
+      "expected": { "logEntry": { "context": null } }
+    }
+  ]
+}
