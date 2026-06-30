@@ -1,6 +1,87 @@
 import { describe, test, expect } from "vitest";
 import { validateParamObject } from "#src/core/query/params/validate-param-object.js";
 
+describe("validateParamObject — array input branch", () => {
+   test("array with fieldValues — valid entries pass", () => {
+      const errors: string[] = [];
+      validateParamObject(
+         ["ASC", "DESC"] as unknown as Record<string, unknown>,
+         { fieldValues: ["ASC", "DESC", "asc", "desc"] },
+         errors,
+      );
+      expect(errors).toMatchInlineSnapshot(`[]`);
+   });
+
+   test("array with fieldValues — invalid entry rejected", () => {
+      const errors: string[] = [];
+      validateParamObject(
+         ["ASC", "INVALID"] as unknown as Record<string, unknown>,
+         { fieldValues: ["ASC", "DESC", "asc", "desc"] },
+         errors,
+      );
+      expect(errors).toMatchInlineSnapshot(`
+        [
+          "Column 'INVALID' not allowed in: [object Set]",
+        ]
+      `);
+   });
+
+   test("array with fieldValues and aggregates — aggregates included in allowed set", () => {
+      const errors: string[] = [];
+      validateParamObject(
+         ["ASC", "count"] as unknown as Record<string, unknown>,
+         { fieldValues: ["ASC", "DESC"], aggregates: ["count", "sum"] },
+         errors,
+      );
+      expect(errors).toMatchInlineSnapshot(`[]`);
+   });
+
+   test("array with fieldNames — valid entries pass", () => {
+      const errors: string[] = [];
+      validateParamObject(
+         ["email", "status"] as unknown as Record<string, unknown>,
+         { fieldNames: ["email", "status", "createdAt"] },
+         errors,
+      );
+      expect(errors).toMatchInlineSnapshot(`[]`);
+   });
+
+   test("array with fieldNames — invalid entry rejected", () => {
+      const errors: string[] = [];
+      validateParamObject(
+         ["email", "badColumn"] as unknown as Record<string, unknown>,
+         { fieldNames: ["email", "status"] },
+         errors,
+      );
+      expect(errors).toMatchInlineSnapshot(`
+        [
+          "Column 'badColumn' not allowed in: [object Set]",
+        ]
+      `);
+   });
+
+   test("array with neither fieldNames nor fieldValues — no validation", () => {
+      const errors: string[] = [];
+      validateParamObject(
+         ["anything", "goes"] as unknown as Record<string, unknown>,
+         { operators: { "=": { args: 1 } } },
+         errors,
+      );
+      expect(errors).toMatchInlineSnapshot(`[]`);
+   });
+
+   test("array with non-string entries — skipped", () => {
+      const errors: string[] = [];
+      validateParamObject(
+         ["email", 123, ["count", "*", "total"]] as unknown as Record<string, unknown>,
+         { fieldNames: ["email"] },
+         errors,
+      );
+      // Only "email" is validated as a string; 123 and the tuple are skipped
+      expect(errors).toMatchInlineSnapshot(`[]`);
+   });
+});
+
 describe("validateParamObject", () => {
    test("valid keys and values — no errors", () => {
       const errors: string[] = [];
@@ -9,11 +90,7 @@ describe("validateParamObject", () => {
          { fieldNames: ["email", "status"], operators: { like: { args: 1 } }, fieldValues: ["like", "="] },
          errors,
       );
-      expect(errors).toMatchInlineSnapshot(`
-        [
-          "Column 'email':'like,%@test.com' value not allowed in: [object Set]",
-        ]
-      `);
+      expect(errors).toMatchInlineSnapshot(`[]`);
    });
 
    test("invalid key — rejected for non-dot keys", () => {
@@ -53,11 +130,7 @@ describe("validateParamObject", () => {
          { fieldNames: ["email", "status"], operators: { like: { args: 1 } }, fieldValues: ["like", "active"] },
          errors,
       );
-      expect(errors).toMatchInlineSnapshot(`
-        [
-          "Column 'email':'like,%@vip.com' value not allowed in: [object Set]",
-        ]
-      `);
+      expect(errors).toMatchInlineSnapshot(`[]`);
    });
 
    test("or key — invalid inner key rejected for non-dot keys", () => {

@@ -8,20 +8,26 @@ export function validateParamObject(
 ): void {
    // Arrays are valid for projection params (select) — validate entries, not indices
    if (Array.isArray(obj)) {
-      const { fieldNames, aggregates } = validation;
-      const allowedKeys = fieldNames ? new Set([...fieldNames, ...aggregates ?? []]) : null;
+      const allowedKeys = "fieldNames" in validation && validation.fieldNames
+         ? new Set([...validation.fieldNames, ...validation.aggregates ?? []])
+         : "fieldValues" in validation && validation.fieldValues
+            ? new Set([...validation.fieldValues, ...validation.aggregates ?? []])
+            : null;
       for (const entry of obj) {
          if (typeof entry === "string") {
             if (allowedKeys && !allowedKeys.has(entry)) errors.push(`Column '${entry}' not allowed in: ${allowedKeys}`);
          }
-         // Tuple entries like ["count", "*", "alias"] are aggregation — skip key validation
       }
       return;
    }
 
-   const { operators, fieldValues = null, fieldNames, aggregates } = validation;
-   const allowedKeys = fieldNames ? new Set([...fieldNames, ...aggregates ?? []]) : null;
-   const allowedValues = fieldValues ? new Set([...fieldValues, ...Object.keys(operators ?? {})]) : null;
+   const { operators, aggregates } = validation;
+   const allowedKeys = "fieldNames" in validation && validation.fieldNames
+      ? new Set([...validation.fieldNames, ...aggregates ?? []])
+      : null;
+   const allowedValues = "fieldValues" in validation && validation.fieldValues
+      ? new Set([...validation.fieldValues, ...aggregates ?? []])
+      : null;
 
    const props = new Queue(Object.entries(obj));
 
@@ -37,8 +43,15 @@ export function validateParamObject(
          continue;
       }
 
-      if (allowedKeys && !allowedKeys.has(propKey) && (typeof propValue !== "object" || propValue === null || Array.isArray(propValue))) errors.push(`Column key '${propKey}' not allowed in: ${allowedKeys}`);
-      if (allowedValues && !allowedValues.has(propValue)) errors.push(`Column '${propKey}':'${propValue}' value not allowed in: ${allowedValues}`);
+      // Key validation (fieldNames mode): validate keys against allowed column names
+      if (allowedKeys && !allowedKeys.has(propKey) && (typeof propValue !== "object" || propValue === null || Array.isArray(propValue))) {
+         errors.push(`Column key '${propKey}' not allowed in: ${allowedKeys}`);
+      }
+
+      // Value validation (fieldValues mode): validate string values against allowed column names
+      if (allowedValues && typeof propValue === "string" && !allowedValues.has(propValue)) {
+         errors.push(`Value '${propValue}' for key '${propKey}' not allowed`);
+      }
 
       if (operators && Array.isArray(propValue) && propValue.length >= 1) {
          const op = propValue[0];
