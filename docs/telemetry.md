@@ -31,9 +31,9 @@ process.on('SIGINT', () => sdk.shutdown());
 Then in your server entry point:
 
 ```typescript
-import 'vexnor/telemetry';
+import '@vexnor/core/telemetry';
 import { trace } from '@opentelemetry/api';
-import { SqlQueryRegistry } from 'vexnor/execution';
+import { SqlQueryRegistry } from '@vexnor/core/execution';
 
 const tracer = trace.getTracer('my-service');
 const registry = new SqlQueryRegistry();
@@ -137,7 +137,7 @@ const sdk = new NodeSDK({
 `registerOpenTelemetry` is built on the `use()` plugin system. You can attach additional `AuditLogPlugin` instances alongside it:
 
 ```typescript
-import { AuditLogPlugin } from 'vexnor/execution';
+import { AuditLogPlugin } from '@vexnor/core/execution';
 
 registry.registerOpenTelemetry(tracer);
 

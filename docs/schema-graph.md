@@ -128,7 +128,7 @@ type JoinType = "inner" | "left" | "right" | "full" | "cross";
 To use `SchemaGraph` outside of Node.js (e.g., in .NET), serialize your schema to a JSON manifest:
 
 ```typescript
-import { serializeSchema } from 'vexnor';
+import { serializeSchema } from '@vexnor/core';
 import * as schema from './models/public.schema.js';
 
 const manifest = serializeSchema(schema, 'postgresql');

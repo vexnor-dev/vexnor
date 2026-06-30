@@ -9,7 +9,7 @@ Vexnor queries execute through a `db` connection passed at call time. This makes
 `PostgresClient` is a simple interface: `{ query(config): Promise<QueryResult> }`. Any object satisfying it works as a mock:
 
 ```typescript
-import { sql, row } from 'vexnor';
+import { sql, row } from '@vexnor/core';
 import '@vexnor/postgres';
 import type { PostgresClient } from '@vexnor/postgres';
 import { Account } from './models/account-table.js';
@@ -68,7 +68,7 @@ const accounts = await findAccounts.sqlite.all({ db: mockDb });
 When using remote execution (browser or cross-service), mock `RemoteClient` instead:
 
 ```typescript
-import type { RemoteClient } from 'vexnor';
+import type { RemoteClient } from '@vexnor/core';
 
 const mockRemote: RemoteClient = {
   remoteExecute: async ({ plugin, hash, params }) => ({
@@ -89,7 +89,7 @@ Use `getSql()` to extract compiled SQL for snapshot testing. Combine with Vitest
 
 ```typescript
 import { describe, test, expect } from 'vitest';
-import { sql, row, param } from 'vexnor';
+import { sql, row, param } from '@vexnor/core';
 import { Account } from './models/account-table.js';
 
 describe('findAccounts', () => {
@@ -194,7 +194,7 @@ Test authorization and audit logging by creating a registry in your test:
 
 ```typescript
 import { describe, test, expect, vi } from 'vitest';
-import { SqlQueryRegistry, AuditLogPlugin } from 'vexnor/execution';
+import { SqlQueryRegistry, AuditLogPlugin } from '@vexnor/core/execution';
 import vexnorPostgres from '@vexnor/postgres';
 
 describe('SqlQueryRegistry authorization', () => {
@@ -249,8 +249,8 @@ test('audit log fires on execution', async () => {
 ## Testing with `connect()` and Pipelines
 
 ```typescript
-import { connect } from 'vexnor';
-import { SqlQueryPipeline } from 'vexnor/execution';
+import { connect } from '@vexnor/core';
+import { SqlQueryPipeline } from '@vexnor/core/execution';
 
 test('pipeline fires authorization on direct execution', async () => {
   const pipeline = new SqlQueryPipeline<{ Context: { roles: string[] } }>();

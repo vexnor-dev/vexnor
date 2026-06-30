@@ -13,7 +13,7 @@ Get TypeScript and .NET running against the same queries — step by step.
 Install vexnor and a database plugin:
 
 ```bash
-npm install vexnor @vexnor/postgres pg
+npm install @vexnor/core @vexnor/postgres pg
 ```
 
 Generate typed models from your database:
@@ -31,7 +31,7 @@ Define queries as exports in a dedicated file:
 
 ```typescript
 // src/queries/accounts.ts
-import { sql, row, param, filterBy, orderBy } from 'vexnor';
+import { sql, row, param, filterBy, orderBy } from '@vexnor/core';
 import { Account } from '../models/public.schema.js';
 import '@vexnor/postgres';
 

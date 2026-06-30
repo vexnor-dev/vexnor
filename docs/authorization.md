@@ -90,8 +90,8 @@ queryRegistry.registerAuthorization(({ query, context }) => {
 Authorization also works with direct connections wrapped via `connect()`:
 
 ```typescript
-import { connect } from 'vexnor';
-import { SqlQueryPipeline } from 'vexnor/execution';
+import { connect } from '@vexnor/core';
+import { SqlQueryPipeline } from '@vexnor/core/execution';
 
 type AppContext = { userId: string; roles: string[] };
 
@@ -161,7 +161,7 @@ When a query is denied, vexnor throws a `SqlRunError` with:
 - `cause`: the original error thrown by the hook
 
 ```typescript
-import { SqlRunError, SqlErrorCode } from 'vexnor/execution';
+import { SqlRunError, SqlErrorCode } from '@vexnor/core/execution';
 
 try {
   await deleteAccount.postgres.run({ db, params });
@@ -179,7 +179,7 @@ try {
 Attach an `AuditLogPlugin` to observe every query execution — success, failure, or authorization denial.
 
 ```typescript
-import { AuditLogPlugin } from 'vexnor/execution';
+import { AuditLogPlugin } from '@vexnor/core/execution';
 
 queryRegistry.use(new AuditLogPlugin({
   contextLogResolver: ({ userId }) => ({ userId }), // opt-in — never logs raw context
@@ -223,7 +223,7 @@ Multiple plugins can be attached — they all receive every event independently.
 
 ```typescript
 import pino from 'pino';
-import { AuditLogPlugin } from 'vexnor/execution';
+import { AuditLogPlugin } from '@vexnor/core/execution';
 
 const log = pino({ name: 'vexnor' });
 
@@ -254,7 +254,7 @@ Example output:
 Built-in per-query and per-context concurrency limiting:
 
 ```typescript
-import { TimeToLiveRateLimiter } from 'vexnor/execution';
+import { TimeToLiveRateLimiter } from '@vexnor/core/execution';
 
 queryRegistry.use(new TimeToLiveRateLimiter<AppContext>({
   contextKeyResolver: (ctx) => ctx.userId,

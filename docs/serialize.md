@@ -103,7 +103,7 @@ Non-query exports (types, constants, helper functions) are ignored.
 
 ```typescript
 // src/queries/accounts.ts
-import { sql, row, param, filterBy, orderBy } from 'vexnor';
+import { sql, row, param, filterBy, orderBy } from '@vexnor/core';
 import { Account } from '../models/public.schema.js';
 
 // ✓ Serialized — SqlQuery instance
@@ -215,7 +215,7 @@ Running serialize is **idempotent** — the same inputs always produce the same 
 The serialize logic is also available as a library function for custom build scripts:
 
 ```typescript
-import { serializeManifest } from 'vexnor';
+import { serializeManifest } from '@vexnor/core';
 
 const queries = [
   { query: findActiveAccounts, name: 'findActiveAccounts', hash: await findActiveAccounts.hash },
@@ -231,7 +231,7 @@ const manifest = await serializeManifest(queries, 'postgresql');
 `serializeSchema()` exports your table metadata (columns, primary keys, foreign keys) as a standalone JSON manifest — separate from query manifests. This powers the .NET `SchemaGraph` and gives AI agents a machine-readable schema without a live database connection.
 
 ```typescript
-import { serializeSchema } from 'vexnor';
+import { serializeSchema } from '@vexnor/core';
 import * as schema from './models/public.schema.js';
 
 const manifest = serializeSchema(schema, 'postgresql');
@@ -271,7 +271,7 @@ const manifest = serializeSchema(schema, 'postgresql');
 ```bash
 # Example: generate schema manifest in a build script
 npx tsx -e "
-  import { serializeSchema } from 'vexnor';
+  import { serializeSchema } from '@vexnor/core';
   import * as schema from './src/models/public.schema.js';
   import { writeFileSync } from 'fs';
   writeFileSync('manifests/schema.json', JSON.stringify(serializeSchema(schema, 'postgresql'), null, 2));

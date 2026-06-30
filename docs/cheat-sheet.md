@@ -8,19 +8,19 @@ Quick reference for all composable APIs.
 
 ```typescript
 // Core — query building
-import { sql, row, col, param, ctx, raw, val, excluded, DEFAULT, filter, set, orderBy, filterBy } from 'vexnor';
-import { HttpRemoteClient, connect } from 'vexnor';
-import type { FilterOp, FilterCondition, FilterConditionList } from 'vexnor';
+import { sql, row, col, param, ctx, raw, val, excluded, DEFAULT, filter, set, orderBy, filterBy } from '@vexnor/core';
+import { HttpRemoteClient, connect } from '@vexnor/core';
+import type { FilterOp, FilterCondition, FilterConditionList } from '@vexnor/core';
 
 // Execution — registry, pipelines, errors
-import { SqlQueryRegistry, SqlQueryPipeline, AuditLogPlugin, TimeToLiveRateLimiter } from 'vexnor/execution';
-import { SqlError, SqlRunError, SqlErrorCode } from 'vexnor/execution';
+import { SqlQueryRegistry, SqlQueryPipeline, AuditLogPlugin, TimeToLiveRateLimiter } from '@vexnor/core/execution';
+import { SqlError, SqlRunError, SqlErrorCode } from '@vexnor/core/execution';
 
 // Config — CLI config files
-import { defineConfig, defineQueryConfig } from 'vexnor/config';
+import { defineConfig, defineQueryConfig } from '@vexnor/core/config';
 
 // Telemetry
-import 'vexnor/telemetry';
+import '@vexnor/core/telemetry';
 
 // Plugins (side-effect imports — augment .postgres, .mssql, .sqlite3)
 import '@vexnor/postgres';
@@ -332,7 +332,7 @@ npx vexnor exec run findActiveAccounts -q queries.vexnor.ts --limit 5
 ### Query config file (`queries.vexnor.ts`)
 
 ```typescript
-import { defineQueryConfig } from 'vexnor/config';
+import { defineQueryConfig } from '@vexnor/core/config';
 import { findActiveAccounts, selectMyOrders } from './src/queries.js';
 
 export default defineQueryConfig({
