@@ -673,4 +673,157 @@ public class JoinByManifestTests
             result.Text);
         Assert.Empty(result.Values);
     }
+
+    [Fact]
+    public void Build_JoinBy_Throws_WhenOnConditionIsNot3Tuple()
+    {
+        var json = """
+                   {
+                       "version": 1,
+                       "dialect": "postgresql",
+                       "queries": {
+                           "hash1": {
+                               "hash": "hash1",
+                               "name": "testQuery",
+                               "template": [
+                                   { "type": "text", "value": "SELECT * FROM \"main\".\"order\" as \"o_1\" " },
+                                   {
+                                       "type": "joinBy",
+                                       "param": "joinBy",
+                                       "joinMap": {
+                                           "_": { "schema": "main", "table": "order", "columns": { "orderId": "\"o_1\".\"order_id\"" } },
+                                           "account": { "schema": "main", "table": "account", "columns": { "accountId": "\"a_2\".\"account_id\"" } }
+                                       },
+                                       "joinTypes": {}
+                                   }
+                               ],
+                               "params": {},
+                               "row": null,
+                               "authorization": []
+                           }
+                       }
+                   }
+                   """;
+
+        var registry = new QueryRegistry("postgresql");
+        registry.Load(ManifestLoader.Load(json));
+
+        var joinByParam = new Dictionary<string, object?>
+        {
+            ["account"] = new Dictionary<string, object?>
+            {
+                ["on"] = new object?[]
+                {
+                    new object?[] { "_.orderId", "=" } // Only 2 elements — not a 3-tuple
+                },
+                ["type"] = "inner"
+            }
+        };
+
+        var ex = Assert.Throws<InvalidOperationException>(() =>
+            registry.Build("hash1", new() { ["joinBy"] = joinByParam }));
+        Assert.Contains("3-tuple", ex.Message);
+    }
+
+    [Fact]
+    public void Build_JoinBy_ExtractAlias_FallsBackWhenColumnsEmpty()
+    {
+        var json = """
+                   {
+                       "version": 1,
+                       "dialect": "postgresql",
+                       "queries": {
+                           "hash1": {
+                               "hash": "hash1",
+                               "name": "testQuery",
+                               "template": [
+                                   { "type": "text", "value": "SELECT * FROM \"main\".\"order\" as \"o_1\" " },
+                                   {
+                                       "type": "joinBy",
+                                       "param": "joinBy",
+                                       "joinMap": {
+                                           "_": { "schema": "main", "table": "order", "columns": { "orderId": "\"o_1\".\"order_id\"" } },
+                                           "account": { "schema": "main", "table": "account", "columns": {} }
+                                       },
+                                       "joinTypes": {}
+                                   }
+                               ],
+                               "params": {},
+                               "row": null,
+                               "authorization": []
+                           }
+                       }
+                   }
+                   """;
+
+        var registry = new QueryRegistry("postgresql");
+        registry.Load(ManifestLoader.Load(json));
+
+        var joinByParam = new Dictionary<string, object?>
+        {
+            ["account"] = new Dictionary<string, object?>
+            {
+                ["on"] = new object?[]
+                {
+                    new object?[] { "_.orderId", "=", "_.orderId" }
+                },
+                ["type"] = "inner"
+            }
+        };
+
+        var result = registry.Build("hash1", new() { ["joinBy"] = joinByParam });
+        // Should use "account" as fallback alias since columns is empty
+        Assert.Contains("\"account\"", result.Text);
+    }
+
+    [Fact]
+    public void Build_JoinBy_ExtractAlias_FallsBackWhenNoDotInColumnValue()
+    {
+        var json = """
+                   {
+                       "version": 1,
+                       "dialect": "postgresql",
+                       "queries": {
+                           "hash1": {
+                               "hash": "hash1",
+                               "name": "testQuery",
+                               "template": [
+                                   { "type": "text", "value": "SELECT * FROM \"main\".\"order\" as \"o_1\" " },
+                                   {
+                                       "type": "joinBy",
+                                       "param": "joinBy",
+                                       "joinMap": {
+                                           "_": { "schema": "main", "table": "order", "columns": { "orderId": "\"o_1\".\"order_id\"" } },
+                                           "account": { "schema": "main", "table": "account", "columns": { "accountId": "account_id" } }
+                                       },
+                                       "joinTypes": {}
+                                   }
+                               ],
+                               "params": {},
+                               "row": null,
+                               "authorization": []
+                           }
+                       }
+                   }
+                   """;
+
+        var registry = new QueryRegistry("postgresql");
+        registry.Load(ManifestLoader.Load(json));
+
+        var joinByParam = new Dictionary<string, object?>
+        {
+            ["account"] = new Dictionary<string, object?>
+            {
+                ["on"] = new object?[]
+                {
+                    new object?[] { "_.orderId", "=", "account.accountId" }
+                },
+                ["type"] = "inner"
+            }
+        };
+
+        var result = registry.Build("hash1", new() { ["joinBy"] = joinByParam });
+        // Should use "account" as fallback alias since column value has no dot
+        Assert.Contains("\"account\"", result.Text);
+    }
 }
