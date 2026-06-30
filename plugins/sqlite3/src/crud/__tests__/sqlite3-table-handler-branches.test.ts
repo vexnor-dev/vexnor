@@ -33,8 +33,7 @@ describe("newSqlite3TableHandler — SQL generation branches", () => {
           "main"."account" AS "a_1"
           /* <query_1> */
         WHERE
-          /* <query_2> */
-          "a_1"."status" = ? /* </query_2> */ /* </query_1> */
+          /* <query_2> */ "a_1"."status" = ? /* </query_2> */ /* </query_1> */
           /* <query_3> */
           /* </query_3> */
           /* <query_4> */
@@ -70,8 +69,7 @@ describe("newSqlite3TableHandler — SQL generation branches", () => {
         DELETE FROM "main"."account"
         /* <query_1> */
         WHERE
-          /* <query_2> */
-          "account"."account_id" = ? /* </query_2> */ /* </query_1> */
+          /* <query_2> */ "account"."account_id" = ? /* </query_2> */ /* </query_1> */
         RETURNING
           "account"."account_id" AS "accountId",
           "account"."status",

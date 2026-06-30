@@ -47,8 +47,7 @@ describe("sqlite3Delete()", () => {
         DELETE FROM "main"."account"
         /* <query_1> */
         WHERE
-          /* <query_2> */
-          "account"."account_id" = ? /* </query_2> */ /* </query_1> */
+          /* <query_2> */ "account"."account_id" = ? /* </query_2> */ /* </query_1> */
         RETURNING
           "account"."account_id" AS "accountId",
           "account"."status",

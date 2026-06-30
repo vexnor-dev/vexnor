@@ -33,8 +33,7 @@ describe("newMssqlTableHandler — SQL generation branches", () => {
           "main"."account" AS "a_1"
           /* <query_1> */
         WHERE
-          /* <query_2> */
-          "a_1"."status" = @param_0 /* </query_2> */ /* </query_1> */
+          /* <query_2> */ "a_1"."status" = @param_0 /* </query_2> */ /* </query_1> */
           /* <query_3> */
           /* </query_3> */
           /* <query_4> */
@@ -78,8 +77,7 @@ describe("newMssqlTableHandler — SQL generation branches", () => {
         "deleted"."parent_id" AS "parentId"
         /* <query_1> */
         WHERE
-          /* <query_2> */
-          "account"."account_id" = @param_0 /* </query_2> */ /* </query_1> */
+          /* <query_2> */ "account"."account_id" = @param_0 /* </query_2> */ /* </query_1> */
           /* </query_0> */"
       `);
       expect(values).toMatchInlineSnapshot(`

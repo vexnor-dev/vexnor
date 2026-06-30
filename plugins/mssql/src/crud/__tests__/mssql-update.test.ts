@@ -52,8 +52,7 @@ describe("mssqlTableUpdate()", () => {
           "inserted"."parent_id" AS "parentId"
           /* <query_1> */
         WHERE
-          /* <query_2> */
-          "account"."account_id" = @param_1 /* </query_2> */ /* </query_1> */
+          /* <query_2> */ "account"."account_id" = @param_1 /* </query_2> */ /* </query_1> */
           /* </query_0> */"
       `);
    });
