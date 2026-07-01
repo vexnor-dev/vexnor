@@ -11,10 +11,8 @@ describe("eachObject", () => {
         "/* <query_0> */
         UPDATE "main"."account"
         SET
-          /* <query_1> */
-          "email" = ? /* </query_1> */,
-          /* <query_1> */
-          "firstName" = ? /* </query_1> */ /* </query_0> */"
+          /* <query_1> */ "email" = ? /* </query_1> */,
+          /* <query_1> */ "firstName" = ? /* </query_1> */ /* </query_0> */"
       `);
       expect(values).toMatchInlineSnapshot(`
         [
@@ -31,8 +29,7 @@ describe("eachObject", () => {
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         SET
-          /* <query_1> */
-          "email" = ? /* </query_1> */ /* </query_0> */"
+          /* <query_1> */ "email" = ? /* </query_1> */ /* </query_0> */"
       `);
       expect(values).toMatchInlineSnapshot(`
         [

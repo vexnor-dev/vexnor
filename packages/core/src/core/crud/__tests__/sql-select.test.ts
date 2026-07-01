@@ -103,6 +103,7 @@ describe("sqlTableRead()", () => {
       });
 
       test("includeOne result row adds T | null field to base columns", () => {
+         // eslint-disable-next-line unused-imports/no-unused-vars
          const firstOrder = sql`select ${row(Order.$$)} from ${Order}`;
          type Row = SqlSelectResultRow<{ Select: IAccountSelect }, { includeOne: { firstOrder: typeof firstOrder } }>;
          // base columns present
@@ -171,8 +172,7 @@ describe("sqlTableRead()", () => {
           "main"."account" AS "a_1"
           /* <query_1> */
         WHERE
-          /* <query_2> */
-          "a_1"."account_id" = ? /* </query_2> */ /* </query_1> */
+          /* <query_2> */ "a_1"."account_id" = ? /* </query_2> */ /* </query_1> */
           /* <query_3> */
           /* </query_3> */
           /* <query_4> */

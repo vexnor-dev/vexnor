@@ -218,8 +218,7 @@ describe("sqlSelect with filter", () => {
           "main"."account" AS "a_1"
           /* <query_1> */
         WHERE
-          /* <query_2> */
-          "a_1"."created_at" > ? /* </query_2> */ /* </query_1> */
+          /* <query_2> */ "a_1"."created_at" > ? /* </query_2> */ /* </query_1> */
           /* <query_3> */
           /* </query_3> */
           /* <query_4> */

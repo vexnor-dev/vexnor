@@ -19,7 +19,7 @@ export type SqlOperatorToken =
    | { type: "insertValues"; param: string; keys: string[] }
    | { type: "filter"; param: string; columns: Record<string, string>; prefix?: string; suffix?: string }
    | { type: "orderBy"; param: string; columns: Record<string, string> }
-   | { type: "joinBy"; param: string }
+   | { type: "joinBy"; param: string; joinMap: Record<string, { schema: string; table: string; columns: Record<string, string> }>; joinTypes: Record<string, string> }
    | { type: "when"; param: string; negate?: boolean; onTrue: SqlBuildToken[]; onFalse?: SqlBuildToken[] }
    | { type: "projection"; param: string; columns: Record<string, string> }
    | { type: "pagination" }

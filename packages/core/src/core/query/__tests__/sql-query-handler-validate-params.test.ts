@@ -75,6 +75,88 @@ describe("SqlQueryHandler — validateParams with select aliases", () => {
    });
 });
 
+describe("SqlQueryHandler — orderBy validation when fieldNames is null", () => {
+   beforeEach(() => {
+      SqlTable.clearRegistry();
+      SqlTable.register(Account);
+      SqlTable.register(Order);
+   });
+
+   test("orderBy with select aliases extends validation when fieldNames is absent on param", async () => {
+      const query = sqlSelect(Account, {});
+      const handler = mockHandler(query);
+
+      // Patch the orderBy param's validation.obj to have no fieldNames,
+      // simulating a param where only fieldValues is specified.
+      // Use delete to ensure the property is truly absent (not just null).
+      const params = handler.source.params as Record<string, { name: string; validation: { obj: Record<string, unknown> } }>;
+      const orderByParam = Object.values(params).find((p) => p.name === "orderBy");
+      if (orderByParam?.validation?.obj) {
+         delete orderByParam.validation.obj.fieldNames;
+      }
+
+      // The handler should still accept the select alias as a valid orderBy key
+      // because the code initializes fieldNames = [] when absent and pushes selectAliases
+      const result = await handler.all({
+         db: Promise.resolve(makeDb([{ accountId: "1" }])),
+         params: {
+            select: { totalCount: { fn: "count", col: "*" } } satisfies Record<string, unknown>,
+            orderBy: { totalCount: "desc" } satisfies Record<string, string>,
+         } as Parameters<typeof handler.all>[0]["params"],
+      });
+      expect(result).toMatchInlineSnapshot(`
+        [
+          {
+            "accountId": "1",
+          },
+        ]
+      `);
+   });
+
+   test("orderBy with select aliases rejects invalid field when fieldNames is absent", async () => {
+      const query = sqlSelect(Account, {});
+      const handler = mockHandler(query);
+
+      // Patch the orderBy param's validation.obj to have no fieldNames
+      const params = handler.source.params as Record<string, { name: string; validation: { obj: Record<string, unknown> } }>;
+      const orderByParam = Object.values(params).find((p) => p.name === "orderBy");
+      if (orderByParam?.validation?.obj) {
+         delete orderByParam.validation.obj.fieldNames;
+      }
+
+      await expect(
+         handler.all({
+            db: Promise.resolve(makeDb([])),
+            params: {
+               select: { total: { fn: "count", col: "*" } } satisfies Record<string, unknown>,
+               orderBy: { badField: "desc" } satisfies Record<string, string>,
+            } as Parameters<typeof handler.all>[0]["params"],
+         }),
+      ).rejects.toThrow("Invalid param");
+   });
+
+   test("orderBy validation is skipped when orderBy value is undefined", async () => {
+      const query = sqlSelect(Account, {});
+      const handler = mockHandler(query);
+
+      // Provide select aliases but no orderBy param — should not throw
+      const result = await handler.all({
+         db: Promise.resolve(makeDb([{ accountId: "1" }])),
+         params: {
+            select: { totalCount: { fn: "count", col: "*" } } satisfies Record<string, unknown>,
+            // orderBy deliberately omitted — triggers `if (value === undefined) continue`
+         } as Parameters<typeof handler.all>[0]["params"],
+      });
+      expect(result).toMatchInlineSnapshot(`
+        [
+          {
+            "accountId": "1",
+          },
+        ]
+      `);
+   });
+});
+
 describe("SqlQueryHandler — proxy getOwnPropertyDescriptor/has/get coverage", () => {
    beforeEach(() => {
       SqlTable.clearRegistry();

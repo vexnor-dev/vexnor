@@ -9,7 +9,7 @@ Converts TypeORM entity repositories into Vexnor runtime tables — no codegen a
 ## Install
 
 ```bash
-npm install vexnor @vexnor/typeorm
+npm install @vexnor/core @vexnor/typeorm
 ```
 
 ## Usage
@@ -20,7 +20,7 @@ Initialize your `DataSource` first, then pass a typed `Repository` to `fromTypeO
 import { fromTypeORM } from '@vexnor/typeorm';
 import { dataSource } from './typeorm-data-source.js';
 import { AccountEntity } from './account.entity.js';
-import { sql, row, param } from 'vexnor';
+import { sql, row, param } from '@vexnor/core';
 import '@vexnor/postgres';
 
 await dataSource.initialize();
@@ -60,7 +60,7 @@ The adapted table works identically to a codegen-produced table — compose subq
 
 ```typescript
 import { Order } from './order.entity.js';
-import { col } from 'vexnor';
+import { col } from '@vexnor/core';
 
 const OrderTable = fromTypeORM(dataSource.getRepository(Order));
 

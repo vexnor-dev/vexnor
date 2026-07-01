@@ -25,6 +25,8 @@ export {
    type ContextMetrics,
 } from "./time-to-live-rate-limiter.js";
 export { AuditLogPlugin, type AuditLogPluginOptions, type AuditLogArgs } from "./audit-log-plugin.js";
+export { SchemaGraph } from "./schema-graph.js";
+export type { TableInfo, ColumnInfo, ForeignKey, JoinStep, JoinStepRef, JoinType, JoinByResult, JoinResult } from "./schema-graph-types.js";
 export { SqlErrorCode } from "#src/core/sql-error-code.js";
 export { SqlRunError, type SqlRunErrorOptions, type SqlRunQueryRef } from "#src/core/sql-run-error.js";
 export { SqlError } from "#src/core/sql-error.js";

@@ -186,3 +186,10 @@ export type {
    TemplateNode,
    ColumnSchema,
 } from "./serialize/query-manifest.js";
+export { serializeSchema } from "./serialize/serialize-schema.js";
+export type {
+   SchemaManifest,
+   SchemaManifestTable,
+   SchemaManifestColumn,
+   SchemaManifestForeignKey,
+} from "./serialize/serialize-schema.js";

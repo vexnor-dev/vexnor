@@ -328,6 +328,7 @@ export class SqlProjectionGroupBy<T extends Record<string, unknown>> extends Sql
       if (!selectObj || typeof selectObj !== "object" || Object.keys(selectObj).length === 0) return;
 
       const groupByExprs: string[] = [];
+      const groupByParamExprs: { expr: string; params: unknown[] }[] = [];
       let hasAggregate = false;
 
       for (const [alias, value] of Object.entries(selectObj)) {
@@ -336,9 +337,9 @@ export class SqlProjectionGroupBy<T extends Record<string, unknown>> extends Sql
             if (sqlProjectByAggregations.has(entry.fn)) {
                hasAggregate = true;
             } else if (sqlProjectByTransforms.has(entry.fn)) {
-               // Transforms go into GROUP BY — render same expression
-               const expr = this.renderTransformForGroupBy(context, entry);
-               if (expr) groupByExprs.push(expr);
+               // Transforms go into GROUP BY — render same expression with params
+               const result = this.renderTransformForGroupBy(context, entry);
+               if (result) groupByParamExprs.push(result);
             }
          } else {
             // Plain column reference — resolve and render
@@ -357,12 +358,28 @@ export class SqlProjectionGroupBy<T extends Record<string, unknown>> extends Sql
          }
       }
 
-      if (!hasAggregate || !groupByExprs.length) return;
+      if (!hasAggregate || (!groupByExprs.length && !groupByParamExprs.length)) return;
 
-      context.addStrings("group by " + groupByExprs.join(", "));
+      context.addStrings("group by ");
+      let first = true;
+      for (const expr of groupByExprs) {
+         if (!first) context.addStrings(", ");
+         context.addStrings(expr);
+         first = false;
+      }
+      for (const { expr, params } of groupByParamExprs) {
+         if (!first) context.addStrings(", ");
+         // Split expr by ? placeholders and interleave with params
+         const parts = expr.split("?");
+         for (let i = 0; i < parts.length; i++) {
+            context.addStrings(parts[i]!);
+            if (i < params.length) context.addValues(params[i]);
+         }
+         first = false;
+      }
    }
 
-   private renderTransformForGroupBy(context: SqlBuildContext, entry: SqlProjectByFnEntry): string | null {
+   private renderTransformForGroupBy(context: SqlBuildContext, entry: SqlProjectByFnEntry): { expr: string; params: unknown[] } | null {
       const { fn, col: colRef, args } = entry;
       const colSql = this.renderColRef(context, colRef);
       const dialect = context.dialect;
@@ -373,28 +390,28 @@ export class SqlProjectionGroupBy<T extends Record<string, unknown>> extends Sql
             if (!VALID_DATE_TRUNC_GRANULARITIES.has(granularity)) return null;
             if (dialect === "sqlite") {
                const fmtMap: Record<string, string> = { year: "%Y-01-01", month: "%Y-%m-01", day: "%Y-%m-%d", hour: "%Y-%m-%d %H:00:00" };
-               return `strftime('${fmtMap[granularity]!}', ${colSql})`;
+               return { expr: `strftime('${fmtMap[granularity]!}', ${colSql})`, params: [] };
             }
-            if (dialect === "transactsql" || dialect === "tsql") return `DATETRUNC(${granularity}, ${colSql})`;
-            return `date_trunc('${granularity}', ${colSql})`;
+            if (dialect === "transactsql" || dialect === "tsql") return { expr: `DATETRUNC(${granularity}, ${colSql})`, params: [] };
+            return { expr: `date_trunc('${granularity}', ${colSql})`, params: [] };
          }
          case "coalesce": {
             const argsArr = Array.isArray(args) ? args : [args];
-            return `coalesce(${colSql}, ${argsArr.map(() => "?").join(", ")})`;
+            return { expr: `coalesce(${colSql}, ${argsArr.map(() => "?").join(", ")})`, params: argsArr };
          }
          case "round": {
             const precision = Array.isArray(args) ? args[0] : args;
             if (precision != null && (typeof precision !== "number" || !Number.isFinite(precision))) return null;
-            return precision != null ? `round(${colSql}, ${precision})` : `round(${colSql})`;
+            return precision != null ? { expr: `round(${colSql}, ${precision})`, params: [] } : { expr: `round(${colSql})`, params: [] };
          }
          case "abs":
-            return `abs(${colSql})`;
+            return { expr: `abs(${colSql})`, params: [] };
          case "concat": {
             const parts = Array.isArray(args) ? args : [args];
             if (dialect === "transactsql" || dialect === "tsql") {
-               return `CONCAT(${colSql}, ${parts.map(() => "?").join(", ")})`;
+               return { expr: `CONCAT(${colSql}, ${parts.map(() => "?").join(", ")})`, params: parts };
             }
-            return `${colSql} || ${parts.map(() => "?").join(" || ")}`;
+            return { expr: `${colSql} || ${parts.map(() => "?").join(" || ")}`, params: parts };
          }
          default:
             return null;

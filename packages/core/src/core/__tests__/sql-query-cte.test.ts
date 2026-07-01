@@ -348,8 +348,7 @@ describe("sql CTE (with clause) tests", () => {
               "a_1"."created_at" AS "createdAt",
               "a_1"."modified_at" AS "modifiedAt",
               "a_1"."parent_id" AS "parentId",
-              /* <query_3> */
-              0 /* </query_3> */ AS "depth"
+              /* <query_3> */ 0 /* </query_3> */ AS "depth"
             FROM
               "main"."account" AS "a_1"
             WHERE
@@ -366,8 +365,7 @@ describe("sql CTE (with clause) tests", () => {
               "b"."created_at" AS "createdAt",
               "b"."modified_at" AS "modifiedAt",
               "b"."parent_id" AS "parentId",
-              /* <query_4> */
-              "query_2"."depth" + 1 /* </query_4> */ AS "depth"
+              /* <query_4> */ "query_2"."depth" + 1 /* </query_4> */ AS "depth"
             FROM
               "main"."account" AS "b"
               JOIN "query_1" ON "query_1"."accountId" = "b"."parent_id"
@@ -500,8 +498,7 @@ describe("sql CTE (with clause) tests", () => {
             /* label: MaxCreatedAt */
             SELECT
               "a_1"."parent_id" AS "parentId",
-              /* <query_2> */
-              max("a_1"."created_at") /* </query_2> */ AS "lastCreatedAt"
+              /* <query_2> */ max("a_1"."created_at") /* </query_2> */ AS "lastCreatedAt"
             FROM
               "main"."account" AS "a_1"
             GROUP BY

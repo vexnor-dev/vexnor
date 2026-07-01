@@ -1,8 +1,8 @@
 # vexnor
 
-One query. Server or browser. No API layer.
+Typesafe, real SQL data framework for AI-native apps.
 
-Write a SQL query once — execute it on the server against your database, or dispatch it from the browser over HTTP. Same code, same types, no REST endpoints to define. The query is the contract.
+Write SQL with full type inference — execute server-side or browser-side with zero API layer. Let AI agents discover your schema, resolve FK paths, and compose typed queries at runtime. The query is the contract.
 
 [![CI](https://github.com/vexnor-dev/vexnor/actions/workflows/ci_github.yml/badge.svg)](https://github.com/vexnor-dev/vexnor/actions/workflows/ci_github.yml)
 [![codecov](https://codecov.io/gh/vexnor-dev/vexnor/branch/main/graph/badge.svg)](https://codecov.io/gh/vexnor-dev/vexnor)
@@ -27,6 +27,8 @@ const accounts = await selectAccounts.postgres.all({ db: remoteClient });
 ```
 
 Result types and required params are **inferred at compile time** from what you select — no manual type annotations, no codegen step after schema changes.
+
+For AI agents: `SchemaGraph` discovers tables, resolves FK join paths via BFS, and composes typed multi-table queries at runtime — no predefined endpoints, no manual SQL. The schema graph IS the API.
 
 Mix raw SQL with CRUD — compose subqueries into typed includes:
 
@@ -106,7 +108,7 @@ In isomorphic mode, the browser never sends SQL at all — only a query hash. Ev
 5. Types flow end-to-end — no codegen, no shared API types to maintain
 
 ```typescript
-import { HttpRemoteClient } from 'vexnor';
+import { HttpRemoteClient } from '@vexnor/core';
 
 // Browser — auth-aware
 const remoteClient = new HttpRemoteClient({
@@ -125,13 +127,13 @@ See [Isomorphic SQL](docs/isomorphic-sql.md) for the full picture and comparison
 
 ```bash
 # PostgreSQL
-npm install vexnor @vexnor/postgres pg
+npm install @vexnor/core @vexnor/postgres pg
 
 # MS SQL Server
-npm install vexnor @vexnor/mssql mssql
+npm install @vexnor/core @vexnor/mssql mssql
 
 # SQLite
-npm install vexnor @vexnor/sqlite3 better-sqlite3
+npm install @vexnor/core @vexnor/sqlite3 better-sqlite3
 ```
 
 Generate types from your database schema:
@@ -152,7 +154,7 @@ Real SQL. Full type inference from what you select. Composable subqueries.
 
 ```typescript
 import { Account, AccountStatusUdt, Order, OrderItem } from './models/vexnor_dev.schema.js';
-import { sql, row, param, col } from 'vexnor';
+import { sql, row, param, col } from '@vexnor/core';
 import { jsonMany } from '@vexnor/postgres';
 import '@vexnor/postgres';
 
@@ -282,8 +284,8 @@ See [Transactions](docs/transactions.md) for all three drivers and options.
 Every query execution flows through a `SqlQueryPipeline` — a composable object that sequences authorization, rate limiting, audit logging, and observability in a single place. `SqlQueryRegistry` owns one by default; you can also attach a pipeline directly to any connection via `connect()` for background workers, scripts, or tests.
 
 ```typescript
-import { connect } from 'vexnor';
-import { SqlQueryPipeline, AuditLogPlugin, TimeToLiveRateLimiter, SqlQueryRegistry } from 'vexnor/execution';
+import { connect } from '@vexnor/core';
+import { SqlQueryPipeline, AuditLogPlugin, TimeToLiveRateLimiter, SqlQueryRegistry } from '@vexnor/core/execution';
 
 type AppContext = { userId: string; roles: string[] };
 
@@ -351,7 +353,7 @@ if (unprotected.length > 0) throw new Error(`Unprotected queries: ${unprotected.
 Built-in OpenTelemetry support creates a span for every query — including error code, SQL text on failure, and source location:
 
 ```typescript
-import 'vexnor/telemetry';
+import '@vexnor/core/telemetry';
 import { trace } from '@opentelemetry/api';
 
 registry.registerOpenTelemetry(trace.getTracer('my-service'));
@@ -372,6 +374,7 @@ See [Telemetry](docs/telemetry.md) — span shape, OTLP exporters, combining wit
 - [CRUD](docs/crud.md) — typed query factories, execution methods
 - [Isomorphic SQL](docs/isomorphic-sql.md) — same query on server and client, how it works, comparison with REST/tRPC/GraphQL
 - [Registry](docs/registry.md) — SqlQueryRegistry, query pipelines, `connect()`, isomorphic SQL, remote execution
+- [Schema Graph](docs/schema-graph.md) — FK-based table introspection, BFS join path resolution, AI prompt formatting
 - [Authorization](docs/authorization.md) — query authorization, audit logging, SOC2/HIPAA
 - [Telemetry](docs/telemetry.md) — OpenTelemetry integration, spans, OTLP exporters
 - [CLI](docs/cli.md) — `codegen`, `exec run`, `exec init`, config reference

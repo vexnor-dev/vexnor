@@ -83,6 +83,10 @@ public sealed class SqlBuilder
                     BuildPagination(parameters, sql, values);
                     break;
 
+                case JoinByNode joinBy:
+                    BuildJoinBy(joinBy, parameters, sql, values);
+                    break;
+
                 case UpsertNode upsert:
                     BuildUpsert(upsert, parameters, sql, values);
                     break;
@@ -472,6 +476,139 @@ public sealed class SqlBuilder
             sql.Add(dir);
             emitted++;
         }
+    }
+
+    private static readonly HashSet<string> ValidJoinOps = new()
+    {
+        "=", "<", "<=", ">", ">=", "<>"
+    };
+
+    private static readonly HashSet<string> ValidJoinTypes = new()
+    {
+        "inner", "left", "right", "full", "cross"
+    };
+
+    private void BuildJoinBy(JoinByNode joinBy, Dictionary<string, object?> parameters, List<string> sql, List<object?> values)
+    {
+        if (!parameters.TryGetValue(joinBy.Param, out var obj)) return;
+        if (obj is not Dictionary<string, object?> entries || entries.Count == 0) return;
+
+        foreach (var (alias, entryObj) in entries)
+        {
+            if (entryObj is not Dictionary<string, object?> entry) continue;
+
+            if (!joinBy.JoinMap.TryGetValue(alias, out var tableDef))
+                throw new InvalidOperationException(
+                    $"Invalid joinBy alias: '{alias}'. Allowed: {string.Join(", ", joinBy.JoinMap.Keys.Where(k => k != "_"))}");
+
+            // Resolve join type: runtime entry > joinTypes default > "inner"
+            var joinType = "inner";
+            if (entry.TryGetValue("type", out var typeObj) && typeObj is string typeStr && typeStr.Length > 0)
+                joinType = typeStr.ToLower();
+            else if (joinBy.JoinTypes.TryGetValue(alias, out var defaultType))
+                joinType = defaultType.ToLower();
+
+            if (!ValidJoinTypes.Contains(joinType))
+                throw new InvalidOperationException(
+                    $"Invalid join type: '{joinType}'. Allowed: {string.Join(", ", ValidJoinTypes)}");
+
+            var keyword = joinType == "inner" ? "JOIN" : $"{joinType.ToUpper()} JOIN";
+            var qualifiedTable = string.IsNullOrEmpty(tableDef.Schema)
+                ? $"\"{tableDef.Table}\""
+                : $"\"{tableDef.Schema}\".\"{tableDef.Table}\"";
+
+            // Extract the SQL alias from the first column value (e.g., "a_2" from "\"a_2\".\"account_id\"")
+            var sqlAlias = ExtractAliasFromColumns(tableDef.Columns, alias);
+
+            sql.Add($" {keyword} {qualifiedTable} as {sqlAlias}");
+
+            if (joinType == "cross") continue;
+
+            if (!entry.TryGetValue("on", out var onObj))
+                throw new InvalidOperationException(
+                    $"joinBy entry '{alias}' requires an 'on' array");
+
+            var conditions = onObj switch
+            {
+                object?[] arr => arr,
+                _ => throw new InvalidOperationException(
+                    $"joinBy entry '{alias}' 'on' must be an array of conditions")
+            };
+
+            if (conditions.Length == 0)
+                throw new InvalidOperationException(
+                    $"joinBy entry '{alias}' 'on' must have at least one condition");
+
+            sql.Add(" ON ");
+
+            for (int i = 0; i < conditions.Length; i++)
+            {
+                if (i > 0) sql.Add(" AND ");
+
+                if (conditions[i] is not object?[] condition || condition.Length < 3)
+                    throw new InvalidOperationException(
+                        $"joinBy ON condition must be a 3-tuple [leftCol, operator, rightCol]");
+
+                var leftRef = condition[0]?.ToString() ?? "";
+                var op = condition[1]?.ToString() ?? "";
+                var rightRef = condition[2]?.ToString() ?? "";
+
+                if (!ValidJoinOps.Contains(op))
+                    throw new InvalidOperationException(
+                        $"Invalid joinBy ON operator: '{op}'. Allowed: {string.Join(", ", ValidJoinOps)}");
+
+                var leftSql = ResolveJoinColRef(leftRef, joinBy.JoinMap);
+                var rightSql = ResolveJoinColRef(rightRef, joinBy.JoinMap);
+
+                sql.Add(leftSql);
+                sql.Add($" {op} ");
+                sql.Add(rightSql);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Extracts the SQL alias from the first column value in a JoinByTableDef.
+    /// Column values are fully-qualified like "\"a_2\".\"account_id\"" — the alias is the part before the dot.
+    /// Falls back to quoting the joinMap key if no columns are present.
+    /// </summary>
+    private static string ExtractAliasFromColumns(Dictionary<string, string> columns, string fallbackAlias)
+    {
+        if (columns.Count == 0)
+            return $"\"{fallbackAlias}\"";
+
+        var firstColValue = columns.Values.First();
+        // Column values look like: "a_2"."account_id" — extract the first quoted segment
+        var dotIndex = firstColValue.IndexOf('.');
+        if (dotIndex > 0)
+            return firstColValue[..dotIndex];
+
+        return $"\"{fallbackAlias}\"";
+    }
+
+    /// <summary>
+    /// Resolves a "prefix.colKey" column reference to its SQL expression using the joinMap.
+    /// Prefix is "_" for the root/source table, or a table alias for joined tables.
+    /// </summary>
+    private static string ResolveJoinColRef(string colRef, Dictionary<string, JoinByTableDef> joinMap)
+    {
+        var dotIndex = colRef.IndexOf('.');
+        if (dotIndex == -1)
+            throw new InvalidOperationException(
+                $"Invalid column reference: '{colRef}'. Must be 'alias.column' (e.g., '_.id' or 'account.accountId')");
+
+        var prefix = colRef[..dotIndex];
+        var colKey = colRef[(dotIndex + 1)..];
+
+        if (!joinMap.TryGetValue(prefix, out var tableDef))
+            throw new InvalidOperationException(
+                $"Invalid column reference prefix: '{prefix}'. Not found in joinMap");
+
+        if (!tableDef.Columns.TryGetValue(colKey, out var colSql))
+            throw new InvalidOperationException(
+                $"Invalid column: '{colKey}' in table '{prefix}'. Allowed: {string.Join(", ", tableDef.Columns.Keys)}");
+
+        return colSql;
     }
 
     private void BuildUpsert(UpsertNode node, Dictionary<string, object?> parameters, List<string> sql, List<object?> values)

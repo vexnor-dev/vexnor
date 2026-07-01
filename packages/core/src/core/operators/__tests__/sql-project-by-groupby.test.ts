@@ -287,3 +287,63 @@ describe("SqlProjectBy.renderColRef — with context columns", () => {
       expect(context.text).toMatchInlineSnapshot(`"count("a_1"."email") AS "total""`);
    });
 });
+
+describe("SqlProjectionGroupBy — concat transform parameterization", () => {
+   test.todo("concat in GROUP BY uses positional params instead of raw ?", () => {
+      const groupBy = new SqlProjectionGroupBy(Account, "select");
+      const context = new SqlBuildContext({
+         dialect: "postgresql",
+         params: {
+            select: {
+               fullName: { fn: "concat", col: "firstName", args: [" ", "lastName"] },
+               total: { fn: "count", col: "*" },
+            },
+         },
+      });
+      context.setAlias(Account.tableInfo, { alias: "a_1" });
+      groupBy.write(context);
+      // Should produce parameterized GROUP BY — no raw ? characters
+      expect(context.text).not.toContain("?");
+      expect(context.text).toMatchInlineSnapshot();
+      expect(context.values).toMatchInlineSnapshot();
+   });
+
+   test.todo("coalesce in GROUP BY uses positional params", () => {
+      const groupBy = new SqlProjectionGroupBy(Account, "select");
+      const context = new SqlBuildContext({
+         dialect: "postgresql",
+         params: {
+            select: {
+               safeName: { fn: "coalesce", col: "firstName", args: ["unknown"] },
+               total: { fn: "count", col: "*" },
+            },
+         },
+      });
+      context.setAlias(Account.tableInfo, { alias: "a_1" });
+      groupBy.write(context);
+      expect(context.text).not.toContain("?");
+      expect(context.text).toMatchInlineSnapshot();
+      expect(context.values).toMatchInlineSnapshot();
+   });
+
+   test("dateTrunc in GROUP BY has no params (literal granularity)", () => {
+      const groupBy = new SqlProjectionGroupBy(Account, "select");
+      const context = new SqlBuildContext({
+         dialect: "postgresql",
+         params: {
+            select: {
+               period: { fn: "dateTrunc", col: "createdAt", args: "month" },
+               total: { fn: "count", col: "*" },
+            },
+         },
+      });
+      context.setAlias(Account.tableInfo, { alias: "a_1" });
+      groupBy.write(context);
+      expect(context.text).not.toContain("?");
+      expect(context.text).toMatchInlineSnapshot(`
+        "GROUP BY
+          date_trunc('month', "a_1"."created_at")"
+      `);
+      expect(context.values).toMatchInlineSnapshot(`[]`);
+   });
+});

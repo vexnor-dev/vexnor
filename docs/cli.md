@@ -174,12 +174,41 @@ Use `--no-confirm` to skip all prompts (useful in scripts).
 
 ---
 
+## `vexnor serialize`
+
+Converts TypeScript query definitions into portable JSON manifests for cross-runtime execution (e.g., .NET, AI agents). Each source file maps to its own manifest JSON.
+
+```bash
+npx vexnor serialize [options]
+```
+
+### Options
+
+| Option | Description | Required |
+|--------|-------------|----------|
+| `-i, --input <glob>` | Glob pattern for files exporting queries | yes |
+| `-o, --output <dir>` | Output directory for manifest JSON files | yes |
+| `-d, --dialect <dialect>` | SQL dialect: `postgresql`, `transactsql`, `sqlite` | yes |
+
+### Example
+
+```bash
+npx vexnor serialize \
+  --input "src/queries/**/*.ts" \
+  --output manifests/ \
+  --dialect postgresql
+```
+
+See [Serialize](serialize.md) for the full manifest format, schema manifest API, and workflow details.
+
+---
+
 ## Config Reference
 
 ### `vexnor.config.ts`
 
 ```typescript
-import { defineConfig } from 'vexnor/config';
+import { defineConfig } from '@vexnor/core/config';
 
 export default defineConfig({
   profiles: {
@@ -273,7 +302,7 @@ Either URI-based or individual fields:
 Define execution settings per query. The CLI uses `defineQueryConfig()` for type safety:
 
 ```typescript
-import { defineQueryConfig } from 'vexnor/config';
+import { defineQueryConfig } from '@vexnor/core/config';
 import { findActiveAccounts, findAccountById } from './queries.js';
 import vexnorPostgres from '@vexnor/postgres';
 
@@ -310,7 +339,7 @@ export default defineQueryConfig({ findActiveAccounts, findAccountById })({
 If a query uses `ctx()` parameters (runtime-injected values), use `contextValue` as a placeholder and provide the real value via `--context`:
 
 ```typescript
-import { contextValue } from 'vexnor';
+import { contextValue } from '@vexnor/core';
 
 export default defineQueryConfig({ selectMyOrders })({
   queries: {

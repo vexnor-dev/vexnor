@@ -110,7 +110,7 @@ const accounts = await selectAccounts.postgres.all({
 For anonymous (unauthenticated) use:
 
 ```typescript
-import { HttpRemoteClient } from 'vexnor';
+import { HttpRemoteClient } from '@vexnor/core';
 
 export const remoteClient = new HttpRemoteClient({ targetUrl: '/api/db' });
 ```
@@ -119,7 +119,7 @@ For authenticated use, provide a `headerResolver`. Use `useMemo` so the referenc
 
 ```typescript
 import { useMemo } from 'react';
-import { HttpRemoteClient } from 'vexnor';
+import { HttpRemoteClient } from '@vexnor/core';
 import { useAuth } from './auth-context.js';
 
 export function useRemoteClient() {
@@ -176,7 +176,7 @@ const result = await registry.execute(
 The `/api/db` endpoint should map `SqlErrorCode` values to appropriate HTTP status codes so clients get structured error responses:
 
 ```typescript
-import { SqlError, SqlRunError } from 'vexnor/execution';
+import { SqlError, SqlRunError } from '@vexnor/core/execution';
 
 // QUERY_NOT_FOUND → 400, QUERY_NOT_AUTHORIZED → 403,
 // QUERY_RATE_LIMITED → 429, QUERY_TIMEOUT → 504, etc.
