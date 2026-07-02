@@ -103,11 +103,12 @@ Begins a transaction on the pool, runs a callback, then commits. Rolls back auto
 
 ```typescript
 import { transaction } from '@vexnor/mssql';
+import { sql, insert } from '@vexnor/core';
 
 await transaction(pool, async (tx) => {
   const request = tx.request();
-  await sql`INSERT INTO ${Account} ${Account.insertColsVals(data)}`
-    .mssql.run({ db: request });
+  await sql`INSERT INTO ${Account} ${insert(Account)}`
+    .mssql.run({ db: request, params: { rows: [data] } });
 });
 ```
 
@@ -130,7 +131,7 @@ import { transaction, savepoint } from '@vexnor/mssql';
 
 await transaction(pool, async (tx) => {
   await savepoint(tx, async (request) => {
-    await sql`INSERT INTO ${Account} ${Account.insertColsVals(data)}`.mssql.run({ db: request });
+    await sql`INSERT INTO ${Account} ${insert(Account)}`.mssql.run({ db: request, params: { rows: [data] } });
   });
 });
 ```

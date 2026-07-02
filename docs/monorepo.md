@@ -130,7 +130,7 @@ packages/core/
       schema/            — SqlTable, columns
       crud/              — Base CRUD factories (select, update, delete, insert)
       builder/           — SQL build context, tokenizer, formatter
-      charms/            — info(), insertColsVals, updateSet
+      charms/            — info(), insert, updateSet
       utils/             — Utility types, JSON schema, caller location
     execution/           — SqlQueryPipeline, SqlQueryRegistry, AuditLogPlugin, RateLimiter
     telemetry/           — OpenTelemetry integration

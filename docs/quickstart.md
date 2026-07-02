@@ -120,18 +120,16 @@ const result = await sql`
 
 ## INSERT
 
-Use `insertColsVals()` for typed multi-row inserts:
+Use `insert()` for typed multi-row inserts:
 
 ```typescript
+import { sql, row, insert } from '@vexnor/core';
+
 const newAccount = await sql`
   INSERT INTO ${Account}
-    ${Account.insertColsVals({
-      email: 'jane@example.com',
-      firstName: 'Jane',
-      lastName: 'Doe',
-    })}
+    ${insert(Account)}
   RETURNING ${row(Account.$$)}
-`.postgres.one({ db: pool });
+`.postgres.one({ db: pool, params: { rows: [{ email: 'jane@example.com', firstName: 'Jane', lastName: 'Doe' }] } });
 // newAccount: IAccountSelect
 ```
 
@@ -140,12 +138,12 @@ Multiple rows:
 ```typescript
 const accounts = await sql`
   INSERT INTO ${Account}
-    ${Account.insertColsVals(
-      { email: 'jane@example.com', firstName: 'Jane', lastName: 'Doe' },
-      { email: 'john@example.com', firstName: 'John', lastName: 'Smith' },
-    )}
+    ${insert(Account)}
   RETURNING ${row(Account.$$)}
-`.postgres.all({ db: pool });
+`.postgres.all({ db: pool, params: { rows: [
+  { email: 'jane@example.com', firstName: 'Jane', lastName: 'Doe' },
+  { email: 'john@example.com', firstName: 'John', lastName: 'Smith' },
+] } });
 ```
 
 ## UPDATE

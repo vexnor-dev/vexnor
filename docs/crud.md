@@ -597,17 +597,19 @@ const result = await Account.sqlite.upsert({
 
 ---
 
-## Raw SQL with `insertColsVals` and `updateSet`
+## Raw SQL with `insert()` and `updateSet`
 
 For full control, use the table helpers directly in a `sql` tag:
 
 ```typescript
+import { sql, row, insert } from '@vexnor/core';
+
 // INSERT
 const account = await sql`
   INSERT INTO ${Account}
-    ${Account.insertColsVals({ email: 'jane@example.com', firstName: 'Jane', lastName: 'Doe' })}
+    ${insert(Account)}
   RETURNING ${row(Account.$$)}
-`.postgres.one({ db: pool });
+`.postgres.one({ db: pool, params: { rows: [{ email: 'jane@example.com', firstName: 'Jane', lastName: 'Doe' }] } });
 
 // UPDATE
 const updated = await sql`

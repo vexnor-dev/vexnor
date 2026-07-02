@@ -14,7 +14,7 @@ Acquires a dedicated `PoolClient` from the pool, opens a transaction, runs the c
 
 ```typescript
 await transaction(pool, async (client) => {
-  await sql`INSERT INTO ${Account} ${Account.insertColsVals(data)}`.postgres.one({ db: client });
+  await sql`INSERT INTO ${Account} ${insert(Account)}`.postgres.one({ db: client, params: { rows: [data] } });
   await sql`UPDATE ${Order} SET ${Order.updateSet({ status: 'confirmed' })} WHERE ...`.postgres.one({ db: client });
 });
 ```
@@ -63,11 +63,11 @@ Creates a savepoint inside an existing transaction. If the callback throws, roll
 
 ```typescript
 await transaction(pool, async (client) => {
-  await sql`INSERT INTO ${Order} ${Order.insertColsVals(order)}`.postgres.one({ db: client });
+  await sql`INSERT INTO ${Order} ${insert(Order)}`.postgres.one({ db: client, params: { rows: [order] } });
 
   const item = await savepoint(client, async (c) => {
     // if this throws, only this savepoint is rolled back
-    return sql`INSERT INTO ${OrderItem} ${OrderItem.insertColsVals(item)}`.postgres.one({ db: c });
+    return sql`INSERT INTO ${OrderItem} ${insert(OrderItem)}`.postgres.one({ db: c, params: { rows: [item] } });
   });
 
   if (!item) {
@@ -89,14 +89,14 @@ Savepoints can be nested — each creates an independent rollback point:
 
 ```typescript
 await transaction(pool, async (client) => {
-  await sql`INSERT INTO ${Order} ${Order.insertColsVals(order)}`.postgres.one({ db: client });
+  await sql`INSERT INTO ${Order} ${insert(Order)}`.postgres.one({ db: client, params: { rows: [order] } });
 
   await savepoint(client, async (c) => {
-    await sql`INSERT INTO ${OrderItem} ${OrderItem.insertColsVals(item1)}`.postgres.one({ db: c });
+    await sql`INSERT INTO ${OrderItem} ${insert(OrderItem)}`.postgres.one({ db: c, params: { rows: [item1] } });
 
     // Nested savepoint
     const bonus = await savepoint(c, async (c2) => {
-      return sql`INSERT INTO ${Bonus} ${Bonus.insertColsVals(bonusData)}`.postgres.one({ db: c2 });
+      return sql`INSERT INTO ${Bonus} ${insert(Bonus)}`.postgres.one({ db: c2, params: { rows: [bonusData] } });
     });
   });
 });
@@ -117,7 +117,7 @@ Begins a transaction on the pool, runs the callback, then commits. Rolls back an
 ```typescript
 await transaction(pool, async (tx) => {
   const request = tx.request();
-  await sql`INSERT INTO ${Account} ${Account.insertColsVals(data)}`.mssql.one({ db: request });
+  await sql`INSERT INTO ${Account} ${insert(Account)}`.mssql.one({ db: request, params: { rows: [data] } });
 });
 ```
 
@@ -146,7 +146,7 @@ Creates a named savepoint (`SAVE TRANSACTION`) inside an existing transaction. I
 ```typescript
 await transaction(pool, async (tx) => {
   const item = await savepoint(tx, async (request) => {
-    return sql`INSERT INTO ${OrderItem} ${OrderItem.insertColsVals(item)}`.mssql.one({ db: request });
+    return sql`INSERT INTO ${OrderItem} ${insert(OrderItem)}`.mssql.one({ db: request, params: { rows: [item] } });
   });
 });
 ```
@@ -171,7 +171,7 @@ Begins a transaction, runs the callback, then commits. Rolls back and re-throws 
 
 ```typescript
 await transaction(database, async (db) => {
-  await sql`INSERT INTO ${Account} ${Account.insertColsVals(data)}`.sqlite.one({ db });
+  await sql`INSERT INTO ${Account} ${insert(Account)}`.sqlite.one({ db, params: { rows: [data] } });
 });
 ```
 
@@ -190,7 +190,7 @@ Options:
 ```typescript
 // Prevent write conflicts in concurrent access scenarios
 await transaction(database, async (db) => {
-  await sql`INSERT INTO ${Account} ${Account.insertColsVals(data)}`.sqlite.one({ db });
+  await sql`INSERT INTO ${Account} ${insert(Account)}`.sqlite.one({ db, params: { rows: [data] } });
 }, { behavior: 'IMMEDIATE' });
 ```
 
@@ -201,7 +201,7 @@ Creates a savepoint inside an existing transaction. If the callback throws, roll
 ```typescript
 await transaction(database, async (db) => {
   const item = await savepoint(db, async (d) => {
-    return sql`INSERT INTO ${OrderItem} ${OrderItem.insertColsVals(item)}`.sqlite.one({ db: d });
+    return sql`INSERT INTO ${OrderItem} ${insert(OrderItem)}`.sqlite.one({ db: d, params: { rows: [item] } });
   });
 });
 ```
@@ -225,7 +225,7 @@ All transaction functions follow the same error contract:
 ```typescript
 try {
   await transaction(pool, async (client) => {
-    await sql`INSERT INTO ${Account} ${Account.insertColsVals(data)}`.postgres.one({ db: client });
+    await sql`INSERT INTO ${Account} ${insert(Account)}`.postgres.one({ db: client, params: { rows: [data] } });
     throw new Error('Business logic failure');
   });
 } catch (err) {
@@ -244,7 +244,7 @@ await transaction(pool, async (client) => {
 
   for (const item of items) {
     const result = await savepoint(client, async (c) => {
-      return sql`INSERT INTO ${OrderItem} ${OrderItem.insertColsVals(item)}`.postgres.one({ db: c });
+      return sql`INSERT INTO ${OrderItem} ${insert(OrderItem)}`.postgres.one({ db: c, params: { rows: [item] } });
     });
 
     if (result) {
@@ -268,9 +268,9 @@ Both `transaction()` and `savepoint()` return the callback's return value:
 ```typescript
 const account = await transaction(pool, async (client) => {
   return sql`
-    INSERT INTO ${Account} ${Account.insertColsVals(data)}
+    INSERT INTO ${Account} ${insert(Account)}
     RETURNING ${row(Account.$$)}
-  `.postgres.one({ db: client });
+  `.postgres.one({ db: client, params: { rows: [data] } });
 });
 // account: IAccountSelect
 ```
