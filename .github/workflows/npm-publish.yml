@@ -201,7 +201,6 @@ jobs:
   publish:
     needs: build-and-test
     runs-on: ubuntu-latest
-    environment: ${{ (github.event_name == 'workflow_dispatch' && inputs.dry_run == 'true') && '' || 'production' }}
     permissions:
       contents: read
       id-token: write
