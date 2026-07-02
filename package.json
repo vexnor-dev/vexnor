@@ -29,6 +29,7 @@
       "lint": "pnpm exec eslint . --ext .ts,.tsx,.js,.jsx",
       "format": "prettier --write \"./packages/**/*.{js,ts,jsx,tsx,json,md,yml,yaml}\"",
       "build": "run-s 'build:*'",
+      "build:0-clean": "pnpm -r --parallel exec rimraf tsconfig.tsbuildinfo",
       "build:1-core": "pnpm --filter './packages/*' run build",
       "build:2-install": "pnpm install --frozen-lockfile",
       "build:3-libraries": "pnpm -r --filter './plugins/*' --filter './orms/*' run build",
