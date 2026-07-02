@@ -75,10 +75,11 @@ export class SqlJoinBy<ParamName extends string = "joinBy"> extends Sql {
    readonly params: BuildSqlParams<unknown>;
 
    constructor(table: SqlTableAny, paramName: ParamName, joinTypes?: Record<string, string>, joinMap?: Record<string, SqlTableAny>) {
+      const joinKeys = joinMap ? Object.keys(joinMap).sort().join(",") : "";
       super({
          type: "SqlJoinBy",
          id: `${table.tableInfo.name}.${paramName}`,
-         hashId: `${table.hashId}|joinBy:${paramName}`,
+         hashId: `${table.hashId}|joinBy:${paramName}|${joinKeys}`,
       } satisfies SqlOptions);
 
       this.table = table;

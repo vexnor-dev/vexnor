@@ -1,5 +1,5 @@
 import { MockConnection, MockResult } from "#src/test/mock-plugin.js";
-import { SqlQueryHandler } from "#src/core/query/sql-query-handler.js";
+import { newSqlQueryHandler, SqlQueryHandler } from "#src/core/query/sql-query-handler.js";
 import { SqlQuery } from "#src/core/query/sql-query.js";
 import { SqlRunArgs, type QueryMeta } from "#src/core/query/sql-query-types.js";
 import { ok } from "#src/lib/assert.js";
@@ -35,4 +35,19 @@ export class MockQueryHandler<T extends { Row?: unknown; Params?: unknown }> ext
 
 export function mockHandler<T extends { Row?: unknown; Params?: unknown }>(query: SqlQuery<T>): MockQueryHandler<T> {
    return new MockQueryHandler<T>(query);
+}
+
+declare module "@vexnor/core" {
+   interface SqlQuery<T extends { Row?: unknown; Params?: unknown }> {
+      readonly mock: MockQueryHandler<T>;
+   }
+}
+
+
+if (!Object.hasOwn(SqlQuery.prototype, "mock")) {
+   Object.defineProperty(SqlQuery.prototype, "mock", {
+      get: function () {
+         return newSqlQueryHandler(new MockQueryHandler(this));
+      },
+   });
 }

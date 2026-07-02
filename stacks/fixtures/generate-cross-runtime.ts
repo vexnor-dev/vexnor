@@ -21,6 +21,8 @@ import {
 } from "@vexnor/core";
 import { Account } from "./codegen/postgres/vexnor_dev.account-table.js";
 import { Order } from "./codegen/postgres/vexnor_dev.order-table.js";
+import { OrderItem } from "./codegen/postgres/vexnor_dev.order_item-table.js";
+import { AccountStatusUdt } from "./codegen/postgres/vexnor_dev-enums.js";
 import { mkdirSync, writeFileSync } from "node:fs";
 
 // ─── Define queries ──────────────────────────────────────────────────────────
@@ -51,6 +53,14 @@ const queries = {
    xJoinBySingle: sql`SELECT ${row(Order.$$)} FROM ${Order} ${new SqlJoinBy(Order, "joinBy", {}, { account: Account })}`,
    xJoinByWithType: sql`SELECT ${row(Order.$$)} FROM ${Order} ${new SqlJoinBy(Order, "joinBy", { account: "left" }, { account: Account })}`,
    xJoinByMultiCondition: sql`SELECT ${row(Order.$$)} FROM ${Order} ${new SqlJoinBy(Order, "joinBy", {}, { account: Account })}`,
+   // Auto-join hash uniqueness: different join maps from same root MUST produce different hashes
+   xJoinByAutoSingle: Order.join({ account: Account }).select({}),
+   xJoinByAutoMulti: Order.join({ account: Account, orderItem: OrderItem }).select({}),
+   // insert.cols() + insert.values() split pattern
+   xInsertColsSingle: sql`INSERT INTO ${Account} (${insert.cols(Account)}) VALUES (${insert.values(Account)}) RETURNING ${row(Account.$$)}`,
+   xInsertColsMulti: sql`INSERT INTO ${Account} (${insert.cols(Account)}) VALUES (${insert.values(Account)}) RETURNING ${row(Account.$$)}`,
+   // Inline literal value (UDT enum — produces "value" node in serialized manifest)
+   xValueLiteral: sql`SELECT ${row(Account.$$)} FROM ${Account} WHERE ${Account.$status} = ${AccountStatusUdt.CONFIRMED}`,
 };
 
 // ─── Test params per case ────────────────────────────────────────────────────
@@ -99,21 +109,26 @@ const testParams: Record<string, unknown> = {
    xJoinBySingle: { joinBy: { account: { on: [["_.accountId", "=", "account.accountId"]], type: "inner" } } },
    xJoinByWithType: { joinBy: { account: { on: [["_.accountId", "=", "account.accountId"]] } } },
    xJoinByMultiCondition: { joinBy: { account: { on: [["_.accountId", "=", "account.accountId"], ["_.status", "=", "account.status"]], type: "inner" } } },
+   xJoinByAutoSingle: { joinBy: { account: { on: [["_.accountId", "=", "account.accountId"]] } }, limit: 10 },
+   xJoinByAutoMulti: { joinBy: { account: { on: [["_.accountId", "=", "account.accountId"]] }, orderItem: { on: [["_.orderId", "=", "orderItem.orderId"]] } }, limit: 10 },
+   xInsertColsSingle: { rows: [{ email: "cols@test.com", firstName: "Cols", lastName: "Test" }] },
+   xInsertColsMulti: { rows: [{ email: "a@test.com", firstName: "A", lastName: "AA" }, { email: "b@test.com", firstName: "B", lastName: "BB" }] },
+   xValueLiteral: {},
 };
 
 // ─── Generate outputs ────────────────────────────────────────────────────────
 
-const results: Record<string, { hash: string; text: string | null; values: unknown[] | null; error: string | null }> =
+const results: Record<string, { hash: string; text: string | null; values: unknown[] | null; params: unknown; error: string | null }> =
    {};
 
 for (const [name, query] of Object.entries(queries)) {
    const dialect = name.includes("Mssql") ? "transactsql" : "postgresql";
+   const params = testParams[name] ?? {};
    try {
-      const params = testParams[name] as ParamsOf<typeof query>;
       const { text, values } = query.getSql({ params: params as never, options: { dialect, format: false } });
-      results[name] = { hash: name, text, values, error: null };
+      results[name] = { hash: name, text, values, params, error: null };
    } catch (e) {
-      results[name] = { hash: name, text: null, values: null, error: String(e) };
+      results[name] = { hash: name, text: null, values: null, params, error: String(e) };
    }
 }
 

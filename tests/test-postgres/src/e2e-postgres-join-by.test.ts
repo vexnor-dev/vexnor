@@ -66,7 +66,7 @@ describe.sequential("joinBy — e2e postgres (multi-table join + aggregation)", 
       expect(result[0]).toHaveProperty("email");
    });
 
-   test.todo("join + sum aggregation: total product price per account — requires projected row mapping", async () => {
+   test("join + sum aggregation: total product price per account — requires projected row mapping", async () => {
       const query = OrderItem.join({ order: Order, account: Account }).select({}).postgres;
       const result = await query.all({
          db: pool,

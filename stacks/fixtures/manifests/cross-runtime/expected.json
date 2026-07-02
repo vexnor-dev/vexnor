@@ -3,18 +3,32 @@
     "hash": "xOrderBySingle",
     "text": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" order by \"a_1\".\"created_at\" DESC",
     "values": [],
+    "params": {
+      "orderBy": {
+        "createdAt": "DESC"
+      }
+    },
     "error": null
   },
   "xOrderByMulti": {
     "hash": "xOrderByMulti",
     "text": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" order by \"a_1\".\"status\" ASC, \"a_1\".\"created_at\" DESC",
     "values": [],
+    "params": {
+      "orderBy": {
+        "status": "ASC",
+        "createdAt": "DESC"
+      }
+    },
     "error": null
   },
   "xOrderByNull": {
     "hash": "xOrderByNull",
     "text": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" ",
     "values": [],
+    "params": {
+      "orderBy": null
+    },
     "error": null
   },
   "xFilterEquality": {
@@ -24,6 +38,12 @@
       "jane@example.com",
       "active"
     ],
+    "params": {
+      "filterBy": {
+        "email": "jane@example.com",
+        "status": "active"
+      }
+    },
     "error": null
   },
   "xFilterOperators": {
@@ -34,6 +54,28 @@
       "active",
       "confirmed"
     ],
+    "params": {
+      "filterBy": [
+        {
+          "createdAt": [
+            ">=",
+            "2024-01-01"
+          ]
+        },
+        {
+          "status": [
+            "in",
+            "active",
+            "confirmed"
+          ]
+        },
+        {
+          "parentId": [
+            "isNull"
+          ]
+        }
+      ]
+    },
     "error": null
   },
   "xFilterOrGroup": {
@@ -43,12 +85,37 @@
       "active",
       "%@vip.com"
     ],
+    "params": {
+      "filterBy": [
+        {
+          "status": "active"
+        },
+        {
+          "or": [
+            {
+              "email": [
+                "like",
+                "%@vip.com"
+              ]
+            },
+            {
+              "parentId": [
+                "isNotNull"
+              ]
+            }
+          ]
+        }
+      ]
+    },
     "error": null
   },
   "xFilterEmpty": {
     "hash": "xFilterEmpty",
     "text": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" WHERE ",
     "values": [],
+    "params": {
+      "filterBy": null
+    },
     "error": null
   },
   "xInsertSingle": {
@@ -59,6 +126,15 @@
       "A",
       "B"
     ],
+    "params": {
+      "rows": [
+        {
+          "email": "a@test.com",
+          "firstName": "A",
+          "lastName": "B"
+        }
+      ]
+    },
     "error": null
   },
   "xInsertMulti": {
@@ -72,6 +148,20 @@
       "B",
       "BB"
     ],
+    "params": {
+      "rows": [
+        {
+          "email": "a@test.com",
+          "firstName": "A",
+          "lastName": "AA"
+        },
+        {
+          "email": "b@test.com",
+          "firstName": "B",
+          "lastName": "BB"
+        }
+      ]
+    },
     "error": null
   },
   "xSetSingle": {
@@ -81,6 +171,12 @@
       "updated@test.com",
       "uuid-123"
     ],
+    "params": {
+      "set": {
+        "email": "updated@test.com"
+      },
+      "accountId": "uuid-123"
+    },
     "error": null
   },
   "xSetMulti": {
@@ -92,6 +188,14 @@
       "Doe",
       "uuid-456"
     ],
+    "params": {
+      "set": {
+        "email": "new@test.com",
+        "firstName": "Jane",
+        "lastName": "Doe"
+      },
+      "accountId": "uuid-456"
+    },
     "error": null
   },
   "xWhenTrue": {
@@ -101,6 +205,11 @@
       "active",
       "test@example.com"
     ],
+    "params": {
+      "status": "active",
+      "hasEmail": true,
+      "email": "test@example.com"
+    },
     "error": null
   },
   "xWhenFalse": {
@@ -109,12 +218,20 @@
     "values": [
       "active"
     ],
+    "params": {
+      "status": "active",
+      "hasEmail": false,
+      "email": "test@example.com"
+    },
     "error": null
   },
   "xWhenWithElse": {
     "hash": "xWhenWithElse",
     "text": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" ORDER BY \"a_1\".\"created_at\" ASC",
     "values": [],
+    "params": {
+      "sortAsc": true
+    },
     "error": null
   },
   "xWhenNegate": {
@@ -123,6 +240,10 @@
     "values": [
       "active"
     ],
+    "params": {
+      "status": "active",
+      "hideEmail": false
+    },
     "error": null
   },
   "xPaginationBoth": {
@@ -133,6 +254,16 @@
       25,
       50
     ],
+    "params": {
+      "filterBy": {
+        "status": "active"
+      },
+      "orderBy": {
+        "createdAt": "DESC"
+      },
+      "limit": 25,
+      "offset": 50
+    },
     "error": null
   },
   "xPaginationLimitOnly": {
@@ -141,6 +272,11 @@
     "values": [
       10
     ],
+    "params": {
+      "filterBy": null,
+      "orderBy": null,
+      "limit": 10
+    },
     "error": null
   },
   "xCombined": {
@@ -150,6 +286,22 @@
       "active",
       "%@vip%"
     ],
+    "params": {
+      "filterBy": [
+        {
+          "status": "active"
+        },
+        {
+          "email": [
+            "like",
+            "%@vip%"
+          ]
+        }
+      ],
+      "orderBy": {
+        "createdAt": "DESC"
+      }
+    },
     "error": null
   },
   "xUpsertSingle": {
@@ -161,6 +313,16 @@
       "A",
       "B"
     ],
+    "params": {
+      "rows": [
+        {
+          "accountId": "uuid-1",
+          "email": "a@test.com",
+          "firstName": "A",
+          "lastName": "B"
+        }
+      ]
+    },
     "error": null
   },
   "xUpsertMulti": {
@@ -176,6 +338,22 @@
       "B",
       "BB"
     ],
+    "params": {
+      "rows": [
+        {
+          "accountId": "uuid-1",
+          "email": "a@test.com",
+          "firstName": "A",
+          "lastName": "AA"
+        },
+        {
+          "accountId": "uuid-2",
+          "email": "b@test.com",
+          "firstName": "B",
+          "lastName": "BB"
+        }
+      ]
+    },
     "error": null
   },
   "xUpsertMssql": {
@@ -187,30 +365,197 @@
       "A",
       "B"
     ],
+    "params": {
+      "rows": [
+        {
+          "accountId": "uuid-1",
+          "email": "a@test.com",
+          "firstName": "A",
+          "lastName": "B"
+        }
+      ]
+    },
     "error": null
   },
   "xInsertEmpty": {
     "hash": "xInsertEmpty",
     "text": null,
     "values": null,
+    "params": {
+      "rows": []
+    },
     "error": "SqlBuildError: Error building 'SqlQuery#27' in query '-'\\nError building 'SqlInsert#3(account.rows)' in query 'SqlQuery#27'\\ninsert() requires a non-empty rows array in param 'rows'"
   },
   "xJoinBySingle": {
     "hash": "xJoinBySingle",
     "text": "SELECT \"o_1\".\"order_id\" as \"orderId\", \"o_1\".\"status\", \"o_1\".\"created_at\" as \"createdAt\", \"o_1\".\"modified_at\" as \"modifiedAt\", \"o_1\".\"account_id\" as \"accountId\" FROM \"vexnor_dev\".\"order\" as \"o_1\"  JOIN \"vexnor_dev\".\"account\" as \"a_2\" ON \"o_1\".\"account_id\" = \"a_2\".\"account_id\"",
     "values": [],
+    "params": {
+      "joinBy": {
+        "account": {
+          "on": [
+            [
+              "_.accountId",
+              "=",
+              "account.accountId"
+            ]
+          ],
+          "type": "inner"
+        }
+      }
+    },
     "error": null
   },
   "xJoinByWithType": {
     "hash": "xJoinByWithType",
     "text": "SELECT \"o_1\".\"order_id\" as \"orderId\", \"o_1\".\"status\", \"o_1\".\"created_at\" as \"createdAt\", \"o_1\".\"modified_at\" as \"modifiedAt\", \"o_1\".\"account_id\" as \"accountId\" FROM \"vexnor_dev\".\"order\" as \"o_1\"  LEFT JOIN \"vexnor_dev\".\"account\" as \"a_2\" ON \"o_1\".\"account_id\" = \"a_2\".\"account_id\"",
     "values": [],
+    "params": {
+      "joinBy": {
+        "account": {
+          "on": [
+            [
+              "_.accountId",
+              "=",
+              "account.accountId"
+            ]
+          ]
+        }
+      }
+    },
     "error": null
   },
   "xJoinByMultiCondition": {
     "hash": "xJoinByMultiCondition",
     "text": "SELECT \"o_1\".\"order_id\" as \"orderId\", \"o_1\".\"status\", \"o_1\".\"created_at\" as \"createdAt\", \"o_1\".\"modified_at\" as \"modifiedAt\", \"o_1\".\"account_id\" as \"accountId\" FROM \"vexnor_dev\".\"order\" as \"o_1\"  JOIN \"vexnor_dev\".\"account\" as \"a_2\" ON \"o_1\".\"account_id\" = \"a_2\".\"account_id\" AND \"o_1\".\"status\" = \"a_2\".\"status\"",
     "values": [],
+    "params": {
+      "joinBy": {
+        "account": {
+          "on": [
+            [
+              "_.accountId",
+              "=",
+              "account.accountId"
+            ],
+            [
+              "_.status",
+              "=",
+              "account.status"
+            ]
+          ],
+          "type": "inner"
+        }
+      }
+    },
+    "error": null
+  },
+  "xJoinByAutoSingle": {
+    "hash": "xJoinByAutoSingle",
+    "text": "\n      \n      \n      select \"o_1\".\"order_id\" as \"orderId\", \"o_1\".\"status\", \"o_1\".\"created_at\" as \"createdAt\", \"o_1\".\"modified_at\" as \"modifiedAt\", \"o_1\".\"account_id\" as \"accountId\"\n                 \n      from \"vexnor_dev\".\"order\" as \"o_1\"    JOIN \"vexnor_dev\".\"account\" as \"a_2\" ON \"o_1\".\"account_id\" = \"a_2\".\"account_id\"\n         \n         \n         \n         \n         limit $1\n   ",
+    "values": [
+      10
+    ],
+    "params": {
+      "joinBy": {
+        "account": {
+          "on": [
+            [
+              "_.accountId",
+              "=",
+              "account.accountId"
+            ]
+          ]
+        }
+      },
+      "limit": 10
+    },
+    "error": null
+  },
+  "xJoinByAutoMulti": {
+    "hash": "xJoinByAutoMulti",
+    "text": "\n      \n      \n      select \"o_1\".\"order_id\" as \"orderId\", \"o_1\".\"status\", \"o_1\".\"created_at\" as \"createdAt\", \"o_1\".\"modified_at\" as \"modifiedAt\", \"o_1\".\"account_id\" as \"accountId\"\n                 \n      from \"vexnor_dev\".\"order\" as \"o_1\"    JOIN \"vexnor_dev\".\"account\" as \"a_2\" ON \"o_1\".\"account_id\" = \"a_2\".\"account_id\" JOIN \"vexnor_dev\".\"order_item\" as \"oi_3\" ON \"o_1\".\"order_id\" = \"oi_3\".\"order_id\"\n         \n         \n         \n         \n         limit $1\n   ",
+    "values": [
+      10
+    ],
+    "params": {
+      "joinBy": {
+        "account": {
+          "on": [
+            [
+              "_.accountId",
+              "=",
+              "account.accountId"
+            ]
+          ]
+        },
+        "orderItem": {
+          "on": [
+            [
+              "_.orderId",
+              "=",
+              "orderItem.orderId"
+            ]
+          ]
+        }
+      },
+      "limit": 10
+    },
+    "error": null
+  },
+  "xInsertColsSingle": {
+    "hash": "xInsertColsSingle",
+    "text": "INSERT INTO \"vexnor_dev\".\"account\" (\"email\", \"first_name\", \"last_name\") VALUES (($1, $2, $3)) RETURNING \"account\".\"account_id\" as \"accountId\", \"account\".\"status\", \"account\".\"email\", \"account\".\"first_name\" as \"firstName\", \"account\".\"last_name\" as \"lastName\", \"account\".\"notes\", \"account\".\"created_at\" as \"createdAt\", \"account\".\"modified_at\" as \"modifiedAt\", \"account\".\"parent_id\" as \"parentId\"",
+    "values": [
+      "cols@test.com",
+      "Cols",
+      "Test"
+    ],
+    "params": {
+      "rows": [
+        {
+          "email": "cols@test.com",
+          "firstName": "Cols",
+          "lastName": "Test"
+        }
+      ]
+    },
+    "error": null
+  },
+  "xInsertColsMulti": {
+    "hash": "xInsertColsMulti",
+    "text": "INSERT INTO \"vexnor_dev\".\"account\" (\"email\", \"first_name\", \"last_name\") VALUES (($1, $2, $3), ($4, $5, $6)) RETURNING \"account\".\"account_id\" as \"accountId\", \"account\".\"status\", \"account\".\"email\", \"account\".\"first_name\" as \"firstName\", \"account\".\"last_name\" as \"lastName\", \"account\".\"notes\", \"account\".\"created_at\" as \"createdAt\", \"account\".\"modified_at\" as \"modifiedAt\", \"account\".\"parent_id\" as \"parentId\"",
+    "values": [
+      "a@test.com",
+      "A",
+      "AA",
+      "b@test.com",
+      "B",
+      "BB"
+    ],
+    "params": {
+      "rows": [
+        {
+          "email": "a@test.com",
+          "firstName": "A",
+          "lastName": "AA"
+        },
+        {
+          "email": "b@test.com",
+          "firstName": "B",
+          "lastName": "BB"
+        }
+      ]
+    },
+    "error": null
+  },
+  "xValueLiteral": {
+    "hash": "xValueLiteral",
+    "text": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" WHERE \"a_1\".\"status\" = $1",
+    "values": [
+      "confirmed"
+    ],
+    "params": {},
     "error": null
   }
 }

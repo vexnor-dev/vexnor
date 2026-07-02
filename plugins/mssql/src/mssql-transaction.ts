@@ -29,7 +29,7 @@ const DEFAULTS: Required<MssqlTransactionOptions> = {
  * @example
  * await transaction(pool, async (tx) => {
  *   const request = tx.request();
- *   await sql`INSERT INTO ${Account} ${Account.insertColsVals(data)}`.getOneRequired({ db: request });
+ *   await sql`INSERT INTO ${Account} ${insert(Account)}`.one({ db: request, params: { rows: [data] } });
  * });
  */
 export async function transaction<T>(

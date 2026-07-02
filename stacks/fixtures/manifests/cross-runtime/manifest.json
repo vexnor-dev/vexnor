@@ -5,7 +5,7 @@
   "queries": {
     "xOrderBySingle": {
       "name": "xOrderBySingle",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:29:20",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:31:20",
       "hash": "cf44077ef89247739e2363c676bd122c6f27a8d701c92e500cadd4e720dbb2e4",
       "template": [
         {
@@ -46,7 +46,7 @@
     },
     "xOrderByMulti": {
       "name": "xOrderByMulti",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:30:19",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:32:19",
       "hash": "cf44077ef89247739e2363c676bd122c6f27a8d701c92e500cadd4e720dbb2e4",
       "template": [
         {
@@ -87,7 +87,7 @@
     },
     "xOrderByNull": {
       "name": "xOrderByNull",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:31:18",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:33:18",
       "hash": "cf44077ef89247739e2363c676bd122c6f27a8d701c92e500cadd4e720dbb2e4",
       "template": [
         {
@@ -128,7 +128,7 @@
     },
     "xFilterEquality": {
       "name": "xFilterEquality",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:32:21",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:34:21",
       "hash": "85e65b56b010a8c21feb7086cbee015421fde614cd7e054f8ab92fb23a7c20e4",
       "template": [
         {
@@ -199,7 +199,7 @@
     },
     "xFilterOperators": {
       "name": "xFilterOperators",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:33:22",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:35:22",
       "hash": "85e65b56b010a8c21feb7086cbee015421fde614cd7e054f8ab92fb23a7c20e4",
       "template": [
         {
@@ -270,7 +270,7 @@
     },
     "xFilterOrGroup": {
       "name": "xFilterOrGroup",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:34:20",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:36:20",
       "hash": "85e65b56b010a8c21feb7086cbee015421fde614cd7e054f8ab92fb23a7c20e4",
       "template": [
         {
@@ -341,7 +341,7 @@
     },
     "xFilterEmpty": {
       "name": "xFilterEmpty",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:35:18",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:37:18",
       "hash": "85e65b56b010a8c21feb7086cbee015421fde614cd7e054f8ab92fb23a7c20e4",
       "template": [
         {
@@ -412,7 +412,7 @@
     },
     "xInsertSingle": {
       "name": "xInsertSingle",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:36:19",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:38:19",
       "hash": "6b198c1e4f9a9b4e6adb67befcfbcde5eb1a6dc525a5d07f22c7320788e87556",
       "template": [
         {
@@ -457,7 +457,7 @@
     },
     "xInsertMulti": {
       "name": "xInsertMulti",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:37:18",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:39:18",
       "hash": "6b198c1e4f9a9b4e6adb67befcfbcde5eb1a6dc525a5d07f22c7320788e87556",
       "template": [
         {
@@ -502,7 +502,7 @@
     },
     "xSetSingle": {
       "name": "xSetSingle",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:38:16",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:40:16",
       "hash": "e4b69d057c7e9138c72cb711e495f50310f0d399f9b7fafaaaf62c30efc269a9",
       "template": [
         {
@@ -559,7 +559,7 @@
     },
     "xSetMulti": {
       "name": "xSetMulti",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:39:15",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:41:15",
       "hash": "e4b69d057c7e9138c72cb711e495f50310f0d399f9b7fafaaaf62c30efc269a9",
       "template": [
         {
@@ -616,7 +616,7 @@
     },
     "xWhenTrue": {
       "name": "xWhenTrue",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:40:15",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:42:15",
       "hash": "293a7e86b87e5bce74195ddf2cdabd5a42904ac7c9eaf89b9e07201dc007678d",
       "template": [
         {
@@ -672,7 +672,7 @@
     },
     "xWhenFalse": {
       "name": "xWhenFalse",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:41:16",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:43:16",
       "hash": "293a7e86b87e5bce74195ddf2cdabd5a42904ac7c9eaf89b9e07201dc007678d",
       "template": [
         {
@@ -728,7 +728,7 @@
     },
     "xWhenWithElse": {
       "name": "xWhenWithElse",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:42:19",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:44:19",
       "hash": "ce8accc75484d5eb168f473e8c5e530e5144fc33237b134cf707588e0631208a",
       "template": [
         {
@@ -770,7 +770,7 @@
     },
     "xWhenNegate": {
       "name": "xWhenNegate",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:43:17",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:45:17",
       "hash": "d1a114015bb63813b65c264a4ca210aee31e2cd20acc22e08b757035dcafff5f",
       "template": [
         {
@@ -819,7 +819,7 @@
     },
     "xPaginationBoth": {
       "name": "xPaginationBoth",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:44:21",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:46:21",
       "hash": "6e8f55b5301e267586edf5fc10bc929ecc15c0e75c395b6828f81aeed42c686d",
       "template": [
         {
@@ -928,7 +928,7 @@
     },
     "xPaginationLimitOnly": {
       "name": "xPaginationLimitOnly",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:45:26",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:47:26",
       "hash": "736963ded4c70356243ccb7738c7de482e855679e7f74ce2bcc785376ae7d37a",
       "template": [
         {
@@ -961,7 +961,7 @@
     },
     "xCombined": {
       "name": "xCombined",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:46:15",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:48:15",
       "hash": "b88c13a1ba975aac88811cff6c00ef677cfafde2cf70fde099e2b77955009790",
       "template": [
         {
@@ -1055,7 +1055,7 @@
     },
     "xUpsertSingle": {
       "name": "xUpsertSingle",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:47:19",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:49:19",
       "hash": "b0b2775698ee54cf462e9dbfa1cadb11d6c6afb0e550e14b5882ecc6101c84b1",
       "template": [
         {
@@ -1104,7 +1104,7 @@
     },
     "xUpsertMulti": {
       "name": "xUpsertMulti",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:48:18",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:50:18",
       "hash": "b0b2775698ee54cf462e9dbfa1cadb11d6c6afb0e550e14b5882ecc6101c84b1",
       "template": [
         {
@@ -1153,7 +1153,7 @@
     },
     "xUpsertMssql": {
       "name": "xUpsertMssql",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:49:18",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:51:18",
       "hash": "d360ea4f8e4d2337bbc0e655ba23c8f102e29bac19f107aac4e2c2114ed986bd",
       "template": [
         {
@@ -1195,7 +1195,7 @@
     },
     "xInsertEmpty": {
       "name": "xInsertEmpty",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:50:18",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:52:18",
       "hash": "6b198c1e4f9a9b4e6adb67befcfbcde5eb1a6dc525a5d07f22c7320788e87556",
       "template": [
         {
@@ -1240,8 +1240,8 @@
     },
     "xJoinBySingle": {
       "name": "xJoinBySingle",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:51:19",
-      "hash": "02a1ee33bbe56f65a9ce30445d471a2460f62573ac0455eeb03faa855a0a7488",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:53:19",
+      "hash": "1314adf44753c128a55aa1dcc5fa0c22f9b261c0d1a920919af172a0fd9007f4",
       "template": [
         {
           "type": "text",
@@ -1321,8 +1321,8 @@
     },
     "xJoinByWithType": {
       "name": "xJoinByWithType",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:52:21",
-      "hash": "02a1ee33bbe56f65a9ce30445d471a2460f62573ac0455eeb03faa855a0a7488",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:54:21",
+      "hash": "1314adf44753c128a55aa1dcc5fa0c22f9b261c0d1a920919af172a0fd9007f4",
       "template": [
         {
           "type": "text",
@@ -1404,8 +1404,8 @@
     },
     "xJoinByMultiCondition": {
       "name": "xJoinByMultiCondition",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:53:27",
-      "hash": "02a1ee33bbe56f65a9ce30445d471a2460f62573ac0455eeb03faa855a0a7488",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:55:27",
+      "hash": "1314adf44753c128a55aa1dcc5fa0c22f9b261c0d1a920919af172a0fd9007f4",
       "template": [
         {
           "type": "text",
@@ -1473,6 +1473,547 @@
           }
         }
       },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "xJoinByAutoSingle": {
+      "name": "xJoinByAutoSingle",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:57:56",
+      "hash": "b9f23924598f3691b2914c6174459f0a208b5bd25287347afbe9223e9f4a3c0b",
+      "template": [
+        {
+          "type": "text",
+          "value": "\n      \n      \n      select "
+        },
+        {
+          "type": "projection",
+          "param": "select",
+          "columns": {
+            "orderId": "\"o_1\".\"order_id\" as \"orderId\"",
+            "status": "\"o_1\".\"status\"",
+            "createdAt": "\"o_1\".\"created_at\" as \"createdAt\"",
+            "modifiedAt": "\"o_1\".\"modified_at\" as \"modifiedAt\"",
+            "accountId": "\"o_1\".\"account_id\" as \"accountId\""
+          }
+        },
+        {
+          "type": "text",
+          "value": "\n                 \n      from \"vexnor_dev\".\"order\" as \"o_1\"   "
+        },
+        {
+          "type": "joinBy",
+          "param": "joinBy",
+          "joinMap": {
+            "_": {
+              "schema": "vexnor_dev",
+              "table": "order",
+              "columns": {
+                "orderId": "\"o_1\".\"order_id\"",
+                "status": "\"o_1\".\"status\"",
+                "createdAt": "\"o_1\".\"created_at\"",
+                "modifiedAt": "\"o_1\".\"modified_at\"",
+                "accountId": "\"o_1\".\"account_id\""
+              }
+            },
+            "account": {
+              "schema": "vexnor_dev",
+              "table": "account",
+              "columns": {
+                "accountId": "\"a_2\".\"account_id\"",
+                "status": "\"a_2\".\"status\"",
+                "email": "\"a_2\".\"email\"",
+                "firstName": "\"a_2\".\"first_name\"",
+                "lastName": "\"a_2\".\"last_name\"",
+                "notes": "\"a_2\".\"notes\"",
+                "createdAt": "\"a_2\".\"created_at\"",
+                "modifiedAt": "\"a_2\".\"modified_at\"",
+                "parentId": "\"a_2\".\"parent_id\""
+              }
+            }
+          },
+          "joinTypes": {}
+        },
+        {
+          "type": "text",
+          "value": "\n         "
+        },
+        {
+          "type": "filter",
+          "param": "filterBy",
+          "columns": {
+            "orderId": "\"o_1\".\"order_id\"",
+            "status": "\"o_1\".\"status\"",
+            "createdAt": "\"o_1\".\"created_at\"",
+            "modifiedAt": "\"o_1\".\"modified_at\"",
+            "accountId": "\"o_1\".\"account_id\""
+          },
+          "prefix": "where "
+        },
+        {
+          "type": "text",
+          "value": "\n         \n         "
+        },
+        {
+          "type": "text",
+          "value": "\n         "
+        },
+        {
+          "type": "orderBy",
+          "param": "orderBy",
+          "columns": {
+            "orderId": "\"o_1\".\"order_id\"",
+            "status": "\"o_1\".\"status\"",
+            "createdAt": "\"o_1\".\"created_at\"",
+            "modifiedAt": "\"o_1\".\"modified_at\"",
+            "accountId": "\"o_1\".\"account_id\""
+          }
+        },
+        {
+          "type": "text",
+          "value": "\n         "
+        },
+        {
+          "type": "pagination"
+        },
+        {
+          "type": "text",
+          "value": "\n   "
+        }
+      ],
+      "params": {
+        "select": {
+          "name": "select",
+          "isContext": false,
+          "validation": {
+            "type": "projection",
+            "columns": [
+              "orderId",
+              "status",
+              "createdAt",
+              "modifiedAt",
+              "accountId"
+            ],
+            "functions": [
+              "sum",
+              "count",
+              "avg",
+              "min",
+              "max"
+            ]
+          }
+        },
+        "joinBy": {
+          "name": "joinBy",
+          "isContext": false,
+          "validation": {
+            "type": "joinBy",
+            "columns": [
+              "account.accountId",
+              "account.status",
+              "account.email",
+              "account.firstName",
+              "account.lastName",
+              "account.notes",
+              "account.createdAt",
+              "account.modifiedAt",
+              "account.parentId"
+            ],
+            "operators": [
+              "=",
+              "<",
+              "<=",
+              ">",
+              ">=",
+              "<>"
+            ]
+          }
+        },
+        "filterBy": {
+          "name": "filterBy",
+          "isContext": false
+        },
+        "havingBy": {
+          "name": "havingBy",
+          "isContext": false
+        },
+        "orderBy": {
+          "name": "orderBy",
+          "isContext": false
+        },
+        "limit": {
+          "name": "limit",
+          "isContext": false
+        },
+        "offset": {
+          "name": "offset",
+          "isContext": false
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "xJoinByAutoMulti": {
+      "name": "xJoinByAutoMulti",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:58:77",
+      "hash": "085c39feb22ca527b9ab93f63b2f710cb8605f0bf0eb1f5ba4812815682aba18",
+      "template": [
+        {
+          "type": "text",
+          "value": "\n      \n      \n      select "
+        },
+        {
+          "type": "projection",
+          "param": "select",
+          "columns": {
+            "orderId": "\"o_1\".\"order_id\" as \"orderId\"",
+            "status": "\"o_1\".\"status\"",
+            "createdAt": "\"o_1\".\"created_at\" as \"createdAt\"",
+            "modifiedAt": "\"o_1\".\"modified_at\" as \"modifiedAt\"",
+            "accountId": "\"o_1\".\"account_id\" as \"accountId\""
+          }
+        },
+        {
+          "type": "text",
+          "value": "\n                 \n      from \"vexnor_dev\".\"order\" as \"o_1\"   "
+        },
+        {
+          "type": "joinBy",
+          "param": "joinBy",
+          "joinMap": {
+            "_": {
+              "schema": "vexnor_dev",
+              "table": "order",
+              "columns": {
+                "orderId": "\"o_1\".\"order_id\"",
+                "status": "\"o_1\".\"status\"",
+                "createdAt": "\"o_1\".\"created_at\"",
+                "modifiedAt": "\"o_1\".\"modified_at\"",
+                "accountId": "\"o_1\".\"account_id\""
+              }
+            },
+            "account": {
+              "schema": "vexnor_dev",
+              "table": "account",
+              "columns": {
+                "accountId": "\"a_2\".\"account_id\"",
+                "status": "\"a_2\".\"status\"",
+                "email": "\"a_2\".\"email\"",
+                "firstName": "\"a_2\".\"first_name\"",
+                "lastName": "\"a_2\".\"last_name\"",
+                "notes": "\"a_2\".\"notes\"",
+                "createdAt": "\"a_2\".\"created_at\"",
+                "modifiedAt": "\"a_2\".\"modified_at\"",
+                "parentId": "\"a_2\".\"parent_id\""
+              }
+            },
+            "orderItem": {
+              "schema": "vexnor_dev",
+              "table": "order_item",
+              "columns": {
+                "orderId": "\"oi_3\".\"order_id\"",
+                "productId": "\"oi_3\".\"product_id\"",
+                "createdAt": "\"oi_3\".\"created_at\"",
+                "modifiedAt": "\"oi_3\".\"modified_at\"",
+                "productPrice": "\"oi_3\".\"product_price\"",
+                "discountPrice": "\"oi_3\".\"discount_price\"",
+                "quantity": "\"oi_3\".\"quantity\"",
+                "metadata": "\"oi_3\".\"metadata\""
+              }
+            }
+          },
+          "joinTypes": {}
+        },
+        {
+          "type": "text",
+          "value": "\n         "
+        },
+        {
+          "type": "filter",
+          "param": "filterBy",
+          "columns": {
+            "orderId": "\"o_1\".\"order_id\"",
+            "status": "\"o_1\".\"status\"",
+            "createdAt": "\"o_1\".\"created_at\"",
+            "modifiedAt": "\"o_1\".\"modified_at\"",
+            "accountId": "\"o_1\".\"account_id\""
+          },
+          "prefix": "where "
+        },
+        {
+          "type": "text",
+          "value": "\n         \n         "
+        },
+        {
+          "type": "text",
+          "value": "\n         "
+        },
+        {
+          "type": "orderBy",
+          "param": "orderBy",
+          "columns": {
+            "orderId": "\"o_1\".\"order_id\"",
+            "status": "\"o_1\".\"status\"",
+            "createdAt": "\"o_1\".\"created_at\"",
+            "modifiedAt": "\"o_1\".\"modified_at\"",
+            "accountId": "\"o_1\".\"account_id\""
+          }
+        },
+        {
+          "type": "text",
+          "value": "\n         "
+        },
+        {
+          "type": "pagination"
+        },
+        {
+          "type": "text",
+          "value": "\n   "
+        }
+      ],
+      "params": {
+        "select": {
+          "name": "select",
+          "isContext": false,
+          "validation": {
+            "type": "projection",
+            "columns": [
+              "orderId",
+              "status",
+              "createdAt",
+              "modifiedAt",
+              "accountId"
+            ],
+            "functions": [
+              "sum",
+              "count",
+              "avg",
+              "min",
+              "max"
+            ]
+          }
+        },
+        "joinBy": {
+          "name": "joinBy",
+          "isContext": false,
+          "validation": {
+            "type": "joinBy",
+            "columns": [
+              "account.accountId",
+              "account.status",
+              "account.email",
+              "account.firstName",
+              "account.lastName",
+              "account.notes",
+              "account.createdAt",
+              "account.modifiedAt",
+              "account.parentId",
+              "orderItem.orderId",
+              "orderItem.productId",
+              "orderItem.createdAt",
+              "orderItem.modifiedAt",
+              "orderItem.productPrice",
+              "orderItem.discountPrice",
+              "orderItem.quantity",
+              "orderItem.metadata"
+            ],
+            "operators": [
+              "=",
+              "<",
+              "<=",
+              ">",
+              ">=",
+              "<>"
+            ]
+          }
+        },
+        "filterBy": {
+          "name": "filterBy",
+          "isContext": false
+        },
+        "havingBy": {
+          "name": "havingBy",
+          "isContext": false
+        },
+        "orderBy": {
+          "name": "orderBy",
+          "isContext": false
+        },
+        "limit": {
+          "name": "limit",
+          "isContext": false
+        },
+        "offset": {
+          "name": "offset",
+          "isContext": false
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "xInsertColsSingle": {
+      "name": "xInsertColsSingle",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:60:23",
+      "hash": "1042fa3bbd142356d9109b192eda107e5c3e9afea730ebfc3b3cc02c0a2f102a",
+      "template": [
+        {
+          "type": "text",
+          "value": "INSERT INTO \"vexnor_dev\".\"account\" ("
+        },
+        {
+          "type": "insertCols",
+          "param": "rows",
+          "columns": {
+            "accountId": "\"account_id\"",
+            "status": "\"status\"",
+            "email": "\"email\"",
+            "firstName": "\"first_name\"",
+            "lastName": "\"last_name\"",
+            "notes": "\"notes\"",
+            "createdAt": "\"created_at\"",
+            "modifiedAt": "\"modified_at\"",
+            "parentId": "\"parent_id\""
+          }
+        },
+        {
+          "type": "text",
+          "value": ") VALUES ("
+        },
+        {
+          "type": "insertValues",
+          "param": "rows",
+          "keys": [
+            "accountId",
+            "status",
+            "email",
+            "firstName",
+            "lastName",
+            "notes",
+            "createdAt",
+            "modifiedAt",
+            "parentId"
+          ]
+        },
+        {
+          "type": "text",
+          "value": ") RETURNING \"account\".\"account_id\" as \"accountId\", \"account\".\"status\", \"account\".\"email\", \"account\".\"first_name\" as \"firstName\", \"account\".\"last_name\" as \"lastName\", \"account\".\"notes\", \"account\".\"created_at\" as \"createdAt\", \"account\".\"modified_at\" as \"modifiedAt\", \"account\".\"parent_id\" as \"parentId\""
+        }
+      ],
+      "params": {
+        "rows": {
+          "name": "rows",
+          "isContext": false
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "xInsertColsMulti": {
+      "name": "xInsertColsMulti",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:61:22",
+      "hash": "1042fa3bbd142356d9109b192eda107e5c3e9afea730ebfc3b3cc02c0a2f102a",
+      "template": [
+        {
+          "type": "text",
+          "value": "INSERT INTO \"vexnor_dev\".\"account\" ("
+        },
+        {
+          "type": "insertCols",
+          "param": "rows",
+          "columns": {
+            "accountId": "\"account_id\"",
+            "status": "\"status\"",
+            "email": "\"email\"",
+            "firstName": "\"first_name\"",
+            "lastName": "\"last_name\"",
+            "notes": "\"notes\"",
+            "createdAt": "\"created_at\"",
+            "modifiedAt": "\"modified_at\"",
+            "parentId": "\"parent_id\""
+          }
+        },
+        {
+          "type": "text",
+          "value": ") VALUES ("
+        },
+        {
+          "type": "insertValues",
+          "param": "rows",
+          "keys": [
+            "accountId",
+            "status",
+            "email",
+            "firstName",
+            "lastName",
+            "notes",
+            "createdAt",
+            "modifiedAt",
+            "parentId"
+          ]
+        },
+        {
+          "type": "text",
+          "value": ") RETURNING \"account\".\"account_id\" as \"accountId\", \"account\".\"status\", \"account\".\"email\", \"account\".\"first_name\" as \"firstName\", \"account\".\"last_name\" as \"lastName\", \"account\".\"notes\", \"account\".\"created_at\" as \"createdAt\", \"account\".\"modified_at\" as \"modifiedAt\", \"account\".\"parent_id\" as \"parentId\""
+        }
+      ],
+      "params": {
+        "rows": {
+          "name": "rows",
+          "isContext": false
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "xValueLiteral": {
+      "name": "xValueLiteral",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:63:19",
+      "hash": "29338927ae0ee4292f4dea4d90daaa9a99ef089f6c137f953c9531f2c3d0846f",
+      "template": [
+        {
+          "type": "text",
+          "value": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" WHERE \"a_1\".\"status\" = "
+        },
+        {
+          "type": "value",
+          "value": "confirmed"
+        }
+      ],
+      "params": {},
       "row": {
         "createdAt": {
           "type": "Date"

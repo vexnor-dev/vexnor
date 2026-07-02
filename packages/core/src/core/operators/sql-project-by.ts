@@ -397,7 +397,8 @@ export class SqlProjectionGroupBy<T extends Record<string, unknown>> extends Sql
          }
          case "coalesce": {
             const argsArr = Array.isArray(args) ? args : [args];
-            return { expr: `coalesce(${colSql}, ${argsArr.map(() => "?").join(", ")})`, params: argsArr };
+            const literals = argsArr.map((a) => this.inlineLiteral(a));
+            return { expr: `coalesce(${colSql}, ${literals.join(", ")})`, params: [] };
          }
          case "round": {
             const precision = Array.isArray(args) ? args[0] : args;
@@ -408,10 +409,11 @@ export class SqlProjectionGroupBy<T extends Record<string, unknown>> extends Sql
             return { expr: `abs(${colSql})`, params: [] };
          case "concat": {
             const parts = Array.isArray(args) ? args : [args];
+            const literals = parts.map((p) => this.inlineLiteral(p));
             if (dialect === "transactsql" || dialect === "tsql") {
-               return { expr: `CONCAT(${colSql}, ${parts.map(() => "?").join(", ")})`, params: parts };
+               return { expr: `CONCAT(${colSql}, ${literals.join(", ")})`, params: [] };
             }
-            return { expr: `${colSql} || ${parts.map(() => "?").join(" || ")}`, params: parts };
+            return { expr: `${colSql} || ${literals.join(" || ")}`, params: [] };
          }
          default:
             return null;
@@ -440,6 +442,13 @@ export class SqlProjectionGroupBy<T extends Record<string, unknown>> extends Sql
          if (stripped) return stripped;
       }
       throw new SqlBuildError(`Column not found: ${name}`);
+   }
+
+   private inlineLiteral(value: unknown): string {
+      if (typeof value === "number") return String(value);
+      if (typeof value === "string") return `'${value.replace(/'/g, "''")}'`;
+      if (value === null || value === undefined) return "NULL";
+      return `'${String(value).replace(/'/g, "''")}'`;
    }
 }
 

@@ -348,7 +348,7 @@ describe("SchemaGraph", () => {
                      },
                      "callback": [Function],
                    },
-                   "hashId": "SqlQuery#(["\\n      ","\\n      ","\\n      select ","\\n                "," ","\\n      from "," "," "," ","\\n         ","\\n         ","\\n         ","\\n         ","\\n         ","\\n   "]|SqlRaw#(-)|SqlPreColumnMap#(preColumnMap)|SqlProjection#(SqlTable#(public.payment)|projection:select)|SqlRaw#(-)|SqlRaw#(-)|SqlTable#(public.payment)|SqlRaw#(-)|SqlRaw#(-)|SqlJoinBy#(SqlTable#(public.payment)|joinBy:joinBy)|SqlQueryRef#(SqlQuery#(["",""]|SqlFilter#(SqlTable#(public.payment)|filterBy)))|SqlQueryRef#(SqlQuery#(["",""]|SqlProjectionGroupBy#(SqlTable#(public.payment)|projectionGroupBy:select)))|SqlQueryRef#(SqlQuery#(["",""]|SqlHavingBy#(SqlTable#(public.payment)|havingBy)))|SqlOrderBy#(SqlTable#(public.payment)|orderBy)|SqlPagination#(pagination))",
+                   "hashId": "SqlQuery#(["\\n      ","\\n      ","\\n      select ","\\n                "," ","\\n      from "," "," "," ","\\n         ","\\n         ","\\n         ","\\n         ","\\n         ","\\n   "]|SqlRaw#(-)|SqlPreColumnMap#(preColumnMap)|SqlProjection#(SqlTable#(public.payment)|projection:select)|SqlRaw#(-)|SqlRaw#(-)|SqlTable#(public.payment)|SqlRaw#(-)|SqlRaw#(-)|SqlJoinBy#(SqlTable#(public.payment)|joinBy:joinBy|customer)|SqlQueryRef#(SqlQuery#(["",""]|SqlFilter#(SqlTable#(public.payment)|filterBy)))|SqlQueryRef#(SqlQuery#(["",""]|SqlProjectionGroupBy#(SqlTable#(public.payment)|projectionGroupBy:select)))|SqlQueryRef#(SqlQuery#(["",""]|SqlHavingBy#(SqlTable#(public.payment)|havingBy)))|SqlOrderBy#(SqlTable#(public.payment)|orderBy)|SqlPagination#(pagination))",
                    "id": "SqlQuery#4",
                    "location": null,
                    "locationUrl": null,
@@ -1150,7 +1150,7 @@ describe("SchemaGraph", () => {
                        "value": "",
                      },
                      SqlJoinBy {
-                       "hashId": "SqlJoinBy#(SqlTable#(public.payment)|joinBy:joinBy)",
+                       "hashId": "SqlJoinBy#(SqlTable#(public.payment)|joinBy:joinBy|customer)",
                        "id": "SqlJoinBy#1(payment.joinBy)",
                        "joinMap": {
                          "customer": SqlTable {
@@ -2775,7 +2775,7 @@ describe("SchemaGraph", () => {
                      },
                      "callback": [Function],
                    },
-                   "hashId": "SqlQuery#(["\\n      ","\\n      ","\\n      select ","\\n                "," ","\\n      from "," "," "," ","\\n         ","\\n         ","\\n         ","\\n         ","\\n         ","\\n   "]|SqlRaw#(-)|SqlPreColumnMap#(preColumnMap)|SqlProjection#(SqlTable#(public.payment)|projection:select)|SqlRaw#(-)|SqlRaw#(-)|SqlTable#(public.payment)|SqlRaw#(-)|SqlRaw#(-)|SqlJoinBy#(SqlTable#(public.payment)|joinBy:joinBy)|SqlQueryRef#(SqlQuery#(["",""]|SqlFilter#(SqlTable#(public.payment)|filterBy)))|SqlQueryRef#(SqlQuery#(["",""]|SqlProjectionGroupBy#(SqlTable#(public.payment)|projectionGroupBy:select)))|SqlQueryRef#(SqlQuery#(["",""]|SqlHavingBy#(SqlTable#(public.payment)|havingBy)))|SqlOrderBy#(SqlTable#(public.payment)|orderBy)|SqlPagination#(pagination))",
+                   "hashId": "SqlQuery#(["\\n      ","\\n      ","\\n      select ","\\n                "," ","\\n      from "," "," "," ","\\n         ","\\n         ","\\n         ","\\n         ","\\n         ","\\n   "]|SqlRaw#(-)|SqlPreColumnMap#(preColumnMap)|SqlProjection#(SqlTable#(public.payment)|projection:select)|SqlRaw#(-)|SqlRaw#(-)|SqlTable#(public.payment)|SqlRaw#(-)|SqlRaw#(-)|SqlJoinBy#(SqlTable#(public.payment)|joinBy:joinBy|customer)|SqlQueryRef#(SqlQuery#(["",""]|SqlFilter#(SqlTable#(public.payment)|filterBy)))|SqlQueryRef#(SqlQuery#(["",""]|SqlProjectionGroupBy#(SqlTable#(public.payment)|projectionGroupBy:select)))|SqlQueryRef#(SqlQuery#(["",""]|SqlHavingBy#(SqlTable#(public.payment)|havingBy)))|SqlOrderBy#(SqlTable#(public.payment)|orderBy)|SqlPagination#(pagination))",
                    "id": "SqlQuery#4",
                    "location": null,
                    "locationUrl": null,
@@ -3577,7 +3577,7 @@ describe("SchemaGraph", () => {
                        "value": "",
                      },
                      SqlJoinBy {
-                       "hashId": "SqlJoinBy#(SqlTable#(public.payment)|joinBy:joinBy)",
+                       "hashId": "SqlJoinBy#(SqlTable#(public.payment)|joinBy:joinBy|customer)",
                        "id": "SqlJoinBy#1(payment.joinBy)",
                        "joinMap": {
                          "customer": SqlTable {
@@ -5202,7 +5202,7 @@ describe("SchemaGraph", () => {
                      },
                      "callback": [Function],
                    },
-                   "hashId": "SqlQuery#(["\\n      ","\\n      ","\\n      select ","\\n                "," ","\\n      from "," "," "," ","\\n         ","\\n         ","\\n         ","\\n         ","\\n         ","\\n   "]|SqlRaw#(-)|SqlPreColumnMap#(preColumnMap)|SqlProjection#(SqlTable#(public.payment)|projection:select)|SqlRaw#(-)|SqlRaw#(-)|SqlTable#(public.payment)|SqlRaw#(-)|SqlRaw#(-)|SqlJoinBy#(SqlTable#(public.payment)|joinBy:joinBy)|SqlQueryRef#(SqlQuery#(["",""]|SqlFilter#(SqlTable#(public.payment)|filterBy)))|SqlQueryRef#(SqlQuery#(["",""]|SqlProjectionGroupBy#(SqlTable#(public.payment)|projectionGroupBy:select)))|SqlQueryRef#(SqlQuery#(["",""]|SqlHavingBy#(SqlTable#(public.payment)|havingBy)))|SqlOrderBy#(SqlTable#(public.payment)|orderBy)|SqlPagination#(pagination))",
+                   "hashId": "SqlQuery#(["\\n      ","\\n      ","\\n      select ","\\n                "," ","\\n      from "," "," "," ","\\n         ","\\n         ","\\n         ","\\n         ","\\n         ","\\n   "]|SqlRaw#(-)|SqlPreColumnMap#(preColumnMap)|SqlProjection#(SqlTable#(public.payment)|projection:select)|SqlRaw#(-)|SqlRaw#(-)|SqlTable#(public.payment)|SqlRaw#(-)|SqlRaw#(-)|SqlJoinBy#(SqlTable#(public.payment)|joinBy:joinBy|customer)|SqlQueryRef#(SqlQuery#(["",""]|SqlFilter#(SqlTable#(public.payment)|filterBy)))|SqlQueryRef#(SqlQuery#(["",""]|SqlProjectionGroupBy#(SqlTable#(public.payment)|projectionGroupBy:select)))|SqlQueryRef#(SqlQuery#(["",""]|SqlHavingBy#(SqlTable#(public.payment)|havingBy)))|SqlOrderBy#(SqlTable#(public.payment)|orderBy)|SqlPagination#(pagination))",
                    "id": "SqlQuery#4",
                    "location": null,
                    "locationUrl": null,
@@ -6004,7 +6004,7 @@ describe("SchemaGraph", () => {
                        "value": "",
                      },
                      SqlJoinBy {
-                       "hashId": "SqlJoinBy#(SqlTable#(public.payment)|joinBy:joinBy)",
+                       "hashId": "SqlJoinBy#(SqlTable#(public.payment)|joinBy:joinBy|customer)",
                        "id": "SqlJoinBy#1(payment.joinBy)",
                        "joinMap": {
                          "customer": SqlTable {
@@ -7630,7 +7630,7 @@ describe("SchemaGraph", () => {
                          "callback": [Function],
                        },
                        "_rowLazy": [Circular],
-                       "hashId": "SqlQuery#(["\\n      ","\\n      ","\\n      select ","\\n                "," ","\\n      from "," "," "," ","\\n         ","\\n         ","\\n         ","\\n         ","\\n         ","\\n   "]|SqlRaw#(-)|SqlPreColumnMap#(preColumnMap)|SqlProjection#(SqlTable#(public.payment)|projection:select)|SqlRaw#(-)|SqlRaw#(-)|SqlTable#(public.payment)|SqlRaw#(-)|SqlRaw#(-)|SqlJoinBy#(SqlTable#(public.payment)|joinBy:joinBy)|SqlQueryRef#(SqlQuery#(["",""]|SqlFilter#(SqlTable#(public.payment)|filterBy)))|SqlQueryRef#(SqlQuery#(["",""]|SqlProjectionGroupBy#(SqlTable#(public.payment)|projectionGroupBy:select)))|SqlQueryRef#(SqlQuery#(["",""]|SqlHavingBy#(SqlTable#(public.payment)|havingBy)))|SqlOrderBy#(SqlTable#(public.payment)|orderBy)|SqlPagination#(pagination))",
+                       "hashId": "SqlQuery#(["\\n      ","\\n      ","\\n      select ","\\n                "," ","\\n      from "," "," "," ","\\n         ","\\n         ","\\n         ","\\n         ","\\n         ","\\n   "]|SqlRaw#(-)|SqlPreColumnMap#(preColumnMap)|SqlProjection#(SqlTable#(public.payment)|projection:select)|SqlRaw#(-)|SqlRaw#(-)|SqlTable#(public.payment)|SqlRaw#(-)|SqlRaw#(-)|SqlJoinBy#(SqlTable#(public.payment)|joinBy:joinBy|customer)|SqlQueryRef#(SqlQuery#(["",""]|SqlFilter#(SqlTable#(public.payment)|filterBy)))|SqlQueryRef#(SqlQuery#(["",""]|SqlProjectionGroupBy#(SqlTable#(public.payment)|projectionGroupBy:select)))|SqlQueryRef#(SqlQuery#(["",""]|SqlHavingBy#(SqlTable#(public.payment)|havingBy)))|SqlOrderBy#(SqlTable#(public.payment)|orderBy)|SqlPagination#(pagination))",
                        "id": "SqlQuery#4",
                        "location": null,
                        "locationUrl": null,
@@ -8432,7 +8432,7 @@ describe("SchemaGraph", () => {
                            "value": "",
                          },
                          SqlJoinBy {
-                           "hashId": "SqlJoinBy#(SqlTable#(public.payment)|joinBy:joinBy)",
+                           "hashId": "SqlJoinBy#(SqlTable#(public.payment)|joinBy:joinBy|customer)",
                            "id": "SqlJoinBy#1(payment.joinBy)",
                            "joinMap": {
                              "customer": SqlTable {
@@ -9999,7 +9999,7 @@ describe("SchemaGraph", () => {
                          "callback": [Function],
                        },
                        "_rowLazy": [Circular],
-                       "hashId": "SqlQuery#(["\\n      ","\\n      ","\\n      select ","\\n                "," ","\\n      from "," "," "," ","\\n         ","\\n         ","\\n         ","\\n         ","\\n         ","\\n   "]|SqlRaw#(-)|SqlPreColumnMap#(preColumnMap)|SqlProjection#(SqlTable#(public.payment)|projection:select)|SqlRaw#(-)|SqlRaw#(-)|SqlTable#(public.payment)|SqlRaw#(-)|SqlRaw#(-)|SqlJoinBy#(SqlTable#(public.payment)|joinBy:joinBy)|SqlQueryRef#(SqlQuery#(["",""]|SqlFilter#(SqlTable#(public.payment)|filterBy)))|SqlQueryRef#(SqlQuery#(["",""]|SqlProjectionGroupBy#(SqlTable#(public.payment)|projectionGroupBy:select)))|SqlQueryRef#(SqlQuery#(["",""]|SqlHavingBy#(SqlTable#(public.payment)|havingBy)))|SqlOrderBy#(SqlTable#(public.payment)|orderBy)|SqlPagination#(pagination))",
+                       "hashId": "SqlQuery#(["\\n      ","\\n      ","\\n      select ","\\n                "," ","\\n      from "," "," "," ","\\n         ","\\n         ","\\n         ","\\n         ","\\n         ","\\n   "]|SqlRaw#(-)|SqlPreColumnMap#(preColumnMap)|SqlProjection#(SqlTable#(public.payment)|projection:select)|SqlRaw#(-)|SqlRaw#(-)|SqlTable#(public.payment)|SqlRaw#(-)|SqlRaw#(-)|SqlJoinBy#(SqlTable#(public.payment)|joinBy:joinBy|customer)|SqlQueryRef#(SqlQuery#(["",""]|SqlFilter#(SqlTable#(public.payment)|filterBy)))|SqlQueryRef#(SqlQuery#(["",""]|SqlProjectionGroupBy#(SqlTable#(public.payment)|projectionGroupBy:select)))|SqlQueryRef#(SqlQuery#(["",""]|SqlHavingBy#(SqlTable#(public.payment)|havingBy)))|SqlOrderBy#(SqlTable#(public.payment)|orderBy)|SqlPagination#(pagination))",
                        "id": "SqlQuery#4",
                        "location": null,
                        "locationUrl": null,
@@ -10801,7 +10801,7 @@ describe("SchemaGraph", () => {
                            "value": "",
                          },
                          SqlJoinBy {
-                           "hashId": "SqlJoinBy#(SqlTable#(public.payment)|joinBy:joinBy)",
+                           "hashId": "SqlJoinBy#(SqlTable#(public.payment)|joinBy:joinBy|customer)",
                            "id": "SqlJoinBy#1(payment.joinBy)",
                            "joinMap": {
                              "customer": SqlTable {
@@ -12368,7 +12368,7 @@ describe("SchemaGraph", () => {
                          "callback": [Function],
                        },
                        "_rowLazy": [Circular],
-                       "hashId": "SqlQuery#(["\\n      ","\\n      ","\\n      select ","\\n                "," ","\\n      from "," "," "," ","\\n         ","\\n         ","\\n         ","\\n         ","\\n         ","\\n   "]|SqlRaw#(-)|SqlPreColumnMap#(preColumnMap)|SqlProjection#(SqlTable#(public.payment)|projection:select)|SqlRaw#(-)|SqlRaw#(-)|SqlTable#(public.payment)|SqlRaw#(-)|SqlRaw#(-)|SqlJoinBy#(SqlTable#(public.payment)|joinBy:joinBy)|SqlQueryRef#(SqlQuery#(["",""]|SqlFilter#(SqlTable#(public.payment)|filterBy)))|SqlQueryRef#(SqlQuery#(["",""]|SqlProjectionGroupBy#(SqlTable#(public.payment)|projectionGroupBy:select)))|SqlQueryRef#(SqlQuery#(["",""]|SqlHavingBy#(SqlTable#(public.payment)|havingBy)))|SqlOrderBy#(SqlTable#(public.payment)|orderBy)|SqlPagination#(pagination))",
+                       "hashId": "SqlQuery#(["\\n      ","\\n      ","\\n      select ","\\n                "," ","\\n      from "," "," "," ","\\n         ","\\n         ","\\n         ","\\n         ","\\n         ","\\n   "]|SqlRaw#(-)|SqlPreColumnMap#(preColumnMap)|SqlProjection#(SqlTable#(public.payment)|projection:select)|SqlRaw#(-)|SqlRaw#(-)|SqlTable#(public.payment)|SqlRaw#(-)|SqlRaw#(-)|SqlJoinBy#(SqlTable#(public.payment)|joinBy:joinBy|customer)|SqlQueryRef#(SqlQuery#(["",""]|SqlFilter#(SqlTable#(public.payment)|filterBy)))|SqlQueryRef#(SqlQuery#(["",""]|SqlProjectionGroupBy#(SqlTable#(public.payment)|projectionGroupBy:select)))|SqlQueryRef#(SqlQuery#(["",""]|SqlHavingBy#(SqlTable#(public.payment)|havingBy)))|SqlOrderBy#(SqlTable#(public.payment)|orderBy)|SqlPagination#(pagination))",
                        "id": "SqlQuery#4",
                        "location": null,
                        "locationUrl": null,
@@ -13170,7 +13170,7 @@ describe("SchemaGraph", () => {
                            "value": "",
                          },
                          SqlJoinBy {
-                           "hashId": "SqlJoinBy#(SqlTable#(public.payment)|joinBy:joinBy)",
+                           "hashId": "SqlJoinBy#(SqlTable#(public.payment)|joinBy:joinBy|customer)",
                            "id": "SqlJoinBy#1(payment.joinBy)",
                            "joinMap": {
                              "customer": SqlTable {
@@ -14676,7 +14676,7 @@ describe("SchemaGraph", () => {
                  },
                  "callback": [Function],
                },
-               "hashId": "SqlQuery#(["\\n      ","\\n      ","\\n      select ","\\n                "," ","\\n      from "," "," "," ","\\n         ","\\n         ","\\n         ","\\n         ","\\n         ","\\n   "]|SqlRaw#(-)|SqlPreColumnMap#(preColumnMap)|SqlProjection#(SqlTable#(public.payment)|projection:select)|SqlRaw#(-)|SqlRaw#(-)|SqlTable#(public.payment)|SqlRaw#(-)|SqlRaw#(-)|SqlJoinBy#(SqlTable#(public.payment)|joinBy:joinBy)|SqlQueryRef#(SqlQuery#(["",""]|SqlFilter#(SqlTable#(public.payment)|filterBy)))|SqlQueryRef#(SqlQuery#(["",""]|SqlProjectionGroupBy#(SqlTable#(public.payment)|projectionGroupBy:select)))|SqlQueryRef#(SqlQuery#(["",""]|SqlHavingBy#(SqlTable#(public.payment)|havingBy)))|SqlOrderBy#(SqlTable#(public.payment)|orderBy)|SqlPagination#(pagination))",
+               "hashId": "SqlQuery#(["\\n      ","\\n      ","\\n      select ","\\n                "," ","\\n      from "," "," "," ","\\n         ","\\n         ","\\n         ","\\n         ","\\n         ","\\n   "]|SqlRaw#(-)|SqlPreColumnMap#(preColumnMap)|SqlProjection#(SqlTable#(public.payment)|projection:select)|SqlRaw#(-)|SqlRaw#(-)|SqlTable#(public.payment)|SqlRaw#(-)|SqlRaw#(-)|SqlJoinBy#(SqlTable#(public.payment)|joinBy:joinBy|customer)|SqlQueryRef#(SqlQuery#(["",""]|SqlFilter#(SqlTable#(public.payment)|filterBy)))|SqlQueryRef#(SqlQuery#(["",""]|SqlProjectionGroupBy#(SqlTable#(public.payment)|projectionGroupBy:select)))|SqlQueryRef#(SqlQuery#(["",""]|SqlHavingBy#(SqlTable#(public.payment)|havingBy)))|SqlOrderBy#(SqlTable#(public.payment)|orderBy)|SqlPagination#(pagination))",
                "id": "SqlQuery#4",
                "location": null,
                "locationUrl": null,
@@ -15478,7 +15478,7 @@ describe("SchemaGraph", () => {
                    "value": "",
                  },
                  SqlJoinBy {
-                   "hashId": "SqlJoinBy#(SqlTable#(public.payment)|joinBy:joinBy)",
+                   "hashId": "SqlJoinBy#(SqlTable#(public.payment)|joinBy:joinBy|customer)",
                    "id": "SqlJoinBy#1(payment.joinBy)",
                    "joinMap": {
                      "customer": SqlTable {

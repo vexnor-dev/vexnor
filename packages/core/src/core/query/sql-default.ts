@@ -17,7 +17,8 @@ export class SqlDefault extends Sql {
  *
  * @example
  * sql`
- *   INSERT INTO ${Account} ${Account.insertColsVals({ firstName: "John", createdAt: DEFAULT })}
+ *   INSERT INTO ${Account} ${insert(Account)}
  * `
+ * // with params: { rows: [{ firstName: "John", createdAt: DEFAULT }] }
  */
 export const DEFAULT = new SqlDefault();
