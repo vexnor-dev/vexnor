@@ -533,16 +533,22 @@ const query2 = sql`
 For manual `ON CONFLICT ... DO UPDATE SET` statements, `excluded(table)` gives you typed column references to the `EXCLUDED` pseudo-table:
 
 ```typescript
-import { sql, row, excluded } from '@vexnor/core';
+import { sql, row, insert, excluded } from '@vexnor/core';
 
-const upsert = sql`
+const upsertAccount = sql`
   INSERT INTO ${Account}
-    ${Account.insertColsVals({ accountId: id, email, firstName })}
+    ${insert(Account)}
   ON CONFLICT (${Account.$accountId}) DO UPDATE SET
     ${Account.$email} = ${excluded(Account).$email},
     ${Account.$firstName} = ${excluded(Account).$firstName}
   RETURNING ${row(Account.$$)}
 `;
+
+// Execute with params
+await upsertAccount.postgres.one({
+  db: pool,
+  params: { rows: [{ accountId: id, email, firstName }] },
+});
 ```
 
 `excluded(Account).$email` emits `EXCLUDED."email"` in the SQL output. The result is cached per table.
@@ -552,19 +558,25 @@ const upsert = sql`
 Use `DEFAULT` in insert or update values to explicitly apply a column's database default:
 
 ```typescript
-import { sql, DEFAULT } from '@vexnor/core';
+import { sql, DEFAULT, insert } from '@vexnor/core';
 
-const insert = sql`
+const insertAccount = sql`
   INSERT INTO ${Account}
-    ${Account.insertColsVals({
-      email: 'jane@example.com',
-      firstName: 'Jane',
-      lastName: 'Doe',
-      createdAt: DEFAULT,   // uses the column's database default (e.g. NOW())
-      modifiedAt: DEFAULT,
-    })}
+    ${insert(Account)}
   RETURNING ${row(Account.$$)}
 `;
+
+// Execute with DEFAULT for columns that should use their database default
+await insertAccount.postgres.one({
+  db: pool,
+  params: { rows: [{
+    email: 'jane@example.com',
+    firstName: 'Jane',
+    lastName: 'Doe',
+    createdAt: DEFAULT,   // uses the column's database default (e.g. NOW())
+    modifiedAt: DEFAULT,
+  }] },
+});
 ```
 
 ## `info()` — Query Metadata

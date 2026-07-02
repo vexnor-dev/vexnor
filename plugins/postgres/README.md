@@ -103,10 +103,11 @@ Acquires a client from the pool, runs a callback inside a transaction, then comm
 
 ```typescript
 import { transaction } from '@vexnor/postgres';
+import { sql, row, insert } from '@vexnor/core';
 
 await transaction(pool, async (client) => {
-  await sql`INSERT INTO ${Account} ${Account.insertColsVals(data)} RETURNING ${row(Account.$$)}`
-    .postgres.one({ db: client });
+  await sql`INSERT INTO ${Account} ${insert(Account)} RETURNING ${row(Account.$$)}`
+    .postgres.one({ db: client, params: { rows: [data] } });
   await sql`UPDATE ${Order} SET ${Order.updateSet({ status: 'confirmed' })} WHERE ...`
     .postgres.run({ db: client });
 });
@@ -132,7 +133,7 @@ import { transaction, savepoint } from '@vexnor/postgres';
 await transaction(pool, async (client) => {
   await savepoint(client, async (client) => {
     // rolls back to savepoint if this throws, outer transaction continues
-    await sql`INSERT INTO ${Account} ${Account.insertColsVals(data)}`.postgres.run({ db: client });
+    await sql`INSERT INTO ${Account} ${insert(Account)}`.postgres.run({ db: client, params: { rows: [data] } });
   });
 });
 ```

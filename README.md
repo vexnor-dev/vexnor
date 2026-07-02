@@ -266,13 +266,14 @@ All operators (`in`, `>=`, `like`, `between`, `isNull`, `isNotNull`, etc.) are v
 ## Transactions
 
 ```typescript
+import { sql, insert } from '@vexnor/core';
 import { transaction, savepoint } from '@vexnor/postgres';
 
 await transaction(pool, async (client) => {
-  await sql`INSERT INTO ${Order} ${Order.insertColsVals(order)}`.one({ db: client });
+  await sql`INSERT INTO ${Order} ${insert(Order)}`.postgres.one({ db: client, params: { rows: [order] } });
 
   const item = await savepoint(client, async (c) => {
-    return sql`INSERT INTO ${OrderItem} ${OrderItem.insertColsVals(item)}`.one({ db: c });
+    return sql`INSERT INTO ${OrderItem} ${insert(OrderItem)}`.postgres.one({ db: c, params: { rows: [item] } });
   });
 });
 ```

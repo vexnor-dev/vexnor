@@ -103,10 +103,11 @@ Begins a transaction, runs a callback, then commits. Rolls back automatically on
 
 ```typescript
 import { transaction } from '@vexnor/sqlite3';
+import { sql, row, insert } from '@vexnor/core';
 
 await transaction(db, async (db) => {
-  await sql`INSERT INTO ${Account} ${Account.insertColsVals(data)} RETURNING ${row(Account.$$)}`
-    .sqlite.one({ db });
+  await sql`INSERT INTO ${Account} ${insert(Account)} RETURNING ${row(Account.$$)}`
+    .sqlite.one({ db, params: { rows: [data] } });
 });
 ```
 
@@ -129,7 +130,7 @@ import { transaction, savepoint } from '@vexnor/sqlite3';
 
 await transaction(db, async (db) => {
   await savepoint(db, async (db) => {
-    await sql`INSERT INTO ${Account} ${Account.insertColsVals(data)}`.sqlite.run({ db });
+    await sql`INSERT INTO ${Account} ${insert(Account)}`.sqlite.run({ db, params: { rows: [data] } });
   });
 });
 ```
