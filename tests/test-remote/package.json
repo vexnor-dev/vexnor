@@ -1,6 +1,6 @@
 {
    "name": "@vexnor/test-remote",
-   "version": "1.0.0-beta.1",
+   "version": "1.0.0-beta.3",
    "description": "Cross-plugin remote execution integration tests for vexnor",
    "type": "module",
    "author": "Adrian Topala",
