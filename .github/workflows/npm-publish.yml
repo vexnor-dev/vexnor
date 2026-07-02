@@ -333,8 +333,6 @@ jobs:
           done
 
       - name: Publish to npm
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
         run: |
           NPM_TAG="${{ steps.version.outputs.npm_tag }}"
           DRY_RUN="${{ inputs.dry_run || 'false' }}"
