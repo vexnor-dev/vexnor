@@ -291,6 +291,9 @@ jobs:
           node-version: '22.22.3'
           registry-url: 'https://registry.npmjs.org'
 
+      - name: Upgrade npm for trusted publishing
+        run: npm install -g npm@latest
+
       - name: Determine npm tag
         id: version
         run: |
