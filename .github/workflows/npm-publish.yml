@@ -196,7 +196,7 @@ jobs:
   # ─────────────────────────────────────────────────────────────────────────────
   # Step 2: Publish
   # Downloads pre-built artifacts and publishes to npm.
-  # No install. No scripts. Only `npm publish --ignore-scripts`.
+  # No install. No scripts. Only `npx npm@latest publish --ignore-scripts`.
   # ─────────────────────────────────────────────────────────────────────────────
   publish:
     needs: build-and-test
@@ -335,6 +335,8 @@ jobs:
           done
 
       - name: Publish to npm
+        env:
+          NPM_CONFIG_PROVENANCE: "true"
         run: |
           NPM_TAG="${{ steps.version.outputs.npm_tag }}"
           DRY_RUN="${{ inputs.dry_run || 'false' }}"
@@ -369,7 +371,7 @@ jobs:
               if [ "$DRY_RUN" = "true" ]; then
                 echo "✅ $pkg_dir — WOULD publish (no previous tag)"
               else
-                npm publish --ignore-scripts "./$pkg_dir" --access public --tag "$NPM_TAG" --provenance
+                npx npm@latest publish --ignore-scripts "./$pkg_dir" --access public --tag "$NPM_TAG" --provenance
               fi
               PUBLISHED="${PUBLISHED}  ✅ $pkg_dir\n"
               return
@@ -379,7 +381,7 @@ jobs:
               if [ "$DRY_RUN" = "true" ]; then
                 echo "✅ $pkg_dir — WOULD publish"
               else
-                npm publish --ignore-scripts "./$pkg_dir" --access public --tag "$NPM_TAG" --provenance
+                npx npm@latest publish --ignore-scripts "./$pkg_dir" --access public --tag "$NPM_TAG" --provenance
               fi
               PUBLISHED="${PUBLISHED}  ✅ $pkg_dir\n"
             else
