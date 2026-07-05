@@ -451,27 +451,25 @@ describe("postgresSelect()", () => {
         "/* <query_0> */
         /* driver: postgres */
         SELECT
+          /* <query_1> */ "a_1"."account_id" AS "accountId",
+          "a_1"."status",
+          "a_1"."email",
+          "a_1"."first_name" AS "firstName",
+          "a_1"."last_name" AS "lastName",
+          "a_1"."notes",
+          "a_1"."created_at" AS "createdAt",
+          "a_1"."modified_at" AS "modifiedAt",
+          "a_1"."parent_id" AS "parentId",
           (
-            /* <query_1> */ "a_1"."account_id",
-            "a_1"."status",
-            "a_1"."email",
-            "a_1"."first_name",
-            "a_1"."last_name",
-            "a_1"."notes",
-            "a_1"."created_at",
-            "a_1"."modified_at",
-            "a_1"."parent_id",
-            (
-              SELECT
-                count(*)
-              FROM
-                "main"."order" AS "o_2"
-              WHERE
-                "o_2"."account_id" = "a_1"."account_id"
-            ) AS "orderCount" /* </query_1> */
-          ) AS "query_1"
+            SELECT
+              count(*)
+            FROM
+              "main"."order" AS "o_2"
+            WHERE
+              "o_2"."account_id" = "a_1"."account_id"
+          ) AS "orderCount" /* </query_1> */
         FROM
-          "main"."account" AS "a_3"
+          "main"."account" AS "a_1"
           /* <query_2> */
           /* </query_2> */
           /* <query_3> */

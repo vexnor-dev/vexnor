@@ -100,6 +100,15 @@ This is a serious, high-quality codebase. No shortcuts. No lazy work. Ever.
 - Before accepting a bug as real, write a test that exposes it and run it to confirm.
 - Do not suggest fixes until the test proves the assumption.
 
+## Bug-fixing workflow
+
+When a bug is discovered in existing code — whether during local testing, automated tests, or integration testing:
+
+1. **Write a failing test first** — an automated test (unit or e2e, whichever is appropriate) that reproduces the bug. Run it and confirm it **fails**.
+2. **Implement the fix** — make the code change that resolves the root cause.
+3. **Confirm the test passes** — run the test again and verify it now **passes**.
+4. **Never fix a bug without a test that guards against regression.** The test is the proof the bug existed and the proof it's resolved.
+
 ## Permissions granted
 
 The following actions are pre-approved by the repo owner:

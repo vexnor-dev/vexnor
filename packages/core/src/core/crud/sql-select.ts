@@ -7,6 +7,7 @@ import { SqlTable, SqlTableAny } from "#src/core/schema/sql-table.js";
 import { ok } from "#src/lib/assert.js";
 import { sql } from "#src/core/sql.js";
 import { raw } from "#src/core/query/sql-raw.js";
+import { row } from "#src/core/query/sql-select-row.js";
 import { SqlQueryInfo } from "#src/core/charms/sql-query-info.js";
 import { SqlFilterBy, SqlFilterParams } from "#src/core/operators/sql-filter-by.js";
 import { SqlJoinBy } from "#src/core/operators/sql-join-by.js";
@@ -192,7 +193,7 @@ export function sqlSelect<
    return sql`
       ${info ?? raw.BLANK}
       ${preColumnMap}
-      select ${args.SELECT ? args.SELECT.source.inline() : projectionNode}
+      select ${args.SELECT ? args.SELECT.source.inline("default") : (hooks?.afterSelect?.length ? row(table.$$) : projectionNode)}
                 ${hooks?.afterSelect?.length ? raw(", ") : raw.BLANK} ${hooks?.afterSelect ?? raw.BLANK}
       from ${table} ${hooks?.afterFrom?.length ? new SqlSpacedList(hooks.afterFrom) : raw.BLANK} ${args.JOIN ? args.JOIN.source.inline() : raw.BLANK} ${joinByNode}
          ${userWhere ? sql`where ${filterNode} ${userWhere}`.inline("default") : sql`${filterNode}`.inline("default")}
