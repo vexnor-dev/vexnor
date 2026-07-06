@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json;
 using Vexnor.Core.Execution;
 using Vexnor.Core.Manifest;
@@ -5,11 +6,29 @@ using Vexnor.Mssql;
 using Vexnor.Postgres;
 using Vexnor.Sqlite3;
 
+// ─── Structured file logging ─────────────────────────────────────────────────
+var fileLogger = new FileLogger(Path.Combine(Directory.GetCurrentDirectory(), "logs", "server.log"));
+
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors(options => options.AddDefaultPolicy(p => p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
 
 var app = builder.Build();
 app.UseCors();
+
+// ─── Request logging middleware ──────────────────────────────────────────────
+app.Use(async (context, next) =>
+{
+    var sw = Stopwatch.StartNew();
+    await next(context);
+    sw.Stop();
+    fileLogger.Info("Request", new
+    {
+        method = context.Request.Method,
+        path = context.Request.Path.Value,
+        status = context.Response.StatusCode,
+        duration_ms = sw.ElapsedMilliseconds
+    });
+});
 
 // ─── Manifest directories ────────────────────────────────────────────────────
 var baseManifestDir = Environment.GetEnvironmentVariable("VEXNOR_MANIFEST_DIR")
@@ -29,11 +48,11 @@ foreach (var (name, dialect) in dialects)
     if (Directory.Exists(dir))
     {
         registry.LoadDirectory(dir);
-        Console.WriteLine($"  [{name}] Loaded {registry.GetRegisteredHashes().Count} queries from {dir}");
+        fileLogger.Info("Loaded manifests", new { dialect = name, queryCount = registry.GetRegisteredHashes().Count, dir });
     }
     else
     {
-        Console.WriteLine($"  [{name}] WARNING: Manifest directory not found: {dir}");
+        fileLogger.Warn("Manifest directory not found", new { dialect = name, dir });
     }
     registries[name] = registry;
 }
@@ -45,16 +64,19 @@ var executors = new Dictionary<string, DbExecutorBase>();
 var pgConn = builder.Configuration.GetConnectionString("Postgres")
     ?? "Host=localhost;Port=5432;Database=postgres;Username=adrian";
 executors["postgres"] = new PostgresExecutor(pgConn);
+fileLogger.Info("Database connected", new { dialect = "postgres" });
 
 // MSSQL
 var mssqlConn = builder.Configuration.GetConnectionString("Mssql")
     ?? "Server=localhost,1433;Database=vexnor;User Id=vexnor_dev;Password=P@ssw0rd!;TrustServerCertificate=true";
 executors["mssql"] = new MssqlExecutor(mssqlConn);
+fileLogger.Info("Database connected", new { dialect = "mssql" });
 
 // SQLite
 var sqlitePath = builder.Configuration.GetConnectionString("Sqlite3")
     ?? Path.GetFullPath(Path.Join("..", "..", "..", "fixtures", "vexnor.db"), Directory.GetCurrentDirectory());
 executors["sqlite3"] = Sqlite3Executor.FromPath(sqlitePath);
+fileLogger.Info("Database connected", new { dialect = "sqlite3", path = sqlitePath });
 
 // ─── Endpoints ───────────────────────────────────────────────────────────────
 
@@ -103,18 +125,22 @@ app.MapPost("/api/db", async (HttpRequest request) =>
     }
     catch (InvalidOperationException ex) when (ex.Message.Contains("Unknown query hash"))
     {
+        fileLogger.Error("Query execution failed", new { hash, backend, error = ex.Message });
         return Results.Json(new { error = ex.Message }, statusCode: 404);
     }
     catch (InvalidOperationException ex) when (ex.Message.Contains("requires context") || ex.Message.Contains("requires authorization"))
     {
+        fileLogger.Error("Query execution failed", new { hash, backend, error = ex.Message });
         return Results.Json(new { error = ex.Message }, statusCode: 403);
     }
     catch (Exception ex)
     {
+        fileLogger.Error("Query execution failed", new { hash, backend, error = ex.Message });
         return Results.Json(new { error = ex.Message }, statusCode: 500);
     }
 });
 
+fileLogger.Info("Server starting", new { port = 5000, addr = "http://localhost:5000" });
 Console.WriteLine($"Starting server on http://localhost:5000");
 app.Run("http://localhost:5000");
 
@@ -131,4 +157,69 @@ static object? ConvertJsonElement(JsonElement element)
         JsonValueKind.Object => element.EnumerateObject().ToDictionary(p => p.Name, p => ConvertJsonElement(p.Value)),
         _ => element.GetRawText()
     };
+}
+
+/// <summary>
+/// Simple structured JSON file logger that writes JSON lines to a file and also to stdout.
+/// </summary>
+sealed class FileLogger : IDisposable
+{
+    private readonly StreamWriter _writer;
+    private readonly object _lock = new();
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        WriteIndented = false
+    };
+
+    public FileLogger(string filePath)
+    {
+        var dir = Path.GetDirectoryName(filePath)!;
+        Directory.CreateDirectory(dir);
+        // Truncate on creation
+        _writer = new StreamWriter(filePath, append: false) { AutoFlush = true };
+    }
+
+    public void Info(string msg, object? data = null) => Write("info", msg, data);
+    public void Warn(string msg, object? data = null) => Write("warn", msg, data);
+    public void Error(string msg, object? data = null) => Write("error", msg, data);
+
+    private void Write(string level, string msg, object? data)
+    {
+        var entry = new Dictionary<string, object?>
+        {
+            ["time"] = DateTime.UtcNow.ToString("O"),
+            ["level"] = level,
+            ["msg"] = msg
+        };
+
+        if (data != null)
+        {
+            // Serialize data to a JsonElement and merge its properties into the entry
+            var dataJson = JsonSerializer.SerializeToElement(data, JsonOptions);
+            if (dataJson.ValueKind == JsonValueKind.Object)
+            {
+                foreach (var prop in dataJson.EnumerateObject())
+                {
+                    entry[prop.Name] = prop.Value;
+                }
+            }
+            else
+            {
+                entry["data"] = dataJson;
+            }
+        }
+
+        var line = JsonSerializer.Serialize(entry, JsonOptions);
+        lock (_lock)
+        {
+            _writer.WriteLine(line);
+        }
+        Console.WriteLine(line);
+    }
+
+    public void Dispose()
+    {
+        _writer.Dispose();
+    }
 }

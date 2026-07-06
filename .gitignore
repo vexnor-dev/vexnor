@@ -30,3 +30,6 @@ mailmap.txt
 **/prisma/generated/
 **/__tests__/fixtures-*/generated/
 .tmp-*
+
+# Backend runtime logs (AI-readable)
+**/logs/server.log

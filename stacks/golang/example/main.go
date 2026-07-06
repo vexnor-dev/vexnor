@@ -6,7 +6,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
+	"io"
+	"log/slog"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -39,6 +40,22 @@ var dialects = []dialectConfig{
 func main() {
 	ctx := context.Background()
 
+	// ─── Structured file logging ─────────────────────────────────────────────────
+	if err := os.MkdirAll("logs", 0o755); err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to create logs directory: %v\n", err)
+		os.Exit(1)
+	}
+	logFile, err := os.OpenFile("logs/server.log", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o644)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to open log file: %v\n", err)
+		os.Exit(1)
+	}
+	defer logFile.Close()
+
+	multiWriter := io.MultiWriter(os.Stderr, logFile)
+	logger := slog.New(slog.NewJSONHandler(multiWriter, &slog.HandlerOptions{Level: slog.LevelInfo}))
+	slog.SetDefault(logger)
+
 	// ─── Manifest loading ────────────────────────────────────────────────────────
 	manifestDir := os.Getenv("VEXNOR_MANIFEST_DIR")
 	if manifestDir == "" {
@@ -53,12 +70,23 @@ func main() {
 
 		if info, err := os.Stat(dir); err == nil && info.IsDir() {
 			if err := registry.LoadDirectory(dir, "*.json"); err != nil {
-				log.Printf("  [%s] WARNING: Failed to load manifests from %s: %v", d.Name, dir, err)
+				slog.Warn("Failed to load manifests",
+					"dialect", d.Name,
+					"dir", dir,
+					"error", err.Error(),
+				)
 			} else {
-				log.Printf("  [%s] Loaded %d queries from %s", d.Name, len(registry.GetRegisteredHashes()), dir)
+				slog.Info("Loaded manifests",
+					"dialect", d.Name,
+					"queryCount", len(registry.GetRegisteredHashes()),
+					"dir", dir,
+				)
 			}
 		} else {
-			log.Printf("  [%s] WARNING: Manifest directory not found: %s", d.Name, dir)
+			slog.Warn("Manifest directory not found",
+				"dialect", d.Name,
+				"dir", dir,
+			)
 		}
 
 		registries[d.Name] = registry
@@ -77,11 +105,21 @@ func main() {
 
 	pgExecutor, err := vexnorPostgres.NewFromConnString(ctx, pgConnStr)
 	if err != nil {
-		log.Printf("  [postgres] WARNING: Failed to connect: %v", err)
+		slog.Error("Failed to connect to PostgreSQL",
+			"host", pgHost,
+			"port", pgPort,
+			"database", pgDB,
+			"error", err.Error(),
+		)
 	} else {
 		executors["postgres"] = pgExecutor
 		defer pgExecutor.Close()
-		log.Printf("  [postgres] Connected to %s:%s/%s", pgHost, pgPort, pgDB)
+		slog.Info("Database connected",
+			"dialect", "postgres",
+			"host", pgHost,
+			"port", pgPort,
+			"database", pgDB,
+		)
 	}
 
 	// MSSQL
@@ -90,16 +128,26 @@ func main() {
 	mssqlUser := envOr("MSSQL_USER", "vexnor_dev")
 	mssqlPass := envOr("MSSQL_PASSWORD", "P@ssw0rd!")
 	mssqlDB := envOr("MSSQL_DATABASE", "vexnor")
-	mssqlConnStr := fmt.Sprintf("sqlserver://%s:%s@%s:%s?database=%s&TrustServerCertificate=true",
+	mssqlConnStr := fmt.Sprintf("sqlserver://%s:%s@%s:%s?database=%s&encrypt=disable",
 		mssqlUser, mssqlPass, mssqlHost, mssqlPort, mssqlDB)
 
 	mssqlExecutor, err := vexnorMssql.NewFromConnString(mssqlConnStr)
 	if err != nil {
-		log.Printf("  [mssql] WARNING: Failed to connect: %v", err)
+		slog.Error("Failed to connect to MSSQL",
+			"host", mssqlHost,
+			"port", mssqlPort,
+			"database", mssqlDB,
+			"error", err.Error(),
+		)
 	} else {
 		executors["mssql"] = mssqlExecutor
 		defer mssqlExecutor.Close()
-		log.Printf("  [mssql] Connected to %s:%s/%s", mssqlHost, mssqlPort, mssqlDB)
+		slog.Info("Database connected",
+			"dialect", "mssql",
+			"host", mssqlHost,
+			"port", mssqlPort,
+			"database", mssqlDB,
+		)
 	}
 
 	// SQLite
@@ -110,11 +158,17 @@ func main() {
 
 	sqliteExecutor, err := vexnorSqlite3.NewFromPath(sqlitePath)
 	if err != nil {
-		log.Printf("  [sqlite3] WARNING: Failed to open database: %v", err)
+		slog.Error("Failed to open SQLite database",
+			"path", sqlitePath,
+			"error", err.Error(),
+		)
 	} else {
 		executors["sqlite3"] = sqliteExecutor
 		defer sqliteExecutor.Close()
-		log.Printf("  [sqlite3] Opened %s", sqlitePath)
+		slog.Info("Database connected",
+			"dialect", "sqlite3",
+			"path", sqlitePath,
+		)
 	}
 
 	// ─── Router ──────────────────────────────────────────────────────────────────
@@ -200,6 +254,11 @@ func main() {
 			return executor.QueryRows(req.Context(), sql)
 		})
 		if err != nil {
+			slog.Error("Query execution failed",
+				"hash", body.Hash,
+				"backend", backend,
+				"error", err.Error(),
+			)
 			switch {
 			case errors.Is(err, vexnor.ErrUnknownQuery):
 				writeJSON(w, http.StatusNotFound, map[string]string{"error": fmt.Sprintf("Unknown query hash: %s", body.Hash)})
@@ -213,13 +272,16 @@ func main() {
 			return
 		}
 
-		writeJSON(w, http.StatusOK, result)
+		writeJSON(w, http.StatusOK, formatResult(backend, result))
 	})
 
 	// ─── Start server ────────────────────────────────────────────────────────────
 	port := envOr("GO_EXAMPLE_PORT", "5001")
 	addr := ":" + port
-	log.Printf("Starting server on http://localhost%s", addr)
+	slog.Info("Server starting",
+		"port", port,
+		"addr", fmt.Sprintf("http://localhost%s", addr),
+	)
 
 	server := &http.Server{
 		Addr:         addr,
@@ -230,7 +292,8 @@ func main() {
 	}
 
 	if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-		log.Fatalf("Server failed: %v", err)
+		slog.Error("Server failed", "error", err.Error())
+		os.Exit(1)
 	}
 }
 
@@ -239,7 +302,7 @@ func writeJSON(w http.ResponseWriter, status int, v any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	if err := json.NewEncoder(w).Encode(v); err != nil {
-		log.Printf("Failed to encode JSON response: %v", err)
+		slog.Error("Failed to encode JSON response", "error", err.Error())
 	}
 }
 
@@ -249,8 +312,43 @@ func requestLogger(next http.Handler) http.Handler {
 		start := time.Now()
 		ww := middleware.NewWrapResponseWriter(w, r.ProtoMajor)
 		next.ServeHTTP(ww, r)
-		log.Printf("%s %s %d %s", r.Method, r.URL.Path, ww.Status(), time.Since(start).Round(time.Millisecond))
+		duration := time.Since(start)
+		slog.Info("Request",
+			"method", r.Method,
+			"path", r.URL.Path,
+			"status", ww.Status(),
+			"duration_ms", duration.Milliseconds(),
+		)
 	})
+}
+
+// formatResult wraps the raw query rows in the shape expected by each plugin's client handler.
+// - Postgres expects: { rows, rowCount, command, oid }
+// - MSSQL expects:    { recordsets, rowsAffected }
+// - SQLite expects:   { rows }
+func formatResult(backend string, result any) any {
+	rows, _ := result.([]map[string]any)
+	if rows == nil {
+		rows = []map[string]any{}
+	}
+	switch backend {
+	case "mssql":
+		return map[string]any{
+			"recordsets":   []any{rows},
+			"rowsAffected": []int{len(rows)},
+		}
+	case "sqlite3":
+		return map[string]any{
+			"rows": rows,
+		}
+	default: // postgres
+		return map[string]any{
+			"rows":     rows,
+			"rowCount": len(rows),
+			"command":  "SELECT",
+			"oid":      nil,
+		}
+	}
 }
 
 // pluginToBackend maps @vexnor/plugin names to backend names.
