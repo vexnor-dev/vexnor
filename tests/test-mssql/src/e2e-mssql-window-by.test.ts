@@ -9,7 +9,7 @@ import { TestDataManager } from "./test-data-manager.js";
 describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
    const dataManager = new TestDataManager(ctx, {
       ACCOUNT_ROOT_COUNT: 3,
-      ACCOUNT_CHILD_FACTOR: 0,
+      ACCOUNT_CHILD_FACTOR: 1,
       ACCOUNT_ORDER_FACTOR: 2,
    });
 
@@ -18,6 +18,7 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
 
    beforeAll(async () => {
       await dataManager.initRootAccounts(pool);
+      await dataManager.initChildAccounts(pool);
       await dataManager.initOrders(pool);
    });
 
@@ -37,17 +38,20 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
             },
          });
 
-         expect(results).toHaveLength(3);
+         expect(results).toHaveLength(6);
          for (const row of results) {
             expect(typeof row.rowNum).toBe("number");
          }
-         // row_number produces sequential values 1, 2, 3
+         // row_number produces sequential values 1..6
          const rowNums = results.map((r) => r.rowNum as number).sort((a, b) => a - b);
          expect(rowNums).toMatchInlineSnapshot(`
            [
              1,
              2,
              3,
+             4,
+             5,
+             6,
            ]
          `);
       });
@@ -65,7 +69,7 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
             },
          });
 
-         expect(results).toHaveLength(3);
+         expect(results).toHaveLength(6);
          for (const row of results) {
             expect(typeof row.rnk).toBe("number");
             expect(row.rnk as number).toBeGreaterThanOrEqual(1);
@@ -85,7 +89,7 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
             },
          });
 
-         expect(results).toHaveLength(3);
+         expect(results).toHaveLength(6);
          for (const row of results) {
             expect(typeof row.denseRnk).toBe("number");
             expect(row.denseRnk as number).toBeGreaterThanOrEqual(1);
@@ -127,9 +131,9 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
             },
          });
 
-         expect(results).toHaveLength(3);
+         expect(results).toHaveLength(6);
          const counts = results.map((r) => r.runningCount as number).sort((a, b) => a - b);
-         // Running count should be monotonically increasing: 1, 2, 3
+         // Running count should be monotonically increasing: 1..6
          for (let i = 1; i < counts.length; i++) {
             expect(counts[i]).toBeGreaterThanOrEqual(counts[i - 1]!);
          }
@@ -138,6 +142,9 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
              1,
              2,
              3,
+             4,
+             5,
+             6,
            ]
          `);
       });
@@ -156,13 +163,14 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
             },
          });
 
-         expect(results).toHaveLength(3);
+         expect(results).toHaveLength(6);
          // First row should have null lag
          const prevEmails = results.map((r) => r.prevEmail);
          expect(prevEmails[0]).toBeNull();
          // Subsequent lag values should be the previous row's email
-         expect(prevEmails[1]).toBe(results[0]!.email);
-         expect(prevEmails[2]).toBe(results[1]!.email);
+         for (let i = 1; i < results.length; i++) {
+            expect(prevEmails[i]).toBe(results[i - 1]!.email);
+         }
       });
 
       test("lead() with offset", async () => {
@@ -179,13 +187,14 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
             },
          });
 
-         expect(results).toHaveLength(3);
+         expect(results).toHaveLength(6);
          // Last row should have null lead
          const nextEmails = results.map((r) => r.nextEmail);
-         expect(nextEmails[2]).toBeNull();
+         expect(nextEmails[results.length - 1]).toBeNull();
          // Previous lead values should be the next row's email
-         expect(nextEmails[0]).toBe(results[1]!.email);
-         expect(nextEmails[1]).toBe(results[2]!.email);
+         for (let i = 0; i < results.length - 1; i++) {
+            expect(nextEmails[i]).toBe(results[i + 1]!.email);
+         }
       });
 
       test("ntile() with args", async () => {
@@ -201,7 +210,7 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
             },
          });
 
-         expect(results).toHaveLength(3);
+         expect(results).toHaveLength(6);
          for (const row of results) {
             expect(typeof row.bucket).toBe("number");
             // ntile(2) produces values 1 or 2
@@ -224,7 +233,7 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
             },
          });
 
-         expect(results).toHaveLength(3);
+         expect(results).toHaveLength(6);
          // All rows should have the same first_value (the first email alphabetically)
          const firstValues = results.map((r) => r.firstEmail);
          expect(new Set(firstValues).size).toBe(1);
@@ -254,7 +263,7 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
             },
          });
 
-         expect(results).toHaveLength(3);
+         expect(results).toHaveLength(6);
          // With full frame, all rows see the same last_value
          const lastValues = results.map((r) => r.lastEmail);
          expect(new Set(lastValues).size).toBe(1);
@@ -282,7 +291,7 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
          });
 
          // All test accounts are created with status 'CREATED'
-         expect(results).toHaveLength(3);
+         expect(results).toHaveLength(6);
          for (const row of results) {
             expect(row.status).toBe("CREATED");
             expect(typeof (row as Record<string, unknown>)["rowNum"]).toBe("number");
@@ -308,7 +317,7 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
             } as never,
          });
 
-         expect(results).toHaveLength(3);
+         expect(results).toHaveLength(6);
          // Should have projected columns + window column
          for (const row of results) {
             const record = row as Record<string, unknown>;
@@ -333,7 +342,7 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
             },
          });
 
-         expect(results).toHaveLength(3);
+         expect(results).toHaveLength(6);
          for (const row of results) {
             expect(typeof row.rowNum).toBe("number");
             expect(typeof row.rnk).toBe("number");
@@ -367,7 +376,7 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
             },
          });
 
-         expect(results).toHaveLength(3);
+         expect(results).toHaveLength(6);
          for (const row of results) {
             expect(typeof row.movingCount).toBe("number");
             // ROWS BETWEEN 1 PRECEDING AND CURRENT ROW → max 2 rows in window
@@ -398,7 +407,7 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
             },
          });
 
-         expect(results).toHaveLength(3);
+         expect(results).toHaveLength(6);
          const counts = results.map((r) => r.rangeCount as number).sort((a, b) => a - b);
          // RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW → monotonically non-decreasing
          for (let i = 1; i < counts.length; i++) {
