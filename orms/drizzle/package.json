@@ -1,6 +1,6 @@
 {
   "name": "@vexnor/drizzle",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0-beta.3",
   "description": "Drizzle ORM adaptor for vexnor — convert drizzle tables to vexnor runtime tables",
   "type": "module",
   "exports": {

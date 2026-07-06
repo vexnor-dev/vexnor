@@ -1,6 +1,6 @@
 {
    "name": "@vexnor/test-sqlite3",
-   "version": "1.0.0-beta.1",
+   "version": "1.0.0-beta.3",
    "description": "Integration tests for vexnor",
    "type": "module",
    "author": "Adrian Topala",
