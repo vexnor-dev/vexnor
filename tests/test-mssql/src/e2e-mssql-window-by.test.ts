@@ -13,13 +13,15 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
       ACCOUNT_ORDER_FACTOR: 2,
    });
 
-   const tagParam = param<{ tag: string }>("tag");
    const accountIdsParam = param<{ accountIds: string[] }>("accountIds");
+
+   let allAccountIds: string[] = [];
 
    beforeAll(async () => {
       await dataManager.initRootAccounts(pool);
       await dataManager.initChildAccounts(pool);
       await dataManager.initOrders(pool);
+      allAccountIds = [...dataManager.rootAccounts, ...dataManager.childAccounts].map((a) => a.accountId);
    });
 
    // --- Basic window functions execution ---
@@ -27,11 +29,11 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
    describe("basic window functions", () => {
       test("row_number() with orderBy", async () => {
          const results = await Account.mssql.select({
-            WHERE: sql`${Account.$email} like ${tagParam}`,
+            WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
          }).all({
             db: pool.request(),
             params: {
-               tag: `%${dataManager.TAG}%`,
+               accountIds: allAccountIds,
                windowBy: {
                   rowNum: { fn: "row_number", over: { orderBy: { createdAt: "ASC" } } },
                },
@@ -58,11 +60,11 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
 
       test("rank() with partitionBy + orderBy", async () => {
          const results = await Account.mssql.select({
-            WHERE: sql`${Account.$email} like ${tagParam}`,
+            WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
          }).all({
             db: pool.request(),
             params: {
-               tag: `%${dataManager.TAG}%`,
+               accountIds: allAccountIds,
                windowBy: {
                   rnk: { fn: "rank", over: { partitionBy: ["status"], orderBy: { createdAt: "ASC" } } },
                },
@@ -78,11 +80,11 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
 
       test("dense_rank() with orderBy", async () => {
          const results = await Account.mssql.select({
-            WHERE: sql`${Account.$email} like ${tagParam}`,
+            WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
          }).all({
             db: pool.request(),
             params: {
-               tag: `%${dataManager.TAG}%`,
+               accountIds: allAccountIds,
                windowBy: {
                   denseRnk: { fn: "dense_rank", over: { orderBy: { email: "ASC" } } },
                },
@@ -120,11 +122,11 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
 
       test("count(*) OVER — running count", async () => {
          const results = await Account.mssql.select({
-            WHERE: sql`${Account.$email} like ${tagParam}`,
+            WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
          }).all({
             db: pool.request(),
             params: {
-               tag: `%${dataManager.TAG}%`,
+               accountIds: allAccountIds,
                windowBy: {
                   runningCount: { fn: "count", col: "*", over: { orderBy: { createdAt: "ASC" } } },
                },
@@ -151,12 +153,12 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
 
       test("lag() with offset", async () => {
          const results = await Account.mssql.select({
-            WHERE: sql`${Account.$email} like ${tagParam}`,
+            WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
             ORDER_BY: sql`${Account.$email} asc`,
          }).all({
             db: pool.request(),
             params: {
-               tag: `%${dataManager.TAG}%`,
+               accountIds: allAccountIds,
                windowBy: {
                   prevEmail: { fn: "lag", col: "email", args: 1, over: { orderBy: { email: "ASC" } } },
                },
@@ -175,12 +177,12 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
 
       test("lead() with offset", async () => {
          const results = await Account.mssql.select({
-            WHERE: sql`${Account.$email} like ${tagParam}`,
+            WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
             ORDER_BY: sql`${Account.$email} asc`,
          }).all({
             db: pool.request(),
             params: {
-               tag: `%${dataManager.TAG}%`,
+               accountIds: allAccountIds,
                windowBy: {
                   nextEmail: { fn: "lead", col: "email", args: 1, over: { orderBy: { email: "ASC" } } },
                },
@@ -199,11 +201,11 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
 
       test("ntile() with args", async () => {
          const results = await Account.mssql.select({
-            WHERE: sql`${Account.$email} like ${tagParam}`,
+            WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
          }).all({
             db: pool.request(),
             params: {
-               tag: `%${dataManager.TAG}%`,
+               accountIds: allAccountIds,
                windowBy: {
                   bucket: { fn: "ntile", args: 2, over: { orderBy: { createdAt: "ASC" } } },
                },
@@ -221,12 +223,12 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
 
       test("first_value() with col", async () => {
          const results = await Account.mssql.select({
-            WHERE: sql`${Account.$email} like ${tagParam}`,
+            WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
             ORDER_BY: sql`${Account.$email} asc`,
          }).all({
             db: pool.request(),
             params: {
-               tag: `%${dataManager.TAG}%`,
+               accountIds: allAccountIds,
                windowBy: {
                   firstEmail: { fn: "first_value", col: "email", over: { orderBy: { email: "ASC" } } },
                },
@@ -242,12 +244,12 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
 
       test("last_value() with col and frame", async () => {
          const results = await Account.mssql.select({
-            WHERE: sql`${Account.$email} like ${tagParam}`,
+            WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
             ORDER_BY: sql`${Account.$email} asc`,
          }).all({
             db: pool.request(),
             params: {
-               tag: `%${dataManager.TAG}%`,
+               accountIds: allAccountIds,
                windowBy: {
                   lastEmail: {
                      fn: "last_value",
@@ -276,13 +278,13 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
    describe("combined with other params", () => {
       test("windowBy + filterBy together", async () => {
          const query = Account.mssql.select({
-            WHERE: sql`${Account.$email} like ${tagParam}`,
+            WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
          });
 
          const results = await query.all({
             db: pool.request(),
             params: {
-               tag: `%${dataManager.TAG}%`,
+               accountIds: allAccountIds,
                filterBy: [{ status: ["=", "CREATED"] }],
                windowBy: {
                   rowNum: { fn: "row_number", over: { orderBy: { createdAt: "ASC" } } },
@@ -300,13 +302,13 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
 
       test("windowBy + select (projection with windows)", async () => {
          const query = Account.mssql.select({
-            WHERE: sql`${Account.$email} like ${tagParam}`,
+            WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
          });
 
          const results = await query.all({
             db: pool.request(),
             params: {
-               tag: `%${dataManager.TAG}%`,
+               accountIds: allAccountIds,
                select: {
                   email: true,
                   status: true,
@@ -329,11 +331,11 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
 
       test("windowBy with multiple window functions", async () => {
          const results = await Account.mssql.select({
-            WHERE: sql`${Account.$email} like ${tagParam}`,
+            WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
          }).all({
             db: pool.request(),
             params: {
-               tag: `%${dataManager.TAG}%`,
+               accountIds: allAccountIds,
                windowBy: {
                   rowNum: { fn: "row_number", over: { orderBy: { createdAt: "ASC" } } },
                   rnk: { fn: "rank", over: { orderBy: { createdAt: "ASC" } } },
@@ -356,11 +358,11 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
    describe("frame clauses", () => {
       test("ROWS BETWEEN N PRECEDING AND CURRENT ROW", async () => {
          const results = await Account.mssql.select({
-            WHERE: sql`${Account.$email} like ${tagParam}`,
+            WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
          }).all({
             db: pool.request(),
             params: {
-               tag: `%${dataManager.TAG}%`,
+               accountIds: allAccountIds,
                windowBy: {
                   movingCount: {
                      fn: "count",
@@ -387,11 +389,11 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
 
       test("RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW (valid for MSSQL without numeric bounds)", async () => {
          const results = await Account.mssql.select({
-            WHERE: sql`${Account.$email} like ${tagParam}`,
+            WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
          }).all({
             db: pool.request(),
             params: {
-               tag: `%${dataManager.TAG}%`,
+               accountIds: allAccountIds,
                windowBy: {
                   rangeCount: {
                      fn: "count",
@@ -422,11 +424,11 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
       test("RANGE frame with numeric bound should THROW (MSSQL restriction)", async () => {
          await expect(
             Account.mssql.select({
-               WHERE: sql`${Account.$email} like ${tagParam}`,
+               WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
             }).all({
                db: pool.request(),
                params: {
-                  tag: `%${dataManager.TAG}%`,
+                  accountIds: allAccountIds,
                   windowBy: {
                      bad: {
                         fn: "sum",
@@ -451,11 +453,11 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
       test("invalid function name → throws", async () => {
          await expect(
             Account.mssql.select({
-               WHERE: sql`${Account.$email} like ${tagParam}`,
+               WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
             }).all({
                db: pool.request(),
                params: {
-                  tag: `%${dataManager.TAG}%`,
+                  accountIds: allAccountIds,
                   windowBy: {
                      bad: { fn: "invalid_fn" as never, over: { orderBy: { createdAt: "ASC" } } },
                   },
@@ -467,11 +469,11 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
       test("missing col for aggregate fn → throws", async () => {
          await expect(
             Account.mssql.select({
-               WHERE: sql`${Account.$email} like ${tagParam}`,
+               WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
             }).all({
                db: pool.request(),
                params: {
-                  tag: `%${dataManager.TAG}%`,
+                  accountIds: allAccountIds,
                   windowBy: {
                      bad: { fn: "sum", over: { orderBy: { createdAt: "ASC" } } } as never,
                   },
@@ -483,11 +485,11 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
       test("col provided for ranking fn → throws", async () => {
          await expect(
             Account.mssql.select({
-               WHERE: sql`${Account.$email} like ${tagParam}`,
+               WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
             }).all({
                db: pool.request(),
                params: {
-                  tag: `%${dataManager.TAG}%`,
+                  accountIds: allAccountIds,
                   windowBy: {
                      bad: { fn: "row_number", col: "email", over: { orderBy: { createdAt: "ASC" } } } as never,
                   },
@@ -499,11 +501,11 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
       test("ntile without args → throws", async () => {
          await expect(
             Account.mssql.select({
-               WHERE: sql`${Account.$email} like ${tagParam}`,
+               WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
             }).all({
                db: pool.request(),
                params: {
-                  tag: `%${dataManager.TAG}%`,
+                  accountIds: allAccountIds,
                   windowBy: {
                      bad: { fn: "ntile", over: { orderBy: { createdAt: "ASC" } } } as never,
                   },
