@@ -1,12 +1,12 @@
 import { describe, expect, test } from "vitest";
 import { sqlSelect } from "#src/core/crud/sql-select.js";
 import { Account } from "@test-models/vexnor_dev.schema.js";
-import { SqlWindowBy, windowBy } from "#src/core/operators/sql-window-by.js";
+import { SqlWindowBy, windowBy, WindowBySelect } from "#src/core/operators/sql-window-by.js";
 import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
 
-function buildWithWindow(windowBy: unknown, dialect: "sqlite" | "postgresql" | "transactsql" = "sqlite") {
+function buildWithWindow(windowBy: WindowBySelect | null | undefined, dialect: "sqlite" | "postgresql" | "transactsql" = "sqlite") {
    const query = sqlSelect(Account, {});
-   return query.getSql({ params: { windowBy: windowBy as never }, options: { dialect } });
+   return query.getSql({ params: { windowBy }, options: { dialect } });
 }
 
 describe("SqlWindowBy — runtime window functions in SELECT list", () => {
