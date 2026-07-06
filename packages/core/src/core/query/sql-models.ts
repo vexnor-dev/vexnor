@@ -24,7 +24,7 @@ export type SqlOperatorToken =
    | { type: "projection"; param: string; columns: Record<string, string> }
    | { type: "pagination" }
    | { type: "havingBy"; param: string }
-   | { type: "windowBy"; param: string }
+   | { type: "windowBy"; param: string; columns: Record<string, string> }
    | { type: "upsert"; param: string; columns: Record<string, string>; conflictKeys: string[]; tableName: string };
 
 export type SqlParamFormat = (args: { name?: string; index: number }) => string;

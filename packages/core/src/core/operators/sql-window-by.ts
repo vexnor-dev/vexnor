@@ -124,7 +124,16 @@ export class SqlWindowBy<ParamName extends string = "windowBy"> extends Sql {
 
    write(context: SqlBuildContext): void {
       if (!context.params) {
-         context.addOperator({ type: "windowBy", param: this.paramName });
+         const columns: Record<string, string> = {};
+         for (const [key, col] of Object.entries(this.table.cols)) {
+            const column = col as SqlTableColumnAny;
+            const before = context.tokens.length;
+            column.build(context);
+            const added = context.tokens.slice(before).map((t) => (t as { value: string }).value ?? "").join("");
+            (context as unknown as { _tokens: unknown[] })._tokens.length = before;
+            columns[key.slice(1)] = added;
+         }
+         context.addOperator({ type: "windowBy", param: this.paramName, columns });
          return;
       }
 

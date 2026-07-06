@@ -1028,6 +1028,17 @@ describe("SqlWindowBy — runtime window functions in SELECT list", () => {
          expect(opToken).toMatchInlineSnapshot(`
            {
              "operator": {
+               "columns": {
+                 "accountId": ""a_1"."account_id"",
+                 "createdAt": ""a_1"."created_at"",
+                 "email": ""a_1"."email"",
+                 "firstName": ""a_1"."first_name"",
+                 "lastName": ""a_1"."last_name"",
+                 "modifiedAt": ""a_1"."modified_at"",
+                 "notes": ""a_1"."notes"",
+                 "parentId": ""a_1"."parent_id"",
+                 "status": ""a_1"."status"",
+               },
                "param": "windowBy",
                "type": "windowBy",
              },
