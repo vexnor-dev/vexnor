@@ -15,6 +15,8 @@
       "serialize": "run-p 'serialize:*'",
       "predev": "run-s 'serialize'",
       "dev": "vite",
+      "dev:go": "run-p 'dev:go:backend' 'dev'",
+      "dev:go:backend": "VEXNOR_MANIFEST_DIR=../../examples/react-vite-ui/manifests GO_EXAMPLE_PORT=5050 SQLITE_PATH=../../@db-sqlite3/vexnor-dev.sqlite go run ../../stacks/golang/example",
       "build": "vite build",
       "build:tsc": "tsc --noEmit"
    },
