@@ -42,10 +42,10 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
 
          expect(results).toHaveLength(6);
          for (const row of results) {
-            expect(typeof row.rowNum).toBe("number");
+            expect(Number(row.rowNum)).not.toBeNaN();
          }
          // row_number produces sequential values 1..6
-         const rowNums = results.map((r) => r.rowNum as number).sort((a, b) => a - b);
+         const rowNums = results.map((r) => Number(r.rowNum)).sort((a, b) => a - b);
          expect(rowNums).toMatchInlineSnapshot(`
            [
              1,
@@ -73,8 +73,8 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
 
          expect(results).toHaveLength(6);
          for (const row of results) {
-            expect(typeof row.rnk).toBe("number");
-            expect(row.rnk as number).toBeGreaterThanOrEqual(1);
+            expect(Number(row.rnk)).not.toBeNaN();
+            expect(Number(row.rnk)).toBeGreaterThanOrEqual(1);
          }
       });
 
@@ -93,8 +93,8 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
 
          expect(results).toHaveLength(6);
          for (const row of results) {
-            expect(typeof row.denseRnk).toBe("number");
-            expect(row.denseRnk as number).toBeGreaterThanOrEqual(1);
+            expect(Number(row.denseRnk)).not.toBeNaN();
+            expect(Number(row.denseRnk)).toBeGreaterThanOrEqual(1);
          }
       });
 
@@ -113,7 +113,7 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
 
          // 3 accounts × 2 orders = 6 orders
          expect(results).toHaveLength(6);
-         const totals = results.map((r) => r.runningTotal as number).sort((a, b) => a - b);
+         const totals = results.map((r) => Number(r.runningTotal)).sort((a, b) => a - b);
          // Running count is monotonically increasing
          for (let i = 1; i < totals.length; i++) {
             expect(totals[i]).toBeGreaterThanOrEqual(totals[i - 1]!);
@@ -134,7 +134,7 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
          });
 
          expect(results).toHaveLength(6);
-         const counts = results.map((r) => r.runningCount as number).sort((a, b) => a - b);
+         const counts = results.map((r) => Number(r.runningCount)).sort((a, b) => a - b);
          // Running count should be monotonically increasing: 1..6
          for (let i = 1; i < counts.length; i++) {
             expect(counts[i]).toBeGreaterThanOrEqual(counts[i - 1]!);
@@ -147,8 +147,7 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
              4,
              5,
              6,
-           ]
-         `);
+           ]         `);
       });
 
       test("lag() with offset", async () => {
@@ -214,10 +213,10 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
 
          expect(results).toHaveLength(6);
          for (const row of results) {
-            expect(typeof row.bucket).toBe("number");
+            expect(Number(row.bucket)).not.toBeNaN();
             // ntile(2) produces values 1 or 2
-            expect(row.bucket as number).toBeGreaterThanOrEqual(1);
-            expect(row.bucket as number).toBeLessThanOrEqual(2);
+            expect(Number(row.bucket)).toBeGreaterThanOrEqual(1);
+            expect(Number(row.bucket)).toBeLessThanOrEqual(2);
          }
       });
 
@@ -296,7 +295,7 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
          expect(results).toHaveLength(6);
          for (const row of results) {
             expect(row.status).toBe("CREATED");
-            expect(typeof (row as Record<string, unknown>)["rowNum"]).toBe("number");
+            expect(Number((row as Record<string, unknown>)["rowNum"])).not.toBeNaN();
          }
       });
 
@@ -325,7 +324,7 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
             const record = row as Record<string, unknown>;
             expect(typeof record["email"]).toBe("string");
             expect(typeof record["status"]).toBe("string");
-            expect(typeof record["rowNum"]).toBe("number");
+            expect(Number(record["rowNum"])).not.toBeNaN();
          }
       });
 
@@ -346,9 +345,9 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
 
          expect(results).toHaveLength(6);
          for (const row of results) {
-            expect(typeof row.rowNum).toBe("number");
-            expect(typeof row.rnk).toBe("number");
-            expect(typeof row.runningCount).toBe("number");
+            expect(Number(row.rowNum)).not.toBeNaN();
+            expect(Number(row.rnk)).not.toBeNaN();
+            expect(Number(row.runningCount)).not.toBeNaN();
          }
       });
    });
@@ -380,10 +379,10 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
 
          expect(results).toHaveLength(6);
          for (const row of results) {
-            expect(typeof row.movingCount).toBe("number");
+            expect(Number(row.movingCount)).not.toBeNaN();
             // ROWS BETWEEN 1 PRECEDING AND CURRENT ROW → max 2 rows in window
-            expect(row.movingCount as number).toBeGreaterThanOrEqual(1);
-            expect(row.movingCount as number).toBeLessThanOrEqual(2);
+            expect(Number(row.movingCount)).toBeGreaterThanOrEqual(1);
+            expect(Number(row.movingCount)).toBeLessThanOrEqual(2);
          }
       });
 
@@ -410,7 +409,7 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
          });
 
          expect(results).toHaveLength(6);
-         const counts = results.map((r) => r.rangeCount as number).sort((a, b) => a - b);
+         const counts = results.map((r) => Number(r.rangeCount)).sort((a, b) => a - b);
          // RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW → monotonically non-decreasing
          for (let i = 1; i < counts.length; i++) {
             expect(counts[i]).toBeGreaterThanOrEqual(counts[i - 1]!);
