@@ -456,6 +456,168 @@ describe.sequential("windowBy — e2e sqlite3", () => {
       });
    });
 
+   describe("additional window functions", () => {
+      test("percent_rank() execution", async () => {
+         const accountIds = accounts.map((a) => a.accountId);
+         const results = await sqlite3Select(Account, {
+            WHERE: sql`${Account.$accountId} in (${accountIds})`,
+            limit: param<{ limit: number }>("limit"),
+         }).all({
+            db,
+            params: {
+               limit: 100,
+               windowBy: {
+                  pctRank: { fn: "percent_rank", over: { orderBy: { email: "ASC" } } },
+               },
+            },
+         });
+
+         expect(results).toHaveLength(3);
+         const pctRanks = results.map((r) => (r as Record<string, unknown>)["pctRank"] as number);
+         // percent_rank: first = 0, last = 1 for 3 distinct rows
+         for (const val of pctRanks) {
+            expect(val).toBeGreaterThanOrEqual(0);
+            expect(val).toBeLessThanOrEqual(1);
+         }
+         // Should be [0, 0.5, 1] for 3 rows with unique values
+         expect(pctRanks).toMatchInlineSnapshot(`
+           [
+             0,
+             0.5,
+             1,
+           ]
+         `);
+      });
+
+      test("cume_dist() execution", async () => {
+         const accountIds = accounts.map((a) => a.accountId);
+         const results = await sqlite3Select(Account, {
+            WHERE: sql`${Account.$accountId} in (${accountIds})`,
+            limit: param<{ limit: number }>("limit"),
+         }).all({
+            db,
+            params: {
+               limit: 100,
+               windowBy: {
+                  cumeDist: { fn: "cume_dist", over: { orderBy: { email: "ASC" } } },
+               },
+            },
+         });
+
+         expect(results).toHaveLength(3);
+         const cumeDists = results.map((r) => (r as Record<string, unknown>)["cumeDist"] as number);
+         // cume_dist: values between 0 (exclusive) and 1 (inclusive)
+         for (const val of cumeDists) {
+            expect(val).toBeGreaterThan(0);
+            expect(val).toBeLessThanOrEqual(1);
+         }
+      });
+
+      test("min() OVER — string min(email)", async () => {
+         const accountIds = accounts.map((a) => a.accountId);
+         const results = await sqlite3Select(Account, {
+            WHERE: sql`${Account.$accountId} in (${accountIds})`,
+            limit: param<{ limit: number }>("limit"),
+         }).all({
+            db,
+            params: {
+               limit: 100,
+               windowBy: {
+                  minEmail: { fn: "min", col: "email", over: { orderBy: { email: "ASC" } } },
+               },
+            },
+         });
+
+         expect(results).toHaveLength(3);
+         // With default frame (RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW),
+         // min(email) ordered ASC is always the first email
+         const sortedEmails = [...accounts].sort((a, b) => a.email.localeCompare(b.email));
+         for (const row of results) {
+            const minEmail = (row as Record<string, unknown>)["minEmail"];
+            expect(minEmail).toBe(sortedEmails[0]!.email);
+         }
+      });
+
+      test("max() OVER — string max(email)", async () => {
+         const accountIds = accounts.map((a) => a.accountId);
+         const results = await sqlite3Select(Account, {
+            WHERE: sql`${Account.$accountId} in (${accountIds})`,
+            limit: param<{ limit: number }>("limit"),
+         }).all({
+            db,
+            params: {
+               limit: 100,
+               windowBy: {
+                  maxEmail: {
+                     fn: "max",
+                     col: "email",
+                     over: {
+                        orderBy: { email: "ASC" },
+                        frame: "rows",
+                        start: "unbounded preceding",
+                        end: "unbounded following",
+                     },
+                  },
+               },
+            },
+         });
+
+         expect(results).toHaveLength(3);
+         // With full frame, max(email) should be the largest email for all rows
+         const sortedEmails = [...accounts].sort((a, b) => a.email.localeCompare(b.email));
+         for (const row of results) {
+            const maxEmail = (row as Record<string, unknown>)["maxEmail"];
+            expect(maxEmail).toBe(sortedEmails[2]!.email);
+         }
+      });
+
+      test("count(col) OVER — running count as aggregate", async () => {
+         const orderIds = orders.map((o) => o.orderId);
+         const results = await sqlite3Select(Order, {
+            WHERE: sql`${Order.$orderId} in (${orderIds})`,
+            limit: param<{ limit: number }>("limit"),
+         }).all({
+            db,
+            params: {
+               limit: 100,
+               windowBy: {
+                  runCount: { fn: "count", col: "orderId", over: { orderBy: { createdAt: "ASC" } } },
+               },
+            },
+         });
+
+         expect(results).toHaveLength(6);
+         const counts = results.map((r) => (r as Record<string, unknown>)["runCount"] as number);
+         // Running count should be monotonically non-decreasing
+         for (let i = 1; i < counts.length; i++) {
+            expect(counts[i]!).toBeGreaterThanOrEqual(counts[i - 1]!);
+         }
+         expect(counts[counts.length - 1]).toBe(6);
+      });
+   });
+
+   describe("query text snapshot", () => {
+      test("windowBy generates correct SQL", () => {
+         const query = sqlite3Select(Account, {
+            WHERE: sql`${Account.$accountId} = ${param<{ id: string }>("id")}`,
+            limit: param<{ limit: number }>("limit"),
+         });
+         const { text, values } = query.source.getSql({
+            params: {
+               id: "test-id",
+               limit: 10,
+               windowBy: {
+                  rowNum: { fn: "row_number", over: { orderBy: { email: "ASC" } } },
+                  runSum: { fn: "count", col: "*", over: { partitionBy: ["status"], orderBy: { email: "ASC" } } },
+               },
+            },
+            options: { dialect: "sqlite" },
+         });
+         expect(text).toMatchInlineSnapshot();
+         expect(values).toMatchInlineSnapshot();
+      });
+   });
+
    describe("validation errors", () => {
       test("invalid function name throws", async () => {
          const accountIds = accounts.map((a) => a.accountId);

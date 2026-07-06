@@ -1,5 +1,6 @@
 // noinspection SqlNoDataSourceInspection,SqlResolve
 import { beforeAll, describe, expect, test } from "vitest";
+import { param } from "@vexnor/core";
 import { sql } from "@vexnor/postgres";
 import "@vexnor/postgres";
 import { Account, Order } from "./codegen/vexnor_dev.schema.js";
@@ -368,6 +369,145 @@ describe.sequential("vexnor postgres window functions (windowBy)", async (ctx) =
          for (let i = 1; i < counts.length; i++) {
             expect(counts[i]).toBeGreaterThanOrEqual(counts[i - 1]!);
          }
+      });
+   });
+
+   describe("additional window functions", () => {
+      test("percent_rank() execution", async () => {
+         const results = await Account.postgres.select({
+            WHERE: sql`${Account.$email} like ${`%${dataManager.TAG}%`}`,
+         }).all({
+            db: pool,
+            params: {
+               windowBy: {
+                  pctRank: { fn: "percent_rank", over: { orderBy: { createdAt: "ASC" } } },
+               },
+            },
+         });
+
+         expect(results.length).toBeGreaterThanOrEqual(3);
+         for (const row of results) {
+            const val = Number(row.pctRank);
+            // percent_rank is between 0 and 1
+            expect(val).toBeGreaterThanOrEqual(0);
+            expect(val).toBeLessThanOrEqual(1);
+         }
+      });
+
+      test("cume_dist() execution", async () => {
+         const results = await Account.postgres.select({
+            WHERE: sql`${Account.$email} like ${`%${dataManager.TAG}%`}`,
+         }).all({
+            db: pool,
+            params: {
+               windowBy: {
+                  cumeDist: { fn: "cume_dist", over: { orderBy: { createdAt: "ASC" } } },
+               },
+            },
+         });
+
+         expect(results.length).toBeGreaterThanOrEqual(3);
+         for (const row of results) {
+            const val = Number(row.cumeDist);
+            // cume_dist is between 0 (exclusive) and 1 (inclusive)
+            expect(val).toBeGreaterThan(0);
+            expect(val).toBeLessThanOrEqual(1);
+         }
+      });
+
+      test("min() OVER — string min(email)", async () => {
+         const results = await Account.postgres.select({
+            WHERE: sql`${Account.$email} like ${`%${dataManager.TAG}%`}`,
+         }).all({
+            db: pool,
+            params: {
+               windowBy: {
+                  minEmail: { fn: "min", col: "email", over: { orderBy: { createdAt: "ASC" } } },
+               },
+            },
+         });
+
+         expect(results.length).toBeGreaterThanOrEqual(3);
+         // min(email) with default frame (RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)
+         // should always be a string
+         for (const row of results) {
+            expect(typeof row.minEmail).toBe("string");
+         }
+      });
+
+      test("max() OVER — string max(email)", async () => {
+         const results = await Account.postgres.select({
+            WHERE: sql`${Account.$email} like ${`%${dataManager.TAG}%`}`,
+         }).all({
+            db: pool,
+            params: {
+               windowBy: {
+                  maxEmail: { fn: "max", col: "email", over: { orderBy: { createdAt: "ASC" } } },
+               },
+            },
+         });
+
+         expect(results.length).toBeGreaterThanOrEqual(3);
+         for (const row of results) {
+            expect(typeof row.maxEmail).toBe("string");
+         }
+      });
+   });
+
+   describe("query text snapshot", () => {
+      test("windowBy generates correct SQL", () => {
+         const query = Account.postgres.select({
+            WHERE: sql`${Account.$accountId} = ${param<{ id: string }>("id")}`,
+         });
+         const { text, values } = query.source.getSql({
+            params: {
+               id: "test-id",
+               windowBy: {
+                  rowNum: { fn: "row_number", over: { orderBy: { createdAt: "ASC" } } },
+                  runSum: { fn: "count", col: "*", over: { partitionBy: ["status"], orderBy: { createdAt: "ASC" } } },
+               },
+            },
+            options: { dialect: "postgresql" },
+         });
+         expect(text).toMatchInlineSnapshot(`
+           "/* <query_0> */
+           /* driver: postgres */
+           SELECT
+             "a_1"."account_id" AS "accountId",
+             "a_1"."status",
+             "a_1"."email",
+             "a_1"."first_name" AS "firstName",
+             "a_1"."last_name" AS "lastName",
+             "a_1"."notes",
+             "a_1"."created_at" AS "createdAt",
+             "a_1"."modified_at" AS "modifiedAt",
+             "a_1"."parent_id" AS "parentId",
+             row_number() OVER (
+               ORDER BY
+                 "a_1"."created_at" ASC
+             ) AS "rowNum",
+             count(*) OVER (
+               PARTITION BY
+                 "a_1"."status"
+               ORDER BY
+                 "a_1"."created_at" ASC
+             ) AS "runSum"
+           FROM
+             "vexnor_dev"."account" AS "a_1"
+             /* <query_1> */
+           WHERE
+             /* <query_2> */ "a_1"."account_id" = $1 /* </query_2> */ /* </query_1> */
+             /* <query_3> */
+             /* </query_3> */
+             /* <query_4> */
+             /* </query_4> */
+             /* </query_0> */"
+         `);
+         expect(values).toMatchInlineSnapshot(`
+           [
+             "test-id",
+           ]
+         `);
       });
    });
 

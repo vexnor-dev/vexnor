@@ -404,6 +404,151 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
       });
    });
 
+   // --- Additional window functions ---
+
+   describe("additional window functions", () => {
+      test("percent_rank() execution", async () => {
+         const results = await Account.mssql.select({
+            WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
+         }).all({
+            db: pool.request(),
+            params: {
+               accountIds: allAccountIds,
+               windowBy: {
+                  pctRank: { fn: "percent_rank", over: { orderBy: { createdAt: "ASC" } } },
+               },
+            },
+         });
+
+         expect(results).toHaveLength(6);
+         for (const row of results) {
+            const val = Number(row.pctRank);
+            // percent_rank is between 0 and 1
+            expect(val).toBeGreaterThanOrEqual(0);
+            expect(val).toBeLessThanOrEqual(1);
+         }
+      });
+
+      test("cume_dist() execution", async () => {
+         const results = await Account.mssql.select({
+            WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
+         }).all({
+            db: pool.request(),
+            params: {
+               accountIds: allAccountIds,
+               windowBy: {
+                  cumeDist: { fn: "cume_dist", over: { orderBy: { createdAt: "ASC" } } },
+               },
+            },
+         });
+
+         expect(results).toHaveLength(6);
+         for (const row of results) {
+            const val = Number(row.cumeDist);
+            // cume_dist is between 0 (exclusive) and 1 (inclusive)
+            expect(val).toBeGreaterThan(0);
+            expect(val).toBeLessThanOrEqual(1);
+         }
+      });
+
+      test("min() OVER — string min(email)", async () => {
+         const results = await Account.mssql.select({
+            WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
+         }).all({
+            db: pool.request(),
+            params: {
+               accountIds: allAccountIds,
+               windowBy: {
+                  minEmail: { fn: "min", col: "email", over: { orderBy: { createdAt: "ASC" } } },
+               },
+            },
+         });
+
+         expect(results).toHaveLength(6);
+         for (const row of results) {
+            expect(typeof row.minEmail).toBe("string");
+         }
+      });
+
+      test("max() OVER — string max(email)", async () => {
+         const results = await Account.mssql.select({
+            WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
+         }).all({
+            db: pool.request(),
+            params: {
+               accountIds: allAccountIds,
+               windowBy: {
+                  maxEmail: { fn: "max", col: "email", over: { orderBy: { createdAt: "ASC" } } },
+               },
+            },
+         });
+
+         expect(results).toHaveLength(6);
+         for (const row of results) {
+            expect(typeof row.maxEmail).toBe("string");
+         }
+      });
+   });
+
+   // --- Query text snapshot ---
+
+   describe("query text snapshot", () => {
+      test("windowBy generates correct SQL", () => {
+         const query = Account.mssql.select({
+            WHERE: sql`${Account.$accountId} = ${param<{ id: string }>("id")}`,
+         });
+         const { text, values } = query.source.getSql({
+            params: {
+               id: "test-id",
+               windowBy: {
+                  rowNum: { fn: "row_number", over: { orderBy: { createdAt: "ASC" } } },
+                  runSum: { fn: "count", col: "*", over: { partitionBy: ["status"], orderBy: { createdAt: "ASC" } } },
+               },
+            },
+            options: { dialect: "transactsql" },
+         });
+         expect(text).toMatchInlineSnapshot(`
+           "/* <query_0> */
+           /* driver: transactsql */
+           SELECT
+             "a_1"."account_id" AS "accountId",
+             "a_1"."parent_id" AS "parentId",
+             "a_1"."status",
+             "a_1"."email",
+             "a_1"."first_name" AS "firstName",
+             "a_1"."last_name" AS "lastName",
+             "a_1"."notes",
+             "a_1"."created_at" AS "createdAt",
+             "a_1"."modified_at" AS "modifiedAt",
+             row_number() OVER (
+               ORDER BY
+                 "a_1"."created_at" ASC
+             ) AS "rowNum",
+             count(*) OVER (
+               PARTITION BY
+                 "a_1"."status"
+               ORDER BY
+                 "a_1"."created_at" ASC
+             ) AS "runSum"
+           FROM
+             "vexnor_dev"."account" AS "a_1"
+             /* <query_1> */
+           WHERE
+             /* <query_2> */ "a_1"."account_id" = @param_0 /* </query_2> */ /* </query_1> */
+             /* <query_3> */
+             /* </query_3> */
+             /* <query_4> */
+             /* </query_4> */
+             /* </query_0> */"
+         `);
+         expect(values).toMatchInlineSnapshot(`
+           [
+             "test-id",
+           ]
+         `);
+      });
+   });
+
    // --- MSSQL-specific validation ---
 
    describe("MSSQL-specific validation", () => {

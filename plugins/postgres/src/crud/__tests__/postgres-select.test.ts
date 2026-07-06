@@ -544,6 +544,209 @@ describe("postgresSelect()", () => {
       });
    });
 
+   describe("windowBy query building", () => {
+      test("windowBy — ranking function (row_number)", () => {
+         const query = postgresSelect(Account, {});
+         const { text } = query.source.getSql({ params: { windowBy: { rowNum: { fn: "row_number", over: { orderBy: { createdAt: "ASC" } } } } } as never, options: defaultQueryOptions });
+         expect(text).toMatchInlineSnapshot(`
+           "/* <query_0> */
+           /* driver: postgres */
+           SELECT
+             "a_1"."account_id" AS "accountId",
+             "a_1"."status",
+             "a_1"."email",
+             "a_1"."first_name" AS "firstName",
+             "a_1"."last_name" AS "lastName",
+             "a_1"."notes",
+             "a_1"."created_at" AS "createdAt",
+             "a_1"."modified_at" AS "modifiedAt",
+             "a_1"."parent_id" AS "parentId",
+             row_number() OVER (
+               ORDER BY
+                 "a_1"."created_at" ASC
+             ) AS "rowNum"
+           FROM
+             "main"."account" AS "a_1"
+             /* <query_1> */
+             /* </query_1> */
+             /* <query_2> */
+             /* </query_2> */
+             /* <query_3> */
+             /* </query_3> */
+             /* </query_0> */"
+         `);
+      });
+
+      test("windowBy — aggregate function (sum)", () => {
+         const query = postgresSelect(Account, {});
+         const { text } = query.source.getSql({ params: { windowBy: { total: { fn: "sum", col: "createdAt", over: { partitionBy: ["status"], orderBy: { createdAt: "ASC" } } } } } as never, options: defaultQueryOptions });
+         expect(text).toMatchInlineSnapshot(`
+           "/* <query_0> */
+           /* driver: postgres */
+           SELECT
+             "a_1"."account_id" AS "accountId",
+             "a_1"."status",
+             "a_1"."email",
+             "a_1"."first_name" AS "firstName",
+             "a_1"."last_name" AS "lastName",
+             "a_1"."notes",
+             "a_1"."created_at" AS "createdAt",
+             "a_1"."modified_at" AS "modifiedAt",
+             "a_1"."parent_id" AS "parentId",
+             sum("a_1"."created_at") OVER (
+               PARTITION BY
+                 "a_1"."status"
+               ORDER BY
+                 "a_1"."created_at" ASC
+             ) AS "total"
+           FROM
+             "main"."account" AS "a_1"
+             /* <query_1> */
+             /* </query_1> */
+             /* <query_2> */
+             /* </query_2> */
+             /* <query_3> */
+             /* </query_3> */
+             /* </query_0> */"
+         `);
+      });
+
+      test("windowBy — offset function (lag)", () => {
+         const query = postgresSelect(Account, {});
+         const { text } = query.source.getSql({ params: { windowBy: { prev: { fn: "lag", col: "email", args: 1, over: { orderBy: { email: "ASC" } } } } } as never, options: defaultQueryOptions });
+         expect(text).toMatchInlineSnapshot(`
+           "/* <query_0> */
+           /* driver: postgres */
+           SELECT
+             "a_1"."account_id" AS "accountId",
+             "a_1"."status",
+             "a_1"."email",
+             "a_1"."first_name" AS "firstName",
+             "a_1"."last_name" AS "lastName",
+             "a_1"."notes",
+             "a_1"."created_at" AS "createdAt",
+             "a_1"."modified_at" AS "modifiedAt",
+             "a_1"."parent_id" AS "parentId",
+             lag("a_1"."email", 1) OVER (
+               ORDER BY
+                 "a_1"."email" ASC
+             ) AS "prev"
+           FROM
+             "main"."account" AS "a_1"
+             /* <query_1> */
+             /* </query_1> */
+             /* <query_2> */
+             /* </query_2> */
+             /* <query_3> */
+             /* </query_3> */
+             /* </query_0> */"
+         `);
+      });
+
+      test("windowBy — bucket function (ntile)", () => {
+         const query = postgresSelect(Account, {});
+         const { text } = query.source.getSql({ params: { windowBy: { quartile: { fn: "ntile", args: 4, over: { orderBy: { createdAt: "ASC" } } } } } as never, options: defaultQueryOptions });
+         expect(text).toMatchInlineSnapshot(`
+           "/* <query_0> */
+           /* driver: postgres */
+           SELECT
+             "a_1"."account_id" AS "accountId",
+             "a_1"."status",
+             "a_1"."email",
+             "a_1"."first_name" AS "firstName",
+             "a_1"."last_name" AS "lastName",
+             "a_1"."notes",
+             "a_1"."created_at" AS "createdAt",
+             "a_1"."modified_at" AS "modifiedAt",
+             "a_1"."parent_id" AS "parentId",
+             ntile(4) OVER (
+               ORDER BY
+                 "a_1"."created_at" ASC
+             ) AS "quartile"
+           FROM
+             "main"."account" AS "a_1"
+             /* <query_1> */
+             /* </query_1> */
+             /* <query_2> */
+             /* </query_2> */
+             /* <query_3> */
+             /* </query_3> */
+             /* </query_0> */"
+         `);
+      });
+
+      test("windowBy — frame clause", () => {
+         const query = postgresSelect(Account, {});
+         const { text } = query.source.getSql({ params: { windowBy: { moving: { fn: "avg", col: "createdAt", over: { orderBy: { createdAt: "ASC" }, frame: "rows", start: 2, end: "current row" } } } } as never, options: defaultQueryOptions });
+         expect(text).toMatchInlineSnapshot(`
+           "/* <query_0> */
+           /* driver: postgres */
+           SELECT
+             "a_1"."account_id" AS "accountId",
+             "a_1"."status",
+             "a_1"."email",
+             "a_1"."first_name" AS "firstName",
+             "a_1"."last_name" AS "lastName",
+             "a_1"."notes",
+             "a_1"."created_at" AS "createdAt",
+             "a_1"."modified_at" AS "modifiedAt",
+             "a_1"."parent_id" AS "parentId",
+             avg("a_1"."created_at") OVER (
+               ORDER BY
+                 "a_1"."created_at" ASC ROWS BETWEEN 2 preceding
+                 AND current ROW
+             ) AS "moving"
+           FROM
+             "main"."account" AS "a_1"
+             /* <query_1> */
+             /* </query_1> */
+             /* <query_2> */
+             /* </query_2> */
+             /* <query_3> */
+             /* </query_3> */
+             /* </query_0> */"
+         `);
+      });
+
+      test("windowBy — multiple functions", () => {
+         const query = postgresSelect(Account, {});
+         const { text } = query.source.getSql({ params: { windowBy: { rowNum: { fn: "row_number", over: { orderBy: { createdAt: "ASC" } } }, total: { fn: "sum", col: "createdAt", over: { partitionBy: ["status"], orderBy: { createdAt: "ASC" } } } } } as never, options: defaultQueryOptions });
+         expect(text).toMatchInlineSnapshot(`
+           "/* <query_0> */
+           /* driver: postgres */
+           SELECT
+             "a_1"."account_id" AS "accountId",
+             "a_1"."status",
+             "a_1"."email",
+             "a_1"."first_name" AS "firstName",
+             "a_1"."last_name" AS "lastName",
+             "a_1"."notes",
+             "a_1"."created_at" AS "createdAt",
+             "a_1"."modified_at" AS "modifiedAt",
+             "a_1"."parent_id" AS "parentId",
+             row_number() OVER (
+               ORDER BY
+                 "a_1"."created_at" ASC
+             ) AS "rowNum",
+             sum("a_1"."created_at") OVER (
+               PARTITION BY
+                 "a_1"."status"
+               ORDER BY
+                 "a_1"."created_at" ASC
+             ) AS "total"
+           FROM
+             "main"."account" AS "a_1"
+             /* <query_1> */
+             /* </query_1> */
+             /* <query_2> */
+             /* </query_2> */
+             /* <query_3> */
+             /* </query_3> */
+             /* </query_0> */"
+         `);
+      });
+   });
+
    describe("param propagation through SqlSelectArgs clauses", () => {
       const emailParam = param<{ email: string }>("email");
       const dirParam = param<{ dir: string }>("dir");
