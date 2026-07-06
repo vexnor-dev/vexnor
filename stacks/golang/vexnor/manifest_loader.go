@@ -43,13 +43,29 @@ func LoadFile(path string) (*QueryManifest, error) {
 }
 
 // LoadDirectory loads all manifest JSON files matching pattern in the given
-// directory and merges their queries into a single QueryManifest. Files are
-// processed in sorted order for deterministic results.
+// directory (recursively) and merges their queries into a single QueryManifest.
+// Files are processed in sorted order for deterministic results.
 func LoadDirectory(dir, pattern string) (*QueryManifest, error) {
-	globPattern := filepath.Join(dir, pattern)
-	matches, err := filepath.Glob(globPattern)
+	var matches []string
+
+	err := filepath.WalkDir(dir, func(path string, d os.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() {
+			return nil
+		}
+		matched, matchErr := filepath.Match(pattern, d.Name())
+		if matchErr != nil {
+			return matchErr
+		}
+		if matched {
+			matches = append(matches, path)
+		}
+		return nil
+	})
 	if err != nil {
-		return nil, fmt.Errorf("glob manifest files %q: %w", globPattern, err)
+		return nil, fmt.Errorf("walk manifest directory %q: %w", dir, err)
 	}
 
 	if len(matches) == 0 {

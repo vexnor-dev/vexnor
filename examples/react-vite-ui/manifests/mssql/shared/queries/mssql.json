@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "generatorVersion": "1.0.0-beta.1",
+  "dialect": "transactsql",
+  "queries": {
+    "ea0efaaca6100e4fa59bf327cb1eb3a1d2e63f1cf851cc5ee11ced23e3fc3251": {
+      "name": "deleteAccount",
+      "location": "examples/react-vite-ui/shared/queries/mssql.ts:68:44",
+      "hash": "ea0efaaca6100e4fa59bf327cb1eb3a1d2e63f1cf851cc5ee11ced23e3fc3251",
+      "template": [
+        {
+          "type": "text",
+          "value": "\n      \n/* driver: transactsql */\n\n      delete\n      from \"vexnor_dev\".\"account\"\n      output \"deleted\".\"account_id\" as \"accountId\", \"deleted\".\"parent_id\" as \"parentId\", \"deleted\".\"status\", \"deleted\".\"email\", \"deleted\".\"first_name\" as \"firstName\", \"deleted\".\"last_name\" as \"lastName\", \"deleted\".\"notes\", \"deleted\".\"created_at\" as \"createdAt\", \"deleted\".\"modified_at\" as \"modifiedAt\"\n         where \"account\".\"account_id\" = "
+        },
+        {
+          "type": "param",
+          "name": "accountId"
+        },
+        {
+          "type": "text",
+          "value": "\n   "
+        }
+      ],
+      "params": {
+        "accountId": {
+          "name": "accountId",
+          "isContext": false
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "0af99e0611eaf8ed543f0b25e0b6bbc95ea789d10f7ff8cf46349d7eb9b107e2": {
+      "name": "insertAccount",
+      "location": "examples/react-vite-ui/shared/queries/mssql.ts:72:44",
+      "hash": "0af99e0611eaf8ed543f0b25e0b6bbc95ea789d10f7ff8cf46349d7eb9b107e2",
+      "template": [
+        {
+          "type": "text",
+          "value": "\n      \n/* driver: transactsql */\n\n      insert into \"vexnor_dev\".\"account\"\n      ("
+        },
+        {
+          "type": "insertCols",
+          "param": "rows",
+          "columns": {
+            "accountId": "\"account_id\"",
+            "parentId": "\"parent_id\"",
+            "status": "\"status\"",
+            "email": "\"email\"",
+            "firstName": "\"first_name\"",
+            "lastName": "\"last_name\"",
+            "notes": "\"notes\"",
+            "createdAt": "\"created_at\"",
+            "modifiedAt": "\"modified_at\""
+          }
+        },
+        {
+          "type": "text",
+          "value": ")\n      output \"inserted\".\"account_id\" as \"accountId\", \"inserted\".\"parent_id\" as \"parentId\", \"inserted\".\"status\", \"inserted\".\"email\", \"inserted\".\"first_name\" as \"firstName\", \"inserted\".\"last_name\" as \"lastName\", \"inserted\".\"notes\", \"inserted\".\"created_at\" as \"createdAt\", \"inserted\".\"modified_at\" as \"modifiedAt\"\n      values\n      "
+        },
+        {
+          "type": "insertValues",
+          "param": "rows",
+          "keys": [
+            "accountId",
+            "parentId",
+            "status",
+            "email",
+            "firstName",
+            "lastName",
+            "notes",
+            "createdAt",
+            "modifiedAt"
+          ]
+        },
+        {
+          "type": "text",
+          "value": "\n   "
+        }
+      ],
+      "params": {
+        "rows": {
+          "name": "rows",
+          "isContext": false
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "5f48b47a180e649ebefafafac34268a89b95577541ece46313a57f9c94a27513": {
+      "name": "selectAccounts",
+      "location": "examples/react-vite-ui/shared/queries/mssql.ts:33:45",
+      "hash": "5f48b47a180e649ebefafafac34268a89b95577541ece46313a57f9c94a27513",
+      "template": [
+        {
+          "type": "text",
+          "value": "\n      \n/* driver: transactsql */\n\n      \n      select \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"parent_id\" as \"parentId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", (select count(*) from \"vexnor_dev\".\"order\" as \"o_2\" where \"o_2\".\"account_id\" = \"a_1\".\"account_id\") as \"orderCount\"\n                ,  \"query_2_result\".\"query_2\" as \"lastOrder\"\n      from \"vexnor_dev\".\"account\" as \"a_1\" \n               outer apply (\n               select coalesce((select top 1 \"query_3\".* from (\n   select top 1 \"o_3\".\"order_id\" as \"orderId\", \"o_3\".\"status\", \"o_3\".\"created_at\" as \"createdAt\", \"o_3\".\"modified_at\" as \"modifiedAt\", \"o_3\".\"account_id\" as \"accountId\",\n          (select count(*) from \"vexnor_dev\".\"order_item\" as \"oi_4\" where \"oi_4\".\"order_id\" = \"o_3\".\"order_id\") as \"productCount\"\n   from \"vexnor_dev\".\"order\" as \"o_3\"\n   where \"o_3\".\"account_id\" = \"a_1\".\"account_id\"\n   order by \"o_3\".\"created_at\" desc\n) as \"query_3\" for json path, WITHOUT_ARRAY_WRAPPER, include_null_values), null)\n                  as \"query_2\") as \"query_2_result\"  \n         where "
+        },
+        {
+          "type": "filter",
+          "param": "filterBy",
+          "columns": {
+            "accountId": "\"a_1\".\"account_id\"",
+            "parentId": "\"a_1\".\"parent_id\"",
+            "status": "\"a_1\".\"status\"",
+            "email": "\"a_1\".\"email\"",
+            "firstName": "\"a_1\".\"first_name\"",
+            "lastName": "\"a_1\".\"last_name\"",
+            "notes": "\"a_1\".\"notes\"",
+            "createdAt": "\"a_1\".\"created_at\"",
+            "modifiedAt": "\"a_1\".\"modified_at\""
+          },
+          "suffix": " and"
+        },
+        {
+          "type": "text",
+          "value": " \n      "
+        },
+        {
+          "type": "param",
+          "name": "filter"
+        },
+        {
+          "type": "text",
+          "value": " is null\n      or \"a_1\".\"email\" like '%' + "
+        },
+        {
+          "type": "param",
+          "name": "filter"
+        },
+        {
+          "type": "text",
+          "value": " + '%'\n      or \"a_1\".\"first_name\" like '%' + "
+        },
+        {
+          "type": "param",
+          "name": "filter"
+        },
+        {
+          "type": "text",
+          "value": " + '%'\n      or \"a_1\".\"last_name\" like '%' + "
+        },
+        {
+          "type": "param",
+          "name": "filter"
+        },
+        {
+          "type": "text",
+          "value": " + '%'\n   \n         \n         "
+        },
+        {
+          "type": "text",
+          "value": "\n         order by \"a_1\".\"created_at\" desc\n         "
+        },
+        {
+          "type": "pagination"
+        },
+        {
+          "type": "text",
+          "value": "\n   "
+        }
+      ],
+      "params": {
+        "filterBy": {
+          "name": "filterBy",
+          "isContext": false
+        },
+        "filter": {
+          "name": "filter",
+          "isContext": false
+        },
+        "havingBy": {
+          "name": "havingBy",
+          "isContext": false
+        },
+        "offset": {
+          "name": "offset",
+          "isContext": false
+        },
+        "limit": {
+          "name": "limit",
+          "isContext": false
+        }
+      },
+      "row": {
+        "lastOrder": {
+          "type": "[object Object]"
+        }
+      },
+      "authorization": []
+    },
+    "33a75969d76c7faac586f43bd94e0dac8d2051e67e40816dc25530d2443b3fc0": {
+      "name": "selectAccountsForLogin",
+      "location": "examples/react-vite-ui/shared/queries/mssql.ts:49:53",
+      "hash": "33a75969d76c7faac586f43bd94e0dac8d2051e67e40816dc25530d2443b3fc0",
+      "template": [
+        {
+          "type": "text",
+          "value": "\n      \n/* driver: transactsql */\n\n      \n      select \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"parent_id\" as \"parentId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\"\n                ,  \"query_1_result\".\"query_1\" as \"orders\"\n      from \"vexnor_dev\".\"account\" as \"a_1\" \n               outer apply (\n               select coalesce((\n   select \"o_2\".\"order_id\" as \"orderId\", \"o_2\".\"status\", \"o_2\".\"created_at\" as \"createdAt\", \"o_2\".\"modified_at\" as \"modifiedAt\", \"o_2\".\"account_id\" as \"accountId\",\n          (select count(*) from \"vexnor_dev\".\"order_item\" as \"oi_3\" where \"oi_3\".\"order_id\" = \"o_2\".\"order_id\") as \"productCount\"\n   from \"vexnor_dev\".\"order\" as \"o_2\"\n   where \"o_2\".\"account_id\" = \"a_1\".\"account_id\"\n   order by \"o_2\".\"created_at\" desc\n for json path, include_null_values), '[]')\n                  as \"query_1\") as \"query_1_result\"  \n         where "
+        },
+        {
+          "type": "filter",
+          "param": "filterBy",
+          "columns": {
+            "accountId": "\"a_1\".\"account_id\"",
+            "parentId": "\"a_1\".\"parent_id\"",
+            "status": "\"a_1\".\"status\"",
+            "email": "\"a_1\".\"email\"",
+            "firstName": "\"a_1\".\"first_name\"",
+            "lastName": "\"a_1\".\"last_name\"",
+            "notes": "\"a_1\".\"notes\"",
+            "createdAt": "\"a_1\".\"created_at\"",
+            "modifiedAt": "\"a_1\".\"modified_at\""
+          },
+          "suffix": " and"
+        },
+        {
+          "type": "text",
+          "value": " \n      (select count(*) from \"vexnor_dev\".\"order\" as \"o_4\" where \"o_4\".\"account_id\" = \"a_1\".\"account_id\") > 0\n   \n         \n         "
+        },
+        {
+          "type": "text",
+          "value": "\n         order by \"a_1\".\"created_at\" desc\n         "
+        },
+        {
+          "type": "pagination"
+        },
+        {
+          "type": "text",
+          "value": "\n   "
+        }
+      ],
+      "params": {
+        "filterBy": {
+          "name": "filterBy",
+          "isContext": false
+        },
+        "havingBy": {
+          "name": "havingBy",
+          "isContext": false
+        },
+        "offset": {
+          "name": "offset",
+          "isContext": false
+        },
+        "limit": {
+          "name": "limit",
+          "isContext": false
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        },
+        "orders": {
+          "type": "[object Object]"
+        }
+      },
+      "authorization": []
+    },
+    "5240c0c3aeda5da1b566cca2dd45663048b02c27d7a1ad7adc6a10b2cc4469e6": {
+      "name": "selectMyOrders",
+      "location": "examples/react-vite-ui/shared/queries/mssql.ts:62:43",
+      "hash": "5240c0c3aeda5da1b566cca2dd45663048b02c27d7a1ad7adc6a10b2cc4469e6",
+      "template": [
+        {
+          "type": "text",
+          "value": "\n      \n/* driver: transactsql */\n\n      \n      select \"o_1\".\"order_id\" as \"orderId\", \"o_1\".\"status\", \"o_1\".\"created_at\" as \"createdAt\", \"o_1\".\"modified_at\" as \"modifiedAt\", \"o_1\".\"account_id\" as \"accountId\"\n                ,  \"query_1_result\".\"query_1\" as \"items\"\n      from \"vexnor_dev\".\"order\" as \"o_1\" \n               outer apply (\n               select coalesce((\n   select \"oi_2\".\"order_id\" as \"orderId\", \"oi_2\".\"product_id\" as \"productId\", \"oi_2\".\"created_at\" as \"createdAt\", \"oi_2\".\"modified_at\" as \"modifiedAt\", \"oi_2\".\"product_price\" as \"productPrice\", \"oi_2\".\"discount_price\" as \"discountPrice\", \"oi_2\".\"quantity\", \"oi_2\".\"metadata\"\n   from \"vexnor_dev\".\"order_item\" as \"oi_2\"\n   where \"oi_2\".\"order_id\" = \"o_1\".\"order_id\"\n for json path, include_null_values), '[]')\n                  as \"query_1\") as \"query_1_result\"  \n         where "
+        },
+        {
+          "type": "filter",
+          "param": "filterBy",
+          "columns": {
+            "orderId": "\"o_1\".\"order_id\"",
+            "status": "\"o_1\".\"status\"",
+            "createdAt": "\"o_1\".\"created_at\"",
+            "modifiedAt": "\"o_1\".\"modified_at\"",
+            "accountId": "\"o_1\".\"account_id\""
+          },
+          "suffix": " and"
+        },
+        {
+          "type": "text",
+          "value": " \"o_1\".\"account_id\" = "
+        },
+        {
+          "type": "param",
+          "name": "userId"
+        },
+        {
+          "type": "text",
+          "value": "\n         \n         "
+        },
+        {
+          "type": "text",
+          "value": "\n         order by \"o_1\".\"created_at\" desc\n         "
+        },
+        {
+          "type": "pagination"
+        },
+        {
+          "type": "text",
+          "value": "\n   "
+        }
+      ],
+      "params": {
+        "filterBy": {
+          "name": "filterBy",
+          "isContext": false
+        },
+        "userId": {
+          "name": "userId",
+          "isContext": true
+        },
+        "havingBy": {
+          "name": "havingBy",
+          "isContext": false
+        },
+        "offset": {
+          "name": "offset",
+          "isContext": false
+        },
+        "limit": {
+          "name": "limit",
+          "isContext": false
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        },
+        "items": {
+          "type": "[object Object]"
+        }
+      },
+      "authorization": []
+    }
+  }
+}

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -9,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -150,6 +152,9 @@ func main() {
 			Params  map[string]any `json:"params"`
 			Context map[string]any `json:"context"`
 			Backend string         `json:"backend"`
+			Plugin  string         `json:"plugin"`
+			Name    string         `json:"name"`
+			Mode    string         `json:"mode"`
 		}
 
 		if err := json.NewDecoder(req.Body).Decode(&body); err != nil {
@@ -157,8 +162,13 @@ func main() {
 			return
 		}
 
-		if body.Backend == "" {
-			body.Backend = "postgres"
+		// Resolve backend from plugin name or explicit backend field
+		backend := body.Backend
+		if backend == "" && body.Plugin != "" {
+			backend = pluginToBackend(body.Plugin)
+		}
+		if backend == "" {
+			backend = "postgres"
 		}
 		if body.Params == nil {
 			body.Params = make(map[string]any)
@@ -167,15 +177,22 @@ func main() {
 			body.Context = make(map[string]any)
 		}
 
-		registry, ok := registries[body.Backend]
+		// Decode userId from Authorization header (JWT) and inject into context
+		authHeader := req.Header.Get("Authorization")
+		token := strings.TrimPrefix(authHeader, "Bearer ")
+		if userId := decodeUserId(token); userId != "" {
+			body.Context["userId"] = userId
+		}
+
+		registry, ok := registries[backend]
 		if !ok {
-			writeJSON(w, http.StatusBadRequest, map[string]string{"error": fmt.Sprintf("Unknown backend: %s", body.Backend)})
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": fmt.Sprintf("Unknown backend: %s", backend)})
 			return
 		}
 
-		executor, ok := executors[body.Backend]
+		executor, ok := executors[backend]
 		if !ok {
-			writeJSON(w, http.StatusBadRequest, map[string]string{"error": fmt.Sprintf("No executor configured for: %s", body.Backend)})
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": fmt.Sprintf("No executor configured for: %s", backend)})
 			return
 		}
 
@@ -196,7 +213,7 @@ func main() {
 			return
 		}
 
-		writeJSON(w, http.StatusOK, map[string]any{"rows": result})
+		writeJSON(w, http.StatusOK, result)
 	})
 
 	// ─── Start server ────────────────────────────────────────────────────────────
@@ -234,6 +251,56 @@ func requestLogger(next http.Handler) http.Handler {
 		next.ServeHTTP(ww, r)
 		log.Printf("%s %s %d %s", r.Method, r.URL.Path, ww.Status(), time.Since(start).Round(time.Millisecond))
 	})
+}
+
+// pluginToBackend maps @vexnor/plugin names to backend names.
+func pluginToBackend(plugin string) string {
+	switch plugin {
+	case "@vexnor/postgres":
+		return "postgres"
+	case "@vexnor/mssql":
+		return "mssql"
+	case "@vexnor/sqlite3":
+		return "sqlite3"
+	default:
+		return ""
+	}
+}
+
+// decodeUserId extracts the "sub" claim from a JWT token without verification.
+// This matches the Node.js/Hono backend behavior — the token is trusted (demo app).
+func decodeUserId(token string) string {
+	if token == "" {
+		return ""
+	}
+	parts := strings.Split(token, ".")
+	if len(parts) < 2 {
+		return ""
+	}
+	// Decode the payload (second part), handle both padded and unpadded base64
+	payload := parts[1]
+	// Add padding if needed
+	switch len(payload) % 4 {
+	case 2:
+		payload += "=="
+	case 3:
+		payload += "="
+	}
+	decoded, err := base64.URLEncoding.DecodeString(payload)
+	if err != nil {
+		// Try standard encoding
+		decoded, err = base64.StdEncoding.DecodeString(payload)
+		if err != nil {
+			return ""
+		}
+	}
+	var claims struct {
+		Sub string `json:"sub"`
+	}
+	if err := json.Unmarshal(decoded, &claims); err != nil {
+		return ""
+	}
+	return claims.Sub
 }
 
 // envOr returns the value of the environment variable key, or fallback if unset/empty.

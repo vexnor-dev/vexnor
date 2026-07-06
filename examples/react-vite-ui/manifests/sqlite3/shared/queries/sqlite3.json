@@ -1,16 +1,16 @@
 {
   "version": 1,
   "generatorVersion": "1.0.0-beta.1",
-  "dialect": "postgresql",
+  "dialect": "sqlite",
   "queries": {
-    "1423ce4b4b52e5284473a1f29016c5943d4e649c7486a063cb4cf1edc4231153": {
+    "ccf7d1c93c2b36d0d5b9ce342feb4c151fa69d38bba97a6d74a78bfbb9b77403": {
       "name": "deleteAccount",
-      "location": "examples/react-vite-ui/shared/queries/postgres.ts:60:47",
-      "hash": "1423ce4b4b52e5284473a1f29016c5943d4e649c7486a063cb4cf1edc4231153",
+      "location": "examples/react-vite-ui/shared/queries/sqlite3.ts:71:45",
+      "hash": "ccf7d1c93c2b36d0d5b9ce342feb4c151fa69d38bba97a6d74a78bfbb9b77403",
       "template": [
         {
           "type": "text",
-          "value": "\n      \n/* driver: postgres */\n\n      delete from \"vexnor_dev\".\"account\"\n      where \"account\".\"account_id\" = "
+          "value": "\n      \n/* driver: sqlite */\n\n      delete from \"main\".\"account\"\n      where \"account\".\"account_id\" = "
         },
         {
           "type": "param",
@@ -27,24 +27,17 @@
           "isContext": false
         }
       },
-      "row": {
-        "createdAt": {
-          "type": "Date"
-        },
-        "modifiedAt": {
-          "type": "Date"
-        }
-      },
+      "row": null,
       "authorization": []
     },
-    "299dddf0ee59d5d67ff108c6c07405c174d86e1ca522f432ea249edc86f153b4": {
+    "4e3eb8234757a575b6fe4b208c2cede4b0000ffe32dc61c86cabd45f47d24ec6": {
       "name": "insertAccount",
-      "location": "examples/react-vite-ui/shared/queries/postgres.ts:64:47",
-      "hash": "299dddf0ee59d5d67ff108c6c07405c174d86e1ca522f432ea249edc86f153b4",
+      "location": "examples/react-vite-ui/shared/queries/sqlite3.ts:75:45",
+      "hash": "4e3eb8234757a575b6fe4b208c2cede4b0000ffe32dc61c86cabd45f47d24ec6",
       "template": [
         {
           "type": "text",
-          "value": "\n      \n/* driver: postgres */\n\n      insert into \"vexnor_dev\".\"account\"\n         "
+          "value": "\n      \n/* driver: sqlite */\n\n      insert into \"main\".\"account\"\n         "
         },
         {
           "type": "insert",
@@ -72,24 +65,17 @@
           "isContext": false
         }
       },
-      "row": {
-        "createdAt": {
-          "type": "Date"
-        },
-        "modifiedAt": {
-          "type": "Date"
-        }
-      },
+      "row": null,
       "authorization": []
     },
-    "bab732ee4c1e07cf7c54bfaca1f5c5c1ffb314ba45ef46b571231954012350a3": {
+    "a367923a378275ea0c8062157159f713a42fd6241c8927113aad0a803ffb3ac9": {
       "name": "selectAccounts",
-      "location": "examples/react-vite-ui/shared/queries/postgres.ts:25:48",
-      "hash": "bab732ee4c1e07cf7c54bfaca1f5c5c1ffb314ba45ef46b571231954012350a3",
+      "location": "examples/react-vite-ui/shared/queries/sqlite3.ts:36:46",
+      "hash": "a367923a378275ea0c8062157159f713a42fd6241c8927113aad0a803ffb3ac9",
       "template": [
         {
           "type": "text",
-          "value": "\n      \n/* driver: postgres */\n\n      \n      select \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\", (select count(*) from \"vexnor_dev\".\"order\" as \"o_2\" where \"o_2\".\"account_id\" = \"a_1\".\"account_id\") as \"orderCount\"\n                ,  \"query_2_result\" as \"lastOrder\"\n      from \"vexnor_dev\".\"account\" as \"a_1\" \n                \n/* inline: true */\n\n               left join lateral (\n               select coalesce(to_jsonb(\"query_2\".*), null) as \"query_2_result\"\n               from (select \"query_3\".* from (\n   select \"o_3\".\"order_id\" as \"orderId\", \"o_3\".\"status\", \"o_3\".\"created_at\" as \"createdAt\", \"o_3\".\"modified_at\" as \"modifiedAt\", \"o_3\".\"account_id\" as \"accountId\",\n          (select count(*) from \"vexnor_dev\".\"order_item\" as \"oi_4\" where \"oi_4\".\"order_id\" = \"o_3\".\"order_id\") as \"productCount\"\n   from \"vexnor_dev\".\"order\" as \"o_3\"\n   where \"o_3\".\"account_id\" = \"a_1\".\"account_id\"\n   order by \"o_3\".\"created_at\" desc\n) as \"query_3\" limit 1) as \"query_2\") as \"query_2\"\n               on true\n              \n         where "
+          "value": "\n      \n/* driver: sqlite */\n\n      \n      select \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\", (select count(*) from \"main\".\"order\" as \"o_2\" where \"o_2\".\"account_id\" = \"a_1\".\"account_id\") as \"orderCount\"\n                ,  (select json_object('orderId', \"orderId\", 'status', \"status\", 'createdAt', \"createdAt\", 'productCount', \"productCount\") from (select \"query_4\".* from (\n   select \"o_3\".\"order_id\" as \"orderId\", \"o_3\".\"status\", \"o_3\".\"created_at\" as \"createdAt\",\n          (select count(*)\n           from \"main\".\"order_item\" as \"oi_4\"\n           where \"oi_4\".\"order_id\" = \"o_3\".\"order_id\") as \"productCount\"\n   from \"main\".\"order\" as \"o_3\"\n   where \"o_3\".\"account_id\" = \"a_1\".\"account_id\"\n   order by \"o_3\".\"created_at\" desc\n   limit 1\n) as \"query_4\" limit 1) as \"query_3\" limit 1) as \"lastOrder\"\n      from \"main\".\"account\" as \"a_1\"   \n         where "
         },
         {
           "type": "filter",
@@ -117,7 +103,7 @@
         },
         {
           "type": "text",
-          "value": "::text is null\n      or \"a_1\".\"email\" ilike '%' || "
+          "value": " is null\n      or \"a_1\".\"email\" like '%' || "
         },
         {
           "type": "param",
@@ -125,7 +111,7 @@
         },
         {
           "type": "text",
-          "value": " || '%'\n      or \"a_1\".\"first_name\" ilike '%' || "
+          "value": " || '%'\n      or \"a_1\".\"first_name\" like '%' || "
         },
         {
           "type": "param",
@@ -133,7 +119,7 @@
         },
         {
           "type": "text",
-          "value": " || '%'\n      or \"a_1\".\"last_name\" ilike '%' || "
+          "value": " || '%'\n      or \"a_1\".\"last_name\" like '%' || "
         },
         {
           "type": "param",
@@ -184,14 +170,14 @@
       },
       "authorization": []
     },
-    "24aa657ffa65048cc6d862c32b64c4983a3cde7cacea9999ffc76fbed17c90fc": {
+    "c5b27dc4fc19488b6e9d8d0fed35da09a8b66ee95720089d6e80eb574d1e33ae": {
       "name": "selectAccountsForLogin",
-      "location": "examples/react-vite-ui/shared/queries/postgres.ts:41:56",
-      "hash": "24aa657ffa65048cc6d862c32b64c4983a3cde7cacea9999ffc76fbed17c90fc",
+      "location": "examples/react-vite-ui/shared/queries/sqlite3.ts:52:54",
+      "hash": "c5b27dc4fc19488b6e9d8d0fed35da09a8b66ee95720089d6e80eb574d1e33ae",
       "template": [
         {
           "type": "text",
-          "value": "\n      \n/* driver: postgres */\n\n      \n      select \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\"\n                ,  \"query_1_result\" as \"orders\"\n      from \"vexnor_dev\".\"account\" as \"a_1\" \n                \n/* inline: true */\n\n               left join lateral (\n               select coalesce(jsonb_agg(\"query_1\".*), '[]') as \"query_1_result\"\n               from (\n   select \"o_2\".\"order_id\" as \"orderId\", \"o_2\".\"status\", \"o_2\".\"created_at\" as \"createdAt\", \"o_2\".\"modified_at\" as \"modifiedAt\", \"o_2\".\"account_id\" as \"accountId\",\n          (select count(*) from \"vexnor_dev\".\"order_item\" as \"oi_3\" where \"oi_3\".\"order_id\" = \"o_2\".\"order_id\") as \"productCount\"\n   from \"vexnor_dev\".\"order\" as \"o_2\"\n   where \"o_2\".\"account_id\" = \"a_1\".\"account_id\"\n   order by \"o_2\".\"created_at\" desc\n) as \"query_1\") as \"query_1\"\n               on true\n              \n         where "
+          "value": "\n      \n/* driver: sqlite */\n\n      \n      select \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\"\n                ,  (select coalesce(json_group_array(json_object('orderId', \"orderId\", 'status', \"status\", 'createdAt', \"createdAt\", 'modifiedAt', \"modifiedAt\", 'accountId', \"accountId\", 'productCount', \"productCount\")), '[]') from (\n   select \"o_2\".\"order_id\" as \"orderId\", \"o_2\".\"status\", \"o_2\".\"created_at\" as \"createdAt\", \"o_2\".\"modified_at\" as \"modifiedAt\", \"o_2\".\"account_id\" as \"accountId\",\n          (select count(*) from \"main\".\"order_item\" as \"oi_3\" where \"oi_3\".\"order_id\" = \"o_2\".\"order_id\") as \"productCount\"\n   from \"main\".\"order\" as \"o_2\"\n   where \"o_2\".\"account_id\" = \"a_1\".\"account_id\"\n   order by \"o_2\".\"created_at\" desc\n) as \"query_2\") as \"orders\"\n      from \"main\".\"account\" as \"a_1\"   \n         where "
         },
         {
           "type": "filter",
@@ -211,7 +197,7 @@
         },
         {
           "type": "text",
-          "value": " \n      (select count(*) from \"vexnor_dev\".\"order\" as \"o_4\" where \"o_4\".\"account_id\" = \"a_1\".\"account_id\") > 0\n   \n         \n         "
+          "value": " \n      (select count(*) from \"main\".\"order\" as \"o_4\" where \"o_4\".\"account_id\" = \"a_1\".\"account_id\") > 0\n   \n         \n         "
         },
         {
           "type": "text",
@@ -244,26 +230,20 @@
         }
       },
       "row": {
-        "createdAt": {
-          "type": "Date"
-        },
-        "modifiedAt": {
-          "type": "Date"
-        },
         "orders": {
           "type": "[object Object]"
         }
       },
       "authorization": []
     },
-    "986d7881d499e0e3c19243700ced836ef188f1144d0a39e3d991a53e2e1afdcd": {
+    "5303344dd06b503553b8cfbabf62a1d94692ff7ff3f449c3078a218b0164fbb1": {
       "name": "selectMyOrders",
-      "location": "examples/react-vite-ui/shared/queries/postgres.ts:54:46",
-      "hash": "986d7881d499e0e3c19243700ced836ef188f1144d0a39e3d991a53e2e1afdcd",
+      "location": "examples/react-vite-ui/shared/queries/sqlite3.ts:65:44",
+      "hash": "5303344dd06b503553b8cfbabf62a1d94692ff7ff3f449c3078a218b0164fbb1",
       "template": [
         {
           "type": "text",
-          "value": "\n      \n/* driver: postgres */\n\n      \n      select \"o_1\".\"order_id\" as \"orderId\", \"o_1\".\"status\", \"o_1\".\"created_at\" as \"createdAt\", \"o_1\".\"modified_at\" as \"modifiedAt\", \"o_1\".\"account_id\" as \"accountId\"\n                ,  \"query_1_result\" as \"items\"\n      from \"vexnor_dev\".\"order\" as \"o_1\" \n                \n/* inline: true */\n\n               left join lateral (\n               select coalesce(jsonb_agg(\"query_1\".*), '[]') as \"query_1_result\"\n               from (\n   select \"oi_2\".\"order_id\" as \"orderId\", \"oi_2\".\"product_id\" as \"productId\", \"oi_2\".\"created_at\" as \"createdAt\", \"oi_2\".\"modified_at\" as \"modifiedAt\", \"oi_2\".\"product_price\" as \"productPrice\", \"oi_2\".\"discount_price\" as \"discountPrice\", \"oi_2\".\"quantity\", \"oi_2\".\"metadata\"\n   from \"vexnor_dev\".\"order_item\" as \"oi_2\"\n   where \"oi_2\".\"order_id\" = \"o_1\".\"order_id\"\n) as \"query_1\") as \"query_1\"\n               on true\n              \n         where "
+          "value": "\n      \n/* driver: sqlite */\n\n      \n      select \"o_1\".\"order_id\" as \"orderId\", \"o_1\".\"status\", \"o_1\".\"created_at\" as \"createdAt\", \"o_1\".\"modified_at\" as \"modifiedAt\", \"o_1\".\"account_id\" as \"accountId\"\n                ,  (select coalesce(json_group_array(json_object('orderId', \"orderId\", 'productId', \"productId\", 'createdAt', \"createdAt\", 'modifiedAt', \"modifiedAt\", 'productPrice', \"productPrice\", 'discountPrice', \"discountPrice\", 'quantity', \"quantity\", 'metadata', \"metadata\")), '[]') from (\n   select \"oi_2\".\"order_id\" as \"orderId\", \"oi_2\".\"product_id\" as \"productId\", \"oi_2\".\"created_at\" as \"createdAt\", \"oi_2\".\"modified_at\" as \"modifiedAt\", \"oi_2\".\"product_price\" as \"productPrice\", \"oi_2\".\"discount_price\" as \"discountPrice\", \"oi_2\".\"quantity\", \"oi_2\".\"metadata\"\n   from \"main\".\"order_item\" as \"oi_2\"\n   where \"oi_2\".\"order_id\" = \"o_1\".\"order_id\"\n) as \"query_2\") as \"items\"\n      from \"main\".\"order\" as \"o_1\"   \n         where "
         },
         {
           "type": "filter",
@@ -324,12 +304,6 @@
         }
       },
       "row": {
-        "createdAt": {
-          "type": "Date"
-        },
-        "modifiedAt": {
-          "type": "Date"
-        },
         "items": {
           "type": "[object Object]"
         }

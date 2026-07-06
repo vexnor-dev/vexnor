@@ -61,6 +61,29 @@ const queries = {
    xInsertColsMulti: sql`INSERT INTO ${Account} (${insert.cols(Account)}) VALUES (${insert.values(Account)}) RETURNING ${row(Account.$$)}`,
    // Inline literal value (UDT enum — produces "value" node in serialized manifest)
    xValueLiteral: sql`SELECT ${row(Account.$$)} FROM ${Account} WHERE ${Account.$status} = ${AccountStatusUdt.CONFIRMED}`,
+
+   // ─── Filter operator coverage (writeOp paths) ─────────────────────────────
+   xFilterNot: sql`SELECT ${row(Account.$$)} FROM ${Account} WHERE ${filterBy(Account)}`,
+   xFilterNotEqual: sql`SELECT ${row(Account.$$)} FROM ${Account} WHERE ${filterBy(Account)}`,
+   xFilterGt: sql`SELECT ${row(Account.$$)} FROM ${Account} WHERE ${filterBy(Account)}`,
+   xFilterLt: sql`SELECT ${row(Account.$$)} FROM ${Account} WHERE ${filterBy(Account)}`,
+   xFilterLte: sql`SELECT ${row(Account.$$)} FROM ${Account} WHERE ${filterBy(Account)}`,
+   xFilterBetween: sql`SELECT ${row(Account.$$)} FROM ${Account} WHERE ${filterBy(Account)}`,
+   xFilterNotIn: sql`SELECT ${row(Account.$$)} FROM ${Account} WHERE ${filterBy(Account)}`,
+   xFilterLike: sql`SELECT ${row(Account.$$)} FROM ${Account} WHERE ${filterBy(Account)}`,
+   xFilterNotLike: sql`SELECT ${row(Account.$$)} FROM ${Account} WHERE ${filterBy(Account)}`,
+
+   // ─── Nested OR/AND coverage ───────────────────────────────────────────────
+   xFilterNestedOrAnd: sql`SELECT ${row(Account.$$)} FROM ${Account} WHERE ${filterBy(Account)}`,
+
+   // ─── Projection coverage (buildProjection paths) ──────────────────────────
+   // Projection fixtures are injected manually below (array-format params for Go/C#)
+
+   // ─── JoinBy cross join type ───────────────────────────────────────────────
+   xJoinByCross: sql`SELECT ${row(Order.$$)} FROM ${Order} ${new SqlJoinBy(Order, "joinBy", { account: "cross" }, { account: Account })}`,
+
+   // ─── Pagination offset-only ───────────────────────────────────────────────
+   xPaginationOffsetOnly: sql`SELECT ${row(Account.$$)} FROM ${Account} ${new SqlPagination()}`,
 };
 
 // ─── Test params per case ────────────────────────────────────────────────────
@@ -114,6 +137,36 @@ const testParams: Record<string, unknown> = {
    xInsertColsSingle: { rows: [{ email: "cols@test.com", firstName: "Cols", lastName: "Test" }] },
    xInsertColsMulti: { rows: [{ email: "a@test.com", firstName: "A", lastName: "AA" }, { email: "b@test.com", firstName: "B", lastName: "BB" }] },
    xValueLiteral: {},
+
+   // ─── Filter operator coverage ─────────────────────────────────────────────
+   xFilterNot: { filterBy: [{ status: ["not", "banned"] }] },
+   xFilterNotEqual: { filterBy: [{ status: ["!=", "banned"] }] },
+   xFilterGt: { filterBy: [{ createdAt: [">", "2024-06-01"] }] },
+   xFilterLt: { filterBy: [{ createdAt: ["<", "2024-12-31"] }] },
+   xFilterLte: { filterBy: [{ createdAt: ["<=", "2024-12-31"] }] },
+   xFilterBetween: { filterBy: [{ createdAt: ["between", "2024-01-01", "2024-12-31"] }] },
+   xFilterNotIn: { filterBy: [{ status: ["notIn", "banned", "deleted"] }] },
+   xFilterLike: { filterBy: [{ email: ["like", "%@example.com"] }] },
+   xFilterNotLike: { filterBy: [{ email: ["notLike", "%@spam.com"] }] },
+
+   // ─── Nested OR/AND ────────────────────────────────────────────────────────
+   xFilterNestedOrAnd: {
+      filterBy: [
+         { status: "active" },
+         { or: [
+            { email: ["like", "%@vip.com"] },
+            { firstName: ["!=", "Bot"] },
+            { parentId: ["isNotNull"] },
+         ] },
+         { email: ["notLike", "%@spam.com"] },
+      ],
+   },
+
+   // ─── JoinBy cross ─────────────────────────────────────────────────────────
+   xJoinByCross: { joinBy: { account: { on: [["_.accountId", "=", "account.accountId"]], type: "cross" } } },
+
+   // ─── Pagination offset-only ───────────────────────────────────────────────
+   xPaginationOffsetOnly: { filterBy: null, orderBy: null, offset: 100 },
 };
 
 // ─── Generate outputs ────────────────────────────────────────────────────────
@@ -148,6 +201,167 @@ for (const [name, query] of Object.entries(queries)) {
       manifest.queries[name] = mssqlManifest.queries[name]!;
    }
 }
+
+// ─── Manually inject array param fixture ─────────────────────────────────────
+// This tests buildParam with node.Array=true (param expanded to $1, $2, $3...)
+// The TypeScript serializer doesn't produce this from any built-in operator,
+// but Go/C# support it — so we inject it directly into the manifest.
+manifest.queries["xParamArray"] = {
+   name: "xParamArray",
+   hash: "xParamArray",
+   location: "generate-cross-runtime.ts",
+   template: [
+      { type: "text", value: "SELECT * FROM \"main\".\"account\" WHERE \"account\".\"account_id\" IN (" },
+      { type: "param", name: "ids", array: true },
+      { type: "text", value: ")" },
+   ] as any,
+   params: { ids: { name: "ids" } },
+   authorization: [],
+};
+results["xParamArray"] = {
+   hash: "xParamArray",
+   text: "SELECT * FROM \"main\".\"account\" WHERE \"account\".\"account_id\" IN ($1, $2, $3)",
+   values: ["id-1", "id-2", "id-3"],
+   params: { ids: ["id-1", "id-2", "id-3"] },
+   error: null,
+};
+
+// Inject MSSQL variant of array param
+manifest.queries["xParamArrayMssql"] = {
+   name: "xParamArrayMssql",
+   hash: "xParamArrayMssql",
+   location: "generate-cross-runtime.ts",
+   template: [
+      { type: "text", value: "SELECT * FROM \"main\".\"account\" WHERE \"account\".\"account_id\" IN (" },
+      { type: "param", name: "ids", array: true },
+      { type: "text", value: ")" },
+   ] as any,
+   params: { ids: { name: "ids" } },
+   authorization: [],
+   dialect: "transactsql",
+};
+results["xParamArrayMssql"] = {
+   hash: "xParamArrayMssql",
+   text: "SELECT * FROM \"main\".\"account\" WHERE \"account\".\"account_id\" IN (@param_0, @param_1, @param_2)",
+   values: ["id-1", "id-2", "id-3"],
+   params: { ids: ["id-1", "id-2", "id-3"] },
+   error: null,
+};
+
+// ─── Projection fixtures (array-format for Go/C# buildProjection) ────────────
+// These test the projection node paths that aren't reachable via TypeScript's object-format select.
+const projColumns: Record<string, string> = {
+   accountId: "\"a_1\".\"account_id\"",
+   status: "\"a_1\".\"status\"",
+   email: "\"a_1\".\"email\"",
+   firstName: "\"a_1\".\"first_name\"",
+   lastName: "\"a_1\".\"last_name\"",
+};
+
+// Simple column projection (no aggregates)
+manifest.queries["xProjectionSimple"] = {
+   name: "xProjectionSimple",
+   hash: "xProjectionSimple",
+   location: "generate-cross-runtime.ts",
+   template: [
+      { type: "text", value: "SELECT " },
+      { type: "projection", param: "select", columns: projColumns },
+      { type: "text", value: " FROM \"main\".\"account\" AS \"a_1\"" },
+   ] as any,
+   params: { select: { name: "select" } },
+   authorization: [],
+};
+results["xProjectionSimple"] = {
+   hash: "xProjectionSimple",
+   text: "SELECT \"a_1\".\"status\", \"a_1\".\"email\" FROM \"main\".\"account\" AS \"a_1\"",
+   values: [],
+   params: { select: ["status", "email"] },
+   error: null,
+};
+
+// Aggregate projection (count)
+manifest.queries["xProjectionCount"] = {
+   name: "xProjectionCount",
+   hash: "xProjectionCount",
+   location: "generate-cross-runtime.ts",
+   template: [
+      { type: "text", value: "SELECT " },
+      { type: "projection", param: "select", columns: projColumns },
+      { type: "text", value: " FROM \"main\".\"account\" AS \"a_1\"" },
+   ] as any,
+   params: { select: { name: "select" } },
+   authorization: [],
+};
+results["xProjectionCount"] = {
+   hash: "xProjectionCount",
+   text: "SELECT count(*) as \"total\" FROM \"main\".\"account\" AS \"a_1\"",
+   values: [],
+   params: { select: [["count", "*", "total"]] },
+   error: null,
+};
+
+// Mixed: columns + aggregates (triggers auto GROUP BY)
+manifest.queries["xProjectionGroupBy"] = {
+   name: "xProjectionGroupBy",
+   hash: "xProjectionGroupBy",
+   location: "generate-cross-runtime.ts",
+   template: [
+      { type: "text", value: "SELECT " },
+      { type: "projection", param: "select", columns: projColumns },
+      { type: "text", value: " FROM \"main\".\"account\" AS \"a_1\"" },
+   ] as any,
+   params: { select: { name: "select" } },
+   authorization: [],
+};
+results["xProjectionGroupBy"] = {
+   hash: "xProjectionGroupBy",
+   text: "SELECT \"a_1\".\"status\", count(*) as \"statusCount\", sum(\"a_1\".\"account_id\") as \"totalAccounts\" group by \"a_1\".\"status\" FROM \"main\".\"account\" AS \"a_1\"",
+   values: [],
+   params: { select: ["status", ["count", "*", "statusCount"], ["sum", "accountId", "totalAccounts"]] },
+   error: null,
+};
+
+// All aggregate functions coverage (avg, min, max)
+manifest.queries["xProjectionAllAggregates"] = {
+   name: "xProjectionAllAggregates",
+   hash: "xProjectionAllAggregates",
+   location: "generate-cross-runtime.ts",
+   template: [
+      { type: "text", value: "SELECT " },
+      { type: "projection", param: "select", columns: projColumns },
+      { type: "text", value: " FROM \"main\".\"account\" AS \"a_1\"" },
+   ] as any,
+   params: { select: { name: "select" } },
+   authorization: [],
+};
+results["xProjectionAllAggregates"] = {
+   hash: "xProjectionAllAggregates",
+   text: "SELECT avg(\"a_1\".\"account_id\") as \"avgId\", min(\"a_1\".\"account_id\") as \"minId\", max(\"a_1\".\"account_id\") as \"maxId\" FROM \"main\".\"account\" AS \"a_1\"",
+   values: [],
+   params: { select: [["avg", "accountId", "avgId"], ["min", "accountId", "minId"], ["max", "accountId", "maxId"]] },
+   error: null,
+};
+
+// Projection with no select param (fallback to all columns)
+manifest.queries["xProjectionFallback"] = {
+   name: "xProjectionFallback",
+   hash: "xProjectionFallback",
+   location: "generate-cross-runtime.ts",
+   template: [
+      { type: "text", value: "SELECT " },
+      { type: "projection", param: "select", columns: projColumns },
+      { type: "text", value: " FROM \"main\".\"account\" AS \"a_1\"" },
+   ] as any,
+   params: { select: { name: "select" } },
+   authorization: [],
+};
+results["xProjectionFallback"] = {
+   hash: "xProjectionFallback",
+   text: "SELECT \"a_1\".\"account_id\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\", \"a_1\".\"last_name\" FROM \"main\".\"account\" AS \"a_1\"",
+   values: [],
+   params: {},
+   error: null,
+};
 
 // ─── Write outputs ───────────────────────────────────────────────────────────
 

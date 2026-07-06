@@ -1241,7 +1241,7 @@
     "xJoinBySingle": {
       "name": "xJoinBySingle",
       "location": "stacks/fixtures/generate-cross-runtime.ts:53:19",
-      "hash": "1314adf44753c128a55aa1dcc5fa0c22f9b261c0d1a920919af172a0fd9007f4",
+      "hash": "02a1ee33bbe56f65a9ce30445d471a2460f62573ac0455eeb03faa855a0a7488",
       "template": [
         {
           "type": "text",
@@ -1322,7 +1322,7 @@
     "xJoinByWithType": {
       "name": "xJoinByWithType",
       "location": "stacks/fixtures/generate-cross-runtime.ts:54:21",
-      "hash": "1314adf44753c128a55aa1dcc5fa0c22f9b261c0d1a920919af172a0fd9007f4",
+      "hash": "02a1ee33bbe56f65a9ce30445d471a2460f62573ac0455eeb03faa855a0a7488",
       "template": [
         {
           "type": "text",
@@ -1405,7 +1405,7 @@
     "xJoinByMultiCondition": {
       "name": "xJoinByMultiCondition",
       "location": "stacks/fixtures/generate-cross-runtime.ts:55:27",
-      "hash": "1314adf44753c128a55aa1dcc5fa0c22f9b261c0d1a920919af172a0fd9007f4",
+      "hash": "02a1ee33bbe56f65a9ce30445d471a2460f62573ac0455eeb03faa855a0a7488",
       "template": [
         {
           "type": "text",
@@ -1486,7 +1486,7 @@
     "xJoinByAutoSingle": {
       "name": "xJoinByAutoSingle",
       "location": "stacks/fixtures/generate-cross-runtime.ts:57:56",
-      "hash": "b9f23924598f3691b2914c6174459f0a208b5bd25287347afbe9223e9f4a3c0b",
+      "hash": "de8c804d9b3e5d4942dbac94917a6b7c3f674c98a04cf100abf36a250f50cc62",
       "template": [
         {
           "type": "text",
@@ -1669,7 +1669,7 @@
     "xJoinByAutoMulti": {
       "name": "xJoinByAutoMulti",
       "location": "stacks/fixtures/generate-cross-runtime.ts:58:77",
-      "hash": "085c39feb22ca527b9ab93f63b2f710cb8605f0bf0eb1f5ba4812815682aba18",
+      "hash": "de8c804d9b3e5d4942dbac94917a6b7c3f674c98a04cf100abf36a250f50cc62",
       "template": [
         {
           "type": "text",
@@ -2020,6 +2020,1045 @@
         },
         "modifiedAt": {
           "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "xFilterNot": {
+      "name": "xFilterNot",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:66:16",
+      "hash": "85e65b56b010a8c21feb7086cbee015421fde614cd7e054f8ab92fb23a7c20e4",
+      "template": [
+        {
+          "type": "text",
+          "value": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" WHERE "
+        },
+        {
+          "type": "filter",
+          "param": "filterBy",
+          "columns": {
+            "accountId": "\"a_1\".\"account_id\"",
+            "status": "\"a_1\".\"status\"",
+            "email": "\"a_1\".\"email\"",
+            "firstName": "\"a_1\".\"first_name\"",
+            "lastName": "\"a_1\".\"last_name\"",
+            "notes": "\"a_1\".\"notes\"",
+            "createdAt": "\"a_1\".\"created_at\"",
+            "modifiedAt": "\"a_1\".\"modified_at\"",
+            "parentId": "\"a_1\".\"parent_id\""
+          }
+        }
+      ],
+      "params": {
+        "filterBy": {
+          "name": "filterBy",
+          "isContext": false,
+          "validation": {
+            "type": "filter",
+            "columns": [
+              "accountId",
+              "status",
+              "email",
+              "firstName",
+              "lastName",
+              "notes",
+              "createdAt",
+              "modifiedAt",
+              "parentId"
+            ],
+            "operators": [
+              "=",
+              "not",
+              "!=",
+              ">",
+              ">=",
+              "<",
+              "<=",
+              "between",
+              "in",
+              "notIn",
+              "like",
+              "notLike",
+              "isNull",
+              "isNotNull"
+            ]
+          }
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "xFilterNotEqual": {
+      "name": "xFilterNotEqual",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:67:21",
+      "hash": "85e65b56b010a8c21feb7086cbee015421fde614cd7e054f8ab92fb23a7c20e4",
+      "template": [
+        {
+          "type": "text",
+          "value": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" WHERE "
+        },
+        {
+          "type": "filter",
+          "param": "filterBy",
+          "columns": {
+            "accountId": "\"a_1\".\"account_id\"",
+            "status": "\"a_1\".\"status\"",
+            "email": "\"a_1\".\"email\"",
+            "firstName": "\"a_1\".\"first_name\"",
+            "lastName": "\"a_1\".\"last_name\"",
+            "notes": "\"a_1\".\"notes\"",
+            "createdAt": "\"a_1\".\"created_at\"",
+            "modifiedAt": "\"a_1\".\"modified_at\"",
+            "parentId": "\"a_1\".\"parent_id\""
+          }
+        }
+      ],
+      "params": {
+        "filterBy": {
+          "name": "filterBy",
+          "isContext": false,
+          "validation": {
+            "type": "filter",
+            "columns": [
+              "accountId",
+              "status",
+              "email",
+              "firstName",
+              "lastName",
+              "notes",
+              "createdAt",
+              "modifiedAt",
+              "parentId"
+            ],
+            "operators": [
+              "=",
+              "not",
+              "!=",
+              ">",
+              ">=",
+              "<",
+              "<=",
+              "between",
+              "in",
+              "notIn",
+              "like",
+              "notLike",
+              "isNull",
+              "isNotNull"
+            ]
+          }
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "xFilterGt": {
+      "name": "xFilterGt",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:68:15",
+      "hash": "85e65b56b010a8c21feb7086cbee015421fde614cd7e054f8ab92fb23a7c20e4",
+      "template": [
+        {
+          "type": "text",
+          "value": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" WHERE "
+        },
+        {
+          "type": "filter",
+          "param": "filterBy",
+          "columns": {
+            "accountId": "\"a_1\".\"account_id\"",
+            "status": "\"a_1\".\"status\"",
+            "email": "\"a_1\".\"email\"",
+            "firstName": "\"a_1\".\"first_name\"",
+            "lastName": "\"a_1\".\"last_name\"",
+            "notes": "\"a_1\".\"notes\"",
+            "createdAt": "\"a_1\".\"created_at\"",
+            "modifiedAt": "\"a_1\".\"modified_at\"",
+            "parentId": "\"a_1\".\"parent_id\""
+          }
+        }
+      ],
+      "params": {
+        "filterBy": {
+          "name": "filterBy",
+          "isContext": false,
+          "validation": {
+            "type": "filter",
+            "columns": [
+              "accountId",
+              "status",
+              "email",
+              "firstName",
+              "lastName",
+              "notes",
+              "createdAt",
+              "modifiedAt",
+              "parentId"
+            ],
+            "operators": [
+              "=",
+              "not",
+              "!=",
+              ">",
+              ">=",
+              "<",
+              "<=",
+              "between",
+              "in",
+              "notIn",
+              "like",
+              "notLike",
+              "isNull",
+              "isNotNull"
+            ]
+          }
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "xFilterLt": {
+      "name": "xFilterLt",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:69:15",
+      "hash": "85e65b56b010a8c21feb7086cbee015421fde614cd7e054f8ab92fb23a7c20e4",
+      "template": [
+        {
+          "type": "text",
+          "value": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" WHERE "
+        },
+        {
+          "type": "filter",
+          "param": "filterBy",
+          "columns": {
+            "accountId": "\"a_1\".\"account_id\"",
+            "status": "\"a_1\".\"status\"",
+            "email": "\"a_1\".\"email\"",
+            "firstName": "\"a_1\".\"first_name\"",
+            "lastName": "\"a_1\".\"last_name\"",
+            "notes": "\"a_1\".\"notes\"",
+            "createdAt": "\"a_1\".\"created_at\"",
+            "modifiedAt": "\"a_1\".\"modified_at\"",
+            "parentId": "\"a_1\".\"parent_id\""
+          }
+        }
+      ],
+      "params": {
+        "filterBy": {
+          "name": "filterBy",
+          "isContext": false,
+          "validation": {
+            "type": "filter",
+            "columns": [
+              "accountId",
+              "status",
+              "email",
+              "firstName",
+              "lastName",
+              "notes",
+              "createdAt",
+              "modifiedAt",
+              "parentId"
+            ],
+            "operators": [
+              "=",
+              "not",
+              "!=",
+              ">",
+              ">=",
+              "<",
+              "<=",
+              "between",
+              "in",
+              "notIn",
+              "like",
+              "notLike",
+              "isNull",
+              "isNotNull"
+            ]
+          }
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "xFilterLte": {
+      "name": "xFilterLte",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:70:16",
+      "hash": "85e65b56b010a8c21feb7086cbee015421fde614cd7e054f8ab92fb23a7c20e4",
+      "template": [
+        {
+          "type": "text",
+          "value": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" WHERE "
+        },
+        {
+          "type": "filter",
+          "param": "filterBy",
+          "columns": {
+            "accountId": "\"a_1\".\"account_id\"",
+            "status": "\"a_1\".\"status\"",
+            "email": "\"a_1\".\"email\"",
+            "firstName": "\"a_1\".\"first_name\"",
+            "lastName": "\"a_1\".\"last_name\"",
+            "notes": "\"a_1\".\"notes\"",
+            "createdAt": "\"a_1\".\"created_at\"",
+            "modifiedAt": "\"a_1\".\"modified_at\"",
+            "parentId": "\"a_1\".\"parent_id\""
+          }
+        }
+      ],
+      "params": {
+        "filterBy": {
+          "name": "filterBy",
+          "isContext": false,
+          "validation": {
+            "type": "filter",
+            "columns": [
+              "accountId",
+              "status",
+              "email",
+              "firstName",
+              "lastName",
+              "notes",
+              "createdAt",
+              "modifiedAt",
+              "parentId"
+            ],
+            "operators": [
+              "=",
+              "not",
+              "!=",
+              ">",
+              ">=",
+              "<",
+              "<=",
+              "between",
+              "in",
+              "notIn",
+              "like",
+              "notLike",
+              "isNull",
+              "isNotNull"
+            ]
+          }
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "xFilterBetween": {
+      "name": "xFilterBetween",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:71:20",
+      "hash": "85e65b56b010a8c21feb7086cbee015421fde614cd7e054f8ab92fb23a7c20e4",
+      "template": [
+        {
+          "type": "text",
+          "value": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" WHERE "
+        },
+        {
+          "type": "filter",
+          "param": "filterBy",
+          "columns": {
+            "accountId": "\"a_1\".\"account_id\"",
+            "status": "\"a_1\".\"status\"",
+            "email": "\"a_1\".\"email\"",
+            "firstName": "\"a_1\".\"first_name\"",
+            "lastName": "\"a_1\".\"last_name\"",
+            "notes": "\"a_1\".\"notes\"",
+            "createdAt": "\"a_1\".\"created_at\"",
+            "modifiedAt": "\"a_1\".\"modified_at\"",
+            "parentId": "\"a_1\".\"parent_id\""
+          }
+        }
+      ],
+      "params": {
+        "filterBy": {
+          "name": "filterBy",
+          "isContext": false,
+          "validation": {
+            "type": "filter",
+            "columns": [
+              "accountId",
+              "status",
+              "email",
+              "firstName",
+              "lastName",
+              "notes",
+              "createdAt",
+              "modifiedAt",
+              "parentId"
+            ],
+            "operators": [
+              "=",
+              "not",
+              "!=",
+              ">",
+              ">=",
+              "<",
+              "<=",
+              "between",
+              "in",
+              "notIn",
+              "like",
+              "notLike",
+              "isNull",
+              "isNotNull"
+            ]
+          }
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "xFilterNotIn": {
+      "name": "xFilterNotIn",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:72:18",
+      "hash": "85e65b56b010a8c21feb7086cbee015421fde614cd7e054f8ab92fb23a7c20e4",
+      "template": [
+        {
+          "type": "text",
+          "value": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" WHERE "
+        },
+        {
+          "type": "filter",
+          "param": "filterBy",
+          "columns": {
+            "accountId": "\"a_1\".\"account_id\"",
+            "status": "\"a_1\".\"status\"",
+            "email": "\"a_1\".\"email\"",
+            "firstName": "\"a_1\".\"first_name\"",
+            "lastName": "\"a_1\".\"last_name\"",
+            "notes": "\"a_1\".\"notes\"",
+            "createdAt": "\"a_1\".\"created_at\"",
+            "modifiedAt": "\"a_1\".\"modified_at\"",
+            "parentId": "\"a_1\".\"parent_id\""
+          }
+        }
+      ],
+      "params": {
+        "filterBy": {
+          "name": "filterBy",
+          "isContext": false,
+          "validation": {
+            "type": "filter",
+            "columns": [
+              "accountId",
+              "status",
+              "email",
+              "firstName",
+              "lastName",
+              "notes",
+              "createdAt",
+              "modifiedAt",
+              "parentId"
+            ],
+            "operators": [
+              "=",
+              "not",
+              "!=",
+              ">",
+              ">=",
+              "<",
+              "<=",
+              "between",
+              "in",
+              "notIn",
+              "like",
+              "notLike",
+              "isNull",
+              "isNotNull"
+            ]
+          }
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "xFilterLike": {
+      "name": "xFilterLike",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:73:17",
+      "hash": "85e65b56b010a8c21feb7086cbee015421fde614cd7e054f8ab92fb23a7c20e4",
+      "template": [
+        {
+          "type": "text",
+          "value": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" WHERE "
+        },
+        {
+          "type": "filter",
+          "param": "filterBy",
+          "columns": {
+            "accountId": "\"a_1\".\"account_id\"",
+            "status": "\"a_1\".\"status\"",
+            "email": "\"a_1\".\"email\"",
+            "firstName": "\"a_1\".\"first_name\"",
+            "lastName": "\"a_1\".\"last_name\"",
+            "notes": "\"a_1\".\"notes\"",
+            "createdAt": "\"a_1\".\"created_at\"",
+            "modifiedAt": "\"a_1\".\"modified_at\"",
+            "parentId": "\"a_1\".\"parent_id\""
+          }
+        }
+      ],
+      "params": {
+        "filterBy": {
+          "name": "filterBy",
+          "isContext": false,
+          "validation": {
+            "type": "filter",
+            "columns": [
+              "accountId",
+              "status",
+              "email",
+              "firstName",
+              "lastName",
+              "notes",
+              "createdAt",
+              "modifiedAt",
+              "parentId"
+            ],
+            "operators": [
+              "=",
+              "not",
+              "!=",
+              ">",
+              ">=",
+              "<",
+              "<=",
+              "between",
+              "in",
+              "notIn",
+              "like",
+              "notLike",
+              "isNull",
+              "isNotNull"
+            ]
+          }
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "xFilterNotLike": {
+      "name": "xFilterNotLike",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:74:20",
+      "hash": "85e65b56b010a8c21feb7086cbee015421fde614cd7e054f8ab92fb23a7c20e4",
+      "template": [
+        {
+          "type": "text",
+          "value": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" WHERE "
+        },
+        {
+          "type": "filter",
+          "param": "filterBy",
+          "columns": {
+            "accountId": "\"a_1\".\"account_id\"",
+            "status": "\"a_1\".\"status\"",
+            "email": "\"a_1\".\"email\"",
+            "firstName": "\"a_1\".\"first_name\"",
+            "lastName": "\"a_1\".\"last_name\"",
+            "notes": "\"a_1\".\"notes\"",
+            "createdAt": "\"a_1\".\"created_at\"",
+            "modifiedAt": "\"a_1\".\"modified_at\"",
+            "parentId": "\"a_1\".\"parent_id\""
+          }
+        }
+      ],
+      "params": {
+        "filterBy": {
+          "name": "filterBy",
+          "isContext": false,
+          "validation": {
+            "type": "filter",
+            "columns": [
+              "accountId",
+              "status",
+              "email",
+              "firstName",
+              "lastName",
+              "notes",
+              "createdAt",
+              "modifiedAt",
+              "parentId"
+            ],
+            "operators": [
+              "=",
+              "not",
+              "!=",
+              ">",
+              ">=",
+              "<",
+              "<=",
+              "between",
+              "in",
+              "notIn",
+              "like",
+              "notLike",
+              "isNull",
+              "isNotNull"
+            ]
+          }
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "xFilterNestedOrAnd": {
+      "name": "xFilterNestedOrAnd",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:77:24",
+      "hash": "85e65b56b010a8c21feb7086cbee015421fde614cd7e054f8ab92fb23a7c20e4",
+      "template": [
+        {
+          "type": "text",
+          "value": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" WHERE "
+        },
+        {
+          "type": "filter",
+          "param": "filterBy",
+          "columns": {
+            "accountId": "\"a_1\".\"account_id\"",
+            "status": "\"a_1\".\"status\"",
+            "email": "\"a_1\".\"email\"",
+            "firstName": "\"a_1\".\"first_name\"",
+            "lastName": "\"a_1\".\"last_name\"",
+            "notes": "\"a_1\".\"notes\"",
+            "createdAt": "\"a_1\".\"created_at\"",
+            "modifiedAt": "\"a_1\".\"modified_at\"",
+            "parentId": "\"a_1\".\"parent_id\""
+          }
+        }
+      ],
+      "params": {
+        "filterBy": {
+          "name": "filterBy",
+          "isContext": false,
+          "validation": {
+            "type": "filter",
+            "columns": [
+              "accountId",
+              "status",
+              "email",
+              "firstName",
+              "lastName",
+              "notes",
+              "createdAt",
+              "modifiedAt",
+              "parentId"
+            ],
+            "operators": [
+              "=",
+              "not",
+              "!=",
+              ">",
+              ">=",
+              "<",
+              "<=",
+              "between",
+              "in",
+              "notIn",
+              "like",
+              "notLike",
+              "isNull",
+              "isNotNull"
+            ]
+          }
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "xJoinByCross": {
+      "name": "xJoinByCross",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:83:18",
+      "hash": "02a1ee33bbe56f65a9ce30445d471a2460f62573ac0455eeb03faa855a0a7488",
+      "template": [
+        {
+          "type": "text",
+          "value": "SELECT \"o_1\".\"order_id\" as \"orderId\", \"o_1\".\"status\", \"o_1\".\"created_at\" as \"createdAt\", \"o_1\".\"modified_at\" as \"modifiedAt\", \"o_1\".\"account_id\" as \"accountId\" FROM \"vexnor_dev\".\"order\" as \"o_1\" "
+        },
+        {
+          "type": "joinBy",
+          "param": "joinBy",
+          "joinMap": {
+            "_": {
+              "schema": "vexnor_dev",
+              "table": "order",
+              "columns": {
+                "orderId": "\"o_1\".\"order_id\"",
+                "status": "\"o_1\".\"status\"",
+                "createdAt": "\"o_1\".\"created_at\"",
+                "modifiedAt": "\"o_1\".\"modified_at\"",
+                "accountId": "\"o_1\".\"account_id\""
+              }
+            },
+            "account": {
+              "schema": "vexnor_dev",
+              "table": "account",
+              "columns": {
+                "accountId": "\"a_2\".\"account_id\"",
+                "status": "\"a_2\".\"status\"",
+                "email": "\"a_2\".\"email\"",
+                "firstName": "\"a_2\".\"first_name\"",
+                "lastName": "\"a_2\".\"last_name\"",
+                "notes": "\"a_2\".\"notes\"",
+                "createdAt": "\"a_2\".\"created_at\"",
+                "modifiedAt": "\"a_2\".\"modified_at\"",
+                "parentId": "\"a_2\".\"parent_id\""
+              }
+            }
+          },
+          "joinTypes": {
+            "account": "cross"
+          }
+        }
+      ],
+      "params": {
+        "joinBy": {
+          "name": "joinBy",
+          "isContext": false,
+          "validation": {
+            "type": "joinBy",
+            "columns": [
+              "account.accountId",
+              "account.status",
+              "account.email",
+              "account.firstName",
+              "account.lastName",
+              "account.notes",
+              "account.createdAt",
+              "account.modifiedAt",
+              "account.parentId"
+            ],
+            "operators": [
+              "=",
+              "<",
+              "<=",
+              ">",
+              ">=",
+              "<>"
+            ]
+          }
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "xPaginationOffsetOnly": {
+      "name": "xPaginationOffsetOnly",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:86:27",
+      "hash": "736963ded4c70356243ccb7738c7de482e855679e7f74ce2bcc785376ae7d37a",
+      "template": [
+        {
+          "type": "text",
+          "value": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" "
+        },
+        {
+          "type": "pagination"
+        }
+      ],
+      "params": {
+        "limit": {
+          "name": "limit",
+          "isContext": false
+        },
+        "offset": {
+          "name": "offset",
+          "isContext": false
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        },
+        "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "xParamArray": {
+      "name": "xParamArray",
+      "hash": "xParamArray",
+      "location": "generate-cross-runtime.ts",
+      "template": [
+        {
+          "type": "text",
+          "value": "SELECT * FROM \"main\".\"account\" WHERE \"account\".\"account_id\" IN ("
+        },
+        {
+          "type": "param",
+          "name": "ids",
+          "array": true
+        },
+        {
+          "type": "text",
+          "value": ")"
+        }
+      ],
+      "params": {
+        "ids": {
+          "name": "ids"
+        }
+      },
+      "authorization": []
+    },
+    "xParamArrayMssql": {
+      "name": "xParamArrayMssql",
+      "hash": "xParamArrayMssql",
+      "location": "generate-cross-runtime.ts",
+      "template": [
+        {
+          "type": "text",
+          "value": "SELECT * FROM \"main\".\"account\" WHERE \"account\".\"account_id\" IN ("
+        },
+        {
+          "type": "param",
+          "name": "ids",
+          "array": true
+        },
+        {
+          "type": "text",
+          "value": ")"
+        }
+      ],
+      "params": {
+        "ids": {
+          "name": "ids"
+        }
+      },
+      "authorization": [],
+      "dialect": "transactsql"
+    },
+    "xProjectionSimple": {
+      "name": "xProjectionSimple",
+      "hash": "xProjectionSimple",
+      "location": "generate-cross-runtime.ts",
+      "template": [
+        {
+          "type": "text",
+          "value": "SELECT "
+        },
+        {
+          "type": "projection",
+          "param": "select",
+          "columns": {
+            "accountId": "\"a_1\".\"account_id\"",
+            "status": "\"a_1\".\"status\"",
+            "email": "\"a_1\".\"email\"",
+            "firstName": "\"a_1\".\"first_name\"",
+            "lastName": "\"a_1\".\"last_name\""
+          }
+        },
+        {
+          "type": "text",
+          "value": " FROM \"main\".\"account\" AS \"a_1\""
+        }
+      ],
+      "params": {
+        "select": {
+          "name": "select"
+        }
+      },
+      "authorization": []
+    },
+    "xProjectionCount": {
+      "name": "xProjectionCount",
+      "hash": "xProjectionCount",
+      "location": "generate-cross-runtime.ts",
+      "template": [
+        {
+          "type": "text",
+          "value": "SELECT "
+        },
+        {
+          "type": "projection",
+          "param": "select",
+          "columns": {
+            "accountId": "\"a_1\".\"account_id\"",
+            "status": "\"a_1\".\"status\"",
+            "email": "\"a_1\".\"email\"",
+            "firstName": "\"a_1\".\"first_name\"",
+            "lastName": "\"a_1\".\"last_name\""
+          }
+        },
+        {
+          "type": "text",
+          "value": " FROM \"main\".\"account\" AS \"a_1\""
+        }
+      ],
+      "params": {
+        "select": {
+          "name": "select"
+        }
+      },
+      "authorization": []
+    },
+    "xProjectionGroupBy": {
+      "name": "xProjectionGroupBy",
+      "hash": "xProjectionGroupBy",
+      "location": "generate-cross-runtime.ts",
+      "template": [
+        {
+          "type": "text",
+          "value": "SELECT "
+        },
+        {
+          "type": "projection",
+          "param": "select",
+          "columns": {
+            "accountId": "\"a_1\".\"account_id\"",
+            "status": "\"a_1\".\"status\"",
+            "email": "\"a_1\".\"email\"",
+            "firstName": "\"a_1\".\"first_name\"",
+            "lastName": "\"a_1\".\"last_name\""
+          }
+        },
+        {
+          "type": "text",
+          "value": " FROM \"main\".\"account\" AS \"a_1\""
+        }
+      ],
+      "params": {
+        "select": {
+          "name": "select"
+        }
+      },
+      "authorization": []
+    },
+    "xProjectionAllAggregates": {
+      "name": "xProjectionAllAggregates",
+      "hash": "xProjectionAllAggregates",
+      "location": "generate-cross-runtime.ts",
+      "template": [
+        {
+          "type": "text",
+          "value": "SELECT "
+        },
+        {
+          "type": "projection",
+          "param": "select",
+          "columns": {
+            "accountId": "\"a_1\".\"account_id\"",
+            "status": "\"a_1\".\"status\"",
+            "email": "\"a_1\".\"email\"",
+            "firstName": "\"a_1\".\"first_name\"",
+            "lastName": "\"a_1\".\"last_name\""
+          }
+        },
+        {
+          "type": "text",
+          "value": " FROM \"main\".\"account\" AS \"a_1\""
+        }
+      ],
+      "params": {
+        "select": {
+          "name": "select"
+        }
+      },
+      "authorization": []
+    },
+    "xProjectionFallback": {
+      "name": "xProjectionFallback",
+      "hash": "xProjectionFallback",
+      "location": "generate-cross-runtime.ts",
+      "template": [
+        {
+          "type": "text",
+          "value": "SELECT "
+        },
+        {
+          "type": "projection",
+          "param": "select",
+          "columns": {
+            "accountId": "\"a_1\".\"account_id\"",
+            "status": "\"a_1\".\"status\"",
+            "email": "\"a_1\".\"email\"",
+            "firstName": "\"a_1\".\"first_name\"",
+            "lastName": "\"a_1\".\"last_name\""
+          }
+        },
+        {
+          "type": "text",
+          "value": " FROM \"main\".\"account\" AS \"a_1\""
+        }
+      ],
+      "params": {
+        "select": {
+          "name": "select"
         }
       },
       "authorization": []

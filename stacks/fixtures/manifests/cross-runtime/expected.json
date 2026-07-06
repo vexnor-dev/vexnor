@@ -557,5 +557,363 @@
     ],
     "params": {},
     "error": null
+  },
+  "xFilterNot": {
+    "hash": "xFilterNot",
+    "text": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" WHERE \"a_1\".\"status\" <> $1",
+    "values": [
+      "banned"
+    ],
+    "params": {
+      "filterBy": [
+        {
+          "status": [
+            "not",
+            "banned"
+          ]
+        }
+      ]
+    },
+    "error": null
+  },
+  "xFilterNotEqual": {
+    "hash": "xFilterNotEqual",
+    "text": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" WHERE \"a_1\".\"status\" <> $1",
+    "values": [
+      "banned"
+    ],
+    "params": {
+      "filterBy": [
+        {
+          "status": [
+            "!=",
+            "banned"
+          ]
+        }
+      ]
+    },
+    "error": null
+  },
+  "xFilterGt": {
+    "hash": "xFilterGt",
+    "text": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" WHERE \"a_1\".\"created_at\" > $1",
+    "values": [
+      "2024-06-01"
+    ],
+    "params": {
+      "filterBy": [
+        {
+          "createdAt": [
+            ">",
+            "2024-06-01"
+          ]
+        }
+      ]
+    },
+    "error": null
+  },
+  "xFilterLt": {
+    "hash": "xFilterLt",
+    "text": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" WHERE \"a_1\".\"created_at\" < $1",
+    "values": [
+      "2024-12-31"
+    ],
+    "params": {
+      "filterBy": [
+        {
+          "createdAt": [
+            "<",
+            "2024-12-31"
+          ]
+        }
+      ]
+    },
+    "error": null
+  },
+  "xFilterLte": {
+    "hash": "xFilterLte",
+    "text": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" WHERE \"a_1\".\"created_at\" <= $1",
+    "values": [
+      "2024-12-31"
+    ],
+    "params": {
+      "filterBy": [
+        {
+          "createdAt": [
+            "<=",
+            "2024-12-31"
+          ]
+        }
+      ]
+    },
+    "error": null
+  },
+  "xFilterBetween": {
+    "hash": "xFilterBetween",
+    "text": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" WHERE \"a_1\".\"created_at\" between $1 and $2",
+    "values": [
+      "2024-01-01",
+      "2024-12-31"
+    ],
+    "params": {
+      "filterBy": [
+        {
+          "createdAt": [
+            "between",
+            "2024-01-01",
+            "2024-12-31"
+          ]
+        }
+      ]
+    },
+    "error": null
+  },
+  "xFilterNotIn": {
+    "hash": "xFilterNotIn",
+    "text": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" WHERE \"a_1\".\"status\" not in ($1, $2)",
+    "values": [
+      "banned",
+      "deleted"
+    ],
+    "params": {
+      "filterBy": [
+        {
+          "status": [
+            "notIn",
+            "banned",
+            "deleted"
+          ]
+        }
+      ]
+    },
+    "error": null
+  },
+  "xFilterLike": {
+    "hash": "xFilterLike",
+    "text": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" WHERE \"a_1\".\"email\" like $1",
+    "values": [
+      "%@example.com"
+    ],
+    "params": {
+      "filterBy": [
+        {
+          "email": [
+            "like",
+            "%@example.com"
+          ]
+        }
+      ]
+    },
+    "error": null
+  },
+  "xFilterNotLike": {
+    "hash": "xFilterNotLike",
+    "text": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" WHERE \"a_1\".\"email\" not like $1",
+    "values": [
+      "%@spam.com"
+    ],
+    "params": {
+      "filterBy": [
+        {
+          "email": [
+            "notLike",
+            "%@spam.com"
+          ]
+        }
+      ]
+    },
+    "error": null
+  },
+  "xFilterNestedOrAnd": {
+    "hash": "xFilterNestedOrAnd",
+    "text": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" WHERE \"a_1\".\"status\" = $1 and (\"a_1\".\"email\" like $2 or \"a_1\".\"first_name\" <> $3 or \"a_1\".\"parent_id\" is not null) and \"a_1\".\"email\" not like $4",
+    "values": [
+      "active",
+      "%@vip.com",
+      "Bot",
+      "%@spam.com"
+    ],
+    "params": {
+      "filterBy": [
+        {
+          "status": "active"
+        },
+        {
+          "or": [
+            {
+              "email": [
+                "like",
+                "%@vip.com"
+              ]
+            },
+            {
+              "firstName": [
+                "!=",
+                "Bot"
+              ]
+            },
+            {
+              "parentId": [
+                "isNotNull"
+              ]
+            }
+          ]
+        },
+        {
+          "email": [
+            "notLike",
+            "%@spam.com"
+          ]
+        }
+      ]
+    },
+    "error": null
+  },
+  "xJoinByCross": {
+    "hash": "xJoinByCross",
+    "text": "SELECT \"o_1\".\"order_id\" as \"orderId\", \"o_1\".\"status\", \"o_1\".\"created_at\" as \"createdAt\", \"o_1\".\"modified_at\" as \"modifiedAt\", \"o_1\".\"account_id\" as \"accountId\" FROM \"vexnor_dev\".\"order\" as \"o_1\"  CROSS JOIN \"vexnor_dev\".\"account\" as \"a_2\"",
+    "values": [],
+    "params": {
+      "joinBy": {
+        "account": {
+          "on": [
+            [
+              "_.accountId",
+              "=",
+              "account.accountId"
+            ]
+          ],
+          "type": "cross"
+        }
+      }
+    },
+    "error": null
+  },
+  "xPaginationOffsetOnly": {
+    "hash": "xPaginationOffsetOnly",
+    "text": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" FROM \"vexnor_dev\".\"account\" as \"a_1\" offset $1",
+    "values": [
+      100
+    ],
+    "params": {
+      "filterBy": null,
+      "orderBy": null,
+      "offset": 100
+    },
+    "error": null
+  },
+  "xParamArray": {
+    "hash": "xParamArray",
+    "text": "SELECT * FROM \"main\".\"account\" WHERE \"account\".\"account_id\" IN ($1, $2, $3)",
+    "values": [
+      "id-1",
+      "id-2",
+      "id-3"
+    ],
+    "params": {
+      "ids": [
+        "id-1",
+        "id-2",
+        "id-3"
+      ]
+    },
+    "error": null
+  },
+  "xParamArrayMssql": {
+    "hash": "xParamArrayMssql",
+    "text": "SELECT * FROM \"main\".\"account\" WHERE \"account\".\"account_id\" IN (@param_0, @param_1, @param_2)",
+    "values": [
+      "id-1",
+      "id-2",
+      "id-3"
+    ],
+    "params": {
+      "ids": [
+        "id-1",
+        "id-2",
+        "id-3"
+      ]
+    },
+    "error": null
+  },
+  "xProjectionSimple": {
+    "hash": "xProjectionSimple",
+    "text": "SELECT \"a_1\".\"status\", \"a_1\".\"email\" FROM \"main\".\"account\" AS \"a_1\"",
+    "values": [],
+    "params": {
+      "select": [
+        "status",
+        "email"
+      ]
+    },
+    "error": null
+  },
+  "xProjectionCount": {
+    "hash": "xProjectionCount",
+    "text": "SELECT count(*) as \"total\" FROM \"main\".\"account\" AS \"a_1\"",
+    "values": [],
+    "params": {
+      "select": [
+        [
+          "count",
+          "*",
+          "total"
+        ]
+      ]
+    },
+    "error": null
+  },
+  "xProjectionGroupBy": {
+    "hash": "xProjectionGroupBy",
+    "text": "SELECT \"a_1\".\"status\", count(*) as \"statusCount\", sum(\"a_1\".\"account_id\") as \"totalAccounts\" group by \"a_1\".\"status\" FROM \"main\".\"account\" AS \"a_1\"",
+    "values": [],
+    "params": {
+      "select": [
+        "status",
+        [
+          "count",
+          "*",
+          "statusCount"
+        ],
+        [
+          "sum",
+          "accountId",
+          "totalAccounts"
+        ]
+      ]
+    },
+    "error": null
+  },
+  "xProjectionAllAggregates": {
+    "hash": "xProjectionAllAggregates",
+    "text": "SELECT avg(\"a_1\".\"account_id\") as \"avgId\", min(\"a_1\".\"account_id\") as \"minId\", max(\"a_1\".\"account_id\") as \"maxId\" FROM \"main\".\"account\" AS \"a_1\"",
+    "values": [],
+    "params": {
+      "select": [
+        [
+          "avg",
+          "accountId",
+          "avgId"
+        ],
+        [
+          "min",
+          "accountId",
+          "minId"
+        ],
+        [
+          "max",
+          "accountId",
+          "maxId"
+        ]
+      ]
+    },
+    "error": null
+  },
+  "xProjectionFallback": {
+    "hash": "xProjectionFallback",
+    "text": "SELECT \"a_1\".\"account_id\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\", \"a_1\".\"last_name\" FROM \"main\".\"account\" AS \"a_1\"",
+    "values": [],
+    "params": {},
+    "error": null
   }
 }
