@@ -9,6 +9,12 @@ function buildWithWindow(windowBy: WindowBySelect | null | undefined, dialect: "
    return query.getSql({ params: { windowBy }, options: { dialect } });
 }
 
+/** Bypasses type checks to test runtime validation of invalid inputs. */
+function buildWithInvalidWindow(windowBy: unknown, dialect: "sqlite" | "postgresql" | "transactsql" = "sqlite") {
+   const query = sqlSelect(Account, {});
+   return query.getSql({ params: { windowBy: windowBy as WindowBySelect }, options: { dialect } });
+}
+
 describe("SqlWindowBy — runtime window functions in SELECT list", () => {
    describe("ranking functions", () => {
       test("row_number with orderBy", () => {
@@ -843,73 +849,73 @@ describe("SqlWindowBy — runtime window functions in SELECT list", () => {
 
    describe("validation", () => {
       test("invalid fn → throws", () => {
-         expect(() => buildWithWindow({
+         expect(() => buildWithInvalidWindow({
             bad: { fn: "invalid_fn", over: { orderBy: { createdAt: "ASC" } } },
          })).toThrow("invalid function");
       });
 
       test("col provided to ranking fn → throws", () => {
-         expect(() => buildWithWindow({
+         expect(() => buildWithInvalidWindow({
             bad: { fn: "row_number", col: "email", over: { orderBy: { createdAt: "ASC" } } },
          })).toThrow("does not accept 'col'");
       });
 
       test("col missing from aggregate fn → throws", () => {
-         expect(() => buildWithWindow({
+         expect(() => buildWithInvalidWindow({
             bad: { fn: "sum", over: { orderBy: { createdAt: "ASC" } } },
          })).toThrow("requires 'col'");
       });
 
       test("col missing from offset fn → throws", () => {
-         expect(() => buildWithWindow({
+         expect(() => buildWithInvalidWindow({
             bad: { fn: "lag", over: { orderBy: { createdAt: "ASC" } } },
          })).toThrow("requires 'col'");
       });
 
       test("col missing from lead fn → throws", () => {
-         expect(() => buildWithWindow({
+         expect(() => buildWithInvalidWindow({
             bad: { fn: "lead", over: { orderBy: { createdAt: "ASC" } } },
          })).toThrow("requires 'col'");
       });
 
       test("args missing from ntile → throws", () => {
-         expect(() => buildWithWindow({
+         expect(() => buildWithInvalidWindow({
             bad: { fn: "ntile", over: { orderBy: { createdAt: "ASC" } } },
          })).toThrow("ntile requires 'args'");
       });
 
       test("ntile args not positive integer → throws", () => {
-         expect(() => buildWithWindow({
+         expect(() => buildWithInvalidWindow({
             bad: { fn: "ntile", args: -1, over: { orderBy: { createdAt: "ASC" } } },
          })).toThrow("must be a positive integer");
       });
 
       test("ntile args is 0 → throws", () => {
-         expect(() => buildWithWindow({
+         expect(() => buildWithInvalidWindow({
             bad: { fn: "ntile", args: 0, over: { orderBy: { createdAt: "ASC" } } },
          })).toThrow("must be a positive integer");
       });
 
       test("ntile args is float → throws", () => {
-         expect(() => buildWithWindow({
+         expect(() => buildWithInvalidWindow({
             bad: { fn: "ntile", args: 2.5, over: { orderBy: { createdAt: "ASC" } } },
          })).toThrow("must be a positive integer");
       });
 
       test("invalid orderBy direction → throws", () => {
-         expect(() => buildWithWindow({
+         expect(() => buildWithInvalidWindow({
             bad: { fn: "row_number", over: { orderBy: { createdAt: "INVALID" } } },
          })).toThrow("invalid orderBy direction");
       });
 
       test("frame start/end without frame type → throws", () => {
-         expect(() => buildWithWindow({
+         expect(() => buildWithInvalidWindow({
             bad: { fn: "sum", col: "createdAt", over: { orderBy: { createdAt: "ASC" }, start: "unbounded preceding", end: "current row" } },
          })).toThrow("'frame' (rows|range) is required");
       });
 
       test("invalid partitionBy column → throws", () => {
-         expect(() => buildWithWindow({
+         expect(() => buildWithInvalidWindow({
             bad: { fn: "row_number", over: { partitionBy: ["nonExistentColumn"], orderBy: { createdAt: "ASC" } } },
          })).toThrow("column 'nonExistentColumn' not found");
       });
