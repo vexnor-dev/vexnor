@@ -14,6 +14,7 @@ import { SqlProjectBy, SqlProjectByParams, SqlProjectionGroupBy } from "#src/cor
 import { SqlOrderBy, SqlOrderByParams } from "#src/core/operators/sql-order-by.js";
 import { SqlPagination, SqlPaginationParams } from "#src/core/operators/sql-pagination.js";
 import { SqlHavingBy, SqlHavingByParams } from "#src/core/operators/sql-having-by.js";
+import { SqlWindowBy, SqlWindowByParams } from "#src/core/operators/sql-window-by.js";
 import { JoinByMap, JoinedTablesDotCols } from "#src/core/operators/sql-join-types.js";
 import { SqlTableColumnAny } from "#src/core/schema/sql-table-column.js";
 import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
@@ -73,7 +74,8 @@ export type SqlSelectResult<
       & SqlOrderByParams<MergedSelect<T, M>, "orderBy">
       & SqlPaginationParams
       & SqlProjectByParams<MergedSelect<T, M>>
-      & SqlHavingByParams;
+      & SqlHavingByParams
+      & SqlWindowByParams;
 }>;
 
 export type SqlSelectResultRow<T extends { Select: Record<string, unknown> }, Args extends SqlSelectArgs<T>> = Simplify<
@@ -176,6 +178,9 @@ export function sqlSelect<
    // HavingBy: runtime HAVING filter on aggregate aliases.
    const havingByNode = new SqlHavingBy(table, "havingBy", "select");
 
+   // WindowBy: runtime window functions appended to SELECT list.
+   const windowByNode = new SqlWindowBy(table, "windowBy", allFieldNames);
+
    // Pagination: runtime limit/offset.
    const paginationNode = new SqlPagination();
 
@@ -192,7 +197,7 @@ export function sqlSelect<
    return sql`
       ${info ?? raw.BLANK}
       ${preColumnMap}
-      select ${args.SELECT ? args.SELECT.source.inline() : projectionNode}
+      select ${args.SELECT ? args.SELECT.source.inline() : projectionNode} ${windowByNode}
                 ${hooks?.afterSelect?.length ? raw(", ") : raw.BLANK} ${hooks?.afterSelect ?? raw.BLANK}
       from ${table} ${hooks?.afterFrom?.length ? new SqlSpacedList(hooks.afterFrom) : raw.BLANK} ${args.JOIN ? args.JOIN.source.inline() : raw.BLANK} ${joinByNode}
          ${userWhere ? sql`where ${filterNode} ${userWhere}`.inline("default") : sql`${filterNode}`.inline("default")}

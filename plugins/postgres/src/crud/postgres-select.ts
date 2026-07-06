@@ -12,6 +12,7 @@ import {
    SqlPaginationParams,
    SqlProjectByParams,
    SqlHavingByParams,
+   SqlWindowByParams,
 } from "@vexnor/core";
 import { jsonMany, jsonOne } from "#src/charms/json-aggregation-postgres.js";
 import { PostgresQueryHandler } from "#src/postgres-query-handler.js";
@@ -27,7 +28,8 @@ export type PostgresSelectResult<
       & SqlOrderByParams<T, "orderBy">
       & SqlPaginationParams
       & SqlProjectByParams<T>
-      & SqlHavingByParams;
+      & SqlHavingByParams
+      & SqlWindowByParams;
 }> &
    SqlQueryColumns<SqlSelectResultRow<T, Args>>;
 

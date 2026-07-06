@@ -8,6 +8,7 @@ import {
    info,
    SqlQueryColumns,
    SqlQueryBaseAny,
+   SqlWindowByParams,
 } from "@vexnor/core";
 import { jsonMany, jsonOne } from "#src/charms/json-aggregation-mssql.js";
 import { MssqlQueryHandler } from "#src/mssql-query-handler.js";
@@ -19,7 +20,7 @@ export type MssqlSelectResult<
    Args extends SqlSelectArgs<T>,
 > = MssqlQueryHandler<{
    Row: SqlSelectResultRow<T, Args>;
-   Params: ParamsOfArgs<Args>;
+   Params: ParamsOfArgs<Args> & SqlWindowByParams;
 }> &
    SqlQueryColumns<SqlSelectResultRow<T, Args>>;
 

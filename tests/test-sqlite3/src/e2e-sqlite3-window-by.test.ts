@@ -1,0 +1,600 @@
+import { beforeAll, describe, expect, test } from "vitest";
+import { ok } from "node:assert";
+import { randomUUID } from "node:crypto";
+import { insert, param, row } from "@vexnor/core";
+import { sql, sqlite3Select } from "@vexnor/sqlite3";
+import "@vexnor/sqlite3";
+import { Account, IAccountInsert, IAccountSelect } from "./codegen/main.account-table.js";
+import { Order, IOrderInsert, IOrderSelect } from "./codegen/main.order-table.js";
+import { db } from "./config.js";
+
+describe.sequential("windowBy — e2e sqlite3", () => {
+   let accounts: IAccountSelect[] = [];
+   let orders: IOrderSelect[] = [];
+
+   beforeAll(async () => {
+      const tag = `wfn-${randomUUID().slice(0, 8)}`;
+      // Insert 3 accounts with deterministic emails for ordering
+      for (let i = 0; i < 3; i++) {
+         const ins: IAccountInsert = {
+            accountId: randomUUID(),
+            email: `${tag}-acc${i}@example.com`,
+            firstName: `First${i}`,
+            lastName: `Last${i}`,
+         };
+         const acc = await sql`insert into ${Account} ${insert(Account, "rows")} returning ${row(Account.$$)}`.sqlite.one({ db, params: { rows: [ins] } });
+         accounts.push(acc);
+      }
+      // Insert 2 orders per account
+      for (const acc of accounts) {
+         for (let j = 0; j < 2; j++) {
+            const oi: IOrderInsert = { accountId: acc.accountId };
+            const ord = await sql`insert into ${Order} ${insert(Order, "rows")} returning ${row(Order.$$)}`.sqlite.one({ db, params: { rows: [oi] } });
+            orders.push(ord);
+         }
+      }
+   });
+
+   describe("basic window functions", () => {
+      test("row_number with orderBy", async () => {
+         const accountIds = accounts.map((a) => a.accountId);
+         const results = await sqlite3Select(Account, {
+            WHERE: sql`${Account.$accountId} in (${accountIds})`,
+            limit: param<{ limit: number }>("limit"),
+         }).all({
+            db,
+            params: {
+               limit: 100,
+               windowBy: {
+                  rowNum: { fn: "row_number", over: { orderBy: { email: "ASC" } } },
+               },
+            },
+         });
+
+         expect(results).toHaveLength(3);
+         // row_number produces sequential integers
+         const rowNums = results.map((r) => (r as Record<string, unknown>)["rowNum"]);
+         expect(rowNums).toMatchInlineSnapshot(`
+           [
+             1,
+             2,
+             3,
+           ]
+         `);
+      });
+
+      test("rank with partitionBy + orderBy", async () => {
+         const accountIds = accounts.map((a) => a.accountId);
+         const results = await sqlite3Select(Account, {
+            WHERE: sql`${Account.$accountId} in (${accountIds})`,
+            limit: param<{ limit: number }>("limit"),
+         }).all({
+            db,
+            params: {
+               limit: 100,
+               windowBy: {
+                  rnk: { fn: "rank", over: { partitionBy: ["status"], orderBy: { email: "ASC" } } },
+               },
+            },
+         });
+
+         expect(results).toHaveLength(3);
+         // All accounts have same status='created', so rank within that partition is sequential
+         const ranks = results.map((r) => (r as Record<string, unknown>)["rnk"]);
+         for (const r of ranks) {
+            expect(typeof r).toBe("number");
+         }
+      });
+
+      test("dense_rank with orderBy", async () => {
+         const accountIds = accounts.map((a) => a.accountId);
+         const results = await sqlite3Select(Account, {
+            WHERE: sql`${Account.$accountId} in (${accountIds})`,
+            limit: param<{ limit: number }>("limit"),
+         }).all({
+            db,
+            params: {
+               limit: 100,
+               windowBy: {
+                  denseRnk: { fn: "dense_rank", over: { orderBy: { email: "ASC" } } },
+               },
+            },
+         });
+
+         expect(results).toHaveLength(3);
+         const denseRanks = results.map((r) => (r as Record<string, unknown>)["denseRnk"]);
+         expect(denseRanks).toMatchInlineSnapshot(`
+           [
+             1,
+             2,
+             3,
+           ]
+         `);
+      });
+
+      test("count(*) OVER — running count", async () => {
+         const accountIds = accounts.map((a) => a.accountId);
+         const results = await sqlite3Select(Account, {
+            WHERE: sql`${Account.$accountId} in (${accountIds})`,
+            limit: param<{ limit: number }>("limit"),
+         }).all({
+            db,
+            params: {
+               limit: 100,
+               windowBy: {
+                  runningCount: { fn: "count", col: "*", over: { orderBy: { email: "ASC" } } },
+               },
+            },
+         });
+
+         expect(results).toHaveLength(3);
+         const counts = results.map((r) => (r as Record<string, unknown>)["runningCount"] as number);
+         // Running count should be monotonically non-decreasing
+         for (let i = 1; i < counts.length; i++) {
+            expect(counts[i]!).toBeGreaterThanOrEqual(counts[i - 1]!);
+         }
+         expect(counts).toMatchInlineSnapshot(`
+           [
+             1,
+             2,
+             3,
+           ]
+         `);
+      });
+
+      test("count(col) OVER with partitionBy", async () => {
+         const accountIds = accounts.map((a) => a.accountId);
+         const results = await sqlite3Select(Account, {
+            WHERE: sql`${Account.$accountId} in (${accountIds})`,
+            limit: param<{ limit: number }>("limit"),
+         }).all({
+            db,
+            params: {
+               limit: 100,
+               windowBy: {
+                  statusCount: { fn: "count", col: "email", over: { partitionBy: ["status"] } },
+               },
+            },
+         });
+
+         expect(results).toHaveLength(3);
+         // All 3 accounts have same status, so count within the partition = 3
+         const statusCounts = results.map((r) => (r as Record<string, unknown>)["statusCount"]);
+         for (const c of statusCounts) {
+            expect(c).toBe(3);
+         }
+      });
+
+      test("lag with offset", async () => {
+         const accountIds = accounts.map((a) => a.accountId);
+         const results = await sqlite3Select(Account, {
+            WHERE: sql`${Account.$accountId} in (${accountIds})`,
+            limit: param<{ limit: number }>("limit"),
+         }).all({
+            db,
+            params: {
+               limit: 100,
+               windowBy: {
+                  prevEmail: { fn: "lag", col: "email", args: 1, over: { orderBy: { email: "ASC" } } },
+               },
+            },
+         });
+
+         expect(results).toHaveLength(3);
+         const prevEmails = results.map((r) => (r as Record<string, unknown>)["prevEmail"]);
+         // First row has no lag → null
+         expect(prevEmails[0]).toBeNull();
+         // Second row's lag = first row's email
+         expect(prevEmails[1]).toBe(results[0]!.email);
+      });
+
+      test("lead with offset", async () => {
+         const accountIds = accounts.map((a) => a.accountId);
+         const results = await sqlite3Select(Account, {
+            WHERE: sql`${Account.$accountId} in (${accountIds})`,
+            limit: param<{ limit: number }>("limit"),
+         }).all({
+            db,
+            params: {
+               limit: 100,
+               windowBy: {
+                  nextEmail: { fn: "lead", col: "email", args: 1, over: { orderBy: { email: "ASC" } } },
+               },
+            },
+         });
+
+         expect(results).toHaveLength(3);
+         const nextEmails = results.map((r) => (r as Record<string, unknown>)["nextEmail"]);
+         // Last row has no lead → null
+         expect(nextEmails[2]).toBeNull();
+         // First row's lead = second row's email
+         expect(nextEmails[0]).toBe(results[1]!.email);
+      });
+
+      test("ntile with args", async () => {
+         const accountIds = accounts.map((a) => a.accountId);
+         const results = await sqlite3Select(Account, {
+            WHERE: sql`${Account.$accountId} in (${accountIds})`,
+            limit: param<{ limit: number }>("limit"),
+         }).all({
+            db,
+            params: {
+               limit: 100,
+               windowBy: {
+                  quartile: { fn: "ntile", args: 2, over: { orderBy: { email: "ASC" } } },
+               },
+            },
+         });
+
+         expect(results).toHaveLength(3);
+         const tiles = results.map((r) => (r as Record<string, unknown>)["quartile"] as number);
+         // ntile(2) with 3 rows: [1, 1, 2] or similar distribution
+         for (const t of tiles) {
+            expect(t).toBeGreaterThanOrEqual(1);
+            expect(t).toBeLessThanOrEqual(2);
+         }
+      });
+
+      test("first_value with orderBy", async () => {
+         const accountIds = accounts.map((a) => a.accountId);
+         const results = await sqlite3Select(Account, {
+            WHERE: sql`${Account.$accountId} in (${accountIds})`,
+            limit: param<{ limit: number }>("limit"),
+         }).all({
+            db,
+            params: {
+               limit: 100,
+               windowBy: {
+                  firstEmail: { fn: "first_value", col: "email", over: { orderBy: { email: "ASC" } } },
+               },
+            },
+         });
+
+         expect(results).toHaveLength(3);
+         const firstEmails = results.map((r) => (r as Record<string, unknown>)["firstEmail"]);
+         // first_value should be the smallest email across all rows
+         const sortedEmails = [...accounts].sort((a, b) => a.email.localeCompare(b.email));
+         for (const fe of firstEmails) {
+            expect(fe).toBe(sortedEmails[0]!.email);
+         }
+      });
+
+      test("last_value with frame ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING", async () => {
+         const accountIds = accounts.map((a) => a.accountId);
+         const results = await sqlite3Select(Account, {
+            WHERE: sql`${Account.$accountId} in (${accountIds})`,
+            limit: param<{ limit: number }>("limit"),
+         }).all({
+            db,
+            params: {
+               limit: 100,
+               windowBy: {
+                  lastEmail: {
+                     fn: "last_value",
+                     col: "email",
+                     over: {
+                        orderBy: { email: "ASC" },
+                        frame: "rows",
+                        start: "unbounded preceding",
+                        end: "unbounded following",
+                     },
+                  },
+               },
+            },
+         });
+
+         expect(results).toHaveLength(3);
+         const lastEmails = results.map((r) => (r as Record<string, unknown>)["lastEmail"]);
+         // With full frame, last_value should be the largest email
+         const sortedEmails = [...accounts].sort((a, b) => a.email.localeCompare(b.email));
+         for (const le of lastEmails) {
+            expect(le).toBe(sortedEmails[2]!.email);
+         }
+      });
+   });
+
+   describe("combined with other clauses", () => {
+      test("windowBy + additional WHERE filter", async () => {
+         const accountIds = accounts.map((a) => a.accountId);
+         const results = await sqlite3Select(Account, {
+            WHERE: sql`${Account.$accountId} in (${accountIds}) and ${Account.$status} = ${"created"}`,
+            limit: param<{ limit: number }>("limit"),
+         }).all({
+            db,
+            params: {
+               limit: 100,
+               windowBy: {
+                  rowNum: { fn: "row_number", over: { orderBy: { email: "ASC" } } },
+               },
+            },
+         });
+
+         expect(results).toHaveLength(3);
+         const rowNums = results.map((r) => (r as Record<string, unknown>)["rowNum"]);
+         expect(rowNums).toMatchInlineSnapshot(`
+           [
+             1,
+             2,
+             3,
+           ]
+         `);
+      });
+
+      test("windowBy + ORDER_BY (result set ordering)", async () => {
+         const accountIds = accounts.map((a) => a.accountId);
+         const results = await sqlite3Select(Account, {
+            WHERE: sql`${Account.$accountId} in (${accountIds})`,
+            ORDER_BY: sql`${Account.$email} desc`,
+            limit: param<{ limit: number }>("limit"),
+         }).all({
+            db,
+            params: {
+               limit: 100,
+               windowBy: {
+                  rowNum: { fn: "row_number", over: { orderBy: { email: "ASC" } } },
+               },
+            },
+         });
+
+         expect(results).toHaveLength(3);
+         // Results ordered by email DESC but rowNum was computed with email ASC
+         // So first result (highest email) should have rowNum = 3
+         const first = results[0] as Record<string, unknown>;
+         const last = results[2] as Record<string, unknown>;
+         expect(first["rowNum"]).toBe(3);
+         expect(last["rowNum"]).toBe(1);
+      });
+   });
+
+   describe("frame clauses", () => {
+      test("ROWS BETWEEN N PRECEDING AND CURRENT ROW", async () => {
+         const accountIds = accounts.map((a) => a.accountId);
+         const results = await sqlite3Select(Account, {
+            WHERE: sql`${Account.$accountId} in (${accountIds})`,
+            limit: param<{ limit: number }>("limit"),
+         }).all({
+            db,
+            params: {
+               limit: 100,
+               windowBy: {
+                  recentCount: {
+                     fn: "count",
+                     col: "*",
+                     over: {
+                        orderBy: { email: "ASC" },
+                        frame: "rows",
+                        start: 1,
+                        end: 0,
+                     },
+                  },
+               },
+            },
+         });
+
+         expect(results).toHaveLength(3);
+         const counts = results.map((r) => (r as Record<string, unknown>)["recentCount"] as number);
+         // ROWS BETWEEN 1 PRECEDING AND CURRENT ROW: row 0 → 1, row 1 → 2, row 2 → 2
+         expect(counts).toMatchInlineSnapshot(`
+           [
+             1,
+             2,
+             2,
+           ]
+         `);
+      });
+
+      test("RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW", async () => {
+         const accountIds = accounts.map((a) => a.accountId);
+         const results = await sqlite3Select(Account, {
+            WHERE: sql`${Account.$accountId} in (${accountIds})`,
+            limit: param<{ limit: number }>("limit"),
+         }).all({
+            db,
+            params: {
+               limit: 100,
+               windowBy: {
+                  runningCount: {
+                     fn: "count",
+                     col: "*",
+                     over: {
+                        orderBy: { email: "ASC" },
+                        frame: "range",
+                        start: "unbounded preceding",
+                        end: "current row",
+                     },
+                  },
+               },
+            },
+         });
+
+         expect(results).toHaveLength(3);
+         const counts = results.map((r) => (r as Record<string, unknown>)["runningCount"] as number);
+         // With RANGE and unique orderBy values, acts like running count
+         expect(counts).toMatchInlineSnapshot(`
+           [
+             1,
+             2,
+             3,
+           ]
+         `);
+      });
+
+      test("ROWS with numeric start and end bounds", async () => {
+         const accountIds = accounts.map((a) => a.accountId);
+         const results = await sqlite3Select(Account, {
+            WHERE: sql`${Account.$accountId} in (${accountIds})`,
+            limit: param<{ limit: number }>("limit"),
+         }).all({
+            db,
+            params: {
+               limit: 100,
+               windowBy: {
+                  windowCount: {
+                     fn: "count",
+                     col: "*",
+                     over: {
+                        orderBy: { email: "ASC" },
+                        frame: "rows",
+                        start: 1,
+                        end: 1,
+                     },
+                  },
+               },
+            },
+         });
+
+         expect(results).toHaveLength(3);
+         const counts = results.map((r) => (r as Record<string, unknown>)["windowCount"] as number);
+         // ROWS BETWEEN 1 PRECEDING AND 1 FOLLOWING: row 0 → 2, row 1 → 3, row 2 → 2
+         expect(counts).toMatchInlineSnapshot(`
+           [
+             2,
+             3,
+             2,
+           ]
+         `);
+      });
+   });
+
+   describe("validation errors", () => {
+      test("invalid function name throws", async () => {
+         const accountIds = accounts.map((a) => a.accountId);
+         await expect(
+            sqlite3Select(Account, {
+               WHERE: sql`${Account.$accountId} in (${accountIds})`,
+               limit: param<{ limit: number }>("limit"),
+            }).all({
+               db,
+               params: {
+                  limit: 100,
+                  windowBy: {
+                     bad: { fn: "invalid_fn" as never, over: { orderBy: { email: "ASC" } } },
+                  },
+               },
+            }),
+         ).rejects.toThrow("invalid function");
+      });
+
+      test("col provided for ranking fn throws", async () => {
+         const accountIds = accounts.map((a) => a.accountId);
+         await expect(
+            sqlite3Select(Account, {
+               WHERE: sql`${Account.$accountId} in (${accountIds})`,
+               limit: param<{ limit: number }>("limit"),
+            }).all({
+               db,
+               params: {
+                  limit: 100,
+                  windowBy: {
+                     bad: { fn: "row_number", col: "email", over: { orderBy: { email: "ASC" } } } as never,
+                  },
+               },
+            }),
+         ).rejects.toThrow("does not accept 'col'");
+      });
+
+      test("missing col for aggregate fn throws", async () => {
+         const accountIds = accounts.map((a) => a.accountId);
+         await expect(
+            sqlite3Select(Account, {
+               WHERE: sql`${Account.$accountId} in (${accountIds})`,
+               limit: param<{ limit: number }>("limit"),
+            }).all({
+               db,
+               params: {
+                  limit: 100,
+                  windowBy: {
+                     bad: { fn: "sum", over: { orderBy: { email: "ASC" } } } as never,
+                  },
+               },
+            }),
+         ).rejects.toThrow("requires 'col'");
+      });
+
+      test("ntile without args throws", async () => {
+         const accountIds = accounts.map((a) => a.accountId);
+         await expect(
+            sqlite3Select(Account, {
+               WHERE: sql`${Account.$accountId} in (${accountIds})`,
+               limit: param<{ limit: number }>("limit"),
+            }).all({
+               db,
+               params: {
+                  limit: 100,
+                  windowBy: {
+                     bad: { fn: "ntile", over: { orderBy: { email: "ASC" } } } as never,
+                  },
+               },
+            }),
+         ).rejects.toThrow("ntile requires 'args'");
+      });
+   });
+
+   describe("Order table — window functions on joined data", () => {
+      test("row_number partitioned by accountId, ordered by createdAt", async () => {
+         ok(orders.length > 0);
+         const orderIds = orders.map((o) => o.orderId);
+         const results = await sqlite3Select(Order, {
+            WHERE: sql`${Order.$orderId} in (${orderIds})`,
+            limit: param<{ limit: number }>("limit"),
+         }).all({
+            db,
+            params: {
+               limit: 100,
+               windowBy: {
+                  orderInAccount: {
+                     fn: "row_number",
+                     over: { partitionBy: ["accountId"], orderBy: { createdAt: "ASC" } },
+                  },
+               },
+            },
+         });
+
+         expect(results).toHaveLength(6);
+         // Each account has 2 orders, so row_number within each partition is 1 or 2
+         const rowNums = results.map((r) => (r as Record<string, unknown>)["orderInAccount"] as number);
+         for (const rn of rowNums) {
+            expect(rn).toBeGreaterThanOrEqual(1);
+            expect(rn).toBeLessThanOrEqual(2);
+         }
+      });
+
+      test("multiple window functions in single query", async () => {
+         const orderIds = orders.map((o) => o.orderId);
+         const results = await sqlite3Select(Order, {
+            WHERE: sql`${Order.$orderId} in (${orderIds})`,
+            limit: param<{ limit: number }>("limit"),
+         }).all({
+            db,
+            params: {
+               limit: 100,
+               windowBy: {
+                  rowNum: { fn: "row_number", over: { orderBy: { createdAt: "ASC" } } },
+                  runCount: { fn: "count", col: "*", over: { orderBy: { createdAt: "ASC" } } },
+                  tile: { fn: "ntile", args: 3, over: { orderBy: { createdAt: "ASC" } } },
+               },
+            },
+         });
+
+         expect(results).toHaveLength(6);
+         for (const r of results) {
+            const row = r as Record<string, unknown>;
+            expect(typeof row["rowNum"]).toBe("number");
+            expect(typeof row["runCount"]).toBe("number");
+            expect(typeof row["tile"]).toBe("number");
+         }
+         // row_number should be sequential 1..6
+         const rowNums = results.map((r) => (r as Record<string, unknown>)["rowNum"] as number);
+         expect(rowNums).toMatchInlineSnapshot(`
+           [
+             1,
+             2,
+             3,
+             4,
+             5,
+             6,
+           ]
+         `);
+      });
+   });
+});
