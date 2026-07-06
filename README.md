@@ -373,6 +373,7 @@ See [Telemetry](docs/telemetry.md) — span shape, OTLP exporters, combining wit
 - [Queries](docs/queries.md) — subqueries, CTEs, recursive CTEs, window functions
 - [Params](docs/params.md) — inline injection, `param()`, runtime validation
 - [CRUD](docs/crud.md) — typed query factories, execution methods
+- [Window Functions](docs/window-functions.md) — runtime `windowBy` param, all 15 functions, frame clauses, AI agent usage
 - [Isomorphic SQL](docs/isomorphic-sql.md) — same query on server and client, how it works, comparison with REST/tRPC/GraphQL
 - [Registry](docs/registry.md) — SqlQueryRegistry, query pipelines, `connect()`, isomorphic SQL, remote execution
 - [Schema Graph](docs/schema-graph.md) — FK-based table introspection, BFS join path resolution, AI prompt formatting

@@ -613,8 +613,16 @@ describe.sequential("windowBy — e2e sqlite3", () => {
             },
             options: { dialect: "sqlite" },
          });
-         expect(text).toMatchInlineSnapshot();
-         expect(values).toMatchInlineSnapshot();
+         // Verify SQL contains the window function clauses
+         expect(text).toContain('row_number() over (');
+         expect(text).toContain('order by');
+         expect(text).toContain('ASC');
+         expect(text).toContain('"rowNum"');
+         expect(text).toContain('count(*) over (');
+         expect(text).toContain('partition by');
+         expect(text).toContain('"runSum"');
+         // Verify parameterized values
+         expect(values).toEqual(["test-id", 10]);
       });
    });
 
