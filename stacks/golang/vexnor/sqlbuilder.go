@@ -94,6 +94,10 @@ func (b *SqlBuilder) buildNodes(nodes TemplateNodes, params map[string]any, sql 
 			if err := b.buildUpsert(n, params, sql, values); err != nil {
 				return err
 			}
+		case *WindowByNode:
+			if err := b.buildWindowBy(n, params, sql); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
@@ -1089,4 +1093,381 @@ func (b *SqlBuilder) buildUpsertMssql(node *UpsertNode, keys []string, conflictS
 	}
 	*sql = append(*sql, ")")
 	return nil
+}
+
+// ─── Window Functions ────────────────────────────────────────────────────────
+
+var validWindowFunctions = map[string]bool{
+	"row_number": true, "rank": true, "dense_rank": true, "percent_rank": true, "cume_dist": true,
+	"ntile": true,
+	"sum": true, "avg": true, "count": true, "min": true, "max": true, "first_value": true, "last_value": true,
+	"lag": true, "lead": true,
+}
+
+var rankingFunctions = map[string]bool{
+	"row_number": true, "rank": true, "dense_rank": true, "percent_rank": true, "cume_dist": true,
+}
+
+var aggregateFunctions = map[string]bool{
+	"sum": true, "avg": true, "count": true, "min": true, "max": true, "first_value": true, "last_value": true,
+}
+
+var offsetFunctions = map[string]bool{
+	"lag": true, "lead": true,
+}
+
+// buildWindowBy handles WindowByNode — emits window function expressions appended to SELECT.
+func (b *SqlBuilder) buildWindowBy(node *WindowByNode, params map[string]any, sql *[]string) error {
+	obj, exists := params[node.Param]
+	if !exists || obj == nil {
+		return nil
+	}
+
+	// Extract ordered entries
+	var aliases []string
+	var getEntry func(string) (map[string]any, bool)
+
+	switch v := obj.(type) {
+	case *OrderedDict:
+		if v.Len() == 0 {
+			return nil
+		}
+		aliases = v.OrderedKeys()
+		getEntry = func(key string) (map[string]any, bool) {
+			val, ok := v.Get(key)
+			if !ok {
+				return nil, false
+			}
+			switch e := val.(type) {
+			case map[string]any:
+				return e, true
+			case *OrderedDict:
+				return e.ToMap(), true
+			}
+			return nil, false
+		}
+	case map[string]any:
+		if len(v) == 0 {
+			return nil
+		}
+		// Use node.Columns.Keys order for determinism
+		for _, key := range node.Columns.Keys {
+			if _, ok := v[key]; ok {
+				aliases = append(aliases, key)
+			}
+		}
+		// Also add any keys not in columns (shouldn't happen but be safe)
+		for key := range v {
+			found := false
+			for _, a := range aliases {
+				if a == key {
+					found = true
+					break
+				}
+			}
+			if !found {
+				aliases = append(aliases, key)
+			}
+		}
+		getEntry = func(key string) (map[string]any, bool) {
+			val, ok := v[key]
+			if !ok {
+				return nil, false
+			}
+			switch e := val.(type) {
+			case map[string]any:
+				return e, true
+			case *OrderedDict:
+				return e.ToMap(), true
+			}
+			return nil, false
+		}
+	default:
+		return nil
+	}
+
+	for _, alias := range aliases {
+		def, ok := getEntry(alias)
+		if !ok {
+			continue
+		}
+
+		fnObj, hasFn := def["fn"]
+		fn, fnIsStr := fnObj.(string)
+		if !hasFn || !fnIsStr || fn == "" {
+			return fmt.Errorf("windowBy: each entry requires a 'fn' property")
+		}
+		if !validWindowFunctions[fn] {
+			return fmt.Errorf("windowBy: invalid function '%s'", fn)
+		}
+
+		*sql = append(*sql, ", ")
+
+		// Emit function call
+		if err := b.writeWindowFunctionCall(fn, def, node.Columns, sql); err != nil {
+			return err
+		}
+
+		// Emit OVER clause
+		*sql = append(*sql, " over (")
+		if err := b.writeWindowOverClause(def, node.Columns, sql); err != nil {
+			return err
+		}
+		*sql = append(*sql, ")")
+
+		// Emit alias
+		*sql = append(*sql, fmt.Sprintf(` as "%s"`, strings.ReplaceAll(alias, `"`, `""`)))
+	}
+	return nil
+}
+
+func (b *SqlBuilder) writeWindowFunctionCall(fn string, def map[string]any, columns *OrderedMap, sql *[]string) error {
+	if rankingFunctions[fn] {
+		*sql = append(*sql, fn+"()")
+		return nil
+	}
+
+	if fn == "ntile" {
+		argsObj, has := def["args"]
+		if !has || argsObj == nil {
+			return fmt.Errorf("windowBy: ntile requires 'args' (positive integer bucket count)")
+		}
+		args := toInt(argsObj)
+		if args <= 0 {
+			return fmt.Errorf("windowBy: ntile 'args' must be a positive integer, got %v", argsObj)
+		}
+		*sql = append(*sql, fmt.Sprintf("ntile(%d)", args))
+		return nil
+	}
+
+	if aggregateFunctions[fn] {
+		colObj, has := def["col"]
+		col, isStr := colObj.(string)
+		if !has || !isStr || col == "" {
+			return fmt.Errorf("windowBy: aggregate function '%s' requires 'col'", fn)
+		}
+		*sql = append(*sql, fn+"(")
+		if col == "*" {
+			*sql = append(*sql, "*")
+		} else {
+			*sql = append(*sql, resolveWindowColumn(col, columns))
+		}
+		*sql = append(*sql, ")")
+		return nil
+	}
+
+	if offsetFunctions[fn] {
+		colObj, has := def["col"]
+		col, isStr := colObj.(string)
+		if !has || !isStr || col == "" {
+			return fmt.Errorf("windowBy: offset function '%s' requires 'col'", fn)
+		}
+		offset := 1
+		if argsObj, has := def["args"]; has && argsObj != nil {
+			offset = toInt(argsObj)
+			if offset <= 0 {
+				offset = 1
+			}
+		}
+		*sql = append(*sql, fmt.Sprintf("%s(", fn))
+		*sql = append(*sql, resolveWindowColumn(col, columns))
+		*sql = append(*sql, fmt.Sprintf(", %d)", offset))
+		return nil
+	}
+
+	return nil
+}
+
+func (b *SqlBuilder) writeWindowOverClause(def map[string]any, columns *OrderedMap, sql *[]string) error {
+	overObj, has := def["over"]
+	if !has || overObj == nil {
+		return nil
+	}
+	over, ok := overObj.(map[string]any)
+	if !ok {
+		if od, ok := overObj.(*OrderedDict); ok {
+			over = od.ToMap()
+		} else {
+			return nil
+		}
+	}
+
+	hasContent := false
+
+	// PARTITION BY
+	if partObj, has := over["partitionBy"]; has {
+		if partCols, ok := partObj.([]any); ok && len(partCols) > 0 {
+			*sql = append(*sql, "partition by ")
+			for i, colObj := range partCols {
+				if i > 0 {
+					*sql = append(*sql, ", ")
+				}
+				col, _ := colObj.(string)
+				*sql = append(*sql, resolveWindowColumn(col, columns))
+			}
+			hasContent = true
+		}
+	}
+
+	// ORDER BY
+	if ordObj, has := over["orderBy"]; has {
+		var ordKeys []string
+		var getDir func(string) string
+
+		switch v := ordObj.(type) {
+		case *OrderedDict:
+			if v.Len() > 0 {
+				ordKeys = v.OrderedKeys()
+				getDir = func(key string) string {
+					val, _ := v.Get(key)
+					s, _ := val.(string)
+					return s
+				}
+			}
+		case map[string]any:
+			if len(v) > 0 {
+				// Use columns order for determinism
+				for _, key := range columns.Keys {
+					if _, ok := v[key]; ok {
+						ordKeys = append(ordKeys, key)
+					}
+				}
+				getDir = func(key string) string {
+					s, _ := v[key].(string)
+					return s
+				}
+			}
+		}
+
+		if len(ordKeys) > 0 {
+			if hasContent {
+				*sql = append(*sql, " ")
+			}
+			*sql = append(*sql, "order by ")
+			emitted := 0
+			for _, col := range ordKeys {
+				dir := getDir(col)
+				if dir == "" {
+					dir = "ASC"
+				}
+				dir = strings.ToUpper(dir)
+				if dir != "ASC" && dir != "DESC" {
+					return fmt.Errorf("windowBy: invalid orderBy direction '%s'. Must be ASC or DESC.", dir)
+				}
+				if emitted > 0 {
+					*sql = append(*sql, ", ")
+				}
+				*sql = append(*sql, resolveWindowColumn(col, columns))
+				*sql = append(*sql, " ", dir)
+				emitted++
+			}
+			hasContent = true
+		}
+	}
+
+	// FRAME clause
+	startObj, hasStart := over["start"]
+	endObj, hasEnd := over["end"]
+	if (hasStart && startObj != nil) || (hasEnd && endObj != nil) {
+		frameObj, hasFrame := over["frame"]
+		frame, _ := frameObj.(string)
+		if !hasFrame || (frame != "rows" && frame != "range") {
+			return fmt.Errorf("windowBy: 'frame' (rows|range) is required when start/end are specified")
+		}
+		// MSSQL validation
+		if frame == "range" && b.dialect == "transactsql" {
+			startIsNum := isNumeric(startObj)
+			endIsNum := isNumeric(endObj)
+			if startIsNum || endIsNum {
+				return fmt.Errorf("windowBy: MSSQL does not support numeric bounds with RANGE frame. Use frame: \"rows\" instead.")
+			}
+		}
+		if hasContent {
+			*sql = append(*sql, " ")
+		}
+		*sql = append(*sql, frame, " between ")
+		*sql = append(*sql, formatFrameBound(startObj, "start"))
+		*sql = append(*sql, " and ")
+		*sql = append(*sql, formatFrameBound(endObj, "end"))
+	}
+
+	return nil
+}
+
+// resolveWindowColumn resolves a column key to its SQL expression, stripping the alias suffix.
+func resolveWindowColumn(col string, columns *OrderedMap) string {
+	if colSQL, ok := columns.Get(col); ok {
+		// Strip ' as "alias"' suffix — we need the raw column reference
+		idx := strings.Index(strings.ToLower(colSQL), " as \"")
+		if idx > 0 {
+			return colSQL[:idx]
+		}
+		return colSQL
+	}
+	// Fallback: emit quoted identifier
+	return fmt.Sprintf(`"%s"`, strings.ReplaceAll(col, `"`, `""`))
+}
+
+// formatFrameBound formats a window frame bound.
+func formatFrameBound(bound any, position string) string {
+	switch v := bound.(type) {
+	case string:
+		if v == "unbounded preceding" || v == "unbounded following" || v == "current row" {
+			return v
+		}
+		// Try parsing as number
+		if n, err := fmt.Sscanf(v, "%d", new(int)); err == nil && n == 1 {
+			var num int
+			fmt.Sscanf(v, "%d", &num)
+			return formatNumericBound(num, position)
+		}
+		return v
+	case float64:
+		return formatNumericBound(int(v), position)
+	case int:
+		return formatNumericBound(v, position)
+	case int64:
+		return formatNumericBound(int(v), position)
+	case nil:
+		if position == "start" {
+			return "unbounded preceding"
+		}
+		return "unbounded following"
+	default:
+		return "current row"
+	}
+}
+
+func formatNumericBound(num int, position string) string {
+	if num == 0 {
+		return "current row"
+	}
+	if position == "start" {
+		return fmt.Sprintf("%d preceding", num)
+	}
+	return fmt.Sprintf("%d following", num)
+}
+
+// toInt converts a numeric value to int.
+func toInt(v any) int {
+	switch n := v.(type) {
+	case float64:
+		return int(n)
+	case int:
+		return n
+	case int64:
+		return int(n)
+	default:
+		return 0
+	}
+}
+
+// isNumeric checks if a value is a numeric type.
+func isNumeric(v any) bool {
+	switch v.(type) {
+	case int, int64, float64:
+		return true
+	default:
+		return false
+	}
 }

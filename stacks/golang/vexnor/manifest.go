@@ -184,6 +184,12 @@ func unmarshalTemplateNode(data json.RawMessage) (TemplateNode, error) {
 			return nil, err
 		}
 		return &n, nil
+	case "windowBy":
+		var n WindowByNode
+		if err := json.Unmarshal(data, &n); err != nil {
+			return nil, err
+		}
+		return &n, nil
 	default:
 		return nil, fmt.Errorf("unknown template node type: %q", discriminator.Type)
 	}
@@ -220,6 +226,8 @@ func marshalTemplateNode(node TemplateNode) (json.RawMessage, error) {
 		typeName = "joinBy"
 	case *UpsertNode:
 		typeName = "upsert"
+	case *WindowByNode:
+		typeName = "windowBy"
 	default:
 		return nil, fmt.Errorf("unknown template node type: %T", node)
 	}
@@ -359,3 +367,11 @@ type UpsertNode struct {
 }
 
 func (*UpsertNode) templateNode() {}
+
+// WindowByNode emits window function expressions appended to the SELECT list.
+type WindowByNode struct {
+	Param   string      `json:"param"`
+	Columns *OrderedMap `json:"columns"`
+}
+
+func (*WindowByNode) templateNode() {}
