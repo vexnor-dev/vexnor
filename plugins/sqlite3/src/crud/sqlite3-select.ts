@@ -18,7 +18,7 @@ export type Sqlite3SelectResult<
    Args extends SqlSelectArgs<T>,
 > = BetterSqlite3QueryHandler<{
    Row: SqlSelectResultRow<T, Args>;
-   Params: ParamsOfArgs<Args> & SqlWindowByParams;
+   Params: (ParamsOfArgs<Args> extends void ? unknown : ParamsOfArgs<Args>) & SqlWindowByParams<T>;
 }> &
    SqlQueryColumns<SqlSelectResultRow<T, Args>>;
 

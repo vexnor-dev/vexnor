@@ -29,7 +29,7 @@ export type PostgresSelectResult<
       & SqlPaginationParams
       & SqlProjectByParams<T>
       & SqlHavingByParams
-      & SqlWindowByParams;
+      & SqlWindowByParams<T>;
 }> &
    SqlQueryColumns<SqlSelectResultRow<T, Args>>;
 

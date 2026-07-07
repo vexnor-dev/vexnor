@@ -90,6 +90,7 @@ export {
    type WindowAggregate,
    type WindowOffset,
    type WindowOver,
+   type InferWindowByRow,
    WindowByRankingFunctions,
    WindowByBucketFunctions,
    WindowByAggregateFunctions,

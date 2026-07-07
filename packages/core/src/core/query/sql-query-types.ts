@@ -125,10 +125,12 @@ export type SqlRetryOptions<TExecution = unknown> = {
    shouldRetry?: (args: SqlRetryArgs<TExecution>) => boolean | Promise<boolean>;
 };
 
-/** Arguments passed to `getSql()`. Requires `params` only when the query declares named parameters. */
+/** Arguments passed to `getSql()`. Requires `params` only when the query declares required parameters. */
 export type SqlInputArgs<Params> =
    Params extends Record<string, unknown>
-      ? { params: WithRuntimeValues<Params>; options?: SqlBuildOptions }
+      ? {} extends Params
+         ? { params?: WithRuntimeValues<Params>; options?: SqlBuildOptions }
+         : { params: WithRuntimeValues<Params>; options?: SqlBuildOptions }
       : { params?: WithRuntimeValues<Params>; options?: SqlBuildOptions };
 
 export function hasParams(value: unknown): value is { params: Record<string, SqlParamAny> } {

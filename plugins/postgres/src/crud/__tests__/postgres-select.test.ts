@@ -9,7 +9,7 @@ import { defaultQueryOptions } from "#src/default-query-options.js";
 describe("postgresSelect()", () => {
    test("basic select", () => {
       const query = postgresSelect(Account, {});
-      const { text } = query.source.getSql({ params: {}, options: defaultQueryOptions });
+      const { text } = query.source.getSql({ options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         /* driver: postgres */
@@ -121,7 +121,7 @@ describe("postgresSelect()", () => {
          where ${Account.as("children").$parentId} = ${Account.$accountId}
       `;
       const query = postgresSelect(Account, { includeMany: { children } });
-      const { text } = query.source.getSql({ params: {}, options: defaultQueryOptions });
+      const { text } = query.source.getSql({ options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         /* driver: postgres */
@@ -192,7 +192,7 @@ describe("postgresSelect()", () => {
          where ${Order.$accountId} = ${Account.$accountId}
       `;
       const query = postgresSelect(Account, { includeOne: { firstOrder } });
-      const { text } = query.source.getSql({ params: {} });
+      const { text } = query.source.getSql({});
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         /* driver: postgres */
@@ -273,7 +273,7 @@ describe("postgresSelect()", () => {
          where ${Account.as("children").$parentId} = ${Account.$accountId}
       `;
       const select = postgresSelect(Account, { includeOne: { firstOrder }, includeMany: { children } });
-      const { text } = select.source.getSql({ params: {}, options: defaultQueryOptions });
+      const { text } = select.source.getSql({ options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         /* driver: postgres */
@@ -368,7 +368,7 @@ describe("postgresSelect()", () => {
          where ${Order.$accountId} = ${Account.$accountId}
       `;
       const select = postgresSelect(Account, { includeMany: { orders: ordersWithItems } });
-      const { text } = select.source.getSql({ params: {} });
+      const { text } = select.source.getSql({});
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         /* driver: postgres */
@@ -446,7 +446,7 @@ describe("postgresSelect()", () => {
       const select = postgresSelect(Account, {
          SELECT: sql`${row(Account.$$)}, (select count(*) from ${Order} where ${Order.$accountId} = ${Account.$accountId}) as ${orderCount}`,
       });
-      const { text } = select.source.getSql({ params: {}, options: defaultQueryOptions });
+      const { text } = select.source.getSql({ options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         /* driver: postgres */
@@ -547,7 +547,7 @@ describe("postgresSelect()", () => {
    describe("windowBy query building", () => {
       test("windowBy — ranking function (row_number)", () => {
          const query = postgresSelect(Account, {});
-         const { text } = query.source.getSql({ params: { windowBy: { rowNum: { fn: "row_number", over: { orderBy: { createdAt: "ASC" } } } } } as never, options: defaultQueryOptions });
+         const { text, values } = query.source.getSql({ params: { windowBy: { rowNum: { fn: "row_number", over: { orderBy: { createdAt: "ASC" } } } } }, options: defaultQueryOptions });
          expect(text).toMatchInlineSnapshot(`
            "/* <query_0> */
            /* driver: postgres */
@@ -575,11 +575,12 @@ describe("postgresSelect()", () => {
              /* </query_3> */
              /* </query_0> */"
          `);
+         expect(values).toMatchInlineSnapshot(`[]`);
       });
 
       test("windowBy — aggregate function (sum)", () => {
          const query = postgresSelect(Account, {});
-         const { text } = query.source.getSql({ params: { windowBy: { total: { fn: "sum", col: "createdAt", over: { partitionBy: ["status"], orderBy: { createdAt: "ASC" } } } } } as never, options: defaultQueryOptions });
+         const { text, values } = query.source.getSql({ params: { windowBy: { total: { fn: "sum", col: "createdAt", over: { partitionBy: ["status"], orderBy: { createdAt: "ASC" } } } } }, options: defaultQueryOptions });
          expect(text).toMatchInlineSnapshot(`
            "/* <query_0> */
            /* driver: postgres */
@@ -609,11 +610,12 @@ describe("postgresSelect()", () => {
              /* </query_3> */
              /* </query_0> */"
          `);
+         expect(values).toMatchInlineSnapshot(`[]`);
       });
 
       test("windowBy — offset function (lag)", () => {
          const query = postgresSelect(Account, {});
-         const { text } = query.source.getSql({ params: { windowBy: { prev: { fn: "lag", col: "email", args: 1, over: { orderBy: { email: "ASC" } } } } } as never, options: defaultQueryOptions });
+         const { text, values } = query.source.getSql({ params: { windowBy: { prev: { fn: "lag", col: "email", args: 1, over: { orderBy: { email: "ASC" } } } } }, options: defaultQueryOptions });
          expect(text).toMatchInlineSnapshot(`
            "/* <query_0> */
            /* driver: postgres */
@@ -641,11 +643,12 @@ describe("postgresSelect()", () => {
              /* </query_3> */
              /* </query_0> */"
          `);
+         expect(values).toMatchInlineSnapshot(`[]`);
       });
 
       test("windowBy — bucket function (ntile)", () => {
          const query = postgresSelect(Account, {});
-         const { text } = query.source.getSql({ params: { windowBy: { quartile: { fn: "ntile", args: 4, over: { orderBy: { createdAt: "ASC" } } } } } as never, options: defaultQueryOptions });
+         const { text, values } = query.source.getSql({ params: { windowBy: { quartile: { fn: "ntile", args: 4, over: { orderBy: { createdAt: "ASC" } } } } }, options: defaultQueryOptions });
          expect(text).toMatchInlineSnapshot(`
            "/* <query_0> */
            /* driver: postgres */
@@ -673,11 +676,12 @@ describe("postgresSelect()", () => {
              /* </query_3> */
              /* </query_0> */"
          `);
+         expect(values).toMatchInlineSnapshot(`[]`);
       });
 
       test("windowBy — frame clause", () => {
          const query = postgresSelect(Account, {});
-         const { text } = query.source.getSql({ params: { windowBy: { moving: { fn: "avg", col: "createdAt", over: { orderBy: { createdAt: "ASC" }, frame: "rows", start: 2, end: "current row" } } } } as never, options: defaultQueryOptions });
+         const { text, values } = query.source.getSql({ params: { windowBy: { moving: { fn: "avg", col: "createdAt", over: { orderBy: { createdAt: "ASC" }, frame: "rows", start: 2, end: "current row" } } } }, options: defaultQueryOptions });
          expect(text).toMatchInlineSnapshot(`
            "/* <query_0> */
            /* driver: postgres */
@@ -706,11 +710,12 @@ describe("postgresSelect()", () => {
              /* </query_3> */
              /* </query_0> */"
          `);
+         expect(values).toMatchInlineSnapshot(`[]`);
       });
 
       test("windowBy — multiple functions", () => {
          const query = postgresSelect(Account, {});
-         const { text } = query.source.getSql({ params: { windowBy: { rowNum: { fn: "row_number", over: { orderBy: { createdAt: "ASC" } } }, total: { fn: "sum", col: "createdAt", over: { partitionBy: ["status"], orderBy: { createdAt: "ASC" } } } } } as never, options: defaultQueryOptions });
+         const { text, values } = query.source.getSql({ params: { windowBy: { rowNum: { fn: "row_number", over: { orderBy: { createdAt: "ASC" } } }, total: { fn: "sum", col: "createdAt", over: { partitionBy: ["status"], orderBy: { createdAt: "ASC" } } } } }, options: defaultQueryOptions });
          expect(text).toMatchInlineSnapshot(`
            "/* <query_0> */
            /* driver: postgres */
@@ -744,6 +749,7 @@ describe("postgresSelect()", () => {
              /* </query_3> */
              /* </query_0> */"
          `);
+         expect(values).toMatchInlineSnapshot(`[]`);
       });
    });
 

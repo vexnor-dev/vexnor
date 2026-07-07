@@ -20,7 +20,7 @@ export type MssqlSelectResult<
    Args extends SqlSelectArgs<T>,
 > = MssqlQueryHandler<{
    Row: SqlSelectResultRow<T, Args>;
-   Params: ParamsOfArgs<Args> & SqlWindowByParams;
+   Params: (ParamsOfArgs<Args> extends void ? unknown : ParamsOfArgs<Args>) & SqlWindowByParams<T>;
 }> &
    SqlQueryColumns<SqlSelectResultRow<T, Args>>;
 

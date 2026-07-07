@@ -19,7 +19,7 @@ describe("newMssqlTableHandler", () => {
    });
 
    test("insertFrom() — builds query object", () => {
-      const query = handler.insertFrom({ FROM: Account.mssql.select({}).source });
+      const query = handler.insertFrom({ FROM: Account.mssql.select({}).source as never });
       expect(query).toBeDefined();
       expect(query.source).toBeDefined();
    });

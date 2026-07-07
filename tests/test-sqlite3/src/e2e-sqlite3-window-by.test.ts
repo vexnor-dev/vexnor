@@ -52,6 +52,7 @@ describe.sequential("windowBy — e2e sqlite3", () => {
          });
 
          expect(results).toHaveLength(3);
+         expect(results[0]).toHaveProperty("rowNum");
          // row_number produces sequential integers
          const rowNums = results.map((r) => (r as Record<string, unknown>)["rowNum"]);
          expect(rowNums).toMatchInlineSnapshot(`
@@ -79,6 +80,7 @@ describe.sequential("windowBy — e2e sqlite3", () => {
          });
 
          expect(results).toHaveLength(3);
+         expect(results[0]).toHaveProperty("rnk");
          // All accounts have same status='created', so rank within that partition is sequential
          const ranks = results.map((r) => (r as Record<string, unknown>)["rnk"]);
          for (const r of ranks) {
@@ -102,6 +104,7 @@ describe.sequential("windowBy — e2e sqlite3", () => {
          });
 
          expect(results).toHaveLength(3);
+         expect(results[0]).toHaveProperty("denseRnk");
          const denseRanks = results.map((r) => (r as Record<string, unknown>)["denseRnk"]);
          expect(denseRanks).toMatchInlineSnapshot(`
            [
@@ -128,6 +131,7 @@ describe.sequential("windowBy — e2e sqlite3", () => {
          });
 
          expect(results).toHaveLength(3);
+         expect(results[0]).toHaveProperty("runningCount");
          const counts = results.map((r) => (r as Record<string, unknown>)["runningCount"] as number);
          // Running count should be monotonically non-decreasing
          for (let i = 1; i < counts.length; i++) {
@@ -158,6 +162,7 @@ describe.sequential("windowBy — e2e sqlite3", () => {
          });
 
          expect(results).toHaveLength(3);
+         expect(results[0]).toHaveProperty("statusCount");
          // All 3 accounts have same status, so count within the partition = 3
          const statusCounts = results.map((r) => (r as Record<string, unknown>)["statusCount"]);
          for (const c of statusCounts) {
@@ -181,6 +186,7 @@ describe.sequential("windowBy — e2e sqlite3", () => {
          });
 
          expect(results).toHaveLength(3);
+         expect(results[0]).toHaveProperty("prevEmail");
          const prevEmails = results.map((r) => (r as Record<string, unknown>)["prevEmail"]);
          // First row has no lag → null
          expect(prevEmails[0]).toBeNull();
@@ -204,6 +210,7 @@ describe.sequential("windowBy — e2e sqlite3", () => {
          });
 
          expect(results).toHaveLength(3);
+         expect(results[0]).toHaveProperty("nextEmail");
          const nextEmails = results.map((r) => (r as Record<string, unknown>)["nextEmail"]);
          // Last row has no lead → null
          expect(nextEmails[2]).toBeNull();
@@ -227,6 +234,7 @@ describe.sequential("windowBy — e2e sqlite3", () => {
          });
 
          expect(results).toHaveLength(3);
+         expect(results[0]).toHaveProperty("quartile");
          const tiles = results.map((r) => (r as Record<string, unknown>)["quartile"] as number);
          // ntile(2) with 3 rows: [1, 1, 2] or similar distribution
          for (const t of tiles) {
@@ -251,6 +259,7 @@ describe.sequential("windowBy — e2e sqlite3", () => {
          });
 
          expect(results).toHaveLength(3);
+         expect(results[0]).toHaveProperty("firstEmail");
          const firstEmails = results.map((r) => (r as Record<string, unknown>)["firstEmail"]);
          // first_value should be the smallest email across all rows
          const sortedEmails = [...accounts].sort((a, b) => a.email.localeCompare(b.email));
@@ -284,6 +293,7 @@ describe.sequential("windowBy — e2e sqlite3", () => {
          });
 
          expect(results).toHaveLength(3);
+         expect(results[0]).toHaveProperty("lastEmail");
          const lastEmails = results.map((r) => (r as Record<string, unknown>)["lastEmail"]);
          // With full frame, last_value should be the largest email
          const sortedEmails = [...accounts].sort((a, b) => a.email.localeCompare(b.email));
@@ -310,6 +320,7 @@ describe.sequential("windowBy — e2e sqlite3", () => {
          });
 
          expect(results).toHaveLength(3);
+         expect(results[0]).toHaveProperty("rowNum");
          const rowNums = results.map((r) => (r as Record<string, unknown>)["rowNum"]);
          expect(rowNums).toMatchInlineSnapshot(`
            [
@@ -337,6 +348,7 @@ describe.sequential("windowBy — e2e sqlite3", () => {
          });
 
          expect(results).toHaveLength(3);
+         expect(results[0]).toHaveProperty("rowNum");
          // Results ordered by email DESC but rowNum was computed with email ASC
          // So first result (highest email) should have rowNum = 3
          const first = results[0] as Record<string, unknown>;
@@ -372,6 +384,7 @@ describe.sequential("windowBy — e2e sqlite3", () => {
          });
 
          expect(results).toHaveLength(3);
+         expect(results[0]).toHaveProperty("recentCount");
          const counts = results.map((r) => (r as Record<string, unknown>)["recentCount"] as number);
          // ROWS BETWEEN 1 PRECEDING AND CURRENT ROW: row 0 → 1, row 1 → 2, row 2 → 2
          expect(counts).toMatchInlineSnapshot(`
@@ -408,6 +421,7 @@ describe.sequential("windowBy — e2e sqlite3", () => {
          });
 
          expect(results).toHaveLength(3);
+         expect(results[0]).toHaveProperty("runningCount");
          const counts = results.map((r) => (r as Record<string, unknown>)["runningCount"] as number);
          // With RANGE and unique orderBy values, acts like running count
          expect(counts).toMatchInlineSnapshot(`
@@ -444,6 +458,7 @@ describe.sequential("windowBy — e2e sqlite3", () => {
          });
 
          expect(results).toHaveLength(3);
+         expect(results[0]).toHaveProperty("windowCount");
          const counts = results.map((r) => (r as Record<string, unknown>)["windowCount"] as number);
          // ROWS BETWEEN 1 PRECEDING AND 1 FOLLOWING: row 0 → 2, row 1 → 3, row 2 → 2
          expect(counts).toMatchInlineSnapshot(`
@@ -473,6 +488,7 @@ describe.sequential("windowBy — e2e sqlite3", () => {
          });
 
          expect(results).toHaveLength(3);
+         expect(results[0]).toHaveProperty("pctRank");
          const pctRanks = results.map((r) => (r as Record<string, unknown>)["pctRank"] as number);
          // percent_rank: first = 0, last = 1 for 3 distinct rows
          for (const val of pctRanks) {
@@ -505,6 +521,7 @@ describe.sequential("windowBy — e2e sqlite3", () => {
          });
 
          expect(results).toHaveLength(3);
+         expect(results[0]).toHaveProperty("cumeDist");
          const cumeDists = results.map((r) => (r as Record<string, unknown>)["cumeDist"] as number);
          // cume_dist: values between 0 (exclusive) and 1 (inclusive)
          for (const val of cumeDists) {
@@ -529,6 +546,7 @@ describe.sequential("windowBy — e2e sqlite3", () => {
          });
 
          expect(results).toHaveLength(3);
+         expect(results[0]).toHaveProperty("minEmail");
          // With default frame (RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW),
          // min(email) ordered ASC is always the first email
          const sortedEmails = [...accounts].sort((a, b) => a.email.localeCompare(b.email));
@@ -563,6 +581,7 @@ describe.sequential("windowBy — e2e sqlite3", () => {
          });
 
          expect(results).toHaveLength(3);
+         expect(results[0]).toHaveProperty("maxEmail");
          // With full frame, max(email) should be the largest email for all rows
          const sortedEmails = [...accounts].sort((a, b) => a.email.localeCompare(b.email));
          for (const row of results) {
@@ -587,6 +606,7 @@ describe.sequential("windowBy — e2e sqlite3", () => {
          });
 
          expect(results).toHaveLength(6);
+         expect(results[0]).toHaveProperty("runCount");
          const counts = results.map((r) => (r as Record<string, unknown>)["runCount"] as number);
          // Running count should be monotonically non-decreasing
          for (let i = 1; i < counts.length; i++) {
@@ -721,6 +741,7 @@ describe.sequential("windowBy — e2e sqlite3", () => {
          });
 
          expect(results).toHaveLength(6);
+         expect(results[0]).toHaveProperty("orderInAccount");
          // Each account has 2 orders, so row_number within each partition is 1 or 2
          const rowNums = results.map((r) => (r as Record<string, unknown>)["orderInAccount"] as number);
          for (const rn of rowNums) {
@@ -747,6 +768,9 @@ describe.sequential("windowBy — e2e sqlite3", () => {
          });
 
          expect(results).toHaveLength(6);
+         expect(results[0]).toHaveProperty("rowNum");
+         expect(results[0]).toHaveProperty("runCount");
+         expect(results[0]).toHaveProperty("tile");
          for (const r of results) {
             const row = r as Record<string, unknown>;
             expect(typeof row["rowNum"]).toBe("number");

@@ -436,7 +436,7 @@ describe("sqlite3Select()", () => {
    describe("windowBy query building", () => {
       test("windowBy — ranking function (row_number)", () => {
          const query = sqlite3Select(Account, {});
-         const { text } = query.source.getSql({ params: { windowBy: { rowNum: { fn: "row_number", over: { orderBy: { createdAt: "ASC" } } } } } as never, options: defaultQueryOptions });
+         const { text, values } = query.source.getSql({ params: { windowBy: { rowNum: { fn: "row_number", over: { orderBy: { createdAt: "ASC" } } } } }, options: defaultQueryOptions });
          expect(text).toMatchInlineSnapshot(`
            "/* <query_0> */
            /* driver: sqlite */
@@ -464,11 +464,12 @@ describe("sqlite3Select()", () => {
              /* </query_3> */
              /* </query_0> */"
          `);
+         expect(values).toMatchInlineSnapshot(`[]`);
       });
 
       test("windowBy — aggregate function (sum)", () => {
          const query = sqlite3Select(Account, {});
-         const { text } = query.source.getSql({ params: { windowBy: { total: { fn: "sum", col: "createdAt", over: { partitionBy: ["status"], orderBy: { createdAt: "ASC" } } } } } as never, options: defaultQueryOptions });
+         const { text, values } = query.source.getSql({ params: { windowBy: { total: { fn: "sum", col: "createdAt", over: { partitionBy: ["status"], orderBy: { createdAt: "ASC" } } } } }, options: defaultQueryOptions });
          expect(text).toMatchInlineSnapshot(`
            "/* <query_0> */
            /* driver: sqlite */
@@ -498,11 +499,12 @@ describe("sqlite3Select()", () => {
              /* </query_3> */
              /* </query_0> */"
          `);
+         expect(values).toMatchInlineSnapshot(`[]`);
       });
 
       test("windowBy — offset function (lag)", () => {
          const query = sqlite3Select(Account, {});
-         const { text } = query.source.getSql({ params: { windowBy: { prev: { fn: "lag", col: "email", args: 1, over: { orderBy: { email: "ASC" } } } } } as never, options: defaultQueryOptions });
+         const { text, values } = query.source.getSql({ params: { windowBy: { prev: { fn: "lag", col: "email", args: 1, over: { orderBy: { email: "ASC" } } } } }, options: defaultQueryOptions });
          expect(text).toMatchInlineSnapshot(`
            "/* <query_0> */
            /* driver: sqlite */
@@ -530,11 +532,12 @@ describe("sqlite3Select()", () => {
              /* </query_3> */
              /* </query_0> */"
          `);
+         expect(values).toMatchInlineSnapshot(`[]`);
       });
 
       test("windowBy — bucket function (ntile)", () => {
          const query = sqlite3Select(Account, {});
-         const { text } = query.source.getSql({ params: { windowBy: { quartile: { fn: "ntile", args: 4, over: { orderBy: { createdAt: "ASC" } } } } } as never, options: defaultQueryOptions });
+         const { text, values } = query.source.getSql({ params: { windowBy: { quartile: { fn: "ntile", args: 4, over: { orderBy: { createdAt: "ASC" } } } } }, options: defaultQueryOptions });
          expect(text).toMatchInlineSnapshot(`
            "/* <query_0> */
            /* driver: sqlite */
@@ -562,11 +565,12 @@ describe("sqlite3Select()", () => {
              /* </query_3> */
              /* </query_0> */"
          `);
+         expect(values).toMatchInlineSnapshot(`[]`);
       });
 
       test("windowBy — frame clause", () => {
          const query = sqlite3Select(Account, {});
-         const { text } = query.source.getSql({ params: { windowBy: { moving: { fn: "avg", col: "createdAt", over: { orderBy: { createdAt: "ASC" }, frame: "rows", start: 2, end: "current row" } } } } as never, options: defaultQueryOptions });
+         const { text, values } = query.source.getSql({ params: { windowBy: { moving: { fn: "avg", col: "createdAt", over: { orderBy: { createdAt: "ASC" }, frame: "rows", start: 2, end: "current row" } } } }, options: defaultQueryOptions });
          expect(text).toMatchInlineSnapshot(`
            "/* <query_0> */
            /* driver: sqlite */
@@ -595,11 +599,12 @@ describe("sqlite3Select()", () => {
              /* </query_3> */
              /* </query_0> */"
          `);
+         expect(values).toMatchInlineSnapshot(`[]`);
       });
 
       test("windowBy — multiple functions", () => {
          const query = sqlite3Select(Account, {});
-         const { text } = query.source.getSql({ params: { windowBy: { rowNum: { fn: "row_number", over: { orderBy: { createdAt: "ASC" } } }, total: { fn: "sum", col: "createdAt", over: { partitionBy: ["status"], orderBy: { createdAt: "ASC" } } } } } as never, options: defaultQueryOptions });
+         const { text, values } = query.source.getSql({ params: { windowBy: { rowNum: { fn: "row_number", over: { orderBy: { createdAt: "ASC" } } }, total: { fn: "sum", col: "createdAt", over: { partitionBy: ["status"], orderBy: { createdAt: "ASC" } } } } }, options: defaultQueryOptions });
          expect(text).toMatchInlineSnapshot(`
            "/* <query_0> */
            /* driver: sqlite */
@@ -633,6 +638,7 @@ describe("sqlite3Select()", () => {
              /* </query_3> */
              /* </query_0> */"
          `);
+         expect(values).toMatchInlineSnapshot(`[]`);
       });
    });
 });
@@ -660,7 +666,7 @@ describe("param propagation through SqlSelectArgs clauses", () => {
          email: "a@b.com",
          dir: "desc",
          limit: 5,
-         // @ts-expect-error not declared
+         // @ts-expect-error — 'other' is not a declared param
          other: "x",
       });
    });

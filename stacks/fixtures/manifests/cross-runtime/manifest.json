@@ -5,7 +5,7 @@
   "queries": {
     "xOrderBySingle": {
       "name": "xOrderBySingle",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:31:20",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:32:20",
       "hash": "cf44077ef89247739e2363c676bd122c6f27a8d701c92e500cadd4e720dbb2e4",
       "template": [
         {
@@ -46,7 +46,7 @@
     },
     "xOrderByMulti": {
       "name": "xOrderByMulti",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:32:19",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:33:19",
       "hash": "cf44077ef89247739e2363c676bd122c6f27a8d701c92e500cadd4e720dbb2e4",
       "template": [
         {
@@ -87,7 +87,7 @@
     },
     "xOrderByNull": {
       "name": "xOrderByNull",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:33:18",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:34:18",
       "hash": "cf44077ef89247739e2363c676bd122c6f27a8d701c92e500cadd4e720dbb2e4",
       "template": [
         {
@@ -128,7 +128,7 @@
     },
     "xFilterEquality": {
       "name": "xFilterEquality",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:34:21",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:35:21",
       "hash": "85e65b56b010a8c21feb7086cbee015421fde614cd7e054f8ab92fb23a7c20e4",
       "template": [
         {
@@ -199,7 +199,7 @@
     },
     "xFilterOperators": {
       "name": "xFilterOperators",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:35:22",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:36:22",
       "hash": "85e65b56b010a8c21feb7086cbee015421fde614cd7e054f8ab92fb23a7c20e4",
       "template": [
         {
@@ -270,7 +270,7 @@
     },
     "xFilterOrGroup": {
       "name": "xFilterOrGroup",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:36:20",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:37:20",
       "hash": "85e65b56b010a8c21feb7086cbee015421fde614cd7e054f8ab92fb23a7c20e4",
       "template": [
         {
@@ -341,7 +341,7 @@
     },
     "xFilterEmpty": {
       "name": "xFilterEmpty",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:37:18",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:38:18",
       "hash": "85e65b56b010a8c21feb7086cbee015421fde614cd7e054f8ab92fb23a7c20e4",
       "template": [
         {
@@ -412,7 +412,7 @@
     },
     "xInsertSingle": {
       "name": "xInsertSingle",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:38:19",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:39:19",
       "hash": "6b198c1e4f9a9b4e6adb67befcfbcde5eb1a6dc525a5d07f22c7320788e87556",
       "template": [
         {
@@ -457,7 +457,7 @@
     },
     "xInsertMulti": {
       "name": "xInsertMulti",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:39:18",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:40:18",
       "hash": "6b198c1e4f9a9b4e6adb67befcfbcde5eb1a6dc525a5d07f22c7320788e87556",
       "template": [
         {
@@ -502,7 +502,7 @@
     },
     "xSetSingle": {
       "name": "xSetSingle",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:40:16",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:41:16",
       "hash": "e4b69d057c7e9138c72cb711e495f50310f0d399f9b7fafaaaf62c30efc269a9",
       "template": [
         {
@@ -559,7 +559,7 @@
     },
     "xSetMulti": {
       "name": "xSetMulti",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:41:15",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:42:15",
       "hash": "e4b69d057c7e9138c72cb711e495f50310f0d399f9b7fafaaaf62c30efc269a9",
       "template": [
         {
@@ -616,7 +616,7 @@
     },
     "xWhenTrue": {
       "name": "xWhenTrue",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:42:15",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:43:15",
       "hash": "293a7e86b87e5bce74195ddf2cdabd5a42904ac7c9eaf89b9e07201dc007678d",
       "template": [
         {
@@ -672,7 +672,7 @@
     },
     "xWhenFalse": {
       "name": "xWhenFalse",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:43:16",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:44:16",
       "hash": "293a7e86b87e5bce74195ddf2cdabd5a42904ac7c9eaf89b9e07201dc007678d",
       "template": [
         {
@@ -728,7 +728,7 @@
     },
     "xWhenWithElse": {
       "name": "xWhenWithElse",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:44:19",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:45:19",
       "hash": "ce8accc75484d5eb168f473e8c5e530e5144fc33237b134cf707588e0631208a",
       "template": [
         {
@@ -770,7 +770,7 @@
     },
     "xWhenNegate": {
       "name": "xWhenNegate",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:45:17",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:46:17",
       "hash": "d1a114015bb63813b65c264a4ca210aee31e2cd20acc22e08b757035dcafff5f",
       "template": [
         {
@@ -819,7 +819,7 @@
     },
     "xPaginationBoth": {
       "name": "xPaginationBoth",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:46:21",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:47:21",
       "hash": "6e8f55b5301e267586edf5fc10bc929ecc15c0e75c395b6828f81aeed42c686d",
       "template": [
         {
@@ -928,7 +928,7 @@
     },
     "xPaginationLimitOnly": {
       "name": "xPaginationLimitOnly",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:47:26",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:48:26",
       "hash": "736963ded4c70356243ccb7738c7de482e855679e7f74ce2bcc785376ae7d37a",
       "template": [
         {
@@ -961,7 +961,7 @@
     },
     "xCombined": {
       "name": "xCombined",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:48:15",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:49:15",
       "hash": "b88c13a1ba975aac88811cff6c00ef677cfafde2cf70fde099e2b77955009790",
       "template": [
         {
@@ -1055,7 +1055,7 @@
     },
     "xUpsertSingle": {
       "name": "xUpsertSingle",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:49:19",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:50:19",
       "hash": "b0b2775698ee54cf462e9dbfa1cadb11d6c6afb0e550e14b5882ecc6101c84b1",
       "template": [
         {
@@ -1104,7 +1104,7 @@
     },
     "xUpsertMulti": {
       "name": "xUpsertMulti",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:50:18",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:51:18",
       "hash": "b0b2775698ee54cf462e9dbfa1cadb11d6c6afb0e550e14b5882ecc6101c84b1",
       "template": [
         {
@@ -1153,7 +1153,7 @@
     },
     "xUpsertMssql": {
       "name": "xUpsertMssql",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:51:18",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:52:18",
       "hash": "d360ea4f8e4d2337bbc0e655ba23c8f102e29bac19f107aac4e2c2114ed986bd",
       "template": [
         {
@@ -1195,7 +1195,7 @@
     },
     "xInsertEmpty": {
       "name": "xInsertEmpty",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:52:18",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:53:18",
       "hash": "6b198c1e4f9a9b4e6adb67befcfbcde5eb1a6dc525a5d07f22c7320788e87556",
       "template": [
         {
@@ -1240,7 +1240,7 @@
     },
     "xJoinBySingle": {
       "name": "xJoinBySingle",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:53:19",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:54:19",
       "hash": "1314adf44753c128a55aa1dcc5fa0c22f9b261c0d1a920919af172a0fd9007f4",
       "template": [
         {
@@ -1321,7 +1321,7 @@
     },
     "xJoinByWithType": {
       "name": "xJoinByWithType",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:54:21",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:55:21",
       "hash": "1314adf44753c128a55aa1dcc5fa0c22f9b261c0d1a920919af172a0fd9007f4",
       "template": [
         {
@@ -1404,7 +1404,7 @@
     },
     "xJoinByMultiCondition": {
       "name": "xJoinByMultiCondition",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:55:27",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:56:27",
       "hash": "1314adf44753c128a55aa1dcc5fa0c22f9b261c0d1a920919af172a0fd9007f4",
       "template": [
         {
@@ -1485,8 +1485,8 @@
     },
     "xJoinByAutoSingle": {
       "name": "xJoinByAutoSingle",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:57:56",
-      "hash": "b9f23924598f3691b2914c6174459f0a208b5bd25287347afbe9223e9f4a3c0b",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:58:56",
+      "hash": "0381339b3e78d9072ebbf8af62924f4100d6fca71972fe2363008d38013d18f9",
       "template": [
         {
           "type": "text",
@@ -1495,6 +1495,21 @@
         {
           "type": "projection",
           "param": "select",
+          "columns": {
+            "orderId": "\"o_1\".\"order_id\" as \"orderId\"",
+            "status": "\"o_1\".\"status\"",
+            "createdAt": "\"o_1\".\"created_at\" as \"createdAt\"",
+            "modifiedAt": "\"o_1\".\"modified_at\" as \"modifiedAt\"",
+            "accountId": "\"o_1\".\"account_id\" as \"accountId\""
+          }
+        },
+        {
+          "type": "text",
+          "value": " "
+        },
+        {
+          "type": "windowBy",
+          "param": "windowBy",
           "columns": {
             "orderId": "\"o_1\".\"order_id\" as \"orderId\"",
             "status": "\"o_1\".\"status\"",
@@ -1609,6 +1624,10 @@
             ]
           }
         },
+        "windowBy": {
+          "name": "windowBy",
+          "isContext": false
+        },
         "joinBy": {
           "name": "joinBy",
           "isContext": false,
@@ -1668,8 +1687,8 @@
     },
     "xJoinByAutoMulti": {
       "name": "xJoinByAutoMulti",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:58:77",
-      "hash": "085c39feb22ca527b9ab93f63b2f710cb8605f0bf0eb1f5ba4812815682aba18",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:59:77",
+      "hash": "8d91e92c4d02143e38465ecbbb3a3117d68e676fc416b62b853bfe41de484aeb",
       "template": [
         {
           "type": "text",
@@ -1678,6 +1697,21 @@
         {
           "type": "projection",
           "param": "select",
+          "columns": {
+            "orderId": "\"o_1\".\"order_id\" as \"orderId\"",
+            "status": "\"o_1\".\"status\"",
+            "createdAt": "\"o_1\".\"created_at\" as \"createdAt\"",
+            "modifiedAt": "\"o_1\".\"modified_at\" as \"modifiedAt\"",
+            "accountId": "\"o_1\".\"account_id\" as \"accountId\""
+          }
+        },
+        {
+          "type": "text",
+          "value": " "
+        },
+        {
+          "type": "windowBy",
+          "param": "windowBy",
           "columns": {
             "orderId": "\"o_1\".\"order_id\" as \"orderId\"",
             "status": "\"o_1\".\"status\"",
@@ -1806,6 +1840,10 @@
             ]
           }
         },
+        "windowBy": {
+          "name": "windowBy",
+          "isContext": false
+        },
         "joinBy": {
           "name": "joinBy",
           "isContext": false,
@@ -1873,7 +1911,7 @@
     },
     "xInsertColsSingle": {
       "name": "xInsertColsSingle",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:60:23",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:61:23",
       "hash": "1042fa3bbd142356d9109b192eda107e5c3e9afea730ebfc3b3cc02c0a2f102a",
       "template": [
         {
@@ -1937,7 +1975,7 @@
     },
     "xInsertColsMulti": {
       "name": "xInsertColsMulti",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:61:22",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:62:22",
       "hash": "1042fa3bbd142356d9109b192eda107e5c3e9afea730ebfc3b3cc02c0a2f102a",
       "template": [
         {
@@ -2001,7 +2039,7 @@
     },
     "xValueLiteral": {
       "name": "xValueLiteral",
-      "location": "stacks/fixtures/generate-cross-runtime.ts:63:19",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:64:19",
       "hash": "29338927ae0ee4292f4dea4d90daaa9a99ef089f6c137f953c9531f2c3d0846f",
       "template": [
         {
@@ -2019,6 +2057,174 @@
           "type": "Date"
         },
         "modifiedAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "xWindowByRanking": {
+      "name": "xWindowByRanking",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:66:22",
+      "hash": "b3b5b58366b8b775308557c40b935e8f1f78f916f9cd89f4e752f4d0cd849f61",
+      "template": [
+        {
+          "type": "text",
+          "value": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"created_at\" as \"createdAt\" "
+        },
+        {
+          "type": "windowBy",
+          "param": "windowBy",
+          "columns": {
+            "accountId": "\"a_1\".\"account_id\" as \"accountId\"",
+            "status": "\"a_1\".\"status\"",
+            "email": "\"a_1\".\"email\"",
+            "firstName": "\"a_1\".\"first_name\" as \"firstName\"",
+            "lastName": "\"a_1\".\"last_name\" as \"lastName\"",
+            "notes": "\"a_1\".\"notes\"",
+            "createdAt": "\"a_1\".\"created_at\" as \"createdAt\"",
+            "modifiedAt": "\"a_1\".\"modified_at\" as \"modifiedAt\"",
+            "parentId": "\"a_1\".\"parent_id\" as \"parentId\""
+          }
+        },
+        {
+          "type": "text",
+          "value": " FROM \"vexnor_dev\".\"account\" as \"a_1\""
+        }
+      ],
+      "params": {
+        "windowBy": {
+          "name": "windowBy",
+          "isContext": false
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "xWindowByAggregate": {
+      "name": "xWindowByAggregate",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:67:24",
+      "hash": "b3b5b58366b8b775308557c40b935e8f1f78f916f9cd89f4e752f4d0cd849f61",
+      "template": [
+        {
+          "type": "text",
+          "value": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"created_at\" as \"createdAt\" "
+        },
+        {
+          "type": "windowBy",
+          "param": "windowBy",
+          "columns": {
+            "accountId": "\"a_1\".\"account_id\" as \"accountId\"",
+            "status": "\"a_1\".\"status\"",
+            "email": "\"a_1\".\"email\"",
+            "firstName": "\"a_1\".\"first_name\" as \"firstName\"",
+            "lastName": "\"a_1\".\"last_name\" as \"lastName\"",
+            "notes": "\"a_1\".\"notes\"",
+            "createdAt": "\"a_1\".\"created_at\" as \"createdAt\"",
+            "modifiedAt": "\"a_1\".\"modified_at\" as \"modifiedAt\"",
+            "parentId": "\"a_1\".\"parent_id\" as \"parentId\""
+          }
+        },
+        {
+          "type": "text",
+          "value": " FROM \"vexnor_dev\".\"account\" as \"a_1\""
+        }
+      ],
+      "params": {
+        "windowBy": {
+          "name": "windowBy",
+          "isContext": false
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "xWindowByMultiple": {
+      "name": "xWindowByMultiple",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:68:23",
+      "hash": "b3b5b58366b8b775308557c40b935e8f1f78f916f9cd89f4e752f4d0cd849f61",
+      "template": [
+        {
+          "type": "text",
+          "value": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"created_at\" as \"createdAt\" "
+        },
+        {
+          "type": "windowBy",
+          "param": "windowBy",
+          "columns": {
+            "accountId": "\"a_1\".\"account_id\" as \"accountId\"",
+            "status": "\"a_1\".\"status\"",
+            "email": "\"a_1\".\"email\"",
+            "firstName": "\"a_1\".\"first_name\" as \"firstName\"",
+            "lastName": "\"a_1\".\"last_name\" as \"lastName\"",
+            "notes": "\"a_1\".\"notes\"",
+            "createdAt": "\"a_1\".\"created_at\" as \"createdAt\"",
+            "modifiedAt": "\"a_1\".\"modified_at\" as \"modifiedAt\"",
+            "parentId": "\"a_1\".\"parent_id\" as \"parentId\""
+          }
+        },
+        {
+          "type": "text",
+          "value": " FROM \"vexnor_dev\".\"account\" as \"a_1\""
+        }
+      ],
+      "params": {
+        "windowBy": {
+          "name": "windowBy",
+          "isContext": false
+        }
+      },
+      "row": {
+        "createdAt": {
+          "type": "Date"
+        }
+      },
+      "authorization": []
+    },
+    "xWindowByEmpty": {
+      "name": "xWindowByEmpty",
+      "location": "stacks/fixtures/generate-cross-runtime.ts:69:20",
+      "hash": "b3b5b58366b8b775308557c40b935e8f1f78f916f9cd89f4e752f4d0cd849f61",
+      "template": [
+        {
+          "type": "text",
+          "value": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"created_at\" as \"createdAt\" "
+        },
+        {
+          "type": "windowBy",
+          "param": "windowBy",
+          "columns": {
+            "accountId": "\"a_1\".\"account_id\" as \"accountId\"",
+            "status": "\"a_1\".\"status\"",
+            "email": "\"a_1\".\"email\"",
+            "firstName": "\"a_1\".\"first_name\" as \"firstName\"",
+            "lastName": "\"a_1\".\"last_name\" as \"lastName\"",
+            "notes": "\"a_1\".\"notes\"",
+            "createdAt": "\"a_1\".\"created_at\" as \"createdAt\"",
+            "modifiedAt": "\"a_1\".\"modified_at\" as \"modifiedAt\"",
+            "parentId": "\"a_1\".\"parent_id\" as \"parentId\""
+          }
+        },
+        {
+          "type": "text",
+          "value": " FROM \"vexnor_dev\".\"account\" as \"a_1\""
+        }
+      ],
+      "params": {
+        "windowBy": {
+          "name": "windowBy",
+          "isContext": false
+        }
+      },
+      "row": {
+        "createdAt": {
           "type": "Date"
         }
       },

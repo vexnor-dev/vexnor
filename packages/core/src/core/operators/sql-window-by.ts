@@ -37,46 +37,97 @@ const VALID_DIRECTIONS = new Set(["ASC", "DESC", "asc", "desc"]);
 
 // --- Types ---
 
-export type WindowOver = {
-   partitionBy?: string[];
-   orderBy?: Record<string, "ASC" | "DESC" | "asc" | "desc">;
+export type WindowOver<T extends { Select: Record<string, unknown> } = { Select: Record<string, unknown> }> = {
+   partitionBy?: (Extract<keyof T["Select"], string> & string)[];
+   orderBy?: { [K in keyof T["Select"]]?: "ASC" | "DESC" | "asc" | "desc" };
    frame?: "rows" | "range";
    start?: "unbounded preceding" | "current row" | number;
    end?: "unbounded following" | "current row" | number;
 };
 
-export type WindowRanking = {
+export type WindowRanking<T extends { Select: Record<string, unknown> } = { Select: Record<string, unknown> }> = {
    fn: WindowByRankingFunction;
-   over: WindowOver;
+   over: WindowOver<T>;
 };
 
-export type WindowBucket = {
+export type WindowBucket<T extends { Select: Record<string, unknown> } = { Select: Record<string, unknown> }> = {
    fn: WindowByBucketFunction;
    args: number;
-   over: WindowOver;
+   over: WindowOver<T>;
 };
 
-export type WindowAggregate = {
+export type WindowAggregate<T extends { Select: Record<string, unknown> } = { Select: Record<string, unknown> }> = {
    fn: WindowByAggregateFunction;
-   col: string;
-   over: WindowOver;
+   col: Extract<keyof T["Select"], string> & string;
+   over: WindowOver<T>;
 };
 
-export type WindowOffset = {
+export type WindowOffset<T extends { Select: Record<string, unknown> } = { Select: Record<string, unknown> }> = {
    fn: WindowByOffsetFunction;
-   col: string;
+   col: Extract<keyof T["Select"], string> & string;
    args?: number;
-   over: WindowOver;
+   over: WindowOver<T>;
 };
 
-export type WindowByEntry = WindowRanking | WindowBucket | WindowAggregate | WindowOffset;
+export type WindowByEntry<T extends { Select: Record<string, unknown> } = { Select: Record<string, unknown> }> = WindowRanking<T> | WindowBucket<T> | WindowAggregate<T> | WindowOffset<T>;
 
-export type WindowBySelect = Record<string, WindowByEntry>;
+export type WindowBySelect<T extends { Select: Record<string, unknown> } = { Select: Record<string, unknown> }> = Record<string, WindowByEntry<T>>;
 
-export type SqlWindowByParams<ParamName extends string = "windowBy"> = PathToNested<
+export type SqlWindowByParams<T extends { Select: Record<string, unknown> } = { Select: Record<string, unknown> }, ParamName extends string = "windowBy"> = PathToNested<
    ParamName,
-   WindowBySelect | null | undefined
+   WindowBySelect<T> | null | undefined
 >;
+
+/**
+ * Infers the return type of a single window function entry based on its `fn` and `col`.
+ *
+ * - Ranking (row_number, rank, dense_rank, ntile) → `number` (never null)
+ * - Distribution (percent_rank, cume_dist) → `number` (never null)
+ * - count → `number` (never null, returns 0 not null)
+ * - sum, avg → `number | null` (null when all values in frame are null)
+ * - min, max → `T["Select"][col] | null`
+ * - first_value, last_value → `T["Select"][col] | null`
+ * - lag, lead → `T["Select"][col] | null` (null for first/last row)
+ */
+type InferWindowEntryType<T extends { Select: Record<string, unknown> }, Entry> =
+   // Ranking + bucket → number (never null)
+   Entry extends { fn: WindowByRankingFunction | WindowByBucketFunction } ? number :
+   // count → number (never null)
+   Entry extends { fn: "count" } ? number :
+   // sum, avg → number | null
+   Entry extends { fn: "sum" | "avg" } ? number | null :
+   // min, max → column type | null
+   Entry extends { fn: "min" | "max"; col: infer C } ?
+      C extends keyof T["Select"] ? T["Select"][C] | null : number | null :
+   // first_value, last_value → column type | null
+   Entry extends { fn: "first_value" | "last_value"; col: infer C } ?
+      C extends keyof T["Select"] ? T["Select"][C] | null : unknown :
+   // lag, lead → column type | null
+   Entry extends { fn: "lag" | "lead"; col: infer C } ?
+      C extends keyof T["Select"] ? T["Select"][C] | null : unknown :
+   unknown;
+
+/**
+ * Infers the additional row fields produced by a `windowBy` param.
+ *
+ * Maps each window alias to its precise return type based on the function category
+ * and the referenced column's type from `T["Select"]`.
+ *
+ * @example
+ * // Given Account with { email: string; createdAt: Date; ... }
+ * InferWindowByRow<Account, { windowBy: {
+ *   rank: { fn: "rank"; over: ... };           // → number
+ *   prev: { fn: "lag"; col: "email"; over: ... };  // → string | null
+ *   total: { fn: "count"; col: "*"; over: ... };   // → number
+ * } }>
+ * // = { rank: number; prev: string | null; total: number }
+ */
+export type InferWindowByRow<T extends { Select: Record<string, unknown> }, TParams> =
+   TParams extends { windowBy: infer W }
+      ? W extends Record<string, { fn: string; over: object }>
+         ? { [K in keyof W]: InferWindowEntryType<T, W[K]> }
+         : unknown
+      : unknown;
 
 /**
  * Portable WINDOW BY operator. At runtime, accepts an object mapping alias names
@@ -87,13 +138,13 @@ export type SqlWindowByParams<ParamName extends string = "windowBy"> = PathToNes
  * params: { windowBy: { rowNum: { fn: "row_number", over: { orderBy: { createdAt: "DESC" } } } } }
  * // → , row_number() OVER (ORDER BY "created_at" DESC) AS "rowNum"
  */
-export class SqlWindowBy<ParamName extends string = "windowBy"> extends Sql {
-   declare readonly [PARAMS]: SqlWindowByParams<ParamName>;
+export class SqlWindowBy<T extends { Select: Record<string, unknown> } = { Select: Record<string, unknown> }, ParamName extends string = "windowBy"> extends Sql {
+   declare readonly [PARAMS]: SqlWindowByParams<T, ParamName>;
 
    readonly table: SqlTableAny;
    readonly paramName: ParamName;
    readonly fieldNames: string[];
-   readonly params: BuildSqlParams<SqlWindowByParams<ParamName>>;
+   readonly params: BuildSqlParams<SqlWindowByParams<T, ParamName>>;
 
    get aiPrompt() {
       return `windowBy: { "alias": { fn, over: { partitionBy?, orderBy?, frame?, start?, end? }, col?, args? } }. ` +
@@ -119,7 +170,7 @@ export class SqlWindowBy<ParamName extends string = "windowBy"> extends Sql {
             name: paramName,
             isContext: false,
          }),
-      } as BuildSqlParams<SqlWindowByParams<ParamName>>;
+      } as BuildSqlParams<SqlWindowByParams<T, ParamName>>;
    }
 
    write(context: SqlBuildContext): void {
@@ -267,7 +318,8 @@ export class SqlWindowBy<ParamName extends string = "windowBy"> extends Sql {
          if (hasContent) context.addStrings(" ");
          context.addStrings("order by ");
          let emitted = 0;
-         for (const [col, dir] of Object.entries(over.orderBy)) {
+         for (const [col, dir] of Object.entries(over.orderBy as Record<string, string>)) {
+            if (!dir) continue;
             if (!VALID_DIRECTIONS.has(dir)) {
                throw new SqlBuildError(`windowBy: invalid orderBy direction '${dir}'. Must be ASC or DESC.`);
             }
@@ -312,10 +364,10 @@ export class SqlWindowBy<ParamName extends string = "windowBy"> extends Sql {
 /**
  * Window function operator — emits `, fn() OVER (...) AS "alias"` from a runtime param.
  */
-export function windowBy<ParamName extends string = "windowBy">(
+export function windowBy<T extends { Select: Record<string, unknown> } = { Select: Record<string, unknown> }, ParamName extends string = "windowBy">(
    table: SqlTableAny,
    paramName?: ParamName,
    fieldNames?: string[],
-): SqlWindowBy<ParamName> {
-   return new SqlWindowBy(table, (paramName ?? "windowBy") as ParamName, fieldNames);
+): SqlWindowBy<T, ParamName> {
+   return new SqlWindowBy<T, ParamName>(table, (paramName ?? "windowBy") as ParamName, fieldNames);
 }
