@@ -38,12 +38,10 @@ describe.sequential("vexnor postgres window functions (windowBy)", async (ctx) =
          });
 
          expect(results.length).toBeGreaterThanOrEqual(3);
-         expect(results[0]).toHaveProperty("rowNum");
+         expect(results[0]!.rowNum).toBeDefined();
          for (const row of results) {
-            // pg returns bigint as string
             expect(toNum(row.rowNum)).toBeGreaterThanOrEqual(1);
          }
-         // row_number produces sequential values starting from 1
          const rowNums = results.map((r) => toNum(r.rowNum)).sort((a, b) => a - b);
          expect(rowNums[0]).toBe(1);
          expect(rowNums[rowNums.length - 1]).toBe(results.length);
@@ -62,7 +60,7 @@ describe.sequential("vexnor postgres window functions (windowBy)", async (ctx) =
          });
 
          expect(results.length).toBeGreaterThanOrEqual(3);
-         expect(results[0]).toHaveProperty("rnk");
+         expect(results[0]!.rnk).toBeDefined();
          for (const row of results) {
             expect(toNum(row.rnk)).toBeGreaterThanOrEqual(1);
          }
@@ -81,7 +79,7 @@ describe.sequential("vexnor postgres window functions (windowBy)", async (ctx) =
          });
 
          expect(results.length).toBeGreaterThanOrEqual(3);
-         expect(results[0]).toHaveProperty("denseRnk");
+         expect(results[0]!.denseRnk).toBeDefined();
          for (const row of results) {
             expect(toNum(row.denseRnk)).toBeGreaterThanOrEqual(1);
          }
@@ -100,7 +98,7 @@ describe.sequential("vexnor postgres window functions (windowBy)", async (ctx) =
          });
 
          expect(results.length).toBeGreaterThanOrEqual(3);
-         expect(results[0]).toHaveProperty("runningCount");
+         expect(results[0]!.runningCount).toBeDefined();
          const counts = results.map((r) => toNum(r.runningCount)).sort((a, b) => a - b);
          // Running count should be monotonically non-decreasing
          expect(counts[0]).toBeGreaterThanOrEqual(1);
@@ -124,7 +122,7 @@ describe.sequential("vexnor postgres window functions (windowBy)", async (ctx) =
          });
 
          expect(results.length).toBeGreaterThanOrEqual(3);
-         expect(results[0]).toHaveProperty("prevEmail");
+         expect(results[0]!.prevEmail).toBeDefined();
          // At least one row should have a null prevEmail (the first row in the window)
          const hasNull = results.some((r) => r.prevEmail === null);
          expect(hasNull).toBe(true);
@@ -149,7 +147,7 @@ describe.sequential("vexnor postgres window functions (windowBy)", async (ctx) =
          });
 
          expect(results.length).toBeGreaterThanOrEqual(3);
-         expect(results[0]).toHaveProperty("nextEmail");
+         expect(results[0]!.nextEmail).toBeDefined();
          // At least one row should have a null nextEmail (the last row in the window)
          const hasNull = results.some((r) => r.nextEmail === null);
          expect(hasNull).toBe(true);
@@ -173,7 +171,7 @@ describe.sequential("vexnor postgres window functions (windowBy)", async (ctx) =
          });
 
          expect(results.length).toBeGreaterThanOrEqual(3);
-         expect(results[0]).toHaveProperty("quartile");
+         expect(results[0]!.quartile).toBeDefined();
          for (const row of results) {
             // ntile(2) produces values 1 or 2
             expect(toNum(row.quartile)).toBeGreaterThanOrEqual(1);
@@ -194,7 +192,7 @@ describe.sequential("vexnor postgres window functions (windowBy)", async (ctx) =
          });
 
          expect(results.length).toBeGreaterThanOrEqual(3);
-         expect(results[0]).toHaveProperty("firstEmail");
+         expect(results[0]!.firstEmail).toBeDefined();
          // All rows should have the same first_value (the email of the earliest-created account)
          const firstValues = results.map((r) => r.firstEmail);
          expect(new Set(firstValues).size).toBe(1);
@@ -223,7 +221,7 @@ describe.sequential("vexnor postgres window functions (windowBy)", async (ctx) =
          });
 
          expect(results.length).toBeGreaterThanOrEqual(3);
-         expect(results[0]).toHaveProperty("lastEmail");
+         expect(results[0]!.lastEmail).toBeDefined();
          // With full frame, all rows see the same last_value
          const lastValues = results.map((r) => r.lastEmail);
          expect(new Set(lastValues).size).toBe(1);
@@ -245,7 +243,7 @@ describe.sequential("vexnor postgres window functions (windowBy)", async (ctx) =
 
          // 3 accounts × 2 orders = 6 orders (at minimum)
          expect(results.length).toBeGreaterThanOrEqual(6);
-         expect(results[0]).toHaveProperty("runningTotal");
+         expect(results[0]!.runningTotal).toBeDefined();
          const totals = results.map((r) => toNum(r.runningTotal)).sort((a, b) => a - b);
          // Running count is monotonically non-decreasing
          expect(totals[0]).toBeGreaterThanOrEqual(1);
@@ -271,7 +269,7 @@ describe.sequential("vexnor postgres window functions (windowBy)", async (ctx) =
 
          // All test accounts are created with status 'created'
          expect(results.length).toBeGreaterThanOrEqual(3);
-         expect(results[0]).toHaveProperty("rowNum");
+         expect(results[0]!.rowNum).toBeDefined();
          for (const row of results) {
             expect(row.status).toBe("created");
             expect(toNum(row.rowNum)).toBeGreaterThanOrEqual(1);
@@ -292,7 +290,7 @@ describe.sequential("vexnor postgres window functions (windowBy)", async (ctx) =
          });
 
          expect(results.length).toBeGreaterThanOrEqual(3);
-         expect(results[0]).toHaveProperty("rowNum");
+         expect(results[0]!.rowNum).toBeDefined();
          // row_number ordered DESC should yield sequential 1, 2, 3... since both window and sort are DESC
          const rowNums = results.map((r) => toNum(r.rowNum));
          for (let i = 0; i < rowNums.length; i++) {
@@ -315,9 +313,9 @@ describe.sequential("vexnor postgres window functions (windowBy)", async (ctx) =
          });
 
          expect(results.length).toBeGreaterThanOrEqual(3);
-         expect(results[0]).toHaveProperty("rowNum");
-         expect(results[0]).toHaveProperty("rnk");
-         expect(results[0]).toHaveProperty("runningCount");
+         expect(results[0]!.rowNum).toBeDefined();
+         expect(results[0]!.rnk).toBeDefined();
+         expect(results[0]!.runningCount).toBeDefined();
          for (const row of results) {
             expect(toNum(row.rowNum)).toBeGreaterThanOrEqual(1);
             expect(toNum(row.rnk)).toBeGreaterThanOrEqual(1);
@@ -349,7 +347,7 @@ describe.sequential("vexnor postgres window functions (windowBy)", async (ctx) =
          });
 
          expect(results.length).toBeGreaterThanOrEqual(3);
-         expect(results[0]).toHaveProperty("movingCount");
+         expect(results[0]!.movingCount).toBeDefined();
          for (const row of results) {
             // ROWS BETWEEN 1 PRECEDING AND CURRENT ROW → max 2 rows in window
             expect(toNum(row.movingCount)).toBeGreaterThanOrEqual(1);
@@ -379,7 +377,7 @@ describe.sequential("vexnor postgres window functions (windowBy)", async (ctx) =
          });
 
          expect(results.length).toBeGreaterThanOrEqual(3);
-         expect(results[0]).toHaveProperty("rangeCount");
+         expect(results[0]!.rangeCount).toBeDefined();
          const counts = results.map((r) => toNum(r.rangeCount)).sort((a, b) => a - b);
          // RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW → monotonically increasing
          expect(counts[0]).toBeGreaterThanOrEqual(1);
@@ -403,7 +401,7 @@ describe.sequential("vexnor postgres window functions (windowBy)", async (ctx) =
          });
 
          expect(results.length).toBeGreaterThanOrEqual(3);
-         expect(results[0]).toHaveProperty("pctRank");
+         expect(results[0]!.pctRank).toBeDefined();
          for (const row of results) {
             const val = Number(row.pctRank);
             // percent_rank is between 0 and 1
@@ -425,7 +423,7 @@ describe.sequential("vexnor postgres window functions (windowBy)", async (ctx) =
          });
 
          expect(results.length).toBeGreaterThanOrEqual(3);
-         expect(results[0]).toHaveProperty("cumeDist");
+         expect(results[0]!.cumeDist).toBeDefined();
          for (const row of results) {
             const val = Number(row.cumeDist);
             // cume_dist is between 0 (exclusive) and 1 (inclusive)
@@ -447,7 +445,7 @@ describe.sequential("vexnor postgres window functions (windowBy)", async (ctx) =
          });
 
          expect(results.length).toBeGreaterThanOrEqual(3);
-         expect(results[0]).toHaveProperty("minEmail");
+         expect(results[0]!.minEmail).toBeDefined();
          // min(email) with default frame (RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)
          // should always be a string
          for (const row of results) {
@@ -468,7 +466,7 @@ describe.sequential("vexnor postgres window functions (windowBy)", async (ctx) =
          });
 
          expect(results.length).toBeGreaterThanOrEqual(3);
-         expect(results[0]).toHaveProperty("maxEmail");
+         expect(results[0]!.maxEmail).toBeDefined();
          for (const row of results) {
             expect(typeof row.maxEmail).toBe("string");
          }
@@ -631,11 +629,10 @@ describe.sequential("vexnor postgres window functions (windowBy)", async (ctx) =
          const row = results[0]!;
 
          // Base row fields — typed, no cast needed
-         expect((row as Record<string, unknown>).email).toBeDefined();
+         expect(row.email).toBeDefined();
          expect(row.accountId).toBeDefined();
 
          // Window field — exists at runtime
-         // Note: currently typed as part of the row due to params intersection
          expect(row.myRank).toBeDefined();
          expect(typeof row.myRank === "number" || typeof row.myRank === "string").toBe(true);
       });
@@ -656,7 +653,8 @@ describe.sequential("vexnor postgres window functions (windowBy)", async (ctx) =
          expect(result.length).toBeGreaterThan(0);
          const row = result[0]!;
          // Window col accessible directly
-         expect((row as Record<string, unknown>).accountRank).toBeDefined();
+         // @ts-expect-error — runtime window alias, not on static Row type
+         expect(row.accountRank).toBeDefined();
          // Base row cols still present
          expect(row.orderId).toBeDefined();
          expect(row.accountId).toBeDefined();
@@ -678,9 +676,11 @@ describe.sequential("vexnor postgres window functions (windowBy)", async (ctx) =
          expect(result.length).toBeGreaterThan(0);
          const row = result[0]!;
          // Window col
-         expect((row as Record<string, unknown>).rowNum).toBeDefined();
+         // @ts-expect-error — runtime window alias, not on static Row type
+         expect(row.rowNum).toBeDefined();
          // Projected cols from select
-         expect((row as Record<string, unknown>).email).toBeDefined();
+         // @ts-expect-error — runtime window alias, not on static Row type
+         expect(row.email).toBeDefined();
          expect(row.orderId).toBeDefined();
       });
 
@@ -698,7 +698,8 @@ describe.sequential("vexnor postgres window functions (windowBy)", async (ctx) =
          expect(result.length).toBeGreaterThan(0);
          const row = result[0]!;
          // Window col
-         expect((row as Record<string, unknown>).emailRank).toBeDefined();
+         // @ts-expect-error — runtime window alias, not on static Row type
+         expect(row.emailRank).toBeDefined();
          // Base row cols
          expect(row.orderId).toBeDefined();
          expect(row.accountId).toBeDefined();
