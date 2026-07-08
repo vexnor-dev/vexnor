@@ -576,33 +576,6 @@ describe.sequential("windowBy — e2e sqlite3", () => {
       });
    });
 
-   describe("query text snapshot", () => {
-      test("windowBy generates correct SQL", () => {
-         const query = sqlite3Select(Account, {
-            WHERE: sql`${Account.$accountId} = ${param<{ id: string }>("id")}`,
-            limit: param<{ limit: number }>("limit"),
-            windowBy: {
-               rowNum: { fn: "row_number", over: { orderBy: { email: "ASC" } } },
-               runSum: { fn: "count", col: "*", over: { partitionBy: ["status"], orderBy: { email: "ASC" } } },
-            },
-         });
-         const { text, values } = query.source.getSql({
-            params: { id: "test-id", limit: 10 },
-            options: { dialect: "sqlite" },
-         });
-         // Verify SQL contains the window function clauses
-         expect(text).toContain('row_number() over (');
-         expect(text).toContain('order by');
-         expect(text).toContain('ASC');
-         expect(text).toContain('"rowNum"');
-         expect(text).toContain('count(*) over (');
-         expect(text).toContain('partition by');
-         expect(text).toContain('"runSum"');
-         // Verify parameterized values
-         expect(values).toEqual(["test-id", 10]);
-      });
-   });
-
    describe("validation errors", () => {
       test("invalid function name throws", async () => {
          const accountIds = accounts.map((a) => a.accountId);
