@@ -196,12 +196,11 @@ jobs:
   # ─────────────────────────────────────────────────────────────────────────────
   # Step 2: Publish
   # Downloads pre-built artifacts and publishes to npm.
-  # No install. No scripts. Only `npm publish --ignore-scripts`.
+  # No install. No scripts. Only `npx npm@latest publish --ignore-scripts`.
   # ─────────────────────────────────────────────────────────────────────────────
   publish:
     needs: build-and-test
     runs-on: ubuntu-latest
-    environment: ${{ (github.event_name == 'workflow_dispatch' && inputs.dry_run == 'true') && '' || 'production' }}
     permissions:
       contents: read
       id-token: write
@@ -212,7 +211,10 @@ jobs:
         with:
           egress-policy: block
           allowed-endpoints: >
+            api.github.com:443
             github.com:443
+            nodejs.org:443
+            objects.githubusercontent.com:443
             registry.npmjs.org:443
             fulcio.sigstore.dev:443
             rekor.sigstore.dev:443
@@ -289,6 +291,9 @@ jobs:
           node-version: '22.22.3'
           registry-url: 'https://registry.npmjs.org'
 
+      - name: Upgrade npm for trusted publishing
+        run: npm install -g npm@latest
+
       - name: Determine npm tag
         id: version
         run: |
@@ -331,7 +336,7 @@ jobs:
 
       - name: Publish to npm
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+          NPM_CONFIG_PROVENANCE: "true"
         run: |
           NPM_TAG="${{ steps.version.outputs.npm_tag }}"
           DRY_RUN="${{ inputs.dry_run || 'false' }}"
@@ -366,7 +371,7 @@ jobs:
               if [ "$DRY_RUN" = "true" ]; then
                 echo "✅ $pkg_dir — WOULD publish (no previous tag)"
               else
-                npm publish --ignore-scripts "./$pkg_dir" --access public --tag "$NPM_TAG" --provenance
+                npx npm@latest publish --ignore-scripts "./$pkg_dir" --access public --tag "$NPM_TAG" --provenance
               fi
               PUBLISHED="${PUBLISHED}  ✅ $pkg_dir\n"
               return
@@ -376,7 +381,7 @@ jobs:
               if [ "$DRY_RUN" = "true" ]; then
                 echo "✅ $pkg_dir — WOULD publish"
               else
-                npm publish --ignore-scripts "./$pkg_dir" --access public --tag "$NPM_TAG" --provenance
+                npx npm@latest publish --ignore-scripts "./$pkg_dir" --access public --tag "$NPM_TAG" --provenance
               fi
               PUBLISHED="${PUBLISHED}  ✅ $pkg_dir\n"
             else
