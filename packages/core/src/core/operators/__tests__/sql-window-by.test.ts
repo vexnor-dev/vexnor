@@ -1614,13 +1614,11 @@ describe("SqlWindowBy — runtime window functions in SELECT list", () => {
       });
 
       test("mix of valid and invalid columns — type error on invalid", () => {
-         // @ts-expect-error — type-level test, value is intentionally unused
-         // eslint-disable-next-line unused-imports/no-unused-vars
-         const check: WindowBySelect<{ Select: IAccountSelect }> = {
+         void ({
             good: { fn: "rank", over: { partitionBy: ["status"], orderBy: { createdAt: "ASC" } } },
             // @ts-expect-error — 'fakeCol' is not a column on Account
             bad: { fn: "sum", col: "fakeCol", over: { orderBy: { createdAt: "ASC" } } },
-         };
+         } satisfies WindowBySelect<{ Select: IAccountSelect }>);
       });
    });
 });
