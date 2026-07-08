@@ -63,11 +63,17 @@ export type SqlQueryRunArgs<
       T["Params"] extends Record<string, unknown> ? T["Params"] : Record<string, unknown>,
 > =
    T["Params"] extends Record<string, unknown>
-      ? {
-           db: SqlPipelineDb<T["Connection"], TContext>;
-           params: WithRuntimeValues<T["Params"]>;
-           options?: SqlBuildOptions & SqlRunOptions;
-        }
+      ? {} extends T["Params"]
+         ? {
+              db: SqlPipelineDb<T["Connection"], TContext>;
+              params?: WithRuntimeValues<T["Params"]>;
+              options?: SqlBuildOptions & SqlRunOptions;
+           }
+         : {
+              db: SqlPipelineDb<T["Connection"], TContext>;
+              params: WithRuntimeValues<T["Params"]>;
+              options?: SqlBuildOptions & SqlRunOptions;
+           }
       : {
            db: SqlConnectionArg<T["Connection"]>;
            params?: WithRuntimeValues<T["Params"]>;
