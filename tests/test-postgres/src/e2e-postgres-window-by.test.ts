@@ -612,4 +612,32 @@ describe.sequential("vexnor postgres window functions (windowBy)", async (ctx) =
          ).rejects.toThrow("'frame' (rows|range) is required");
       });
    });
+
+   describe("result row type — current limitation (#64)", () => {
+      test("window fields exist at runtime but require cast to access without type error", async () => {
+         const results = await Account.postgres.select({
+            WHERE: sql`${Account.$email} like ${`%${dataManager.TAG}%`}`,
+         }).all({
+            db: pool,
+            params: {
+               windowBy: {
+                  myRank: { fn: "rank", over: { orderBy: { createdAt: "ASC" } } },
+               },
+            },
+         });
+
+         expect(results.length).toBeGreaterThanOrEqual(3);
+
+         const row = results[0]!;
+
+         // Base row fields — typed, no cast needed
+         expect(row.email).toBeDefined();
+         expect(row.accountId).toBeDefined();
+
+         // Window field — exists at runtime
+         // Note: currently typed as part of the row due to params intersection
+         expect(row.myRank).toBeDefined();
+         expect(typeof row.myRank === "number" || typeof row.myRank === "string").toBe(true);
+      });
+   });
 });
