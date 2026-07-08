@@ -1605,12 +1605,10 @@ describe("SqlWindowBy — runtime window functions in SELECT list", () => {
       });
 
       test("invalid column in orderBy — type error", () => {
-         // @ts-expect-error — type-level test, value is intentionally unused
-         // eslint-disable-next-line unused-imports/no-unused-vars
-         const check: WindowBySelect<{ Select: IAccountSelect }> = {
-            // @ts-expect-error — 'doesNotExist' is not a column on Account
+         // @ts-expect-error — 'doesNotExist' is not a column on Account
+         ({
             bad: { fn: "row_number", over: { orderBy: { doesNotExist: "ASC" } } },
-         };
+         } satisfies WindowBySelect<{ Select: IAccountSelect }>);
       });
 
       test("mix of valid and invalid columns — type error on invalid", () => {
