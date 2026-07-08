@@ -30,14 +30,12 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
       test("row_number() with orderBy", async () => {
          const results = await Account.mssql.select({
             WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
+            windowBy: {
+               rowNum: { fn: "row_number", over: { orderBy: { createdAt: "ASC" } } },
+            },
          }).all({
             db: pool.request(),
-            params: {
-               accountIds: allAccountIds,
-               windowBy: {
-                  rowNum: { fn: "row_number", over: { orderBy: { createdAt: "ASC" } } },
-               },
-            },
+            params: { accountIds: allAccountIds },
          });
 
          expect(results).toHaveLength(6);
@@ -55,14 +53,12 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
       test("rank() with partitionBy + orderBy", async () => {
          const results = await Account.mssql.select({
             WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
+            windowBy: {
+               rnk: { fn: "rank", over: { partitionBy: ["status"], orderBy: { createdAt: "ASC" } } },
+            },
          }).all({
             db: pool.request(),
-            params: {
-               accountIds: allAccountIds,
-               windowBy: {
-                  rnk: { fn: "rank", over: { partitionBy: ["status"], orderBy: { createdAt: "ASC" } } },
-               },
-            },
+            params: { accountIds: allAccountIds },
          });
 
          expect(results).toHaveLength(6);
@@ -76,14 +72,12 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
       test("dense_rank() with orderBy", async () => {
          const results = await Account.mssql.select({
             WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
+            windowBy: {
+               denseRnk: { fn: "dense_rank", over: { orderBy: { email: "ASC" } } },
+            },
          }).all({
             db: pool.request(),
-            params: {
-               accountIds: allAccountIds,
-               windowBy: {
-                  denseRnk: { fn: "dense_rank", over: { orderBy: { email: "ASC" } } },
-               },
-            },
+            params: { accountIds: allAccountIds },
          });
 
          expect(results).toHaveLength(6);
@@ -97,14 +91,12 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
       test("sum() OVER (running total via count)", async () => {
          const results = await Order.mssql.select({
             WHERE: sql`${Order.$accountId} in (${accountIdsParam})`,
+            windowBy: {
+               runningTotal: { fn: "count", col: "orderId", over: { orderBy: { createdAt: "ASC" } } },
+            },
          }).all({
             db: pool.request(),
-            params: {
-               accountIds: dataManager.rootAccounts.map((a) => a.accountId),
-               windowBy: {
-                  runningTotal: { fn: "count", col: "orderId", over: { orderBy: { createdAt: "ASC" } } },
-               },
-            },
+            params: { accountIds: dataManager.rootAccounts.map((a) => a.accountId) },
          });
 
          // 3 accounts × 2 orders = 6 orders
@@ -120,14 +112,12 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
       test("count(*) OVER — running count", async () => {
          const results = await Account.mssql.select({
             WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
+            windowBy: {
+               runningCount: { fn: "count", col: "*", over: { orderBy: { createdAt: "ASC" } } },
+            },
          }).all({
             db: pool.request(),
-            params: {
-               accountIds: allAccountIds,
-               windowBy: {
-                  runningCount: { fn: "count", col: "*", over: { orderBy: { createdAt: "ASC" } } },
-               },
-            },
+            params: { accountIds: allAccountIds },
          });
 
          expect(results).toHaveLength(6);
@@ -146,14 +136,12 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
          const results = await Account.mssql.select({
             WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
             ORDER_BY: sql`${Account.$email} asc`,
+            windowBy: {
+               prevEmail: { fn: "lag", col: "email", args: 1, over: { orderBy: { email: "ASC" } } },
+            },
          }).all({
             db: pool.request(),
-            params: {
-               accountIds: allAccountIds,
-               windowBy: {
-                  prevEmail: { fn: "lag", col: "email", args: 1, over: { orderBy: { email: "ASC" } } },
-               },
-            },
+            params: { accountIds: allAccountIds },
          });
 
          expect(results).toHaveLength(6);
@@ -171,14 +159,12 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
          const results = await Account.mssql.select({
             WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
             ORDER_BY: sql`${Account.$email} asc`,
+            windowBy: {
+               nextEmail: { fn: "lead", col: "email", args: 1, over: { orderBy: { email: "ASC" } } },
+            },
          }).all({
             db: pool.request(),
-            params: {
-               accountIds: allAccountIds,
-               windowBy: {
-                  nextEmail: { fn: "lead", col: "email", args: 1, over: { orderBy: { email: "ASC" } } },
-               },
-            },
+            params: { accountIds: allAccountIds },
          });
 
          expect(results).toHaveLength(6);
@@ -195,14 +181,12 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
       test("ntile() with args", async () => {
          const results = await Account.mssql.select({
             WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
+            windowBy: {
+               bucket: { fn: "ntile", args: 2, over: { orderBy: { createdAt: "ASC" } } },
+            },
          }).all({
             db: pool.request(),
-            params: {
-               accountIds: allAccountIds,
-               windowBy: {
-                  bucket: { fn: "ntile", args: 2, over: { orderBy: { createdAt: "ASC" } } },
-               },
-            },
+            params: { accountIds: allAccountIds },
          });
 
          expect(results).toHaveLength(6);
@@ -219,14 +203,12 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
          const results = await Account.mssql.select({
             WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
             ORDER_BY: sql`${Account.$email} asc`,
+            windowBy: {
+               firstEmail: { fn: "first_value", col: "email", over: { orderBy: { email: "ASC" } } },
+            },
          }).all({
             db: pool.request(),
-            params: {
-               accountIds: allAccountIds,
-               windowBy: {
-                  firstEmail: { fn: "first_value", col: "email", over: { orderBy: { email: "ASC" } } },
-               },
-            },
+            params: { accountIds: allAccountIds },
          });
 
          expect(results).toHaveLength(6);
@@ -241,23 +223,21 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
          const results = await Account.mssql.select({
             WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
             ORDER_BY: sql`${Account.$email} asc`,
-         }).all({
-            db: pool.request(),
-            params: {
-               accountIds: allAccountIds,
-               windowBy: {
-                  lastEmail: {
-                     fn: "last_value",
-                     col: "email",
-                     over: {
-                        orderBy: { email: "ASC" },
-                        frame: "rows",
-                        start: "unbounded preceding",
-                        end: "unbounded following",
-                     },
+            windowBy: {
+               lastEmail: {
+                  fn: "last_value",
+                  col: "email",
+                  over: {
+                     orderBy: { email: "ASC" },
+                     frame: "rows",
+                     start: "unbounded preceding",
+                     end: "unbounded following",
                   },
                },
             },
+         }).all({
+            db: pool.request(),
+            params: { accountIds: allAccountIds },
          });
 
          expect(results).toHaveLength(6);
@@ -275,6 +255,9 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
       test("windowBy + filterBy together", async () => {
          const query = Account.mssql.select({
             WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
+            windowBy: {
+               rowNum: { fn: "row_number", over: { orderBy: { createdAt: "ASC" } } },
+            },
          });
 
          const results = await query.all({
@@ -282,9 +265,6 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
             params: {
                accountIds: allAccountIds,
                filterBy: [{ status: ["=", "CREATED"] }],
-               windowBy: {
-                  rowNum: { fn: "row_number", over: { orderBy: { createdAt: "ASC" } } },
-               },
             } as never,
          });
 
@@ -300,6 +280,9 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
       test("windowBy + select (projection with windows)", async () => {
          const query = Account.mssql.select({
             WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
+            windowBy: {
+               rowNum: { fn: "row_number", over: { orderBy: { email: "ASC" } } },
+            },
          });
 
          const results = await query.all({
@@ -309,9 +292,6 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
                select: {
                   email: true,
                   status: true,
-               },
-               windowBy: {
-                  rowNum: { fn: "row_number", over: { orderBy: { email: "ASC" } } },
                },
             } as never,
          });
@@ -330,16 +310,14 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
       test("windowBy with multiple window functions", async () => {
          const results = await Account.mssql.select({
             WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
+            windowBy: {
+               rowNum: { fn: "row_number", over: { orderBy: { createdAt: "ASC" } } },
+               rnk: { fn: "rank", over: { orderBy: { createdAt: "ASC" } } },
+               runningCount: { fn: "count", col: "*", over: { orderBy: { createdAt: "ASC" } } },
+            },
          }).all({
             db: pool.request(),
-            params: {
-               accountIds: allAccountIds,
-               windowBy: {
-                  rowNum: { fn: "row_number", over: { orderBy: { createdAt: "ASC" } } },
-                  rnk: { fn: "rank", over: { orderBy: { createdAt: "ASC" } } },
-                  runningCount: { fn: "count", col: "*", over: { orderBy: { createdAt: "ASC" } } },
-               },
-            },
+            params: { accountIds: allAccountIds },
          });
 
          expect(results).toHaveLength(6);
@@ -360,23 +338,21 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
       test("ROWS BETWEEN N PRECEDING AND CURRENT ROW", async () => {
          const results = await Account.mssql.select({
             WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
-         }).all({
-            db: pool.request(),
-            params: {
-               accountIds: allAccountIds,
-               windowBy: {
-                  movingCount: {
-                     fn: "count",
-                     col: "*",
-                     over: {
-                        orderBy: { createdAt: "ASC" },
-                        frame: "rows",
-                        start: 1,
-                        end: 0,
-                     },
+            windowBy: {
+               movingCount: {
+                  fn: "count",
+                  col: "*",
+                  over: {
+                     orderBy: { createdAt: "ASC" },
+                     frame: "rows",
+                     start: 1,
+                     end: 0,
                   },
                },
             },
+         }).all({
+            db: pool.request(),
+            params: { accountIds: allAccountIds },
          });
 
          expect(results).toHaveLength(6);
@@ -392,23 +368,21 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
       test("RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW (valid for MSSQL without numeric bounds)", async () => {
          const results = await Account.mssql.select({
             WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
-         }).all({
-            db: pool.request(),
-            params: {
-               accountIds: allAccountIds,
-               windowBy: {
-                  rangeCount: {
-                     fn: "count",
-                     col: "*",
-                     over: {
-                        orderBy: { createdAt: "ASC" },
-                        frame: "range",
-                        start: "unbounded preceding",
-                        end: "current row",
-                     },
+            windowBy: {
+               rangeCount: {
+                  fn: "count",
+                  col: "*",
+                  over: {
+                     orderBy: { createdAt: "ASC" },
+                     frame: "range",
+                     start: "unbounded preceding",
+                     end: "current row",
                   },
                },
             },
+         }).all({
+            db: pool.request(),
+            params: { accountIds: allAccountIds },
          });
 
          expect(results).toHaveLength(6);
@@ -427,14 +401,12 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
       test("percent_rank() execution", async () => {
          const results = await Account.mssql.select({
             WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
+            windowBy: {
+               pctRank: { fn: "percent_rank", over: { orderBy: { createdAt: "ASC" } } },
+            },
          }).all({
             db: pool.request(),
-            params: {
-               accountIds: allAccountIds,
-               windowBy: {
-                  pctRank: { fn: "percent_rank", over: { orderBy: { createdAt: "ASC" } } },
-               },
-            },
+            params: { accountIds: allAccountIds },
          });
 
          expect(results).toHaveLength(6);
@@ -450,14 +422,12 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
       test("cume_dist() execution", async () => {
          const results = await Account.mssql.select({
             WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
+            windowBy: {
+               cumeDist: { fn: "cume_dist", over: { orderBy: { createdAt: "ASC" } } },
+            },
          }).all({
             db: pool.request(),
-            params: {
-               accountIds: allAccountIds,
-               windowBy: {
-                  cumeDist: { fn: "cume_dist", over: { orderBy: { createdAt: "ASC" } } },
-               },
-            },
+            params: { accountIds: allAccountIds },
          });
 
          expect(results).toHaveLength(6);
@@ -473,14 +443,12 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
       test("min() OVER — string min(email)", async () => {
          const results = await Account.mssql.select({
             WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
+            windowBy: {
+               minEmail: { fn: "min", col: "email", over: { orderBy: { createdAt: "ASC" } } },
+            },
          }).all({
             db: pool.request(),
-            params: {
-               accountIds: allAccountIds,
-               windowBy: {
-                  minEmail: { fn: "min", col: "email", over: { orderBy: { createdAt: "ASC" } } },
-               },
-            },
+            params: { accountIds: allAccountIds },
          });
 
          expect(results).toHaveLength(6);
@@ -493,14 +461,12 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
       test("max() OVER — string max(email)", async () => {
          const results = await Account.mssql.select({
             WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
+            windowBy: {
+               maxEmail: { fn: "max", col: "email", over: { orderBy: { createdAt: "ASC" } } },
+            },
          }).all({
             db: pool.request(),
-            params: {
-               accountIds: allAccountIds,
-               windowBy: {
-                  maxEmail: { fn: "max", col: "email", over: { orderBy: { createdAt: "ASC" } } },
-               },
-            },
+            params: { accountIds: allAccountIds },
          });
 
          expect(results).toHaveLength(6);
@@ -517,15 +483,13 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
       test("windowBy generates correct SQL", () => {
          const query = Account.mssql.select({
             WHERE: sql`${Account.$accountId} = ${param<{ id: string }>("id")}`,
+            windowBy: {
+               rowNum: { fn: "row_number", over: { orderBy: { createdAt: "ASC" } } },
+               runSum: { fn: "count", col: "*", over: { partitionBy: ["status"], orderBy: { createdAt: "ASC" } } },
+            },
          });
          const { text, values } = query.source.getSql({
-            params: {
-               id: "test-id",
-               windowBy: {
-                  rowNum: { fn: "row_number", over: { orderBy: { createdAt: "ASC" } } },
-                  runSum: { fn: "count", col: "*", over: { partitionBy: ["status"], orderBy: { createdAt: "ASC" } } },
-               },
-            },
+            params: { id: "test-id" },
             options: { dialect: "transactsql" },
          });
          expect(text).toMatchInlineSnapshot(`
@@ -577,23 +541,21 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
          await expect(
             Account.mssql.select({
                WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
-            }).all({
-               db: pool.request(),
-               params: {
-                  accountIds: allAccountIds,
-                  windowBy: {
-                     bad: {
-                        fn: "sum",
-                        col: "email",
-                        over: {
-                           orderBy: { createdAt: "ASC" },
-                           frame: "range",
-                           start: 3,
-                           end: "current row",
-                        },
+               windowBy: {
+                  bad: {
+                     fn: "sum",
+                     col: "email",
+                     over: {
+                        orderBy: { createdAt: "ASC" },
+                        frame: "range",
+                        start: 3,
+                        end: "current row",
                      },
                   },
                },
+            }).all({
+               db: pool.request(),
+               params: { accountIds: allAccountIds },
             }),
          ).rejects.toThrow("MSSQL does not support numeric bounds with RANGE frame");
       });
@@ -606,14 +568,12 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
          await expect(
             Account.mssql.select({
                WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
+               windowBy: {
+                  bad: { fn: "invalid_fn" as never, over: { orderBy: { createdAt: "ASC" } } },
+               },
             }).all({
                db: pool.request(),
-               params: {
-                  accountIds: allAccountIds,
-                  windowBy: {
-                     bad: { fn: "invalid_fn" as never, over: { orderBy: { createdAt: "ASC" } } },
-                  },
-               },
+               params: { accountIds: allAccountIds },
             }),
          ).rejects.toThrow("invalid function");
       });
@@ -622,14 +582,12 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
          await expect(
             Account.mssql.select({
                WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
+               windowBy: {
+                  bad: { fn: "sum", over: { orderBy: { createdAt: "ASC" } } } as never,
+               },
             }).all({
                db: pool.request(),
-               params: {
-                  accountIds: allAccountIds,
-                  windowBy: {
-                     bad: { fn: "sum", over: { orderBy: { createdAt: "ASC" } } } as never,
-                  },
-               },
+               params: { accountIds: allAccountIds },
             }),
          ).rejects.toThrow("requires 'col'");
       });
@@ -638,14 +596,12 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
          await expect(
             Account.mssql.select({
                WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
+               windowBy: {
+                  bad: { fn: "row_number", col: "email", over: { orderBy: { createdAt: "ASC" } } } as never,
+               },
             }).all({
                db: pool.request(),
-               params: {
-                  accountIds: allAccountIds,
-                  windowBy: {
-                     bad: { fn: "row_number", col: "email", over: { orderBy: { createdAt: "ASC" } } } as never,
-                  },
-               },
+               params: { accountIds: allAccountIds },
             }),
          ).rejects.toThrow("does not accept 'col'");
       });
@@ -654,14 +610,12 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
          await expect(
             Account.mssql.select({
                WHERE: sql`${Account.$accountId} in (${accountIdsParam})`,
+               windowBy: {
+                  bad: { fn: "ntile", over: { orderBy: { createdAt: "ASC" } } } as never,
+               },
             }).all({
                db: pool.request(),
-               params: {
-                  accountIds: allAccountIds,
-                  windowBy: {
-                     bad: { fn: "ntile", over: { orderBy: { createdAt: "ASC" } } } as never,
-                  },
-               },
+               params: { accountIds: allAccountIds },
             }),
          ).rejects.toThrow("ntile requires 'args'");
       });

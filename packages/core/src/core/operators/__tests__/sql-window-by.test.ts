@@ -443,7 +443,6 @@ describe("SqlWindowBy — runtime window functions in SELECT list", () => {
 
       test("count with col = '*'", () => {
          const { text, values } = sqlSelect(Account, {}).getSql({ params: { windowBy: {
-            // @ts-expect-error — "*" is valid for count(*) at runtime but not a table column
             total: { fn: "count", col: "*", over: { orderBy: { createdAt: "ASC" } } },
          } }, options: { dialect: "sqlite" } });
          expect(text).toMatchInlineSnapshot(`
@@ -714,7 +713,6 @@ describe("SqlWindowBy — runtime window functions in SELECT list", () => {
       test("multiple window functions in one query", () => {
          const { text, values } = sqlSelect(Account, {}).getSql({ params: { windowBy: {
             rowNum: { fn: "row_number", over: { orderBy: { createdAt: "DESC" } } },
-            // @ts-expect-error — "*" is valid for count(*) at runtime but not a table column
             runningCount: { fn: "count", col: "*", over: { orderBy: { createdAt: "ASC" } } },
             prevEmail: { fn: "lag", col: "email", over: { orderBy: { createdAt: "ASC" } } },
          } }, options: { dialect: "sqlite" } });

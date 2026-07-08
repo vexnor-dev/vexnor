@@ -58,7 +58,7 @@ export type WindowBucket<T extends { Select: Record<string, unknown> } = { Selec
 
 export type WindowAggregate<T extends { Select: Record<string, unknown> } = { Select: Record<string, unknown> }> = {
    fn: WindowByAggregateFunction;
-   col: Extract<keyof T["Select"], string> & string;
+   col: (Extract<keyof T["Select"], string> & string) | "*";
    over: WindowOver<T>;
 };
 
