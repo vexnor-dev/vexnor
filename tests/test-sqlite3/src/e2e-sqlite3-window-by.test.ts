@@ -709,4 +709,53 @@ describe.sequential("windowBy — e2e sqlite3", () => {
          `);
       });
    });
+
+   describe("windowBy with joined tables", () => {
+      test("windowBy with partitionBy on joined table column", async () => {
+         const query = Order.join({ account: Account }).select({}).sqlite;
+         const result = await query.all({
+            db,
+            params: {
+               joinBy: { account: { on: [["_.accountId", "=", "account.accountId"]] } },
+               windowBy: {
+                  accountRank: { fn: "rank", over: { partitionBy: ["account.email"], orderBy: { createdAt: "DESC" } } },
+               },
+            },
+         });
+         expect(result.length).toBeGreaterThan(0);
+         expect(result[0]).toHaveProperty("accountRank");
+      });
+
+      test("windowBy + select projection with joined columns", async () => {
+         const query = Order.join({ account: Account }).select({}).sqlite;
+         const result = await query.all({
+            db,
+            params: {
+               joinBy: { account: { on: [["_.accountId", "=", "account.accountId"]] } },
+               windowBy: {
+                  rowNum: { fn: "row_number", over: { orderBy: { createdAt: "ASC" } } },
+               },
+               select: { "account.email": "account.email", orderId: true },
+            },
+         });
+         expect(result.length).toBeGreaterThan(0);
+         expect(result[0]).toHaveProperty("rowNum");
+         expect(result[0]).toHaveProperty("email");
+      });
+
+      test("windowBy orderBy on joined table column", async () => {
+         const query = Order.join({ account: Account }).select({}).sqlite;
+         const result = await query.all({
+            db,
+            params: {
+               joinBy: { account: { on: [["_.accountId", "=", "account.accountId"]] } },
+               windowBy: {
+                  emailRank: { fn: "dense_rank", over: { orderBy: { "account.email": "ASC" } } },
+               },
+            },
+         });
+         expect(result.length).toBeGreaterThan(0);
+         expect(result[0]).toHaveProperty("emailRank");
+      });
+   });
 });
