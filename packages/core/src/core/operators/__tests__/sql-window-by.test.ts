@@ -1597,12 +1597,11 @@ describe("SqlWindowBy — runtime window functions in SELECT list", () => {
       });
 
       test("invalid column in partitionBy — type error", () => {
-         // @ts-expect-error — type-level test, value is intentionally unused
-         // eslint-disable-next-line unused-imports/no-unused-vars
-         const check: WindowBySelect<{ Select: IAccountSelect }> = {
+         const check = {
             // @ts-expect-error — 'doesNotExist' is not a column on Account
             bad: { fn: "rank", over: { partitionBy: ["doesNotExist"], orderBy: { createdAt: "ASC" } } },
-         };
+         } satisfies WindowBySelect<{ Select: IAccountSelect }>;
+         void check;
       });
 
       test("invalid column in orderBy — type error", () => {
