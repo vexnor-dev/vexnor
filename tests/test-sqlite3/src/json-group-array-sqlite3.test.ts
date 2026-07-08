@@ -31,7 +31,7 @@ describe("Sqlite3JsonAggregation", () => {
       `;
       const results = await query.sqlite.all({ db, params: { limit: 5 } });
       expect(results).toHaveLength(1);
-      expect(results[0]).toHaveProperty("orders");
+      expect(results[0]!.orders).toBeDefined();
    });
 
    const INVALID_KEYWORDS_FOR_JSON_AGG = ["where", "group by", "order by", "update", "delete from"];

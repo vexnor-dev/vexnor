@@ -59,7 +59,8 @@ describe.sequential("jsonOne() tests", (ctx) => {
          limit 1
       `;
       const result = await query.any({ db });
-      expect(result).toHaveProperty("parent");
+      expect(result).toBeDefined();
+      expect(result!.parent).toBeDefined();
    });
 
    const INVALID_KEYWORDS_FOR_JSON_ONE = ["where", "group by", "order by", "update", "delete from"];
