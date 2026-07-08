@@ -944,6 +944,7 @@ describe("SchemaGraph", () => {
                        "type": "SqlProjection",
                      },
                      SqlWindowBy {
+                       "defaults": undefined,
                        "fieldNames": [
                          "paymentId",
                          "customerId",
@@ -3567,6 +3568,7 @@ describe("SchemaGraph", () => {
                        "type": "SqlProjection",
                      },
                      SqlWindowBy {
+                       "defaults": undefined,
                        "fieldNames": [
                          "paymentId",
                          "customerId",
@@ -6190,6 +6192,7 @@ describe("SchemaGraph", () => {
                        "type": "SqlProjection",
                      },
                      SqlWindowBy {
+                       "defaults": undefined,
                        "fieldNames": [
                          "paymentId",
                          "customerId",
@@ -8814,6 +8817,7 @@ describe("SchemaGraph", () => {
                            "type": "SqlProjection",
                          },
                          SqlWindowBy {
+                           "defaults": undefined,
                            "fieldNames": [
                              "paymentId",
                              "customerId",
@@ -11379,6 +11383,7 @@ describe("SchemaGraph", () => {
                            "type": "SqlProjection",
                          },
                          SqlWindowBy {
+                           "defaults": undefined,
                            "fieldNames": [
                              "paymentId",
                              "customerId",
@@ -13944,6 +13949,7 @@ describe("SchemaGraph", () => {
                            "type": "SqlProjection",
                          },
                          SqlWindowBy {
+                           "defaults": undefined,
                            "fieldNames": [
                              "paymentId",
                              "customerId",
@@ -16448,6 +16454,7 @@ describe("SchemaGraph", () => {
                    "type": "SqlProjection",
                  },
                  SqlWindowBy {
+                   "defaults": undefined,
                    "fieldNames": [
                      "paymentId",
                      "customerId",

@@ -187,7 +187,7 @@ export function sqlSelect<
    const havingByNode = new SqlHavingBy(table, "havingBy", "select");
 
    // WindowBy: runtime window functions appended to SELECT list.
-   const windowByNode = new SqlWindowBy<MergedSelect<T, M>>(table, "windowBy", allFieldNames);
+   const windowByNode = new SqlWindowBy<MergedSelect<T, M>>(table, "windowBy", allFieldNames, args.windowBy as WindowBySelect | undefined);
 
    // Pagination: runtime limit/offset.
    const paginationNode = new SqlPagination();

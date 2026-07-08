@@ -144,6 +144,7 @@ export class SqlWindowBy<T extends { Select: Record<string, unknown> } = { Selec
    readonly table: SqlTableAny;
    readonly paramName: ParamName;
    readonly fieldNames: string[];
+   readonly defaults?: WindowBySelect;
    readonly params: BuildSqlParams<SqlWindowByParams<T, ParamName>>;
 
    get aiPrompt() {
@@ -154,7 +155,7 @@ export class SqlWindowBy<T extends { Select: Record<string, unknown> } = { Selec
          `Offset fns (col required): lag, lead (args = offset, default 1).`;
    }
 
-   constructor(table: SqlTableAny, paramName: ParamName, fieldNames?: string[]) {
+   constructor(table: SqlTableAny, paramName: ParamName, fieldNames?: string[], defaults?: WindowBySelect) {
       super({
          type: "SqlWindowBy",
          id: `${table.tableInfo.name}.${paramName}`,
@@ -164,6 +165,7 @@ export class SqlWindowBy<T extends { Select: Record<string, unknown> } = { Selec
       this.table = table;
       this.paramName = paramName;
       this.fieldNames = fieldNames ?? table.colKeys;
+      this.defaults = defaults;
 
       this.params = {
          [paramName]: new SqlParam({
@@ -188,10 +190,10 @@ export class SqlWindowBy<T extends { Select: Record<string, unknown> } = { Selec
          return;
       }
 
-      const windowBy = resolvePath(context.params as Record<string, unknown>, this.paramName) as
+      const windowBy = (resolvePath(context.params as Record<string, unknown>, this.paramName) as
          | WindowBySelect
          | null
-         | undefined;
+         | undefined) ?? this.defaults;
       if (!windowBy || typeof windowBy !== "object") return;
 
       const entries = Object.entries(windowBy);
