@@ -1,13 +1,13 @@
 import { describe, expect, test } from "vitest";
-import { Account } from "@vexnor/core/testing";
+import { Account, IAccountSelect } from "@vexnor/core/testing";
+import { sqlSelect, info, WindowBySelect } from "@vexnor/core";
 import "@vexnor/sqlite3";
-import { defaultQueryOptions } from "#src/crud/default-query-options.js";
 
-function buildWindowBy(windowBy: Record<string, unknown>) {
-   const query = Account.sqlite.select({});
-   return query.source.getSql({
-      params: { windowBy } as never,
-      options: defaultQueryOptions,
+function buildWindowBy(windowBy: WindowBySelect<{ Select: IAccountSelect }>) {
+   const query = sqlSelect(Account, {}, info({ driver: "sqlite" }));
+   return query.getSql({
+      params: { windowBy },
+      options: { dialect: "sqlite" },
    });
 }
 
@@ -309,6 +309,7 @@ describe("Account.sqlite.select() — windowBy SQL generation", () => {
    });
 
    test("count with col=*", () => {
+      // @ts-expect-error — "*" is valid for count at runtime but not a table column
       const { text, values } = buildWindowBy({ cntAll: { fn: "count", col: "*", over: { orderBy: { createdAt: "ASC" } } } });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */

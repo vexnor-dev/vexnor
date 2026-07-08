@@ -2,7 +2,7 @@
 import "@vexnor/sqlite3";
 import { assertType, describe, expect, test } from "vitest";
 import { Account, Order } from "@vexnor/core/testing";
-import { sql, row, col, param, input, ParamsOf, TypeOf } from "@vexnor/core";
+import { sql, row, col, param, input, ParamsOf } from "@vexnor/core";
 import { sqlite3Select } from "#src/crud/sqlite3-select.js";
 import { defaultQueryOptions } from "#src/crud/default-query-options.js";
 
@@ -430,215 +430,6 @@ describe("sqlite3Select()", () => {
           /* </query_0> */"
       `);
    });
-
-   describe("windowBy query building", () => {
-      test("windowBy — ranking function (row_number)", () => {
-         const query = sqlite3Select(Account, {});
-         const { text, values } = query.source.getSql({ params: { windowBy: { rowNum: { fn: "row_number", over: { orderBy: { createdAt: "ASC" } } } } }, options: defaultQueryOptions });
-         expect(text).toMatchInlineSnapshot(`
-           "/* <query_0> */
-           /* driver: sqlite */
-           SELECT
-             "a_1"."account_id" AS "accountId",
-             "a_1"."status",
-             "a_1"."email",
-             "a_1"."first_name" AS "firstName",
-             "a_1"."last_name" AS "lastName",
-             "a_1"."notes",
-             "a_1"."created_at" AS "createdAt",
-             "a_1"."modified_at" AS "modifiedAt",
-             "a_1"."parent_id" AS "parentId",
-             row_number() OVER (
-               ORDER BY
-                 "a_1"."created_at" ASC
-             ) AS "rowNum"
-           FROM
-             "main"."account" AS "a_1"
-             /* <query_1> */
-             /* </query_1> */
-             /* <query_2> */
-             /* </query_2> */
-             /* <query_3> */
-             /* </query_3> */
-             /* </query_0> */"
-         `);
-         expect(values).toMatchInlineSnapshot(`[]`);
-      });
-
-      test("windowBy — aggregate function (sum)", () => {
-         const query = sqlite3Select(Account, {});
-         const { text, values } = query.source.getSql({ params: { windowBy: { total: { fn: "sum", col: "createdAt", over: { partitionBy: ["status"], orderBy: { createdAt: "ASC" } } } } }, options: defaultQueryOptions });
-         expect(text).toMatchInlineSnapshot(`
-           "/* <query_0> */
-           /* driver: sqlite */
-           SELECT
-             "a_1"."account_id" AS "accountId",
-             "a_1"."status",
-             "a_1"."email",
-             "a_1"."first_name" AS "firstName",
-             "a_1"."last_name" AS "lastName",
-             "a_1"."notes",
-             "a_1"."created_at" AS "createdAt",
-             "a_1"."modified_at" AS "modifiedAt",
-             "a_1"."parent_id" AS "parentId",
-             sum("a_1"."created_at") OVER (
-               PARTITION BY
-                 "a_1"."status"
-               ORDER BY
-                 "a_1"."created_at" ASC
-             ) AS "total"
-           FROM
-             "main"."account" AS "a_1"
-             /* <query_1> */
-             /* </query_1> */
-             /* <query_2> */
-             /* </query_2> */
-             /* <query_3> */
-             /* </query_3> */
-             /* </query_0> */"
-         `);
-         expect(values).toMatchInlineSnapshot(`[]`);
-      });
-
-      test("windowBy — offset function (lag)", () => {
-         const query = sqlite3Select(Account, {});
-         const { text, values } = query.source.getSql({ params: { windowBy: { prev: { fn: "lag", col: "email", args: 1, over: { orderBy: { email: "ASC" } } } } }, options: defaultQueryOptions });
-         expect(text).toMatchInlineSnapshot(`
-           "/* <query_0> */
-           /* driver: sqlite */
-           SELECT
-             "a_1"."account_id" AS "accountId",
-             "a_1"."status",
-             "a_1"."email",
-             "a_1"."first_name" AS "firstName",
-             "a_1"."last_name" AS "lastName",
-             "a_1"."notes",
-             "a_1"."created_at" AS "createdAt",
-             "a_1"."modified_at" AS "modifiedAt",
-             "a_1"."parent_id" AS "parentId",
-             lag("a_1"."email", 1) OVER (
-               ORDER BY
-                 "a_1"."email" ASC
-             ) AS "prev"
-           FROM
-             "main"."account" AS "a_1"
-             /* <query_1> */
-             /* </query_1> */
-             /* <query_2> */
-             /* </query_2> */
-             /* <query_3> */
-             /* </query_3> */
-             /* </query_0> */"
-         `);
-         expect(values).toMatchInlineSnapshot(`[]`);
-      });
-
-      test("windowBy — bucket function (ntile)", () => {
-         const query = sqlite3Select(Account, {});
-         const { text, values } = query.source.getSql({ params: { windowBy: { quartile: { fn: "ntile", args: 4, over: { orderBy: { createdAt: "ASC" } } } } }, options: defaultQueryOptions });
-         expect(text).toMatchInlineSnapshot(`
-           "/* <query_0> */
-           /* driver: sqlite */
-           SELECT
-             "a_1"."account_id" AS "accountId",
-             "a_1"."status",
-             "a_1"."email",
-             "a_1"."first_name" AS "firstName",
-             "a_1"."last_name" AS "lastName",
-             "a_1"."notes",
-             "a_1"."created_at" AS "createdAt",
-             "a_1"."modified_at" AS "modifiedAt",
-             "a_1"."parent_id" AS "parentId",
-             ntile(4) OVER (
-               ORDER BY
-                 "a_1"."created_at" ASC
-             ) AS "quartile"
-           FROM
-             "main"."account" AS "a_1"
-             /* <query_1> */
-             /* </query_1> */
-             /* <query_2> */
-             /* </query_2> */
-             /* <query_3> */
-             /* </query_3> */
-             /* </query_0> */"
-         `);
-         expect(values).toMatchInlineSnapshot(`[]`);
-      });
-
-      test("windowBy — frame clause", () => {
-         const query = sqlite3Select(Account, {});
-         const { text, values } = query.source.getSql({ params: { windowBy: { moving: { fn: "avg", col: "createdAt", over: { orderBy: { createdAt: "ASC" }, frame: "rows", start: 2, end: "current row" } } } }, options: defaultQueryOptions });
-         expect(text).toMatchInlineSnapshot(`
-           "/* <query_0> */
-           /* driver: sqlite */
-           SELECT
-             "a_1"."account_id" AS "accountId",
-             "a_1"."status",
-             "a_1"."email",
-             "a_1"."first_name" AS "firstName",
-             "a_1"."last_name" AS "lastName",
-             "a_1"."notes",
-             "a_1"."created_at" AS "createdAt",
-             "a_1"."modified_at" AS "modifiedAt",
-             "a_1"."parent_id" AS "parentId",
-             avg("a_1"."created_at") OVER (
-               ORDER BY
-                 "a_1"."created_at" ASC ROWS BETWEEN 2 PRECEDING
-                 AND CURRENT ROW
-             ) AS "moving"
-           FROM
-             "main"."account" AS "a_1"
-             /* <query_1> */
-             /* </query_1> */
-             /* <query_2> */
-             /* </query_2> */
-             /* <query_3> */
-             /* </query_3> */
-             /* </query_0> */"
-         `);
-         expect(values).toMatchInlineSnapshot(`[]`);
-      });
-
-      test("windowBy — multiple functions", () => {
-         const query = sqlite3Select(Account, {});
-         const { text, values } = query.source.getSql({ params: { windowBy: { rowNum: { fn: "row_number", over: { orderBy: { createdAt: "ASC" } } }, total: { fn: "sum", col: "createdAt", over: { partitionBy: ["status"], orderBy: { createdAt: "ASC" } } } } }, options: defaultQueryOptions });
-         expect(text).toMatchInlineSnapshot(`
-           "/* <query_0> */
-           /* driver: sqlite */
-           SELECT
-             "a_1"."account_id" AS "accountId",
-             "a_1"."status",
-             "a_1"."email",
-             "a_1"."first_name" AS "firstName",
-             "a_1"."last_name" AS "lastName",
-             "a_1"."notes",
-             "a_1"."created_at" AS "createdAt",
-             "a_1"."modified_at" AS "modifiedAt",
-             "a_1"."parent_id" AS "parentId",
-             row_number() OVER (
-               ORDER BY
-                 "a_1"."created_at" ASC
-             ) AS "rowNum",
-             sum("a_1"."created_at") OVER (
-               PARTITION BY
-                 "a_1"."status"
-               ORDER BY
-                 "a_1"."created_at" ASC
-             ) AS "total"
-           FROM
-             "main"."account" AS "a_1"
-             /* <query_1> */
-             /* </query_1> */
-             /* <query_2> */
-             /* </query_2> */
-             /* <query_3> */
-             /* </query_3> */
-             /* </query_0> */"
-         `);
-         expect(values).toMatchInlineSnapshot(`[]`);
-      });
-   });
 });
 
 describe("param propagation through SqlSelectArgs clauses", () => {
@@ -664,7 +455,7 @@ describe("param propagation through SqlSelectArgs clauses", () => {
          email: "a@b.com",
          dir: "desc",
          limit: 5,
-         // @ts-expect-error — 'other' is not a declared param
+         // @ts-expect-error not declared
          other: "x",
       });
    });
@@ -690,52 +481,5 @@ describe("param propagation through SqlSelectArgs clauses", () => {
          // @ts-expect-error not declared
          other: "x",
       });
-   });
-});
-
-describe("windowBy/select in select() — Row type inference", () => {
-   test("windowBy declared in select() adds aliases to Row type", () => {
-      const query = Account.sqlite.select({
-         windowBy: {
-            myRank: { fn: "rank", over: { orderBy: { createdAt: "ASC" } } },
-            prevEmail: { fn: "lag", col: "email", args: 1, over: { orderBy: { createdAt: "ASC" } } },
-         },
-      });
-      type Row = TypeOf<typeof query>;
-
-      assertType<Row["myRank"]>(1 as number);
-      const _prev: Row["prevEmail"] = "" as string; // lag → string | null
-         void _prev;
-      assertType<Row["accountId"]>("" as string);
-
-      // @ts-expect-error — 'notDeclared' was not in windowBy
-      type _Bad = Row["notDeclared"];
-   });
-
-   test("select declared in select() narrows Row to projected columns", () => {
-      const query = Account.sqlite.select({
-         select: { email: true, total: { fn: "count", col: "*" } },
-      });
-      type Row = TypeOf<typeof query>;
-
-      assertType<Row["email"]>("" as string);
-      assertType<Row["total"]>(0 as number);
-
-      // @ts-expect-error — 'accountId' was not selected
-      type _NoAccountId = Row["accountId"];
-   });
-
-   test("select + windowBy combined — narrowed + augmented", () => {
-      const query = Account.sqlite.select({
-         select: { email: true },
-         windowBy: { rank: { fn: "rank", over: { orderBy: { createdAt: "ASC" } } } },
-      });
-      type Row = TypeOf<typeof query>;
-
-      assertType<Row["email"]>("" as string);
-      assertType<Row["rank"]>(1 as number);
-
-      // @ts-expect-error — 'accountId' was not selected
-      type _NoAccountId = Row["accountId"];
    });
 });

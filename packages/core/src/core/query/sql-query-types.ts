@@ -63,17 +63,11 @@ export type SqlQueryRunArgs<
       T["Params"] extends Record<string, unknown> ? T["Params"] : Record<string, unknown>,
 > =
    T["Params"] extends Record<string, unknown>
-      ? {} extends T["Params"]
-         ? {
-              db: SqlPipelineDb<T["Connection"], TContext>;
-              params?: WithRuntimeValues<T["Params"]>;
-              options?: SqlBuildOptions & SqlRunOptions;
-           }
-         : {
-              db: SqlPipelineDb<T["Connection"], TContext>;
-              params: WithRuntimeValues<T["Params"]>;
-              options?: SqlBuildOptions & SqlRunOptions;
-           }
+      ? {
+           db: SqlPipelineDb<T["Connection"], TContext>;
+           params: WithRuntimeValues<T["Params"]>;
+           options?: SqlBuildOptions & SqlRunOptions;
+        }
       : {
            db: SqlConnectionArg<T["Connection"]>;
            params?: WithRuntimeValues<T["Params"]>;
@@ -131,12 +125,10 @@ export type SqlRetryOptions<TExecution = unknown> = {
    shouldRetry?: (args: SqlRetryArgs<TExecution>) => boolean | Promise<boolean>;
 };
 
-/** Arguments passed to `getSql()`. Requires `params` only when the query declares required parameters. */
+/** Arguments passed to `getSql()`. Requires `params` only when the query declares named parameters. */
 export type SqlInputArgs<Params> =
    Params extends Record<string, unknown>
-      ? {} extends Params
-         ? { params?: WithRuntimeValues<Params>; options?: SqlBuildOptions }
-         : { params: WithRuntimeValues<Params>; options?: SqlBuildOptions }
+      ? { params: WithRuntimeValues<Params>; options?: SqlBuildOptions }
       : { params?: WithRuntimeValues<Params>; options?: SqlBuildOptions };
 
 export function hasParams(value: unknown): value is { params: Record<string, SqlParamAny> } {

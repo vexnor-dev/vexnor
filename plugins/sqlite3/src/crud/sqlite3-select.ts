@@ -7,7 +7,6 @@ import {
    info,
    SqlQueryColumns,
    SqlQueryBaseAny,
-   SqlWindowByParams,
 } from "@vexnor/core";
 import { jsonMany, jsonOne } from "#src/charms/json-aggregation-sqlite3.js";
 import { BetterSqlite3QueryHandler } from "#src/better-sqlite3-query-handler.js";
@@ -18,7 +17,7 @@ export type Sqlite3SelectResult<
    Args extends SqlSelectArgs<T>,
 > = BetterSqlite3QueryHandler<{
    Row: SqlSelectResultRow<T, Args>;
-   Params: (ParamsOfArgs<Args> extends void ? unknown : ParamsOfArgs<Args>) & SqlWindowByParams<T>;
+   Params: ParamsOfArgs<Args>;
 }> &
    SqlQueryColumns<SqlSelectResultRow<T, Args>>;
 
