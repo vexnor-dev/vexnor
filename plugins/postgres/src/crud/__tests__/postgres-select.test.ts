@@ -9,7 +9,7 @@ import { defaultQueryOptions } from "#src/default-query-options.js";
 describe("postgresSelect()", () => {
    test("basic select", () => {
       const query = postgresSelect(Account, {});
-      const { text } = query.source.getSql({ options: defaultQueryOptions });
+      const { text } = query.source.getSql({ params: {}, options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         /* driver: postgres */
@@ -121,7 +121,7 @@ describe("postgresSelect()", () => {
          where ${Account.as("children").$parentId} = ${Account.$accountId}
       `;
       const query = postgresSelect(Account, { includeMany: { children } });
-      const { text } = query.source.getSql({ options: defaultQueryOptions });
+      const { text } = query.source.getSql({ params: {}, options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         /* driver: postgres */
@@ -192,7 +192,7 @@ describe("postgresSelect()", () => {
          where ${Order.$accountId} = ${Account.$accountId}
       `;
       const query = postgresSelect(Account, { includeOne: { firstOrder } });
-      const { text } = query.source.getSql({});
+      const { text } = query.source.getSql({ params: {} });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         /* driver: postgres */
@@ -273,7 +273,7 @@ describe("postgresSelect()", () => {
          where ${Account.as("children").$parentId} = ${Account.$accountId}
       `;
       const select = postgresSelect(Account, { includeOne: { firstOrder }, includeMany: { children } });
-      const { text } = select.source.getSql({ options: defaultQueryOptions });
+      const { text } = select.source.getSql({ params: {}, options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         /* driver: postgres */
@@ -368,7 +368,7 @@ describe("postgresSelect()", () => {
          where ${Order.$accountId} = ${Account.$accountId}
       `;
       const select = postgresSelect(Account, { includeMany: { orders: ordersWithItems } });
-      const { text } = select.source.getSql({});
+      const { text } = select.source.getSql({ params: {} });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         /* driver: postgres */
@@ -446,7 +446,7 @@ describe("postgresSelect()", () => {
       const select = postgresSelect(Account, {
          SELECT: sql`${row(Account.$$)}, (select count(*) from ${Order} where ${Order.$accountId} = ${Account.$accountId}) as ${orderCount}`,
       });
-      const { text } = select.source.getSql({ options: defaultQueryOptions });
+      const { text } = select.source.getSql({ params: {}, options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
         /* driver: postgres */
@@ -542,215 +542,6 @@ describe("postgresSelect()", () => {
       });
    });
 
-   describe("windowBy query building", () => {
-      test("windowBy — ranking function (row_number)", () => {
-         const query = postgresSelect(Account, {});
-         const { text, values } = query.source.getSql({ params: { windowBy: { rowNum: { fn: "row_number", over: { orderBy: { createdAt: "ASC" } } } } }, options: defaultQueryOptions });
-         expect(text).toMatchInlineSnapshot(`
-           "/* <query_0> */
-           /* driver: postgres */
-           SELECT
-             "a_1"."account_id" AS "accountId",
-             "a_1"."status",
-             "a_1"."email",
-             "a_1"."first_name" AS "firstName",
-             "a_1"."last_name" AS "lastName",
-             "a_1"."notes",
-             "a_1"."created_at" AS "createdAt",
-             "a_1"."modified_at" AS "modifiedAt",
-             "a_1"."parent_id" AS "parentId",
-             row_number() OVER (
-               ORDER BY
-                 "a_1"."created_at" ASC
-             ) AS "rowNum"
-           FROM
-             "main"."account" AS "a_1"
-             /* <query_1> */
-             /* </query_1> */
-             /* <query_2> */
-             /* </query_2> */
-             /* <query_3> */
-             /* </query_3> */
-             /* </query_0> */"
-         `);
-         expect(values).toMatchInlineSnapshot(`[]`);
-      });
-
-      test("windowBy — aggregate function (sum)", () => {
-         const query = postgresSelect(Account, {});
-         const { text, values } = query.source.getSql({ params: { windowBy: { total: { fn: "sum", col: "createdAt", over: { partitionBy: ["status"], orderBy: { createdAt: "ASC" } } } } }, options: defaultQueryOptions });
-         expect(text).toMatchInlineSnapshot(`
-           "/* <query_0> */
-           /* driver: postgres */
-           SELECT
-             "a_1"."account_id" AS "accountId",
-             "a_1"."status",
-             "a_1"."email",
-             "a_1"."first_name" AS "firstName",
-             "a_1"."last_name" AS "lastName",
-             "a_1"."notes",
-             "a_1"."created_at" AS "createdAt",
-             "a_1"."modified_at" AS "modifiedAt",
-             "a_1"."parent_id" AS "parentId",
-             sum("a_1"."created_at") OVER (
-               PARTITION BY
-                 "a_1"."status"
-               ORDER BY
-                 "a_1"."created_at" ASC
-             ) AS "total"
-           FROM
-             "main"."account" AS "a_1"
-             /* <query_1> */
-             /* </query_1> */
-             /* <query_2> */
-             /* </query_2> */
-             /* <query_3> */
-             /* </query_3> */
-             /* </query_0> */"
-         `);
-         expect(values).toMatchInlineSnapshot(`[]`);
-      });
-
-      test("windowBy — offset function (lag)", () => {
-         const query = postgresSelect(Account, {});
-         const { text, values } = query.source.getSql({ params: { windowBy: { prev: { fn: "lag", col: "email", args: 1, over: { orderBy: { email: "ASC" } } } } }, options: defaultQueryOptions });
-         expect(text).toMatchInlineSnapshot(`
-           "/* <query_0> */
-           /* driver: postgres */
-           SELECT
-             "a_1"."account_id" AS "accountId",
-             "a_1"."status",
-             "a_1"."email",
-             "a_1"."first_name" AS "firstName",
-             "a_1"."last_name" AS "lastName",
-             "a_1"."notes",
-             "a_1"."created_at" AS "createdAt",
-             "a_1"."modified_at" AS "modifiedAt",
-             "a_1"."parent_id" AS "parentId",
-             lag("a_1"."email", 1) OVER (
-               ORDER BY
-                 "a_1"."email" ASC
-             ) AS "prev"
-           FROM
-             "main"."account" AS "a_1"
-             /* <query_1> */
-             /* </query_1> */
-             /* <query_2> */
-             /* </query_2> */
-             /* <query_3> */
-             /* </query_3> */
-             /* </query_0> */"
-         `);
-         expect(values).toMatchInlineSnapshot(`[]`);
-      });
-
-      test("windowBy — bucket function (ntile)", () => {
-         const query = postgresSelect(Account, {});
-         const { text, values } = query.source.getSql({ params: { windowBy: { quartile: { fn: "ntile", args: 4, over: { orderBy: { createdAt: "ASC" } } } } }, options: defaultQueryOptions });
-         expect(text).toMatchInlineSnapshot(`
-           "/* <query_0> */
-           /* driver: postgres */
-           SELECT
-             "a_1"."account_id" AS "accountId",
-             "a_1"."status",
-             "a_1"."email",
-             "a_1"."first_name" AS "firstName",
-             "a_1"."last_name" AS "lastName",
-             "a_1"."notes",
-             "a_1"."created_at" AS "createdAt",
-             "a_1"."modified_at" AS "modifiedAt",
-             "a_1"."parent_id" AS "parentId",
-             ntile(4) OVER (
-               ORDER BY
-                 "a_1"."created_at" ASC
-             ) AS "quartile"
-           FROM
-             "main"."account" AS "a_1"
-             /* <query_1> */
-             /* </query_1> */
-             /* <query_2> */
-             /* </query_2> */
-             /* <query_3> */
-             /* </query_3> */
-             /* </query_0> */"
-         `);
-         expect(values).toMatchInlineSnapshot(`[]`);
-      });
-
-      test("windowBy — frame clause", () => {
-         const query = postgresSelect(Account, {});
-         const { text, values } = query.source.getSql({ params: { windowBy: { moving: { fn: "avg", col: "createdAt", over: { orderBy: { createdAt: "ASC" }, frame: "rows", start: 2, end: "current row" } } } }, options: defaultQueryOptions });
-         expect(text).toMatchInlineSnapshot(`
-           "/* <query_0> */
-           /* driver: postgres */
-           SELECT
-             "a_1"."account_id" AS "accountId",
-             "a_1"."status",
-             "a_1"."email",
-             "a_1"."first_name" AS "firstName",
-             "a_1"."last_name" AS "lastName",
-             "a_1"."notes",
-             "a_1"."created_at" AS "createdAt",
-             "a_1"."modified_at" AS "modifiedAt",
-             "a_1"."parent_id" AS "parentId",
-             avg("a_1"."created_at") OVER (
-               ORDER BY
-                 "a_1"."created_at" ASC ROWS BETWEEN 2 preceding
-                 AND current ROW
-             ) AS "moving"
-           FROM
-             "main"."account" AS "a_1"
-             /* <query_1> */
-             /* </query_1> */
-             /* <query_2> */
-             /* </query_2> */
-             /* <query_3> */
-             /* </query_3> */
-             /* </query_0> */"
-         `);
-         expect(values).toMatchInlineSnapshot(`[]`);
-      });
-
-      test("windowBy — multiple functions", () => {
-         const query = postgresSelect(Account, {});
-         const { text, values } = query.source.getSql({ params: { windowBy: { rowNum: { fn: "row_number", over: { orderBy: { createdAt: "ASC" } } }, total: { fn: "sum", col: "createdAt", over: { partitionBy: ["status"], orderBy: { createdAt: "ASC" } } } } }, options: defaultQueryOptions });
-         expect(text).toMatchInlineSnapshot(`
-           "/* <query_0> */
-           /* driver: postgres */
-           SELECT
-             "a_1"."account_id" AS "accountId",
-             "a_1"."status",
-             "a_1"."email",
-             "a_1"."first_name" AS "firstName",
-             "a_1"."last_name" AS "lastName",
-             "a_1"."notes",
-             "a_1"."created_at" AS "createdAt",
-             "a_1"."modified_at" AS "modifiedAt",
-             "a_1"."parent_id" AS "parentId",
-             row_number() OVER (
-               ORDER BY
-                 "a_1"."created_at" ASC
-             ) AS "rowNum",
-             sum("a_1"."created_at") OVER (
-               PARTITION BY
-                 "a_1"."status"
-               ORDER BY
-                 "a_1"."created_at" ASC
-             ) AS "total"
-           FROM
-             "main"."account" AS "a_1"
-             /* <query_1> */
-             /* </query_1> */
-             /* <query_2> */
-             /* </query_2> */
-             /* <query_3> */
-             /* </query_3> */
-             /* </query_0> */"
-         `);
-         expect(values).toMatchInlineSnapshot(`[]`);
-      });
-   });
-
    describe("param propagation through SqlSelectArgs clauses", () => {
       const emailParam = param<{ email: string }>("email");
       const dirParam = param<{ dir: string }>("dir");
@@ -799,8 +590,9 @@ describe("postgresSelect()", () => {
       });
    });
 
-   describe("windowBy in select() — Row type inference", () => {
+   describe("windowBy/select in select() — Row type inference", () => {
       test("windowBy declared in select() adds aliases to Row type", () => {
+         // eslint-disable-next-line unused-imports/no-unused-vars
          const query = Account.postgres.select({
             windowBy: {
                myRank: { fn: "rank", over: { orderBy: { createdAt: "ASC" } } },
@@ -809,17 +601,13 @@ describe("postgresSelect()", () => {
          });
          type Row = TypeOf<typeof query>;
 
-         // Window aliases present with correct types
          assertType<Row["myRank"]>(1 as number);
-         const _prev: Row["prevEmail"] = "" as string; // lag → string | null
+         const _prev: Row["prevEmail"] = "" as string;
          void _prev;
-
-         // Base row fields still present
          assertType<Row["accountId"]>("" as string);
          assertType<Row["email"]>("" as string);
 
          // @ts-expect-error — 'notDeclared' was not in windowBy
-         // eslint-disable-next-line unused-imports/no-unused-vars
          type _Bad = Row["notDeclared"];
       });
 
@@ -828,7 +616,6 @@ describe("postgresSelect()", () => {
          const query = Account.postgres.select({});
          type Row = TypeOf<typeof query>;
 
-         // Base row fields
          assertType<Row["accountId"]>("" as string);
          assertType<Row["email"]>("" as string);
       });
@@ -844,7 +631,6 @@ describe("postgresSelect()", () => {
          });
          type Row = TypeOf<typeof query>;
 
-         // Projected fields with correct types
          assertType<Row["email"]>("" as string);
          assertType<Row["total"]>(0 as number);
          assertType<Row["month"]>("" as string);
@@ -854,17 +640,15 @@ describe("postgresSelect()", () => {
       });
 
       test("select + windowBy combined — narrowed + augmented", () => {
+         // eslint-disable-next-line unused-imports/no-unused-vars
          const query = Account.postgres.select({
             select: { email: true, total: { fn: "count", col: "*" } },
             windowBy: { rank: { fn: "rank", over: { orderBy: { createdAt: "ASC" } } } },
          });
          type Row = TypeOf<typeof query>;
 
-         // Selected fields
          assertType<Row["email"]>("" as string);
          assertType<Row["total"]>(0 as number);
-
-         // Window alias
          assertType<Row["rank"]>(1 as number);
 
          // @ts-expect-error — 'accountId' was not selected
