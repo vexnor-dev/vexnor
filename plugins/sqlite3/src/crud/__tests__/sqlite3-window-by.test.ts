@@ -309,7 +309,6 @@ describe("Account.sqlite.select() — windowBy SQL generation", () => {
    });
 
    test("count with col=*", () => {
-      // @ts-expect-error — "*" is valid for count at runtime but not a table column
       const { text, values } = buildWindowBy({ cntAll: { fn: "count", col: "*", over: { orderBy: { createdAt: "ASC" } } } });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
