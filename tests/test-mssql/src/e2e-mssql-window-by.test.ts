@@ -636,7 +636,11 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
             },
          });
          expect(result.length).toBeGreaterThan(0);
-         expect(result[0]).toHaveProperty("accountRank");
+         const row = result[0]!;
+         expect((row as Record<string, unknown>).accountRank).toBeDefined();
+         expect(row.orderId).toBeDefined();
+         expect(row.accountId).toBeDefined();
+         expect(row.createdAt).toBeDefined();
       });
 
       test("windowBy + select projection with joined columns", async () => {
@@ -652,8 +656,10 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
             },
          });
          expect(result.length).toBeGreaterThan(0);
-         expect(result[0]).toHaveProperty("rowNum");
-         expect(result[0]).toHaveProperty("email");
+         const row = result[0]!;
+         expect((row as Record<string, unknown>).rowNum).toBeDefined();
+         expect((row as Record<string, unknown>).email).toBeDefined();
+         expect(row.orderId).toBeDefined();
       });
 
       test("windowBy orderBy on joined table column", async () => {
@@ -668,7 +674,10 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
             },
          });
          expect(result.length).toBeGreaterThan(0);
-         expect(result[0]).toHaveProperty("emailRank");
+         const row = result[0]!;
+         expect((row as Record<string, unknown>).emailRank).toBeDefined();
+         expect(row.orderId).toBeDefined();
+         expect(row.accountId).toBeDefined();
       });
    });
 });
