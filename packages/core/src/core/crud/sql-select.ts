@@ -9,11 +9,11 @@ import { raw } from "#src/core/query/sql-raw.js";
 import { SqlQueryInfo } from "#src/core/charms/sql-query-info.js";
 import { SqlFilterBy, SqlFilterParams } from "#src/core/operators/sql-filter-by.js";
 import { SqlJoinBy } from "#src/core/operators/sql-join-by.js";
-import { SqlProjectBy, SqlProjectByParams, SqlProjectionGroupBy } from "#src/core/operators/sql-project-by.js";
+import { SqlProjectBy, SqlProjectByParams, SqlProjectionGroupBy, InferProjectByRow, SqlProjectBySelect } from "#src/core/operators/sql-project-by.js";
 import { SqlOrderBy, SqlOrderByParams } from "#src/core/operators/sql-order-by.js";
 import { SqlPagination, SqlPaginationParams } from "#src/core/operators/sql-pagination.js";
 import { SqlHavingBy, SqlHavingByParams } from "#src/core/operators/sql-having-by.js";
-import { SqlWindowBy, SqlWindowByParams } from "#src/core/operators/sql-window-by.js";
+import { SqlWindowBy, SqlWindowByParams, WindowBySelect, InferWindowByRow } from "#src/core/operators/sql-window-by.js";
 import { JoinByMap, JoinedTablesDotCols } from "#src/core/operators/sql-join-types.js";
 import { SqlTableColumnAny } from "#src/core/schema/sql-table-column.js";
 import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
@@ -47,6 +47,8 @@ export type SqlSelectArgs<
    limit?: SqlParam<{ Name: "limit"; Type: number }>;
    includeOne?: Record<string, SqlQueryBaseAny>;
    includeMany?: Record<string, SqlQueryBaseAny>;
+   windowBy?: WindowBySelect<T>;
+   select?: SqlProjectBySelect<T["Select"]>;
    filterBy?: SqlFilterParams<T, "filterBy">;
    orderBy?: SqlOrderByParams<T, "orderBy">;
 };
@@ -77,8 +79,13 @@ export type SqlSelectResult<
 }>;
 
 export type SqlSelectResultRow<T extends { Select: Record<string, unknown> }, Args extends SqlSelectArgs<T>> = Simplify<
-   SqlTableReadRowSelect<T, Args> & SqlTableReadRowIncludeOne<Args> & SqlTableReadRowIncludeMany<Args>
+   SqlTableReadRowBase<T, Args> & SqlTableReadRowIncludeOne<Args> & SqlTableReadRowIncludeMany<Args> & SqlTableReadRowWindowBy<T, Args>
 >;
+
+type SqlTableReadRowBase<T extends { Select: Record<string, unknown> }, Args extends SqlSelectArgs<T>> =
+   Args extends { select: infer S extends Record<string, unknown> }
+      ? InferProjectByRow<T["Select"], S>
+      : SqlTableReadRowSelect<T, Args>;
 
 export type SqlSelectHooks = {
    afterSelect?: Sql[];
@@ -244,6 +251,12 @@ export type SqlTableReadRowIncludeMany<Args> = Args extends {
    ? {
         [K in keyof Args["includeMany"]]: TypeOf<Args["includeMany"][K]>[];
      }
+   : unknown;
+
+export type SqlTableReadRowWindowBy<T extends { Select: Record<string, unknown> }, Args> = Args extends {
+   windowBy: infer W;
+}
+   ? InferWindowByRow<T, { windowBy: W }>
    : unknown;
 
 /**

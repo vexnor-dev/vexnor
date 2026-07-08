@@ -2,7 +2,7 @@
 import "@vexnor/sqlite3";
 import { assertType, describe, expect, test } from "vitest";
 import { Account, Order } from "@vexnor/core/testing";
-import { sql, row, col, param, input, ParamsOf } from "@vexnor/core";
+import { sql, row, col, param, input, ParamsOf, TypeOf } from "@vexnor/core";
 import { sqlite3Select } from "#src/crud/sqlite3-select.js";
 import { defaultQueryOptions } from "#src/crud/default-query-options.js";
 
@@ -692,5 +692,52 @@ describe("param propagation through SqlSelectArgs clauses", () => {
          // @ts-expect-error not declared
          other: "x",
       });
+   });
+});
+
+describe("windowBy/select in select() — Row type inference", () => {
+   test("windowBy declared in select() adds aliases to Row type", () => {
+      const query = Account.sqlite.select({
+         windowBy: {
+            myRank: { fn: "rank", over: { orderBy: { createdAt: "ASC" } } },
+            prevEmail: { fn: "lag", col: "email", args: 1, over: { orderBy: { createdAt: "ASC" } } },
+         },
+      });
+      type Row = TypeOf<typeof query>;
+
+      assertType<Row["myRank"]>(1 as number);
+      const _prev: Row["prevEmail"] = "" as string; // lag → string | null
+         void _prev;
+      assertType<Row["accountId"]>("" as string);
+
+      // @ts-expect-error — 'notDeclared' was not in windowBy
+      type _Bad = Row["notDeclared"];
+   });
+
+   test("select declared in select() narrows Row to projected columns", () => {
+      const query = Account.sqlite.select({
+         select: { email: true, total: { fn: "count", col: "*" } },
+      });
+      type Row = TypeOf<typeof query>;
+
+      assertType<Row["email"]>("" as string);
+      assertType<Row["total"]>(0 as number);
+
+      // @ts-expect-error — 'accountId' was not selected
+      type _NoAccountId = Row["accountId"];
+   });
+
+   test("select + windowBy combined — narrowed + augmented", () => {
+      const query = Account.sqlite.select({
+         select: { email: true },
+         windowBy: { rank: { fn: "rank", over: { orderBy: { createdAt: "ASC" } } } },
+      });
+      type Row = TypeOf<typeof query>;
+
+      assertType<Row["email"]>("" as string);
+      assertType<Row["rank"]>(1 as number);
+
+      // @ts-expect-error — 'accountId' was not selected
+      type _NoAccountId = Row["accountId"];
    });
 });

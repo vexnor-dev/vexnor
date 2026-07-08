@@ -1,8 +1,8 @@
 // noinspection SqlNoDataSourceInspection,SqlResolve
-import { describe, expect, test } from "vitest";
+import { assertType, describe, expect, test } from "vitest";
 import "@vexnor/mssql";
 import { Account, Order, OrderItem } from "@vexnor/core/testing";
-import { sql, row, param, input } from "@vexnor/core";
+import { sql, row, param, input, TypeOf } from "@vexnor/core";
 import { jsonMany } from "#src/charms/json-aggregation-mssql.js";
 import { mssqlSelect } from "#src/crud/mssql-select.js";
 import { defaultQueryOptions } from "#src/default-query-options.js";
@@ -646,6 +646,53 @@ describe("mssqlTableRead()", () => {
              /* </query_0> */"
          `);
          expect(values).toMatchInlineSnapshot(`[]`);
+      });
+   });
+
+   describe("windowBy/select in select() — Row type inference", () => {
+      test("windowBy declared in select() adds aliases to Row type", () => {
+         const query = Account.mssql.select({
+            windowBy: {
+               myRank: { fn: "rank", over: { orderBy: { createdAt: "ASC" } } },
+               prevEmail: { fn: "lag", col: "email", args: 1, over: { orderBy: { createdAt: "ASC" } } },
+            },
+         });
+         type Row = TypeOf<typeof query>;
+
+         assertType<Row["myRank"]>(1 as number);
+         const _prev: Row["prevEmail"] = "" as string; // lag → string | null
+         void _prev;
+         assertType<Row["accountId"]>("" as string);
+
+         // @ts-expect-error — 'notDeclared' was not in windowBy
+         type _Bad = Row["notDeclared"];
+      });
+
+      test("select declared in select() narrows Row to projected columns", () => {
+         const query = Account.mssql.select({
+            select: { email: true, total: { fn: "count", col: "*" } },
+         });
+         type Row = TypeOf<typeof query>;
+
+         assertType<Row["email"]>("" as string);
+         assertType<Row["total"]>(0 as number);
+
+         // @ts-expect-error — 'accountId' was not selected
+         type _NoAccountId = Row["accountId"];
+      });
+
+      test("select + windowBy combined — narrowed + augmented", () => {
+         const query = Account.mssql.select({
+            select: { email: true },
+            windowBy: { rank: { fn: "rank", over: { orderBy: { createdAt: "ASC" } } } },
+         });
+         type Row = TypeOf<typeof query>;
+
+         assertType<Row["email"]>("" as string);
+         assertType<Row["rank"]>(1 as number);
+
+         // @ts-expect-error — 'accountId' was not selected
+         type _NoAccountId = Row["accountId"];
       });
    });
 });
