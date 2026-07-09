@@ -9,7 +9,7 @@ import {
    filterBy,
    insert,
    orderBy,
-   param, ParamsOf,
+   param,
    row,
    serializeManifest,
    set,
@@ -154,11 +154,32 @@ const testParams: Record<string, unknown> = {
    xInsertEmpty: { rows: [] },
    xJoinBySingle: { joinBy: { account: { on: [["_.accountId", "=", "account.accountId"]], type: "inner" } } },
    xJoinByWithType: { joinBy: { account: { on: [["_.accountId", "=", "account.accountId"]] } } },
-   xJoinByMultiCondition: { joinBy: { account: { on: [["_.accountId", "=", "account.accountId"], ["_.status", "=", "account.status"]], type: "inner" } } },
+   xJoinByMultiCondition: {
+      joinBy: {
+         account: {
+            on: [
+               ["_.accountId", "=", "account.accountId"],
+               ["_.status", "=", "account.status"],
+            ],
+            type: "inner",
+         },
+      },
+   },
    xJoinByAutoSingle: { joinBy: { account: { on: [["_.accountId", "=", "account.accountId"]] } }, limit: 10 },
-   xJoinByAutoMulti: { joinBy: { account: { on: [["_.accountId", "=", "account.accountId"]] }, orderItem: { on: [["_.orderId", "=", "orderItem.orderId"]] } }, limit: 10 },
+   xJoinByAutoMulti: {
+      joinBy: {
+         account: { on: [["_.accountId", "=", "account.accountId"]] },
+         orderItem: { on: [["_.orderId", "=", "orderItem.orderId"]] },
+      },
+      limit: 10,
+   },
    xInsertColsSingle: { rows: [{ email: "cols@test.com", firstName: "Cols", lastName: "Test" }] },
-   xInsertColsMulti: { rows: [{ email: "a@test.com", firstName: "A", lastName: "AA" }, { email: "b@test.com", firstName: "B", lastName: "BB" }] },
+   xInsertColsMulti: {
+      rows: [
+         { email: "a@test.com", firstName: "A", lastName: "AA" },
+         { email: "b@test.com", firstName: "B", lastName: "BB" },
+      ],
+   },
    xValueLiteral: {},
 
    // ─── Filter operator coverage ─────────────────────────────────────────────
@@ -176,11 +197,7 @@ const testParams: Record<string, unknown> = {
    xFilterNestedOrAnd: {
       filterBy: [
          { status: "active" },
-         { or: [
-            { email: ["like", "%@vip.com"] },
-            { firstName: ["!=", "Bot"] },
-            { parentId: ["isNotNull"] },
-         ] },
+         { or: [{ email: ["like", "%@vip.com"] }, { firstName: ["!=", "Bot"] }, { parentId: ["isNotNull"] }] },
          { email: ["notLike", "%@spam.com"] },
       ],
    },
@@ -191,22 +208,59 @@ const testParams: Record<string, unknown> = {
    // ─── Pagination offset-only ───────────────────────────────────────────────
    xPaginationOffsetOnly: { filterBy: null, orderBy: null, offset: 100 },
    xWindowByRanking: { windowBy: { rowNum: { fn: "row_number", over: { orderBy: { createdAt: "ASC" } } } } },
-   xWindowByAggregate: { windowBy: { runningTotal: { fn: "sum", col: "createdAt", over: { partitionBy: ["accountId"], orderBy: { createdAt: "ASC" } } } } },
-   xWindowByMultiple: { windowBy: { rn: { fn: "row_number", over: { orderBy: { createdAt: "DESC" } } }, prev: { fn: "lag", col: "createdAt", args: 1, over: { orderBy: { createdAt: "ASC" } } } } },
+   xWindowByAggregate: {
+      windowBy: {
+         runningTotal: {
+            fn: "sum",
+            col: "createdAt",
+            over: { partitionBy: ["accountId"], orderBy: { createdAt: "ASC" } },
+         },
+      },
+   },
+   xWindowByMultiple: {
+      windowBy: {
+         rn: { fn: "row_number", over: { orderBy: { createdAt: "DESC" } } },
+         prev: { fn: "lag", col: "createdAt", args: 1, over: { orderBy: { createdAt: "ASC" } } },
+      },
+   },
    xWindowByEmpty: { windowBy: null },
    // windowBy — all function categories
    xWindowByDenseRank: { windowBy: { dr: { fn: "dense_rank", over: { orderBy: { createdAt: "DESC" } } } } },
    xWindowByPercentRank: { windowBy: { pr: { fn: "percent_rank", over: { orderBy: { createdAt: "ASC" } } } } },
    xWindowByCumeDist: { windowBy: { cd: { fn: "cume_dist", over: { orderBy: { createdAt: "ASC" } } } } },
    xWindowByNtile: { windowBy: { bucket: { fn: "ntile", args: 4, over: { orderBy: { createdAt: "ASC" } } } } },
-   xWindowByLead: { windowBy: { nextEmail: { fn: "lead", col: "email", args: 2, over: { orderBy: { createdAt: "ASC" } } } } },
-   xWindowByFirstValue: { windowBy: { first: { fn: "first_value", col: "email", over: { orderBy: { createdAt: "ASC" } } } } },
-   xWindowByLastValue: { windowBy: { last: { fn: "last_value", col: "email", over: { orderBy: { createdAt: "ASC" } } } } },
+   xWindowByLead: {
+      windowBy: { nextEmail: { fn: "lead", col: "email", args: 2, over: { orderBy: { createdAt: "ASC" } } } },
+   },
+   xWindowByFirstValue: {
+      windowBy: { first: { fn: "first_value", col: "email", over: { orderBy: { createdAt: "ASC" } } } },
+   },
+   xWindowByLastValue: {
+      windowBy: { last: { fn: "last_value", col: "email", over: { orderBy: { createdAt: "ASC" } } } },
+   },
    // windowBy — frame clauses
-   xWindowByFrameRows: { windowBy: { movingSum: { fn: "sum", col: "createdAt", over: { orderBy: { createdAt: "ASC" }, frame: "rows", start: 2, end: 0 } } } },
-   xWindowByFrameRange: { windowBy: { rangeSum: { fn: "sum", col: "createdAt", over: { orderBy: { createdAt: "ASC" }, frame: "range", start: "unbounded preceding", end: "current row" } } } },
+   xWindowByFrameRows: {
+      windowBy: {
+         movingSum: {
+            fn: "sum",
+            col: "createdAt",
+            over: { orderBy: { createdAt: "ASC" }, frame: "rows", start: 2, end: 0 },
+         },
+      },
+   },
+   xWindowByFrameRange: {
+      windowBy: {
+         rangeSum: {
+            fn: "sum",
+            col: "createdAt",
+            over: { orderBy: { createdAt: "ASC" }, frame: "range", start: "unbounded preceding", end: "current row" },
+         },
+      },
+   },
    // windowBy — partition + order combined
-   xWindowByPartitionOrder: { windowBy: { rn: { fn: "row_number", over: { partitionBy: ["status"], orderBy: { createdAt: "DESC" } } } } },
+   xWindowByPartitionOrder: {
+      windowBy: { rn: { fn: "row_number", over: { partitionBy: ["status"], orderBy: { createdAt: "DESC" } } } },
+   },
    // windowBy + all original columns
    xWindowByWithAllCols: { windowBy: { rank: { fn: "rank", over: { orderBy: { createdAt: "DESC" } } } } },
    // windowBy + specific columns (no projection operator, just fewer row() cols)
@@ -215,8 +269,10 @@ const testParams: Record<string, unknown> = {
 
 // ─── Generate outputs ────────────────────────────────────────────────────────
 
-const results: Record<string, { hash: string; text: string | null; values: unknown[] | null; params: unknown; error: string | null }> =
-   {};
+const results: Record<
+   string,
+   { hash: string; text: string | null; values: unknown[] | null; params: unknown; error: string | null }
+> = {};
 
 for (const [name, query] of Object.entries(queries)) {
    const dialect = name.includes("Mssql") ? "transactsql" : "postgresql";
@@ -255,16 +311,17 @@ manifest.queries["xParamArray"] = {
    hash: "xParamArray",
    location: "generate-cross-runtime.ts",
    template: [
-      { type: "text", value: "SELECT * FROM \"main\".\"account\" WHERE \"account\".\"account_id\" IN (" },
+      { type: "text", value: 'SELECT * FROM "main"."account" WHERE "account"."account_id" IN (' },
       { type: "param", name: "ids", array: true },
       { type: "text", value: ")" },
    ] as any,
    params: { ids: { name: "ids" } },
    authorization: [],
+   row: null,
 };
 results["xParamArray"] = {
    hash: "xParamArray",
-   text: "SELECT * FROM \"main\".\"account\" WHERE \"account\".\"account_id\" IN ($1, $2, $3)",
+   text: 'SELECT * FROM "main"."account" WHERE "account"."account_id" IN ($1, $2, $3)',
    values: ["id-1", "id-2", "id-3"],
    params: { ids: ["id-1", "id-2", "id-3"] },
    error: null,
@@ -276,17 +333,17 @@ manifest.queries["xParamArrayMssql"] = {
    hash: "xParamArrayMssql",
    location: "generate-cross-runtime.ts",
    template: [
-      { type: "text", value: "SELECT * FROM \"main\".\"account\" WHERE \"account\".\"account_id\" IN (" },
+      { type: "text", value: 'SELECT * FROM "main"."account" WHERE "account"."account_id" IN (' },
       { type: "param", name: "ids", array: true },
       { type: "text", value: ")" },
    ] as any,
    params: { ids: { name: "ids" } },
    authorization: [],
-   dialect: "transactsql",
+   row: null,
 };
 results["xParamArrayMssql"] = {
    hash: "xParamArrayMssql",
-   text: "SELECT * FROM \"main\".\"account\" WHERE \"account\".\"account_id\" IN (@param_0, @param_1, @param_2)",
+   text: 'SELECT * FROM "main"."account" WHERE "account"."account_id" IN (@param_0, @param_1, @param_2)',
    values: ["id-1", "id-2", "id-3"],
    params: { ids: ["id-1", "id-2", "id-3"] },
    error: null,
@@ -295,11 +352,11 @@ results["xParamArrayMssql"] = {
 // ─── Projection fixtures (array-format for Go/C# buildProjection) ────────────
 // These test the projection node paths that aren't reachable via TypeScript's object-format select.
 const projColumns: Record<string, string> = {
-   accountId: "\"a_1\".\"account_id\"",
-   status: "\"a_1\".\"status\"",
-   email: "\"a_1\".\"email\"",
-   firstName: "\"a_1\".\"first_name\"",
-   lastName: "\"a_1\".\"last_name\"",
+   accountId: '"a_1"."account_id"',
+   status: '"a_1"."status"',
+   email: '"a_1"."email"',
+   firstName: '"a_1"."first_name"',
+   lastName: '"a_1"."last_name"',
 };
 
 // Simple column projection (no aggregates)
@@ -310,14 +367,15 @@ manifest.queries["xProjectionSimple"] = {
    template: [
       { type: "text", value: "SELECT " },
       { type: "projection", param: "select", columns: projColumns },
-      { type: "text", value: " FROM \"main\".\"account\" AS \"a_1\"" },
+      { type: "text", value: ' FROM "main"."account" AS "a_1"' },
    ] as any,
    params: { select: { name: "select" } },
    authorization: [],
+   row: null,
 };
 results["xProjectionSimple"] = {
    hash: "xProjectionSimple",
-   text: "SELECT \"a_1\".\"status\", \"a_1\".\"email\" FROM \"main\".\"account\" AS \"a_1\"",
+   text: 'SELECT "a_1"."status", "a_1"."email" FROM "main"."account" AS "a_1"',
    values: [],
    params: { select: ["status", "email"] },
    error: null,
@@ -331,14 +389,15 @@ manifest.queries["xProjectionCount"] = {
    template: [
       { type: "text", value: "SELECT " },
       { type: "projection", param: "select", columns: projColumns },
-      { type: "text", value: " FROM \"main\".\"account\" AS \"a_1\"" },
+      { type: "text", value: ' FROM "main"."account" AS "a_1"' },
    ] as any,
    params: { select: { name: "select" } },
    authorization: [],
+   row: null,
 };
 results["xProjectionCount"] = {
    hash: "xProjectionCount",
-   text: "SELECT count(*) as \"total\" FROM \"main\".\"account\" AS \"a_1\"",
+   text: 'SELECT count(*) as "total" FROM "main"."account" AS "a_1"',
    values: [],
    params: { select: [["count", "*", "total"]] },
    error: null,
@@ -352,14 +411,15 @@ manifest.queries["xProjectionGroupBy"] = {
    template: [
       { type: "text", value: "SELECT " },
       { type: "projection", param: "select", columns: projColumns },
-      { type: "text", value: " FROM \"main\".\"account\" AS \"a_1\"" },
-   ] as any,
+      { type: "text", value: ' FROM "main"."account" AS "a_1"' },
+   ],
    params: { select: { name: "select" } },
    authorization: [],
+   row: null,
 };
 results["xProjectionGroupBy"] = {
    hash: "xProjectionGroupBy",
-   text: "SELECT \"a_1\".\"status\", count(*) as \"statusCount\", sum(\"a_1\".\"account_id\") as \"totalAccounts\" group by \"a_1\".\"status\" FROM \"main\".\"account\" AS \"a_1\"",
+   text: 'SELECT "a_1"."status", count(*) as "statusCount", sum("a_1"."account_id") as "totalAccounts" group by "a_1"."status" FROM "main"."account" AS "a_1"',
    values: [],
    params: { select: ["status", ["count", "*", "statusCount"], ["sum", "accountId", "totalAccounts"]] },
    error: null,
@@ -373,16 +433,23 @@ manifest.queries["xProjectionAllAggregates"] = {
    template: [
       { type: "text", value: "SELECT " },
       { type: "projection", param: "select", columns: projColumns },
-      { type: "text", value: " FROM \"main\".\"account\" AS \"a_1\"" },
+      { type: "text", value: ' FROM "main"."account" AS "a_1"' },
    ] as any,
    params: { select: { name: "select" } },
    authorization: [],
+   row: null,
 };
 results["xProjectionAllAggregates"] = {
    hash: "xProjectionAllAggregates",
-   text: "SELECT avg(\"a_1\".\"account_id\") as \"avgId\", min(\"a_1\".\"account_id\") as \"minId\", max(\"a_1\".\"account_id\") as \"maxId\" FROM \"main\".\"account\" AS \"a_1\"",
+   text: 'SELECT avg("a_1"."account_id") as "avgId", min("a_1"."account_id") as "minId", max("a_1"."account_id") as "maxId" FROM "main"."account" AS "a_1"',
    values: [],
-   params: { select: [["avg", "accountId", "avgId"], ["min", "accountId", "minId"], ["max", "accountId", "maxId"]] },
+   params: {
+      select: [
+         ["avg", "accountId", "avgId"],
+         ["min", "accountId", "minId"],
+         ["max", "accountId", "maxId"],
+      ],
+   },
    error: null,
 };
 
@@ -394,14 +461,15 @@ manifest.queries["xProjectionFallback"] = {
    template: [
       { type: "text", value: "SELECT " },
       { type: "projection", param: "select", columns: projColumns },
-      { type: "text", value: " FROM \"main\".\"account\" AS \"a_1\"" },
+      { type: "text", value: ' FROM "main"."account" AS "a_1"' },
    ] as any,
    params: { select: { name: "select" } },
    authorization: [],
+   row: null,
 };
 results["xProjectionFallback"] = {
    hash: "xProjectionFallback",
-   text: "SELECT \"a_1\".\"account_id\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\", \"a_1\".\"last_name\" FROM \"main\".\"account\" AS \"a_1\"",
+   text: 'SELECT "a_1"."account_id", "a_1"."status", "a_1"."email", "a_1"."first_name", "a_1"."last_name" FROM "main"."account" AS "a_1"',
    values: [],
    params: {},
    error: null,
