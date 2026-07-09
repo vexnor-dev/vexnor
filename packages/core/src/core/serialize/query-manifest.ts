@@ -164,7 +164,7 @@ export interface ParamDefinition {
    /** Parameter name. */
    name: string;
    /** Whether this is a context param (server-injected, never from client). */
-   isContext: boolean;
+   isContext?: boolean;
    /** Whether the param value is expected to be an array. */
    array?: boolean;
    /** Whether the param is optional. */

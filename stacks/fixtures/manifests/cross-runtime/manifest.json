@@ -3583,7 +3583,8 @@
           "name": "ids"
         }
       },
-      "authorization": []
+      "authorization": [],
+      "row": null
     },
     "xParamArrayMssql": {
       "name": "xParamArrayMssql",
@@ -3610,7 +3611,7 @@
         }
       },
       "authorization": [],
-      "dialect": "transactsql"
+      "row": null
     },
     "xProjectionSimple": {
       "name": "xProjectionSimple",
@@ -3642,7 +3643,8 @@
           "name": "select"
         }
       },
-      "authorization": []
+      "authorization": [],
+      "row": null
     },
     "xProjectionCount": {
       "name": "xProjectionCount",
@@ -3674,7 +3676,8 @@
           "name": "select"
         }
       },
-      "authorization": []
+      "authorization": [],
+      "row": null
     },
     "xProjectionGroupBy": {
       "name": "xProjectionGroupBy",
@@ -3706,7 +3709,8 @@
           "name": "select"
         }
       },
-      "authorization": []
+      "authorization": [],
+      "row": null
     },
     "xProjectionAllAggregates": {
       "name": "xProjectionAllAggregates",
@@ -3738,7 +3742,8 @@
           "name": "select"
         }
       },
-      "authorization": []
+      "authorization": [],
+      "row": null
     },
     "xProjectionFallback": {
       "name": "xProjectionFallback",
@@ -3770,7 +3775,8 @@
           "name": "select"
         }
       },
-      "authorization": []
+      "authorization": [],
+      "row": null
     }
   }
 }
