@@ -56,7 +56,8 @@ export type TemplateNode =
    | JoinByNode
    | ProjectionNode
    | PaginationNode
-   | UpsertNode;
+   | UpsertNode
+   | WindowByNode;
 
 export interface TextNode {
    type: "text";
@@ -214,4 +215,12 @@ export interface UpsertNode {
    conflictKeys: string[];
    /** Quoted table name for MSSQL MERGE ON clause qualification. */
    tableName: string;
+}
+
+export interface WindowByNode {
+   type: "windowBy";
+   /** Param name containing the window function definitions object. */
+   param: string;
+   /** Map of JS column key → quoted SQL column expression. */
+   columns: Record<string, string>;
 }

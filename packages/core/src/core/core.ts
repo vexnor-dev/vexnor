@@ -74,6 +74,28 @@ export {
 export { SqlTableJoin } from "./schema/sql-table-join.js";
 export { SqlPagination, type SqlPaginationParams } from "./operators/sql-pagination.js";
 export { havingBy, SqlHavingBy, type SqlHavingByParams, type HavingCondition, type HavingConditionList } from "./operators/sql-having-by.js";
+export {
+   windowBy,
+   SqlWindowBy,
+   type SqlWindowByParams,
+   type WindowBySelect,
+   type WindowByEntry,
+   type WindowByFunction,
+   type WindowByRankingFunction,
+   type WindowByBucketFunction,
+   type WindowByAggregateFunction,
+   type WindowByOffsetFunction,
+   type WindowRanking,
+   type WindowBucket,
+   type WindowAggregate,
+   type WindowOffset,
+   type WindowOver,
+   type InferWindowByRow,
+   WindowByRankingFunctions,
+   WindowByBucketFunctions,
+   WindowByAggregateFunctions,
+   WindowByOffsetFunctions,
+} from "./operators/sql-window-by.js";
 export { input, SqlInput, type SqlInputExtended } from "./query/sql-input.js";
 export { info, SqlQueryInfo, type SqlQueryInfoOptions } from "./charms/sql-query-info.js";
 export {

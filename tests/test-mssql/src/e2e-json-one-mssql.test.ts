@@ -30,7 +30,8 @@ describe.sequential("jsonOne() tests", (ctx) => {
          where ${Account.$parentId} is not null
       `;
       const result = await query.any({ db: pool.request() });
-      expect(result).toHaveProperty("parent");
+      expect(result).toBeDefined();
+      expect(result!.parent).toBeDefined();
    });
 
    const INVALID_KEYWORDS_FOR_JSON_ONE = ["where", "group by", "order by", "update", "delete from"];

@@ -18,6 +18,7 @@ describe("getAiPrompt — auto-generated AI documentation", () => {
             round: args = [precision]. Example: {"fn":"round","col":"amount","args":[2]}
             abs: no args needed. Example: {"fn":"abs","col":"amount"}
             concat: args = [parts to append]. Example: {"fn":"concat","col":"firstName","args":[" ","lastName"]}
+        windowBy: { "alias": { fn, over: { partitionBy?, orderBy?, frame?, start?, end? }, col?, args? } }. Ranking fns (no col): row_number, rank, dense_rank, percent_rank, cume_dist. Bucket fn: ntile (args = bucket count). Aggregate fns (col required): sum, avg, count, min, max, first_value, last_value. Offset fns (col required): lag, lead (args = offset, default 1).
         orderBy: {"columnName": "ASC"|"DESC"}. Key is the column name, value is direction. Aggregate aliases from select also work.
         limit: number (max rows). offset: number (skip rows). ALWAYS pass limit.
         filterBy: [{col: value}] or [{col: ["op", ...args]}]. Ops: =, not, !=, >, >=, <, <=, between, in, notIn, like, notLike, isNull, isNotNull. OR groups: {or: [...]}. ONLY real table columns — never aggregate aliases.

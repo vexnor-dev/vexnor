@@ -80,7 +80,7 @@ describe.sequential("jsonMany() tests", (ctx) => {
       `;
       const results = await query.mssql.all({ db: pool.request(), params: { limit: 10 } });
       expect(results).toHaveLength(1);
-      expect(results[0]).toHaveProperty("orders");
+      expect(results[0]!.orders).toBeDefined();
    });
 
    test("jsonAgg(): from - OUTER APPLY produces aggregated results", async () => {

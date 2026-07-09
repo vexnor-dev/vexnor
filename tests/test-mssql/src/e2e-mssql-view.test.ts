@@ -318,9 +318,9 @@ describe("view — AccountOrderSummary (mssql)", () => {
       `.mssql.all({ db: pool.request() });
       expect(Array.isArray(results)).toBe(true);
       if (results.length > 0) {
-         expect(results[0]).toHaveProperty("accountId");
-         expect(results[0]).toHaveProperty("email");
-         expect(results[0]).toHaveProperty("orderCount");
+         expect(results[0]!.accountId).toBeDefined();
+         expect(results[0]!.email).toBeDefined();
+         expect(results[0]!.orderCount).toBeDefined();
       }
    });
 });

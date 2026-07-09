@@ -18,6 +18,7 @@ import {
    SqlPagination,
    upsert,
    when,
+   windowBy,
 } from "@vexnor/core";
 import { Account } from "./codegen/postgres/vexnor_dev.account-table.js";
 import { Order } from "./codegen/postgres/vexnor_dev.order-table.js";
@@ -61,6 +62,11 @@ const queries = {
    xInsertColsMulti: sql`INSERT INTO ${Account} (${insert.cols(Account)}) VALUES (${insert.values(Account)}) RETURNING ${row(Account.$$)}`,
    // Inline literal value (UDT enum — produces "value" node in serialized manifest)
    xValueLiteral: sql`SELECT ${row(Account.$$)} FROM ${Account} WHERE ${Account.$status} = ${AccountStatusUdt.CONFIRMED}`,
+   // windowBy — runtime window functions
+   xWindowByRanking: sql`SELECT ${row(Account.$accountId, Account.$createdAt)} ${windowBy(Account)} FROM ${Account}`,
+   xWindowByAggregate: sql`SELECT ${row(Account.$accountId, Account.$createdAt)} ${windowBy(Account)} FROM ${Account}`,
+   xWindowByMultiple: sql`SELECT ${row(Account.$accountId, Account.$createdAt)} ${windowBy(Account)} FROM ${Account}`,
+   xWindowByEmpty: sql`SELECT ${row(Account.$accountId, Account.$createdAt)} ${windowBy(Account)} FROM ${Account}`,
 };
 
 // ─── Test params per case ────────────────────────────────────────────────────
@@ -114,6 +120,10 @@ const testParams: Record<string, unknown> = {
    xInsertColsSingle: { rows: [{ email: "cols@test.com", firstName: "Cols", lastName: "Test" }] },
    xInsertColsMulti: { rows: [{ email: "a@test.com", firstName: "A", lastName: "AA" }, { email: "b@test.com", firstName: "B", lastName: "BB" }] },
    xValueLiteral: {},
+   xWindowByRanking: { windowBy: { rowNum: { fn: "row_number", over: { orderBy: { createdAt: "ASC" } } } } },
+   xWindowByAggregate: { windowBy: { runningTotal: { fn: "sum", col: "createdAt", over: { partitionBy: ["accountId"], orderBy: { createdAt: "ASC" } } } } },
+   xWindowByMultiple: { windowBy: { rn: { fn: "row_number", over: { orderBy: { createdAt: "DESC" } } }, prev: { fn: "lag", col: "createdAt", args: 1, over: { orderBy: { createdAt: "ASC" } } } } },
+   xWindowByEmpty: { windowBy: null },
 };
 
 // ─── Generate outputs ────────────────────────────────────────────────────────

@@ -95,6 +95,29 @@ This is a serious, high-quality codebase. No shortcuts. No lazy work. Ever.
 - Let Vitest populate the snapshot value by running with `-u` on the first run.
 - Write tests with empty `toMatchInlineSnapshot()` calls first, then populate by running with `-u`.
 
+## Testing object fields and types
+
+- When testing that a result row includes specific fields, access them DIRECTLY via `row.field` — never use `.toHaveProperty("field")`.
+- For fields that ARE on the static Row type: access directly, no directive needed.
+  ```typescript
+  const row = results[0]!;
+  expect(row.accountId).toBeDefined();
+  expect(row.email).toBe("test@example.com");
+  ```
+- For fields that are NOT on the static Row type (e.g., window aliases from runtime `params.windowBy`, projected fields from runtime `params.select`): use `@ts-expect-error` before the access.
+  ```typescript
+  const row = results[0]!;
+  // @ts-expect-error — runtime window alias, not on static Row type
+  expect(row.myRank).toBeDefined();
+  ```
+- To verify that a field does NOT exist on a type, use `@ts-expect-error`:
+  ```typescript
+  // @ts-expect-error — 'fakeField' should not exist on this type
+  void row.fakeField;
+  ```
+- Never use `as Record<string, unknown>`, `as any`, or `as never` to access fields on result rows.
+- `.toHaveProperty()` is allowed ONLY for checking non-row objects (metadata, configuration, internal structures).
+
 ## Test-driven validation
 
 - Before accepting a bug as real, write a test that exposes it and run it to confirm.

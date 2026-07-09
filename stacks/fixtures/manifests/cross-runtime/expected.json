@@ -452,7 +452,7 @@
   },
   "xJoinByAutoSingle": {
     "hash": "xJoinByAutoSingle",
-    "text": "\n      \n      \n      select \"o_1\".\"order_id\" as \"orderId\", \"o_1\".\"status\", \"o_1\".\"created_at\" as \"createdAt\", \"o_1\".\"modified_at\" as \"modifiedAt\", \"o_1\".\"account_id\" as \"accountId\"\n                 \n      from \"vexnor_dev\".\"order\" as \"o_1\"    JOIN \"vexnor_dev\".\"account\" as \"a_2\" ON \"o_1\".\"account_id\" = \"a_2\".\"account_id\"\n         \n         \n         \n         \n         limit $1\n   ",
+    "text": "\n      \n      \n      select \"o_1\".\"order_id\" as \"orderId\", \"o_1\".\"status\", \"o_1\".\"created_at\" as \"createdAt\", \"o_1\".\"modified_at\" as \"modifiedAt\", \"o_1\".\"account_id\" as \"accountId\" \n                 \n      from \"vexnor_dev\".\"order\" as \"o_1\"    JOIN \"vexnor_dev\".\"account\" as \"a_2\" ON \"o_1\".\"account_id\" = \"a_2\".\"account_id\"\n         \n         \n         \n         \n         limit $1\n   ",
     "values": [
       10
     ],
@@ -474,7 +474,7 @@
   },
   "xJoinByAutoMulti": {
     "hash": "xJoinByAutoMulti",
-    "text": "\n      \n      \n      select \"o_1\".\"order_id\" as \"orderId\", \"o_1\".\"status\", \"o_1\".\"created_at\" as \"createdAt\", \"o_1\".\"modified_at\" as \"modifiedAt\", \"o_1\".\"account_id\" as \"accountId\"\n                 \n      from \"vexnor_dev\".\"order\" as \"o_1\"    JOIN \"vexnor_dev\".\"account\" as \"a_2\" ON \"o_1\".\"account_id\" = \"a_2\".\"account_id\" JOIN \"vexnor_dev\".\"order_item\" as \"oi_3\" ON \"o_1\".\"order_id\" = \"oi_3\".\"order_id\"\n         \n         \n         \n         \n         limit $1\n   ",
+    "text": "\n      \n      \n      select \"o_1\".\"order_id\" as \"orderId\", \"o_1\".\"status\", \"o_1\".\"created_at\" as \"createdAt\", \"o_1\".\"modified_at\" as \"modifiedAt\", \"o_1\".\"account_id\" as \"accountId\" \n                 \n      from \"vexnor_dev\".\"order\" as \"o_1\"    JOIN \"vexnor_dev\".\"account\" as \"a_2\" ON \"o_1\".\"account_id\" = \"a_2\".\"account_id\" JOIN \"vexnor_dev\".\"order_item\" as \"oi_3\" ON \"o_1\".\"order_id\" = \"oi_3\".\"order_id\"\n         \n         \n         \n         \n         limit $1\n   ",
     "values": [
       10
     ],
@@ -556,6 +556,83 @@
       "confirmed"
     ],
     "params": {},
+    "error": null
+  },
+  "xWindowByRanking": {
+    "hash": "xWindowByRanking",
+    "text": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"created_at\" as \"createdAt\" , row_number() over (order by \"a_1\".\"created_at\" ASC) as \"rowNum\" FROM \"vexnor_dev\".\"account\" as \"a_1\"",
+    "values": [],
+    "params": {
+      "windowBy": {
+        "rowNum": {
+          "fn": "row_number",
+          "over": {
+            "orderBy": {
+              "createdAt": "ASC"
+            }
+          }
+        }
+      }
+    },
+    "error": null
+  },
+  "xWindowByAggregate": {
+    "hash": "xWindowByAggregate",
+    "text": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"created_at\" as \"createdAt\" , sum(\"a_1\".\"created_at\") over (partition by \"a_1\".\"account_id\" order by \"a_1\".\"created_at\" ASC) as \"runningTotal\" FROM \"vexnor_dev\".\"account\" as \"a_1\"",
+    "values": [],
+    "params": {
+      "windowBy": {
+        "runningTotal": {
+          "fn": "sum",
+          "col": "createdAt",
+          "over": {
+            "partitionBy": [
+              "accountId"
+            ],
+            "orderBy": {
+              "createdAt": "ASC"
+            }
+          }
+        }
+      }
+    },
+    "error": null
+  },
+  "xWindowByMultiple": {
+    "hash": "xWindowByMultiple",
+    "text": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"created_at\" as \"createdAt\" , row_number() over (order by \"a_1\".\"created_at\" DESC) as \"rn\", lag(\"a_1\".\"created_at\", 1) over (order by \"a_1\".\"created_at\" ASC) as \"prev\" FROM \"vexnor_dev\".\"account\" as \"a_1\"",
+    "values": [],
+    "params": {
+      "windowBy": {
+        "rn": {
+          "fn": "row_number",
+          "over": {
+            "orderBy": {
+              "createdAt": "DESC"
+            }
+          }
+        },
+        "prev": {
+          "fn": "lag",
+          "col": "createdAt",
+          "args": 1,
+          "over": {
+            "orderBy": {
+              "createdAt": "ASC"
+            }
+          }
+        }
+      }
+    },
+    "error": null
+  },
+  "xWindowByEmpty": {
+    "hash": "xWindowByEmpty",
+    "text": "SELECT \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"created_at\" as \"createdAt\"  FROM \"vexnor_dev\".\"account\" as \"a_1\"",
+    "values": [],
+    "params": {
+      "windowBy": null
+    },
     "error": null
   }
 }

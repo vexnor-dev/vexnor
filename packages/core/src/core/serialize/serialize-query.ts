@@ -135,6 +135,8 @@ function operatorToNode(op: SqlOperatorToken): TemplateNode {
          return { type: "pagination" };
       case "upsert":
          return { type: "upsert", param: op.param, columns: op.columns, conflictKeys: op.conflictKeys, tableName: op.tableName };
+      case "windowBy":
+         return { type: "windowBy", param: op.param, columns: op.columns };
       default:
          return { type: "text", value: "" };
    }
