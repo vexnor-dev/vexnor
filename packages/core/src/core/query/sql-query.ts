@@ -758,6 +758,31 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
    }
 
    /**
+    * Creates a view projection of this query. Wraps this query as a subquery
+    * and SELECTs only the specified columns + window function expressions.
+    *
+    * The result type is determined by the view options — manifest `row` will
+    * reflect exactly what `.view()` declares.
+    *
+    * @example
+    * ```typescript
+    * const ranked = myQuery.view({
+    *   columns: ["accountId", "email"],
+    *   window: { rank: { fn: "row_number", over: { orderBy: { createdAt: "DESC" } } } }
+    * });
+    * ```
+    */
+   view(options: { columns?: string[]; window?: Record<string, unknown> }): SqlQueryExtended<{ Row: Record<string, unknown>; Params: T["Params"] }> {
+      // Import inline — no circular dep since sql-view.ts doesn't import back to sql-query.ts
+      // We use a sync wrapper via the exported sqlView function reference
+      const { sqlView } = SqlQuery._viewModule!;
+      return sqlView(this, options);
+   }
+
+   /** @internal — set by sql-view.ts on import to avoid circular dependency */
+   static _viewModule: { sqlView: (source: SqlQuery<any>, options: any) => any } | null = null;
+
+   /**
     * Returns a reference to this query rendered in a specific SQL format.
     *
     * Use this to control how the query is embedded when it appears as a

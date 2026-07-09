@@ -74,6 +74,7 @@ export {
 export { SqlTableJoin } from "./schema/sql-table-join.js";
 export { SqlPagination, type SqlPaginationParams } from "./operators/sql-pagination.js";
 export { havingBy, SqlHavingBy, type SqlHavingByParams, type HavingCondition, type HavingConditionList } from "./operators/sql-having-by.js";
+export { sqlView, type SqlViewOptions } from "./query/sql-view.js";
 export {
    windowBy,
    SqlWindowBy,
