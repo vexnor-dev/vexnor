@@ -130,8 +130,5 @@ function isAggregateFn(fn: string): boolean {
 function isOffsetFn(fn: string): boolean {
    return ["lag", "lead"].includes(fn);
 }
-// ─── Usage: import "#src/core/query/sql-view.js" to add .view() to SqlQuery ──
-// Or call sqlView(query, options) directly.
-
-// Register with SqlQuery so .view() can call sqlView without circular import
-SqlQuery._viewModule = { sqlView };
+// sqlView() is available as a standalone function for direct use.
+// .view() on SqlQuery is now implemented inline in sql-query.ts.

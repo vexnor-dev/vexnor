@@ -773,14 +773,39 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
     * ```
     */
    view(options: { columns?: string[]; window?: Record<string, unknown> }): SqlQueryExtended<{ Row: Record<string, unknown>; Params: T["Params"] }> {
-      // Import inline — no circular dep since sql-view.ts doesn't import back to sql-query.ts
-      // We use a sync wrapper via the exported sqlView function reference
-      const { sqlView } = SqlQuery._viewModule!;
-      return sqlView(this, options);
-   }
+      const columns = options.columns ?? [];
+      const window = options.window ?? {};
 
-   /** @internal — set by sql-view.ts on import to avoid circular dependency */
-   static _viewModule: { sqlView: (source: SqlQuery<any>, options: any) => any } | null = null;
+      // Build SELECT parts
+      const selectParts: string[] = [];
+      if (columns.length === 0) {
+         selectParts.push('"sub".*');
+      } else {
+         for (const col of columns) {
+            selectParts.push(`"sub"."${col}"`);
+         }
+      }
+      for (const [alias, entry] of Object.entries(window)) {
+         if (entry && typeof entry === "object" && "fn" in entry) {
+            selectParts.push(`${buildWindowExpr(entry as { fn: string; col?: string; args?: number; over: Record<string, unknown> })} as "${alias}"`);
+         }
+      }
+
+      const selectList = selectParts.join(", ");
+      const prefix = `SELECT ${selectList} FROM `;
+      const suffix = ` as "sub"`;
+
+      // Construct TemplateStringsArray
+      const strings = Object.assign([prefix, suffix], { raw: [prefix, suffix] }) as unknown as TemplateStringsArray;
+
+      const viewQuery = new SqlQuery<{ Row: Record<string, unknown>; Params: T["Params"] }>({
+         rawStrings: strings,
+         rawValues: [this],
+         location: this.location,
+         locationUrl: this.locationUrl,
+      });
+      return newSqlQuery(viewQuery as any) as SqlQueryExtended<{ Row: Record<string, unknown>; Params: T["Params"] }>;
+   }
 
    /**
     * Returns a reference to this query rendered in a specific SQL format.
@@ -872,3 +897,53 @@ export const SqlQueryFormatByKeyword: Record<string, SqlQueryFormat> = {
    in: "default",
    exists: "default",
 };
+
+// ─── .view() helpers ─────────────────────────────────────────────────────────
+
+function buildWindowExpr(entry: { fn: string; col?: string; args?: number; over: Record<string, unknown> }): string {
+   const { fn, col, args, over } = entry;
+   let call: string;
+
+   const RANKING = new Set(["row_number", "rank", "dense_rank", "percent_rank", "cume_dist"]);
+   const AGGREGATE = new Set(["sum", "avg", "count", "min", "max", "first_value", "last_value"]);
+   const OFFSET = new Set(["lag", "lead"]);
+
+   if (RANKING.has(fn)) {
+      call = `${fn}()`;
+   } else if (fn === "ntile") {
+      call = `ntile(${args ?? 4})`;
+   } else if (AGGREGATE.has(fn)) {
+      call = col === "*" ? `${fn}(*)` : `${fn}("sub"."${col}")`;
+   } else if (OFFSET.has(fn)) {
+      call = `${fn}("sub"."${col}", ${args ?? 1})`;
+   } else {
+      call = `${fn}()`;
+   }
+
+   const overParts: string[] = [];
+   const partitionBy = over.partitionBy as string[] | undefined;
+   const orderBy = over.orderBy as Record<string, string> | undefined;
+   const frame = over.frame as string | undefined;
+   const start = over.start as string | number | undefined;
+   const end = over.end as string | number | undefined;
+
+   if (partitionBy && partitionBy.length > 0) {
+      overParts.push(`PARTITION BY ${partitionBy.map((c) => `"sub"."${c}"`).join(", ")}`);
+   }
+   if (orderBy && Object.keys(orderBy).length > 0) {
+      overParts.push(`ORDER BY ${Object.entries(orderBy).map(([c, d]) => `"sub"."${c}" ${d.toUpperCase()}`).join(", ")}`);
+   }
+   if (frame && (start !== undefined || end !== undefined)) {
+      const s = formatFrameBound(start ?? "unbounded preceding", "start");
+      const e = formatFrameBound(end ?? "unbounded following", "end");
+      overParts.push(`${frame.toUpperCase()} BETWEEN ${s} AND ${e}`);
+   }
+
+   return `${call} OVER (${overParts.join(" ")})`;
+}
+
+function formatFrameBound(bound: string | number, position: "start" | "end"): string {
+   if (typeof bound === "string") return bound;
+   if (bound === 0) return "current row";
+   return position === "start" ? `${bound} preceding` : `${bound} following`;
+}

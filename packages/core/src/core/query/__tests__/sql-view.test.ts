@@ -1,6 +1,5 @@
 import { describe, expect, test } from "vitest";
 import { sql, row } from "@vexnor/core";
-import "#src/core/query/sql-view.js";
 import { Account } from "@test-models/vexnor_dev.schema.js";
 
 describe(".view()", () => {
