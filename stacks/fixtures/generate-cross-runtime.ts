@@ -18,6 +18,7 @@ import {
    SqlPagination,
    upsert,
    when,
+   windowBy,
 } from "@vexnor/core";
 import { Account } from "./codegen/postgres/vexnor_dev.account-table.js";
 import { Order } from "./codegen/postgres/vexnor_dev.order-table.js";
@@ -84,6 +85,11 @@ const queries = {
 
    // ─── Pagination offset-only ───────────────────────────────────────────────
    xPaginationOffsetOnly: sql`SELECT ${row(Account.$$)} FROM ${Account} ${new SqlPagination()}`,
+   // windowBy — runtime window functions
+   xWindowByRanking: sql`SELECT ${row(Account.$accountId, Account.$createdAt)} ${windowBy(Account)} FROM ${Account}`,
+   xWindowByAggregate: sql`SELECT ${row(Account.$accountId, Account.$createdAt)} ${windowBy(Account)} FROM ${Account}`,
+   xWindowByMultiple: sql`SELECT ${row(Account.$accountId, Account.$createdAt)} ${windowBy(Account)} FROM ${Account}`,
+   xWindowByEmpty: sql`SELECT ${row(Account.$accountId, Account.$createdAt)} ${windowBy(Account)} FROM ${Account}`,
 };
 
 // ─── Test params per case ────────────────────────────────────────────────────
@@ -167,6 +173,10 @@ const testParams: Record<string, unknown> = {
 
    // ─── Pagination offset-only ───────────────────────────────────────────────
    xPaginationOffsetOnly: { filterBy: null, orderBy: null, offset: 100 },
+   xWindowByRanking: { windowBy: { rowNum: { fn: "row_number", over: { orderBy: { createdAt: "ASC" } } } } },
+   xWindowByAggregate: { windowBy: { runningTotal: { fn: "sum", col: "createdAt", over: { partitionBy: ["accountId"], orderBy: { createdAt: "ASC" } } } } },
+   xWindowByMultiple: { windowBy: { rn: { fn: "row_number", over: { orderBy: { createdAt: "DESC" } } }, prev: { fn: "lag", col: "createdAt", args: 1, over: { orderBy: { createdAt: "ASC" } } } } },
+   xWindowByEmpty: { windowBy: null },
 };
 
 // ─── Generate outputs ────────────────────────────────────────────────────────

@@ -69,7 +69,7 @@ describe.sequential("jsonMany() tests", () => {
       `;
       const results = await query.all({ db: pool, params: { limit: 10 } });
       expect(results).toHaveLength(1);
-      expect(results[0]).toHaveProperty("orders");
+      expect(results[0]!.orders).toBeDefined();
    });
 
    test("jsonMany(): from - lateral join produces aggregated results", async () => {
@@ -104,7 +104,7 @@ describe.sequential("jsonMany() tests", () => {
       `;
       const results = await query.all({ db: pool, params: { limit: 10 } });
       expect(results).toHaveLength(1);
-      expect(results[0]).toHaveProperty("myOrders");
+      expect(results[0]!.myOrders).toBeDefined();
       expect(results[0]!.myOrders).toHaveLength(2);
    });
 

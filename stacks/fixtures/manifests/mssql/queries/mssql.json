@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatorVersion": "1.0.0-beta.1",
+  "generatorVersion": "1.0.0-beta.3",
   "dialect": "transactsql",
   "queries": {
     "ddc6d356ac9e8492672f6a87607d1553813d24ea324bdad7d86e246f6bd5068a": {

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatorVersion": "1.0.0-beta.1",
+  "generatorVersion": "1.0.0-beta.3",
   "dialect": "sqlite",
   "queries": {
     "ec0d5256cdf584c9cf136017e5a046e8105b9921393b2218b210aa4f994db7f7": {

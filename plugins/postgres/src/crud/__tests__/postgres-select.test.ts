@@ -589,4 +589,70 @@ describe("postgresSelect()", () => {
          });
       });
    });
+
+   describe("windowBy/select in select() — Row type inference", () => {
+      test("windowBy declared in select() adds aliases to Row type", () => {
+         // eslint-disable-next-line unused-imports/no-unused-vars
+         const query = Account.postgres.select({
+            windowBy: {
+               myRank: { fn: "rank", over: { orderBy: { createdAt: "ASC" } } },
+               prevEmail: { fn: "lag", col: "email", args: 1, over: { orderBy: { createdAt: "ASC" } } },
+            },
+         });
+         type Row = TypeOf<typeof query>;
+
+         assertType<Row["myRank"]>(1 as number);
+         const _prev: Row["prevEmail"] = "" as string;
+         void _prev;
+         assertType<Row["accountId"]>("" as string);
+         assertType<Row["email"]>("" as string);
+
+         // @ts-expect-error — 'notDeclared' was not in windowBy
+         type _Bad = Row["notDeclared"];
+      });
+
+      test("without windowBy — Row is base type only", () => {
+         // eslint-disable-next-line unused-imports/no-unused-vars
+         const query = Account.postgres.select({});
+         type Row = TypeOf<typeof query>;
+
+         assertType<Row["accountId"]>("" as string);
+         assertType<Row["email"]>("" as string);
+      });
+
+      test("select declared in select() narrows Row to projected columns", () => {
+         // eslint-disable-next-line unused-imports/no-unused-vars
+         const query = Account.postgres.select({
+            select: {
+               email: true,
+               total: { fn: "count", col: "*" },
+               month: { fn: "dateTrunc", col: "createdAt", args: "month" },
+            },
+         });
+         type Row = TypeOf<typeof query>;
+
+         assertType<Row["email"]>("" as string);
+         assertType<Row["total"]>(0 as number);
+         assertType<Row["month"]>("" as string);
+
+         // @ts-expect-error — 'accountId' was not selected
+         type _NoAccountId = Row["accountId"];
+      });
+
+      test("select + windowBy combined — narrowed + augmented", () => {
+         // eslint-disable-next-line unused-imports/no-unused-vars
+         const query = Account.postgres.select({
+            select: { email: true, total: { fn: "count", col: "*" } },
+            windowBy: { rank: { fn: "rank", over: { orderBy: { createdAt: "ASC" } } } },
+         });
+         type Row = TypeOf<typeof query>;
+
+         assertType<Row["email"]>("" as string);
+         assertType<Row["total"]>(0 as number);
+         assertType<Row["rank"]>(1 as number);
+
+         // @ts-expect-error — 'accountId' was not selected
+         type _NoAccountId = Row["accountId"];
+      });
+   });
 });

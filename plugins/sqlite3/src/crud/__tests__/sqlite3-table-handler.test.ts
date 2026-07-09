@@ -19,7 +19,7 @@ describe("newSqlite3TableHandler", () => {
    });
 
    test("insertFrom() — builds query object", () => {
-      const query = handler.insertFrom({ FROM: Account.sqlite.select({}).source });
+      const query = handler.insertFrom({ FROM: Account.sqlite.select({}).source as never });
       expect(query).toBeDefined();
       expect(query.source).toBeDefined();
    });

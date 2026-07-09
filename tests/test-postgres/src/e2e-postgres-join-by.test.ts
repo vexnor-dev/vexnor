@@ -63,7 +63,8 @@ describe.sequential("joinBy — e2e postgres (multi-table join + aggregation)", 
          },
       });
       expect(result.length).toBe(3);
-      expect(result[0]).toHaveProperty("email");
+      // @ts-expect-error — runtime projected field from params.select
+      expect(result[0]!.email).toBeDefined();
    });
 
    test("join + sum aggregation: total product price per account — requires projected row mapping", async () => {
@@ -81,7 +82,8 @@ describe.sequential("joinBy — e2e postgres (multi-table join + aggregation)", 
          },
       });
       expect(result.length).toBe(3);
-      expect(result[0]).toHaveProperty("totalSpent");
+      // @ts-expect-error — runtime projected field from params.select
+      expect(result[0]!.totalSpent).toBeDefined();
    });
 
    test("join + filterBy on joined table column", async () => {

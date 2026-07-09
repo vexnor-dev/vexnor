@@ -57,6 +57,37 @@ export type SqlProjectByParams<T extends { Select: Record<string, unknown> }> = 
 };
 
 /**
+ * Infers the result row from a compile-time `select` declaration.
+ *
+ * - `{ col: true }` → includes `col` with its original type from BaseRow
+ * - `{ alias: "sourceCol" }` → includes `alias` with the type of `sourceCol` from BaseRow
+ * - `{ alias: { fn: "sum"|"count"|"avg"|"min"|"max", col } }` → `alias: number`
+ * - `{ alias: { fn: "dateTrunc"|"concat"|..., col } }` → `alias: string`
+ * - `{ alias: { fn: "round"|"abs", col } }` → `alias: number`
+ */
+export type InferProjectByRow<BaseRow, S> = {
+   [K in keyof S]: InferProjectByEntryType<BaseRow, K, S[K]>
+};
+
+type InferProjectByEntryType<BaseRow, K, V> =
+   // true → key matches column name, use its type
+   V extends true
+      ? K extends keyof BaseRow ? BaseRow[K] : unknown
+   // string → value is source column name, use its type
+   : V extends string
+      ? V extends keyof BaseRow ? BaseRow[V] : unknown
+   // { fn: aggregate } → number
+   : V extends { fn: SqlProjectByAggregation }
+      ? number
+   // { fn: "round" | "abs" } → number
+   : V extends { fn: "round" | "abs" }
+      ? number
+   // { fn: transform (dateTrunc, coalesce, concat) } → string
+   : V extends { fn: SqlProjectByTransform }
+      ? string
+   : unknown;
+
+/**
  * Emits the SELECT column list from a runtime `select` param (object format).
  * If param is absent/empty, emits nothing (caller should fall back to row(table.$$)).
  */

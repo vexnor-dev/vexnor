@@ -56,6 +56,7 @@ public sealed class QueryDefinition
 [JsonDerivedType(typeof(ProjectionNode), "projection")]
 [JsonDerivedType(typeof(PaginationNode), "pagination")]
 [JsonDerivedType(typeof(UpsertNode), "upsert")]
+[JsonDerivedType(typeof(WindowByNode), "windowBy")]
 public abstract class TemplateNode { }
 
 public sealed class TextNode : TemplateNode
@@ -244,4 +245,13 @@ public sealed class UpsertNode : TemplateNode
 
     [JsonPropertyName("tableName")]
     public string TableName { get; init; } = "";
+}
+
+public sealed class WindowByNode : TemplateNode
+{
+    [JsonPropertyName("param")]
+    public string Param { get; init; } = "";
+
+    [JsonPropertyName("columns")]
+    public Dictionary<string, string> Columns { get; init; } = new();
 }

@@ -90,6 +90,10 @@ public sealed class SqlBuilder
                 case UpsertNode upsert:
                     BuildUpsert(upsert, parameters, sql, values);
                     break;
+
+                case WindowByNode windowBy:
+                    BuildWindowBy(windowBy, parameters, sql, values);
+                    break;
             }
         }
     }
@@ -736,6 +740,213 @@ public sealed class SqlBuilder
             sql.Add(node.Columns[keys[i]]);
         }
         sql.Add(")");
+    }
+
+    private static readonly HashSet<string> ValidWindowFunctions = new()
+    {
+        "row_number", "rank", "dense_rank", "percent_rank", "cume_dist",
+        "ntile",
+        "sum", "avg", "count", "min", "max", "first_value", "last_value",
+        "lag", "lead"
+    };
+
+    private static readonly HashSet<string> RankingFunctions = new()
+    {
+        "row_number", "rank", "dense_rank", "percent_rank", "cume_dist"
+    };
+
+    private static readonly HashSet<string> AggregateFunctions = new()
+    {
+        "sum", "avg", "count", "min", "max", "first_value", "last_value"
+    };
+
+    private static readonly HashSet<string> OffsetFunctions = new()
+    {
+        "lag", "lead"
+    };
+
+    private void BuildWindowBy(WindowByNode windowBy, Dictionary<string, object?> parameters, List<string> sql, List<object?> values)
+    {
+        if (!parameters.TryGetValue(windowBy.Param, out var obj)) return;
+        if (obj is not Dictionary<string, object?> entries || entries.Count == 0) return;
+
+        foreach (var (alias, defObj) in entries)
+        {
+            if (defObj is not Dictionary<string, object?> def) continue;
+
+            if (!def.TryGetValue("fn", out var fnObj) || fnObj is not string fn || string.IsNullOrEmpty(fn))
+                throw new InvalidOperationException("windowBy: each entry requires a 'fn' property");
+
+            if (!ValidWindowFunctions.Contains(fn))
+                throw new InvalidOperationException(
+                    $"windowBy: invalid function '{fn}'. Valid: {string.Join(", ", ValidWindowFunctions)}");
+
+            sql.Add(", ");
+
+            // Emit function call
+            WriteWindowFunctionCall(fn, def, windowBy.Columns, sql);
+
+            // Emit OVER clause
+            sql.Add(" over (");
+            WriteOverClause(def, windowBy.Columns, sql);
+            sql.Add(")");
+
+            // Emit alias
+            sql.Add($" as \"{alias}\"");
+        }
+    }
+
+    private void WriteWindowFunctionCall(string fn, Dictionary<string, object?> def, Dictionary<string, string> columns, List<string> sql)
+    {
+        if (RankingFunctions.Contains(fn))
+        {
+            sql.Add($"{fn}()");
+            return;
+        }
+
+        if (fn == "ntile")
+        {
+            if (!def.TryGetValue("args", out var argsObj))
+                throw new InvalidOperationException("windowBy: ntile requires 'args' (positive integer bucket count)");
+            var args = Convert.ToInt32(argsObj);
+            if (args <= 0)
+                throw new InvalidOperationException($"windowBy: ntile 'args' must be a positive integer, got {args}");
+            sql.Add($"ntile({args})");
+            return;
+        }
+
+        if (AggregateFunctions.Contains(fn))
+        {
+            if (!def.TryGetValue("col", out var colObj) || colObj is not string col || string.IsNullOrEmpty(col))
+                throw new InvalidOperationException($"windowBy: aggregate function '{fn}' requires 'col'");
+
+            sql.Add($"{fn}(");
+            if (col == "*")
+                sql.Add("*");
+            else
+                sql.Add(ResolveWindowColumn(col, columns));
+            sql.Add(")");
+            return;
+        }
+
+        if (OffsetFunctions.Contains(fn))
+        {
+            if (!def.TryGetValue("col", out var colObj) || colObj is not string col || string.IsNullOrEmpty(col))
+                throw new InvalidOperationException($"windowBy: offset function '{fn}' requires 'col'");
+
+            var offset = 1;
+            if (def.TryGetValue("args", out var argsObj) && argsObj != null)
+                offset = Convert.ToInt32(argsObj);
+
+            sql.Add($"{fn}(");
+            sql.Add(ResolveWindowColumn(col, columns));
+            sql.Add($", {offset})");
+        }
+    }
+
+    private void WriteOverClause(Dictionary<string, object?> def, Dictionary<string, string> columns, List<string> sql)
+    {
+        if (!def.TryGetValue("over", out var overObj) || overObj is not Dictionary<string, object?> over)
+            return;
+
+        bool hasContent = false;
+
+        // PARTITION BY
+        if (over.TryGetValue("partitionBy", out var partObj) && partObj is object?[] partCols && partCols.Length > 0)
+        {
+            sql.Add("partition by ");
+            for (int i = 0; i < partCols.Length; i++)
+            {
+                if (i > 0) sql.Add(", ");
+                sql.Add(ResolveWindowColumn(partCols[i]?.ToString() ?? "", columns));
+            }
+            hasContent = true;
+        }
+
+        // ORDER BY
+        if (over.TryGetValue("orderBy", out var ordObj) && ordObj is Dictionary<string, object?> ordEntries && ordEntries.Count > 0)
+        {
+            if (hasContent) sql.Add(" ");
+            sql.Add("order by ");
+            int emitted = 0;
+            foreach (var (col, dirObj) in ordEntries)
+            {
+                if (emitted > 0) sql.Add(", ");
+                sql.Add(ResolveWindowColumn(col, columns));
+                var dir = dirObj?.ToString()?.ToUpper() ?? "ASC";
+                if (dir != "ASC" && dir != "DESC")
+                    throw new InvalidOperationException($"windowBy: invalid orderBy direction '{dirObj}'. Must be ASC or DESC.");
+                sql.Add($" {dir}");
+                emitted++;
+            }
+            hasContent = true;
+        }
+
+        // FRAME clause
+        var hasStart = over.TryGetValue("start", out var startObj) && startObj != null;
+        var hasEnd = over.TryGetValue("end", out var endObj) && endObj != null;
+
+        if (hasStart || hasEnd)
+        {
+            if (!over.TryGetValue("frame", out var frameObj) || frameObj is not string frame || (frame != "rows" && frame != "range"))
+                throw new InvalidOperationException("windowBy: 'frame' (rows|range) is required when start/end are specified");
+
+            // MSSQL validation: RANGE with numeric bounds is not supported
+            if (frame == "range" && _dialect == "transactsql")
+            {
+                var startIsNumeric = startObj is int or long or double or float || (startObj is string s && int.TryParse(s, out _));
+                var endIsNumeric = endObj is int or long or double or float || (endObj is string s2 && int.TryParse(s2, out _));
+                if (startIsNumeric || endIsNumeric)
+                    throw new InvalidOperationException(
+                        "windowBy: MSSQL does not support numeric bounds with RANGE frame. Use frame: \"rows\" instead.");
+            }
+
+            if (hasContent) sql.Add(" ");
+            sql.Add($"{frame} between ");
+            sql.Add(FormatFrameBound(startObj ?? "unbounded preceding", "start"));
+            sql.Add(" and ");
+            sql.Add(FormatFrameBound(endObj ?? "unbounded following", "end"));
+        }
+    }
+
+    private static string ResolveWindowColumn(string col, Dictionary<string, string> columns)
+    {
+        if (columns.TryGetValue(col, out var colSql))
+        {
+            // Strip " as \"alias\"" suffix if present — we need the raw column reference
+            var asIdx = colSql.IndexOf(" as \"", StringComparison.OrdinalIgnoreCase);
+            return asIdx > 0 ? colSql[..asIdx] : colSql;
+        }
+        // Fallback: emit quoted identifier
+        return $"\"{col}\"";
+    }
+
+    private static string FormatFrameBound(object? bound, string position)
+    {
+        if (bound is string str)
+        {
+            // Known string bounds
+            if (str == "unbounded preceding" || str == "unbounded following" || str == "current row")
+                return str;
+            // Try parsing as number
+            if (int.TryParse(str, out var parsed))
+                return FormatNumericBound(parsed, position);
+            return str;
+        }
+
+        if (bound is int or long or double or float)
+        {
+            var num = Convert.ToInt32(bound);
+            return FormatNumericBound(num, position);
+        }
+
+        return "current row";
+    }
+
+    private static string FormatNumericBound(int num, string position)
+    {
+        if (num == 0) return "current row";
+        return position == "start" ? $"{num} preceding" : $"{num} following";
     }
 
     private string FormatParam()

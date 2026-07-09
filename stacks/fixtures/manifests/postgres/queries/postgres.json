@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatorVersion": "1.0.0-beta.1",
+  "generatorVersion": "1.0.0-beta.3",
   "dialect": "postgresql",
   "queries": {
     "1423ce4b4b52e5284473a1f29016c5943d4e649c7486a063cb4cf1edc4231153": {
@@ -191,10 +191,10 @@
       },
       "authorization": []
     },
-    "fef501beab3fd9fa67a8994b4cdf45bd2c20aee5e9389790301a8a3ff76396c9": {
+    "94dc02d053d14d07f93a20dc87a181e04aa0c6e0cf7b7378d02811a357e39560": {
       "name": "selectAccountsCrud",
       "location": "stacks/fixtures/queries/postgres.ts:41:52",
-      "hash": "fef501beab3fd9fa67a8994b4cdf45bd2c20aee5e9389790301a8a3ff76396c9",
+      "hash": "94dc02d053d14d07f93a20dc87a181e04aa0c6e0cf7b7378d02811a357e39560",
       "template": [
         {
           "type": "text",
@@ -203,6 +203,25 @@
         {
           "type": "projection",
           "param": "select",
+          "columns": {
+            "accountId": "\"a_1\".\"account_id\" as \"accountId\"",
+            "status": "\"a_1\".\"status\"",
+            "email": "\"a_1\".\"email\"",
+            "firstName": "\"a_1\".\"first_name\" as \"firstName\"",
+            "lastName": "\"a_1\".\"last_name\" as \"lastName\"",
+            "notes": "\"a_1\".\"notes\"",
+            "createdAt": "\"a_1\".\"created_at\" as \"createdAt\"",
+            "modifiedAt": "\"a_1\".\"modified_at\" as \"modifiedAt\"",
+            "parentId": "\"a_1\".\"parent_id\" as \"parentId\""
+          }
+        },
+        {
+          "type": "text",
+          "value": " "
+        },
+        {
+          "type": "windowBy",
+          "param": "windowBy",
           "columns": {
             "accountId": "\"a_1\".\"account_id\" as \"accountId\"",
             "status": "\"a_1\".\"status\"",
@@ -277,6 +296,10 @@
             ]
           }
         },
+        "windowBy": {
+          "name": "windowBy",
+          "isContext": false
+        },
         "filterBy": {
           "name": "filterBy",
           "isContext": false
@@ -304,18 +327,18 @@
       },
       "authorization": []
     },
-    "41ab89cbb8a4f9223cf33dfb1b68819880a8944611c3c2d5af5d2d52af1a227b": {
+    "7c2defabc84f6be0f908466099ec359f5b4e3b06012b96b531553fa459558b9f": {
       "name": "selectAccountsWithLastOrder",
       "location": "stacks/fixtures/queries/postgres.ts:127:61",
-      "hash": "41ab89cbb8a4f9223cf33dfb1b68819880a8944611c3c2d5af5d2d52af1a227b",
+      "hash": "7c2defabc84f6be0f908466099ec359f5b4e3b06012b96b531553fa459558b9f",
       "template": [
         {
           "type": "text",
-          "value": "\n      \n/* driver: postgres */\n\n      \n      select "
+          "value": "\n      \n/* driver: postgres */\n\n      \n      select \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" "
         },
         {
-          "type": "projection",
-          "param": "select",
+          "type": "windowBy",
+          "param": "windowBy",
           "columns": {
             "accountId": "\"a_1\".\"account_id\" as \"accountId\"",
             "status": "\"a_1\".\"status\"",
@@ -373,30 +396,9 @@
         }
       ],
       "params": {
-        "select": {
-          "name": "select",
-          "isContext": false,
-          "validation": {
-            "type": "projection",
-            "columns": [
-              "accountId",
-              "status",
-              "email",
-              "firstName",
-              "lastName",
-              "notes",
-              "createdAt",
-              "modifiedAt",
-              "parentId"
-            ],
-            "functions": [
-              "sum",
-              "count",
-              "avg",
-              "min",
-              "max"
-            ]
-          }
+        "windowBy": {
+          "name": "windowBy",
+          "isContext": false
         },
         "filterBy": {
           "name": "filterBy",
@@ -432,28 +434,47 @@
       },
       "authorization": []
     },
-    "b5f1e8087fe1c569a9779b201ad9707ec4b1351a0e809304dfded0884d9e6b99": {
+    "44f8ab8e40b2c1b0c1d9d6207a9e8146c912e32c928a4850b76cdfe72586f70d": {
       "name": "selectAccountsWithOrderCount",
       "location": "stacks/fixtures/queries/postgres.ts:135:62",
-      "hash": "b5f1e8087fe1c569a9779b201ad9707ec4b1351a0e809304dfded0884d9e6b99",
+      "hash": "44f8ab8e40b2c1b0c1d9d6207a9e8146c912e32c928a4850b76cdfe72586f70d",
       "template": [
         {
           "type": "text",
-          "value": "\n      \n/* driver: postgres */\n\n      \n      select (\"a_1\".\"account_id\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\", \"a_1\".\"last_name\", \"a_1\".\"notes\", \"a_1\".\"created_at\", \"a_1\".\"modified_at\", \"a_1\".\"parent_id\", (SELECT count(*) FROM \"vexnor_dev\".\"order\" as \"o_2\" WHERE \"o_2\".\"account_id\" = \"a_1\".\"account_id\") AS \"orderCount\") as \"query_1\"\n                 \n      from \"vexnor_dev\".\"account\" as \"a_3\"   \n         "
+          "value": "\n      \n/* driver: postgres */\n\n      \n      select \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\", (SELECT count(*) FROM \"vexnor_dev\".\"order\" as \"o_2\" WHERE \"o_2\".\"account_id\" = \"a_1\".\"account_id\") AS \"orderCount\" "
+        },
+        {
+          "type": "windowBy",
+          "param": "windowBy",
+          "columns": {
+            "accountId": "\"a_1\".\"account_id\" as \"accountId\"",
+            "status": "\"a_1\".\"status\"",
+            "email": "\"a_1\".\"email\"",
+            "firstName": "\"a_1\".\"first_name\" as \"firstName\"",
+            "lastName": "\"a_1\".\"last_name\" as \"lastName\"",
+            "notes": "\"a_1\".\"notes\"",
+            "createdAt": "\"a_1\".\"created_at\" as \"createdAt\"",
+            "modifiedAt": "\"a_1\".\"modified_at\" as \"modifiedAt\"",
+            "parentId": "\"a_1\".\"parent_id\" as \"parentId\""
+          }
+        },
+        {
+          "type": "text",
+          "value": "\n                 \n      from \"vexnor_dev\".\"account\" as \"a_1\"   \n         "
         },
         {
           "type": "filter",
           "param": "filterBy",
           "columns": {
-            "accountId": "\"a_3\".\"account_id\"",
-            "status": "\"a_3\".\"status\"",
-            "email": "\"a_3\".\"email\"",
-            "firstName": "\"a_3\".\"first_name\"",
-            "lastName": "\"a_3\".\"last_name\"",
-            "notes": "\"a_3\".\"notes\"",
-            "createdAt": "\"a_3\".\"created_at\"",
-            "modifiedAt": "\"a_3\".\"modified_at\"",
-            "parentId": "\"a_3\".\"parent_id\""
+            "accountId": "\"a_1\".\"account_id\"",
+            "status": "\"a_1\".\"status\"",
+            "email": "\"a_1\".\"email\"",
+            "firstName": "\"a_1\".\"first_name\"",
+            "lastName": "\"a_1\".\"last_name\"",
+            "notes": "\"a_1\".\"notes\"",
+            "createdAt": "\"a_1\".\"created_at\"",
+            "modifiedAt": "\"a_1\".\"modified_at\"",
+            "parentId": "\"a_1\".\"parent_id\""
           },
           "prefix": "where "
         },
@@ -463,7 +484,7 @@
         },
         {
           "type": "text",
-          "value": "\n         order by \"a_3\".\"created_at\" DESC\n         "
+          "value": "\n         order by \"a_1\".\"created_at\" DESC\n         "
         },
         {
           "type": "pagination"
@@ -474,6 +495,10 @@
         }
       ],
       "params": {
+        "windowBy": {
+          "name": "windowBy",
+          "isContext": false
+        },
         "filterBy": {
           "name": "filterBy",
           "isContext": false
@@ -494,18 +519,18 @@
       "row": null,
       "authorization": []
     },
-    "7ac8ffc41c9e5a32b0782f036bf4b23a4a5ad9510030a7f3fbc0230c7244d3cf": {
+    "e3212866a830ed330e7470d365f5e1a773515fd4ec63f8c579836cc23fb283a6": {
       "name": "selectAccountsWithOrders",
       "location": "stacks/fixtures/queries/postgres.ts:119:58",
-      "hash": "7ac8ffc41c9e5a32b0782f036bf4b23a4a5ad9510030a7f3fbc0230c7244d3cf",
+      "hash": "e3212866a830ed330e7470d365f5e1a773515fd4ec63f8c579836cc23fb283a6",
       "template": [
         {
           "type": "text",
-          "value": "\n      \n/* driver: postgres */\n\n      \n      select "
+          "value": "\n      \n/* driver: postgres */\n\n      \n      select \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" "
         },
         {
-          "type": "projection",
-          "param": "select",
+          "type": "windowBy",
+          "param": "windowBy",
           "columns": {
             "accountId": "\"a_1\".\"account_id\" as \"accountId\"",
             "status": "\"a_1\".\"status\"",
@@ -563,30 +588,9 @@
         }
       ],
       "params": {
-        "select": {
-          "name": "select",
-          "isContext": false,
-          "validation": {
-            "type": "projection",
-            "columns": [
-              "accountId",
-              "status",
-              "email",
-              "firstName",
-              "lastName",
-              "notes",
-              "createdAt",
-              "modifiedAt",
-              "parentId"
-            ],
-            "functions": [
-              "sum",
-              "count",
-              "avg",
-              "min",
-              "max"
-            ]
-          }
+        "windowBy": {
+          "name": "windowBy",
+          "isContext": false
         },
         "filterBy": {
           "name": "filterBy",
@@ -946,18 +950,18 @@
       },
       "authorization": []
     },
-    "7c516836610fb2a0dfe488b8626eb059eae8c347587ba80588137d7fc60daf74": {
+    "fb77399be26148e3bbe56d71639c884e909b27b81bb6d42418db87a33fee70a9": {
       "name": "selectMyOrders",
       "location": "stacks/fixtures/queries/postgres.ts:142:46",
-      "hash": "7c516836610fb2a0dfe488b8626eb059eae8c347587ba80588137d7fc60daf74",
+      "hash": "fb77399be26148e3bbe56d71639c884e909b27b81bb6d42418db87a33fee70a9",
       "template": [
         {
           "type": "text",
-          "value": "\n      \n/* driver: postgres */\n\n      \n      select "
+          "value": "\n      \n/* driver: postgres */\n\n      \n      select \"o_1\".\"order_id\" as \"orderId\", \"o_1\".\"status\", \"o_1\".\"created_at\" as \"createdAt\", \"o_1\".\"modified_at\" as \"modifiedAt\", \"o_1\".\"account_id\" as \"accountId\" "
         },
         {
-          "type": "projection",
-          "param": "select",
+          "type": "windowBy",
+          "param": "windowBy",
           "columns": {
             "orderId": "\"o_1\".\"order_id\" as \"orderId\"",
             "status": "\"o_1\".\"status\"",
@@ -1007,26 +1011,9 @@
         }
       ],
       "params": {
-        "select": {
-          "name": "select",
-          "isContext": false,
-          "validation": {
-            "type": "projection",
-            "columns": [
-              "orderId",
-              "status",
-              "createdAt",
-              "modifiedAt",
-              "accountId"
-            ],
-            "functions": [
-              "sum",
-              "count",
-              "avg",
-              "min",
-              "max"
-            ]
-          }
+        "windowBy": {
+          "name": "windowBy",
+          "isContext": false
         },
         "filterBy": {
           "name": "filterBy",

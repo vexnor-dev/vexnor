@@ -1,6 +1,5 @@
 // noinspection SqlNoDataSourceInspection,SqlResolve
 import { SqlQueryAny, SqlQueryBaseAny, SqlQueryExtended } from "#src/core/query/sql-query.js";
-import { SqlParam } from "#src/core/query/sql-param.js";
 import { Simplify } from "#src/core/utils/utility-types.js";
 import { ParamsOfArgs, Sql, TypeOf } from "#src/core/sql-base.js";
 import { SqlTable, SqlTableAny } from "#src/core/schema/sql-table.js";
@@ -11,14 +10,16 @@ import { row } from "#src/core/query/sql-select-row.js";
 import { SqlQueryInfo } from "#src/core/charms/sql-query-info.js";
 import { SqlFilterBy, SqlFilterParams } from "#src/core/operators/sql-filter-by.js";
 import { SqlJoinBy } from "#src/core/operators/sql-join-by.js";
-import { SqlProjectBy, SqlProjectByParams, SqlProjectionGroupBy } from "#src/core/operators/sql-project-by.js";
+import { SqlProjectBy, SqlProjectByParams, SqlProjectionGroupBy, InferProjectByRow, SqlProjectBySelect } from "#src/core/operators/sql-project-by.js";
 import { SqlOrderBy, SqlOrderByParams } from "#src/core/operators/sql-order-by.js";
 import { SqlPagination, SqlPaginationParams } from "#src/core/operators/sql-pagination.js";
 import { SqlHavingBy, SqlHavingByParams } from "#src/core/operators/sql-having-by.js";
+import { SqlWindowBy, SqlWindowByParams, WindowBySelect, InferWindowByRow } from "#src/core/operators/sql-window-by.js";
 import { JoinByMap, JoinedTablesDotCols } from "#src/core/operators/sql-join-types.js";
 import { SqlTableColumnAny } from "#src/core/schema/sql-table-column.js";
 import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
 import { SqlBuildError } from "#src/core/sql-build-error.js";
+import { SqlParam } from "#src/core/query/sql-param.js";
 
 /**
  * Arguments for the crud `select` command.
@@ -47,6 +48,8 @@ export type SqlSelectArgs<
    limit?: SqlParam<{ Name: "limit"; Type: number }>;
    includeOne?: Record<string, SqlQueryBaseAny>;
    includeMany?: Record<string, SqlQueryBaseAny>;
+   windowBy?: WindowBySelect<T>;
+   select?: SqlProjectBySelect<T["Select"]>;
    filterBy?: SqlFilterParams<T, "filterBy">;
    orderBy?: SqlOrderByParams<T, "orderBy">;
 };
@@ -55,12 +58,8 @@ export type SqlSelectArgs<
  * Merges root table Select with dot-notation keys from joined tables,
  * producing a combined Select map for use in filter/order/project param types.
  */
-type MergedSelect<
-   T extends { Select: Record<string, unknown> },
-   M extends Record<string, SqlTableAny>,
-> = M extends Record<string, never>
-   ? T
-   : { Select: T["Select"] & { [K in JoinedTablesDotCols<M>]?: unknown } };
+type MergedSelect<T extends { Select: Record<string, unknown> }, M extends Record<string, SqlTableAny>> =
+   M extends Record<string, never> ? T : { Select: T["Select"] & { [K in JoinedTablesDotCols<M>]?: unknown } };
 
 export type SqlSelectResult<
    T extends { Select: Record<string, unknown> },
@@ -68,18 +67,26 @@ export type SqlSelectResult<
    M extends Record<string, SqlTableAny> = Record<string, never>,
 > = SqlQueryExtended<{
    Row: SqlSelectResultRow<T, Args>;
-   Params: (ParamsOfArgs<Args> extends void ? unknown : ParamsOfArgs<Args>)
-      & SqlFilterParams<MergedSelect<T, M>, "filterBy">
-      & (M extends Record<string, never> ? unknown : { joinBy?: JoinByMap<Extract<keyof T["Select"], string>, M> | null })
-      & SqlOrderByParams<MergedSelect<T, M>, "orderBy">
-      & SqlPaginationParams
-      & SqlProjectByParams<MergedSelect<T, M>>
-      & SqlHavingByParams;
+   Params: (ParamsOfArgs<Args> extends void ? unknown : ParamsOfArgs<Args>) &
+      SqlFilterParams<MergedSelect<T, M>, "filterBy"> &
+      (M extends Record<string, never>
+         ? unknown
+         : { joinBy?: JoinByMap<Extract<keyof T["Select"], string>, M> | null }) &
+      SqlOrderByParams<MergedSelect<T, M>, "orderBy"> &
+      SqlPaginationParams &
+      SqlProjectByParams<MergedSelect<T, M>> &
+      SqlHavingByParams &
+      SqlWindowByParams<MergedSelect<T, M>>;
 }>;
 
 export type SqlSelectResultRow<T extends { Select: Record<string, unknown> }, Args extends SqlSelectArgs<T>> = Simplify<
-   SqlTableReadRowSelect<T, Args> & SqlTableReadRowIncludeOne<Args> & SqlTableReadRowIncludeMany<Args>
+   SqlTableReadRowBase<T, Args> & SqlTableReadRowIncludeOne<Args> & SqlTableReadRowIncludeMany<Args> & SqlTableReadRowWindowBy<T, Args>
 >;
+
+type SqlTableReadRowBase<T extends { Select: Record<string, unknown> }, Args extends SqlSelectArgs<T>> =
+   Args extends { select: infer S extends Record<string, unknown> }
+      ? InferProjectByRow<T["Select"], S>
+      : SqlTableReadRowSelect<T, Args>;
 
 export type SqlSelectHooks = {
    afterSelect?: Sql[];
@@ -146,7 +153,9 @@ export function sqlSelect<
             const fqn = `${rawValue.tableInfo.schema}.${name}`;
             if (joinKeyRegistry.has(name)) {
                const existing = [...joinKeyRegistry.entries()].map(([k, v]) => `${k}:${v}`).join(", ");
-               throw new SqlBuildError(`[select] JOIN table "${name}" (${fqn}) conflicts with existing join key. Registered: ${existing}`);
+               throw new SqlBuildError(
+                  `[select] JOIN table "${name}" (${fqn}) conflicts with existing join key. Registered: ${existing}`,
+               );
             }
             joinKeyRegistry.set(name, fqn);
             joinArgTables[name] = rawValue;
@@ -177,23 +186,29 @@ export function sqlSelect<
    // HavingBy: runtime HAVING filter on aggregate aliases.
    const havingByNode = new SqlHavingBy(table, "havingBy", "select");
 
+   // WindowBy: runtime window functions appended to SELECT list.
+   const windowByNode = new SqlWindowBy<MergedSelect<T, M>>(table, "windowBy", allFieldNames, args.windowBy as WindowBySelect | undefined);
+
    // Pagination: runtime limit/offset.
    const paginationNode = new SqlPagination();
 
    // JoinBy: runtime table joins — only for joined queries (SqlTableJoin.select()).
    const hasJoinMap = joinedTables.length > 0;
-   const joinByNode = hasJoinMap ? new SqlJoinBy(table, "joinBy", joinTypes, joinMap as Record<string, SqlTableAny>) : raw.BLANK;
+   const joinByNode = hasJoinMap
+      ? new SqlJoinBy(table, "joinBy", joinTypes, joinMap as Record<string, SqlTableAny>)
+      : raw.BLANK;
 
    // Pre-populate columnMap so projection/filter/orderBy can resolve dot-notation keys
    // before the joinBy node emits its SQL (which comes after FROM in the template).
-   const preColumnMap = joinedTables.length || Object.keys(joinArgTables).length
-      ? new SqlPreColumnMap(table, joinMap as Record<string, SqlTableAny>, joinArgTables, joinKeyRegistry)
-      : new SqlPreColumnMap(table, null, joinArgTables, joinKeyRegistry);
+   const preColumnMap =
+      joinedTables.length || Object.keys(joinArgTables).length
+         ? new SqlPreColumnMap(table, joinMap as Record<string, SqlTableAny>, joinArgTables, joinKeyRegistry)
+         : new SqlPreColumnMap(table, null, joinArgTables, joinKeyRegistry);
 
    return sql`
       ${info ?? raw.BLANK}
       ${preColumnMap}
-      select ${args.SELECT ? args.SELECT.source.inline("default") : (hooks?.afterSelect?.length ? row(table.$$) : projectionNode)}
+      select ${args.SELECT ? args.SELECT.source.inline("default") : (hooks?.afterSelect?.length ? row(table.$$) : projectionNode)} ${windowByNode}
                 ${hooks?.afterSelect?.length ? raw(", ") : raw.BLANK} ${hooks?.afterSelect ?? raw.BLANK}
       from ${table} ${hooks?.afterFrom?.length ? new SqlSpacedList(hooks.afterFrom) : raw.BLANK} ${args.JOIN ? args.JOIN.source.inline() : raw.BLANK} ${joinByNode}
          ${userWhere ? sql`where ${filterNode} ${userWhere}`.inline("default") : sql`${filterNode}`.inline("default")}
@@ -239,6 +254,12 @@ export type SqlTableReadRowIncludeMany<Args> = Args extends {
      }
    : unknown;
 
+export type SqlTableReadRowWindowBy<T extends { Select: Record<string, unknown> }, Args> = Args extends {
+   windowBy: infer W;
+}
+   ? InferWindowByRow<T, { windowBy: W }>
+   : unknown;
+
 /**
  * Emits no SQL text but pre-populates context.columnMap with dot-notation keys
  * from joined tables so that projection/filter/orderBy can resolve them
@@ -268,7 +289,9 @@ class SqlPreColumnMap extends Sql {
          const column = col as SqlTableColumnAny;
          const colKey = key.slice(1);
          context.addColumns({
-            [colKey]: column, [`${this.rootTable.tableInfo.name}.${colKey}`]: column});
+            [colKey]: column,
+            [`${this.rootTable.tableInfo.name}.${colKey}`]: column,
+         });
       }
 
       if (this.joinMap) {
@@ -276,7 +299,7 @@ class SqlPreColumnMap extends Sql {
             for (const [key, col] of Object.entries(jt.cols)) {
                const column = col as SqlTableColumnAny;
                const colKey = key.slice(1);
-               context.addColumns({[`${alias}.${colKey}`]: column, [colKey]: column});
+               context.addColumns({ [`${alias}.${colKey}`]: column, [colKey]: column });
             }
          }
       }
@@ -300,7 +323,9 @@ class SqlPreColumnMap extends Sql {
             for (const alias of tableNames) {
                if (this.joinKeyRegistry.has(alias)) {
                   const existing = [...this.joinKeyRegistry.entries()].map(([k, v]) => `${k}:${v}`).join(", ");
-                  throw new SqlBuildError(`[joinBy] Table "${alias}" conflicts with existing join key. Registered: ${existing}`);
+                  throw new SqlBuildError(
+                     `[joinBy] Table "${alias}" conflicts with existing join key. Registered: ${existing}`,
+                  );
                }
                const jt = SqlTable.resolve({
                   source: this.rootTable.source,
@@ -311,7 +336,7 @@ class SqlPreColumnMap extends Sql {
                for (const [key, col] of Object.entries(jt.cols)) {
                   const column = col as SqlTableColumnAny;
                   const colKey = key.slice(1);
-                  context.addColumns({ [`${alias}.${colKey}`]: column, [colKey]: column});
+                  context.addColumns({ [`${alias}.${colKey}`]: column, [colKey]: column });
                }
             }
          }
