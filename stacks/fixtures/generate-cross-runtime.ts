@@ -90,6 +90,23 @@ const queries = {
    xWindowByAggregate: sql`SELECT ${row(Account.$accountId, Account.$createdAt)} ${windowBy(Account)} FROM ${Account}`,
    xWindowByMultiple: sql`SELECT ${row(Account.$accountId, Account.$createdAt)} ${windowBy(Account)} FROM ${Account}`,
    xWindowByEmpty: sql`SELECT ${row(Account.$accountId, Account.$createdAt)} ${windowBy(Account)} FROM ${Account}`,
+   // windowBy — all function categories
+   xWindowByDenseRank: sql`SELECT ${row(Account.$accountId, Account.$createdAt)} ${windowBy(Account)} FROM ${Account}`,
+   xWindowByPercentRank: sql`SELECT ${row(Account.$accountId, Account.$createdAt)} ${windowBy(Account)} FROM ${Account}`,
+   xWindowByCumeDist: sql`SELECT ${row(Account.$accountId, Account.$createdAt)} ${windowBy(Account)} FROM ${Account}`,
+   xWindowByNtile: sql`SELECT ${row(Account.$accountId, Account.$createdAt)} ${windowBy(Account)} FROM ${Account}`,
+   xWindowByLead: sql`SELECT ${row(Account.$accountId, Account.$createdAt)} ${windowBy(Account)} FROM ${Account}`,
+   xWindowByFirstValue: sql`SELECT ${row(Account.$accountId, Account.$createdAt)} ${windowBy(Account)} FROM ${Account}`,
+   xWindowByLastValue: sql`SELECT ${row(Account.$accountId, Account.$createdAt)} ${windowBy(Account)} FROM ${Account}`,
+   // windowBy — frame clause
+   xWindowByFrameRows: sql`SELECT ${row(Account.$accountId, Account.$createdAt)} ${windowBy(Account)} FROM ${Account}`,
+   xWindowByFrameRange: sql`SELECT ${row(Account.$accountId, Account.$createdAt)} ${windowBy(Account)} FROM ${Account}`,
+   // windowBy — partition + order combined
+   xWindowByPartitionOrder: sql`SELECT ${row(Account.$accountId, Account.$status, Account.$createdAt)} ${windowBy(Account)} FROM ${Account}`,
+   // windowBy + all original columns ($$)
+   xWindowByWithAllCols: sql`SELECT ${row(Account.$$)} ${windowBy(Account)} FROM ${Account}`,
+   // windowBy + projection (select operator replaces columns, windowBy adds window fns)
+   xWindowByWithProjection: sql`SELECT ${row(Account.$accountId, Account.$status)} ${windowBy(Account)} FROM ${Account}`,
 };
 
 // ─── Test params per case ────────────────────────────────────────────────────
@@ -177,6 +194,23 @@ const testParams: Record<string, unknown> = {
    xWindowByAggregate: { windowBy: { runningTotal: { fn: "sum", col: "createdAt", over: { partitionBy: ["accountId"], orderBy: { createdAt: "ASC" } } } } },
    xWindowByMultiple: { windowBy: { rn: { fn: "row_number", over: { orderBy: { createdAt: "DESC" } } }, prev: { fn: "lag", col: "createdAt", args: 1, over: { orderBy: { createdAt: "ASC" } } } } },
    xWindowByEmpty: { windowBy: null },
+   // windowBy — all function categories
+   xWindowByDenseRank: { windowBy: { dr: { fn: "dense_rank", over: { orderBy: { createdAt: "DESC" } } } } },
+   xWindowByPercentRank: { windowBy: { pr: { fn: "percent_rank", over: { orderBy: { createdAt: "ASC" } } } } },
+   xWindowByCumeDist: { windowBy: { cd: { fn: "cume_dist", over: { orderBy: { createdAt: "ASC" } } } } },
+   xWindowByNtile: { windowBy: { bucket: { fn: "ntile", args: 4, over: { orderBy: { createdAt: "ASC" } } } } },
+   xWindowByLead: { windowBy: { nextEmail: { fn: "lead", col: "email", args: 2, over: { orderBy: { createdAt: "ASC" } } } } },
+   xWindowByFirstValue: { windowBy: { first: { fn: "first_value", col: "email", over: { orderBy: { createdAt: "ASC" } } } } },
+   xWindowByLastValue: { windowBy: { last: { fn: "last_value", col: "email", over: { orderBy: { createdAt: "ASC" } } } } },
+   // windowBy — frame clauses
+   xWindowByFrameRows: { windowBy: { movingSum: { fn: "sum", col: "createdAt", over: { orderBy: { createdAt: "ASC" }, frame: "rows", start: 2, end: 0 } } } },
+   xWindowByFrameRange: { windowBy: { rangeSum: { fn: "sum", col: "createdAt", over: { orderBy: { createdAt: "ASC" }, frame: "range", start: "unbounded preceding", end: "current row" } } } },
+   // windowBy — partition + order combined
+   xWindowByPartitionOrder: { windowBy: { rn: { fn: "row_number", over: { partitionBy: ["status"], orderBy: { createdAt: "DESC" } } } } },
+   // windowBy + all original columns
+   xWindowByWithAllCols: { windowBy: { rank: { fn: "rank", over: { orderBy: { createdAt: "DESC" } } } } },
+   // windowBy + specific columns (no projection operator, just fewer row() cols)
+   xWindowByWithProjection: { windowBy: { rn: { fn: "row_number", over: { orderBy: { status: "ASC" } } } } },
 };
 
 // ─── Generate outputs ────────────────────────────────────────────────────────
