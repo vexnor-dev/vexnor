@@ -7,7 +7,7 @@ import (
 
 	_ "modernc.org/sqlite"
 
-	vexnor "github.com/vexnor-dev/vexnor-go/vexnor"
+	vexnor "github.com/vexnor-dev/vexnor/stacks/golang/vexnor"
 )
 
 // Executor implements vexnor.Executor for SQLite3 using modernc.org/sqlite.

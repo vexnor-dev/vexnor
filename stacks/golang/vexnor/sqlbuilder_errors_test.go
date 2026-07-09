@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/vexnor-dev/vexnor-go/vexnor"
+	"github.com/vexnor-dev/vexnor/stacks/golang/vexnor"
 )
 
 func makeColumns(pairs ...string) *vexnor.OrderedMap {

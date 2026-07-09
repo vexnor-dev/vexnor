@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/vexnor-dev/vexnor-go/vexnor"
+	"github.com/vexnor-dev/vexnor/stacks/golang/vexnor"
 )
 
 func TestLoadJSON_ValidManifest(t *testing.T) {

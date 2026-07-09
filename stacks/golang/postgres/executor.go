@@ -7,7 +7,7 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	vexnor "github.com/vexnor-dev/vexnor-go/vexnor"
+	vexnor "github.com/vexnor-dev/vexnor/stacks/golang/vexnor"
 )
 
 // Executor implements vexnor.Executor for PostgreSQL using pgx.

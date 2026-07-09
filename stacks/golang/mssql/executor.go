@@ -7,7 +7,7 @@ import (
 
 	_ "github.com/microsoft/go-mssqldb"
 
-	vexnor "github.com/vexnor-dev/vexnor-go/vexnor"
+	vexnor "github.com/vexnor-dev/vexnor/stacks/golang/vexnor"
 )
 
 // Executor implements vexnor.Executor for MS SQL Server.

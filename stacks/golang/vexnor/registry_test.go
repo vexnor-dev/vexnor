@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/vexnor-dev/vexnor-go/vexnor"
+	"github.com/vexnor-dev/vexnor/stacks/golang/vexnor"
 )
 
 func makeTestManifest() *vexnor.QueryManifest {

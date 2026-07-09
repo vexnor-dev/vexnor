@@ -18,11 +18,11 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 
-	vexnor "github.com/vexnor-dev/vexnor-go/vexnor"
+	vexnor "github.com/vexnor-dev/vexnor/stacks/golang/vexnor"
 
-	vexnorMssql "github.com/vexnor-dev/vexnor-go/mssql"
-	vexnorPostgres "github.com/vexnor-dev/vexnor-go/postgres"
-	vexnorSqlite3 "github.com/vexnor-dev/vexnor-go/sqlite3"
+	vexnorMssql "github.com/vexnor-dev/vexnor/stacks/golang/mssql"
+	vexnorPostgres "github.com/vexnor-dev/vexnor/stacks/golang/postgres"
+	vexnorSqlite3 "github.com/vexnor-dev/vexnor/stacks/golang/sqlite3"
 )
 
 // dialectConfig maps the short name to its SQL dialect identifier and manifest subdirectory.

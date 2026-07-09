@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/vexnor-dev/vexnor-go/internal/testutil"
-	"github.com/vexnor-dev/vexnor-go/vexnor"
+	"github.com/vexnor-dev/vexnor/stacks/golang/internal/testutil"
+	"github.com/vexnor-dev/vexnor/stacks/golang/vexnor"
 )
 
 // loadRegistries creates postgresql and transactsql registries loaded from the shared manifest.

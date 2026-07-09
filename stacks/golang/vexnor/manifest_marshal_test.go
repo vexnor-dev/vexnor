@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/vexnor-dev/vexnor-go/vexnor"
+	"github.com/vexnor-dev/vexnor/stacks/golang/vexnor"
 )
 
 func TestMarshalTemplateNode_AllTypes(t *testing.T) {

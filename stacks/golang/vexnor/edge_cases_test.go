@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/vexnor-dev/vexnor-go/vexnor"
+	"github.com/vexnor-dev/vexnor/stacks/golang/vexnor"
 )
 
 // --- buildOrderBy: map[string]any branch (completely uncovered) ---

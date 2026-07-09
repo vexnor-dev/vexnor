@@ -1,4 +1,4 @@
-module github.com/vexnor-dev/vexnor-go
+module github.com/vexnor-dev/vexnor/stacks/golang
 
 go 1.26.4
 

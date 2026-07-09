@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/vexnor-dev/vexnor-go/vexnor"
+	"github.com/vexnor-dev/vexnor/stacks/golang/vexnor"
 )
 
 func TestBuildJoinBy_InvalidAlias(t *testing.T) {

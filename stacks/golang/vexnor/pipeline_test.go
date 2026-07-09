@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/vexnor-dev/vexnor-go/vexnor"
+	"github.com/vexnor-dev/vexnor/stacks/golang/vexnor"
 )
 
 // lifecycleTracker records which pipeline hooks were called and in what order.
