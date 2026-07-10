@@ -62,4 +62,27 @@ describe("SqlSelectRow.write()", () => {
       selectRow.build(ctx);
       expect(ctx.text).toContain(",");
    });
+
+   test("with viewFilter filters SqlTableAll columns individually", () => {
+      const selectRow = row(Account.$$);
+      const ctx = new SqlBuildContext({});
+      ctx.viewFilter = { columns: new Set(["accountId", "email"]) };
+      selectRow.build(ctx);
+      const text = ctx.text;
+      expect(text).toContain("account_id");
+      expect(text).toContain("email");
+      expect(text).not.toContain("first_name");
+      expect(text).not.toContain("last_name");
+   });
+
+   test("with viewFilter filters individual columns by key", () => {
+      const selectRow = row(Account.$accountId, Account.$email, Account.$status);
+      const ctx = new SqlBuildContext({});
+      ctx.viewFilter = { columns: new Set(["accountId", "status"]) };
+      selectRow.build(ctx);
+      const text = ctx.text;
+      expect(text).toContain("account_id");
+      expect(text).toContain("status");
+      expect(text).not.toContain("email");
+   });
 });

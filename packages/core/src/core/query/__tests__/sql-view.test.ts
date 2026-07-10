@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { sql, row, col } from "@vexnor/core";
-import { Account } from "@test-models/vexnor_dev.schema.js";
+import { sqlView as sqlViewSrc } from "#src/core/query/sql-view.js";
+import { Account, Order } from "@test-models/vexnor_dev.schema.js";
 import { sqlSelect } from "#src/core/crud/sql-select.js";
 import { assertType } from "vitest";
 
@@ -296,19 +297,12 @@ describe(".view()", () => {
       expect(matches?.length).toBe(1);
    });
 
-   test("empty columns array = no row columns emitted", () => {
+   test("empty columns array = throws error", () => {
       const base = sql`SELECT ${row(Account.$accountId, Account.$email)} FROM ${Account}`;
-      const viewed = base.view({
+      expect(() => base.view({
          columns: [],
          window: { rn: { fn: "row_number", over: { orderBy: { email: "ASC" } } } },
-      });
-
-      const { text } = viewed.getSql({ params: undefined as any, options: { dialect: "postgresql", format: false } });
-      // Window should still be present
-      expect(text).toContain('row_number() OVER (ORDER BY "email" ASC) as "rn"');
-      // No row columns
-      expect(text).not.toContain('"accountId"');
-      expect(text).not.toContain('"a_1"."email"');
+      })).toThrowError(".view() columns must not be an empty array — at least one column is required.");
    });
 
    test("window function can reference column not in view output", () => {
@@ -394,5 +388,175 @@ describe(".view()", () => {
       type Result = typeof viewed.rowType;
       assertType<string>("" as unknown as Result["accountId"]);
       assertType<string>("" as unknown as Result["email"]);
+   });
+
+   // ─── Multi-table / join scenarios ─────────────────────────────────────────
+
+   test("multi-table explicit row(): trims cols from different tables", () => {
+      const base = sql`SELECT ${row(Account.$accountId, Account.$email, Order.$orderId, Order.$status)} FROM ${Account} JOIN ${Order} ON ${Order.$accountId} = ${Account.$accountId}`;
+      const viewed = base.view({ columns: ["accountId", "orderId"] });
+
+      const { text } = viewed.getSql({ params: undefined as any, options: { dialect: "postgresql", format: false } });
+      expect(text).toMatchInlineSnapshot(`" /* <query_0> */ SELECT "a_1"."account_id" as "accountId", "o_2"."order_id" as "orderId" FROM "main"."account" as "a_1" JOIN "main"."order" as "o_2" ON "o_2"."account_id" = "a_1"."account_id"/* </query_0> */"`);
+   });
+
+   test("multi-table explicit row(): keeps all when no columns filter", () => {
+      const base = sql`SELECT ${row(Account.$accountId, Account.$email, Order.$orderId, Order.$status)} FROM ${Account} JOIN ${Order} ON ${Order.$accountId} = ${Account.$accountId}`;
+      const viewed = base.view({
+         window: { rn: { fn: "row_number", over: { orderBy: { orderId: "DESC" } } } },
+      });
+
+      const { text } = viewed.getSql({ params: undefined as any, options: { dialect: "postgresql", format: false } });
+      // All columns preserved
+      expect(text).toContain('"accountId"');
+      expect(text).toContain('"email"');
+      expect(text).toContain('"orderId"');
+      expect(text).toContain('"status"');
+      // Window appended
+      expect(text).toContain('row_number() OVER (ORDER BY "orderId" DESC) as "rn"');
+   });
+
+   test("multi-table row($$): trims columns from Table.$$", () => {
+      const base = sql`SELECT ${row(Account.$$)} FROM ${Account} JOIN ${Order} ON ${Order.$accountId} = ${Account.$accountId}`;
+      const viewed = base.view({ columns: ["accountId", "email"] });
+
+      const { text } = viewed.getSql({ params: undefined as any, options: { dialect: "postgresql", format: false } });
+      expect(text).toMatchInlineSnapshot(`" /* <query_0> */ SELECT "a_1"."account_id" as "accountId", "a_1"."email" FROM "main"."account" as "a_1" JOIN "main"."order" as "o_2" ON "o_2"."account_id" = "a_1"."account_id"/* </query_0> */"`);
+   });
+
+   test("subquery out.$col in row(): trims correctly", () => {
+      const sub = sql`SELECT ${row(Order.$orderId, Order.$status)} FROM ${Order} WHERE ${Order.$accountId} = ${Account.out.$accountId}`;
+      const base = sql`SELECT ${row(Account.$accountId, Account.$email)}, ${sub} FROM ${Account}`;
+      const viewed = base.view({ columns: ["accountId"] });
+
+      const { text } = viewed.getSql({ params: undefined as any, options: { dialect: "postgresql", format: false } });
+      // Only accountId from the outer SELECT
+      expect(text).toContain('"accountId"');
+      expect(text).not.toContain('"email"');
+   });
+
+   test("explicit row() with cols from one table only + join present", () => {
+      const base = sql`SELECT ${row(Account.$accountId, Account.$email, Account.$status)} FROM ${Account} JOIN ${Order} ON ${Order.$accountId} = ${Account.$accountId}`;
+      const viewed = base.view({ columns: ["accountId", "status"] });
+
+      const { text } = viewed.getSql({ params: undefined as any, options: { dialect: "postgresql", format: false } });
+      expect(text).toMatchInlineSnapshot(`" /* <query_0> */ SELECT "a_1"."account_id" as "accountId", "a_1"."status" FROM "main"."account" as "a_1" JOIN "main"."order" as "o_2" ON "o_2"."account_id" = "a_1"."account_id"/* </query_0> */"`);
+   });
+
+   test("multi-table: trim all cols from one table, keep from other", () => {
+      const base = sql`SELECT ${row(Account.$accountId, Order.$orderId, Order.$status)} FROM ${Account} JOIN ${Order} ON ${Order.$accountId} = ${Account.$accountId}`;
+      const viewed = base.view({ columns: ["orderId", "status"] });
+
+      const { text } = viewed.getSql({ params: undefined as any, options: { dialect: "postgresql", format: false } });
+      // accountId should be gone, only Order cols remain
+      expect(text).toMatchInlineSnapshot(`" /* <query_0> */ SELECT "o_1"."order_id" as "orderId", "o_1"."status" FROM "main"."account" as "a_2" JOIN "main"."order" as "o_1" ON "o_1"."account_id" = "a_2"."account_id"/* </query_0> */"`);
+   });
+
+   // ─── Phase 9: Coverage — uncovered branches ───────────────────────────────
+
+   test("sqlView() standalone function delegates to .view()", () => {
+      const base = sql`SELECT ${row(Account.$accountId, Account.$email)} FROM ${Account}`;
+      const viewed = sqlViewSrc(base as any, { columns: ["accountId"] });
+
+      const { text } = viewed.getSql({ params: undefined as any, options: { dialect: "postgresql", format: false } });
+      expect(text).toContain('"accountId"');
+      expect(text).not.toContain('"email"');
+   });
+
+   test("window entry as raw SqlQuery injects at FROM boundary", () => {
+      const base = sql`SELECT ${row(Account.$accountId, Account.$email)} FROM ${Account}`;
+      const windowExpr = sql`row_number() OVER (ORDER BY "a_1"."email" ASC)`;
+      const viewed = base.view({
+         columns: ["accountId", "email"],
+         window: { rn: windowExpr as any },
+      });
+
+      const { text } = viewed.getSql({ params: undefined as any, options: { dialect: "postgresql", format: false } });
+      expect(text).toContain('"accountId"');
+      expect(text).toContain('"rn"');
+      expect(text).toContain("row_number()");
+   });
+
+   test("window entry as raw SqlQuery injects when no FROM present", () => {
+      // A query with no FROM — window injected at the end
+      const base = sql`SELECT ${row(Account.$accountId)}`;
+      const windowExpr = sql`row_number() OVER ()`;
+      const viewed = base.view({
+         columns: ["accountId"],
+         window: { rn: windowExpr as any },
+      });
+
+      const { text } = viewed.getSql({ params: undefined as any, options: { dialect: "postgresql", format: false } });
+      expect(text).toContain('"accountId"');
+      expect(text).toContain('"rn"');
+   });
+
+   test("unknown window function name falls back to fn()", () => {
+      const base = sql`SELECT ${row(Account.$accountId)} FROM ${Account}`;
+      const viewed = base.view({
+         columns: ["accountId"],
+         window: { custom: { fn: "my_custom_fn", over: { orderBy: { accountId: "ASC" } } } },
+      });
+
+      const { text } = viewed.getSql({ params: undefined as any, options: { dialect: "postgresql", format: false } });
+      expect(text).toContain('my_custom_fn() OVER (ORDER BY "accountId" ASC) as "custom"');
+   });
+
+   test("frame bound with string values passes through", () => {
+      const base = sql`SELECT ${row(Account.$accountId)} FROM ${Account}`;
+      const viewed = base.view({
+         columns: ["accountId"],
+         window: {
+            rolling: {
+               fn: "sum",
+               col: "accountId",
+               over: {
+                  orderBy: { accountId: "ASC" },
+                  frame: "rows",
+                  start: "unbounded preceding",
+                  end: "current row",
+               },
+            },
+         },
+      });
+
+      const { text } = viewed.getSql({ params: undefined as any, options: { dialect: "postgresql", format: false } });
+      expect(text).toContain("ROWS BETWEEN unbounded preceding AND current row");
+   });
+
+   test("col() removal emits trimmed string when comma found", () => {
+      // col() is NOT the first expression but has preceding comma in rawString
+      // "SELECT row(), expression as col" — the comma case
+      const base = sql`SELECT ${row(Account.$accountId)}, lower("email") as ${col<{ lower: string }>("lower")}, upper("email") as ${col<{ upper: string }>("upper")} FROM ${Account}`;
+      const viewed = base.view({ columns: ["accountId", "upper"] });
+
+      const { text } = viewed.getSql({ params: undefined as any, options: { dialect: "postgresql", format: false } });
+      expect(text).toContain('"accountId"');
+      expect(text).toContain('"upper"');
+      expect(text).not.toContain('"lower"');
+   });
+
+   test("col() removal with non-empty trimmed prefix before comma", () => {
+      // When the raw string before a removed col() has text BEFORE the last comma,
+      // the trimmed portion (before the comma) must be emitted.
+      // Here we put two raw SQL expressions before a col() so the rawString has content before the last comma.
+      const base = sql`SELECT ${row(Account.$accountId)}, 1 as one, lower("email") as ${col<{ lower: string }>("lower")} FROM ${Account}`;
+      const viewed = base.view({ columns: ["accountId"] });
+
+      const { text } = viewed.getSql({ params: undefined as any, options: { dialect: "postgresql", format: false } });
+      expect(text).toContain('"accountId"');
+      expect(text).toContain("1 as one");
+      expect(text).not.toContain('"lower"');
+   });
+
+   test("view with array child in rawValues (multiple subquery refs)", () => {
+      // Construct a query with an array token in rawValues
+      const sub1 = sql`SELECT ${row(Account.$accountId)} FROM ${Account}`;
+      const sub2 = sql`SELECT ${row(Order.$orderId)} FROM ${Order}`;
+      const base = sql`SELECT ${row(Account.$accountId, Account.$email)}, ${[sub1, sub2]} FROM ${Account}`;
+      const viewed = base.view({ columns: ["accountId", "email"] });
+
+      const { text } = viewed.getSql({ params: undefined as any, options: { dialect: "postgresql", format: false } });
+      expect(text).toContain('"accountId"');
    });
 });
