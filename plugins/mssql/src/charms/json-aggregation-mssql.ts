@@ -3,7 +3,7 @@ import {
    BuildSqlParams,
    CACHE,
    JsonRow,
-   PARAMS,
+   type PARAMS,
    SqlQueryBaseAny,
    quote,
    quoteText,
