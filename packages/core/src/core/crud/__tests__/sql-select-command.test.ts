@@ -95,7 +95,9 @@ describe("SqlSelectCommand.build()", () => {
             offset: 5,
          };
 
+         // @ts-expect-error — runtime params use operator tuple format
          const commandResult = queryFromCommand.getSql({ params: runtimeParams, options: { dialect: "sqlite" } });
+         // @ts-expect-error — runtime params use operator tuple format
          const fnResult = queryFromFn.getSql({ params: runtimeParams, options: { dialect: "sqlite" } });
 
          expect(commandResult.text).toBe(fnResult.text);
@@ -152,7 +154,9 @@ describe("SqlSelectCommand.build()", () => {
             },
          };
 
+         // @ts-expect-error — runtime select param with fn entries
          const commandResult = queryFromCommand.getSql({ params: runtimeParams, options: { dialect: "sqlite" } });
+         // @ts-expect-error — runtime select param with fn entries
          const fnResult = queryFromFn.getSql({ params: runtimeParams, options: { dialect: "sqlite" } });
 
          expect(commandResult.text).toBe(fnResult.text);
@@ -188,7 +192,9 @@ describe("SqlSelectCommand.build()", () => {
             },
          };
 
+         // @ts-expect-error — runtime select param with fn entries
          const commandResult = queryFromCommand.getSql({ params: runtimeParams, options: { dialect: "sqlite" } });
+         // @ts-expect-error — runtime select param with fn entries
          const fnResult = queryFromFn.getSql({ params: runtimeParams, options: { dialect: "sqlite" } });
 
          expect(commandResult.text).toBe(fnResult.text);
@@ -223,7 +229,9 @@ describe("SqlSelectCommand.build()", () => {
             orderBy: { "order.createdAt": "DESC" },
          };
 
+         // @ts-expect-error — runtime dot-notation orderBy
          const commandResult = queryFromCommand.getSql({ params: runtimeParams, options: { dialect: "sqlite" } });
+         // @ts-expect-error — runtime dot-notation orderBy
          const fnResult = queryFromFn.getSql({ params: runtimeParams, options: { dialect: "sqlite" } });
 
          expect(commandResult.text).toBe(fnResult.text);

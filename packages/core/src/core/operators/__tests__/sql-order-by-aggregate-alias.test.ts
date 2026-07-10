@@ -12,6 +12,7 @@ describe("SqlOrderBy — aggregate alias-aware (Bug 3 fix)", () => {
                status: true,
                total: { fn: "count", col: "*" },
             },
+            // @ts-expect-error — runtime aggregate alias in orderBy
             orderBy: { total: "DESC" },
          },
          options: { dialect: "sqlite" },
@@ -111,6 +112,7 @@ describe("SqlOrderBy — aggregate alias-aware (Bug 3 fix)", () => {
                status: true,
                totalOrders: { fn: "count", col: "*" },
             },
+            // @ts-expect-error — runtime aggregate alias in orderBy
             orderBy: { totalOrders: "DESC", status: "ASC" },
          },
          options: { dialect: "sqlite" },
