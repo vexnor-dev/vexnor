@@ -181,7 +181,7 @@ export function sqlSelect<
    const projectionGroupByNode = new SqlProjectionGroupBy<SqlProjectByParams<T>>(table, "select");
 
    // OrderBy: runtime sort. Falls back to compile-time ORDER_BY if provided, otherwise emits nothing.
-   const orderByNode = new SqlOrderBy(table, { paramName: "orderBy", fieldNames: allFieldNames });
+   const orderByNode = new SqlOrderBy(table, { paramName: "orderBy", fieldNames: allFieldNames, selectParamName: "select" });
 
    // HavingBy: runtime HAVING filter on aggregate aliases.
    const havingByNode = new SqlHavingBy(table, "havingBy", "select");

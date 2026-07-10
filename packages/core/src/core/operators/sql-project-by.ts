@@ -321,9 +321,11 @@ export class SqlProjectBy<T extends Record<string, unknown>> extends Sql {
       if (col) return col;
       const dot = name.indexOf(".");
       if (dot !== -1) {
+         const tablePrefix = name.slice(0, dot);
          const colKey = name.slice(dot + 1);
          const stripped = this.table.cols[`$${colKey}` as `$${string}`] as SqlTableColumnAny | undefined;
          if (stripped) return stripped;
+         throw new SqlBuildError(`Column "${name}" not found. If "${tablePrefix}" is a joined table, add it to joinBy.`);
       }
       throw new SqlBuildError(`Column not found: ${name}`);
    }
@@ -473,9 +475,11 @@ export class SqlProjectionGroupBy<T extends Record<string, unknown>> extends Sql
       if (col) return col;
       const dot = name.indexOf(".");
       if (dot !== -1) {
+         const tablePrefix = name.slice(0, dot);
          const colKey = name.slice(dot + 1);
          const stripped = this.table.cols[`$${colKey}` as `$${string}`] as SqlTableColumnAny | undefined;
          if (stripped) return stripped;
+         throw new SqlBuildError(`Column "${name}" not found. If "${tablePrefix}" is a joined table, add it to joinBy.`);
       }
       throw new SqlBuildError(`Column not found: ${name}`);
    }

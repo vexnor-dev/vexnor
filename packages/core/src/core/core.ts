@@ -184,6 +184,7 @@ export {
    type SqlSelectResult,
    type SqlSelectResultRow,
 } from "./crud/sql-select.js";
+export { SqlSelectCommand, SqlPreColumnMap } from "./crud/sql-select-command.js";
 export type { SqlCrudCommands } from "./crud/sql-crud-commands.js";
 export { isPrimitive, type Primitive } from "#src/lib/primitive.js";
 export { isError } from "#src/lib/is-error.js";
