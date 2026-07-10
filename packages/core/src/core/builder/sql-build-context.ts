@@ -21,6 +21,17 @@ import { ok } from "#src/lib/assert.js";
 import { SqlQueryRef, SqlQueryRefAny } from "#src/core/query/sql-query-ref.js";
 import { isPrimitive } from "#src/lib/primitive.js";
 
+/**
+ * View filter metadata set by `.view()` build-time interception.
+ * Controls which columns `row()` and `col()` emit during build.
+ */
+export type SqlViewFilter = {
+   /** Column keys to include. If empty/undefined, no filtering. */
+   columns?: Set<string>;
+   /** Window function SQL expressions to append after SELECT columns. */
+   windowExprs?: string[];
+};
+
 export type SqlBuildContextArgs = SqlBuildOptions & Partial<Pick<SqlBuildContext, "query" | "params" | "tag">>;
 
 type QueryInfo = { index: number; query: SqlQueryAny; cte: boolean; name: string };
@@ -34,6 +45,9 @@ export class SqlBuildContext {
    readonly queries = new Map<string, QueryInfo>();
    readonly params: Readonly<Record<string, unknown>> | null;
    readonly tag: string | null;
+
+   /** View filter for .view() build-time interception. Controls column filtering + window injection. */
+   viewFilter: SqlViewFilter | null = null;
 
    /** Populated by joinBy operator — maps column keys to qualified SQL expressions */
    private readonly _columns: Record<string, SqlTableColumnAny> = {};

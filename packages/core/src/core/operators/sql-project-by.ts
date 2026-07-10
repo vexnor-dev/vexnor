@@ -151,9 +151,14 @@ export class SqlProjectBy<T extends Record<string, unknown>> extends Sql {
       if (!selectObj) {
          // No select param — emit all columns using their build() which handles aliasing
          const cols = Object.values(this.table.cols) as SqlTableColumnAny[];
+         const viewFilter = context.viewFilter;
+         let emitted = 0;
          for (let i = 0; i < cols.length; i++) {
-            if (i > 0) context.addStrings(", ");
+            // If view filter is active, skip columns not in the filter
+            if (viewFilter?.columns && !viewFilter.columns.has(cols[i]!.key)) continue;
+            if (emitted > 0) context.addStrings(", ");
             cols[i]!.build(context);
+            emitted++;
          }
          return;
       }

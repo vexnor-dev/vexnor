@@ -33,8 +33,11 @@ export class SqlTableAll<Row extends Record<string, unknown>> extends Sql {
             context.addStrings("*");
             break;
          default: {
+            const viewFilter = context.viewFilter;
             let index = 0;
             for (const column of Object.values(this.row)) {
+               // If view filter is active, skip columns not in the filter
+               if (viewFilter?.columns && !viewFilter.columns.has(column.key)) continue;
                if (index++ > 0) context.addStrings(", ");
                column.build(context, options);
             }

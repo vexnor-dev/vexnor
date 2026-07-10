@@ -9,7 +9,7 @@ import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
 describe("SqlSelectRow.getRow() — SqlSelectValue branch", () => {
    test("SqlSelectValue entries produce query columns in row", () => {
       const inner = sql`COUNT(*)`;
-      const v = new SqlSelectValue<{ Key: "total"; Type: number }>({ key: "total", innerQuery: inner });
+      const v = new SqlSelectValue<{ Key: "total"; Type: number }>({ key: "total", innerQuery: inner as any });
       const selectRow = new SqlSelectRow([v]);
       const result = selectRow.getRow({ query: sql`` });
       expect(result.$total!).toBeDefined();
