@@ -26,6 +26,9 @@ This is a serious, high-quality codebase. No shortcuts. No lazy work. Ever.
 - **Never use `create` on an existing file. Always use targeted edits (`strReplace`, `insert`) to avoid overwriting parallel changes.**
 - When fixing a bug, identify the exact root cause before touching code.
 - After making changes, always verify with a full build and test run.
+- State assumptions explicitly before implementing. If uncertain about intent, ask — do not interpret silently.
+- If a request has multiple valid interpretations, present them and ask which one is intended. Do not pick one and proceed.
+- Match existing code style, conventions, and patterns — even if you would do it differently. Consistency with the codebase wins over personal preference.
 
 ## Answering "why"
 
@@ -36,6 +39,7 @@ This is a serious, high-quality codebase. No shortcuts. No lazy work. Ever.
 - Never remove comments, JSDoc, or documentation unless explicitly asked.
 - Never remove code structure, exports, or logic unless explicitly asked.
 - When editing a file, preserve everything that is not directly related to the change.
+- **Exception: if YOUR changes orphan an import, variable, or function (made it unused), remove it.** Do not leave dead code that you created. But never remove pre-existing dead code unless asked.
 
 ## Know when to stop and ask
 
@@ -45,6 +49,7 @@ This is a serious, high-quality codebase. No shortcuts. No lazy work. Ever.
 - If a task involves unfamiliar interactions between components, ask for clarification until the full picture is clear before writing any code.
 - It is always better to ask one more question than to make one wrong change.
 - **If you cannot solve a problem without reverting to a solution the user already rejected — whether explicitly or by updating a file after you — stop immediately and ask for clarification. Never silently revert.**
+- If a simpler approach exists than what was requested, say so and push back. Do not silently comply with unnecessary complexity.
 
 ## No legacy assumptions
 
@@ -52,6 +57,27 @@ This is a serious, high-quality codebase. No shortcuts. No lazy work. Ever.
 - If a type error or constraint suggests a runtime path exists beyond the current type contract (e.g., array format where only objects are typed), **ask the developer** whether that path is intentional and should be supported, or whether it should be removed.
 - Do not widen types, add union alternatives, or introduce fallback code paths to support formats that may not be required. Ask first.
 - Do not use `as never`, `as any`, or `as unknown` to silence type errors caused by passing data in an unsupported format. Fix the test or the code to use the correct format.
+
+## No overengineering
+
+- Solve the exact problem that was asked about. Nothing more.
+- If the solution can be 50 lines, do not write 200 lines. If it's overcomplicated, simplify before declaring done.
+- No abstractions for single-use code. No "flexibility" or "configurability" that wasn't requested.
+- No wrapper functions, helper classes, or indirection layers unless the task explicitly requires them.
+- Do not suggest architectural improvements, refactors, or "better approaches" unless asked for advice.
+- Do not propose follow-up work, enhancements, or "things to consider." Finish the task and stop.
+- If a simpler approach exists than what was asked for, say so briefly — then do what was asked unless told otherwise.
+- **The measure of quality is solving the problem with minimum necessary code, not maximum cleverness.**
+
+## Plan before executing
+
+- For multi-step tasks, state a brief plan with verification criteria before writing code:
+  ```
+  1. [Step] → verify: [how I'll confirm it worked]
+  2. [Step] → verify: [how I'll confirm it worked]
+  ```
+- Transform vague requests into concrete, verifiable goals before starting. "Add validation" → "What inputs are invalid? What should happen when they're received?"
+- If success criteria are unclear, ask — do not invent requirements to fill the gap.
 
 ## No speculative fixes
 

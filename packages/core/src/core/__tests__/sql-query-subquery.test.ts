@@ -823,6 +823,7 @@ describe("sql subqueries tests", () => {
               ],
               "tag": null,
               "type": "SqlQuery",
+              "view": null,
             },
             "tag": null,
             "target": SqlTableColumn {
@@ -1619,6 +1620,7 @@ describe("sql subqueries tests", () => {
               ],
               "tag": null,
               "type": "SqlQuery",
+              "view": null,
             },
             "tag": null,
             "target": SqlTableColumn {
@@ -2415,6 +2417,7 @@ describe("sql subqueries tests", () => {
               ],
               "tag": null,
               "type": "SqlQuery",
+              "view": null,
             },
             "tag": null,
             "target": SqlTableColumn {
@@ -3211,6 +3214,7 @@ describe("sql subqueries tests", () => {
               ],
               "tag": null,
               "type": "SqlQuery",
+              "view": null,
             },
             "tag": null,
             "target": SqlTableColumn {
@@ -4007,6 +4011,7 @@ describe("sql subqueries tests", () => {
               ],
               "tag": null,
               "type": "SqlQuery",
+              "view": null,
             },
             "tag": null,
             "target": SqlTableColumn {
@@ -4803,6 +4808,7 @@ describe("sql subqueries tests", () => {
               ],
               "tag": null,
               "type": "SqlQuery",
+              "view": null,
             },
             "tag": null,
             "target": SqlTableColumn {
@@ -5599,6 +5605,7 @@ describe("sql subqueries tests", () => {
               ],
               "tag": null,
               "type": "SqlQuery",
+              "view": null,
             },
             "tag": null,
             "target": SqlTableColumn {
@@ -6395,6 +6402,7 @@ describe("sql subqueries tests", () => {
               ],
               "tag": null,
               "type": "SqlQuery",
+              "view": null,
             },
             "tag": null,
             "target": SqlTableColumn {
@@ -7191,6 +7199,7 @@ describe("sql subqueries tests", () => {
               ],
               "tag": null,
               "type": "SqlQuery",
+              "view": null,
             },
             "tag": null,
             "target": SqlTableColumn {

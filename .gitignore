@@ -30,3 +30,5 @@ mailmap.txt
 **/prisma/generated/
 **/__tests__/fixtures-*/generated/
 .tmp-*
+*.log
+*.kiro-docker

@@ -7,6 +7,7 @@ export {
    type AuthorizeHook,
    type SqlQueryRegistryOptions,
    type ExecuteQueryArgs,
+   type ViewByArgs,
    BeforeQueryEvent,
    InitQueryEvent,
    EndQueryEvent,

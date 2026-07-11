@@ -1610,4 +1610,95 @@ describe("QueryRegistry", () => {
         }
       `);
    });
+
+   test("execute with viewBy applies .toView() projection before execution", async () => {
+      const registry = new SqlQueryRegistry();
+      const baseQuery = sql`
+         select ${row(Account.$accountId, Account.$email, Account.$status)}
+         from ${Account}
+      `;
+      await registry.register(pluginA, { baseQuery });
+      const hash = await baseQuery.hash;
+
+      const result = await registry.execute(
+         {
+            plugin: "pluginA",
+            hash,
+            params: {},
+            location: "test",
+            mode: "read",
+            name: null,
+            viewBy: { columns: ["accountId", "email"] },
+         },
+         async () => makeDb([{ accountId: "1", email: "a@b.com" }]),
+      );
+
+      expect(result).toMatchInlineSnapshot(`
+        {
+          "rows": [
+            {
+              "accountId": "1",
+              "email": "a@b.com",
+            },
+          ],
+        }
+      `);
+
+      // Verify the SQL was built with only the projected columns
+      const handler = mockHandler(baseQuery.toView({ columns: ["accountId", "email"] }) as SqlQueryAny);
+      const { text } = handler.source.getSql({ params: undefined as never, options: { dialect: "postgresql", format: false } });
+      expect(text).toContain('"accountId"');
+      expect(text).toContain('"email"');
+      expect(text).not.toContain('"status"');
+   });
+
+   test("execute with viewBy applies column projection + window functions", async () => {
+      const registry = new SqlQueryRegistry();
+      const baseQuery = sql`
+         select ${row(Account.$accountId, Account.$email, Account.$createdAt)}
+         from ${Account}
+      `;
+      await registry.register(pluginA, { baseQuery });
+      const hash = await baseQuery.hash;
+
+      const result = await registry.execute(
+         {
+            plugin: "pluginA",
+            hash,
+            params: {},
+            location: "test",
+            mode: "read",
+            name: null,
+            viewBy: {
+               columns: ["accountId", "email"],
+               window: { rank: { fn: "row_number", over: { orderBy: { createdAt: "DESC" } } } },
+            },
+         },
+         async () => makeDb([{ accountId: "1", email: "a@b.com", rank: 1 }]),
+      );
+
+      expect(result).toMatchInlineSnapshot(`
+        {
+          "rows": [
+            {
+              "accountId": "1",
+              "email": "a@b.com",
+              "rank": 1,
+            },
+          ],
+        }
+      `);
+
+      // Verify the SQL includes projected columns + window function
+      const viewed = baseQuery.toView({
+         columns: ["accountId", "email"],
+         window: { rank: { fn: "row_number", over: { orderBy: { createdAt: "DESC" } } } },
+      }) as SqlQueryAny;
+      const { text } = viewed.getSql({ params: undefined as never, options: { dialect: "postgresql", format: false } });
+      expect(text).toContain('"accountId"');
+      expect(text).toContain('"email"');
+      // createdAt should NOT appear as a SELECT column (only inside the OVER clause)
+      expect(text).not.toContain('"created_at" as "createdAt"');
+      expect(text).toContain('row_number() OVER (ORDER BY "createdAt" DESC) as "rank"');
+   });
 });

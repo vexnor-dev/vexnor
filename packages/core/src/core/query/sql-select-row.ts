@@ -135,13 +135,38 @@ export class SqlSelectRow<T extends { Row: Record<string, unknown> }> extends Sq
    }
 
    write(context: SqlBuildContext, options?: SqlBuildOptions): void {
+      const viewFilter = context.viewFilter;
+      let emitted = 0;
       for (let i = 0; i < this.columns.length; i++) {
          const col = this.columns[i]!;
-         if (i > 0) {
+
+         // If a view filter is active, check if this column should be included
+         if (viewFilter?.columns) {
+            if ((col as { type?: string }).type === "SqlTableAll") {
+               // SqlTableAll contains multiple columns — filter them individually
+               const row = (col as { row?: Record<string, { key: string; build: (ctx: SqlBuildContext, opts?: SqlBuildOptions) => void }> }).row;
+               if (row) {
+                  for (const column of Object.values(row)) {
+                     if (!viewFilter.columns.has(column.key)) continue;
+                     if (emitted > 0) context.addStrings(", ");
+                     column.build(context, options);
+                     emitted++;
+                  }
+               }
+               continue;
+            }
+
+            // For individual columns, check by key
+            const key = (col as { key?: string }).key;
+            if (key && !viewFilter.columns.has(key)) continue;
+         }
+
+         if (emitted > 0) {
             context.addStrings(", ");
          }
 
          col.build(context, options);
+         emitted++;
       }
    }
 }

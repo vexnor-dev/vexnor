@@ -9,7 +9,7 @@ import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
 describe("SqlSelectRow.getRow() — SqlSelectValue branch", () => {
    test("SqlSelectValue entries produce query columns in row", () => {
       const inner = sql`COUNT(*)`;
-      const v = new SqlSelectValue<{ Key: "total"; Type: number }>({ key: "total", innerQuery: inner });
+      const v = new SqlSelectValue<{ Key: "total"; Type: number }>({ key: "total", innerQuery: inner as any });
       const selectRow = new SqlSelectRow([v]);
       const result = selectRow.getRow({ query: sql`` });
       expect(result.$total!).toBeDefined();
@@ -61,5 +61,28 @@ describe("SqlSelectRow.write()", () => {
       const ctx = new SqlBuildContext({});
       selectRow.build(ctx);
       expect(ctx.text).toContain(",");
+   });
+
+   test("with viewFilter filters SqlTableAll columns individually", () => {
+      const selectRow = row(Account.$$);
+      const ctx = new SqlBuildContext({});
+      ctx.viewFilter = { columns: new Set(["accountId", "email"]) };
+      selectRow.build(ctx);
+      const text = ctx.text;
+      expect(text).toContain("account_id");
+      expect(text).toContain("email");
+      expect(text).not.toContain("first_name");
+      expect(text).not.toContain("last_name");
+   });
+
+   test("with viewFilter filters individual columns by key", () => {
+      const selectRow = row(Account.$accountId, Account.$email, Account.$status);
+      const ctx = new SqlBuildContext({});
+      ctx.viewFilter = { columns: new Set(["accountId", "status"]) };
+      selectRow.build(ctx);
+      const text = ctx.text;
+      expect(text).toContain("account_id");
+      expect(text).toContain("status");
+      expect(text).not.toContain("email");
    });
 });

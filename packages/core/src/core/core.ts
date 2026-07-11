@@ -26,6 +26,7 @@ export {
    type SqlQueryColumns,
    type SqlQueryBaseExtended,
    type SqlQueryBaseExtendedAny,
+   type SqlQueryViewDef,
 } from "./query/sql-query.js";
 export { isQuery, toQuery } from "./query/sql-query.js";
 export { SqlQueryHandler, type SqlQueryHandlerAny, newSqlQueryHandler } from "./query/sql-query-handler.js";
@@ -74,6 +75,7 @@ export {
 export { SqlTableJoin } from "./schema/sql-table-join.js";
 export { SqlPagination, type SqlPaginationParams } from "./operators/sql-pagination.js";
 export { havingBy, SqlHavingBy, type SqlHavingByParams, type HavingCondition, type HavingConditionList } from "./operators/sql-having-by.js";
+
 export {
    windowBy,
    SqlWindowBy,
