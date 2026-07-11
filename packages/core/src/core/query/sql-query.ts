@@ -112,6 +112,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
    readonly rawValues: unknown[];
    readonly location: string | null;
    readonly locationUrl: string | null;
+   readonly view: SqlQueryViewDef | null;
    protected _authorization: string[];
 
    private readonly _innerQueriesLazy = new Lazy<SqlQueryAny[]>(this.initInnerQueries.bind(this));
@@ -167,6 +168,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
       }
 
       this._authorization = args.authorization ?? [];
+      this.view = null;
    }
 
    // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -378,33 +380,101 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
          this,
          () => {
             const queryName = context.getQueryName(this);
-            // TODO: include additional tracing in sql-query.build(): ${this.fragment ? "fragment " : ""}format="${this.format}"
             if (options?.boundaryComments ?? sqlBuildDefaults.boundaryComments)
                context.addStrings(` /* <${queryName}> */ `);
+
+            // Set view filter on context when this query has a view definition
+            const prevViewFilter = context.viewFilter;
+            if (this.view) {
+               if (this.view.columns) {
+                  context.viewFilter = {
+                     columns: this.view.columns as Set<string>,
+                     windowExprs: this.view.windowExprs as string[],
+                  };
+               } else if (this.view.windowExprs.length > 0) {
+                  context.viewFilter = {
+                     windowExprs: this.view.windowExprs as string[],
+                  };
+               }
+            }
+
             const children = [...this.rawValues];
             let i = -1;
+            let inSelect = this.view ? false : undefined;
+            let windowInjected = !this.view;
+            let trimLeadingComma = false;
+
             while (children.length || i < this.rawStrings.length) {
                i++;
-               const rawString = i < this.rawStrings.length ? this.rawStrings[i] : undefined;
+               let rawString = i < this.rawStrings.length ? this.rawStrings[i] : undefined;
                if (rawString) {
-                  context.addStrings(rawString);
-                  context.next(rawString);
+                  // View-specific: trim leading comma left by removed col()
+                  if (trimLeadingComma) {
+                     rawString = rawString.replace(/^\s*,\s*/, "");
+                     trimLeadingComma = false;
+                  }
+
+                  // View-specific: track SELECT/FROM transitions for window injection
+                  if (this.view && inSelect !== undefined) {
+                     const upperRaw = rawString.toUpperCase().trim();
+                     if (upperRaw.startsWith("SELECT") || (upperRaw === "" && inSelect)) {
+                        inSelect = true;
+                     }
+                     if (inSelect && /\bFROM\b/i.test(rawString)) {
+                        if (!windowInjected && this.view.windowExprs.length > 0) {
+                           for (const wexpr of this.view.windowExprs) {
+                              if (wexpr.startsWith("__SQL_QUERY__:")) {
+                                 const alias = wexpr.slice("__SQL_QUERY__:".length);
+                                 const sqlExpr = this.view.windowEntries[alias] as SqlQueryAny;
+                                 context.addStrings(", ");
+                                 sqlExpr.build(context, options, { queryType: "inline" });
+                                 context.addStrings(` as "${alias}"`);
+                              } else {
+                                 context.addStrings(`, ${wexpr}`);
+                              }
+                           }
+                           windowInjected = true;
+                        }
+                        inSelect = false;
+                     }
+                  }
+
+                  // View-specific: check if next child is a col() that should be removed
+                  if (this.view?.columns && children.length > 0) {
+                     const nextChild = children[0] as { type?: string; key?: string };
+                     if (nextChild?.type === "SqlSelectColumn" && nextChild.key && !this.view.columns.has(nextChild.key)) {
+                        const lastComma = rawString.lastIndexOf(",");
+                        if (lastComma >= 0) {
+                           const trimmed = rawString.slice(0, lastComma);
+                           if (trimmed) {
+                              context.addStrings(trimmed);
+                              context.next(trimmed);
+                           }
+                        } else {
+                           const selectMatch = rawString.match(/^(\s*(?:SELECT)\s+)/i);
+                           if (selectMatch) {
+                              context.addStrings(selectMatch[1]!);
+                              context.next(selectMatch[1]!);
+                           }
+                           trimLeadingComma = true;
+                        }
+                        children.shift();
+                        continue;
+                     }
+                  }
+
+                  if (rawString) {
+                     context.addStrings(rawString);
+                     context.next(rawString);
+                  }
                }
 
                if (!children.length) break;
 
                const child = children.shift();
 
-               // Look-ahead: the literal template text that immediately follows
-               // this interpolation — from the next character until the next
-               // interpolation (or end of template). Formatters inspect this to
-               // detect expression operators like ::, ||, or ) and suppress alias.
                context.nextText =
                   i + 1 < this.rawStrings.length ? (this.rawStrings[i + 1] ?? null) : null;
-
-               // Look-behind: the literal template text that precedes this
-               // interpolation. Formatters inspect trailing operators (||, ::)
-               // to detect that this column is inside an expression.
                context.prevText = rawString ?? null;
 
                if (Array.isArray(child)) {
@@ -421,6 +491,26 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
 
                context.nextText = null;
                context.prevText = null;
+            }
+
+            // View-specific: inject window expressions at end if no FROM was found
+            if (this.view && !windowInjected && this.view.windowExprs.length > 0) {
+               for (const wexpr of this.view.windowExprs) {
+                  if (wexpr.startsWith("__SQL_QUERY__:")) {
+                     const alias = wexpr.slice("__SQL_QUERY__:".length);
+                     const sqlExpr = this.view.windowEntries[alias] as SqlQueryAny;
+                     context.addStrings(", ");
+                     sqlExpr.build(context, options, { queryType: "inline" });
+                     context.addStrings(` as "${alias}"`);
+                  } else {
+                     context.addStrings(`, ${wexpr}`);
+                  }
+               }
+            }
+
+            // Restore previous view filter
+            if (this.view) {
+               context.viewFilter = prevViewFilter;
             }
 
             if (options?.boundaryComments ?? sqlBuildDefaults.boundaryComments)
@@ -779,12 +869,16 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
    }
 
    /**
-    * Creates a view projection of this query using build-time interception.
+    * Creates a view projection of this query — returns a new immutable query
+    * with column filtering and/or window functions applied during build.
     *
-    * Unlike subquery wrapping, this approach modifies the query's build output
-    * directly — trimming `row()` columns, removing `col()` expressions, and
-    * appending window functions to the SELECT clause. CTEs, WHERE, FROM, JOINs,
-    * and ORDER BY pass through unchanged.
+    * The original query is unchanged (immutable). The returned query shares the
+    * same template but during build:
+    * - `row()` / `SqlTableAll` tokens only emit columns in `options.columns`
+    * - `col()` tokens not in `options.columns` (and their preceding SQL) are trimmed
+    * - Window function expressions are appended after SELECT columns
+    *
+    * CTEs, WHERE, FROM, JOINs, ORDER BY pass through unchanged.
     *
     * Type inference:
     * - `columns` narrows the result to `Pick<Row, columns[number]>`
@@ -793,14 +887,14 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
     *
     * @example
     * ```typescript
-    * const ranked = myQuery.view({
+    * const ranked = myQuery.toView({
     *   columns: ["accountId", "email"],
     *   window: { rank: { fn: "row_number", over: { orderBy: { createdAt: "DESC" } } } }
     * });
     * // Result type: { accountId: string; email: string; rank: number }
     * ```
     */
-   view<
+   toView<
       Columns extends readonly (keyof T["Row"] & string)[] | undefined = undefined,
       Window extends Record<string, { fn: string; col?: string; args?: unknown; over: Record<string, unknown> }> | undefined = undefined,
    >(options: {
@@ -811,6 +905,9 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
       Params: T["Params"];
    }> {
       const columns = options.columns as string[] | undefined;
+      if (columns && columns.length === 0) {
+         throw new SqlBuildError(".toView() columns must not be an empty array — at least one column is required.");
+      }
       const window = (options.window ?? {}) as Record<string, unknown>;
 
       // Build window expression strings
@@ -823,20 +920,14 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
          }
       }
 
-      // Create a view query that shares the same template but intercepts during build
-      const viewQuery = new SqlViewQuery<{ Row: SqlViewResultRow<T["Row"], Columns, Window>; Params: T["Params"] }>({
-         rawStrings: this.rawStrings,
-         rawValues: this.rawValues,
-         location: this.location,
-         locationUrl: this.locationUrl,
-         authorization: this._authorization.length > 0 ? this._authorization : null,
-      }, {
+      // Create immutable clone with view definition set
+      const clone = Object.create(this) as SqlQuery<{ Row: SqlViewResultRow<T["Row"], Columns, Window>; Params: T["Params"] }>;
+      (clone as { view: SqlQueryViewDef }).view = Object.freeze({
          columns: columns ? new Set(columns) : undefined,
-         windowExprs,
-         windowEntries: window as Record<string, unknown>,
-         source: this,
+         windowExprs: Object.freeze(windowExprs),
+         windowEntries: Object.freeze(window),
       });
-      return newSqlQuery(viewQuery as any) as unknown as SqlQueryExtended<{ Row: SqlViewResultRow<T["Row"], Columns, Window>; Params: T["Params"] }>;
+      return newSqlQuery(clone as any) as unknown as SqlQueryExtended<{ Row: SqlViewResultRow<T["Row"], Columns, Window>; Params: T["Params"] }>;
    }
 
    /**
@@ -984,189 +1075,19 @@ function formatFrameBound(bound: string | number, position: "start" | "end"): st
    return position === "start" ? `${bound} preceding` : `${bound} following`;
 }
 
-// ─── SqlViewQuery — build-time interception for .view() ──────────────────────
-
-export type SqlViewQueryOptions = {
-   /** Column keys to include in the output. undefined = keep all. */
-   columns?: Set<string>;
-   /** Pre-built window expression SQL strings to append after SELECT columns. */
-   windowExprs: string[];
-   /** Raw window entries (for SqlQuery-based expressions). */
-   windowEntries: Record<string, unknown>;
-   /** Reference to the source query (for type inference). */
-   source: SqlQueryAny;
-};
+// ─── View definition ─────────────────────────────────────────────────────────
 
 /**
- * A SqlQuery subclass that intercepts the build loop to implement .view() semantics:
- * - Filters row() columns via context.viewFilter
- * - Removes col() nodes (and their preceding SQL expressions) not in the columns list
- * - Appends window function expressions after the last SELECT column
- *
- * CTEs, WHERE, FROM, JOINs, ORDER BY pass through unchanged.
+ * Immutable view configuration attached to a query via `.toView()`.
+ * Controls column projection and window function injection during build.
  */
-export class SqlViewQuery<T extends { Row?: unknown; Params?: unknown }> extends SqlQuery<T> {
-   readonly _viewOptions: SqlViewQueryOptions;
+export type SqlQueryViewDef = {
+   /** Column keys to include in the output. undefined = keep all. */
+   readonly columns?: ReadonlySet<string>;
+   /** Pre-built window expression SQL strings to append after SELECT columns. */
+   readonly windowExprs: readonly string[];
+   /** Raw window entries (for SqlQuery-based expressions). */
+   readonly windowEntries: Readonly<Record<string, unknown>>;
+};
 
-   constructor(args: SqlQueryArgs, viewOptions: SqlViewQueryOptions) {
-      super(args);
-      this._viewOptions = viewOptions;
-   }
 
-   write(
-      context: SqlBuildContext,
-      options: SqlBuildOptions | null = null,
-      scope?: unknown,
-   ) {
-      context.scope(
-         this,
-         () => {
-            const queryName = context.getQueryName(this);
-            if (options?.boundaryComments ?? sqlBuildDefaults.boundaryComments)
-               context.addStrings(` /* <${queryName}> */ `);
-
-            // Set view filter on context so row()/SqlTableAll respect it
-            const prevViewFilter = context.viewFilter;
-            if (this._viewOptions.columns) {
-               context.viewFilter = {
-                  columns: this._viewOptions.columns,
-                  windowExprs: this._viewOptions.windowExprs,
-               };
-            } else if (this._viewOptions.windowExprs.length > 0) {
-               context.viewFilter = {
-                  windowExprs: this._viewOptions.windowExprs,
-               };
-            }
-
-            const children = [...this.rawValues];
-            let i = -1;
-            let inSelect = false;
-            let windowInjected = false;
-            let trimLeadingComma = false; // Set when col() was first expression (no preceding comma)
-
-            while (children.length || i < this.rawStrings.length) {
-               i++;
-               let rawString = i < this.rawStrings.length ? this.rawStrings[i] : undefined;
-               if (rawString) {
-                  // If previous col() removal left no preceding comma, trim leading comma from this string
-                  if (trimLeadingComma) {
-                     rawString = rawString.replace(/^\s*,\s*/, "");
-                     trimLeadingComma = false;
-                  }
-
-                  // Check if we're entering or leaving the SELECT clause
-                  const upperRaw = rawString.toUpperCase().trim();
-                  if (upperRaw.startsWith("SELECT") || upperRaw === "" && inSelect) {
-                     inSelect = true;
-                  }
-                  // Detect transition out of SELECT (FROM, WHERE, etc.)
-                  if (inSelect && /\bFROM\b/i.test(rawString)) {
-                     // Before emitting FROM, inject window expressions
-                     if (!windowInjected && this._viewOptions.windowExprs.length > 0) {
-                        for (const wexpr of this._viewOptions.windowExprs) {
-                           if (wexpr.startsWith("__SQL_QUERY__:")) {
-                              // Handle raw SqlQuery window expression
-                              const alias = wexpr.slice("__SQL_QUERY__:".length);
-                              const sqlExpr = this._viewOptions.windowEntries[alias] as SqlQueryAny;
-                              context.addStrings(", ");
-                              sqlExpr.build(context, options, { queryType: "inline" });
-                              context.addStrings(` as "${alias}"`);
-                           } else {
-                              context.addStrings(`, ${wexpr}`);
-                           }
-                        }
-                        windowInjected = true;
-                     }
-                     inSelect = false;
-                  }
-
-                  // Check if the next child is a col() that should be removed
-                  if (children.length > 0 && this._viewOptions.columns) {
-                     const nextChild = children[0] as { type?: string; key?: string };
-                     if (nextChild?.type === "SqlSelectColumn" && nextChild.key && !this._viewOptions.columns.has(nextChild.key)) {
-                        // This col() should be removed. Trim the preceding SQL expression.
-                        // The rawString before a col() typically contains something like:
-                        //   ", count(*) as " (has comma) → trim from last comma
-                        //   "SELECT count(*) as " (no comma) → emit everything before the expression, trim leading comma from next string
-                        const lastComma = rawString.lastIndexOf(",");
-                        if (lastComma >= 0) {
-                           // Trim everything from the last comma onward
-                           const trimmed = rawString.slice(0, lastComma);
-                           if (trimmed) {
-                              context.addStrings(trimmed);
-                              context.next(trimmed);
-                           }
-                        } else {
-                           // No comma found — this col is the first expression.
-                           // Don't emit the rawString (it contains the expression for the col).
-                           // Instead, extract just the keyword part (e.g., "SELECT ") and trim leading comma from next string.
-                           const selectMatch = rawString.match(/^(\s*(?:SELECT)\s+)/i);
-                           if (selectMatch) {
-                              // Emit just the SELECT keyword
-                              context.addStrings(selectMatch[1]!);
-                              context.next(selectMatch[1]!);
-                           }
-                           // The next rawString will start with ", " which needs trimming
-                           trimLeadingComma = true;
-                        }
-                        // Skip the col() child
-                        children.shift();
-                        continue;
-                     }
-                  }
-
-                  if (rawString) {
-                     context.addStrings(rawString);
-                     context.next(rawString);
-                  }
-               }
-
-               if (!children.length) break;
-
-               const child = children.shift();
-
-               context.nextText =
-                  i + 1 < this.rawStrings.length ? (this.rawStrings[i + 1] ?? null) : null;
-               context.prevText = rawString ?? null;
-
-               if (Array.isArray(child)) {
-                  for (let k = 0; k < child.length; k++) {
-                     if (k > 0) {
-                        context.addStrings(", ");
-                     }
-                     SqlQuery.buildInnerToken(child[k], context, options);
-                  }
-               } else {
-                  SqlQuery.buildInnerToken(child, context, options);
-               }
-
-               context.nextText = null;
-               context.prevText = null;
-            }
-
-            // If window expressions haven't been injected yet (no FROM found), inject at the end
-            if (!windowInjected && this._viewOptions.windowExprs.length > 0) {
-               for (const wexpr of this._viewOptions.windowExprs) {
-                  if (wexpr.startsWith("__SQL_QUERY__:")) {
-                     const alias = wexpr.slice("__SQL_QUERY__:".length);
-                     const sqlExpr = this._viewOptions.windowEntries[alias] as SqlQueryAny;
-                     context.addStrings(", ");
-                     sqlExpr.build(context, options, { queryType: "inline" });
-                     context.addStrings(` as "${alias}"`);
-                  } else {
-                     context.addStrings(`, ${wexpr}`);
-                  }
-               }
-            }
-
-            // Restore previous view filter
-            context.viewFilter = prevViewFilter;
-
-            if (options?.boundaryComments ?? sqlBuildDefaults.boundaryComments)
-               context.addStrings(`/* </${queryName}> */`);
-         },
-         scope ?? { queryType: "main", cte: false },
-      );
-   }
-
-}

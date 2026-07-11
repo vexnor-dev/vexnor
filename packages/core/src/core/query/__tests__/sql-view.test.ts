@@ -1,16 +1,15 @@
 import { describe, expect, test } from "vitest";
 import { sql, row, col } from "@vexnor/core";
-import { sqlView as sqlViewSrc } from "#src/core/query/sql-view.js";
 import { Account, Order } from "@test-models/vexnor_dev.schema.js";
 import { sqlSelect } from "#src/core/crud/sql-select.js";
 import { assertType } from "vitest";
 
-describe(".view()", () => {
+describe(".toView()", () => {
    // ─── Phase 1: row() column filtering ─────────────────────────────────────
 
    test("narrows columns from row($$)", () => {
       const base = sql`SELECT ${row(Account.$$)} FROM ${Account}`;
-      const viewed = base.view({ columns: ["accountId", "email"] });
+      const viewed = base.toView({ columns: ["accountId", "email"] });
 
       const { text } = viewed.getSql({ params: undefined as any, options: { dialect: "postgresql", format: false } });
       expect(text).toMatchInlineSnapshot(
@@ -20,7 +19,7 @@ describe(".view()", () => {
 
    test("narrows columns from explicit row()", () => {
       const base = sql`SELECT ${row(Account.$accountId, Account.$email, Account.$status)} FROM ${Account}`;
-      const viewed = base.view({ columns: ["accountId", "status"] });
+      const viewed = base.toView({ columns: ["accountId", "status"] });
 
       const { text } = viewed.getSql({ params: undefined as any, options: { dialect: "postgresql", format: false } });
       expect(text).toMatchInlineSnapshot(
@@ -30,7 +29,7 @@ describe(".view()", () => {
 
    test("no columns option = all columns kept", () => {
       const base = sql`SELECT ${row(Account.$accountId, Account.$email)} FROM ${Account}`;
-      const viewed = base.view({
+      const viewed = base.toView({
          window: { rn: { fn: "row_number", over: { orderBy: { email: "ASC" } } } },
       });
 
@@ -44,7 +43,7 @@ describe(".view()", () => {
 
    test("single column kept unchanged", () => {
       const base = sql`SELECT ${row(Account.$accountId)} FROM ${Account}`;
-      const viewed = base.view({ columns: ["accountId"] });
+      const viewed = base.toView({ columns: ["accountId"] });
 
       const { text } = viewed.getSql({ params: undefined as any, options: { dialect: "postgresql", format: false } });
       expect(text).toContain('"accountId"');
@@ -54,7 +53,7 @@ describe(".view()", () => {
 
    test("removes col() when not in columns list", () => {
       const base = sql`SELECT ${row(Account.$accountId)}, count(*) as ${col<{ total: number }>("total")} FROM ${Account}`;
-      const viewed = base.view({ columns: ["accountId"] });
+      const viewed = base.toView({ columns: ["accountId"] });
 
       const { text } = viewed.getSql({ params: undefined as any, options: { dialect: "postgresql", format: false } });
       expect(text).toContain('"accountId"');
@@ -64,7 +63,7 @@ describe(".view()", () => {
 
    test("keeps col() when in columns list", () => {
       const base = sql`SELECT ${row(Account.$accountId)}, count(*) as ${col<{ total: number }>("total")} FROM ${Account}`;
-      const viewed = base.view({ columns: ["accountId", "total"] });
+      const viewed = base.toView({ columns: ["accountId", "total"] });
 
       const { text } = viewed.getSql({ params: undefined as any, options: { dialect: "postgresql", format: false } });
       expect(text).toContain('"accountId"');
@@ -75,7 +74,7 @@ describe(".view()", () => {
 
    test("adds window function with orderBy", () => {
       const base = sql`SELECT ${row(Account.$accountId, Account.$createdAt)} FROM ${Account}`;
-      const viewed = base.view({
+      const viewed = base.toView({
          columns: ["accountId", "createdAt"],
          window: { rank: { fn: "row_number", over: { orderBy: { createdAt: "DESC" } } } },
       });
@@ -87,7 +86,7 @@ describe(".view()", () => {
 
    test("window with partitionBy + orderBy", () => {
       const base = sql`SELECT ${row(Account.$$)} FROM ${Account}`;
-      const viewed = base.view({
+      const viewed = base.toView({
          columns: ["accountId"],
          window: { rn: { fn: "rank", over: { partitionBy: ["status"], orderBy: { createdAt: "DESC" } } } },
       });
@@ -100,7 +99,7 @@ describe(".view()", () => {
 
    test("window with aggregate function", () => {
       const base = sql`SELECT ${row(Account.$$)} FROM ${Account}`;
-      const viewed = base.view({
+      const viewed = base.toView({
          columns: ["accountId", "status"],
          window: { total: { fn: "count", col: "accountId", over: { partitionBy: ["status"] } } },
       });
@@ -111,7 +110,7 @@ describe(".view()", () => {
 
    test("window with offset function (lag)", () => {
       const base = sql`SELECT ${row(Account.$$)} FROM ${Account}`;
-      const viewed = base.view({
+      const viewed = base.toView({
          columns: ["accountId", "email"],
          window: { prev: { fn: "lag", col: "email", args: 1, over: { orderBy: { createdAt: "ASC" } } } },
       });
@@ -122,7 +121,7 @@ describe(".view()", () => {
 
    test("window with ntile (bucket function)", () => {
       const base = sql`SELECT ${row(Account.$$)} FROM ${Account}`;
-      const viewed = base.view({
+      const viewed = base.toView({
          columns: ["accountId"],
          window: { bucket: { fn: "ntile", args: 4, over: { orderBy: { createdAt: "ASC" } } } },
       });
@@ -133,7 +132,7 @@ describe(".view()", () => {
 
    test("window with frame clause", () => {
       const base = sql`SELECT ${row(Account.$$)} FROM ${Account}`;
-      const viewed = base.view({
+      const viewed = base.toView({
          columns: ["accountId"],
          window: {
             rolling: {
@@ -150,7 +149,7 @@ describe(".view()", () => {
 
    test("multiple window functions", () => {
       const base = sql`SELECT ${row(Account.$accountId, Account.$email)} FROM ${Account}`;
-      const viewed = base.view({
+      const viewed = base.toView({
          columns: ["accountId", "email"],
          window: {
             rn: { fn: "row_number", over: { orderBy: { email: "ASC" } } },
@@ -167,7 +166,7 @@ describe(".view()", () => {
 
    test("does NOT wrap source as subquery", () => {
       const base = sql`SELECT ${row(Account.$accountId)} FROM ${Account} WHERE ${Account.$status} = 'active'`;
-      const viewed = base.view({ columns: ["accountId"] });
+      const viewed = base.toView({ columns: ["accountId"] });
 
       const { text } = viewed.getSql({ params: undefined as any, options: { dialect: "postgresql", format: false } });
       // No subquery wrapping — the original FROM and WHERE pass through
@@ -182,7 +181,7 @@ describe(".view()", () => {
    test("CTE passes through unchanged", () => {
       const cte = sql`SELECT ${row(Account.$accountId, Account.$email)} FROM ${Account} WHERE ${Account.$status} = 'active'`;
       const base = sql`WITH active AS (${cte}) SELECT ${row(Account.$accountId, Account.$email)} FROM active`;
-      const viewed = base.view({ columns: ["accountId"] });
+      const viewed = base.toView({ columns: ["accountId"] });
 
       const { text } = viewed.getSql({ params: undefined as any, options: { dialect: "postgresql", format: false } });
       // CTE preserved
@@ -196,7 +195,7 @@ describe(".view()", () => {
 
    test("empty window object = no window functions added", () => {
       const base = sql`SELECT ${row(Account.$accountId, Account.$email)} FROM ${Account}`;
-      const viewed = base.view({ columns: ["accountId"], window: {} });
+      const viewed = base.toView({ columns: ["accountId"], window: {} });
 
       const { text } = viewed.getSql({ params: undefined as any, options: { dialect: "postgresql", format: false } });
       expect(text).toContain('"accountId"');
@@ -205,7 +204,7 @@ describe(".view()", () => {
 
    test("window only, no column trim", () => {
       const base = sql`SELECT ${row(Account.$accountId, Account.$email)} FROM ${Account}`;
-      const viewed = base.view({
+      const viewed = base.toView({
          window: { rn: { fn: "row_number", over: { orderBy: { email: "ASC" } } } },
       });
 
@@ -222,7 +221,7 @@ describe(".view()", () => {
    test("WITH ... SELECT: CTE preserved, only SELECT trimmed", () => {
       const cte = sql`SELECT ${row(Account.$accountId, Account.$email, Account.$status)} FROM ${Account} WHERE ${Account.$status} = 'active'`;
       const base = sql`WITH active AS (${cte}) SELECT ${row(Account.$accountId, Account.$email, Account.$status)} FROM active`;
-      const viewed = base.view({ columns: ["accountId", "email"] });
+      const viewed = base.toView({ columns: ["accountId", "email"] });
 
       const { text } = viewed.getSql({ params: undefined as any, options: { dialect: "postgresql", format: false } });
       expect(text).toContain("WITH");
@@ -236,7 +235,7 @@ describe(".view()", () => {
    test("CTE + window function injection", () => {
       const cte = sql`SELECT ${row(Account.$accountId, Account.$createdAt)} FROM ${Account}`;
       const base = sql`WITH recent AS (${cte}) SELECT ${row(Account.$accountId, Account.$createdAt)} FROM recent`;
-      const viewed = base.view({
+      const viewed = base.toView({
          columns: ["accountId", "createdAt"],
          window: { rn: { fn: "row_number", over: { orderBy: { createdAt: "DESC" } } } },
       });
@@ -249,9 +248,9 @@ describe(".view()", () => {
 
    // ─── Phase 6: CRUD .select() integration ─────────────────────────────────
 
-   test("CRUD select: narrows columns via .source.view()", () => {
+   test("CRUD select: narrows columns via .source.toView()", () => {
       const query = sqlSelect(Account, {});
-      const viewed = (query as any).view({ columns: ["accountId", "email"] });
+      const viewed = (query as any).toView({ columns: ["accountId", "email"] });
 
       const { text } = viewed.getSql({ params: {} as any, options: { dialect: "postgresql", format: false } });
       expect(text).toContain('"accountId"');
@@ -263,7 +262,7 @@ describe(".view()", () => {
 
    test("CRUD select + window", () => {
       const query = sqlSelect(Account, {});
-      const viewed = (query as any).view({
+      const viewed = (query as any).toView({
          columns: ["accountId"],
          window: { rn: { fn: "row_number", over: { orderBy: { createdAt: "DESC" } } } },
       });
@@ -277,7 +276,7 @@ describe(".view()", () => {
       const query = sqlSelect(Account, {
          WHERE: sql`${Account.$status} = 'active'`,
       });
-      const viewed = (query as any).view({ columns: ["accountId", "email"] });
+      const viewed = (query as any).toView({ columns: ["accountId", "email"] });
 
       const { text } = viewed.getSql({ params: {} as any, options: { dialect: "postgresql", format: false } });
       expect(text).toContain('"accountId"');
@@ -289,7 +288,7 @@ describe(".view()", () => {
 
    test("duplicate columns in list are deduplicated by row() filter", () => {
       const base = sql`SELECT ${row(Account.$$)} FROM ${Account}`;
-      const viewed = base.view({ columns: ["accountId", "accountId", "email"] });
+      const viewed = base.toView({ columns: ["accountId", "accountId", "email"] });
 
       const { text } = viewed.getSql({ params: undefined as any, options: { dialect: "postgresql", format: false } });
       // Should only emit accountId once
@@ -299,15 +298,15 @@ describe(".view()", () => {
 
    test("empty columns array = throws error", () => {
       const base = sql`SELECT ${row(Account.$accountId, Account.$email)} FROM ${Account}`;
-      expect(() => base.view({
+      expect(() => base.toView({
          columns: [],
          window: { rn: { fn: "row_number", over: { orderBy: { email: "ASC" } } } },
-      })).toThrowError(".view() columns must not be an empty array — at least one column is required.");
+      })).toThrowError(".toView() columns must not be an empty array — at least one column is required.");
    });
 
    test("window function can reference column not in view output", () => {
       const base = sql`SELECT ${row(Account.$$)} FROM ${Account}`;
-      const viewed = base.view({
+      const viewed = base.toView({
          columns: ["accountId"],
          window: { rn: { fn: "row_number", over: { orderBy: { createdAt: "DESC" } } } },
       });
@@ -322,7 +321,7 @@ describe(".view()", () => {
    test("col() before row() in template: trimmed correctly", () => {
       // col() appears first in the template, row() second
       const base = sql`SELECT count(*) as ${col<{ total: number }>("total")}, ${row(Account.$accountId)} FROM ${Account}`;
-      const viewed = base.view({ columns: ["accountId"] });
+      const viewed = base.toView({ columns: ["accountId"] });
 
       const { text } = viewed.getSql({ params: undefined as any, options: { dialect: "postgresql", format: false } });
       expect(text).toContain('"accountId"');
@@ -332,7 +331,7 @@ describe(".view()", () => {
 
    test("multiple col() entries: remove some, keep others", () => {
       const base = sql`SELECT ${row(Account.$accountId)}, count(*) as ${col<{ total: number }>("total")}, max("created_at") as ${col<{ latest: Date }>("latest")} FROM ${Account}`;
-      const viewed = base.view({ columns: ["accountId", "total"] });
+      const viewed = base.toView({ columns: ["accountId", "total"] });
 
       const { text } = viewed.getSql({ params: undefined as any, options: { dialect: "postgresql", format: false } });
       expect(text).toContain('"accountId"');
@@ -344,7 +343,7 @@ describe(".view()", () => {
 
    test("type: columns narrows to Pick<Row, columns[number]>", () => {
       const base = sql`SELECT ${row(Account.$$)} FROM ${Account}`;
-      const viewed = base.view({ columns: ["accountId", "email"] as const });
+      const viewed = base.toView({ columns: ["accountId", "email"] as const });
 
       // Type should be { accountId: string; email: string }
       type Result = typeof viewed.rowType;
@@ -356,7 +355,7 @@ describe(".view()", () => {
 
    test("type: window adds number aliases", () => {
       const base = sql`SELECT ${row(Account.$$)} FROM ${Account}`;
-      const viewed = base.view({
+      const viewed = base.toView({
          window: { rank: { fn: "row_number", over: { orderBy: { createdAt: "DESC" } } } } as const,
       });
 
@@ -367,7 +366,7 @@ describe(".view()", () => {
 
    test("type: columns + window combined", () => {
       const base = sql`SELECT ${row(Account.$$)} FROM ${Account}`;
-      const viewed = base.view({
+      const viewed = base.toView({
          columns: ["accountId"] as const,
          window: { rank: { fn: "row_number", over: { orderBy: { createdAt: "DESC" } } } } as const,
       });
@@ -383,7 +382,7 @@ describe(".view()", () => {
 
    test("type: no options = original row type preserved", () => {
       const base = sql`SELECT ${row(Account.$accountId, Account.$email)} FROM ${Account}`;
-      const viewed = base.view({});
+      const viewed = base.toView({});
 
       type Result = typeof viewed.rowType;
       assertType<string>("" as unknown as Result["accountId"]);
@@ -394,7 +393,7 @@ describe(".view()", () => {
 
    test("multi-table explicit row(): trims cols from different tables", () => {
       const base = sql`SELECT ${row(Account.$accountId, Account.$email, Order.$orderId, Order.$status)} FROM ${Account} JOIN ${Order} ON ${Order.$accountId} = ${Account.$accountId}`;
-      const viewed = base.view({ columns: ["accountId", "orderId"] });
+      const viewed = base.toView({ columns: ["accountId", "orderId"] });
 
       const { text } = viewed.getSql({ params: undefined as any, options: { dialect: "postgresql", format: false } });
       expect(text).toMatchInlineSnapshot(`" /* <query_0> */ SELECT "a_1"."account_id" as "accountId", "o_2"."order_id" as "orderId" FROM "main"."account" as "a_1" JOIN "main"."order" as "o_2" ON "o_2"."account_id" = "a_1"."account_id"/* </query_0> */"`);
@@ -402,7 +401,7 @@ describe(".view()", () => {
 
    test("multi-table explicit row(): keeps all when no columns filter", () => {
       const base = sql`SELECT ${row(Account.$accountId, Account.$email, Order.$orderId, Order.$status)} FROM ${Account} JOIN ${Order} ON ${Order.$accountId} = ${Account.$accountId}`;
-      const viewed = base.view({
+      const viewed = base.toView({
          window: { rn: { fn: "row_number", over: { orderBy: { orderId: "DESC" } } } },
       });
 
@@ -418,7 +417,7 @@ describe(".view()", () => {
 
    test("multi-table row($$): trims columns from Table.$$", () => {
       const base = sql`SELECT ${row(Account.$$)} FROM ${Account} JOIN ${Order} ON ${Order.$accountId} = ${Account.$accountId}`;
-      const viewed = base.view({ columns: ["accountId", "email"] });
+      const viewed = base.toView({ columns: ["accountId", "email"] });
 
       const { text } = viewed.getSql({ params: undefined as any, options: { dialect: "postgresql", format: false } });
       expect(text).toMatchInlineSnapshot(`" /* <query_0> */ SELECT "a_1"."account_id" as "accountId", "a_1"."email" FROM "main"."account" as "a_1" JOIN "main"."order" as "o_2" ON "o_2"."account_id" = "a_1"."account_id"/* </query_0> */"`);
@@ -427,7 +426,7 @@ describe(".view()", () => {
    test("subquery out.$col in row(): trims correctly", () => {
       const sub = sql`SELECT ${row(Order.$orderId, Order.$status)} FROM ${Order} WHERE ${Order.$accountId} = ${Account.out.$accountId}`;
       const base = sql`SELECT ${row(Account.$accountId, Account.$email)}, ${sub} FROM ${Account}`;
-      const viewed = base.view({ columns: ["accountId"] });
+      const viewed = base.toView({ columns: ["accountId"] });
 
       const { text } = viewed.getSql({ params: undefined as any, options: { dialect: "postgresql", format: false } });
       // Only accountId from the outer SELECT
@@ -437,7 +436,7 @@ describe(".view()", () => {
 
    test("explicit row() with cols from one table only + join present", () => {
       const base = sql`SELECT ${row(Account.$accountId, Account.$email, Account.$status)} FROM ${Account} JOIN ${Order} ON ${Order.$accountId} = ${Account.$accountId}`;
-      const viewed = base.view({ columns: ["accountId", "status"] });
+      const viewed = base.toView({ columns: ["accountId", "status"] });
 
       const { text } = viewed.getSql({ params: undefined as any, options: { dialect: "postgresql", format: false } });
       expect(text).toMatchInlineSnapshot(`" /* <query_0> */ SELECT "a_1"."account_id" as "accountId", "a_1"."status" FROM "main"."account" as "a_1" JOIN "main"."order" as "o_2" ON "o_2"."account_id" = "a_1"."account_id"/* </query_0> */"`);
@@ -445,7 +444,7 @@ describe(".view()", () => {
 
    test("multi-table: trim all cols from one table, keep from other", () => {
       const base = sql`SELECT ${row(Account.$accountId, Order.$orderId, Order.$status)} FROM ${Account} JOIN ${Order} ON ${Order.$accountId} = ${Account.$accountId}`;
-      const viewed = base.view({ columns: ["orderId", "status"] });
+      const viewed = base.toView({ columns: ["orderId", "status"] });
 
       const { text } = viewed.getSql({ params: undefined as any, options: { dialect: "postgresql", format: false } });
       // accountId should be gone, only Order cols remain
@@ -454,19 +453,10 @@ describe(".view()", () => {
 
    // ─── Phase 9: Coverage — uncovered branches ───────────────────────────────
 
-   test("sqlView() standalone function delegates to .view()", () => {
-      const base = sql`SELECT ${row(Account.$accountId, Account.$email)} FROM ${Account}`;
-      const viewed = sqlViewSrc(base as any, { columns: ["accountId"] });
-
-      const { text } = viewed.getSql({ params: undefined as any, options: { dialect: "postgresql", format: false } });
-      expect(text).toContain('"accountId"');
-      expect(text).not.toContain('"email"');
-   });
-
    test("window entry as raw SqlQuery injects at FROM boundary", () => {
       const base = sql`SELECT ${row(Account.$accountId, Account.$email)} FROM ${Account}`;
       const windowExpr = sql`row_number() OVER (ORDER BY "a_1"."email" ASC)`;
-      const viewed = base.view({
+      const viewed = base.toView({
          columns: ["accountId", "email"],
          window: { rn: windowExpr as any },
       });
@@ -481,7 +471,7 @@ describe(".view()", () => {
       // A query with no FROM — window injected at the end
       const base = sql`SELECT ${row(Account.$accountId)}`;
       const windowExpr = sql`row_number() OVER ()`;
-      const viewed = base.view({
+      const viewed = base.toView({
          columns: ["accountId"],
          window: { rn: windowExpr as any },
       });
@@ -493,7 +483,7 @@ describe(".view()", () => {
 
    test("unknown window function name falls back to fn()", () => {
       const base = sql`SELECT ${row(Account.$accountId)} FROM ${Account}`;
-      const viewed = base.view({
+      const viewed = base.toView({
          columns: ["accountId"],
          window: { custom: { fn: "my_custom_fn", over: { orderBy: { accountId: "ASC" } } } },
       });
@@ -504,7 +494,7 @@ describe(".view()", () => {
 
    test("frame bound with string values passes through", () => {
       const base = sql`SELECT ${row(Account.$accountId)} FROM ${Account}`;
-      const viewed = base.view({
+      const viewed = base.toView({
          columns: ["accountId"],
          window: {
             rolling: {
@@ -528,7 +518,7 @@ describe(".view()", () => {
       // col() is NOT the first expression but has preceding comma in rawString
       // "SELECT row(), expression as col" — the comma case
       const base = sql`SELECT ${row(Account.$accountId)}, lower("email") as ${col<{ lower: string }>("lower")}, upper("email") as ${col<{ upper: string }>("upper")} FROM ${Account}`;
-      const viewed = base.view({ columns: ["accountId", "upper"] });
+      const viewed = base.toView({ columns: ["accountId", "upper"] });
 
       const { text } = viewed.getSql({ params: undefined as any, options: { dialect: "postgresql", format: false } });
       expect(text).toContain('"accountId"');
@@ -541,7 +531,7 @@ describe(".view()", () => {
       // the trimmed portion (before the comma) must be emitted.
       // Here we put two raw SQL expressions before a col() so the rawString has content before the last comma.
       const base = sql`SELECT ${row(Account.$accountId)}, 1 as one, lower("email") as ${col<{ lower: string }>("lower")} FROM ${Account}`;
-      const viewed = base.view({ columns: ["accountId"] });
+      const viewed = base.toView({ columns: ["accountId"] });
 
       const { text } = viewed.getSql({ params: undefined as any, options: { dialect: "postgresql", format: false } });
       expect(text).toContain('"accountId"');
@@ -554,7 +544,7 @@ describe(".view()", () => {
       const sub1 = sql`SELECT ${row(Account.$accountId)} FROM ${Account}`;
       const sub2 = sql`SELECT ${row(Order.$orderId)} FROM ${Order}`;
       const base = sql`SELECT ${row(Account.$accountId, Account.$email)}, ${[sub1, sub2]} FROM ${Account}`;
-      const viewed = base.view({ columns: ["accountId", "email"] });
+      const viewed = base.toView({ columns: ["accountId", "email"] });
 
       const { text } = viewed.getSql({ params: undefined as any, options: { dialect: "postgresql", format: false } });
       expect(text).toContain('"accountId"');

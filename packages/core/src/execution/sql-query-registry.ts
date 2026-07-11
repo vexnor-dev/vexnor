@@ -35,6 +35,13 @@ export type ConnectionResolver = <TContext extends Record<string, unknown> = Rec
 
 export type QueryMap = Record<string, SqlQueryAny | SqlQueryHandlerAny>;
 
+export type ViewByArgs = {
+   /** Column keys to include in the result. If omitted, all columns pass through. */
+   columns?: string[];
+   /** Window function expressions to add as computed columns. */
+   window?: Record<string, { fn: string; col?: string; args?: unknown; over: Record<string, unknown> }>;
+};
+
 export type ExecuteQueryArgs = {
    plugin: string;
    hash: string;
@@ -43,6 +50,8 @@ export type ExecuteQueryArgs = {
    mode: SqlExecuteMode;
    name: string | null;
    options?: SqlRunOptions;
+   /** When provided, applies .view() projection to the query before execution. */
+   viewBy?: ViewByArgs;
 };
 const RequiredExecuteQueryKeys: (keyof ExecuteQueryArgs)[] = ["plugin", "hash", "params", "mode", "location", "name"];
 
@@ -181,14 +190,14 @@ export class SqlQueryRegistry<TContext extends Record<string, unknown> = Record<
       resolver: ConnectionResolver,
       context: TContext = {} as TContext,
    ): Promise<TResult> {
-      const { hash, params, mode, location, plugin: pluginName, options, name } = args;
+      const { hash, params, mode, location, plugin: pluginName, options, name, viewBy } = args;
       const entry = this.maps.get(pluginName)?.get(hash);
       if (!entry) {
          throw new SqlError(`Unknown query hash: ${hash} for plugin: ${pluginName}`, {
             code: SqlErrorCode.QUERY_NOT_FOUND,
          });
       }
-      const { query } = entry;
+      const query = viewBy ? (entry.query.toView(viewBy) as SqlQueryAny) : entry.query;
 
       const plugin = this.plugins.get(pluginName);
       ok(plugin, `Unknown plugin: ${pluginName}`);

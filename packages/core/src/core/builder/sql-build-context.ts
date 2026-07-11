@@ -22,7 +22,7 @@ import { SqlQueryRef, SqlQueryRefAny } from "#src/core/query/sql-query-ref.js";
 import { isPrimitive } from "#src/lib/primitive.js";
 
 /**
- * View filter metadata set by `.view()` build-time interception.
+ * View filter metadata set by `.toView()` build-time interception.
  * Controls which columns `row()` and `col()` emit during build.
  */
 export type SqlViewFilter = {
@@ -46,7 +46,7 @@ export class SqlBuildContext {
    readonly params: Readonly<Record<string, unknown>> | null;
    readonly tag: string | null;
 
-   /** View filter for .view() build-time interception. Controls column filtering + window injection. */
+   /** View filter for .toView() build-time interception. Controls column filtering + window injection. */
    viewFilter: SqlViewFilter | null = null;
 
    /** Populated by joinBy operator — maps column keys to qualified SQL expressions */
