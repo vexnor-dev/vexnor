@@ -5,7 +5,7 @@ import {
    SqlQueryFormat,
    SqlQueryType,
 } from "#src/core/query/sql-query-types.js";
-import { ARGS, PARAMS, Sql, TYPE } from "#src/core/sql-base.js";
+import { ARGS, hasSqlHashId, PARAMS, Sql, TYPE } from "#src/core/sql-base.js";
 import { Lazy } from "#src/lib/lazy.js";
 import { BuildSqlParams, SqlParam, SqlParamAny } from "#src/core/query/sql-param.js";
 import { SqlQueryAll, SqlQueryRow } from "#src/core/query/sql-models.js";
@@ -125,9 +125,9 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
             "|" +
             args.rawValues
                .map((v) => {
-                  if (v instanceof Sql) return v.hashId;
+                  if (hasSqlHashId(v)) return v.hashId;
                   if (Array.isArray(v))
-                     return v.map((item) => (item instanceof Sql ? item.hashId : String(item))).join(",");
+                     return v.map((item) => (hasSqlHashId(item) ? item.hashId : String(item))).join(",");
                   return String(v);
                })
                .join("|"),

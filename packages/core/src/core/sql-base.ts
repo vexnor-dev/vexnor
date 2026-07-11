@@ -130,3 +130,12 @@ export function nextId(className: string): number {
 export function resetIds() {
    classCounters.clear();
 }
+
+/**
+ * Duck-type check for Sql-like objects that have a stable hashId property.
+ * Uses structural typing instead of instanceof to work across module boundaries
+ * (e.g., when Turbopack bundles a different copy of @vexnor/core than the server).
+ */
+export function hasSqlHashId(v: unknown): v is { hashId: string } {
+   return typeof v === "object" && v !== null && "hashId" in v && typeof (v as { hashId: unknown }).hashId === "string";
+}

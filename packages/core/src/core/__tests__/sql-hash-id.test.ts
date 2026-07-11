@@ -192,4 +192,25 @@ describe("hashId", () => {
          expect(charm.hashId).not.toBe(new SqlSelectCharm({ key: "orders", write: () => {}, params: null }).hashId);
       });
    });
+
+   describe("cross-module-boundary (duck-typing)", () => {
+      test("objects with hashId property are used even if not instanceof Sql", () => {
+         // Simulate cross-bundle scenario: a plain object with a hashId property
+         // (as would happen when a different copy of @vexnor/core is bundled by Turbopack)
+         const fakeTable = { hashId: "SqlTable#(main.account)", toString: () => "SqlTable#99(main.account)" };
+         const q = sql`select * from ${fakeTable as unknown as typeof Account}`;
+         // Must use hashId, not toString()
+         expect(q.hashId).toContain("SqlTable#(main.account)");
+         expect(q.hashId).not.toContain("SqlTable#99");
+      });
+
+      test("hashId is stable regardless of how Sql node is referenced", () => {
+         // Verify that the query produces the same hashId whether the table
+         // is a real Sql instance or a duck-typed object with the same hashId
+         const realQuery = sql`select * from ${Account}`;
+         const fakeTable = { hashId: Account.hashId, toString: () => "fake" };
+         const fakeQuery = sql`select * from ${fakeTable as unknown as typeof Account}`;
+         expect(realQuery.hashId).toBe(fakeQuery.hashId);
+      });
+   });
 });
