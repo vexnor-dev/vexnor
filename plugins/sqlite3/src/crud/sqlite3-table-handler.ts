@@ -6,7 +6,7 @@ import {
    SqlDeleteArgs,
    SqlInsertFromArgs,
 } from "@vexnor/core";
-import { sqlite3Select, Sqlite3SelectResult } from "./sqlite3-select.js";
+import { Sqlite3SelectCommand, Sqlite3SelectCommandResult } from "./sqlite3-select-command.js";
 import { sqlite3InsertRows, Sqlite3InsertRowsResult } from "./sqlite3-insert-rows.js";
 import { sqlite3InsertFrom, Sqlite3InsertFromResult } from "./sqlite3-insert-from.js";
 import { sqlite3Update, Sqlite3TableUpdateResult } from "./sqlite3-update.js";
@@ -37,7 +37,7 @@ export type Sqlite3TableHandler<
    ? {
         select: <Args extends SqlSelectArgs<T & { Select: Record<string, unknown> }>>(
            args: Args,
-        ) => Sqlite3SelectResult<T & { Select: Record<string, unknown> }, Args>;
+        ) => Sqlite3SelectCommandResult<T & { Select: Record<string, unknown> }, Args>;
      }
    : unknown) &
    (T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> }
@@ -109,7 +109,7 @@ export function newSqlite3TableHandler<
 
    if (select) {
       handler.select = <Args extends SqlSelectArgs<T & { Select: Record<string, unknown> }>>(args: Args) =>
-         sqlite3Select(table as SqlTable<T & { Select: Record<string, unknown> }>, args);
+         new Sqlite3SelectCommand(table as SqlTable<T & { Select: Record<string, unknown> }>, args).execute();
    }
    if (insert) {
       handler.upsert = (args: Sqlite3UpsertArgs) =>

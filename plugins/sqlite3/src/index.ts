@@ -8,7 +8,7 @@ export { sqlite3InsertRows } from "#src/crud/sqlite3-insert-rows.js";
 export { sqlite3InsertFrom } from "#src/crud/sqlite3-insert-from.js";
 export { sqlite3Update } from "#src/crud/sqlite3-update.js";
 export { sqlite3Delete } from "#src/crud/sqlite3-delete.js";
-export { sqlite3Select } from "#src/crud/sqlite3-select.js";
+export { Sqlite3SelectCommand, type Sqlite3SelectCommandResult } from "#src/crud/sqlite3-select-command.js";
 export { sqlite3Upsert } from "#src/crud/sqlite3-upsert.js";
 export { newSqlite3TableHandler } from "#src/crud/sqlite3-table-handler.js";
 export { BetterSqlite3QueryHandler } from "#src/better-sqlite3-query-handler.js";

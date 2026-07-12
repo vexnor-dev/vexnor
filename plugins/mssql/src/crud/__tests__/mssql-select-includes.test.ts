@@ -2,17 +2,17 @@ import { describe, expect, test } from "vitest";
 import "@vexnor/mssql";
 import { Account, Order } from "@vexnor/core/testing";
 import { sql, row } from "@vexnor/core";
-import { mssqlSelect } from "#src/crud/mssql-select.js";
+import { MssqlSelectCommand } from "#src/crud/mssql-select-command.js";
 import { defaultQueryOptions } from "#src/default-query-options.js";
 
-describe("mssqlSelect — includeOne/includeMany coverage", () => {
+describe("MssqlSelectCommand — includeOne/includeMany coverage", () => {
    test("includeOne creates jsonOne charm", () => {
       const firstOrder = sql`
          select ${row(Order.$$)}
          from ${Order}
          where ${Order.$accountId} = ${Account.$accountId}
       `;
-      const query = mssqlSelect(Account, { includeOne: { firstOrder } });
+      const query = new MssqlSelectCommand(Account, { includeOne: { firstOrder } }).execute();
       const { text } = query.source.getSql({ options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
@@ -76,7 +76,7 @@ describe("mssqlSelect — includeOne/includeMany coverage", () => {
          from ${Order}
          where ${Order.$accountId} = ${Account.$accountId}
       `;
-      const query = mssqlSelect(Account, { includeMany: { orders } });
+      const query = new MssqlSelectCommand(Account, { includeMany: { orders } }).execute();
       const { text } = query.source.getSql({ options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
@@ -138,7 +138,7 @@ describe("mssqlSelect — includeOne/includeMany coverage", () => {
          from ${Order}
          where ${Order.$accountId} = ${Account.$accountId}
       `;
-      const query = mssqlSelect(Account, { includeOne: { firstOrder }, includeMany: { allOrders } });
+      const query = new MssqlSelectCommand(Account, { includeOne: { firstOrder }, includeMany: { allOrders } }).execute();
       const { text } = query.source.getSql({ options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
@@ -221,7 +221,7 @@ describe("mssqlSelect — includeOne/includeMany coverage", () => {
    });
 
    test("no includes — still has pagination hook", () => {
-      const query = mssqlSelect(Account, {});
+      const query = new MssqlSelectCommand(Account, {}).execute();
       const { text } = query.source.getSql({ options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */

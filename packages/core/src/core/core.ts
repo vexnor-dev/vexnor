@@ -184,7 +184,12 @@ export {
    type SqlSelectResult,
    type SqlSelectResultRow,
 } from "./crud/sql-select.js";
-export { SqlSelectCommand, SqlPreColumnMap } from "./crud/sql-select-command.js";
+export { SqlSelectCommand } from "./crud/sql-select-command.js";
+export { SqlPreColumnMap } from "./crud/sql-pre-column-map.js";
+export { SqlUpdateCommand } from "./crud/sql-update-command.js";
+export { SqlDeleteCommand } from "./crud/sql-delete-command.js";
+export { SqlInsertRowsCommand } from "./crud/sql-insert-rows-command.js";
+export { SqlInsertFromCommand } from "./crud/sql-insert-from-command.js";
 export type { SqlCrudCommands } from "./crud/sql-crud-commands.js";
 export { isPrimitive, type Primitive } from "#src/lib/primitive.js";
 export { isError } from "#src/lib/is-error.js";

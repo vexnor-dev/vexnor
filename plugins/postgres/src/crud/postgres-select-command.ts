@@ -11,7 +11,15 @@ import {
    SqlTableAny,
    SqlTableColumnAny,
    SqlQueryBaseAny,
+   ParamsOfArgs,
+   SqlSelectResultRow,
+   SqlQueryColumns,
    info,
+   type SqlFilterParams,
+   type SqlOrderByParams,
+   type SqlPaginationParams,
+   type SqlHavingByParams,
+   type SqlWindowByParams,
    type SqlProjectByParams,
    type SqlProjectByEntryValue,
    type SqlProjectByFnEntry,
@@ -19,6 +27,21 @@ import {
 import { jsonMany, jsonOne } from "#src/charms/json-aggregation-postgres.js";
 import { PostgresQueryHandler } from "#src/postgres-query-handler.js";
 import "#src/postgres-augment.js";
+
+export type PostgresSelectCommandResult<
+   T extends { Select: Record<string, unknown> },
+   Args extends SqlSelectArgs<T>,
+> = PostgresQueryHandler<{
+   Row: SqlSelectResultRow<T, Args>;
+   Params: (ParamsOfArgs<Args> extends void ? unknown : ParamsOfArgs<Args>)
+      & SqlFilterParams<T, "filterBy">
+      & SqlOrderByParams<T, "orderBy">
+      & SqlPaginationParams
+      & SqlProjectByParams<T>
+      & SqlHavingByParams
+      & SqlWindowByParams<T>;
+}> &
+   SqlQueryColumns<SqlSelectResultRow<T, Args>>;
 
 /**
  * PostgreSQL-aware projection node that auto-casts boolean columns to `::int`
@@ -288,13 +311,9 @@ export class PostgresSelectCommand<
    }
 
    /**
-    * Builds the query and returns the `.postgres` handler.
+    * Builds the query and returns the `.postgres` handler with full type inference.
     */
-   buildPostgres(): PostgresQueryHandler<{
-      Row: unknown;
-      Params: unknown;
-   }> {
-      const query = this.build();
-      return (query as unknown as { postgres: PostgresQueryHandler<{ Row: unknown; Params: unknown }> }).postgres;
+   execute(): PostgresSelectCommandResult<T, Args> {
+      return this.build().postgres as PostgresSelectCommandResult<T, Args>;
    }
 }

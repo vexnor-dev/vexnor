@@ -3,7 +3,7 @@ import { describe, expect, test } from "vitest";
 import "@vexnor/sqlite3";
 import { Account, Order } from "@vexnor/core/testing";
 import { sql, row, serializeQuery } from "@vexnor/core";
-import { sqlite3Select } from "#src/crud/sqlite3-select.js";
+import { Sqlite3SelectCommand } from "#src/crud/sqlite3-select-command.js";
 import { defaultQueryOptions } from "#src/crud/default-query-options.js";
 
 /**
@@ -36,9 +36,9 @@ function extractSerializedSql(template: { type: string; value?: string }[]): str
       .join("");
 }
 
-describe("sqlite3Select — serialize regression", () => {
+describe("Sqlite3SelectCommand — serialize regression", () => {
    test("basic select serialization — no includes (should be valid)", async () => {
-      const query = sqlite3Select(Account, {});
+      const query = new Sqlite3SelectCommand(Account, {}).execute();
       const { text } = query.source.getSql({ options: defaultQueryOptions });
 
       // Runtime SQL should not have the bug patterns
@@ -56,7 +56,7 @@ describe("sqlite3Select — serialize regression", () => {
          from ${Order}
          where ${Order.$accountId} = ${Account.$accountId}
       `;
-      const query = sqlite3Select(Account, { includeOne: { firstOrder } });
+      const query = new Sqlite3SelectCommand(Account, { includeOne: { firstOrder } }).execute();
 
       // Runtime SQL should be valid — all columns present
       const { text } = query.source.getSql({ options: defaultQueryOptions });
@@ -75,7 +75,7 @@ describe("sqlite3Select — serialize regression", () => {
          from ${Account.as("children")}
          where ${Account.as("children").$parentId} = ${Account.$accountId}
       `;
-      const query = sqlite3Select(Account, { includeMany: { children } });
+      const query = new Sqlite3SelectCommand(Account, { includeMany: { children } }).execute();
 
       // Runtime SQL should be valid — all columns present
       const { text } = query.source.getSql({ options: defaultQueryOptions });
@@ -94,10 +94,10 @@ describe("sqlite3Select — serialize regression", () => {
          from ${Order}
          where ${Order.$accountId} = ${Account.$accountId}
       `;
-      const query = sqlite3Select(Account, {
+      const query = new Sqlite3SelectCommand(Account, {
          SELECT: sql`${Account.$accountId}, ${Account.$email}`,
          includeOne: { firstOrder },
-      });
+      }).execute();
 
       // Runtime SQL — also broken: wraps custom SELECT columns in parens as row constructor
       const { text } = query.source.getSql({ options: defaultQueryOptions });
@@ -115,10 +115,10 @@ describe("sqlite3Select — serialize regression", () => {
          from ${Order}
          where ${Order.$accountId} = ${Account.$accountId}
       `;
-      const query = sqlite3Select(Account, {
+      const query = new Sqlite3SelectCommand(Account, {
          WHERE: sql`${Account.$status} = 'active'`,
          includeOne: { firstOrder },
-      });
+      }).execute();
 
       // Runtime SQL should be valid
       const { text } = query.source.getSql({ options: defaultQueryOptions });

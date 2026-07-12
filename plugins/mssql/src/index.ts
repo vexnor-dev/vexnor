@@ -8,6 +8,7 @@ export { MssqlQueryHandler } from "#src/mssql-query-handler.js";
 export { defaultQueryOptions } from "./default-query-options.js";
 export type { MssqlTableHandler } from "#src/crud/mssql-table-handler.js";
 export { newMssqlTableHandler } from "#src/crud/mssql-table-handler.js";
+export { MssqlSelectCommand, type MssqlSelectCommandResult } from "#src/crud/mssql-select-command.js";
 export type { MssqlUpsertArgs, MssqlUpsertResult } from "#src/crud/mssql-upsert.js";
 export { transaction, savepoint } from "#src/mssql-transaction.js";
 export type { MssqlTransactionOptions, MssqlIsolationLevel } from "#src/mssql-transaction.js";

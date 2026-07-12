@@ -6,7 +6,7 @@ import {
    SqlDeleteArgs,
    SqlInsertFromArgs,
 } from "@vexnor/core";
-import { postgresSelect, PostgresSelectResult } from "./postgres-select.js";
+import { PostgresSelectCommand, PostgresSelectCommandResult } from "./postgres-select-command.js";
 import { postgresInsertRows, PostgresInsertRowsResult } from "./postgres-insert-rows.js";
 import { postgresInsertFrom, PostgresInsertFromResult } from "./postgres-insert-from.js";
 import { postgresUpdate, PostgresTableUpdateResult } from "./postgres-update.js";
@@ -41,7 +41,7 @@ export type PostgresTableHandler<
    ? {
         select: <Args extends SqlSelectArgs<T & { Select: Record<string, unknown> }>>(
            args: Args,
-        ) => PostgresSelectResult<T & { Select: Record<string, unknown> }, Args>;
+        ) => PostgresSelectCommandResult<T & { Select: Record<string, unknown> }, Args>;
      }
    : unknown) &
    (T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> }
@@ -97,7 +97,7 @@ export function newPostgresTableHandler<
 
    if (select) {
       handler.select = <Args extends SqlSelectArgs<T & { Select: Record<string, unknown> }>>(args: Args) =>
-         postgresSelect(table as SqlTable<T & { Select: Record<string, unknown> }>, args);
+         new PostgresSelectCommand(table as SqlTable<T & { Select: Record<string, unknown> }>, args).execute();
    }
    if (insert) {
       handler.upsert = (args: PostgresUpsertArgs) =>

@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
 import { randomUUID } from "node:crypto";
 import { insert, param, row } from "@vexnor/core";
-import { sql, sqlite3Select } from "@vexnor/sqlite3";
+import { sql, Sqlite3SelectCommand } from "@vexnor/sqlite3";
 import "@vexnor/sqlite3";
 import { Account, IAccountInsert, IAccountSelect } from "./codegen/main.account-table.js";
 import { Order, IOrderInsert, IOrderSelect } from "./codegen/main.order-table.js";
@@ -43,19 +43,19 @@ describe.sequential("vexnor sqlite3 CRUD - select", () => {
 
    test("select: basic select with WHERE", async () => {
       ok(rootAccount);
-      const result = await sqlite3Select(Account, {
+      const result = await new Sqlite3SelectCommand(Account, {
          WHERE: sql`${Account.$accountId} = ${param<{ id: string }>("id")}`,
-      }).any({ db, params: { id: rootAccount.accountId } });
+      }).execute().any({ db, params: { id: rootAccount.accountId } });
       expect(result).toEqual(rootAccount);
    });
 
    test("select: with ORDER_BY + limit + offset", async () => {
-      const results = await sqlite3Select(Account, {
+      const results = await new Sqlite3SelectCommand(Account, {
          WHERE: sql`${Account.$accountId} in (${[rootAccount.accountId, childAccount.accountId]})`,
          ORDER_BY: sql`${Account.$email} asc`,
          limit: param<{ limit: number }>("limit"),
          offset: param<{ offset: number }>("offset"),
-      }).all({ db, params: { limit: 1, offset: 0 } });
+      }).execute().all({ db, params: { limit: 1, offset: 0 } });
       expect(results).toHaveLength(1);
    });
 
@@ -67,10 +67,10 @@ describe.sequential("vexnor sqlite3 CRUD - select", () => {
          where ${Account.as("children").$parentId} = ${Account.out.$accountId}
       `;
 
-      const results = await sqlite3Select(Account, {
+      const results = await new Sqlite3SelectCommand(Account, {
          WHERE: sql`${Account.$accountId} = ${rootAccount.accountId}`,
          includeMany: { children },
-      }).all({ db });
+      }).execute().all({ db });
 
       expect(results).toHaveLength(1);
       const parsed = results[0]!.children;
@@ -81,14 +81,14 @@ describe.sequential("vexnor sqlite3 CRUD - select", () => {
    test("select: includeOne (firstOrder)", async () => {
       ok(rootAccount);
       ok(order);
-      const results = await sqlite3Select(Account, {
+      const results = await new Sqlite3SelectCommand(Account, {
          WHERE: sql`${Account.$accountId} = ${rootAccount.accountId}`,
          includeOne: {
-            firstOrder: sqlite3Select(Order, {
+            firstOrder: new Sqlite3SelectCommand(Order, {
                WHERE: sql`${Order.$accountId} = ${Account.out.$accountId} and ${Order.$orderId} = ${order.orderId}`,
-            }),
+            }).execute(),
          },
-      }).all({ db });
+      }).execute().all({ db });
 
       expect(results).toHaveLength(1);
       const parsed = results[0]!.firstOrder;
@@ -97,14 +97,14 @@ describe.sequential("vexnor sqlite3 CRUD - select", () => {
 
    test("select: includeOne returns null when no match", async () => {
       ok(rootAccount);
-      const results = await sqlite3Select(Account, {
+      const results = await new Sqlite3SelectCommand(Account, {
          WHERE: sql`${Account.$accountId} = ${rootAccount.accountId}`,
          includeOne: {
-            firstOrder: sqlite3Select(Order, {
+            firstOrder: new Sqlite3SelectCommand(Order, {
                WHERE: sql`${Order.$accountId} = ${Account.out.$accountId} and ${Order.$orderId} = ${randomUUID()}`,
-            }),
+            }).execute(),
          },
-      }).all({ db });
+      }).execute().all({ db });
 
       expect(results).toHaveLength(1);
       expect(results[0]!.firstOrder).toBeNull();
@@ -118,10 +118,10 @@ describe.sequential("vexnor sqlite3 CRUD - select", () => {
          where ${Account.as("children").$parentId} = ${Account.out.$accountId}
       `;
 
-      const results = await sqlite3Select(Account, {
+      const results = await new Sqlite3SelectCommand(Account, {
          WHERE: sql`${Account.$accountId} = ${childAccount.accountId}`,
          includeMany: { children },
-      }).all({ db });
+      }).execute().all({ db });
 
       expect(results).toHaveLength(1);
       const parsed = results[0]!.children;
@@ -137,15 +137,15 @@ describe.sequential("vexnor sqlite3 CRUD - select", () => {
          where ${Account.as("children").$parentId} = ${Account.out.$accountId}
       `;
 
-      const results = await sqlite3Select(Account, {
+      const results = await new Sqlite3SelectCommand(Account, {
          WHERE: sql`${Account.$accountId} = ${rootAccount.accountId}`,
          includeMany: { children },
          includeOne: {
-            firstOrder: sqlite3Select(Order, {
+            firstOrder: new Sqlite3SelectCommand(Order, {
                WHERE: sql`${Order.$accountId} = ${Account.out.$accountId} and ${Order.$orderId} = ${order.orderId}`,
-            }),
+            }).execute(),
          },
-      }).all({ db });
+      }).execute().all({ db });
 
       expect(results).toHaveLength(1);
       const parsedChildren = results[0]!.children;

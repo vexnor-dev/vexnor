@@ -522,16 +522,16 @@ describe("PostgresProjectBy — transform functions", () => {
    });
 });
 
-describe("PostgresSelectCommand — constructor and buildPostgres()", () => {
+describe("PostgresSelectCommand — constructor and execute()", () => {
    test("constructor without includes produces basic query", () => {
       const command = new PostgresSelectCommand(Account, {});
-      const handler = command.buildPostgres();
+      const handler = command.execute();
       expect(handler).toBeDefined();
    });
 
-   test("buildPostgres returns handler with source", () => {
+   test("execute returns handler with source", () => {
       const command = new PostgresSelectCommand(Account, {});
-      const handler = command.buildPostgres();
+      const handler = command.execute();
       expect(handler.source).toBeDefined();
    });
 

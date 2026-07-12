@@ -6,7 +6,7 @@ import {
    SqlDeleteArgs,
    SqlInsertFromArgs,
 } from "@vexnor/core";
-import { mssqlSelect, MssqlSelectResult } from "./mssql-select.js";
+import { MssqlSelectCommand, MssqlSelectCommandResult } from "./mssql-select-command.js";
 import { mssqlInsertRows, MssqlInsertRowsResult } from "./mssql-insert-rows.js";
 import { mssqlInsertFrom, MssqlInsertFromResult } from "./mssql-insert-from.js";
 import { mssqlUpdate, MssqlTableUpdateResult } from "./mssql-update.js";
@@ -37,7 +37,7 @@ export type MssqlTableHandler<
    ? {
         select: <Args extends SqlSelectArgs<T & { Select: Record<string, unknown> }>>(
            args: Args,
-        ) => MssqlSelectResult<T & { Select: Record<string, unknown> }, Args>;
+        ) => MssqlSelectCommandResult<T & { Select: Record<string, unknown> }, Args>;
      }
    : unknown) &
    (T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> }
@@ -109,7 +109,7 @@ export function newMssqlTableHandler<
 
    if (select) {
       handler.select = <Args extends SqlSelectArgs<T & { Select: Record<string, unknown> }>>(args: Args) =>
-         mssqlSelect(table as SqlTable<T & { Select: Record<string, unknown> }>, args);
+         new MssqlSelectCommand(table as SqlTable<T & { Select: Record<string, unknown> }>, args).execute();
    }
    if (insert) {
       handler.upsert = (args: MssqlUpsertArgs) =>

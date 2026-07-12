@@ -3,7 +3,7 @@ import { describe, expect, test } from "vitest";
 import "@vexnor/mssql";
 import { Account, Order } from "@vexnor/core/testing";
 import { sql, row, serializeQuery } from "@vexnor/core";
-import { mssqlSelect } from "#src/crud/mssql-select.js";
+import { MssqlSelectCommand } from "#src/crud/mssql-select-command.js";
 import { defaultQueryOptions } from "#src/default-query-options.js";
 
 /**
@@ -36,9 +36,9 @@ function extractSerializedSql(template: { type: string; value?: string }[]): str
       .join("");
 }
 
-describe("mssqlSelect — serialize regression", () => {
+describe("MssqlSelectCommand — serialize regression", () => {
    test("basic select serialization — no includes (should be valid)", async () => {
-      const query = mssqlSelect(Account, {});
+      const query = new MssqlSelectCommand(Account, {}).execute();
       const { text } = query.source.getSql({ options: defaultQueryOptions });
 
       // Runtime SQL should not have the bug patterns
@@ -56,7 +56,7 @@ describe("mssqlSelect — serialize regression", () => {
          from ${Order}
          where ${Order.$accountId} = ${Account.$accountId}
       `;
-      const query = mssqlSelect(Account, { includeOne: { firstOrder } });
+      const query = new MssqlSelectCommand(Account, { includeOne: { firstOrder } }).execute();
 
       // Runtime SQL should be valid — all columns present
       const { text } = query.source.getSql({ options: defaultQueryOptions });
@@ -75,7 +75,7 @@ describe("mssqlSelect — serialize regression", () => {
          from ${Order}
          where ${Order.$accountId} = ${Account.$accountId}
       `;
-      const query = mssqlSelect(Account, { includeMany: { orders } });
+      const query = new MssqlSelectCommand(Account, { includeMany: { orders } }).execute();
 
       // Runtime SQL should be valid — all columns present
       const { text } = query.source.getSql({ options: defaultQueryOptions });
@@ -94,10 +94,10 @@ describe("mssqlSelect — serialize regression", () => {
          from ${Order}
          where ${Order.$accountId} = ${Account.$accountId}
       `;
-      const query = mssqlSelect(Account, {
+      const query = new MssqlSelectCommand(Account, {
          SELECT: sql`${Account.$accountId}, ${Account.$email}`,
          includeOne: { firstOrder },
-      });
+      }).execute();
 
       // Runtime SQL — also broken: wraps custom SELECT columns in parens as row constructor
       const { text } = query.source.getSql({ options: defaultQueryOptions });
@@ -115,10 +115,10 @@ describe("mssqlSelect — serialize regression", () => {
          from ${Order}
          where ${Order.$accountId} = ${Account.$accountId}
       `;
-      const query = mssqlSelect(Account, {
+      const query = new MssqlSelectCommand(Account, {
          WHERE: sql`${Account.$status} = 'active'`,
          includeOne: { firstOrder },
-      });
+      }).execute();
 
       // Runtime SQL should be valid
       const { text } = query.source.getSql({ options: defaultQueryOptions });

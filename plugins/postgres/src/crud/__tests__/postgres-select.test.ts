@@ -3,12 +3,12 @@ import { assertType, describe, expect, test } from "vitest";
 import { Account, Order, OrderItem, AccountStatusUdt } from "@vexnor/core/testing";
 import { sql, row, col, param, input, ParamsOf, TypeOf } from "@vexnor/core";
 import { jsonMany } from "#src/charms/json-aggregation-postgres.js";
-import { postgresSelect } from "#src/crud/postgres-select.js";
+import { PostgresSelectCommand } from "#src/crud/postgres-select-command.js";
 import { defaultQueryOptions } from "#src/default-query-options.js";
 
-describe("postgresSelect()", () => {
+describe("PostgresSelectCommand", () => {
    test("basic select", () => {
-      const query = postgresSelect(Account, {});
+      const query = new PostgresSelectCommand(Account, {}).execute();
       const { text } = query.source.getSql({ params: {}, options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
@@ -36,7 +36,7 @@ describe("postgresSelect()", () => {
    });
 
    test("basic select - has $$ and row", () => {
-      const query = postgresSelect(Account, {});
+      const query = new PostgresSelectCommand(Account, {}).execute();
       expect(query.source.$$).toBeDefined();
       expect(query.source.row).toBeDefined();
       expect(query.source.row.$accountId).toBeDefined();
@@ -44,7 +44,7 @@ describe("postgresSelect()", () => {
 
    test("with WHERE", () => {
       const params = input<{ id: string }>();
-      const query = postgresSelect(Account, { WHERE: sql`${Account.$accountId} = ${params.$id}` });
+      const query = new PostgresSelectCommand(Account, { WHERE: sql`${Account.$accountId} = ${params.$id}` }).execute();
       const { text } = query.source.getSql({ params: { id: "test-id" }, options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
@@ -75,11 +75,11 @@ describe("postgresSelect()", () => {
    test("with ORDER_BY + offset + limit", () => {
       const offsetParam = param<{ offset: number }>("offset");
       const limitParam = param<{ limit: number }>("limit");
-      const query = postgresSelect(Account, {
+      const query = new PostgresSelectCommand(Account, {
          ORDER_BY: sql`${Account.$createdAt} desc`,
          offset: offsetParam,
          limit: limitParam,
-      });
+      }).execute();
       const { text, values } = query.source.getSql({ params: { offset: 0, limit: 10 }, options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
@@ -120,7 +120,7 @@ describe("postgresSelect()", () => {
          from ${Account.as("children")}
          where ${Account.as("children").$parentId} = ${Account.$accountId}
       `;
-      const query = postgresSelect(Account, { includeMany: { children } });
+      const query = new PostgresSelectCommand(Account, { includeMany: { children } }).execute();
       const { text } = query.source.getSql({ params: {}, options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
@@ -179,7 +179,7 @@ describe("postgresSelect()", () => {
          from ${Account.as("children")}
          where ${Account.as("children").$parentId} = ${Account.$accountId}
       `;
-      const query = postgresSelect(Account, { includeMany: { children } });
+      const query = new PostgresSelectCommand(Account, { includeMany: { children } }).execute();
       expect(query.source.$$).toBeDefined();
       expect(query.source.row).toBeDefined();
       expect(query.source.row.$accountId).toBeDefined();
@@ -191,7 +191,7 @@ describe("postgresSelect()", () => {
          from ${Order}
          where ${Order.$accountId} = ${Account.$accountId}
       `;
-      const query = postgresSelect(Account, { includeOne: { firstOrder } });
+      const query = new PostgresSelectCommand(Account, { includeOne: { firstOrder } }).execute();
       const { text } = query.source.getSql({ params: {} });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
@@ -254,7 +254,7 @@ describe("postgresSelect()", () => {
          from ${Order}
          where ${Order.$accountId} = ${Account.$accountId}
       `;
-      const query = postgresSelect(Account, { includeOne: { firstOrder } });
+      const query = new PostgresSelectCommand(Account, { includeOne: { firstOrder } }).execute();
       expect(query.source.$$).toBeDefined();
       expect(query.source.row).toBeDefined();
       expect(query.source.row.$accountId).toBeDefined();
@@ -272,7 +272,7 @@ describe("postgresSelect()", () => {
          from ${Account.as("children")}
          where ${Account.as("children").$parentId} = ${Account.$accountId}
       `;
-      const select = postgresSelect(Account, { includeOne: { firstOrder }, includeMany: { children } });
+      const select = new PostgresSelectCommand(Account, { includeOne: { firstOrder }, includeMany: { children } }).execute();
       const { text } = select.source.getSql({ params: {}, options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
@@ -367,7 +367,7 @@ describe("postgresSelect()", () => {
          from ${Order} ${jsonMany(orderItems)}
          where ${Order.$accountId} = ${Account.$accountId}
       `;
-      const select = postgresSelect(Account, { includeMany: { orders: ordersWithItems } });
+      const select = new PostgresSelectCommand(Account, { includeMany: { orders: ordersWithItems } }).execute();
       const { text } = select.source.getSql({ params: {} });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
@@ -443,9 +443,9 @@ describe("postgresSelect()", () => {
 
    test("with SELECT override — full subquery inlines into SELECT clause", () => {
       const orderCount = col<{ orderCount: number }>("orderCount");
-      const select = postgresSelect(Account, {
+      const select = new PostgresSelectCommand(Account, {
          SELECT: sql`${row(Account.$$)}, (select count(*) from ${Order} where ${Order.$accountId} = ${Account.$accountId}) as ${orderCount}`,
-      });
+      }).execute();
       const { text } = select.source.getSql({ params: {}, options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
@@ -484,9 +484,9 @@ describe("postgresSelect()", () => {
       test("SELECT override with row(Account.$$) + col produces base columns plus extra in result row", () => {
          const orderCount = col<{ orderCount: number }>("orderCount");
          // eslint-disable-next-line unused-imports/no-unused-vars
-         const query = postgresSelect(Account, {
+         const query = new PostgresSelectCommand(Account, {
             SELECT: sql`${row(Account.$$)}, (select count(*) from orders) as ${orderCount}`,
-         });
+         }).execute();
          type Row = TypeOf<typeof query>;
          assertType<Row>({
             accountId: "",
@@ -517,11 +517,11 @@ describe("postgresSelect()", () => {
             where ${Account.as("children").$parentId} = ${Account.$accountId}
          `;
          // eslint-disable-next-line unused-imports/no-unused-vars
-         const query = postgresSelect(Account, {
+         const query = new PostgresSelectCommand(Account, {
             SELECT: sql`${row(Account.$$)}, (select count(*) from orders) as ${orderCount}`,
             includeOne: { firstOrder },
             includeMany: { children },
-         });
+         }).execute();
          type Row = TypeOf<typeof query>;
          assertType<Row>({
             accountId: "",
@@ -555,11 +555,11 @@ describe("postgresSelect()", () => {
             limit ${limitParam}
          `;
          // eslint-disable-next-line unused-imports/no-unused-vars
-         const query = postgresSelect(Account, {
+         const query = new PostgresSelectCommand(Account, {
             WHERE: sql`${Account.$email} = ${emailParam}`,
             ORDER_BY: sql`${Account.$createdAt} ${dirParam}`,
             includeMany: { orders },
-         });
+         }).execute();
          type Params = ParamsOf<typeof query>;
          assertType<Params>({
             email: "a@b.com",
@@ -576,11 +576,11 @@ describe("postgresSelect()", () => {
             limit ${limitParam}
          `;
          // eslint-disable-next-line unused-imports/no-unused-vars
-         const query = postgresSelect(Account, {
+         const query = new PostgresSelectCommand(Account, {
             WHERE: sql`${Account.$email} = ${emailParam}`,
             ORDER_BY: sql`${Account.$createdAt} ${dirParam}`,
             includeOne: { lastOrder },
-         });
+         }).execute();
          type Params = ParamsOf<typeof query>;
          assertType<Params>({
             email: "a@b.com",
