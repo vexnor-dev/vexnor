@@ -40,7 +40,7 @@ export class MssqlDeleteCommand<
       const { table, args } = this;
       const where = "WHERE" in args ? args.WHERE : undefined;
       if (!where) {
-         ok((args as { force?: boolean }).force, "WHERE condition or force required");
+         ok("force" in args && args.force, "WHERE condition or force required");
       }
 
       const query = sql`

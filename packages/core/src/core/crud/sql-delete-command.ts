@@ -28,7 +28,7 @@ export class SqlDeleteCommand<
       this.info = info ?? null;
 
       if (!this.hasWhere(args)) {
-         ok((args as { force?: boolean }).force, "WHERE condition or force required");
+         ok("force" in args && args.force, "WHERE condition or force required");
       }
    }
 
