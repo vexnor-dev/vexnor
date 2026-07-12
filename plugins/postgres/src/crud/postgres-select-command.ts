@@ -5,7 +5,6 @@ import {
    SqlSelectArgs,
    SqlSelectHooks,
    SqlTableAny,
-   SqlQueryBaseAny,
    ParamsOfArgs,
    SqlSelectResultRow,
    SqlQueryColumns,
@@ -57,11 +56,11 @@ export class PostgresSelectCommand<
       const { includeOne, includeMany, ...baseArgs } = args;
       const ones = Object.entries(includeOne ?? {}).map(([k, q]) => ({
          key: k,
-         charm: jsonOne(q as SqlQueryBaseAny),
+         charm: jsonOne(q),
       }));
       const manys = Object.entries(includeMany ?? {}).map(([k, q]) => ({
          key: k,
-         charm: jsonMany(q as SqlQueryBaseAny),
+         charm: jsonMany(q),
       }));
 
       const hooks: SqlSelectHooks | undefined =

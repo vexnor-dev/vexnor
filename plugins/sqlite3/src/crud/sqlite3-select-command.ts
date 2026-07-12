@@ -50,18 +50,18 @@ export class Sqlite3SelectCommand<
          undefined,
       );
 
-      this.includeOneArg = includeOne as Record<string, SqlQueryBaseAny> | undefined;
-      this.includeManyArg = includeMany as Record<string, SqlQueryBaseAny> | undefined;
+      this.includeOneArg = includeOne;
+      this.includeManyArg = includeMany;
    }
 
    protected override createIncludes(): { afterSelect: Sql[]; afterFrom: Sql[] } | null {
       const ones = Object.entries(this.includeOneArg ?? {}).map(([k, q]) => ({
          key: k,
-         charm: jsonOne((q as SqlQueryBaseAny).source),
+         charm: jsonOne(q.source),
       }));
       const manys = Object.entries(this.includeManyArg ?? {}).map(([k, q]) => ({
          key: k,
-         charm: jsonMany((q as SqlQueryBaseAny).source),
+         charm: jsonMany(q.source),
       }));
 
       if (!ones.length && !manys.length) return null;

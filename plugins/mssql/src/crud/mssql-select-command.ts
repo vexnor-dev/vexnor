@@ -43,17 +43,10 @@ export class MssqlSelectCommand<
    constructor(table: SqlTable<T>, args: Args) {
       const { includeOne, includeMany, ...baseArgs } = args;
 
-      super(
-         table,
-         baseArgs as Args,
-         info({ driver: "transactsql" }),
-         undefined,
-         undefined,
-         undefined,
-      );
+      super(table, baseArgs as Args, info({ driver: "transactsql" }), undefined, undefined, undefined);
 
-      this.includeOneArg = includeOne as Record<string, SqlQueryBaseAny> | undefined;
-      this.includeManyArg = includeMany as Record<string, SqlQueryBaseAny> | undefined;
+      this.includeOneArg = includeOne;
+      this.includeManyArg = includeMany;
    }
 
    protected override createPaginationNode(): Sql {
@@ -63,24 +56,18 @@ export class MssqlSelectCommand<
    protected override createIncludes(): { afterSelect: Sql[]; afterFrom: Sql[] } | null {
       const ones = Object.entries(this.includeOneArg ?? {}).map(([k, q]) => ({
          key: k,
-         charm: jsonOne((q as SqlQueryBaseAny).source),
+         charm: jsonOne(q.source),
       }));
       const manys = Object.entries(this.includeManyArg ?? {}).map(([k, q]) => ({
          key: k,
-         charm: jsonMany((q as SqlQueryBaseAny).source),
+         charm: jsonMany(q.source),
       }));
 
       if (!ones.length && !manys.length) return null;
 
       return {
-         afterSelect: [
-            ...ones.map(({ key, charm }) => charm.as(key)),
-            ...manys.map(({ key, charm }) => charm.as(key)),
-         ],
-         afterFrom: [
-            ...ones.map(({ charm }) => charm),
-            ...manys.map(({ charm }) => charm),
-         ],
+         afterSelect: [...ones.map(({ key, charm }) => charm.as(key)), ...manys.map(({ key, charm }) => charm.as(key))],
+         afterFrom: [...ones.map(({ charm }) => charm), ...manys.map(({ charm }) => charm)],
       };
    }
 
