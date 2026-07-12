@@ -7,11 +7,11 @@ import {
    SqlInsertFromArgs,
 } from "@vexnor/core";
 import { Sqlite3SelectCommand, Sqlite3SelectCommandResult } from "./sqlite3-select-command.js";
-import { sqlite3InsertRows, Sqlite3InsertRowsResult } from "./sqlite3-insert-rows.js";
-import { sqlite3InsertFrom, Sqlite3InsertFromResult } from "./sqlite3-insert-from.js";
-import { sqlite3Update, Sqlite3TableUpdateResult } from "./sqlite3-update.js";
-import { sqlite3Delete, Sqlite3DeleteResult } from "./sqlite3-delete.js";
-import { sqlite3Upsert, Sqlite3UpsertArgs, Sqlite3UpsertResult } from "./sqlite3-upsert.js";
+import { Sqlite3InsertRowsCommand, Sqlite3InsertRowsCommandResult } from "./sqlite3-insert-rows-command.js";
+import { Sqlite3InsertFromCommand, Sqlite3InsertFromCommandResult } from "./sqlite3-insert-from-command.js";
+import { Sqlite3UpdateCommand, Sqlite3UpdateCommandResult } from "./sqlite3-update-command.js";
+import { Sqlite3DeleteCommand, Sqlite3DeleteCommandResult } from "./sqlite3-delete-command.js";
+import { Sqlite3UpsertCommand, Sqlite3UpsertCommandArgs, Sqlite3UpsertCommandResult } from "./sqlite3-upsert-command.js";
 
 /**
  * The set of typed query factories available on a SQLite table handler.
@@ -42,14 +42,14 @@ export type Sqlite3TableHandler<
    : unknown) &
    (T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> }
       ? {
-           insertRows: () => Sqlite3InsertRowsResult<
+           insertRows: () => Sqlite3InsertRowsCommandResult<
               T & { Select: Record<string, unknown>; Insert: Record<string, unknown> }
            >;
            insertFrom: <
               Args extends SqlInsertFromArgs<T & { Select: Record<string, unknown>; Insert: Record<string, unknown> }>,
            >(
               args: Args,
-           ) => Sqlite3InsertFromResult<
+           ) => Sqlite3InsertFromCommandResult<
               T & { Select: Record<string, unknown>; Insert: Record<string, unknown> },
               Args
            >;
@@ -59,7 +59,7 @@ export type Sqlite3TableHandler<
       ? {
            update: <Args extends SqlUpdateArgs>(
               args: Args,
-           ) => Sqlite3TableUpdateResult<
+           ) => Sqlite3UpdateCommandResult<
               T & { Select: Record<string, unknown>; Update: Record<string, unknown> },
               Args
            >;
@@ -69,14 +69,14 @@ export type Sqlite3TableHandler<
       ? {
            delete: <Args extends SqlDeleteArgs>(
               args: Args,
-           ) => Sqlite3DeleteResult<T & { Select: Record<string, unknown>; Delete: true }, Args>;
+           ) => Sqlite3DeleteCommandResult<T & { Select: Record<string, unknown>; Delete: true }, Args>;
         }
       : unknown) &
    (T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> }
       ? {
            upsert: (
-              args: Sqlite3UpsertArgs,
-           ) => Sqlite3UpsertResult<T & { Select: Record<string, unknown>; Insert: Record<string, unknown> }>;
+              args: Sqlite3UpsertCommandArgs,
+           ) => Sqlite3UpsertCommandResult<T & { Select: Record<string, unknown>; Insert: Record<string, unknown> }>;
         }
       : unknown);
 
@@ -112,35 +112,35 @@ export function newSqlite3TableHandler<
          new Sqlite3SelectCommand(table as SqlTable<T & { Select: Record<string, unknown> }>, args).execute();
    }
    if (insert) {
-      handler.upsert = (args: Sqlite3UpsertArgs) =>
-         sqlite3Upsert(
+      handler.upsert = (args: Sqlite3UpsertCommandArgs) =>
+         new Sqlite3UpsertCommand(
             table as SqlTable<T & { Select: Record<string, unknown>; Insert: Record<string, unknown> }>,
             args,
-         );
+         ).execute();
       handler.insertRows = () =>
-         sqlite3InsertRows(
+         new Sqlite3InsertRowsCommand(
             table as SqlTable<T & { Select: Record<string, unknown>; Insert: Record<string, unknown> }>,
-         );
+         ).execute();
       handler.insertFrom = <
          Args extends SqlInsertFromArgs<T & { Select: Record<string, unknown>; Insert: Record<string, unknown> }>,
       >(
          args: Args,
       ) =>
-         sqlite3InsertFrom(
+         new Sqlite3InsertFromCommand(
             table as SqlTable<T & { Select: Record<string, unknown>; Insert: Record<string, unknown> }>,
             args,
-         );
+         ).execute();
    }
    if (update) {
       handler.update = <Args extends SqlUpdateArgs>(args: Args) =>
-         sqlite3Update(
+         new Sqlite3UpdateCommand(
             table as SqlTable<T & { Select: Record<string, unknown>; Update: Record<string, unknown> }>,
             args,
-         );
+         ).execute();
    }
    if (delete$) {
       handler.delete = <Args extends SqlDeleteArgs>(args: Args) =>
-         sqlite3Delete(table as SqlTable<T & { Select: Record<string, unknown>; Delete: true }>, args);
+         new Sqlite3DeleteCommand(table as SqlTable<T & { Select: Record<string, unknown>; Delete: true }>, args).execute();
    }
 
    return handler as Sqlite3TableHandler<T>;

@@ -200,19 +200,19 @@ describe("Sqlite3InsertRowsCommand", () => {
 
 describe("Sqlite3InsertFromCommand", () => {
    test("throws without FROM arg", () => {
-      expect(() => new Sqlite3InsertFromCommand(Account, {} as any)).toThrow("Args 'FROM' is required");
+      expect(() => new Sqlite3InsertFromCommand(Account, {} as never)).toThrow("Args 'FROM' is required");
    });
 
    test("execute() returns handler with source", () => {
       const from = sql`select ${Account.$email}, ${Account.$firstName} from ${Account}`;
-      const handler = new Sqlite3InsertFromCommand(Account, { FROM: from as any }).execute();
+      const handler = new Sqlite3InsertFromCommand(Account, { FROM: from as never }).execute();
       expect(handler).toBeDefined();
       expect(handler.source).toBeDefined();
    });
 
    test("produces INSERT FROM with RETURNING", () => {
       const from = sql`select ${Account.$email}, ${Account.$firstName} from ${Account}`;
-      const handler = new Sqlite3InsertFromCommand(Account, { FROM: from as any }).execute();
+      const handler = new Sqlite3InsertFromCommand(Account, { FROM: from as never }).execute();
       const { text } = handler.source.getSql({ options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */

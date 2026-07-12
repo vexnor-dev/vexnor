@@ -1,5 +1,4 @@
 // noinspection SqlNoDataSourceInspection,SqlResolve
-import { SqlQuery } from "#src/core/query/sql-query.js";
 import { SqlTable } from "#src/core/schema/sql-table.js";
 import { ok } from "#src/lib/assert.js";
 import { sql } from "#src/core/sql.js";
@@ -50,9 +49,9 @@ export class SqlDeleteCommand<
       ` as SqlDeleteResult<T, Args>;
    }
 
-   protected hasWhere(value: unknown): value is { WHERE: SqlQuery<{ Row?: unknown; Params?: unknown }> } {
+   protected hasWhere(value: unknown): value is { WHERE: unknown } {
       if (!value) return false;
       if (typeof value !== "object") return false;
-      return "WHERE" in value && value.WHERE instanceof SqlQuery;
+      return "WHERE" in value && value.WHERE != null;
    }
 }

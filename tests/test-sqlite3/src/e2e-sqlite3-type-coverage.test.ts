@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { insert, param, row, sql } from "@vexnor/core";
-import { sqlite3Update } from "@vexnor/sqlite3";
+import { Sqlite3UpdateCommand } from "@vexnor/sqlite3";
 import { ITypeCoverageSelect, TypeCoverage } from "./codegen/main.type_coverage-table.js";
 import { db } from "./config.js";
 
@@ -71,9 +71,9 @@ describe("sqlite3 type coverage", () => {
    });
 
    test("update and select back all types", async () => {
-      const result = await sqlite3Update(TypeCoverage, {
+      const result = await new Sqlite3UpdateCommand(TypeCoverage, {
          WHERE: sql`${TypeCoverage.$colText} = ${param<{ key: string }>("key")}`,
-      }).one({
+      }).execute().one({
          db,
          params: {
             key: inserted.colText,

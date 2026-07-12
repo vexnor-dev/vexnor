@@ -84,7 +84,7 @@ describe("SqlDeleteCommand.build() — parity with sqlDelete()", () => {
    });
 
    test("throws without WHERE or force", () => {
-      expect(() => new SqlDeleteCommand(Account, {} as any)).toThrow("WHERE condition or force required");
+      expect(() => new SqlDeleteCommand(Account, {} as never)).toThrow("WHERE condition or force required");
    });
 });
 
@@ -94,7 +94,7 @@ describe("SqlInsertRowsCommand.build() — parity with sqlInsertRows()", () => {
       const queryFromCommand = command.build();
       const queryFromFunction = sqlInsertRows(Account);
 
-      const params = { rows: [{ email: "a@b.com", firstName: "A", lastName: "B", status: "CREATED" }] } as any;
+      const params = { rows: [{ email: "a@b.com", firstName: "A", lastName: "B", status: "CREATED" }] } as never;
       const cmdSql = queryFromCommand.getSql({ params, options: defaultOptions });
       const fnSql = queryFromFunction.getSql({ params, options: defaultOptions });
 
@@ -107,7 +107,7 @@ describe("SqlInsertRowsCommand.build() — parity with sqlInsertRows()", () => {
       const queryFromCommand = command.build();
       const queryFromFunction = sqlInsertRows(Account, { field: "rows", info: info({ driver: "postgres" }) });
 
-      const params = { rows: [{ email: "a@b.com", firstName: "A", lastName: "B", status: "CREATED" }] } as any;
+      const params = { rows: [{ email: "a@b.com", firstName: "A", lastName: "B", status: "CREATED" }] } as never;
       const cmdSql = queryFromCommand.getSql({ params, options: defaultOptions });
       const fnSql = queryFromFunction.getSql({ params, options: defaultOptions });
 
@@ -119,7 +119,7 @@ describe("SqlInsertRowsCommand.build() — parity with sqlInsertRows()", () => {
 describe("SqlInsertFromCommand.build() — parity with sqlInsertFrom()", () => {
    test("produces same SQL as sqlInsertFrom()", () => {
       const from = sql`select ${Account.$email}, ${Account.$firstName} from ${Account}`;
-      const args = { FROM: from as any };
+      const args = { FROM: from as never };
 
       const command = new SqlInsertFromCommand(Account, args);
       const queryFromCommand = command.build();
@@ -133,7 +133,7 @@ describe("SqlInsertFromCommand.build() — parity with sqlInsertFrom()", () => {
 
    test("produces same SQL as sqlInsertFrom() with info", () => {
       const from = sql`select ${Account.$email}, ${Account.$firstName} from ${Account}`;
-      const args = { FROM: from as any };
+      const args = { FROM: from as never };
 
       const command = new SqlInsertFromCommand(Account, args, info({ driver: "postgres" }));
       const queryFromCommand = command.build();
@@ -146,6 +146,6 @@ describe("SqlInsertFromCommand.build() — parity with sqlInsertFrom()", () => {
    });
 
    test("throws without FROM arg", () => {
-      expect(() => new SqlInsertFromCommand(Account, {} as any)).toThrow("Args 'FROM' is required");
+      expect(() => new SqlInsertFromCommand(Account, {} as never)).toThrow("Args 'FROM' is required");
    });
 });

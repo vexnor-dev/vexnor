@@ -7,11 +7,11 @@ import {
    SqlInsertFromArgs,
 } from "@vexnor/core";
 import { PostgresSelectCommand, PostgresSelectCommandResult } from "./postgres-select-command.js";
-import { postgresInsertRows, PostgresInsertRowsResult } from "./postgres-insert-rows.js";
-import { postgresInsertFrom, PostgresInsertFromResult } from "./postgres-insert-from.js";
-import { postgresUpdate, PostgresTableUpdateResult } from "./postgres-update.js";
-import { postgresDelete, PostgresDeleteResult } from "./postgres-delete.js";
-import { postgresUpsert, PostgresUpsertArgs, PostgresUpsertResult } from "./postgres-upsert.js";
+import { PostgresInsertRowsCommand, PostgresInsertRowsCommandResult } from "./postgres-insert-rows-command.js";
+import { PostgresInsertFromCommand, PostgresInsertFromCommandResult } from "./postgres-insert-from-command.js";
+import { PostgresUpdateCommand, PostgresUpdateCommandResult } from "./postgres-update-command.js";
+import { PostgresDeleteCommand, PostgresDeleteCommandResult } from "./postgres-delete-command.js";
+import { PostgresUpsertCommand, PostgresUpsertCommandArgs, PostgresUpsertCommandResult } from "./postgres-upsert-command.js";
 
 type SelectInsertTable<T> = Extract<T, { Select: Record<string, unknown>; Insert: Record<string, unknown> }>;
 type SelectUpdateTable<T> = Extract<T, { Select: Record<string, unknown>; Update: Record<string, unknown> }>;
@@ -46,25 +46,25 @@ export type PostgresTableHandler<
    : unknown) &
    (T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> }
       ? {
-           insertRows: () => PostgresInsertRowsResult<SelectInsertTable<T>>;
+           insertRows: () => PostgresInsertRowsCommandResult<SelectInsertTable<T>>;
            insertFrom: <Args extends SqlInsertFromArgs<SelectInsertTable<T>>>(
               args: Args,
-           ) => PostgresInsertFromResult<SelectInsertTable<T>, Args>;
+           ) => PostgresInsertFromCommandResult<SelectInsertTable<T>, Args>;
         }
       : unknown) &
    (T extends { Select: Record<string, unknown>; Update: Record<string, unknown> }
       ? {
-           update: <Args extends SqlUpdateArgs>(args: Args) => PostgresTableUpdateResult<SelectUpdateTable<T>, Args>;
+           update: <Args extends SqlUpdateArgs>(args: Args) => PostgresUpdateCommandResult<SelectUpdateTable<T>, Args>;
         }
       : unknown) &
    (T extends { Select: Record<string, unknown>; Delete: true }
       ? {
-           delete: <Args extends SqlDeleteArgs>(args: Args) => PostgresDeleteResult<SelectDeleteTable<T>, Args>;
+           delete: <Args extends SqlDeleteArgs>(args: Args) => PostgresDeleteCommandResult<SelectDeleteTable<T>, Args>;
         }
       : unknown) &
    (T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> }
       ? {
-           upsert: (args: PostgresUpsertArgs) => PostgresUpsertResult<SelectInsertTable<T>>;
+           upsert: (args: PostgresUpsertCommandArgs) => PostgresUpsertCommandResult<SelectInsertTable<T>>;
         }
       : unknown);
 
@@ -100,35 +100,35 @@ export function newPostgresTableHandler<
          new PostgresSelectCommand(table as SqlTable<T & { Select: Record<string, unknown> }>, args).execute();
    }
    if (insert) {
-      handler.upsert = (args: PostgresUpsertArgs) =>
-         postgresUpsert(
+      handler.upsert = (args: PostgresUpsertCommandArgs) =>
+         new PostgresUpsertCommand(
             table as SqlTable<T & { Select: Record<string, unknown>; Insert: Record<string, unknown> }>,
             args,
-         );
+         ).execute();
       handler.insertRows = () =>
-         postgresInsertRows(
+         new PostgresInsertRowsCommand(
             table as SqlTable<T & { Select: Record<string, unknown>; Insert: Record<string, unknown> }>,
-         );
+         ).execute();
       handler.insertFrom = <
          Args extends SqlInsertFromArgs<T & { Select: Record<string, unknown>; Insert: Record<string, unknown> }>,
       >(
          args: Args,
       ) =>
-         postgresInsertFrom(
+         new PostgresInsertFromCommand(
             table as SqlTable<T & { Select: Record<string, unknown>; Insert: Record<string, unknown> }>,
             args,
-         );
+         ).execute();
    }
    if (update) {
       handler.update = <Args extends SqlUpdateArgs>(args: Args) =>
-         postgresUpdate(
+         new PostgresUpdateCommand(
             table as SqlTable<T & { Select: Record<string, unknown>; Update: Record<string, unknown> }>,
             args,
-         );
+         ).execute();
    }
    if (delete$) {
       handler.delete = <Args extends SqlDeleteArgs>(args: Args) =>
-         postgresDelete(table as SqlTable<T & { Select: Record<string, unknown>; Delete: true }>, args);
+         new PostgresDeleteCommand(table as SqlTable<T & { Select: Record<string, unknown>; Delete: true }>, args).execute();
    }
 
    return handler as PostgresTableHandler<T>;

@@ -7,11 +7,11 @@ import {
    SqlInsertFromArgs,
 } from "@vexnor/core";
 import { MssqlSelectCommand, MssqlSelectCommandResult } from "./mssql-select-command.js";
-import { mssqlInsertRows, MssqlInsertRowsResult } from "./mssql-insert-rows.js";
-import { mssqlInsertFrom, MssqlInsertFromResult } from "./mssql-insert-from.js";
-import { mssqlUpdate, MssqlTableUpdateResult } from "./mssql-update.js";
-import { mssqlDelete, MssqlDeleteResult } from "./mssql-delete.js";
-import { mssqlUpsert, MssqlUpsertArgs, MssqlUpsertResult } from "./mssql-upsert.js";
+import { MssqlInsertRowsCommand, MssqlInsertRowsCommandResult } from "./mssql-insert-rows-command.js";
+import { MssqlInsertFromCommand, MssqlInsertFromCommandResult } from "./mssql-insert-from-command.js";
+import { MssqlUpdateCommand, MssqlUpdateCommandResult } from "./mssql-update-command.js";
+import { MssqlDeleteCommand, MssqlDeleteCommandResult } from "./mssql-delete-command.js";
+import { MssqlUpsertCommand, MssqlUpsertCommandArgs, MssqlUpsertCommandResult } from "./mssql-upsert-command.js";
 
 /**
  * The set of typed query factories available on an MS SQL Server table handler.
@@ -42,14 +42,14 @@ export type MssqlTableHandler<
    : unknown) &
    (T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> }
       ? {
-           insertRows: () => MssqlInsertRowsResult<
+           insertRows: () => MssqlInsertRowsCommandResult<
               T & { Select: Record<string, unknown>; Insert: Record<string, unknown> }
            >;
            insertFrom: <
               Args extends SqlInsertFromArgs<T & { Select: Record<string, unknown>; Insert: Record<string, unknown> }>,
            >(
               args: Args,
-           ) => MssqlInsertFromResult<
+           ) => MssqlInsertFromCommandResult<
               T & { Select: Record<string, unknown>; Insert: Record<string, unknown> },
               Args
            >;
@@ -59,7 +59,7 @@ export type MssqlTableHandler<
       ? {
            update: <Args extends SqlUpdateArgs>(
               args: Args,
-           ) => MssqlTableUpdateResult<
+           ) => MssqlUpdateCommandResult<
               T & { Select: Record<string, unknown>; Update: Record<string, unknown> },
               Args
            >;
@@ -69,14 +69,14 @@ export type MssqlTableHandler<
       ? {
            delete: <Args extends SqlDeleteArgs>(
               args: Args,
-           ) => MssqlDeleteResult<T & { Select: Record<string, unknown>; Delete: true }, Args>;
+           ) => MssqlDeleteCommandResult<T & { Select: Record<string, unknown>; Delete: true }, Args>;
         }
       : unknown) &
    (T extends { Select: Record<string, unknown>; Insert: Record<string, unknown> }
       ? {
            upsert: (
-              args: MssqlUpsertArgs,
-           ) => MssqlUpsertResult<T & { Select: Record<string, unknown>; Insert: Record<string, unknown> }>;
+              args: MssqlUpsertCommandArgs,
+           ) => MssqlUpsertCommandResult<T & { Select: Record<string, unknown>; Insert: Record<string, unknown> }>;
         }
       : unknown);
 
@@ -112,35 +112,35 @@ export function newMssqlTableHandler<
          new MssqlSelectCommand(table as SqlTable<T & { Select: Record<string, unknown> }>, args).execute();
    }
    if (insert) {
-      handler.upsert = (args: MssqlUpsertArgs) =>
-         mssqlUpsert(
+      handler.upsert = (args: MssqlUpsertCommandArgs) =>
+         new MssqlUpsertCommand(
             table as SqlTable<T & { Select: Record<string, unknown>; Insert: Record<string, unknown> }>,
             args,
-         );
+         ).execute();
       handler.insertRows = () =>
-         mssqlInsertRows(
+         new MssqlInsertRowsCommand(
             table as SqlTable<T & { Select: Record<string, unknown>; Insert: Record<string, unknown> }>,
-         );
+         ).execute();
       handler.insertFrom = <
          Args extends SqlInsertFromArgs<T & { Select: Record<string, unknown>; Insert: Record<string, unknown> }>,
       >(
          args: Args,
       ) =>
-         mssqlInsertFrom(
+         new MssqlInsertFromCommand(
             table as SqlTable<T & { Select: Record<string, unknown>; Insert: Record<string, unknown> }>,
             args,
-         );
+         ).execute();
    }
    if (update) {
       handler.update = <Args extends SqlUpdateArgs>(args: Args) =>
-         mssqlUpdate(
+         new MssqlUpdateCommand(
             table as SqlTable<T & { Select: Record<string, unknown>; Update: Record<string, unknown> }>,
             args,
-         );
+         ).execute();
    }
    if (delete$) {
       handler.delete = <Args extends SqlDeleteArgs>(args: Args) =>
-         mssqlDelete(table as SqlTable<T & { Select: Record<string, unknown>; Delete: true }>, args);
+         new MssqlDeleteCommand(table as SqlTable<T & { Select: Record<string, unknown>; Delete: true }>, args).execute();
    }
 
    return handler as MssqlTableHandler<T>;
