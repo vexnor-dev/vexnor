@@ -180,7 +180,7 @@ public class ManifestLoaderEdgeCaseTests
     [Fact]
     public void LoadGlob_LaterFileOverridesEarlier()
     {
-        var tmpDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        var tmpDir = Path.Join(Path.GetTempPath(), Guid.NewGuid().ToString());
         Directory.CreateDirectory(tmpDir);
         try
         {
