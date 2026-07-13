@@ -2036,6 +2036,7 @@ describe("SchemaGraph", () => {
                          ],
                          "tag": null,
                          "type": "SqlQuery",
+                         "view": null,
                        },
                        "out": false,
                        "scope": {
@@ -2301,6 +2302,7 @@ describe("SchemaGraph", () => {
                          ],
                          "tag": null,
                          "type": "SqlQuery",
+                         "view": null,
                        },
                        "out": false,
                        "scope": {
@@ -2580,6 +2582,7 @@ describe("SchemaGraph", () => {
                          ],
                          "tag": null,
                          "type": "SqlQuery",
+                         "view": null,
                        },
                        "out": false,
                        "scope": {
@@ -2623,6 +2626,7 @@ describe("SchemaGraph", () => {
                            },
                          },
                        },
+                       "selectParamName": "select",
                        "table": SqlTable {
                          "$amount": SqlTableColumn {
                            "columnName": "amount",
@@ -2830,6 +2834,7 @@ describe("SchemaGraph", () => {
                    ],
                    "tag": null,
                    "type": "SqlQuery",
+                   "view": null,
                  },
                  "tag": null,
                  "target": SqlTableColumn {
@@ -4660,6 +4665,7 @@ describe("SchemaGraph", () => {
                          ],
                          "tag": null,
                          "type": "SqlQuery",
+                         "view": null,
                        },
                        "out": false,
                        "scope": {
@@ -4925,6 +4931,7 @@ describe("SchemaGraph", () => {
                          ],
                          "tag": null,
                          "type": "SqlQuery",
+                         "view": null,
                        },
                        "out": false,
                        "scope": {
@@ -5204,6 +5211,7 @@ describe("SchemaGraph", () => {
                          ],
                          "tag": null,
                          "type": "SqlQuery",
+                         "view": null,
                        },
                        "out": false,
                        "scope": {
@@ -5247,6 +5255,7 @@ describe("SchemaGraph", () => {
                            },
                          },
                        },
+                       "selectParamName": "select",
                        "table": SqlTable {
                          "$amount": SqlTableColumn {
                            "columnName": "amount",
@@ -5454,6 +5463,7 @@ describe("SchemaGraph", () => {
                    ],
                    "tag": null,
                    "type": "SqlQuery",
+                   "view": null,
                  },
                  "tag": null,
                  "target": SqlTableColumn {
@@ -7284,6 +7294,7 @@ describe("SchemaGraph", () => {
                          ],
                          "tag": null,
                          "type": "SqlQuery",
+                         "view": null,
                        },
                        "out": false,
                        "scope": {
@@ -7549,6 +7560,7 @@ describe("SchemaGraph", () => {
                          ],
                          "tag": null,
                          "type": "SqlQuery",
+                         "view": null,
                        },
                        "out": false,
                        "scope": {
@@ -7828,6 +7840,7 @@ describe("SchemaGraph", () => {
                          ],
                          "tag": null,
                          "type": "SqlQuery",
+                         "view": null,
                        },
                        "out": false,
                        "scope": {
@@ -7871,6 +7884,7 @@ describe("SchemaGraph", () => {
                            },
                          },
                        },
+                       "selectParamName": "select",
                        "table": SqlTable {
                          "$amount": SqlTableColumn {
                            "columnName": "amount",
@@ -8078,6 +8092,7 @@ describe("SchemaGraph", () => {
                    ],
                    "tag": null,
                    "type": "SqlQuery",
+                   "view": null,
                  },
                  "tag": null,
                  "target": SqlTableColumn {
@@ -9909,6 +9924,7 @@ describe("SchemaGraph", () => {
                              ],
                              "tag": null,
                              "type": "SqlQuery",
+                             "view": null,
                            },
                            "out": false,
                            "scope": {
@@ -10174,6 +10190,7 @@ describe("SchemaGraph", () => {
                              ],
                              "tag": null,
                              "type": "SqlQuery",
+                             "view": null,
                            },
                            "out": false,
                            "scope": {
@@ -10453,6 +10470,7 @@ describe("SchemaGraph", () => {
                              ],
                              "tag": null,
                              "type": "SqlQuery",
+                             "view": null,
                            },
                            "out": false,
                            "scope": {
@@ -10496,6 +10514,7 @@ describe("SchemaGraph", () => {
                                },
                              },
                            },
+                           "selectParamName": "select",
                            "table": SqlTable {
                              "$amount": SqlTableColumn {
                                "columnName": "amount",
@@ -10703,6 +10722,7 @@ describe("SchemaGraph", () => {
                        ],
                        "tag": null,
                        "type": "SqlQuery",
+                       "view": null,
                      },
                      "tag": null,
                      "target": SqlTableColumn {
@@ -12475,6 +12495,7 @@ describe("SchemaGraph", () => {
                              ],
                              "tag": null,
                              "type": "SqlQuery",
+                             "view": null,
                            },
                            "out": false,
                            "scope": {
@@ -12740,6 +12761,7 @@ describe("SchemaGraph", () => {
                              ],
                              "tag": null,
                              "type": "SqlQuery",
+                             "view": null,
                            },
                            "out": false,
                            "scope": {
@@ -13019,6 +13041,7 @@ describe("SchemaGraph", () => {
                              ],
                              "tag": null,
                              "type": "SqlQuery",
+                             "view": null,
                            },
                            "out": false,
                            "scope": {
@@ -13062,6 +13085,7 @@ describe("SchemaGraph", () => {
                                },
                              },
                            },
+                           "selectParamName": "select",
                            "table": SqlTable {
                              "$amount": SqlTableColumn {
                                "columnName": "amount",
@@ -13269,6 +13293,7 @@ describe("SchemaGraph", () => {
                        ],
                        "tag": null,
                        "type": "SqlQuery",
+                       "view": null,
                      },
                      "tag": null,
                      "target": SqlTableColumn {
@@ -15041,6 +15066,7 @@ describe("SchemaGraph", () => {
                              ],
                              "tag": null,
                              "type": "SqlQuery",
+                             "view": null,
                            },
                            "out": false,
                            "scope": {
@@ -15306,6 +15332,7 @@ describe("SchemaGraph", () => {
                              ],
                              "tag": null,
                              "type": "SqlQuery",
+                             "view": null,
                            },
                            "out": false,
                            "scope": {
@@ -15585,6 +15612,7 @@ describe("SchemaGraph", () => {
                              ],
                              "tag": null,
                              "type": "SqlQuery",
+                             "view": null,
                            },
                            "out": false,
                            "scope": {
@@ -15628,6 +15656,7 @@ describe("SchemaGraph", () => {
                                },
                              },
                            },
+                           "selectParamName": "select",
                            "table": SqlTable {
                              "$amount": SqlTableColumn {
                                "columnName": "amount",
@@ -15835,6 +15864,7 @@ describe("SchemaGraph", () => {
                        ],
                        "tag": null,
                        "type": "SqlQuery",
+                       "view": null,
                      },
                      "tag": null,
                      "target": SqlTableColumn {
@@ -17546,6 +17576,7 @@ describe("SchemaGraph", () => {
                      ],
                      "tag": null,
                      "type": "SqlQuery",
+                     "view": null,
                    },
                    "out": false,
                    "scope": {
@@ -17811,6 +17842,7 @@ describe("SchemaGraph", () => {
                      ],
                      "tag": null,
                      "type": "SqlQuery",
+                     "view": null,
                    },
                    "out": false,
                    "scope": {
@@ -18090,6 +18122,7 @@ describe("SchemaGraph", () => {
                      ],
                      "tag": null,
                      "type": "SqlQuery",
+                     "view": null,
                    },
                    "out": false,
                    "scope": {
@@ -18133,6 +18166,7 @@ describe("SchemaGraph", () => {
                        },
                      },
                    },
+                   "selectParamName": "select",
                    "table": SqlTable {
                      "$amount": SqlTableColumn {
                        "columnName": "amount",
@@ -18340,6 +18374,7 @@ describe("SchemaGraph", () => {
                ],
                "tag": null,
                "type": "SqlQuery",
+               "view": null,
              },
              "tables": [
                "public.payment",

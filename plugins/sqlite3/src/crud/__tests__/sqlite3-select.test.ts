@@ -3,12 +3,12 @@ import "@vexnor/sqlite3";
 import { assertType, describe, expect, test } from "vitest";
 import { Account, Order } from "@vexnor/core/testing";
 import { sql, row, col, param, input, ParamsOf } from "@vexnor/core";
-import { sqlite3Select } from "#src/crud/sqlite3-select.js";
+import { Sqlite3SelectCommand } from "#src/crud/sqlite3-select-command.js";
 import { defaultQueryOptions } from "#src/crud/default-query-options.js";
 
-describe("sqlite3Select()", () => {
+describe("Sqlite3SelectCommand", () => {
    test("basic select", () => {
-      const query = sqlite3Select(Account, {});
+      const query = new Sqlite3SelectCommand(Account, {}).execute();
       const { text } = query.source.getSql({ options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
@@ -36,7 +36,7 @@ describe("sqlite3Select()", () => {
    });
 
    test("basic select - has $$ and row", () => {
-      const query = sqlite3Select(Account, {});
+      const query = new Sqlite3SelectCommand(Account, {}).execute();
       expect(query.source.$$).toBeDefined();
       expect(query.source.row).toBeDefined();
       expect(query.source.row.$accountId).toBeDefined();
@@ -44,7 +44,7 @@ describe("sqlite3Select()", () => {
 
    test("with WHERE", () => {
       const params = input<{ id: string }>();
-      const query = sqlite3Select(Account, { WHERE: sql`${Account.$accountId} = ${params.$id}` });
+      const query = new Sqlite3SelectCommand(Account, { WHERE: sql`${Account.$accountId} = ${params.$id}` }).execute();
       const { text } = query.source.getSql({ params: { id: "test-id" }, options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
@@ -75,11 +75,11 @@ describe("sqlite3Select()", () => {
    test("with ORDER_BY + offset + limit", () => {
       const offsetParam = param<{ offset: number }>("offset");
       const limitParam = param<{ limit: number }>("limit");
-      const query = sqlite3Select(Account, {
+      const query = new Sqlite3SelectCommand(Account, {
          ORDER_BY: sql`${Account.$createdAt} desc`,
          offset: offsetParam,
          limit: limitParam,
-      });
+      }).execute();
       const { text, values } = query.source.getSql({ params: { offset: 0, limit: 10 }, options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
@@ -120,7 +120,7 @@ describe("sqlite3Select()", () => {
          from ${Account.as("children")}
          where ${Account.as("children").$parentId} = ${Account.$accountId}
       `;
-      const query = sqlite3Select(Account, { includeMany: { children } });
+      const query = new Sqlite3SelectCommand(Account, { includeMany: { children } }).execute();
       const { text } = query.source.getSql({ options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
@@ -200,7 +200,7 @@ describe("sqlite3Select()", () => {
          from ${Order}
          where ${Order.$accountId} = ${Account.$accountId}
       `;
-      const query = sqlite3Select(Account, { includeOne: { firstOrder } });
+      const query = new Sqlite3SelectCommand(Account, { includeOne: { firstOrder } }).execute();
       const { text } = query.source.getSql({ options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
@@ -278,7 +278,7 @@ describe("sqlite3Select()", () => {
          from ${Account.as("children")}
          where ${Account.as("children").$parentId} = ${Account.$accountId}
       `;
-      const query = sqlite3Select(Account, { includeOne: { firstOrder }, includeMany: { children } });
+      const query = new Sqlite3SelectCommand(Account, { includeOne: { firstOrder }, includeMany: { children } }).execute();
       const { text } = query.source.getSql({ options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
@@ -394,9 +394,9 @@ describe("sqlite3Select()", () => {
 
    test("with SELECT override — full subquery inlines into SELECT clause", () => {
       const orderCount = col<{ orderCount: number }>("orderCount");
-      const query = sqlite3Select(Account, {
+      const query = new Sqlite3SelectCommand(Account, {
          SELECT: sql`${row(Account.$$)}, (select count(*) from ${Order} where ${Order.$accountId} = ${Account.$accountId}) as ${orderCount}`,
-      });
+      }).execute();
       const { text } = query.source.getSql({ options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
@@ -445,11 +445,11 @@ describe("param propagation through SqlSelectArgs clauses", () => {
             limit ${limitParam}
          `;
       // eslint-disable-next-line unused-imports/no-unused-vars
-      const query = sqlite3Select(Account, {
+      const query = new Sqlite3SelectCommand(Account, {
          WHERE: sql`${Account.$email} = ${emailParam}`,
          ORDER_BY: sql`${Account.$createdAt} ${dirParam}`,
          includeMany: { orders },
-      });
+      }).execute();
       type Params = ParamsOf<typeof query>;
       assertType<Params>({
          email: "a@b.com",
@@ -468,11 +468,11 @@ describe("param propagation through SqlSelectArgs clauses", () => {
             limit ${limitParam}
          `;
       // eslint-disable-next-line unused-imports/no-unused-vars
-      const query = sqlite3Select(Account, {
+      const query = new Sqlite3SelectCommand(Account, {
          WHERE: sql`${Account.$email} = ${emailParam}`,
          ORDER_BY: sql`${Account.$createdAt} ${dirParam}`,
          includeOne: { lastOrder },
-      });
+      }).execute();
       type Params = ParamsOf<typeof query>;
       assertType<Params>({
          email: "a@b.com",

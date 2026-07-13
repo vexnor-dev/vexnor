@@ -4,7 +4,7 @@ import { TestDataManager } from "./test-data-manager.js";
 
 export default async function (proj: TestProject) {
    Object.assign(process.env, proj.config.env ?? proj.globalConfig.env);
-   console.log(`global-setup.ts '${proj.name}'`, process.env["VALNOR_ENV_PATH"]);
+   console.log(`global-setup.ts '${proj.name}'`, process.env["VEXNOR_ENV_PATH"]);
    const dataManager = new TestDataManager(proj);
 
    let pool: ConnectionPool | undefined = undefined;

@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
 import { randomUUID } from "node:crypto";
 import { insert, param, row } from "@vexnor/core";
-import { sql, sqlite3Delete } from "@vexnor/sqlite3";
+import { sql, Sqlite3DeleteCommand } from "@vexnor/sqlite3";
 import { Account, IAccountInsert, IAccountSelect } from "./codegen/main.account-table.js";
 import { db } from "./config.js";
 
@@ -28,9 +28,9 @@ describe.sequential("vexnor sqlite3 CRUD - delete", () => {
       const target = inserted[0];
       ok(target);
 
-      const result = await sqlite3Delete(Account, {
+      const result = await new Sqlite3DeleteCommand(Account, {
          WHERE: sql`${Account.$accountId} = ${param<{ accountId: string }>("accountId")}`,
-      }).one({ db, params: { accountId: target.accountId } });
+      }).execute().one({ db, params: { accountId: target.accountId } });
 
       expect(result).toEqual(target);
 
@@ -45,9 +45,9 @@ describe.sequential("vexnor sqlite3 CRUD - delete", () => {
       const targets = inserted.slice(1, 3);
       const ids = targets.map((a) => a.accountId);
 
-      const results = await sqlite3Delete(Account, {
+      const results = await new Sqlite3DeleteCommand(Account, {
          WHERE: sql`${Account.$accountId} in (${ids})`,
-      }).all({ db });
+      }).execute().all({ db });
 
       expect(results).toHaveLength(2);
       expect(results.map((r) => r.accountId).sort()).toEqual(ids.sort());
@@ -57,9 +57,9 @@ describe.sequential("vexnor sqlite3 CRUD - delete", () => {
       const remaining = [inserted[3]!];
       ok(remaining[0]);
 
-      const results = await sqlite3Delete(Account, {
+      const results = await new Sqlite3DeleteCommand(Account, {
          WHERE: sql`${Account.$accountId} in (${remaining.map((a) => a.accountId)})`,
-      }).all({ db });
+      }).execute().all({ db });
 
       expect(results).toHaveLength(remaining.length);
       expect(results[0]!.accountId).toBe(remaining[0].accountId);
@@ -67,7 +67,7 @@ describe.sequential("vexnor sqlite3 CRUD - delete", () => {
 
    test("delete: throws without WHERE or force", () => {
       expect(() =>
-         sqlite3Delete(Account, {
+         new Sqlite3DeleteCommand(Account, {
             // @ts-expect-error intentional
             force: false,
          }),

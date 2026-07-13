@@ -1,17 +1,17 @@
 import { describe, expect, test } from "vitest";
 import { Account, Order } from "@vexnor/core/testing";
 import { sql, row } from "@vexnor/core";
-import { postgresSelect } from "#src/crud/postgres-select.js";
+import { PostgresSelectCommand } from "#src/crud/postgres-select-command.js";
 import { defaultQueryOptions } from "#src/default-query-options.js";
 
-describe("postgresSelect — includeOne/includeMany coverage", () => {
+describe("PostgresSelectCommand — includeOne/includeMany coverage", () => {
    test("includeOne creates jsonOne charm with LATERAL join", () => {
       const firstOrder = sql`
          select ${row(Order.$$)}
          from ${Order}
          where ${Order.$accountId} = ${Account.$accountId}
       `;
-      const query = postgresSelect(Account, { includeOne: { firstOrder } });
+      const query = new PostgresSelectCommand(Account, { includeOne: { firstOrder } }).execute();
       const { text } = query.source.getSql({ params: {}, options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
@@ -74,7 +74,7 @@ describe("postgresSelect — includeOne/includeMany coverage", () => {
          from ${Order}
          where ${Order.$accountId} = ${Account.$accountId}
       `;
-      const query = postgresSelect(Account, { includeMany: { orders } });
+      const query = new PostgresSelectCommand(Account, { includeMany: { orders } }).execute();
       const { text } = query.source.getSql({ params: {}, options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
@@ -134,7 +134,7 @@ describe("postgresSelect — includeOne/includeMany coverage", () => {
          from ${Order}
          where ${Order.$accountId} = ${Account.$accountId}
       `;
-      const query = postgresSelect(Account, { includeOne: { firstOrder }, includeMany: { allOrders } });
+      const query = new PostgresSelectCommand(Account, { includeOne: { firstOrder }, includeMany: { allOrders } }).execute();
       const { text } = query.source.getSql({ params: {}, options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
@@ -215,7 +215,7 @@ describe("postgresSelect — includeOne/includeMany coverage", () => {
    });
 
    test("no includes — hooks is undefined", () => {
-      const query = postgresSelect(Account, {});
+      const query = new PostgresSelectCommand(Account, {}).execute();
       const { text } = query.source.getSql({ params: {}, options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */

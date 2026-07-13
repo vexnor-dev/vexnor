@@ -30,6 +30,7 @@ describe("json-aggregation-postgres error branches", () => {
       const context = new SqlBuildContext();
       context.next("select");
       const queryNoRow = sql`SELECT 1`;
+      // @ts-expect-error — deliberately passing a row-less query to test the runtime guard
       const target = new JsonAggregationPostgres(queryNoRow, { type: "many" });
       expect(() => target.build(context, {})).toThrow("query row is required");
    });

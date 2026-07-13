@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 import { ok } from "node:assert";
 import { randomUUID } from "node:crypto";
 import { insert, row, val } from "@vexnor/core";
-import { sql, sqlite3InsertRows, sqlite3InsertFrom } from "@vexnor/sqlite3";
+import { sql, Sqlite3InsertRowsCommand, Sqlite3InsertFromCommand } from "@vexnor/sqlite3";
 import { Account, IAccountInsert } from "./codegen/main.account-table.js";
 import { db } from "./config.js";
 
@@ -15,7 +15,7 @@ describe.sequential("vexnor sqlite3 CRUD - insert", () => {
          lastName: "Single",
       };
 
-      const result = await sqlite3InsertRows(Account).one({ db, params: { rows: [insertData] } });
+      const result = await new Sqlite3InsertRowsCommand(Account).execute().one({ db, params: { rows: [insertData] } });
 
       expect(result).toEqual(
          expect.objectContaining({
@@ -50,7 +50,7 @@ describe.sequential("vexnor sqlite3 CRUD - insert", () => {
          },
       ];
 
-      const results = await sqlite3InsertRows(Account).all({ db, params: { rows: inserts } });
+      const results = await new Sqlite3InsertRowsCommand(Account).execute().all({ db, params: { rows: inserts } });
 
       expect(results).toHaveLength(3);
       for (let i = 0; i < inserts.length; i++) {
@@ -75,7 +75,7 @@ describe.sequential("vexnor sqlite3 CRUD - insert", () => {
 
       const childId = randomUUID();
 
-      const result = await sqlite3InsertFrom(Account, {
+      const result = await new Sqlite3InsertFromCommand(Account, {
          FROM: sql`
             select ${row(
                val`${childId}`.as<{ accountId: string }>("accountId"),
@@ -91,7 +91,7 @@ describe.sequential("vexnor sqlite3 CRUD - insert", () => {
             from ${Account.as("src")}
             where ${Account.as("src").$accountId} = ${parent.accountId}
          `,
-      }).one({ db });
+      }).execute().one({ db });
 
       ok(result);
       expect(result).toEqual(

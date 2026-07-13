@@ -4,12 +4,12 @@ import "@vexnor/mssql";
 import { Account, Order, OrderItem } from "@vexnor/core/testing";
 import { sql, row, param, input } from "@vexnor/core";
 import { jsonMany } from "#src/charms/json-aggregation-mssql.js";
-import { mssqlSelect } from "#src/crud/mssql-select.js";
+import { MssqlSelectCommand } from "#src/crud/mssql-select-command.js";
 import { defaultQueryOptions } from "#src/default-query-options.js";
 
 describe("mssqlTableRead()", () => {
    test("basic select", () => {
-      const query = mssqlSelect(Account, {});
+      const query = new MssqlSelectCommand(Account, {}).execute();
       const { text } = query.source.getSql({ options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
@@ -37,7 +37,7 @@ describe("mssqlTableRead()", () => {
    });
 
    test("basic select - has $$ and row", () => {
-      const query = mssqlSelect(Account, {});
+      const query = new MssqlSelectCommand(Account, {}).execute();
       expect(query.source.$$).toBeDefined();
       expect(query.source.row).toBeDefined();
       expect(query.source.row.$accountId).toBeDefined();
@@ -45,7 +45,7 @@ describe("mssqlTableRead()", () => {
 
    test("with WHERE", () => {
       const params = input<{ id: string }>();
-      const query = mssqlSelect(Account, { WHERE: sql`${Account.$accountId} = ${params.$id}` });
+      const query = new MssqlSelectCommand(Account, { WHERE: sql`${Account.$accountId} = ${params.$id}` }).execute();
       const { text } = query.source.getSql({ params: { id: "test-id" }, options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
@@ -76,11 +76,11 @@ describe("mssqlTableRead()", () => {
    test("with ORDER_BY + offset + limit", () => {
       const offsetParam = param<{ offset: number }>("offset");
       const limitParam = param<{ limit: number }>("limit");
-      const query = mssqlSelect(Account, {
+      const query = new MssqlSelectCommand(Account, {
          ORDER_BY: sql`${Account.$createdAt} desc`,
          offset: offsetParam,
          limit: limitParam,
-      });
+      }).execute();
       const { text, values } = query.source.getSql({ params: { offset: 0, limit: 10 }, options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
@@ -121,7 +121,7 @@ describe("mssqlTableRead()", () => {
          from ${Account.as("children")}
          where ${Account.as("children").$parentId} = ${Account.$accountId}
       `;
-      const query = mssqlSelect(Account, { includeMany: { children } });
+      const query = new MssqlSelectCommand(Account, { includeMany: { children } }).execute();
       const { text } = query.source.getSql({ options: defaultQueryOptions });
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
@@ -182,7 +182,7 @@ describe("mssqlTableRead()", () => {
          from ${Account.as("children")}
          where ${Account.as("children").$parentId} = ${Account.$accountId}
       `;
-      const query = mssqlSelect(Account, { includeMany: { children } });
+      const query = new MssqlSelectCommand(Account, { includeMany: { children } }).execute();
       expect(query.source.$$).toBeDefined();
       expect(query.source.row).toBeDefined();
       expect(query.$accountId).toBeDefined();
@@ -195,7 +195,7 @@ describe("mssqlTableRead()", () => {
          from ${Order}
          where ${Order.$accountId} = ${Account.$accountId}
       `;
-      const query = mssqlSelect(Account, { includeOne: { firstOrder } });
+      const query = new MssqlSelectCommand(Account, { includeOne: { firstOrder } }).execute();
       const { text } = query.source.getSql({});
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
@@ -256,7 +256,7 @@ describe("mssqlTableRead()", () => {
          from ${Order}
          where ${Order.$accountId} = ${Account.$accountId}
       `;
-      const query = mssqlSelect(Account, { includeOne: { firstOrder } });
+      const query = new MssqlSelectCommand(Account, { includeOne: { firstOrder } }).execute();
       expect(query.source.$$).toBeDefined();
       expect(query.source.row).toBeDefined();
       expect(query.$accountId).toBeDefined();
@@ -274,7 +274,7 @@ describe("mssqlTableRead()", () => {
          from ${Order}
          where ${Order.$accountId} = ${Account.$accountId}
       `;
-      const query = mssqlSelect(Account, { includeOne: { firstOrder }, includeMany: { children } });
+      const query = new MssqlSelectCommand(Account, { includeOne: { firstOrder }, includeMany: { children } }).execute();
       const { text } = query.source.getSql({});
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */
@@ -366,7 +366,7 @@ describe("mssqlTableRead()", () => {
          from ${Order} ${jsonMany(orderItems)}
          where ${Order.$accountId} = ${Account.$accountId}
       `;
-      const query = mssqlSelect(Account, { includeMany: { orders: ordersWithItems } });
+      const query = new MssqlSelectCommand(Account, { includeMany: { orders: ordersWithItems } }).execute();
       const { text } = query.source.getSql({});
       expect(text).toMatchInlineSnapshot(`
         "/* <query_0> */

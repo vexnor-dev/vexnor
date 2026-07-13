@@ -3,14 +3,14 @@
   "generatorVersion": "1.0.0-beta.3",
   "dialect": "postgresql",
   "queries": {
-    "1423ce4b4b52e5284473a1f29016c5943d4e649c7486a063cb4cf1edc4231153": {
+    "2d0b06d5f4f840db3974f0c8464c952d2d5931b9f86556008724a6a57aedaa1d": {
       "name": "deleteAccount",
       "location": "stacks/fixtures/queries/postgres.ts:160:47",
-      "hash": "1423ce4b4b52e5284473a1f29016c5943d4e649c7486a063cb4cf1edc4231153",
+      "hash": "2d0b06d5f4f840db3974f0c8464c952d2d5931b9f86556008724a6a57aedaa1d",
       "template": [
         {
           "type": "text",
-          "value": "\n      \n/* driver: postgres */\n\n      delete from \"vexnor_dev\".\"account\"\n      where \"account\".\"account_id\" = "
+          "value": "\n         \n/* driver: postgres */\n\n         delete from \"vexnor_dev\".\"account\"\n         where \"account\".\"account_id\" = "
         },
         {
           "type": "param",
@@ -18,7 +18,7 @@
         },
         {
           "type": "text",
-          "value": "\n      returning \"account\".\"account_id\" as \"accountId\", \"account\".\"status\", \"account\".\"email\", \"account\".\"first_name\" as \"firstName\", \"account\".\"last_name\" as \"lastName\", \"account\".\"notes\", \"account\".\"created_at\" as \"createdAt\", \"account\".\"modified_at\" as \"modifiedAt\", \"account\".\"parent_id\" as \"parentId\"\n   "
+          "value": "\n         returning \"account\".\"account_id\" as \"accountId\", \"account\".\"status\", \"account\".\"email\", \"account\".\"first_name\" as \"firstName\", \"account\".\"last_name\" as \"lastName\", \"account\".\"notes\", \"account\".\"created_at\" as \"createdAt\", \"account\".\"modified_at\" as \"modifiedAt\", \"account\".\"parent_id\" as \"parentId\"\n      "
         }
       ],
       "params": {
@@ -37,14 +37,14 @@
       },
       "authorization": []
     },
-    "299dddf0ee59d5d67ff108c6c07405c174d86e1ca522f432ea249edc86f153b4": {
+    "2bae38cad4c003ac15ed004b780607493208a5f5287f5912863270023312f2e2": {
       "name": "insertAccountCrud",
       "location": "stacks/fixtures/queries/postgres.ts:150:51",
-      "hash": "299dddf0ee59d5d67ff108c6c07405c174d86e1ca522f432ea249edc86f153b4",
+      "hash": "2bae38cad4c003ac15ed004b780607493208a5f5287f5912863270023312f2e2",
       "template": [
         {
           "type": "text",
-          "value": "\n      \n/* driver: postgres */\n\n      insert into \"vexnor_dev\".\"account\"\n         "
+          "value": "\n         \n/* driver: postgres */\n\n         insert into \"vexnor_dev\".\"account\"\n            "
         },
         {
           "type": "insert",
@@ -63,7 +63,7 @@
         },
         {
           "type": "text",
-          "value": "\n         returning \"account\".\"account_id\" as \"accountId\", \"account\".\"status\", \"account\".\"email\", \"account\".\"first_name\" as \"firstName\", \"account\".\"last_name\" as \"lastName\", \"account\".\"notes\", \"account\".\"created_at\" as \"createdAt\", \"account\".\"modified_at\" as \"modifiedAt\", \"account\".\"parent_id\" as \"parentId\"\n   "
+          "value": "\n            returning \"account\".\"account_id\" as \"accountId\", \"account\".\"status\", \"account\".\"email\", \"account\".\"first_name\" as \"firstName\", \"account\".\"last_name\" as \"lastName\", \"account\".\"notes\", \"account\".\"created_at\" as \"createdAt\", \"account\".\"modified_at\" as \"modifiedAt\", \"account\".\"parent_id\" as \"parentId\"\n      "
         }
       ],
       "params": {
@@ -1284,14 +1284,14 @@
       },
       "authorization": []
     },
-    "67915e037b94dcfcd90541f4738b39a15bebca373594e71a9c1d1b61abc87fc7": {
+    "71b3d13fd3f21bcc18888dbc5fcf317cebf0e89be61d4840e0d01ac62a8e22ff": {
       "name": "updateAccountCrud",
       "location": "stacks/fixtures/queries/postgres.ts:154:51",
-      "hash": "67915e037b94dcfcd90541f4738b39a15bebca373594e71a9c1d1b61abc87fc7",
+      "hash": "71b3d13fd3f21bcc18888dbc5fcf317cebf0e89be61d4840e0d01ac62a8e22ff",
       "template": [
         {
           "type": "text",
-          "value": "\n      \n/* driver: postgres */\n\n      update \"vexnor_dev\".\"account\"\n         "
+          "value": "\n         \n/* driver: postgres */\n\n         update \"vexnor_dev\".\"account\"\n            "
         },
         {
           "type": "set",
@@ -1310,7 +1310,7 @@
         },
         {
           "type": "text",
-          "value": "\n         \n                  where\n                  \"account\".\"account_id\" = "
+          "value": "\n            \n                     where\n                     \"account\".\"account_id\" = "
         },
         {
           "type": "param",
@@ -1318,7 +1318,7 @@
         },
         {
           "type": "text",
-          "value": "\n         returning \"account\".\"account_id\" as \"accountId\", \"account\".\"status\", \"account\".\"email\", \"account\".\"first_name\" as \"firstName\", \"account\".\"last_name\" as \"lastName\", \"account\".\"notes\", \"account\".\"created_at\" as \"createdAt\", \"account\".\"modified_at\" as \"modifiedAt\", \"account\".\"parent_id\" as \"parentId\"\n   "
+          "value": "\n            returning \"account\".\"account_id\" as \"accountId\", \"account\".\"status\", \"account\".\"email\", \"account\".\"first_name\" as \"firstName\", \"account\".\"last_name\" as \"lastName\", \"account\".\"notes\", \"account\".\"created_at\" as \"createdAt\", \"account\".\"modified_at\" as \"modifiedAt\", \"account\".\"parent_id\" as \"parentId\"\n      "
         }
       ],
       "params": {

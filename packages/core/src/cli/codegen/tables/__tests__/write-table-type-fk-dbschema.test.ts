@@ -184,6 +184,16 @@ describe("groupForeignKeys", () => {
         [
           {
             "from": [
+              "accountId",
+            ],
+            "toColumns": [
+              "accountId",
+            ],
+            "toSchema": "public",
+            "toTable": "account",
+          },
+          {
+            "from": [
               "orderId",
               "productId",
             ],
@@ -193,16 +203,6 @@ describe("groupForeignKeys", () => {
             ],
             "toSchema": "public",
             "toTable": "order_item",
-          },
-          {
-            "from": [
-              "accountId",
-            ],
-            "toColumns": [
-              "accountId",
-            ],
-            "toSchema": "public",
-            "toTable": "account",
           },
         ]
       `);

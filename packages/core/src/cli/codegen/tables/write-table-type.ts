@@ -135,5 +135,7 @@ export function groupForeignKeys(
          });
       }
    }
-   return [...grouped.values()];
+   // Sort deterministically by from columns to prevent codegen churn
+   // when the DB returns constraint metadata in non-deterministic order
+   return [...grouped.values()].sort((a, b) => a.from.join(",").localeCompare(b.from.join(",")));
 }

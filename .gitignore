@@ -30,6 +30,8 @@ mailmap.txt
 **/prisma/generated/
 **/__tests__/fixtures-*/generated/
 .tmp-*
+*.log
+*.kiro-docker
 
 # Backend runtime logs (AI-readable)
 **/logs/server.log

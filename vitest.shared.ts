@@ -34,6 +34,7 @@ type Config = Exclude<Awaited<Parameters<typeof vitest.defineConfig>[0]>, Functi
 export const sharedConfig: Config = {
    resolve: {
       tsconfigPaths: true,
+      conditions: ["development"],
    },
    test: {
       setupFiles: [path.resolve(__dirname, "vitest.setup.ts")],

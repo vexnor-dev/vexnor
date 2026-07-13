@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Vexnor.Core\Vexnor.Core.csproj" />
+    <ProjectReference Include="..\..\src\Vexnor.Postgres\Vexnor.Postgres.csproj" />
   </ItemGroup>
 
 </Project>

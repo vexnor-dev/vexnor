@@ -5,6 +5,7 @@ import { SqlTableColumnAny } from "#src/core/schema/sql-table-column.js";
 import { BuildSqlParams, PathToNested, SqlParam } from "#src/core/query/sql-param.js";
 import { SqlBuildError } from "#src/core/sql-build-error.js";
 import { resolvePath } from "#src/core/query/resolve-path.js";
+import { SqlProjectByEntryValue, SqlProjectByFnEntry, sqlProjectByAggregations } from "#src/core/operators/sql-project-by.js";
 
 const VALID_DIRECTIONS = new Set(["asc", "desc", "ASC", "DESC"]);
 
@@ -38,13 +39,14 @@ export class SqlOrderBy<T extends { Select: Record<string, unknown> }, ParamName
 
    readonly table: SqlTable<T>;
    readonly paramName: ParamName;
+   readonly selectParamName: string | undefined;
    readonly params: BuildSqlParams<PathToNested<ParamName, T[keyof T]>>;
 
    get aiPrompt() {
       return `orderBy: {"columnName": "ASC"|"DESC"}. Key is the column name, value is direction. Aggregate aliases from select also work.`;
    }
 
-   constructor(table: SqlTable<T>, { paramName, fieldNames }: { paramName: ParamName; fieldNames?: string[] }) {
+   constructor(table: SqlTable<T>, { paramName, fieldNames, selectParamName }: { paramName: ParamName; fieldNames?: string[]; selectParamName?: string }) {
       super({
          type: "SqlOrderBy",
          id: `${table.tableInfo.name}.${paramName}`,
@@ -53,6 +55,7 @@ export class SqlOrderBy<T extends { Select: Record<string, unknown> }, ParamName
 
       this.table = table;
       this.paramName = paramName;
+      this.selectParamName = selectParamName;
       this.params = {
          [paramName]: new SqlParam<{ Name: ParamName; Type: SqlOrderByOption<T["Select"]> }>({
             name: paramName,
@@ -96,6 +99,22 @@ export class SqlOrderBy<T extends { Select: Record<string, unknown> }, ParamName
 
       context.addStrings("order by ");
 
+      // Build a set of aggregate aliases from the select param (same pattern as SqlHavingBy)
+      const aggregateAliases = new Set<string>();
+      if (this.selectParamName) {
+         const selectObj = resolvePath(context.params as Record<string, unknown>, this.selectParamName) as Record<string, SqlProjectByEntryValue> | null | undefined;
+         if (selectObj && typeof selectObj === "object") {
+            for (const [alias, value] of Object.entries(selectObj)) {
+               if (typeof value === "object" && value !== null && "fn" in value) {
+                  const entry = value as SqlProjectByFnEntry;
+                  if (sqlProjectByAggregations.has(entry.fn)) {
+                     aggregateAliases.add(alias);
+                  }
+               }
+            }
+         }
+      }
+
       let emitted = 0;
       for (const [field, dir] of entries) {
          if (dir && !VALID_DIRECTIONS.has(dir)) {
@@ -103,8 +122,12 @@ export class SqlOrderBy<T extends { Select: Record<string, unknown> }, ParamName
          }
          if (emitted > 0) context.addStrings(", ");
 
-         // Resolve from columnMap (joinBy) if available
-         if (context.columnCount > 0) {
+         // If the field matches an aggregate alias, emit the quoted alias directly
+         // (SQL allows ORDER BY to reference SELECT aliases)
+         if (aggregateAliases.has(field)) {
+            context.addStrings(`"${field.replace(/"/g, '""')}"`);
+         } else if (context.columnCount > 0) {
+            // Resolve from columnMap (joinBy) if available
             const col = context.getColumn(field);
             if (col) {
                col.build(context);
