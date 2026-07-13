@@ -7,7 +7,7 @@ using Vexnor.Postgres;
 using Vexnor.Sqlite3;
 
 // ─── Structured file logging ─────────────────────────────────────────────────
-var fileLogger = new FileLogger(Path.Combine(Directory.GetCurrentDirectory(), "logs", "server.log"));
+var fileLogger = new FileLogger(Path.GetFullPath(Path.Join("logs", "server.log"), Directory.GetCurrentDirectory()));
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors(options => options.AddDefaultPolicy(p => p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
