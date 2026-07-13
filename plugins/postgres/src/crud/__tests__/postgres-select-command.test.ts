@@ -864,3 +864,17 @@ describe("PostgresProjectBy — remaining branch coverage", () => {
       `);
    });
 });
+
+
+describe("PostgresProjectBy — defensive error paths", () => {
+   test("aggregate with non-string colRef throws invalid column reference error", () => {
+      const command = new PostgresSelectCommand(Account, {});
+      const query = command.build();
+      expect(() =>
+         query.getSql({
+            params: { select: { bad: { fn: "sum", col: 123 as never } } },
+            options: defaultQueryOptions,
+         }),
+      ).toThrow("Invalid column reference in aggregate");
+   });
+});

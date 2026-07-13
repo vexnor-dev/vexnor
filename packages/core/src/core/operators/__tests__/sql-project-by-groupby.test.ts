@@ -393,3 +393,21 @@ describe("SqlProjectionGroupBy — concat transform parameterization", () => {
       expect(context.values).toMatchInlineSnapshot(`[]`);
    });
 });
+
+
+describe("SqlProjectionGroupBy.resolveColumn — error messages", () => {
+   beforeEach(() => {
+      SqlTable.register(Account);
+   });
+
+   test("dot-prefixed column that does not resolve throws with joinBy suggestion", () => {
+      const groupBy = new SqlProjectionGroupBy(Account, "select");
+      const context = new SqlBuildContext({
+         dialect: "postgresql",
+         params: { select: { period: { fn: "dateTrunc", col: "invoice.amount", args: "month" }, total: { fn: "count", col: "*" } } },
+      });
+      expect(() => groupBy.write(context)).toThrow(
+         'Column "invoice.amount" not found. If "invoice" is a joined table, add it to joinBy.',
+      );
+   });
+});
