@@ -232,7 +232,7 @@ public class ManifestLoaderEdgeCaseTests
     [Fact]
     public void Registry_LoadDirectory_MergesFiles()
     {
-        var tmpDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        var tmpDir = Path.Join(Path.GetTempPath(), Guid.NewGuid().ToString());
         Directory.CreateDirectory(tmpDir);
         try
         {
