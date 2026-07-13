@@ -916,3 +916,49 @@ describe("PostgresProjectBy — branch coverage", () => {
       expect(text).toContain("date_trunc('month'");
    });
 });
+
+
+describe("PostgresProjectBy — branch coverage (columnCount > 0 path)", () => {
+   test("pgResolveColumn with dot-notation where stripped key does not exist throws", () => {
+      const command = new PostgresSelectCommand(Account, {});
+      const query = command.build();
+      expect(() =>
+         query.getSql({
+            params: { select: { bad: { fn: "count", col: "unknown.nonExistent" } } },
+            options: defaultQueryOptions,
+         }),
+      ).toThrow("Column not found: unknown.nonExistent");
+   });
+
+   test("getSelectObjectFromParams returns null for empty select (emits all columns)", () => {
+      const command = new PostgresSelectCommand(Account, {});
+      const query = command.build();
+      const { text } = query.getSql({
+         params: { select: {} },
+         options: defaultQueryOptions,
+      });
+      expect(text).toContain('"accountId"');
+      expect(text).toContain('"email"');
+   });
+
+   test("pgRenderColRef resolves column via pgResolveColumn (columnCount === 0)", () => {
+      const command = new PostgresSelectCommand(Account, {});
+      const query = command.build();
+      const { text } = query.getSql({
+         params: { select: { period: { fn: "dateTrunc", col: "createdAt", args: "month" } } },
+         options: defaultQueryOptions,
+      });
+      expect(text).toContain("date_trunc('month'");
+   });
+
+   test("getSelectObjectFromParams returns null when select is null (emits all columns)", () => {
+      const command = new PostgresSelectCommand(Account, {});
+      const query = command.build();
+      const { text } = query.getSql({
+         params: { select: null } as never,
+         options: defaultQueryOptions,
+      });
+      expect(text).toContain('"accountId"');
+      expect(text).toContain('"email"');
+   });
+});
