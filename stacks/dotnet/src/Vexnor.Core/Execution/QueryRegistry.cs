@@ -13,10 +13,22 @@ public sealed class QueryRegistry
     private readonly Dictionary<string, QueryDefinition> _queries = new();
     private readonly string _dialect;
     private readonly QueryPipeline _pipeline = new();
+    private readonly SqlBuilder.AggregateColumnTransform? _aggregateTransform;
 
     public QueryRegistry(string dialect)
     {
         _dialect = dialect;
+        _aggregateTransform = dialect == "postgresql" ? PostgresAggregateTransform : null;
+    }
+
+    /// <summary>
+    /// PostgreSQL aggregate transform: casts boolean columns to ::int inside SUM/AVG.
+    /// </summary>
+    private static string PostgresAggregateTransform(string fn, string colSql, string? colType)
+    {
+        if ((fn == "sum" || fn == "avg") && colType == "boolean")
+            return colSql + "::int";
+        return colSql;
     }
 
     // ─── Pipeline ────────────────────────────────────────────────────────────
@@ -73,7 +85,7 @@ public sealed class QueryRegistry
         if (!_queries.TryGetValue(hash, out var query))
             throw new InvalidOperationException($"Unknown query hash: {hash}");
 
-        return new SqlBuilder(_dialect).Build(query, parameters);
+        return new SqlBuilder(_dialect).Build(query, parameters, _aggregateTransform);
     }
 
     /// <summary>
@@ -104,7 +116,7 @@ public sealed class QueryRegistry
         return await _pipeline.ExecuteAsync(args, async () =>
         {
             ValidateStructuredParams(query, parameters);
-            var sql = new SqlBuilder(_dialect).Build(query, parameters);
+            var sql = new SqlBuilder(_dialect).Build(query, parameters, _aggregateTransform);
             return await executeFn(sql);
         });
     }

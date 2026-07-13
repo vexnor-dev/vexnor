@@ -237,3 +237,87 @@ func TestSqlSelectCommand_ImplementsInterface(t *testing.T) {
 	var _ vexnor.SqlSelectCommandBuilder = vexnor.NewSqlSelectCommand(makeSelectQuery(), "postgresql")
 	var _ vexnor.SqlSelectCommandBuilder = vexnor.NewPostgresSqlSelectCommand(makeSelectQuery())
 }
+
+
+// ─── Registry-level aggregate transform tests ────────────────────────────────
+
+func TestQueryRegistry_PostgresDialect_AppliesBooleanCast(t *testing.T) {
+	registry := vexnor.NewQueryRegistry("postgresql")
+	query := makeSelectQuery()
+
+	manifest := &vexnor.QueryManifest{
+		Version: 1,
+		Dialect: "postgresql",
+		Queries: map[string]*vexnor.QueryDefinition{
+			"abc": query,
+		},
+	}
+	registry.Load(manifest)
+
+	params := map[string]any{
+		"select": []any{[]any{"sum", "isActive", "activeCount"}},
+	}
+	result, err := registry.Build("abc", params)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	expected := `SELECT sum("a"."is_active"::int) as "activeCount" FROM "account" AS "a"`
+	if result.Text != expected {
+		t.Errorf("text mismatch:\n  got:  %s\n  want: %s", result.Text, expected)
+	}
+}
+
+func TestQueryRegistry_MssqlDialect_DoesNotCast(t *testing.T) {
+	registry := vexnor.NewQueryRegistry("transactsql")
+	query := makeSelectQuery()
+
+	manifest := &vexnor.QueryManifest{
+		Version: 1,
+		Dialect: "transactsql",
+		Queries: map[string]*vexnor.QueryDefinition{
+			"abc": query,
+		},
+	}
+	registry.Load(manifest)
+
+	params := map[string]any{
+		"select": []any{[]any{"sum", "isActive", "activeCount"}},
+	}
+	result, err := registry.Build("abc", params)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	expected := `SELECT sum("a"."is_active") as "activeCount" FROM "account" AS "a"`
+	if result.Text != expected {
+		t.Errorf("text mismatch:\n  got:  %s\n  want: %s", result.Text, expected)
+	}
+}
+
+func TestQueryRegistry_SqliteDialect_DoesNotCast(t *testing.T) {
+	registry := vexnor.NewQueryRegistry("sqlite")
+	query := makeSelectQuery()
+
+	manifest := &vexnor.QueryManifest{
+		Version: 1,
+		Dialect: "sqlite",
+		Queries: map[string]*vexnor.QueryDefinition{
+			"abc": query,
+		},
+	}
+	registry.Load(manifest)
+
+	params := map[string]any{
+		"select": []any{[]any{"sum", "isActive", "activeCount"}},
+	}
+	result, err := registry.Build("abc", params)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	expected := `SELECT sum("a"."is_active") as "activeCount" FROM "account" AS "a"`
+	if result.Text != expected {
+		t.Errorf("text mismatch:\n  got:  %s\n  want: %s", result.Text, expected)
+	}
+}

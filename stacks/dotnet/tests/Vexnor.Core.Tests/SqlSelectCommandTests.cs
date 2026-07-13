@@ -159,3 +159,101 @@ public class PostgresSqlSelectCommandTests
         Assert.DoesNotContain("::int", result.Text);
     }
 }
+
+
+public class QueryRegistryAggregateTransformTests
+{
+    private QueryManifest MakeManifest() => new()
+    {
+        Version = 1,
+        Dialect = "postgresql",
+        Queries = new()
+        {
+            ["abc"] = new QueryDefinition
+            {
+                Name = "test", Hash = "abc",
+                Row = new()
+                {
+                    ["isActive"] = new ColumnSchema { Type = "boolean" },
+                    ["email"] = new ColumnSchema { Type = "text" },
+                },
+                Template =
+                {
+                    new TextNode { Value = "SELECT " },
+                    new ProjectionNode
+                    {
+                        Param = "select",
+                        Columns = new()
+                        {
+                            ["accountId"] = "\"a\".\"account_id\" as \"accountId\"",
+                            ["email"] = "\"a\".\"email\"",
+                            ["isActive"] = "\"a\".\"is_active\"",
+                        },
+                    },
+                    new TextNode { Value = " FROM \"account\" AS \"a\"" },
+                }
+            },
+        },
+    };
+
+    [Fact]
+    public void PostgresRegistry_AppliesBooleanCast_OnSumAggregate()
+    {
+        var registry = new QueryRegistry("postgresql");
+        registry.Load(MakeManifest());
+
+        var parameters = new Dictionary<string, object?>
+        {
+            ["select"] = new object?[] { new object?[] { "sum", "isActive", "activeCount" } }
+        };
+        var result = registry.Build("abc", parameters);
+
+        Assert.Contains("::int", result.Text);
+        Assert.Contains("sum(\"a\".\"is_active\"::int) as \"activeCount\"", result.Text);
+    }
+
+    [Fact]
+    public void PostgresRegistry_AppliesBooleanCast_OnAvgAggregate()
+    {
+        var registry = new QueryRegistry("postgresql");
+        registry.Load(MakeManifest());
+
+        var parameters = new Dictionary<string, object?>
+        {
+            ["select"] = new object?[] { new object?[] { "avg", "isActive", "avgActive" } }
+        };
+        var result = registry.Build("abc", parameters);
+
+        Assert.Contains("avg(\"a\".\"is_active\"::int) as \"avgActive\"", result.Text);
+    }
+
+    [Fact]
+    public void PostgresRegistry_DoesNotCast_CountOnBoolean()
+    {
+        var registry = new QueryRegistry("postgresql");
+        registry.Load(MakeManifest());
+
+        var parameters = new Dictionary<string, object?>
+        {
+            ["select"] = new object?[] { new object?[] { "count", "isActive", "countActive" } }
+        };
+        var result = registry.Build("abc", parameters);
+
+        Assert.DoesNotContain("::int", result.Text);
+    }
+
+    [Fact]
+    public void MssqlRegistry_DoesNotCast()
+    {
+        var registry = new QueryRegistry("transactsql");
+        registry.Load(MakeManifest());
+
+        var parameters = new Dictionary<string, object?>
+        {
+            ["select"] = new object?[] { new object?[] { "sum", "isActive", "activeCount" } }
+        };
+        var result = registry.Build("abc", parameters);
+
+        Assert.DoesNotContain("::int", result.Text);
+    }
+}

@@ -13,19 +13,33 @@ type QueryInfo struct {
 
 // QueryRegistry loads and resolves portable queries from manifests.
 type QueryRegistry struct {
-	queries  map[string]*QueryDefinition
-	dialect  string
-	pipeline *QueryPipeline
+	queries            map[string]*QueryDefinition
+	dialect            string
+	pipeline           *QueryPipeline
+	aggregateTransform AggregateColumnTransform
 }
 
 // NewQueryRegistry creates a new QueryRegistry for the given SQL dialect.
 // Supported dialects: "postgresql", "transactsql", "sqlite".
+// For PostgreSQL, automatically registers the boolean→::int aggregate transform.
 func NewQueryRegistry(dialect string) *QueryRegistry {
-	return &QueryRegistry{
+	r := &QueryRegistry{
 		queries:  make(map[string]*QueryDefinition),
 		dialect:  dialect,
 		pipeline: NewQueryPipeline(),
 	}
+	if dialect == "postgresql" {
+		r.aggregateTransform = postgresAggregateTransform
+	}
+	return r
+}
+
+// postgresAggregateTransform appends ::int to boolean columns inside SUM/AVG.
+func postgresAggregateTransform(fn, colSql string, colType *string) string {
+	if (fn == "sum" || fn == "avg") && colType != nil && *colType == "boolean" {
+		return colSql + "::int"
+	}
+	return colSql
 }
 
 // Use registers a plugin with the registry's pipeline.
@@ -114,7 +128,7 @@ func (r *QueryRegistry) Build(hash string, params map[string]any) (*SqlBuildResu
 	}
 
 	builder := NewSqlBuilder(r.dialect)
-	return builder.Build(query, params)
+	return builder.BuildWithTransform(query, params, r.aggregateTransform)
 }
 
 // Execute resolves a query by hash, runs it through the pipeline with
@@ -148,7 +162,7 @@ func (r *QueryRegistry) Execute(hash string, params, context map[string]any, exe
 
 	// Execute through pipeline
 	return r.pipeline.Execute(pipelineArgs, func() (any, error) {
-		buildResult, err := NewSqlBuilder(r.dialect).Build(query, resolvedParams)
+		buildResult, err := NewSqlBuilder(r.dialect).BuildWithTransform(query, resolvedParams, r.aggregateTransform)
 		if err != nil {
 			return nil, err
 		}
