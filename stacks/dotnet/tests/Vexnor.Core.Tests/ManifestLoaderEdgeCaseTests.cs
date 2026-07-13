@@ -184,7 +184,7 @@ public class ManifestLoaderEdgeCaseTests
         Directory.CreateDirectory(tmpDir);
         try
         {
-            File.WriteAllText(Path.Combine(tmpDir, "01_first.json"), """
+            File.WriteAllText(Path.Join(tmpDir, "01_first.json"), """
             {
                 "version": 1,
                 "queries": {
