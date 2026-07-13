@@ -86,7 +86,7 @@ public class CrossRuntimeExecuteTests : IAsyncLifetime
             try
             {
                 var sql = _registry.Build(entry.Hash!, parameters);
-                var rows = await _executor.QueryAsync(sql);
+                await _executor.QueryAsync(sql);
                 passed++;
             }
             catch (Exception ex) when (ex.Message.Contains("42601") || ex.Message.Contains("syntax error"))
