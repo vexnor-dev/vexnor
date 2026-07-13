@@ -11,6 +11,8 @@ public sealed class SqlBuilder
 {
     private readonly string _dialect;
     private int _paramIndex;
+    private AggregateColumnTransform? _aggregateColumnTransform;
+    private Dictionary<string, ColumnSchema>? _rowSchema;
 
     public SqlBuilder(string dialect)
     {
@@ -19,12 +21,21 @@ public sealed class SqlBuilder
 
     public SqlBuildResult Build(QueryDefinition query, Dictionary<string, object?> parameters)
     {
+        return Build(query, parameters, aggregateColumnTransform: null);
+    }
+
+    public SqlBuildResult Build(QueryDefinition query, Dictionary<string, object?> parameters, AggregateColumnTransform? aggregateColumnTransform)
+    {
         _paramIndex = 0;
+        _aggregateColumnTransform = aggregateColumnTransform;
+        _rowSchema = query.Row;
         var sql = new List<string>();
         var values = new List<object?>();
 
         BuildNodes(query.Template, parameters, sql, values);
 
+        _aggregateColumnTransform = null;
+        _rowSchema = null;
         return new SqlBuildResult(string.Concat(sql), values);
     }
 
@@ -76,7 +87,7 @@ public sealed class SqlBuilder
                     break;
 
                 case ProjectionNode projection:
-                    BuildProjection(projection, parameters, sql, values);
+                    BuildProjection(projection, parameters, sql, values, _aggregateColumnTransform, _rowSchema);
                     break;
 
                 case PaginationNode:
@@ -374,7 +385,14 @@ public sealed class SqlBuilder
         }
     }
 
-    private void BuildProjection(ProjectionNode projection, Dictionary<string, object?> parameters, List<string> sql, List<object?> values)
+    /// <summary>
+    /// Delegate for transforming the column SQL inside an aggregate function call.
+    /// Called with (functionName, columnSql, columnType) and returns the (possibly transformed) column SQL.
+    /// </summary>
+    public delegate string AggregateColumnTransform(string fn, string colSql, string? colType);
+
+    internal void BuildProjection(ProjectionNode projection, Dictionary<string, object?> parameters, List<string> sql, List<object?> values,
+        AggregateColumnTransform? aggregateColumnTransform, Dictionary<string, ColumnSchema>? rowSchema)
     {
         if (!parameters.TryGetValue(projection.Param, out var obj))
         {
@@ -427,6 +445,16 @@ public sealed class SqlBuilder
                     if (!projection.Columns.TryGetValue(colKey, out var aggColSql))
                         throw new InvalidOperationException(
                             $"Invalid projection column in aggregate: '{colKey}'. Allowed: {string.Join(", ", projection.Columns.Keys)}");
+
+                    // Apply aggregate column transform if provided
+                    if (aggregateColumnTransform != null)
+                    {
+                        string? colType = null;
+                        if (rowSchema != null && rowSchema.TryGetValue(colKey, out var schema))
+                            colType = schema.Type;
+                        aggColSql = aggregateColumnTransform(fn, aggColSql, colType);
+                    }
+
                     sql.Add(aggColSql);
                 }
                 sql.Add($") as \"{alias}\"");

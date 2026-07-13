@@ -7,7 +7,10 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "imports": {
-    "#src/*": "./dist/*"
+    "#src/*": {
+      "development": "./src/*",
+      "default": "./dist/*"
+    }
   },
   "exports": {
     ".": {

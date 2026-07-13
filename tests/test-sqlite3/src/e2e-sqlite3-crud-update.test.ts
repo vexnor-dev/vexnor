@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
 import { randomUUID } from "node:crypto";
 import { insert, param, row } from "@vexnor/core";
-import { sql, sqlite3Update } from "@vexnor/sqlite3";
+import { sql, Sqlite3UpdateCommand } from "@vexnor/sqlite3";
 import { Account, IAccountInsert, IAccountSelect } from "./codegen/main.account-table.js";
 import { db } from "./config.js";
 
@@ -36,9 +36,9 @@ describe.sequential("vexnor sqlite3 CRUD - update", () => {
       const target = inserted[0];
       ok(target);
 
-      const result = await sqlite3Update(Account, {
+      const result = await new Sqlite3UpdateCommand(Account, {
          WHERE: sql`${Account.$accountId} = ${param<{ accountId: string }>("accountId")}`,
-      }).one({
+      }).execute().one({
          db,
          params: { set: { firstName: "Updated" }, accountId: target.accountId },
       });
@@ -50,9 +50,9 @@ describe.sequential("vexnor sqlite3 CRUD - update", () => {
       const target = inserted[1];
       ok(target);
 
-      const result = await sqlite3Update(Account, {
+      const result = await new Sqlite3UpdateCommand(Account, {
          WHERE: sql`${Account.$accountId} = ${param<{ accountId: string }>("accountId")}`,
-      }).one({
+      }).execute().one({
          db,
          params: { set: { firstName: "Multi", lastName: "Updated", notes: "note" }, accountId: target.accountId },
       });
@@ -61,7 +61,7 @@ describe.sequential("vexnor sqlite3 CRUD - update", () => {
    });
 
    test("update: no WHERE (force) updates all rows and returns all", async () => {
-      const results = await sqlite3Update(Account, {}).all({
+      const results = await new Sqlite3UpdateCommand(Account, {}).execute().all({
          db,
          params: { set: { status: "confirmed" } },
       });

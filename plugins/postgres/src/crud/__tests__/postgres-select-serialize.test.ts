@@ -2,7 +2,7 @@
 import { describe, expect, test } from "vitest";
 import { Account, Order } from "@vexnor/core/testing";
 import { sql, row, serializeQuery } from "@vexnor/core";
-import { postgresSelect } from "#src/crud/postgres-select.js";
+import { PostgresSelectCommand } from "#src/crud/postgres-select-command.js";
 import { defaultQueryOptions } from "#src/default-query-options.js";
 
 /**
@@ -37,9 +37,9 @@ function extractSerializedSql(template: { type: string; value?: string }[]): str
       .join("");
 }
 
-describe("postgresSelect — serialize regression", () => {
+describe("PostgresSelectCommand — serialize regression", () => {
    test("basic select serialization — no includes (should be valid)", async () => {
-      const query = postgresSelect(Account, {});
+      const query = new PostgresSelectCommand(Account, {}).execute();
       const { text } = query.source.getSql({ params: {}, options: defaultQueryOptions });
 
       // Runtime SQL should not have the bug patterns
@@ -57,7 +57,7 @@ describe("postgresSelect — serialize regression", () => {
          from ${Order}
          where ${Order.$accountId} = ${Account.$accountId}
       `;
-      const query = postgresSelect(Account, { includeOne: { firstOrder } });
+      const query = new PostgresSelectCommand(Account, { includeOne: { firstOrder } }).execute();
 
       // Runtime SQL should be valid — all columns present
       const { text } = query.source.getSql({ params: {}, options: defaultQueryOptions });
@@ -76,7 +76,7 @@ describe("postgresSelect — serialize regression", () => {
          from ${Account.as("children")}
          where ${Account.as("children").$parentId} = ${Account.$accountId}
       `;
-      const query = postgresSelect(Account, { includeMany: { children } });
+      const query = new PostgresSelectCommand(Account, { includeMany: { children } }).execute();
 
       // Runtime SQL should be valid — all columns present
       const { text } = query.source.getSql({ params: {}, options: defaultQueryOptions });
@@ -95,10 +95,10 @@ describe("postgresSelect — serialize regression", () => {
          from ${Order}
          where ${Order.$accountId} = ${Account.$accountId}
       `;
-      const query = postgresSelect(Account, {
+      const query = new PostgresSelectCommand(Account, {
          SELECT: sql`${Account.$accountId}, ${Account.$email}`,
          includeOne: { firstOrder },
-      });
+      }).execute();
 
       // Runtime SQL — also broken: wraps custom SELECT columns in parens as row constructor
       const { text } = query.source.getSql({ params: {}, options: defaultQueryOptions });
@@ -116,10 +116,10 @@ describe("postgresSelect — serialize regression", () => {
          from ${Order}
          where ${Order.$accountId} = ${Account.$accountId}
       `;
-      const query = postgresSelect(Account, {
+      const query = new PostgresSelectCommand(Account, {
          WHERE: sql`${Account.$status} = 'active'`,
          includeOne: { firstOrder },
-      });
+      }).execute();
 
       // Runtime SQL should be valid
       const { text } = query.source.getSql({ params: {}, options: defaultQueryOptions });

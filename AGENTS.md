@@ -107,6 +107,8 @@ This is a serious, high-quality codebase. No shortcuts. No lazy work. Ever.
 - Unit tests go in `__tests__/` alongside the implementation.
 - Use `toMatchInlineSnapshot()` for all SQL text and values output — write empty calls first, then populate by running with `-u`.
 - Do not ship code without running the full test suite and confirming it passes.
+- **Every new file, refactoring, or change must have 100% (or maximum reasonable) test coverage. Do not ask for approval — just write the tests. If coverage is below 100%, add tests until it is. Check coverage before declaring work done.**
+- Never leave new code untested. If a file shows <100% coverage after `pnpm test`, write additional tests to cover the missing lines/branches immediately.
 
 ## Git commits by AI
 

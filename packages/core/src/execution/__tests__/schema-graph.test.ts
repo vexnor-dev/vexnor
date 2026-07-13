@@ -2626,6 +2626,7 @@ describe("SchemaGraph", () => {
                            },
                          },
                        },
+                       "selectParamName": "select",
                        "table": SqlTable {
                          "$amount": SqlTableColumn {
                            "columnName": "amount",
@@ -5254,6 +5255,7 @@ describe("SchemaGraph", () => {
                            },
                          },
                        },
+                       "selectParamName": "select",
                        "table": SqlTable {
                          "$amount": SqlTableColumn {
                            "columnName": "amount",
@@ -7882,6 +7884,7 @@ describe("SchemaGraph", () => {
                            },
                          },
                        },
+                       "selectParamName": "select",
                        "table": SqlTable {
                          "$amount": SqlTableColumn {
                            "columnName": "amount",
@@ -10511,6 +10514,7 @@ describe("SchemaGraph", () => {
                                },
                              },
                            },
+                           "selectParamName": "select",
                            "table": SqlTable {
                              "$amount": SqlTableColumn {
                                "columnName": "amount",
@@ -13081,6 +13085,7 @@ describe("SchemaGraph", () => {
                                },
                              },
                            },
+                           "selectParamName": "select",
                            "table": SqlTable {
                              "$amount": SqlTableColumn {
                                "columnName": "amount",
@@ -15651,6 +15656,7 @@ describe("SchemaGraph", () => {
                                },
                              },
                            },
+                           "selectParamName": "select",
                            "table": SqlTable {
                              "$amount": SqlTableColumn {
                                "columnName": "amount",
@@ -18160,6 +18166,7 @@ describe("SchemaGraph", () => {
                        },
                      },
                    },
+                   "selectParamName": "select",
                    "table": SqlTable {
                      "$amount": SqlTableColumn {
                        "columnName": "amount",

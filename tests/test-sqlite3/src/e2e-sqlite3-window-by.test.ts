@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, test } from "vitest";
 import { ok } from "node:assert";
 import { randomUUID } from "node:crypto";
 import { insert, param, row } from "@vexnor/core";
-import { sql, sqlite3Select } from "@vexnor/sqlite3";
+import { sql, Sqlite3SelectCommand } from "@vexnor/sqlite3";
 import "@vexnor/sqlite3";
 import { Account, IAccountInsert, IAccountSelect } from "./codegen/main.account-table.js";
 import { Order, IOrderInsert, IOrderSelect } from "./codegen/main.order-table.js";
@@ -38,13 +38,13 @@ describe.sequential("windowBy — e2e sqlite3", () => {
    describe("basic window functions", () => {
       test("row_number with orderBy", async () => {
          const accountIds = accounts.map((a) => a.accountId);
-         const results = await sqlite3Select(Account, {
+         const results = await new Sqlite3SelectCommand(Account, {
             WHERE: sql`${Account.$accountId} in (${accountIds})`,
             limit: param<{ limit: number }>("limit"),
             windowBy: {
                rowNum: { fn: "row_number", over: { orderBy: { email: "ASC" } } },
             },
-         }).all({
+         }).execute().all({
             db,
             params: { limit: 100 },
          });
@@ -64,13 +64,13 @@ describe.sequential("windowBy — e2e sqlite3", () => {
 
       test("rank with partitionBy + orderBy", async () => {
          const accountIds = accounts.map((a) => a.accountId);
-         const results = await sqlite3Select(Account, {
+         const results = await new Sqlite3SelectCommand(Account, {
             WHERE: sql`${Account.$accountId} in (${accountIds})`,
             limit: param<{ limit: number }>("limit"),
             windowBy: {
                rnk: { fn: "rank", over: { partitionBy: ["status"], orderBy: { email: "ASC" } } },
             },
-         }).all({
+         }).execute().all({
             db,
             params: { limit: 100 },
          });
@@ -86,13 +86,13 @@ describe.sequential("windowBy — e2e sqlite3", () => {
 
       test("dense_rank with orderBy", async () => {
          const accountIds = accounts.map((a) => a.accountId);
-         const results = await sqlite3Select(Account, {
+         const results = await new Sqlite3SelectCommand(Account, {
             WHERE: sql`${Account.$accountId} in (${accountIds})`,
             limit: param<{ limit: number }>("limit"),
             windowBy: {
                denseRnk: { fn: "dense_rank", over: { orderBy: { email: "ASC" } } },
             },
-         }).all({
+         }).execute().all({
             db,
             params: { limit: 100 },
          });
@@ -111,13 +111,13 @@ describe.sequential("windowBy — e2e sqlite3", () => {
 
       test("count(*) OVER — running count", async () => {
          const accountIds = accounts.map((a) => a.accountId);
-         const results = await sqlite3Select(Account, {
+         const results = await new Sqlite3SelectCommand(Account, {
             WHERE: sql`${Account.$accountId} in (${accountIds})`,
             limit: param<{ limit: number }>("limit"),
             windowBy: {
                runningCount: { fn: "count", col: "*", over: { orderBy: { email: "ASC" } } },
             },
-         }).all({
+         }).execute().all({
             db,
             params: { limit: 100 },
          });
@@ -140,13 +140,13 @@ describe.sequential("windowBy — e2e sqlite3", () => {
 
       test("count(col) OVER with partitionBy", async () => {
          const accountIds = accounts.map((a) => a.accountId);
-         const results = await sqlite3Select(Account, {
+         const results = await new Sqlite3SelectCommand(Account, {
             WHERE: sql`${Account.$accountId} in (${accountIds})`,
             limit: param<{ limit: number }>("limit"),
             windowBy: {
                statusCount: { fn: "count", col: "email", over: { partitionBy: ["status"] } },
             },
-         }).all({
+         }).execute().all({
             db,
             params: { limit: 100 },
          });
@@ -162,13 +162,13 @@ describe.sequential("windowBy — e2e sqlite3", () => {
 
       test("lag with offset", async () => {
          const accountIds = accounts.map((a) => a.accountId);
-         const results = await sqlite3Select(Account, {
+         const results = await new Sqlite3SelectCommand(Account, {
             WHERE: sql`${Account.$accountId} in (${accountIds})`,
             limit: param<{ limit: number }>("limit"),
             windowBy: {
                prevEmail: { fn: "lag", col: "email", args: 1, over: { orderBy: { email: "ASC" } } },
             },
-         }).all({
+         }).execute().all({
             db,
             params: { limit: 100 },
          });
@@ -184,13 +184,13 @@ describe.sequential("windowBy — e2e sqlite3", () => {
 
       test("lead with offset", async () => {
          const accountIds = accounts.map((a) => a.accountId);
-         const results = await sqlite3Select(Account, {
+         const results = await new Sqlite3SelectCommand(Account, {
             WHERE: sql`${Account.$accountId} in (${accountIds})`,
             limit: param<{ limit: number }>("limit"),
             windowBy: {
                nextEmail: { fn: "lead", col: "email", args: 1, over: { orderBy: { email: "ASC" } } },
             },
-         }).all({
+         }).execute().all({
             db,
             params: { limit: 100 },
          });
@@ -206,13 +206,13 @@ describe.sequential("windowBy — e2e sqlite3", () => {
 
       test("ntile with args", async () => {
          const accountIds = accounts.map((a) => a.accountId);
-         const results = await sqlite3Select(Account, {
+         const results = await new Sqlite3SelectCommand(Account, {
             WHERE: sql`${Account.$accountId} in (${accountIds})`,
             limit: param<{ limit: number }>("limit"),
             windowBy: {
                quartile: { fn: "ntile", args: 2, over: { orderBy: { email: "ASC" } } },
             },
-         }).all({
+         }).execute().all({
             db,
             params: { limit: 100 },
          });
@@ -229,13 +229,13 @@ describe.sequential("windowBy — e2e sqlite3", () => {
 
       test("first_value with orderBy", async () => {
          const accountIds = accounts.map((a) => a.accountId);
-         const results = await sqlite3Select(Account, {
+         const results = await new Sqlite3SelectCommand(Account, {
             WHERE: sql`${Account.$accountId} in (${accountIds})`,
             limit: param<{ limit: number }>("limit"),
             windowBy: {
                firstEmail: { fn: "first_value", col: "email", over: { orderBy: { email: "ASC" } } },
             },
-         }).all({
+         }).execute().all({
             db,
             params: { limit: 100 },
          });
@@ -252,7 +252,7 @@ describe.sequential("windowBy — e2e sqlite3", () => {
 
       test("last_value with frame ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING", async () => {
          const accountIds = accounts.map((a) => a.accountId);
-         const results = await sqlite3Select(Account, {
+         const results = await new Sqlite3SelectCommand(Account, {
             WHERE: sql`${Account.$accountId} in (${accountIds})`,
             limit: param<{ limit: number }>("limit"),
             windowBy: {
@@ -267,7 +267,7 @@ describe.sequential("windowBy — e2e sqlite3", () => {
                   },
                },
             },
-         }).all({
+         }).execute().all({
             db,
             params: { limit: 100 },
          });
@@ -286,13 +286,13 @@ describe.sequential("windowBy — e2e sqlite3", () => {
    describe("combined with other clauses", () => {
       test("windowBy + additional WHERE filter", async () => {
          const accountIds = accounts.map((a) => a.accountId);
-         const results = await sqlite3Select(Account, {
+         const results = await new Sqlite3SelectCommand(Account, {
             WHERE: sql`${Account.$accountId} in (${accountIds}) and ${Account.$status} = ${"created"}`,
             limit: param<{ limit: number }>("limit"),
             windowBy: {
                rowNum: { fn: "row_number", over: { orderBy: { email: "ASC" } } },
             },
-         }).all({
+         }).execute().all({
             db,
             params: { limit: 100 },
          });
@@ -311,14 +311,14 @@ describe.sequential("windowBy — e2e sqlite3", () => {
 
       test("windowBy + ORDER_BY (result set ordering)", async () => {
          const accountIds = accounts.map((a) => a.accountId);
-         const results = await sqlite3Select(Account, {
+         const results = await new Sqlite3SelectCommand(Account, {
             WHERE: sql`${Account.$accountId} in (${accountIds})`,
             ORDER_BY: sql`${Account.$email} desc`,
             limit: param<{ limit: number }>("limit"),
             windowBy: {
                rowNum: { fn: "row_number", over: { orderBy: { email: "ASC" } } },
             },
-         }).all({
+         }).execute().all({
             db,
             params: { limit: 100 },
          });
@@ -337,7 +337,7 @@ describe.sequential("windowBy — e2e sqlite3", () => {
    describe("frame clauses", () => {
       test("ROWS BETWEEN N PRECEDING AND CURRENT ROW", async () => {
          const accountIds = accounts.map((a) => a.accountId);
-         const results = await sqlite3Select(Account, {
+         const results = await new Sqlite3SelectCommand(Account, {
             WHERE: sql`${Account.$accountId} in (${accountIds})`,
             limit: param<{ limit: number }>("limit"),
             windowBy: {
@@ -352,7 +352,7 @@ describe.sequential("windowBy — e2e sqlite3", () => {
                   },
                },
             },
-         }).all({
+         }).execute().all({
             db,
             params: { limit: 100 },
          });
@@ -372,7 +372,7 @@ describe.sequential("windowBy — e2e sqlite3", () => {
 
       test("RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW", async () => {
          const accountIds = accounts.map((a) => a.accountId);
-         const results = await sqlite3Select(Account, {
+         const results = await new Sqlite3SelectCommand(Account, {
             WHERE: sql`${Account.$accountId} in (${accountIds})`,
             limit: param<{ limit: number }>("limit"),
             windowBy: {
@@ -387,7 +387,7 @@ describe.sequential("windowBy — e2e sqlite3", () => {
                   },
                },
             },
-         }).all({
+         }).execute().all({
             db,
             params: { limit: 100 },
          });
@@ -407,7 +407,7 @@ describe.sequential("windowBy — e2e sqlite3", () => {
 
       test("ROWS with numeric start and end bounds", async () => {
          const accountIds = accounts.map((a) => a.accountId);
-         const results = await sqlite3Select(Account, {
+         const results = await new Sqlite3SelectCommand(Account, {
             WHERE: sql`${Account.$accountId} in (${accountIds})`,
             limit: param<{ limit: number }>("limit"),
             windowBy: {
@@ -422,7 +422,7 @@ describe.sequential("windowBy — e2e sqlite3", () => {
                   },
                },
             },
-         }).all({
+         }).execute().all({
             db,
             params: { limit: 100 },
          });
@@ -444,13 +444,13 @@ describe.sequential("windowBy — e2e sqlite3", () => {
    describe("additional window functions", () => {
       test("percent_rank() execution", async () => {
          const accountIds = accounts.map((a) => a.accountId);
-         const results = await sqlite3Select(Account, {
+         const results = await new Sqlite3SelectCommand(Account, {
             WHERE: sql`${Account.$accountId} in (${accountIds})`,
             limit: param<{ limit: number }>("limit"),
             windowBy: {
                pctRank: { fn: "percent_rank", over: { orderBy: { email: "ASC" } } },
             },
-         }).all({
+         }).execute().all({
             db,
             params: { limit: 100 },
          });
@@ -475,13 +475,13 @@ describe.sequential("windowBy — e2e sqlite3", () => {
 
       test("cume_dist() execution", async () => {
          const accountIds = accounts.map((a) => a.accountId);
-         const results = await sqlite3Select(Account, {
+         const results = await new Sqlite3SelectCommand(Account, {
             WHERE: sql`${Account.$accountId} in (${accountIds})`,
             limit: param<{ limit: number }>("limit"),
             windowBy: {
                cumeDist: { fn: "cume_dist", over: { orderBy: { email: "ASC" } } },
             },
-         }).all({
+         }).execute().all({
             db,
             params: { limit: 100 },
          });
@@ -498,13 +498,13 @@ describe.sequential("windowBy — e2e sqlite3", () => {
 
       test("min() OVER — string min(email)", async () => {
          const accountIds = accounts.map((a) => a.accountId);
-         const results = await sqlite3Select(Account, {
+         const results = await new Sqlite3SelectCommand(Account, {
             WHERE: sql`${Account.$accountId} in (${accountIds})`,
             limit: param<{ limit: number }>("limit"),
             windowBy: {
                minEmail: { fn: "min", col: "email", over: { orderBy: { email: "ASC" } } },
             },
-         }).all({
+         }).execute().all({
             db,
             params: { limit: 100 },
          });
@@ -521,7 +521,7 @@ describe.sequential("windowBy — e2e sqlite3", () => {
 
       test("max() OVER — string max(email)", async () => {
          const accountIds = accounts.map((a) => a.accountId);
-         const results = await sqlite3Select(Account, {
+         const results = await new Sqlite3SelectCommand(Account, {
             WHERE: sql`${Account.$accountId} in (${accountIds})`,
             limit: param<{ limit: number }>("limit"),
             windowBy: {
@@ -536,7 +536,7 @@ describe.sequential("windowBy — e2e sqlite3", () => {
                   },
                },
             },
-         }).all({
+         }).execute().all({
             db,
             params: { limit: 100 },
          });
@@ -552,13 +552,13 @@ describe.sequential("windowBy — e2e sqlite3", () => {
 
       test("count(col) OVER — running count as aggregate", async () => {
          const orderIds = orders.map((o) => o.orderId);
-         const results = await sqlite3Select(Order, {
+         const results = await new Sqlite3SelectCommand(Order, {
             WHERE: sql`${Order.$orderId} in (${orderIds})`,
             limit: param<{ limit: number }>("limit"),
             windowBy: {
                runCount: { fn: "count", col: "orderId", over: { orderBy: { createdAt: "ASC" } } },
             },
-         }).all({
+         }).execute().all({
             db,
             params: { limit: 100 },
          });
@@ -578,13 +578,13 @@ describe.sequential("windowBy — e2e sqlite3", () => {
       test("invalid function name throws", async () => {
          const accountIds = accounts.map((a) => a.accountId);
          await expect(
-            sqlite3Select(Account, {
+            new Sqlite3SelectCommand(Account, {
                WHERE: sql`${Account.$accountId} in (${accountIds})`,
                limit: param<{ limit: number }>("limit"),
                windowBy: {
                   bad: { fn: "invalid_fn" as never, over: { orderBy: { email: "ASC" } } },
                },
-            }).all({
+            }).execute().all({
                db,
                params: { limit: 100 },
             }),
@@ -594,13 +594,13 @@ describe.sequential("windowBy — e2e sqlite3", () => {
       test("col provided for ranking fn throws", async () => {
          const accountIds = accounts.map((a) => a.accountId);
          await expect(
-            sqlite3Select(Account, {
+            new Sqlite3SelectCommand(Account, {
                WHERE: sql`${Account.$accountId} in (${accountIds})`,
                limit: param<{ limit: number }>("limit"),
                windowBy: {
                   bad: { fn: "row_number", col: "email", over: { orderBy: { email: "ASC" } } } as never,
                },
-            }).all({
+            }).execute().all({
                db,
                params: { limit: 100 },
             }),
@@ -610,13 +610,13 @@ describe.sequential("windowBy — e2e sqlite3", () => {
       test("missing col for aggregate fn throws", async () => {
          const accountIds = accounts.map((a) => a.accountId);
          await expect(
-            sqlite3Select(Account, {
+            new Sqlite3SelectCommand(Account, {
                WHERE: sql`${Account.$accountId} in (${accountIds})`,
                limit: param<{ limit: number }>("limit"),
                windowBy: {
                   bad: { fn: "sum", over: { orderBy: { email: "ASC" } } } as never,
                },
-            }).all({
+            }).execute().all({
                db,
                params: { limit: 100 },
             }),
@@ -626,13 +626,13 @@ describe.sequential("windowBy — e2e sqlite3", () => {
       test("ntile without args throws", async () => {
          const accountIds = accounts.map((a) => a.accountId);
          await expect(
-            sqlite3Select(Account, {
+            new Sqlite3SelectCommand(Account, {
                WHERE: sql`${Account.$accountId} in (${accountIds})`,
                limit: param<{ limit: number }>("limit"),
                windowBy: {
                   bad: { fn: "ntile", over: { orderBy: { email: "ASC" } } } as never,
                },
-            }).all({
+            }).execute().all({
                db,
                params: { limit: 100 },
             }),
@@ -644,7 +644,7 @@ describe.sequential("windowBy — e2e sqlite3", () => {
       test("row_number partitioned by accountId, ordered by createdAt", async () => {
          ok(orders.length > 0);
          const orderIds = orders.map((o) => o.orderId);
-         const results = await sqlite3Select(Order, {
+         const results = await new Sqlite3SelectCommand(Order, {
             WHERE: sql`${Order.$orderId} in (${orderIds})`,
             limit: param<{ limit: number }>("limit"),
             windowBy: {
@@ -653,7 +653,7 @@ describe.sequential("windowBy — e2e sqlite3", () => {
                   over: { partitionBy: ["accountId"], orderBy: { createdAt: "ASC" } },
                },
             },
-         }).all({
+         }).execute().all({
             db,
             params: { limit: 100 },
          });
@@ -670,7 +670,7 @@ describe.sequential("windowBy — e2e sqlite3", () => {
 
       test("multiple window functions in single query", async () => {
          const orderIds = orders.map((o) => o.orderId);
-         const results = await sqlite3Select(Order, {
+         const results = await new Sqlite3SelectCommand(Order, {
             WHERE: sql`${Order.$orderId} in (${orderIds})`,
             limit: param<{ limit: number }>("limit"),
             windowBy: {
@@ -678,7 +678,7 @@ describe.sequential("windowBy — e2e sqlite3", () => {
                runCount: { fn: "count", col: "*", over: { orderBy: { createdAt: "ASC" } } },
                tile: { fn: "ntile", args: 3, over: { orderBy: { createdAt: "ASC" } } },
             },
-         }).all({
+         }).execute().all({
             db,
             params: { limit: 100 },
          });

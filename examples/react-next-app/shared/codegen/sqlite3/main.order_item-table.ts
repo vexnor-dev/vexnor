@@ -65,8 +65,8 @@ export const OrderItem = vexnor.newSqlTable<{
       metadata: "metadata",
    },
    fk: [
-      { from: ["productId"], to: { schema: "main", table: "product", columns: ["productId"] } },
       { from: ["orderId"], to: { schema: "main", table: "order", columns: ["orderId"] } },
+      { from: ["productId"], to: { schema: "main", table: "product", columns: ["productId"] } },
    ],
    dbSchema: {
       orderId: { dbType: "TEXT", type: vexnor.SqlLiteralType.String },
