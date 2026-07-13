@@ -72,12 +72,16 @@ public class OpenTelemetryPluginTests
         pipeline.Use(new OpenTelemetryPlugin(TestSource));
 
         Activity? captured = null;
-        listener.ActivityStopped = a => captured = a;
+        listener.ActivityStopped = a =>
+        {
+            if (a.OperationName == "query:failQuery") captured = a;
+        };
 
         var args = MakeArgs("failQuery");
         await Assert.ThrowsAsync<Exception>(() =>
             pipeline.ExecuteAsync<int>(args, () => throw new Exception("db timeout")));
 
+        Assert.NotNull(captured);
         Assert.Equal(ActivityStatusCode.Error, captured!.Status);
         Assert.Equal("db timeout", captured.StatusDescription);
         Assert.Equal(true, captured.GetTagItem("error"));
