@@ -144,4 +144,18 @@ public class PostgresSqlSelectCommandTests
 
         Assert.DoesNotContain("::int", result.Text);
     }
+
+    [Fact]
+    public void SumOnColumnNotInRowSchema_DoesNotCast()
+    {
+        // accountId is in Columns but NOT in Row schema — colType will be null
+        var cmd = new Vexnor.Postgres.PostgresSqlSelectCommand(MakeQuery());
+        var parameters = new Dictionary<string, object?>
+        {
+            ["select"] = new object?[] { new object?[] { "sum", "accountId", "totalAccounts" } }
+        };
+        var result = cmd.Build(parameters);
+
+        Assert.DoesNotContain("::int", result.Text);
+    }
 }

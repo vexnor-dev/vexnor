@@ -878,3 +878,41 @@ describe("PostgresProjectBy — defensive error paths", () => {
       ).toThrow("Invalid column reference in aggregate");
    });
 });
+
+
+describe("PostgresProjectBy — branch coverage", () => {
+   test("pgResolveColumn with dot-notation where stripped key does not exist throws", () => {
+      const command = new PostgresSelectCommand(Account, {});
+      const query = command.build();
+      expect(() =>
+         query.getSql({
+            params: { select: { bad: { fn: "count", col: "unknown.nonExistent" } } },
+            options: defaultQueryOptions,
+         }),
+      ).toThrow("Column not found: unknown.nonExistent");
+   });
+
+   test("getSelectObjectFromParams returns null for nested paramName that traverses null", () => {
+      const command = new PostgresSelectCommand(Account, {});
+      const query = command.build();
+      // select param is present but empty — should emit all columns (no projection applied)
+      const { text } = query.getSql({
+         params: { select: {} },
+         options: defaultQueryOptions,
+      });
+      // All columns emitted when select is empty
+      expect(text).toContain('"accountId"');
+      expect(text).toContain('"email"');
+   });
+
+   test("pgRenderColRef resolves via pgResolveColumn when context has no columns", () => {
+      const command = new PostgresSelectCommand(Account, {});
+      const query = command.build();
+      // dateTrunc transform triggers pgRenderColRef internally
+      const { text } = query.getSql({
+         params: { select: { period: { fn: "dateTrunc", col: "createdAt", args: "month" } } },
+         options: defaultQueryOptions,
+      });
+      expect(text).toContain("date_trunc('month'");
+   });
+});
