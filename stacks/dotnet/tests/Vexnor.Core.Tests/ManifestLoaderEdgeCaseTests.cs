@@ -127,7 +127,7 @@ public class ManifestLoaderEdgeCaseTests
     [Fact]
     public void LoadGlob_NoFilesFound_Throws()
     {
-        var tmpDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        var tmpDir = $"{Path.GetTempPath()}{Guid.NewGuid()}";
         Directory.CreateDirectory(tmpDir);
         try
         {
@@ -144,7 +144,7 @@ public class ManifestLoaderEdgeCaseTests
     [Fact]
     public void LoadGlob_MergesMultipleFiles()
     {
-        var tmpDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        var tmpDir = $"{Path.GetTempPath()}{Guid.NewGuid()}";
         Directory.CreateDirectory(tmpDir);
         try
         {
