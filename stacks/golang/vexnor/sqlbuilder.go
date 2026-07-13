@@ -12,11 +12,20 @@ type SqlBuildResult struct {
 	Values []any
 }
 
+// AggregateColumnTransform is a function that transforms the column SQL inside
+// an aggregate function call. Called with (functionName, columnSql, columnType)
+// and returns the (possibly transformed) column SQL.
+// Used by SqlSelectCommand subclasses to inject dialect-specific behavior
+// (e.g., PostgreSQL boolean → ::int cast inside SUM/AVG).
+type AggregateColumnTransform func(fn, colSql string, colType *string) string
+
 // SqlBuilder evaluates a query template with runtime parameters and produces
 // SQL text + parameter values. It is a direct port of the .NET SqlBuilder.
 type SqlBuilder struct {
-	dialect    string
-	paramIndex int
+	dialect            string
+	paramIndex         int
+	aggregateTransform AggregateColumnTransform
+	rowSchema          map[string]*ColumnSchema
 }
 
 // NewSqlBuilder creates a new SqlBuilder for the given SQL dialect.
@@ -28,14 +37,27 @@ func NewSqlBuilder(dialect string) *SqlBuilder {
 // Build evaluates the query template against the provided parameters and
 // returns the resulting SQL text and parameter values.
 func (b *SqlBuilder) Build(query *QueryDefinition, params map[string]any) (*SqlBuildResult, error) {
+	return b.BuildWithTransform(query, params, nil)
+}
+
+// BuildWithTransform evaluates the query template against the provided parameters,
+// applying an optional AggregateColumnTransform during projection node processing.
+// This mirrors the .NET SqlBuilder.Build(query, params, aggregateColumnTransform) overload.
+func (b *SqlBuilder) BuildWithTransform(query *QueryDefinition, params map[string]any, transform AggregateColumnTransform) (*SqlBuildResult, error) {
 	b.paramIndex = 0
+	b.aggregateTransform = transform
+	b.rowSchema = query.Row
 	var sql []string
 	var values []any
 
 	if err := b.buildNodes(query.Template, params, &sql, &values); err != nil {
+		b.aggregateTransform = nil
+		b.rowSchema = nil
 		return nil, err
 	}
 
+	b.aggregateTransform = nil
+	b.rowSchema = nil
 	return &SqlBuildResult{
 		Text:   strings.Join(sql, ""),
 		Values: values,
@@ -722,6 +744,16 @@ func (b *SqlBuilder) buildProjection(node *ProjectionNode, params map[string]any
 					aggColSQL, ok := node.Columns.Get(colRef)
 					if !ok {
 						return fmt.Errorf("Invalid projection column in aggregate: '%s'. Allowed: %s", colRef, strings.Join(node.Columns.Keys, ", "))
+					}
+					// Apply aggregate column transform if provided
+					if b.aggregateTransform != nil {
+						var colType *string
+						if b.rowSchema != nil {
+							if schema, ok := b.rowSchema[colRef]; ok {
+								colType = &schema.Type
+							}
+						}
+						aggColSQL = b.aggregateTransform(fn, aggColSQL, colType)
 					}
 					*sql = append(*sql, aggColSQL)
 				}
