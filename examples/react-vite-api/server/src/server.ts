@@ -4,10 +4,12 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import path from "node:path";
+import fs from "node:fs";
 import pg from "pg";
 import mssql from "mssql";
 import BetterSqlite3 from "better-sqlite3";
 import { trace } from "@opentelemetry/api";
+import pino from "pino";
 import "@vexnor/core/telemetry";
 import * as postgresQueries from "../../shared/queries/postgres.js";
 import * as mssqlQueries from "../../shared/queries/mssql.js";
@@ -17,6 +19,21 @@ import vexnorPostgres from "@vexnor/postgres";
 import vexnorSqlite3 from "@vexnor/sqlite3";
 import { SqlQueryRegistry } from "@vexnor/core/execution";
 import { handleDbError } from "./db-error.js";
+
+// ─── Structured file logging ─────────────────────────────────────────────────
+const logsDir = path.resolve(path.dirname(new URL(import.meta.url).pathname), "../../logs");
+fs.mkdirSync(logsDir, { recursive: true });
+const logFilePath = path.join(logsDir, "server.log");
+fs.writeFileSync(logFilePath, "");
+
+const fileStream = pino.destination({ dest: logFilePath, sync: false });
+const log = pino(
+   { level: "info" },
+   pino.multistream([
+      { stream: process.stdout },
+      { stream: fileStream },
+   ]),
+);
 
 const tracer = trace.getTracer("vexnor-react-vite-api");
 
@@ -44,17 +61,33 @@ const pgPool = new pg.Pool({
    database: process.env.POSTGRES_DATABASE ?? "postgres",
 });
 
-const mssqlPool = await mssql.connect({
-   server: process.env.MSSQL_HOST ?? "localhost",
-   port: Number(process.env.MSSQL_PORT ?? 1433),
-   database: process.env.MSSQL_DATABASE ?? "vexnor",
-   user: process.env.MSSQL_USER ?? "vexnor_dev",
-   password: process.env.MSSQL_PASSWORD ?? "P@ssw0rd!",
-   options: { trustServerCertificate: true },
-});
+try {
+   await pgPool.query("SELECT 1");
+   log.info({ dialect: "postgres", host: process.env.POSTGRES_HOST ?? "localhost", port: Number(process.env.POSTGRES_PORT ?? 5432) }, "Database connected");
+} catch (err) {
+   log.error({ dialect: "postgres", error: err instanceof Error ? err.message : String(err) }, "Database connection failed");
+}
+
+let mssqlPool: mssql.ConnectionPool;
+try {
+   mssqlPool = await mssql.connect({
+      server: process.env.MSSQL_HOST ?? "localhost",
+      port: Number(process.env.MSSQL_PORT ?? 1433),
+      database: process.env.MSSQL_DATABASE ?? "vexnor",
+      user: process.env.MSSQL_USER ?? "vexnor_dev",
+      password: process.env.MSSQL_PASSWORD ?? "P@ssw0rd!",
+      options: { trustServerCertificate: true },
+   });
+   log.info({ dialect: "mssql", host: process.env.MSSQL_HOST ?? "localhost", port: Number(process.env.MSSQL_PORT ?? 1433) }, "Database connected");
+} catch (err) {
+   log.error({ dialect: "mssql", error: err instanceof Error ? err.message : String(err) }, "Database connection failed");
+   mssqlPool = undefined as unknown as mssql.ConnectionPool;
+}
+
 const sqliteDb = new BetterSqlite3(
    path.resolve(process.cwd(), process.env.SQLITE_PATH ?? "../../@db-sqlite3/vexnor-dev.sqlite"),
 );
+log.info({ dialect: "sqlite3", path: process.env.SQLITE_PATH ?? "../../@db-sqlite3/vexnor-dev.sqlite" }, "Database connected");
 
 await queryRegistry.register(vexnorPostgres, postgresQueries);
 await queryRegistry.register(vexnorMssql, mssqlQueries);
@@ -65,6 +98,17 @@ queryRegistry.registerOpenTelemetry(tracer);
 const app = new Hono();
 
 app.use("*", logger());
+app.use("*", async (c, next) => {
+   const start = Date.now();
+   await next();
+   const duration = Date.now() - start;
+   log.info({
+      method: c.req.method,
+      path: c.req.path,
+      status: c.res.status,
+      duration_ms: duration,
+   }, "Request");
+});
 app.use("/api/*", cors());
 
 app.get("/api/health", async (c) => {
@@ -119,6 +163,7 @@ app.post("/api/db", async (c) => {
       );
       return c.json(result);
    } catch (err) {
+      log.error({ method: c.req.method, path: c.req.path, error: err instanceof Error ? err.message : String(err) }, "Query execution error");
       return handleDbError(c, err);
    }
 });
@@ -127,5 +172,6 @@ app.use("*", serveStatic({ root: "./dist/client" }));
 app.use("*", serveStatic({ path: "./dist/client/index.html" }));
 
 serve({ fetch: app.fetch, port: 3001 }, (info) => {
+   log.info({ port: info.port, addr: `http://localhost:${info.port}` }, "Server starting");
    console.log(`Server running at http://localhost:${info.port}`);
 });

@@ -387,6 +387,7 @@ See [Telemetry](docs/telemetry.md) — span shape, OTLP exporters, combining wit
 - [Portable Queries](docs/portable-queries.md) — conceptual overview of all portability axes (isomorphic, multi-dialect, multi-runtime)
 - [Cross-Stack Setup](docs/cross-stack-setup.md) — step-by-step guide to get TypeScript + .NET running together
 - [.NET SDK](docs/dotnet.md) — cross-runtime manifest, QueryRegistry, SqlBuilder, shared fixtures
+- [Go SDK](docs/golang.md) — cross-runtime manifest, QueryRegistry, SqlBuilder, all three databases
 - [Workflow](docs/workflow.md) — migration/upgrade guide, day-to-day dev loop
 - [CI](docs/ci.md) — CI/deployment pipeline for cross-stack projects
 
@@ -399,7 +400,15 @@ Working examples are in the [`examples/`](examples/) directory:
 | [`postgres-esm`](examples/postgres-esm) | Minimal Node.js ESM script — insert, select, update with PostgreSQL |
 | [`postgres-cjs`](examples/postgres-cjs) | Same as above using CommonJS |
 | [`react-vite-api`](examples/react-vite-api) | React + Vite + Hono — isomorphic queries, `SqlQueryRegistry`, `HttpRemoteClient`, PostgreSQL + MSSQL + SQLite3 |
+| [`react-vite-ui`](examples/react-vite-ui) | React + Vite — generic frontend for testing backend stacks (Go, .NET, Node.js) |
 | [`react-next-app`](examples/react-next-app) | Next.js App Router — React Server Components, Server Actions, same isomorphic pattern |
+
+Cross-runtime backends are in [`stacks/`](stacks/):
+
+| Stack | Description |
+|---|---|
+| [`golang`](stacks/golang) | Go query registry — loads manifests, executes against PostgreSQL + MSSQL + SQLite3 |
+| [`dotnet`](stacks/dotnet) | .NET query registry — same architecture, C# implementation |
 
 ## Requirements
 

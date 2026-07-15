@@ -32,3 +32,6 @@ mailmap.txt
 .tmp-*
 *.log
 *.kiro-docker
+
+# Backend runtime logs (AI-readable)
+**/logs/server.log
