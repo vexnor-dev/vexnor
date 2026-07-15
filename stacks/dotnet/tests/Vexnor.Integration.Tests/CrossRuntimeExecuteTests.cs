@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Npgsql;
 using Vexnor.Core.Execution;
 using Vexnor.Core.Manifest;
 using Vexnor.Postgres;
@@ -94,11 +95,11 @@ public class CrossRuntimeExecuteTests : IAsyncLifetime
                 // Syntax error = real failure
                 failed.Add($"{name}: SYNTAX ERROR - {ex.Message}");
             }
-            catch (Exception ex)
+            catch (PostgresException ex)
             {
                 // Data/type error = skip (SQL is valid, data mismatch)
                 skipped++;
-                _output.WriteLine($"  SKIP {name}: {ex.Message[..Math.Min(80, ex.Message.Length)]}");
+                _output.WriteLine($"  SKIP {name}: {ex.MessageText[..Math.Min(80, ex.MessageText.Length)]}");
             }
         }
 
