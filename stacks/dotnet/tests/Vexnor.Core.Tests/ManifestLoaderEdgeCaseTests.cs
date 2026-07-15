@@ -180,8 +180,7 @@ public class ManifestLoaderEdgeCaseTests
     [Fact]
     public void LoadGlob_LaterFileOverridesEarlier()
     {
-        var tmpDir = Path.Join(Path.GetTempPath(), Guid.NewGuid().ToString());
-        Directory.CreateDirectory(tmpDir);
+        var tmpDir = Directory.CreateTempSubdirectory().FullName;
         try
         {
             File.WriteAllText(Path.Join(tmpDir, "01_first.json"), """
@@ -232,11 +231,10 @@ public class ManifestLoaderEdgeCaseTests
     [Fact]
     public void Registry_LoadDirectory_MergesFiles()
     {
-        var tmpDir = Path.Join(Path.GetTempPath(), Guid.NewGuid().ToString());
-        Directory.CreateDirectory(tmpDir);
+        var tmpDir = Directory.CreateTempSubdirectory().FullName;
         try
         {
-            File.WriteAllText(Path.Combine(tmpDir, "queries.json"), """
+            File.WriteAllText(Path.Join(tmpDir, "queries.json"), """
             {
                 "version": 1,
                 "queries": {
