@@ -193,7 +193,7 @@ public class ManifestLoaderEdgeCaseTests
             }
             """);
 
-            File.WriteAllText(Path.Combine(tmpDir, "02_second.json"), """
+            File.WriteAllText(Path.Join(tmpDir, "02_second.json"), """
             {
                 "version": 1,
                 "queries": {
