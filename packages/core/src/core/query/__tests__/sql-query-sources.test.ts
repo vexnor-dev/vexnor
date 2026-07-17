@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { sql } from "#src/core/sql.js";
 import { row } from "#src/core/query/sql-select-row.js";
+import { val } from "#src/core/query/sql-select-value.js";
 import { newSqlTable } from "#src/core/schema/sql-table.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
 import { Order } from "@test-models/vexnor_dev.order-table.js";
@@ -76,5 +77,23 @@ describe("SqlQuery.sources", () => {
       const Alias = BillingAccount.as("b");
       const query = sql`SELECT ${row(Alias.$$)} FROM ${Alias}`;
       expect(query.sources).toEqual(new Set(["app:billing"]));
+   });
+
+   test("row() with table columns propagates source", () => {
+      const query = sql`SELECT ${row(BillingAccount.$id, BillingAccount.$email)} FROM ${BillingAccount}`;
+      expect(query.sources).toEqual(new Set(["app:billing"]));
+   });
+
+   test("val() with subquery propagates source", () => {
+      const sub = sql`SELECT count(*) FROM ${WarehouseOrder}`;
+      const v = val(sub).as<{ orderCount: number }>("orderCount");
+      const query = sql`SELECT ${row(v)} FROM ${BillingAccount}`;
+      expect(query.sources).toEqual(new Set(["app:billing", "app:warehouse"]));
+   });
+
+   test("array of tables propagates all sources", () => {
+      const tables = [BillingAccount, WarehouseOrder];
+      const query = sql`SELECT * FROM ${tables}`;
+      expect(query.sources).toEqual(new Set(["app:billing", "app:warehouse"]));
    });
 });
