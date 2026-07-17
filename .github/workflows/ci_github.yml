@@ -38,6 +38,8 @@ jobs:
       MSSQL_PASSWORD: P@ssw0rd!
       NODE_ENV: test
       LOG_LEVEL: debug
+      MONGODB_URI: mongodb://localhost:27017
+      MONGODB_DATABASE: vexnor
 
     services:
       postgres:
@@ -66,6 +68,16 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 10
+
+      mongo:
+        image: mongo:7
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.adminCommand(\"ping\")' --quiet"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       - name: Checkout code

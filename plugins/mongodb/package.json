@@ -1,0 +1,71 @@
+{
+  "name": "@vexnor/mongodb",
+  "version": "1.0.0-beta.1",
+  "description": "MongoDB plugin for vexnor — driver-typed queries with registry integration",
+  "type": "module",
+  "module": "dist/index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "imports": {
+    "#src/*": {
+      "development": "./src/*",
+      "default": "./dist/*"
+    }
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
+  "keywords": [
+    "vexnor-plugin",
+    "@vexnor/mongodb",
+    "vexnor",
+    "mongodb",
+    "mongo",
+    "nosql",
+    "plugin"
+  ],
+  "author": "Adrian Topala",
+  "license": "Apache-2.0",
+  "repository": "https://github.com/vexnor-dev/vexnor",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "clean": "rimraf dist tsconfig.tsbuildinfo",
+    "build": "tsc -b",
+    "pretest": "run-s 'build'",
+    "test": "vitest --coverage run",
+    "test:watch": "vitest --watch",
+    "test:run": "vitest run"
+  },
+  "files": [
+    "dist",
+    "package.json",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "dependencies": {
+    "@vexnor/core": "workspace:^"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^4.1.5",
+    "mongodb": "^6.16.0",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^7.0.2",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^4.1.5"
+  },
+  "peerDependencies": {
+    "mongodb": "^6.0.0"
+  },
+  "peerDependenciesMeta": {
+    "mongodb": {
+      "optional": false
+    }
+  },
+  "changelog": "https://github.com/vexnor-dev/vexnor/releases"
+}

@@ -18,6 +18,7 @@
    },
    "dependencies": {
       "@vexnor/core": "workspace:^",
+      "@vexnor/mongodb": "workspace:^",
       "@vexnor/postgres": "workspace:^",
       "@vexnor/mssql": "workspace:^",
       "@vexnor/sqlite3": "workspace:^"
