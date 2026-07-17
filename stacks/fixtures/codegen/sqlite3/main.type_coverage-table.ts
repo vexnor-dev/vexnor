@@ -8,6 +8,7 @@ export const TypeCoverage = vexnor.newSqlTable<{
    Insert: ITypeCoverageInsert;
    Update: ITypeCoverageUpdate;
    Delete: true;
+   Source: "@vexnor/stack-fixtures:codegen/sqlite3";
 }>( {
    crud: {
       select: true,

@@ -8,6 +8,7 @@ export const OrderItem = vexnor.newSqlTable<{
    Insert: IOrderItemInsert;
    Update: IOrderItemUpdate;
    Delete: true;
+   Source: "@vexnor/test-remote:src/codegen/mssql";
 }>( {
    crud: {
       select: true,

@@ -9,6 +9,7 @@ export const Order = vexnor.newSqlTable<{
    Insert: IOrderInsert;
    Update: IOrderUpdate;
    Delete: true;
+   Source: "@vexnor/example-react-vite-api:shared/codegen/postgres";
 }>( {
    crud: {
       select: true,

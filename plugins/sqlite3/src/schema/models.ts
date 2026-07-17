@@ -2,6 +2,7 @@ import { newSqlTable } from "@vexnor/core";
 
 export const SqliteMaster = newSqlTable<{
    Select: { type: string; name: string; tbl_name: string; rootpage: number; sql: string };
+   Source: "@vexnor/sqlite3:schema";
 }>({
    crud: {
       select: true,
@@ -9,6 +10,7 @@ export const SqliteMaster = newSqlTable<{
       update: false,
       delete: false,
    },
+   source: "@vexnor/sqlite3:schema",
    pk: [],
    tableInfo: {
       name: "sqlite_master",
@@ -24,6 +26,7 @@ export const SqliteMaster = newSqlTable<{
 
 export const PragmaTableInfo = newSqlTable<{
    Select: { cid: number; name: string; type: string; notnull: boolean; dflt_value: string };
+   Source: "@vexnor/sqlite3:schema";
 }>({
    crud: {
       select: true,
@@ -31,6 +34,7 @@ export const PragmaTableInfo = newSqlTable<{
       update: false,
       delete: false,
    },
+   source: "@vexnor/sqlite3:schema",
    pk: [],
    tableInfo: {
       name: "pragma_table_info",
@@ -46,6 +50,7 @@ export const PragmaTableInfo = newSqlTable<{
 
 export const PragmaForeignKeyList = newSqlTable<{
    Select: { id: number; seq: number; table: string; from: string; to: string };
+   Source: "@vexnor/sqlite3:schema";
 }>({
    crud: {
       select: true,
@@ -53,6 +58,7 @@ export const PragmaForeignKeyList = newSqlTable<{
       update: false,
       delete: false,
    },
+   source: "@vexnor/sqlite3:schema",
    pk: [],
    tableInfo: {
       name: "pragma_foreign_key_list",

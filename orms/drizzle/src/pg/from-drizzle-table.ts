@@ -57,6 +57,7 @@ export function fromDrizzleTable<T extends AnyPgTableCompat>(table: T, schema?: 
       pk,
       columns,
       dialect: "postgresql",
+      source: "",
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       crud: { select: true, insert: true, update: true, delete: true } as any,
    }) as FromDrizzleResult<T>;

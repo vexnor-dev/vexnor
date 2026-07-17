@@ -3,8 +3,9 @@ import { newSqlQueryHandler, SqlQueryHandler } from "#src/core/query/sql-query-h
 import { SqlQuery } from "#src/core/query/sql-query.js";
 import { SqlRunArgs, type QueryMeta } from "#src/core/query/sql-query-types.js";
 import { ok } from "#src/lib/assert.js";
+import type { IsUnion, MultiSourceError } from "#src/core/utils/utility-types.js";
 
-export class MockQueryHandler<T extends { Row?: unknown; Params?: unknown }> extends SqlQueryHandler<
+export class MockQueryHandler<T extends { Row?: unknown; Params?: unknown; Sources?: string }> extends SqlQueryHandler<
    Pick<T, "Row" | "Params"> & {
       Read: MockResult<T["Row"]>;
       Write: MockResult<T["Row"]>;
@@ -33,13 +34,15 @@ export class MockQueryHandler<T extends { Row?: unknown; Params?: unknown }> ext
    }
 }
 
-export function mockHandler<T extends { Row?: unknown; Params?: unknown }>(query: SqlQuery<T>): MockQueryHandler<T> {
+export function mockHandler<T extends { Row?: unknown; Params?: unknown; Sources?: string }>(query: SqlQuery<T>): MockQueryHandler<T> {
    return new MockQueryHandler<T>(query);
 }
 
 declare module "@vexnor/core" {
-   interface SqlQuery<T extends { Row?: unknown; Params?: unknown }> {
-      readonly mock: MockQueryHandler<T>;
+   interface SqlQuery<T extends { Row?: unknown; Params?: unknown; Sources?: string }> {
+      readonly mock: IsUnion<T["Sources"]> extends true
+         ? MultiSourceError
+         : MockQueryHandler<T>;
    }
 }
 

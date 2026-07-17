@@ -3,10 +3,11 @@ import { SchemaGraph } from "#src/execution/schema-graph.js";
 import { newSqlTable, type SqlTableForeignKey } from "#src/core/schema/sql-table.js";
 
 function makeTable(name: string, columns: Record<string, string>, opts?: { fk?: SqlTableForeignKey[]; pk?: string[]; schema?: string; dbSchema?: Record<string, { dbType: string; nullable?: boolean; default?: string }> }) {
-   return newSqlTable<{ Select: Record<string, unknown>; Insert: Record<string, unknown>; Update: Record<string, unknown>; Delete: true }>({
+   return newSqlTable<{ Select: Record<string, unknown>; Insert: Record<string, unknown>; Update: Record<string, unknown>; Delete: true; Source: "test" }>({
       crud: { select: true, insert: true, update: true, delete: true },
       tableInfo: { name, schema: opts?.schema ?? "public", alias: null, out: false },
       pk: (opts?.pk ?? ["id"]) as never[],
+      source: "test",
       fk: opts?.fk,
       columns: columns as never,
       dbSchema: opts?.dbSchema as never,
@@ -31,10 +32,11 @@ describe("SchemaGraph", () => {
    const City = makeTable("city", { cityId: "city_id", city: "city" }, { pk: ["cityId"] });
 
    // View (no PK) — should be excluded
-   const SalesView = newSqlTable<{ Select: { total: number }; Insert: Record<string, unknown>; Update: Record<string, unknown>; Delete: true }>({
+   const SalesView = newSqlTable<{ Select: { total: number }; Insert: Record<string, unknown>; Update: Record<string, unknown>; Delete: true; Source: "test" }>({
       crud: { select: true, insert: true, update: true, delete: true },
       tableInfo: { name: "sales_view", schema: "public", alias: null, out: false },
       pk: [] as never[],
+      source: "test",
       columns: { total: "total" } as never,
    });
 
@@ -348,6 +350,11 @@ describe("SchemaGraph", () => {
                      },
                      "callback": [Function],
                    },
+                   "_sourcesLazy": Lazy {
+                     "_computed": false,
+                     "_value": null,
+                     "callback": [Function],
+                   },
                    "hashId": "SqlQuery#(["\\n      ","\\n      ","\\n      select "," ","\\n                "," ","\\n      from "," "," "," ","\\n         ","\\n         ","\\n         ","\\n         ","\\n         ","\\n   "]|SqlRaw#(-)|SqlPreColumnMap#(preColumnMap)|SqlProjection#(SqlTable#(public.payment)|projection:select)|SqlWindowBy#(SqlTable#(public.payment)|windowBy)|SqlRaw#(-)|SqlRaw#(-)|SqlTable#(public.payment)|SqlRaw#(-)|SqlRaw#(-)|SqlJoinBy#(SqlTable#(public.payment)|joinBy:joinBy|customer)|SqlQueryRef#(SqlQuery#(["",""]|SqlFilter#(SqlTable#(public.payment)|filterBy)))|SqlQueryRef#(SqlQuery#(["",""]|SqlProjectionGroupBy#(SqlTable#(public.payment)|projectionGroupBy:select)))|SqlQueryRef#(SqlQuery#(["",""]|SqlHavingBy#(SqlTable#(public.payment)|havingBy)))|SqlOrderBy#(SqlTable#(public.payment)|orderBy)|SqlPagination#(pagination))",
                    "id": "SqlQuery#4",
                    "location": null,
@@ -557,7 +564,7 @@ describe("SchemaGraph", () => {
                            "pk": [
                              "customerId",
                            ],
-                           "source": "",
+                           "source": "test",
                            "tableInfo": {
                              "alias": null,
                              "name": "customer",
@@ -725,7 +732,7 @@ describe("SchemaGraph", () => {
                          "pk": [
                            "paymentId",
                          ],
-                         "source": "",
+                         "source": "test",
                          "tableInfo": {
                            "alias": null,
                            "name": "payment",
@@ -930,7 +937,7 @@ describe("SchemaGraph", () => {
                          "pk": [
                            "paymentId",
                          ],
-                         "source": "",
+                         "source": "test",
                          "tableInfo": {
                            "alias": null,
                            "name": "payment",
@@ -1126,7 +1133,7 @@ describe("SchemaGraph", () => {
                          "pk": [
                            "paymentId",
                          ],
-                         "source": "",
+                         "source": "test",
                          "tableInfo": {
                            "alias": null,
                            "name": "payment",
@@ -1316,7 +1323,7 @@ describe("SchemaGraph", () => {
                        "pk": [
                          "paymentId",
                        ],
-                       "source": "",
+                       "source": "test",
                        "tableInfo": {
                          "alias": null,
                          "name": "payment",
@@ -1507,7 +1514,7 @@ describe("SchemaGraph", () => {
                            "pk": [
                              "customerId",
                            ],
-                           "source": "",
+                           "source": "test",
                            "tableInfo": {
                              "alias": null,
                              "name": "customer",
@@ -1690,7 +1697,7 @@ describe("SchemaGraph", () => {
                          "pk": [
                            "paymentId",
                          ],
-                         "source": "",
+                         "source": "test",
                          "tableInfo": {
                            "alias": null,
                            "name": "payment",
@@ -1770,6 +1777,11 @@ describe("SchemaGraph", () => {
                          },
                          "_rowLazy": Lazy {
                            "_computed": true,
+                           "_value": null,
+                           "callback": [Function],
+                         },
+                         "_sourcesLazy": Lazy {
+                           "_computed": false,
                            "_value": null,
                            "callback": [Function],
                          },
@@ -2020,7 +2032,7 @@ describe("SchemaGraph", () => {
                                "pk": [
                                  "paymentId",
                                ],
-                               "source": "",
+                               "source": "test",
                                "tableInfo": {
                                  "alias": null,
                                  "name": "payment",
@@ -2113,6 +2125,11 @@ describe("SchemaGraph", () => {
                          },
                          "_rowLazy": Lazy {
                            "_computed": true,
+                           "_value": null,
+                           "callback": [Function],
+                         },
+                         "_sourcesLazy": Lazy {
+                           "_computed": false,
                            "_value": null,
                            "callback": [Function],
                          },
@@ -2286,7 +2303,7 @@ describe("SchemaGraph", () => {
                                "pk": [
                                  "paymentId",
                                ],
-                               "source": "",
+                               "source": "test",
                                "tableInfo": {
                                  "alias": null,
                                  "name": "payment",
@@ -2379,6 +2396,11 @@ describe("SchemaGraph", () => {
                          },
                          "_rowLazy": Lazy {
                            "_computed": true,
+                           "_value": null,
+                           "callback": [Function],
+                         },
+                         "_sourcesLazy": Lazy {
+                           "_computed": false,
                            "_value": null,
                            "callback": [Function],
                          },
@@ -2566,7 +2588,7 @@ describe("SchemaGraph", () => {
                                "pk": [
                                  "paymentId",
                                ],
-                               "source": "",
+                               "source": "test",
                                "tableInfo": {
                                  "alias": null,
                                  "name": "payment",
@@ -2784,7 +2806,7 @@ describe("SchemaGraph", () => {
                          "pk": [
                            "paymentId",
                          ],
-                         "source": "",
+                         "source": "test",
                          "tableInfo": {
                            "alias": null,
                            "name": "payment",
@@ -2977,6 +2999,11 @@ describe("SchemaGraph", () => {
                      },
                      "callback": [Function],
                    },
+                   "_sourcesLazy": Lazy {
+                     "_computed": false,
+                     "_value": null,
+                     "callback": [Function],
+                   },
                    "hashId": "SqlQuery#(["\\n      ","\\n      ","\\n      select "," ","\\n                "," ","\\n      from "," "," "," ","\\n         ","\\n         ","\\n         ","\\n         ","\\n         ","\\n   "]|SqlRaw#(-)|SqlPreColumnMap#(preColumnMap)|SqlProjection#(SqlTable#(public.payment)|projection:select)|SqlWindowBy#(SqlTable#(public.payment)|windowBy)|SqlRaw#(-)|SqlRaw#(-)|SqlTable#(public.payment)|SqlRaw#(-)|SqlRaw#(-)|SqlJoinBy#(SqlTable#(public.payment)|joinBy:joinBy|customer)|SqlQueryRef#(SqlQuery#(["",""]|SqlFilter#(SqlTable#(public.payment)|filterBy)))|SqlQueryRef#(SqlQuery#(["",""]|SqlProjectionGroupBy#(SqlTable#(public.payment)|projectionGroupBy:select)))|SqlQueryRef#(SqlQuery#(["",""]|SqlHavingBy#(SqlTable#(public.payment)|havingBy)))|SqlOrderBy#(SqlTable#(public.payment)|orderBy)|SqlPagination#(pagination))",
                    "id": "SqlQuery#4",
                    "location": null,
@@ -3186,7 +3213,7 @@ describe("SchemaGraph", () => {
                            "pk": [
                              "customerId",
                            ],
-                           "source": "",
+                           "source": "test",
                            "tableInfo": {
                              "alias": null,
                              "name": "customer",
@@ -3354,7 +3381,7 @@ describe("SchemaGraph", () => {
                          "pk": [
                            "paymentId",
                          ],
-                         "source": "",
+                         "source": "test",
                          "tableInfo": {
                            "alias": null,
                            "name": "payment",
@@ -3559,7 +3586,7 @@ describe("SchemaGraph", () => {
                          "pk": [
                            "paymentId",
                          ],
-                         "source": "",
+                         "source": "test",
                          "tableInfo": {
                            "alias": null,
                            "name": "payment",
@@ -3755,7 +3782,7 @@ describe("SchemaGraph", () => {
                          "pk": [
                            "paymentId",
                          ],
-                         "source": "",
+                         "source": "test",
                          "tableInfo": {
                            "alias": null,
                            "name": "payment",
@@ -3945,7 +3972,7 @@ describe("SchemaGraph", () => {
                        "pk": [
                          "paymentId",
                        ],
-                       "source": "",
+                       "source": "test",
                        "tableInfo": {
                          "alias": null,
                          "name": "payment",
@@ -4136,7 +4163,7 @@ describe("SchemaGraph", () => {
                            "pk": [
                              "customerId",
                            ],
-                           "source": "",
+                           "source": "test",
                            "tableInfo": {
                              "alias": null,
                              "name": "customer",
@@ -4319,7 +4346,7 @@ describe("SchemaGraph", () => {
                          "pk": [
                            "paymentId",
                          ],
-                         "source": "",
+                         "source": "test",
                          "tableInfo": {
                            "alias": null,
                            "name": "payment",
@@ -4399,6 +4426,11 @@ describe("SchemaGraph", () => {
                          },
                          "_rowLazy": Lazy {
                            "_computed": true,
+                           "_value": null,
+                           "callback": [Function],
+                         },
+                         "_sourcesLazy": Lazy {
+                           "_computed": false,
                            "_value": null,
                            "callback": [Function],
                          },
@@ -4649,7 +4681,7 @@ describe("SchemaGraph", () => {
                                "pk": [
                                  "paymentId",
                                ],
-                               "source": "",
+                               "source": "test",
                                "tableInfo": {
                                  "alias": null,
                                  "name": "payment",
@@ -4742,6 +4774,11 @@ describe("SchemaGraph", () => {
                          },
                          "_rowLazy": Lazy {
                            "_computed": true,
+                           "_value": null,
+                           "callback": [Function],
+                         },
+                         "_sourcesLazy": Lazy {
+                           "_computed": false,
                            "_value": null,
                            "callback": [Function],
                          },
@@ -4915,7 +4952,7 @@ describe("SchemaGraph", () => {
                                "pk": [
                                  "paymentId",
                                ],
-                               "source": "",
+                               "source": "test",
                                "tableInfo": {
                                  "alias": null,
                                  "name": "payment",
@@ -5008,6 +5045,11 @@ describe("SchemaGraph", () => {
                          },
                          "_rowLazy": Lazy {
                            "_computed": true,
+                           "_value": null,
+                           "callback": [Function],
+                         },
+                         "_sourcesLazy": Lazy {
+                           "_computed": false,
                            "_value": null,
                            "callback": [Function],
                          },
@@ -5195,7 +5237,7 @@ describe("SchemaGraph", () => {
                                "pk": [
                                  "paymentId",
                                ],
-                               "source": "",
+                               "source": "test",
                                "tableInfo": {
                                  "alias": null,
                                  "name": "payment",
@@ -5413,7 +5455,7 @@ describe("SchemaGraph", () => {
                          "pk": [
                            "paymentId",
                          ],
-                         "source": "",
+                         "source": "test",
                          "tableInfo": {
                            "alias": null,
                            "name": "payment",
@@ -5606,6 +5648,11 @@ describe("SchemaGraph", () => {
                      },
                      "callback": [Function],
                    },
+                   "_sourcesLazy": Lazy {
+                     "_computed": false,
+                     "_value": null,
+                     "callback": [Function],
+                   },
                    "hashId": "SqlQuery#(["\\n      ","\\n      ","\\n      select "," ","\\n                "," ","\\n      from "," "," "," ","\\n         ","\\n         ","\\n         ","\\n         ","\\n         ","\\n   "]|SqlRaw#(-)|SqlPreColumnMap#(preColumnMap)|SqlProjection#(SqlTable#(public.payment)|projection:select)|SqlWindowBy#(SqlTable#(public.payment)|windowBy)|SqlRaw#(-)|SqlRaw#(-)|SqlTable#(public.payment)|SqlRaw#(-)|SqlRaw#(-)|SqlJoinBy#(SqlTable#(public.payment)|joinBy:joinBy|customer)|SqlQueryRef#(SqlQuery#(["",""]|SqlFilter#(SqlTable#(public.payment)|filterBy)))|SqlQueryRef#(SqlQuery#(["",""]|SqlProjectionGroupBy#(SqlTable#(public.payment)|projectionGroupBy:select)))|SqlQueryRef#(SqlQuery#(["",""]|SqlHavingBy#(SqlTable#(public.payment)|havingBy)))|SqlOrderBy#(SqlTable#(public.payment)|orderBy)|SqlPagination#(pagination))",
                    "id": "SqlQuery#4",
                    "location": null,
@@ -5815,7 +5862,7 @@ describe("SchemaGraph", () => {
                            "pk": [
                              "customerId",
                            ],
-                           "source": "",
+                           "source": "test",
                            "tableInfo": {
                              "alias": null,
                              "name": "customer",
@@ -5983,7 +6030,7 @@ describe("SchemaGraph", () => {
                          "pk": [
                            "paymentId",
                          ],
-                         "source": "",
+                         "source": "test",
                          "tableInfo": {
                            "alias": null,
                            "name": "payment",
@@ -6188,7 +6235,7 @@ describe("SchemaGraph", () => {
                          "pk": [
                            "paymentId",
                          ],
-                         "source": "",
+                         "source": "test",
                          "tableInfo": {
                            "alias": null,
                            "name": "payment",
@@ -6384,7 +6431,7 @@ describe("SchemaGraph", () => {
                          "pk": [
                            "paymentId",
                          ],
-                         "source": "",
+                         "source": "test",
                          "tableInfo": {
                            "alias": null,
                            "name": "payment",
@@ -6574,7 +6621,7 @@ describe("SchemaGraph", () => {
                        "pk": [
                          "paymentId",
                        ],
-                       "source": "",
+                       "source": "test",
                        "tableInfo": {
                          "alias": null,
                          "name": "payment",
@@ -6765,7 +6812,7 @@ describe("SchemaGraph", () => {
                            "pk": [
                              "customerId",
                            ],
-                           "source": "",
+                           "source": "test",
                            "tableInfo": {
                              "alias": null,
                              "name": "customer",
@@ -6948,7 +6995,7 @@ describe("SchemaGraph", () => {
                          "pk": [
                            "paymentId",
                          ],
-                         "source": "",
+                         "source": "test",
                          "tableInfo": {
                            "alias": null,
                            "name": "payment",
@@ -7028,6 +7075,11 @@ describe("SchemaGraph", () => {
                          },
                          "_rowLazy": Lazy {
                            "_computed": true,
+                           "_value": null,
+                           "callback": [Function],
+                         },
+                         "_sourcesLazy": Lazy {
+                           "_computed": false,
                            "_value": null,
                            "callback": [Function],
                          },
@@ -7278,7 +7330,7 @@ describe("SchemaGraph", () => {
                                "pk": [
                                  "paymentId",
                                ],
-                               "source": "",
+                               "source": "test",
                                "tableInfo": {
                                  "alias": null,
                                  "name": "payment",
@@ -7371,6 +7423,11 @@ describe("SchemaGraph", () => {
                          },
                          "_rowLazy": Lazy {
                            "_computed": true,
+                           "_value": null,
+                           "callback": [Function],
+                         },
+                         "_sourcesLazy": Lazy {
+                           "_computed": false,
                            "_value": null,
                            "callback": [Function],
                          },
@@ -7544,7 +7601,7 @@ describe("SchemaGraph", () => {
                                "pk": [
                                  "paymentId",
                                ],
-                               "source": "",
+                               "source": "test",
                                "tableInfo": {
                                  "alias": null,
                                  "name": "payment",
@@ -7637,6 +7694,11 @@ describe("SchemaGraph", () => {
                          },
                          "_rowLazy": Lazy {
                            "_computed": true,
+                           "_value": null,
+                           "callback": [Function],
+                         },
+                         "_sourcesLazy": Lazy {
+                           "_computed": false,
                            "_value": null,
                            "callback": [Function],
                          },
@@ -7824,7 +7886,7 @@ describe("SchemaGraph", () => {
                                "pk": [
                                  "paymentId",
                                ],
-                               "source": "",
+                               "source": "test",
                                "tableInfo": {
                                  "alias": null,
                                  "name": "payment",
@@ -8042,7 +8104,7 @@ describe("SchemaGraph", () => {
                          "pk": [
                            "paymentId",
                          ],
-                         "source": "",
+                         "source": "test",
                          "tableInfo": {
                            "alias": null,
                            "name": "payment",
@@ -8236,6 +8298,11 @@ describe("SchemaGraph", () => {
                          "callback": [Function],
                        },
                        "_rowLazy": [Circular],
+                       "_sourcesLazy": Lazy {
+                         "_computed": false,
+                         "_value": null,
+                         "callback": [Function],
+                       },
                        "hashId": "SqlQuery#(["\\n      ","\\n      ","\\n      select "," ","\\n                "," ","\\n      from "," "," "," ","\\n         ","\\n         ","\\n         ","\\n         ","\\n         ","\\n   "]|SqlRaw#(-)|SqlPreColumnMap#(preColumnMap)|SqlProjection#(SqlTable#(public.payment)|projection:select)|SqlWindowBy#(SqlTable#(public.payment)|windowBy)|SqlRaw#(-)|SqlRaw#(-)|SqlTable#(public.payment)|SqlRaw#(-)|SqlRaw#(-)|SqlJoinBy#(SqlTable#(public.payment)|joinBy:joinBy|customer)|SqlQueryRef#(SqlQuery#(["",""]|SqlFilter#(SqlTable#(public.payment)|filterBy)))|SqlQueryRef#(SqlQuery#(["",""]|SqlProjectionGroupBy#(SqlTable#(public.payment)|projectionGroupBy:select)))|SqlQueryRef#(SqlQuery#(["",""]|SqlHavingBy#(SqlTable#(public.payment)|havingBy)))|SqlOrderBy#(SqlTable#(public.payment)|orderBy)|SqlPagination#(pagination))",
                        "id": "SqlQuery#4",
                        "location": null,
@@ -8445,7 +8512,7 @@ describe("SchemaGraph", () => {
                                "pk": [
                                  "customerId",
                                ],
-                               "source": "",
+                               "source": "test",
                                "tableInfo": {
                                  "alias": null,
                                  "name": "customer",
@@ -8613,7 +8680,7 @@ describe("SchemaGraph", () => {
                              "pk": [
                                "paymentId",
                              ],
-                             "source": "",
+                             "source": "test",
                              "tableInfo": {
                                "alias": null,
                                "name": "payment",
@@ -8818,7 +8885,7 @@ describe("SchemaGraph", () => {
                              "pk": [
                                "paymentId",
                              ],
-                             "source": "",
+                             "source": "test",
                              "tableInfo": {
                                "alias": null,
                                "name": "payment",
@@ -9014,7 +9081,7 @@ describe("SchemaGraph", () => {
                              "pk": [
                                "paymentId",
                              ],
-                             "source": "",
+                             "source": "test",
                              "tableInfo": {
                                "alias": null,
                                "name": "payment",
@@ -9204,7 +9271,7 @@ describe("SchemaGraph", () => {
                            "pk": [
                              "paymentId",
                            ],
-                           "source": "",
+                           "source": "test",
                            "tableInfo": {
                              "alias": null,
                              "name": "payment",
@@ -9395,7 +9462,7 @@ describe("SchemaGraph", () => {
                                "pk": [
                                  "customerId",
                                ],
-                               "source": "",
+                               "source": "test",
                                "tableInfo": {
                                  "alias": null,
                                  "name": "customer",
@@ -9578,7 +9645,7 @@ describe("SchemaGraph", () => {
                              "pk": [
                                "paymentId",
                              ],
-                             "source": "",
+                             "source": "test",
                              "tableInfo": {
                                "alias": null,
                                "name": "payment",
@@ -9658,6 +9725,11 @@ describe("SchemaGraph", () => {
                              },
                              "_rowLazy": Lazy {
                                "_computed": true,
+                               "_value": null,
+                               "callback": [Function],
+                             },
+                             "_sourcesLazy": Lazy {
+                               "_computed": false,
                                "_value": null,
                                "callback": [Function],
                              },
@@ -9908,7 +9980,7 @@ describe("SchemaGraph", () => {
                                    "pk": [
                                      "paymentId",
                                    ],
-                                   "source": "",
+                                   "source": "test",
                                    "tableInfo": {
                                      "alias": null,
                                      "name": "payment",
@@ -10001,6 +10073,11 @@ describe("SchemaGraph", () => {
                              },
                              "_rowLazy": Lazy {
                                "_computed": true,
+                               "_value": null,
+                               "callback": [Function],
+                             },
+                             "_sourcesLazy": Lazy {
+                               "_computed": false,
                                "_value": null,
                                "callback": [Function],
                              },
@@ -10174,7 +10251,7 @@ describe("SchemaGraph", () => {
                                    "pk": [
                                      "paymentId",
                                    ],
-                                   "source": "",
+                                   "source": "test",
                                    "tableInfo": {
                                      "alias": null,
                                      "name": "payment",
@@ -10267,6 +10344,11 @@ describe("SchemaGraph", () => {
                              },
                              "_rowLazy": Lazy {
                                "_computed": true,
+                               "_value": null,
+                               "callback": [Function],
+                             },
+                             "_sourcesLazy": Lazy {
+                               "_computed": false,
                                "_value": null,
                                "callback": [Function],
                              },
@@ -10454,7 +10536,7 @@ describe("SchemaGraph", () => {
                                    "pk": [
                                      "paymentId",
                                    ],
-                                   "source": "",
+                                   "source": "test",
                                    "tableInfo": {
                                      "alias": null,
                                      "name": "payment",
@@ -10672,7 +10754,7 @@ describe("SchemaGraph", () => {
                              "pk": [
                                "paymentId",
                              ],
-                             "source": "",
+                             "source": "test",
                              "tableInfo": {
                                "alias": null,
                                "name": "payment",
@@ -10807,6 +10889,11 @@ describe("SchemaGraph", () => {
                          "callback": [Function],
                        },
                        "_rowLazy": [Circular],
+                       "_sourcesLazy": Lazy {
+                         "_computed": false,
+                         "_value": null,
+                         "callback": [Function],
+                       },
                        "hashId": "SqlQuery#(["\\n      ","\\n      ","\\n      select "," ","\\n                "," ","\\n      from "," "," "," ","\\n         ","\\n         ","\\n         ","\\n         ","\\n         ","\\n   "]|SqlRaw#(-)|SqlPreColumnMap#(preColumnMap)|SqlProjection#(SqlTable#(public.payment)|projection:select)|SqlWindowBy#(SqlTable#(public.payment)|windowBy)|SqlRaw#(-)|SqlRaw#(-)|SqlTable#(public.payment)|SqlRaw#(-)|SqlRaw#(-)|SqlJoinBy#(SqlTable#(public.payment)|joinBy:joinBy|customer)|SqlQueryRef#(SqlQuery#(["",""]|SqlFilter#(SqlTable#(public.payment)|filterBy)))|SqlQueryRef#(SqlQuery#(["",""]|SqlProjectionGroupBy#(SqlTable#(public.payment)|projectionGroupBy:select)))|SqlQueryRef#(SqlQuery#(["",""]|SqlHavingBy#(SqlTable#(public.payment)|havingBy)))|SqlOrderBy#(SqlTable#(public.payment)|orderBy)|SqlPagination#(pagination))",
                        "id": "SqlQuery#4",
                        "location": null,
@@ -11016,7 +11103,7 @@ describe("SchemaGraph", () => {
                                "pk": [
                                  "customerId",
                                ],
-                               "source": "",
+                               "source": "test",
                                "tableInfo": {
                                  "alias": null,
                                  "name": "customer",
@@ -11184,7 +11271,7 @@ describe("SchemaGraph", () => {
                              "pk": [
                                "paymentId",
                              ],
-                             "source": "",
+                             "source": "test",
                              "tableInfo": {
                                "alias": null,
                                "name": "payment",
@@ -11389,7 +11476,7 @@ describe("SchemaGraph", () => {
                              "pk": [
                                "paymentId",
                              ],
-                             "source": "",
+                             "source": "test",
                              "tableInfo": {
                                "alias": null,
                                "name": "payment",
@@ -11585,7 +11672,7 @@ describe("SchemaGraph", () => {
                              "pk": [
                                "paymentId",
                              ],
-                             "source": "",
+                             "source": "test",
                              "tableInfo": {
                                "alias": null,
                                "name": "payment",
@@ -11775,7 +11862,7 @@ describe("SchemaGraph", () => {
                            "pk": [
                              "paymentId",
                            ],
-                           "source": "",
+                           "source": "test",
                            "tableInfo": {
                              "alias": null,
                              "name": "payment",
@@ -11966,7 +12053,7 @@ describe("SchemaGraph", () => {
                                "pk": [
                                  "customerId",
                                ],
-                               "source": "",
+                               "source": "test",
                                "tableInfo": {
                                  "alias": null,
                                  "name": "customer",
@@ -12149,7 +12236,7 @@ describe("SchemaGraph", () => {
                              "pk": [
                                "paymentId",
                              ],
-                             "source": "",
+                             "source": "test",
                              "tableInfo": {
                                "alias": null,
                                "name": "payment",
@@ -12229,6 +12316,11 @@ describe("SchemaGraph", () => {
                              },
                              "_rowLazy": Lazy {
                                "_computed": true,
+                               "_value": null,
+                               "callback": [Function],
+                             },
+                             "_sourcesLazy": Lazy {
+                               "_computed": false,
                                "_value": null,
                                "callback": [Function],
                              },
@@ -12479,7 +12571,7 @@ describe("SchemaGraph", () => {
                                    "pk": [
                                      "paymentId",
                                    ],
-                                   "source": "",
+                                   "source": "test",
                                    "tableInfo": {
                                      "alias": null,
                                      "name": "payment",
@@ -12572,6 +12664,11 @@ describe("SchemaGraph", () => {
                              },
                              "_rowLazy": Lazy {
                                "_computed": true,
+                               "_value": null,
+                               "callback": [Function],
+                             },
+                             "_sourcesLazy": Lazy {
+                               "_computed": false,
                                "_value": null,
                                "callback": [Function],
                              },
@@ -12745,7 +12842,7 @@ describe("SchemaGraph", () => {
                                    "pk": [
                                      "paymentId",
                                    ],
-                                   "source": "",
+                                   "source": "test",
                                    "tableInfo": {
                                      "alias": null,
                                      "name": "payment",
@@ -12838,6 +12935,11 @@ describe("SchemaGraph", () => {
                              },
                              "_rowLazy": Lazy {
                                "_computed": true,
+                               "_value": null,
+                               "callback": [Function],
+                             },
+                             "_sourcesLazy": Lazy {
+                               "_computed": false,
                                "_value": null,
                                "callback": [Function],
                              },
@@ -13025,7 +13127,7 @@ describe("SchemaGraph", () => {
                                    "pk": [
                                      "paymentId",
                                    ],
-                                   "source": "",
+                                   "source": "test",
                                    "tableInfo": {
                                      "alias": null,
                                      "name": "payment",
@@ -13243,7 +13345,7 @@ describe("SchemaGraph", () => {
                              "pk": [
                                "paymentId",
                              ],
-                             "source": "",
+                             "source": "test",
                              "tableInfo": {
                                "alias": null,
                                "name": "payment",
@@ -13378,6 +13480,11 @@ describe("SchemaGraph", () => {
                          "callback": [Function],
                        },
                        "_rowLazy": [Circular],
+                       "_sourcesLazy": Lazy {
+                         "_computed": false,
+                         "_value": null,
+                         "callback": [Function],
+                       },
                        "hashId": "SqlQuery#(["\\n      ","\\n      ","\\n      select "," ","\\n                "," ","\\n      from "," "," "," ","\\n         ","\\n         ","\\n         ","\\n         ","\\n         ","\\n   "]|SqlRaw#(-)|SqlPreColumnMap#(preColumnMap)|SqlProjection#(SqlTable#(public.payment)|projection:select)|SqlWindowBy#(SqlTable#(public.payment)|windowBy)|SqlRaw#(-)|SqlRaw#(-)|SqlTable#(public.payment)|SqlRaw#(-)|SqlRaw#(-)|SqlJoinBy#(SqlTable#(public.payment)|joinBy:joinBy|customer)|SqlQueryRef#(SqlQuery#(["",""]|SqlFilter#(SqlTable#(public.payment)|filterBy)))|SqlQueryRef#(SqlQuery#(["",""]|SqlProjectionGroupBy#(SqlTable#(public.payment)|projectionGroupBy:select)))|SqlQueryRef#(SqlQuery#(["",""]|SqlHavingBy#(SqlTable#(public.payment)|havingBy)))|SqlOrderBy#(SqlTable#(public.payment)|orderBy)|SqlPagination#(pagination))",
                        "id": "SqlQuery#4",
                        "location": null,
@@ -13587,7 +13694,7 @@ describe("SchemaGraph", () => {
                                "pk": [
                                  "customerId",
                                ],
-                               "source": "",
+                               "source": "test",
                                "tableInfo": {
                                  "alias": null,
                                  "name": "customer",
@@ -13755,7 +13862,7 @@ describe("SchemaGraph", () => {
                              "pk": [
                                "paymentId",
                              ],
-                             "source": "",
+                             "source": "test",
                              "tableInfo": {
                                "alias": null,
                                "name": "payment",
@@ -13960,7 +14067,7 @@ describe("SchemaGraph", () => {
                              "pk": [
                                "paymentId",
                              ],
-                             "source": "",
+                             "source": "test",
                              "tableInfo": {
                                "alias": null,
                                "name": "payment",
@@ -14156,7 +14263,7 @@ describe("SchemaGraph", () => {
                              "pk": [
                                "paymentId",
                              ],
-                             "source": "",
+                             "source": "test",
                              "tableInfo": {
                                "alias": null,
                                "name": "payment",
@@ -14346,7 +14453,7 @@ describe("SchemaGraph", () => {
                            "pk": [
                              "paymentId",
                            ],
-                           "source": "",
+                           "source": "test",
                            "tableInfo": {
                              "alias": null,
                              "name": "payment",
@@ -14537,7 +14644,7 @@ describe("SchemaGraph", () => {
                                "pk": [
                                  "customerId",
                                ],
-                               "source": "",
+                               "source": "test",
                                "tableInfo": {
                                  "alias": null,
                                  "name": "customer",
@@ -14720,7 +14827,7 @@ describe("SchemaGraph", () => {
                              "pk": [
                                "paymentId",
                              ],
-                             "source": "",
+                             "source": "test",
                              "tableInfo": {
                                "alias": null,
                                "name": "payment",
@@ -14800,6 +14907,11 @@ describe("SchemaGraph", () => {
                              },
                              "_rowLazy": Lazy {
                                "_computed": true,
+                               "_value": null,
+                               "callback": [Function],
+                             },
+                             "_sourcesLazy": Lazy {
+                               "_computed": false,
                                "_value": null,
                                "callback": [Function],
                              },
@@ -15050,7 +15162,7 @@ describe("SchemaGraph", () => {
                                    "pk": [
                                      "paymentId",
                                    ],
-                                   "source": "",
+                                   "source": "test",
                                    "tableInfo": {
                                      "alias": null,
                                      "name": "payment",
@@ -15143,6 +15255,11 @@ describe("SchemaGraph", () => {
                              },
                              "_rowLazy": Lazy {
                                "_computed": true,
+                               "_value": null,
+                               "callback": [Function],
+                             },
+                             "_sourcesLazy": Lazy {
+                               "_computed": false,
                                "_value": null,
                                "callback": [Function],
                              },
@@ -15316,7 +15433,7 @@ describe("SchemaGraph", () => {
                                    "pk": [
                                      "paymentId",
                                    ],
-                                   "source": "",
+                                   "source": "test",
                                    "tableInfo": {
                                      "alias": null,
                                      "name": "payment",
@@ -15409,6 +15526,11 @@ describe("SchemaGraph", () => {
                              },
                              "_rowLazy": Lazy {
                                "_computed": true,
+                               "_value": null,
+                               "callback": [Function],
+                             },
+                             "_sourcesLazy": Lazy {
+                               "_computed": false,
                                "_value": null,
                                "callback": [Function],
                              },
@@ -15596,7 +15718,7 @@ describe("SchemaGraph", () => {
                                    "pk": [
                                      "paymentId",
                                    ],
-                                   "source": "",
+                                   "source": "test",
                                    "tableInfo": {
                                      "alias": null,
                                      "name": "payment",
@@ -15814,7 +15936,7 @@ describe("SchemaGraph", () => {
                              "pk": [
                                "paymentId",
                              ],
-                             "source": "",
+                             "source": "test",
                              "tableInfo": {
                                "alias": null,
                                "name": "payment",
@@ -15886,6 +16008,11 @@ describe("SchemaGraph", () => {
                      "type": "SqlQueryColumn",
                    },
                  },
+                 "callback": [Function],
+               },
+               "_sourcesLazy": Lazy {
+                 "_computed": false,
+                 "_value": null,
                  "callback": [Function],
                },
                "hashId": "SqlQuery#(["\\n      ","\\n      ","\\n      select "," ","\\n                "," ","\\n      from "," "," "," ","\\n         ","\\n         ","\\n         ","\\n         ","\\n         ","\\n   "]|SqlRaw#(-)|SqlPreColumnMap#(preColumnMap)|SqlProjection#(SqlTable#(public.payment)|projection:select)|SqlWindowBy#(SqlTable#(public.payment)|windowBy)|SqlRaw#(-)|SqlRaw#(-)|SqlTable#(public.payment)|SqlRaw#(-)|SqlRaw#(-)|SqlJoinBy#(SqlTable#(public.payment)|joinBy:joinBy|customer)|SqlQueryRef#(SqlQuery#(["",""]|SqlFilter#(SqlTable#(public.payment)|filterBy)))|SqlQueryRef#(SqlQuery#(["",""]|SqlProjectionGroupBy#(SqlTable#(public.payment)|projectionGroupBy:select)))|SqlQueryRef#(SqlQuery#(["",""]|SqlHavingBy#(SqlTable#(public.payment)|havingBy)))|SqlOrderBy#(SqlTable#(public.payment)|orderBy)|SqlPagination#(pagination))",
@@ -16097,7 +16224,7 @@ describe("SchemaGraph", () => {
                        "pk": [
                          "customerId",
                        ],
-                       "source": "",
+                       "source": "test",
                        "tableInfo": {
                          "alias": null,
                          "name": "customer",
@@ -16265,7 +16392,7 @@ describe("SchemaGraph", () => {
                      "pk": [
                        "paymentId",
                      ],
-                     "source": "",
+                     "source": "test",
                      "tableInfo": {
                        "alias": null,
                        "name": "payment",
@@ -16470,7 +16597,7 @@ describe("SchemaGraph", () => {
                      "pk": [
                        "paymentId",
                      ],
-                     "source": "",
+                     "source": "test",
                      "tableInfo": {
                        "alias": null,
                        "name": "payment",
@@ -16666,7 +16793,7 @@ describe("SchemaGraph", () => {
                      "pk": [
                        "paymentId",
                      ],
-                     "source": "",
+                     "source": "test",
                      "tableInfo": {
                        "alias": null,
                        "name": "payment",
@@ -16856,7 +16983,7 @@ describe("SchemaGraph", () => {
                    "pk": [
                      "paymentId",
                    ],
-                   "source": "",
+                   "source": "test",
                    "tableInfo": {
                      "alias": null,
                      "name": "payment",
@@ -17047,7 +17174,7 @@ describe("SchemaGraph", () => {
                        "pk": [
                          "customerId",
                        ],
-                       "source": "",
+                       "source": "test",
                        "tableInfo": {
                          "alias": null,
                          "name": "customer",
@@ -17230,7 +17357,7 @@ describe("SchemaGraph", () => {
                      "pk": [
                        "paymentId",
                      ],
-                     "source": "",
+                     "source": "test",
                      "tableInfo": {
                        "alias": null,
                        "name": "payment",
@@ -17310,6 +17437,11 @@ describe("SchemaGraph", () => {
                      },
                      "_rowLazy": Lazy {
                        "_computed": true,
+                       "_value": null,
+                       "callback": [Function],
+                     },
+                     "_sourcesLazy": Lazy {
+                       "_computed": false,
                        "_value": null,
                        "callback": [Function],
                      },
@@ -17560,7 +17692,7 @@ describe("SchemaGraph", () => {
                            "pk": [
                              "paymentId",
                            ],
-                           "source": "",
+                           "source": "test",
                            "tableInfo": {
                              "alias": null,
                              "name": "payment",
@@ -17653,6 +17785,11 @@ describe("SchemaGraph", () => {
                      },
                      "_rowLazy": Lazy {
                        "_computed": true,
+                       "_value": null,
+                       "callback": [Function],
+                     },
+                     "_sourcesLazy": Lazy {
+                       "_computed": false,
                        "_value": null,
                        "callback": [Function],
                      },
@@ -17826,7 +17963,7 @@ describe("SchemaGraph", () => {
                            "pk": [
                              "paymentId",
                            ],
-                           "source": "",
+                           "source": "test",
                            "tableInfo": {
                              "alias": null,
                              "name": "payment",
@@ -17919,6 +18056,11 @@ describe("SchemaGraph", () => {
                      },
                      "_rowLazy": Lazy {
                        "_computed": true,
+                       "_value": null,
+                       "callback": [Function],
+                     },
+                     "_sourcesLazy": Lazy {
+                       "_computed": false,
                        "_value": null,
                        "callback": [Function],
                      },
@@ -18106,7 +18248,7 @@ describe("SchemaGraph", () => {
                            "pk": [
                              "paymentId",
                            ],
-                           "source": "",
+                           "source": "test",
                            "tableInfo": {
                              "alias": null,
                              "name": "payment",
@@ -18324,7 +18466,7 @@ describe("SchemaGraph", () => {
                      "pk": [
                        "paymentId",
                      ],
-                     "source": "",
+                     "source": "test",
                      "tableInfo": {
                        "alias": null,
                        "name": "payment",

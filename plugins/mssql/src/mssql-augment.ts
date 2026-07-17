@@ -1,10 +1,12 @@
-import { SqlQuery, SqlTable, newSqlQueryHandler } from "@vexnor/core";
+import { IsUnion, MultiSourceError, SqlQuery, SqlTable, newSqlQueryHandler } from "@vexnor/core";
 import { MssqlQueryHandler } from "#src/mssql-query-handler.js";
 import { newMssqlTableHandler, MssqlTableHandler } from "#src/crud/mssql-table-handler.js";
 
 declare module "@vexnor/core" {
-   interface SqlQuery<T extends { Row?: unknown; Params?: unknown }> {
-      readonly mssql: MssqlQueryHandler<T>;
+   interface SqlQuery<T extends { Row?: unknown; Params?: unknown; Sources?: string }> {
+      readonly mssql: IsUnion<T["Sources"]> extends true
+         ? MultiSourceError
+         : MssqlQueryHandler<T>;
    }
    interface SqlTable<
       T extends {
@@ -12,6 +14,7 @@ declare module "@vexnor/core" {
          Insert?: Record<string, unknown>;
          Update?: Record<string, unknown>;
          Delete?: boolean;
+         Source?: string;
       },
    > {
       readonly mssql: MssqlTableHandler<T>;

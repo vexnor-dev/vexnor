@@ -14,7 +14,7 @@ class MockQueryHandler<T extends { Row?: unknown; Params?: unknown }> extends Sq
    Pick<T, "Row" | "Params"> & { Read: MockResult; Write: MockResult; Connection: unknown }
 > {
    constructor(
-      query: SqlQuery<Pick<T, "Row" | "Params">>,
+      query: SqlQuery<T>,
       private readonly _execute: (mode: SqlExecuteMode) => Promise<MockResult>,
    ) {
       super(query, { pluginName: "mock" });

@@ -1,5 +1,5 @@
 import { newSqlQuery, SqlQuery, SqlQueryExtended } from "#src/core/query/sql-query.js";
-import { ParamsOf, RowOf, Sql } from "#src/core/sql-base.js";
+import { ParamsOf, RowOf, SourceOf, Sql } from "#src/core/sql-base.js";
 import { Void } from "#src/core/utils/utility-types.js";
 import { sqlBuildDefaults } from "#src/core/builder/sql-build-options.js";
 
@@ -42,10 +42,12 @@ export function sql<Token extends SqlQueryToken = SqlQueryToken, Tokens extends 
 ): SqlQueryExtended<{
    Params: SqlParams<typeof rawValues>;
    Row: SqlRow<typeof rawValues>;
+   Sources: SqlSources<typeof rawValues>;
 }> {
    const query = new SqlQuery<{
       Params: SqlParams<typeof rawValues>;
       Row: SqlRow<typeof rawValues>;
+      Sources: SqlSources<typeof rawValues>;
    }>({ rawStrings, rawValues });
    return newSqlQuery(query);
 }
@@ -73,3 +75,11 @@ type BuildSqlParams<T> = T extends [infer Start, ...infer Rest]
       ? ParamsOf<A> & BuildSqlParams<B> & BuildSqlParams<Rest>
       : ParamsOf<Start> & BuildSqlParams<Rest>
    : void;
+
+export type SqlSources<T> = BuildSqlSources<T>;
+
+type BuildSqlSources<T> = T extends [infer Start, ...infer Rest]
+   ? Start extends [infer A, ...infer B]
+      ? SourceOf<A> | BuildSqlSources<B> | BuildSqlSources<Rest>
+      : SourceOf<Start> | BuildSqlSources<Rest>
+   : never;

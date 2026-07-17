@@ -3,10 +3,11 @@ import { newSqlTable, type SqlTableForeignKey } from "#src/core/schema/sql-table
 import { SqlTableJoin } from "#src/core/schema/sql-table-join.js";
 
 function makeTable(name: string, columns: Record<string, string>, fk?: SqlTableForeignKey[]) {
-   return newSqlTable<{ Select: Record<string, unknown>; Insert: Record<string, unknown>; Update: Record<string, unknown>; Delete: true }>({
+   return newSqlTable<{ Select: Record<string, unknown>; Insert: Record<string, unknown>; Update: Record<string, unknown>; Delete: true; Source: "test" }>({
       crud: { select: true, insert: true, update: true, delete: true },
       tableInfo: { name, schema: "public", alias: null, out: false },
       pk: ["id"],
+      source: "test",
       fk,
       columns: columns as never,
    });

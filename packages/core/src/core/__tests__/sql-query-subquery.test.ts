@@ -115,6 +115,11 @@ describe("sql subqueries tests", () => {
                 "_value": [Circular],
                 "callback": [Function],
               },
+              "_sourcesLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
               "hashId": "SqlQuery#(["\\n         ","\\n         select ","\\n         from ","\\n         where "," = ",""]|SqlQueryInfo#(label=AccountsWithEmail)|SqlSelectRow#(SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId)))|SqlTable#(main.account)|SqlTableColumn#(account.email)|SqlParam#(email))",
               "id": "SqlQuery#1(label=AccountsWithEmail)",
               "location": null,
@@ -910,6 +915,11 @@ describe("sql subqueries tests", () => {
               "_rowLazy": Lazy {
                 "_computed": true,
                 "_value": [Circular],
+                "callback": [Function],
+              },
+              "_sourcesLazy": Lazy {
+                "_computed": false,
+                "_value": null,
                 "callback": [Function],
               },
               "hashId": "SqlQuery#(["\\n         ","\\n         select ","\\n         from ","\\n         where "," = ",""]|SqlQueryInfo#(label=AccountsWithEmail)|SqlSelectRow#(SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId)))|SqlTable#(main.account)|SqlTableColumn#(account.email)|SqlParam#(email))",
@@ -1709,6 +1719,11 @@ describe("sql subqueries tests", () => {
                 "_value": [Circular],
                 "callback": [Function],
               },
+              "_sourcesLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
               "hashId": "SqlQuery#(["\\n         ","\\n         select ","\\n         from ","\\n         where "," = ",""]|SqlQueryInfo#(label=AccountsWithEmail)|SqlSelectRow#(SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId)))|SqlTable#(main.account)|SqlTableColumn#(account.email)|SqlParam#(email))",
               "id": "SqlQuery#1(label=AccountsWithEmail)",
               "location": null,
@@ -2504,6 +2519,11 @@ describe("sql subqueries tests", () => {
               "_rowLazy": Lazy {
                 "_computed": true,
                 "_value": [Circular],
+                "callback": [Function],
+              },
+              "_sourcesLazy": Lazy {
+                "_computed": false,
+                "_value": null,
                 "callback": [Function],
               },
               "hashId": "SqlQuery#(["\\n         ","\\n         select ","\\n         from ","\\n         where "," = ",""]|SqlQueryInfo#(label=AccountsWithEmail)|SqlSelectRow#(SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId)))|SqlTable#(main.account)|SqlTableColumn#(account.email)|SqlParam#(email))",
@@ -3303,6 +3323,11 @@ describe("sql subqueries tests", () => {
                 "_value": [Circular],
                 "callback": [Function],
               },
+              "_sourcesLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
               "hashId": "SqlQuery#(["\\n         ","\\n         select ","\\n         from ","\\n         where "," = ",""]|SqlQueryInfo#(label=AccountsWithEmail)|SqlSelectRow#(SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId)))|SqlTable#(main.account)|SqlTableColumn#(account.email)|SqlParam#(email))",
               "id": "SqlQuery#1(label=AccountsWithEmail)",
               "location": null,
@@ -4098,6 +4123,11 @@ describe("sql subqueries tests", () => {
               "_rowLazy": Lazy {
                 "_computed": true,
                 "_value": [Circular],
+                "callback": [Function],
+              },
+              "_sourcesLazy": Lazy {
+                "_computed": false,
+                "_value": null,
                 "callback": [Function],
               },
               "hashId": "SqlQuery#(["\\n         ","\\n         select ","\\n         from ","\\n         where "," = ",""]|SqlQueryInfo#(label=AccountsWithEmail)|SqlSelectRow#(SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId)))|SqlTable#(main.account)|SqlTableColumn#(account.email)|SqlParam#(email))",
@@ -4897,6 +4927,11 @@ describe("sql subqueries tests", () => {
                 "_value": [Circular],
                 "callback": [Function],
               },
+              "_sourcesLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
               "hashId": "SqlQuery#(["\\n         ","\\n         select ","\\n         from ","\\n         where "," = ",""]|SqlQueryInfo#(label=AccountsWithEmail)|SqlSelectRow#(SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId)))|SqlTable#(main.account)|SqlTableColumn#(account.email)|SqlParam#(email))",
               "id": "SqlQuery#1(label=AccountsWithEmail)",
               "location": null,
@@ -5694,6 +5729,11 @@ describe("sql subqueries tests", () => {
                 "_value": [Circular],
                 "callback": [Function],
               },
+              "_sourcesLazy": Lazy {
+                "_computed": false,
+                "_value": null,
+                "callback": [Function],
+              },
               "hashId": "SqlQuery#(["\\n         ","\\n         select ","\\n         from ","\\n         where "," = ",""]|SqlQueryInfo#(label=AccountsWithEmail)|SqlSelectRow#(SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId)))|SqlTable#(main.account)|SqlTableColumn#(account.email)|SqlParam#(email))",
               "id": "SqlQuery#1(label=AccountsWithEmail)",
               "location": null,
@@ -6489,6 +6529,11 @@ describe("sql subqueries tests", () => {
               "_rowLazy": Lazy {
                 "_computed": true,
                 "_value": [Circular],
+                "callback": [Function],
+              },
+              "_sourcesLazy": Lazy {
+                "_computed": false,
+                "_value": null,
                 "callback": [Function],
               },
               "hashId": "SqlQuery#(["\\n         ","\\n         select ","\\n         from ","\\n         where "," = ",""]|SqlQueryInfo#(label=AccountsWithEmail)|SqlSelectRow#(SqlTableAll#(SqlTableColumn#(account.account_id as accountId),SqlTableColumn#(account.status),SqlTableColumn#(account.email),SqlTableColumn#(account.first_name as firstName),SqlTableColumn#(account.last_name as lastName),SqlTableColumn#(account.notes),SqlTableColumn#(account.created_at as createdAt),SqlTableColumn#(account.modified_at as modifiedAt),SqlTableColumn#(account.parent_id as parentId)))|SqlTable#(main.account)|SqlTableColumn#(account.email)|SqlParam#(email))",

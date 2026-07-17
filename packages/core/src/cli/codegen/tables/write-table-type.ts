@@ -21,6 +21,7 @@ export function writeTableType(writer: CodeWriter, { table }: PrintTableArgs) {
             writer.writeLine(`Update: ${tableTypeUpdate};`);
             writer.writeLine(`Delete: true;`);
          }
+         writer.writeLine(`Source: "${getCodegenContext().source}";`);
       })
       .write(`(`)
       .inlineBlock(() => {

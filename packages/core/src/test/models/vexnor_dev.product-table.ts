@@ -7,6 +7,7 @@ export const Product = newSqlTable<{
    Insert: IProductInsert;
    Update: IProductUpdate;
    Delete: true;
+   Source: "test";
 }>({
    crud: {
       select: true,
@@ -21,6 +22,7 @@ export const Product = newSqlTable<{
       alias: null,
    },
    pk: ["productId"],
+   source: "test",
    jsonSchema: {
       createdAt: "Date",
       modifiedAt: "Date",

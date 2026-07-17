@@ -1,6 +1,6 @@
 import { SqlTableCrudConfig } from "#src/core/crud/sql-table-crud-config.js";
 import { InferTable$RowBySelect } from "#src/core/types/infer-types.js";
-import { Sql } from "#src/core/sql-base.js";
+import { SOURCE, Sql } from "#src/core/sql-base.js";
 import { SqlTableIdentity } from "#src/core/schema/sql-table-identity.js";
 import { SqlTableFormat } from "#src/core/builder/default-formatter.js";
 import { Lazy } from "#src/lib/lazy.js";
@@ -22,6 +22,7 @@ export type SqlTableTypeArgs = {
    Insert?: Record<string, unknown>;
    Update?: Record<string, unknown>;
    Delete?: boolean;
+   Source?: string;
 };
 
 export type SqlJoinType = "inner" | "left" | "right" | "full" | "cross";
@@ -49,8 +50,8 @@ export type SqlTableOptions<T extends SqlTableTypeArgs> = {
    readonly jsonSchema?: Partial<Record<keyof T["Select"], SqlJsonType>>;
    readonly fk?: SqlTableForeignKey[];
    readonly dbSchema?: Partial<Record<keyof T["Select"], SqlTableDbColumnSchema>>;
-} & Pick<SqlTable<T>, "tableInfo" | "pk"> &
-   Partial<Pick<SqlTable<T>, "format" | "dialect" | "source">> & { crud: SqlTableCrudConfig<T> };
+} & Pick<SqlTable<T>, "tableInfo" | "pk" | "source"> &
+   Partial<Pick<SqlTable<T>, "format" | "dialect">> & { crud: SqlTableCrudConfig<T> };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlTableAny = SqlTable<any>;
@@ -70,6 +71,7 @@ export type SqlTableExtendedAny = SqlTableExtended<any>;
 
 export class SqlTable<T extends SqlTableTypeArgs> extends Sql {
    declare readonly [TABLE]?: typeof this.tableInfo.name;
+   declare readonly [SOURCE]?: T["Source"];
 
    private static registry = new Map<string, SqlTableAny>();
    private static _connections = new Map<string, SqlTableForeignKey[]>();
@@ -111,7 +113,7 @@ export class SqlTable<T extends SqlTableTypeArgs> extends Sql {
       this.format = format ?? null;
       this.pk = pk;
       this.dialect = dialect || "sql";
-      this.source = (args instanceof SqlTable ? args.source : args.source) ?? "";
+      this.source = args instanceof SqlTable ? args.source : args.source;
       this.columnTypes = (args instanceof SqlTable ? args.columnTypes : args.jsonSchema) ?? {};
       const codegenFk: SqlTableForeignKey[] = (args instanceof SqlTable ? args.fk : args.fk) ?? [];
       const fkKey = `${tableInfo.schema}.${tableInfo.name}`;
@@ -260,10 +262,11 @@ export class SqlTable<T extends SqlTableTypeArgs> extends Sql {
       })();
 
       return CACHE.get([this.id, `alias=${alias}`], () =>
-         newSqlTable({
+         _newSqlTableInternal({
             format: this.format,
             pk: this.pk,
             dialect: this.dialect,
+            source: this.source,
             jsonSchema: this.columnTypes,
             columns: (() => {
                const columns: Record<string, string> = {};
@@ -328,11 +331,12 @@ export class SqlTable<T extends SqlTableTypeArgs> extends Sql {
 
    render(format: SqlTableFormat): SqlTableExtended<T> {
       return CACHE.get([this.id, `format=${format}`], () =>
-         newSqlTable({
+         _newSqlTableInternal({
             format,
             tableInfo: this.tableInfo,
             pk: this.pk,
             dialect: this.dialect,
+            source: this.source,
             jsonSchema: this.columnTypes,
             columns: (() => {
                const columns: Record<string, string> = {};
@@ -437,12 +441,22 @@ export class SqlTable<T extends SqlTableTypeArgs> extends Sql {
 
 registerResetHook(() => SqlTable.clearRegistry());
 
+/** Internal helper for .as()/.render() — does not require Source in the type constraint. */
+function _newSqlTableInternal<T extends SqlTableTypeArgs>(options: SqlTableOptions<T>): SqlTableExtended<T> {
+   const table = new SqlTable(options);
+   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   const result = newSqlTableProxy(table as any) as SqlTableExtended<T>;
+   SqlTable.register(result as unknown as SqlTableAny);
+   return result;
+}
+
 export function newSqlTable<
    T extends {
       Select: Record<string, unknown>;
       Insert?: { [K in keyof T["Select"]]?: unknown };
       Update?: { [K in keyof T["Select"]]?: unknown };
       Delete?: boolean;
+      Source: string;
    },
    Extra extends Record<string, unknown> = Record<string, unknown>,
 >(options: SqlTableOptions<T>, extra?: Extra): SqlTableExtended<T> & Extra {

@@ -1,4 +1,4 @@
-import { ARGS, PARAMS, QUERY, Sql, TYPE } from "#src/core/sql-base.js";
+import { ARGS, PARAMS, QUERY, SOURCE, Sql, TYPE } from "#src/core/sql-base.js";
 import { SqlQuery, SqlQueryColumns } from "#src/core/query/sql-query.js";
 import { SqlQueryOptions } from "#src/core/query/sql-query-types.js";
 import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
@@ -12,14 +12,15 @@ import { Lazy } from "#src/lib/lazy.js";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlQueryRefAny = SqlQueryRef<any>;
 
-export type SqlQueryRefExtended<T extends { Row?: unknown; Params?: unknown }> = SqlQueryRef<T> &
+export type SqlQueryRefExtended<T extends { Row?: unknown; Params?: unknown; Sources?: string }> = SqlQueryRef<T> &
    SqlQueryColumns<T["Row"]>;
 
-export class SqlQueryRef<T extends { Row?: unknown; Params?: unknown }> extends Sql {
+export class SqlQueryRef<T extends { Row?: unknown; Params?: unknown; Sources?: string }> extends Sql {
    declare readonly [QUERY]: SqlQuery<T>;
    declare readonly [TYPE]: T["Row"];
    declare readonly [PARAMS]: T["Params"];
    declare readonly [ARGS]: T["Params"];
+   declare readonly [SOURCE]?: T["Sources"];
 
    private readonly _rowLazy = new Lazy<SqlQueryRow<T>>(this.initRow.bind(this));
 
@@ -70,16 +71,16 @@ export class SqlQueryRef<T extends { Row?: unknown; Params?: unknown }> extends 
    }
 }
 
-export function newSqlQueryRef<T extends { Row?: unknown; Params?: unknown }>(
+export function newSqlQueryRef<T extends { Row?: unknown; Params?: unknown; Sources?: string }>(
    innerQuery: SqlQuery<T>,
    scope: null,
    recursive: true,
 ): SqlQueryRefExtended<T>;
-export function newSqlQueryRef<T extends { Row?: unknown; Params?: unknown }>(
+export function newSqlQueryRef<T extends { Row?: unknown; Params?: unknown; Sources?: string }>(
    innerQuery: SqlQuery<T>,
    scope: SqlQueryOptions,
 ): SqlQueryRefExtended<T>;
-export function newSqlQueryRef<T extends { Row?: unknown; Params?: unknown }>(
+export function newSqlQueryRef<T extends { Row?: unknown; Params?: unknown; Sources?: string }>(
    innerQuery: SqlQuery<T>,
    scope: SqlQueryOptions | null,
    recursive = false,

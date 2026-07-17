@@ -46,6 +46,7 @@ export function fromTypeORM<T>(repository: Repository<T extends ObjectLiteral ? 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       columns: columns as any,
       dialect: getDialect(repository.metadata.connection.options.type),
+      source: "",
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       crud: { select: true, insert: !isView, update: !isView, delete: !isView } as any,
    }) as FromTypeORMResult<T>;

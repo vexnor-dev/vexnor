@@ -13,6 +13,7 @@ describe("More branch coverage — sql-table.ts constructor branches", () => {
       const table = newSqlTable({
          tableInfo: { name: "items" },
          pk: ["id"],
+         source: "test",
          columns: { id: "id", name: "name" } as Record<string, string>,
          crud: {} as never,
       });
@@ -28,6 +29,7 @@ describe("More branch coverage — sql-table.ts constructor branches", () => {
       const table = newSqlTable({
          tableInfo: { name: "accounts", schema: "public" },
          pk: ["id"],
+         source: "test",
          columns: { id: "id" } as Record<string, string>,
          crud: {} as never,
       });

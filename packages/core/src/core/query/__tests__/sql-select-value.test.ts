@@ -75,7 +75,7 @@ describe("SqlValue tests", () => {
       const value = val`COUNT(*)`.as<{ total: number }>("total");
       const query = sql`SELECT ${row(value)}`;
 
-      assertType<SqlQueryExtended<{ Row: { total: number }; Params: void }>>(query);
+      assertType<SqlQueryExtended<{ Row: { total: number }; Params: void; Sources: never }>>(query);
 
       const wrongAccess = query.row.$total;
       expect(wrongAccess).toBeDefined();

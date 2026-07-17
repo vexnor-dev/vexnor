@@ -15,10 +15,12 @@ export type FromPrismaModelResult<
    Insert: TInsert;
    Update: TUpdate;
    Delete: true;
+   Source: "";
 }>;
 
 export type FromPrismaViewResult<TSelect extends RecordAny> = SqlTableExtended<{
    Select: TSelect;
+   Source: "";
 }>;
 
 export type FromPrismaOptions = {
@@ -79,11 +81,13 @@ export function buildPrismaTable<
       Insert: TInsert;
       Update: TUpdate;
       Delete: true;
+      Source: "";
    }>({
       tableInfo: { name: model.dbName ?? model.name, schema: options?.schema ?? model.schema ?? null },
       pk,
       columns,
       dialect: resolveDialect(options),
+      source: "",
       crud: crudTable() as never,
    }) as FromPrismaModelResult<TSelect, TInsert, TUpdate>;
 }
@@ -100,11 +104,12 @@ export function buildPrismaView<TSelect extends RecordAny>(
       (columns as Record<string, string>)[field.name] = field.dbName ?? field.name;
    }
 
-   return newSqlTable<{ Select: TSelect }>({
+   return newSqlTable<{ Select: TSelect; Source: "" }>({
       tableInfo: { name: model.dbName ?? model.name, schema: options?.schema ?? model.schema ?? null },
       pk,
       columns,
       dialect: resolveDialect(options),
+      source: "",
       crud: crudView() as never,
    }) as FromPrismaViewResult<TSelect>;
 }

@@ -9,6 +9,7 @@ export const TypeCoverage = vexnor.newSqlTable<{
    Insert: ITypeCoverageInsert;
    Update: ITypeCoverageUpdate;
    Delete: true;
+   Source: "@vexnor/test-postgres:src/codegen";
 }>( {
    crud: {
       select: true,

@@ -9,10 +9,10 @@ export { type SqlLanguage, SQL_LANGUAGES } from "#src/format/sql-language.js";
 export { type SqlFormatterFn, type RegisterFormatterOptions, getFormatter } from "#src/format/formatter-registry.js";
 
 // sql template tag & types
-export { sql, type SqlRow, type SqlParams, type SqlQueryToken } from "./sql.js";
+export { sql, type SqlRow, type SqlParams, type SqlSources, type SqlQueryToken } from "./sql.js";
 
 // base
-export { Sql, type ParamsOf, type RowOf, type TypeOf, type ArgsOf, type ParamsOfArgs } from "./sql-base.js";
+export { Sql, type SourceOf, type ParamsOf, type RowOf, type TypeOf, type ArgsOf, type ParamsOfArgs } from "./sql-base.js";
 export { SqlBuildError } from "./sql-build-error.js";
 
 // query
@@ -162,13 +162,13 @@ export { MAJOR_KEYWORDS, SUBQUERY_STARTERS } from "./sql-constants.js";
 
 // utils
 export { quoteText } from "./utils/quote-text.js";
-export { Void } from "./utils/utility-types.js";
+export { Void, type IsUnion, type MultiSourceError } from "./utils/utility-types.js";
 export { deserialize, type SqlJsonSchema, type SqlJsonType } from "./utils/sql-json-schema.js";
 
 export { getDefaultParamFormat } from "./query/default-param-format.js";
 // param internals
 export { type BuildSqlParams } from "./query/sql-param.js";
-export { type PARAMS, type ROW, type TYPE, type ARGS } from "./sql-base.js";
+export { type PARAMS, type ROW, type TYPE, type ARGS, type SOURCE } from "./sql-base.js";
 export { SqlQueryColumn, newSqlQueryColumn, type SqlQueryColumnAny } from "./query/sql-query-column.js";
 
 // crud

@@ -9,6 +9,7 @@ export const Account = vexnor.newSqlTable<{
    Insert: IAccountInsert;
    Update: IAccountUpdate;
    Delete: true;
+   Source: "@vexnor/test-remote:src/codegen/postgres";
 }>( {
    crud: {
       select: true,

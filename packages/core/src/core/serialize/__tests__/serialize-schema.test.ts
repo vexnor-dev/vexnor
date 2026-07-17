@@ -17,10 +17,12 @@ function makeTable(
       Insert: Record<string, unknown>;
       Update: Record<string, unknown>;
       Delete: true;
+      Source: "test";
    }>({
       crud: { select: true, insert: true, update: true, delete: true },
       tableInfo: { name, schema: opts?.schema ?? "public", alias: null, out: false },
       pk: (opts?.pk ?? ["id"]) as never[],
+      source: "test",
       fk: opts?.fk,
       columns: columns as never,
       dbSchema: opts?.dbSchema as never,
@@ -193,10 +195,12 @@ describe("serializeSchema", () => {
          Insert: Record<string, unknown>;
          Update: Record<string, unknown>;
          Delete: true;
+         Source: "test";
       }>({
          crud: { select: true, insert: true, update: true, delete: true },
          tableInfo: { name: "sales_view", schema: "public", alias: null, out: false },
          pk: [] as never[],
+         source: "test",
          columns: { total: "total" } as never,
       });
 
@@ -385,10 +389,12 @@ describe("serializeSchema", () => {
          Insert: Record<string, unknown>;
          Update: Record<string, unknown>;
          Delete: true;
+         Source: "test";
       }>({
          crud: { select: true, insert: true, update: true, delete: true },
          tableInfo: { name: "no_schema", schema: undefined as unknown as string, alias: null, out: false },
          pk: ["id"] as never[],
+         source: "test",
          columns: { id: "id" } as never,
          dbSchema: { id: { dbType: "integer" } } as never,
       });

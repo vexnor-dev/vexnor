@@ -5,7 +5,7 @@ import {
    SqlQueryFormat,
    SqlQueryType,
 } from "#src/core/query/sql-query-types.js";
-import { ARGS, PARAMS, Sql, TYPE } from "#src/core/sql-base.js";
+import { ARGS, PARAMS, SOURCE, Sql, TYPE } from "#src/core/sql-base.js";
 import { Lazy } from "#src/lib/lazy.js";
 import { BuildSqlParams, SqlParam, SqlParamAny } from "#src/core/query/sql-param.js";
 import { SqlQueryAll, SqlQueryRow } from "#src/core/query/sql-models.js";
@@ -41,7 +41,7 @@ export type SqlQueryExtendedAny = SqlQueryExtended<any>;
 
 export type SqlQueryColumns<Row> = Row extends Record<string, unknown> ? InferSelectRowByResult<Row> : unknown;
 
-export type SqlQueryExtended<T extends { Row?: unknown; Params?: unknown }> = SqlQuery<T> & SqlQueryColumns<T["Row"]>;
+export type SqlQueryExtended<T extends { Row?: unknown; Params?: unknown; Sources?: string }> = SqlQuery<T> & SqlQueryColumns<T["Row"]>;
 
 // ─── .view() type inference ──────────────────────────────────────────────────
 
@@ -72,14 +72,14 @@ export type SqlQueryArgs = Pick<SqlQueryAny, "rawStrings" | "rawValues"> &
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlQueryBaseAny = SqlQueryBase<any>;
 
-export interface SqlQueryBase<T extends { Row?: unknown; Params?: unknown }> {
+export interface SqlQueryBase<T extends { Row?: unknown; Params?: unknown; Sources?: string }> {
    source: SqlQuery<T>;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlQueryBaseExtendedAny = SqlQueryBaseExtended<any>;
 
-export type SqlQueryBaseExtended<T extends { Row?: unknown; Params?: unknown }> = SqlQueryBase<T> &
+export type SqlQueryBaseExtended<T extends { Row?: unknown; Params?: unknown; Sources?: string }> = SqlQueryBase<T> &
    SqlQueryColumns<T["Row"]>;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -103,10 +103,11 @@ export function toQuery(value: unknown): SqlQueryAny | null {
    return null;
 }
 
-export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql implements SqlQueryBase<T> {
+export class SqlQuery<T extends { Row?: unknown; Params?: unknown; Sources?: string }> extends Sql implements SqlQueryBase<T> {
    declare readonly [TYPE]: T["Row"];
    declare readonly [PARAMS]: T["Params"];
    declare readonly [ARGS]: T["Params"];
+   declare readonly [SOURCE]?: T["Sources"];
 
    readonly rawStrings: TemplateStringsArray;
    readonly rawValues: unknown[];
@@ -118,6 +119,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
    private readonly _innerQueriesLazy = new Lazy<SqlQueryAny[]>(this.initInnerQueries.bind(this));
    private _authorizationLazy = new Lazy<string[]>(this.initAuthorization.bind(this));
    private readonly _dialectsLazy = new Lazy<Set<string>>(this.initDialects.bind(this));
+   private readonly _sourcesLazy = new Lazy<Set<string>>(this.initSources.bind(this));
    private readonly _paramsLazy = new Lazy<BuildSqlParams<T["Params"]>>(this.initParams.bind(this));
    private readonly _contextLazy = new Lazy<Partial<BuildSqlParams<T["Params"]>>>(this.initContext.bind(this));
    private readonly _rowLazy = new Lazy<SqlQueryRow<T>>(this.initRow.bind(this));
@@ -217,6 +219,11 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
 
    get dialects(): Set<string> {
       return this._dialectsLazy.value;
+   }
+
+   /** Unique source identifiers from all tables referenced in this query (including subqueries). */
+   get sources(): Set<string> {
+      return this._sourcesLazy.value;
    }
 
    /** Selects all columns from this query's result — use inside `row()` when referencing this query as a subquery. */
@@ -609,6 +616,37 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
       return result;
    }
 
+   initSources(rawValues = this.rawValues): Set<string> {
+      const result = new Set<string>();
+      const q = new Queue(rawValues);
+      for (const rawValue of q.shift()) {
+         switch (true) {
+            case Array.isArray(rawValue):
+               q.push(...rawValue);
+               break;
+            case rawValue instanceof SqlTable:
+               if (rawValue.source) result.add(rawValue.source);
+               break;
+            case rawValue instanceof SqlQueryRef:
+               for (const s of rawValue.innerQuery.sources) result.add(s);
+               break;
+            case isQuery(rawValue):
+               for (const s of rawValue.source.sources) result.add(s);
+               break;
+            case rawValue instanceof SqlSelectRow:
+               for (const item of Object.values(rawValue.getRow({ query: this }))) q.push(item);
+               break;
+            case rawValue instanceof SqlSelectValue:
+               q.push(rawValue.innerQuery);
+               break;
+            case rawValue instanceof SqlQueryColumn:
+               q.push(rawValue.target);
+               break;
+         }
+      }
+      return result;
+   }
+
    initInnerQueries(rawValues = this.rawValues): SqlQueryAny[] {
       const results: SqlQueryAny[] = [];
       const q = new Queue(rawValues);
@@ -903,6 +941,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
    }): SqlQueryExtended<{
       Row: SqlViewResultRow<T["Row"], Columns, Window>;
       Params: T["Params"];
+      Sources: T["Sources"];
    }> {
       const columns = options.columns as string[] | undefined;
       if (columns && columns.length === 0) {
@@ -921,13 +960,13 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
       }
 
       // Create immutable clone with view definition set
-      const clone = Object.create(this) as SqlQuery<{ Row: SqlViewResultRow<T["Row"], Columns, Window>; Params: T["Params"] }>;
+      const clone = Object.create(this) as SqlQuery<{ Row: SqlViewResultRow<T["Row"], Columns, Window>; Params: T["Params"]; Sources: T["Sources"] }>;
       (clone as { view: SqlQueryViewDef }).view = Object.freeze({
          columns: columns ? new Set(columns) : undefined,
          windowExprs: Object.freeze(windowExprs),
          windowEntries: Object.freeze(window),
       });
-      return newSqlQuery(clone as any) as unknown as SqlQueryExtended<{ Row: SqlViewResultRow<T["Row"], Columns, Window>; Params: T["Params"] }>;
+      return newSqlQuery(clone as any) as unknown as SqlQueryExtended<{ Row: SqlViewResultRow<T["Row"], Columns, Window>; Params: T["Params"]; Sources: T["Sources"] }>;
    }
 
    /**
@@ -981,7 +1020,7 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown }> extends Sql
    }
 }
 
-export function newSqlQuery<T extends { Params?: unknown; Row?: unknown }, Handler extends SqlQuery<T>>(
+export function newSqlQuery<T extends { Params?: unknown; Row?: unknown; Sources?: string }, Handler extends SqlQuery<T>>(
    query: Handler,
 ): Handler & SqlQueryExtended<T> {
    return new Proxy(query, {

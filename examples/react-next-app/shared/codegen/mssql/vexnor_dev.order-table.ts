@@ -8,6 +8,7 @@ export const Order = vexnor.newSqlTable<{
    Insert: IOrderInsert;
    Update: IOrderUpdate;
    Delete: true;
+   Source: "@vexnor/example-react-next-app:shared/codegen/mssql";
 }>( {
    crud: {
       select: true,

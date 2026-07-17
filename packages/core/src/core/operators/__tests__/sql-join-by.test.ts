@@ -170,7 +170,7 @@ describe("SqlJoinBy", () => {
    });
 
    test("resolves cross-schema table reference", () => {
-      const otherAccount = newSqlTable<{ Select: { accountId: string; email: string }; Insert: { accountId?: string; email: string }; Update: { accountId?: string; email?: string }; Delete: true }>({
+      const otherAccount = newSqlTable<{ Select: { accountId: string; email: string }; Insert: { accountId?: string; email: string }; Update: { accountId?: string; email?: string }; Delete: true; Source: "test" }>({
          tableInfo: { name: "account", schema: "otherSchema", out: false, alias: null },
          pk: ["accountId"],
          source: "@vexnor/test:models",

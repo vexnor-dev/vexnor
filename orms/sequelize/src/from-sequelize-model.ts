@@ -63,6 +63,7 @@ export function fromSequelizeTable<T extends Model>(
       pk,
       columns,
       dialect: getSequelizeDialect(model),
+      source: "",
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       crud: { select: true, insert: true, update: true, delete: true } as any,
    }) as FromSequelizeTableResult<T>;
@@ -80,6 +81,7 @@ export function fromSequelizeView<T extends Model>(model: ModelStatic<T>, schema
       pk: [],
       columns,
       dialect: getSequelizeDialect(model),
+      source: "",
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       crud: { select: true, insert: false, update: false, delete: false } as any,
    }) as FromSequelizeViewResult<T>;
