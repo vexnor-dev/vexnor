@@ -102,4 +102,11 @@ describe("SqlQuery multi-source compile-time guard", () => {
       // This should compile without error — single source
       expect(query.mock.all).toBeDefined();
    });
+
+   test("no-table query .mock resolves to MockQueryHandler — Sources is never, falls through", () => {
+      const query = sql`SELECT 1 as "x"`;
+
+      // This should compile without error — no sources means no restriction
+      expect(query.mock.all).toBeDefined();
+   });
 });
