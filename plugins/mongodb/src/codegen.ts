@@ -152,9 +152,7 @@ function mergeDocument(target: SchemaDescriptor, doc: Document): void {
    }
 }
 
-function inferFieldType(value: unknown): FieldDescriptor | null {
-   if (value === null || value === undefined) return null;
-
+function inferFieldType(value: NonNullable<unknown>): FieldDescriptor | null {
    if (value instanceof Date) return "date";
    if (typeof value === "string") return "string";
    if (typeof value === "boolean") return "boolean";
