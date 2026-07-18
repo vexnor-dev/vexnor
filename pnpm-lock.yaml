@@ -143,6 +143,9 @@ importers:
       '@vexnor/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@vexnor/mongodb':
+        specifier: workspace:*
+        version: link:../../plugins/mongodb
       '@vexnor/mssql':
         specifier: workspace:*
         version: link:../../plugins/mssql
@@ -155,6 +158,9 @@ importers:
       better-sqlite3:
         specifier: ^12.10.0
         version: 12.10.0
+      mongodb:
+        specifier: ^6.16.0
+        version: 6.21.0(socks@2.8.9)
       mssql:
         specifier: ^12.5.4
         version: 12.5.5
@@ -264,6 +270,9 @@ importers:
       '@vexnor/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@vexnor/mongodb':
+        specifier: workspace:*
+        version: link:../../plugins/mongodb
       '@vexnor/mssql':
         specifier: workspace:*
         version: link:../../plugins/mssql
@@ -279,6 +288,9 @@ importers:
       hono:
         specifier: ^4.12.25
         version: 4.12.25
+      mongodb:
+        specifier: ^6.16.0
+        version: 6.21.0(socks@2.8.9)
       mssql:
         specifier: ^12.5.5
         version: 12.5.5

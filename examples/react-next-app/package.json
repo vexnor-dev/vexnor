@@ -19,10 +19,12 @@
    },
    "dependencies": {
       "@vexnor/core": "workspace:*",
+      "@vexnor/mongodb": "workspace:*",
       "@vexnor/mssql": "workspace:*",
       "@vexnor/postgres": "workspace:*",
       "@vexnor/sqlite3": "workspace:*",
       "better-sqlite3": "^12.10.0",
+      "mongodb": "^6.16.0",
       "mssql": "^12.5.4",
       "next": "16.2.6",
       "pg": "^8.16.3",

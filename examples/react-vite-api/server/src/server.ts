@@ -14,9 +14,12 @@ import "@vexnor/core/telemetry";
 import * as postgresQueries from "../../shared/queries/postgres.js";
 import * as mssqlQueries from "../../shared/queries/mssql.js";
 import * as sqlite3Queries from "../../shared/queries/sqlite3.js";
+import * as mongodbQueries from "../../shared/queries/mongodb.js";
 import vexnorMssql from "@vexnor/mssql";
 import vexnorPostgres from "@vexnor/postgres";
 import vexnorSqlite3 from "@vexnor/sqlite3";
+import { MongoClient } from "mongodb";
+import { MongoQueryRegistry } from "@vexnor/mongodb";
 import { SqlQueryRegistry } from "@vexnor/core/execution";
 import { handleDbError } from "./db-error.js";
 
@@ -89,6 +92,21 @@ const sqliteDb = new BetterSqlite3(
 );
 log.info({ dialect: "sqlite3", path: process.env.SQLITE_PATH ?? "../../@db-sqlite3/vexnor-dev.sqlite" }, "Database connected");
 
+// MongoDB
+const MONGODB_URI = process.env.MONGODB_URI ?? "mongodb://localhost:27017";
+const MONGODB_DATABASE = process.env.MONGODB_DATABASE ?? "vexnor";
+let mongoDb: import("mongodb").Db | undefined;
+const mongoRegistry = new MongoQueryRegistry<RequestContext>();
+try {
+   const mongoClient = new MongoClient(MONGODB_URI);
+   await mongoClient.connect();
+   mongoDb = mongoClient.db(MONGODB_DATABASE);
+   await mongoRegistry.register(mongodbQueries.queries);
+   log.info({ dialect: "mongodb", uri: MONGODB_URI, database: MONGODB_DATABASE }, "Database connected");
+} catch (err) {
+   log.error({ dialect: "mongodb", error: err instanceof Error ? err.message : String(err) }, "Database connection failed");
+}
+
 await queryRegistry.register(vexnorPostgres, postgresQueries);
 await queryRegistry.register(vexnorMssql, mssqlQueries);
 await queryRegistry.register(vexnorSqlite3, sqlite3Queries);
@@ -135,6 +153,17 @@ app.get("/api/health", async (c) => {
       checks.sqlite3 = err instanceof Error ? err.message : String(err);
    }
 
+   try {
+      if (mongoDb) {
+         await mongoDb.command({ ping: 1 });
+         checks.mongodb = "ok";
+      } else {
+         checks.mongodb = "not connected";
+      }
+   } catch (err) {
+      checks.mongodb = err instanceof Error ? err.message : String(err);
+   }
+
    const allOk = Object.values(checks).every((v) => v === "ok");
    return c.json({ status: allOk ? "ok" : "degraded", databases: checks }, allOk ? 200 : 503);
 });
@@ -164,6 +193,26 @@ app.post("/api/db", async (c) => {
       return c.json(result);
    } catch (err) {
       log.error({ method: c.req.method, path: c.req.path, error: err instanceof Error ? err.message : String(err) }, "Query execution error");
+      return handleDbError(c, err);
+   }
+});
+
+app.post("/api/mongodb", async (c) => {
+   if (!mongoDb) {
+      return c.json({ error: "MongoDB not connected" }, 503);
+   }
+   const body = await c.req.json() as { hash: string; params: Record<string, unknown> };
+   const token = c.req.header("Authorization")?.replace("Bearer ", "") ?? null;
+   const userId = decodeUserId(token);
+   try {
+      const result = await mongoRegistry.execute(
+         { hash: body.hash, params: body.params ?? {}, mode: "read" },
+         mongoDb,
+         { token, userId },
+      );
+      return c.json(result);
+   } catch (err) {
+      log.error({ method: c.req.method, path: c.req.path, error: err instanceof Error ? err.message : String(err) }, "MongoDB query error");
       return handleDbError(c, err);
    }
 });
