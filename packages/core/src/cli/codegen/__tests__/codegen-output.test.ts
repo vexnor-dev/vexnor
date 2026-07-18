@@ -125,6 +125,7 @@ describe("codegenCommand output", () => {
               Insert: IAccountInsert;
               Update: IAccountUpdate;
               Delete: true;
+              Source: "@vexnor/core:src/cli/codegen/__tests__/.tmp-codegen-test";
            }>( {
               crud: {
                  select: true,
@@ -252,6 +253,7 @@ describe("codegenCommand output", () => {
               Insert: IAccountInsert;
               Update: IAccountUpdate;
               Delete: true;
+              Source: "@vexnor/core:src/cli/codegen/__tests__/.tmp-codegen-test-nocase";
            }>( {
               crud: {
                  select: true,

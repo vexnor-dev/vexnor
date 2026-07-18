@@ -13,7 +13,7 @@ type MockConnection = { query: () => Promise<MockResult> };
 class MockQueryHandler<T extends { Row?: unknown; Params?: unknown }> extends SqlQueryHandler<
    Pick<T, "Row" | "Params"> & { Read: MockResult; Write: MockResult; Connection: MockConnection }
 > {
-   constructor(query: SqlQuery<Pick<T, "Row" | "Params">>) {
+   constructor(query: SqlQuery<T>) {
       super(query, { pluginName: "mock" });
    }
 

@@ -66,6 +66,7 @@ describe("SqlQuery tests", () => {
           "_innerQueriesLazy",
           "_authorizationLazy",
           "_dialectsLazy",
+          "_sourcesLazy",
           "_paramsLazy",
           "_contextLazy",
           "_rowLazy",
@@ -159,18 +160,20 @@ describe("SqlQuery tests", () => {
 });
 
 describe("SqlQuery.dialects", () => {
-   const pgTable = newSqlTable<{ Select: { id: string } }>({
+   const pgTable = newSqlTable<{ Select: { id: string }; Source: "test" }>({
       dialect: "postgresql",
       tableInfo: { name: "pg_table", schema: "public" },
       pk: ["id"],
+      source: "test",
       columns: { id: "id" },
       crud: { select: true, insert: false, update: false, delete: false },
    });
 
-   const mssqlTable = newSqlTable<{ Select: { id: string } }>({
+   const mssqlTable = newSqlTable<{ Select: { id: string }; Source: "test" }>({
       dialect: "transactsql",
       tableInfo: { name: "mssql_table", schema: "dbo" },
       pk: ["id"],
+      source: "test",
       columns: { id: "id" },
       crud: { select: true, insert: false, update: false, delete: false },
    });

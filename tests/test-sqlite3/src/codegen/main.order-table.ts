@@ -8,6 +8,7 @@ export const Order = vexnor.newSqlTable<{
    Insert: IOrderInsert;
    Update: IOrderUpdate;
    Delete: true;
+   Source: "@vexnor/test-sqlite3:src/codegen";
 }>( {
    crud: {
       select: true,

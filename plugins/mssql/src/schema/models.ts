@@ -1,12 +1,13 @@
 import { newSqlTable } from "@vexnor/core";
 
-export const Tables = newSqlTable<{ Select: { table_name: string; table_schema: string; table_type: string } }>({
+export const Tables = newSqlTable<{ Select: { table_name: string; table_schema: string; table_type: string }; Source: "@vexnor/mssql:schema" }>({
    crud: {
       select: true,
       insert: false,
       update: false,
       delete: false,
    },
+   source: "@vexnor/mssql:schema",
    pk: [],
    tableInfo: {
       name: "TABLES",
@@ -33,6 +34,7 @@ export const Columns = newSqlTable<{
       ordinal_position: number;
       data_type: string;
    };
+   Source: "@vexnor/mssql:schema";
 }>({
    crud: {
       select: true,
@@ -40,6 +42,7 @@ export const Columns = newSqlTable<{
       update: false,
       delete: false,
    },
+   source: "@vexnor/mssql:schema",
    pk: [],
    tableInfo: {
       name: "COLUMNS",
@@ -62,6 +65,7 @@ export const Columns = newSqlTable<{
 
 export const TableConstraints = newSqlTable<{
    Select: { constraint_name: string; table_name: string; table_schema: string; constraint_type: string };
+   Source: "@vexnor/mssql:schema";
 }>({
    crud: {
       select: true,
@@ -69,6 +73,7 @@ export const TableConstraints = newSqlTable<{
       update: false,
       delete: false,
    },
+   source: "@vexnor/mssql:schema",
    pk: [],
    tableInfo: {
       name: "TABLE_CONSTRAINTS",
@@ -84,6 +89,7 @@ export const TableConstraints = newSqlTable<{
 
 export const KeyColumnUsage = newSqlTable<{
    Select: { constraint_name: string; table_name: string; table_schema: string; column_name: string };
+   Source: "@vexnor/mssql:schema";
 }>({
    crud: {
       select: true,
@@ -91,6 +97,7 @@ export const KeyColumnUsage = newSqlTable<{
       update: false,
       delete: false,
    },
+   source: "@vexnor/mssql:schema",
    pk: [],
    tableInfo: {
       name: "KEY_COLUMN_USAGE",
@@ -111,6 +118,7 @@ export const ReferentialConstraints = newSqlTable<{
       unique_constraint_name: string;
       unique_constraint_schema: string;
    };
+   Source: "@vexnor/mssql:schema";
 }>({
    crud: {
       select: true,
@@ -118,6 +126,7 @@ export const ReferentialConstraints = newSqlTable<{
       update: false,
       delete: false,
    },
+   source: "@vexnor/mssql:schema",
    pk: [],
    tableInfo: {
       name: "REFERENTIAL_CONSTRAINTS",
@@ -139,6 +148,7 @@ export const ConstraintColumnUsage = newSqlTable<{
       table_schema: string;
       column_name: string;
    };
+   Source: "@vexnor/mssql:schema";
 }>({
    crud: {
       select: true,
@@ -146,6 +156,7 @@ export const ConstraintColumnUsage = newSqlTable<{
       update: false,
       delete: false,
    },
+   source: "@vexnor/mssql:schema",
    pk: [],
    tableInfo: {
       name: "CONSTRAINT_COLUMN_USAGE",

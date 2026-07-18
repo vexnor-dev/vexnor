@@ -8,6 +8,7 @@ export const Account = newSqlTable<{
    Insert: IAccountInsert;
    Update: IAccountUpdate;
    Delete: true;
+   Source: "test";
 }>({
    crud: {
       select: true,

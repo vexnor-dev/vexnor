@@ -1,4 +1,4 @@
-import { SqlQueryBase, SqlQueryBaseAny, SqlQuery, SqlQueryColumns } from "#src/core/query/sql-query.js";
+import { SqlQueryBaseAny, SqlQuery, SqlQueryAny, SqlQueryColumns } from "#src/core/query/sql-query.js";
 import { ok } from "#src/lib/assert.js";
 import { isRemoteClient, QueryMeta, SqlExecuteMode, SqlQueryRunArgs, SqlRunArgs } from "#src/core/query/sql-query-types.js";
 import { SqlRunError } from "#src/core/sql-run-error.js";
@@ -26,10 +26,9 @@ export type SqlQueryHandlerAny = SqlQueryHandler<any>;
  * Base query handler for async database operations
  */
 export abstract class SqlQueryHandler<
-   T extends { Row?: unknown; Params?: unknown; Read: object; Write: object; Connection: unknown },
+   T extends { Row?: unknown; Params?: unknown; Sources?: string; Read: object; Write: object; Connection: unknown },
 >
    extends Sql
-   implements SqlQueryBase<Pick<T, "Params" | "Row">>
 {
    declare readonly [QUERY]: SqlQuery<Pick<T, "Row" | "Params">>;
    declare readonly [TYPE]: T["Row"];
@@ -40,7 +39,7 @@ export abstract class SqlQueryHandler<
    readonly rowSchemas = new Map<boolean, SqlJsonSchema>();
 
    protected constructor(
-      public readonly source: SqlQuery<Pick<T, "Row" | "Params">>,
+      public readonly source: SqlQueryAny,
       { pluginName }: { pluginName: string },
    ) {
       super(source);
@@ -140,6 +139,16 @@ export abstract class SqlQueryHandler<
       args: SqlQueryRunArgs<Pick<T, "Connection" | "Params">, TContext>,
       mode: SqlExecuteMode = "read",
    ): Promise<typeof mode extends "write" ? T["Write"] : T["Read"]> {
+      const sources = this.source.sources;
+      if (sources.size > 1) {
+         throw new SqlRunError(
+            `Query references tables from multiple sources (${[...sources].join(", ")}). ` +
+               `A single-database handler (.${this.pluginName}) can only execute against one source.`,
+            this.source,
+            { code: SqlErrorCode.MULTI_SOURCE_QUERY },
+         );
+      }
+
       const { db } = args;
 
       const resolvedDb = await db;
@@ -366,7 +375,7 @@ export abstract class SqlQueryHandler<
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 SqlQuery.register(SqlQueryHandler as unknown as abstract new (...args: any[]) => SqlQueryBaseAny);
 
-export function newSqlQueryHandler<T extends { Row?: unknown; Params?: unknown }, Handler extends SqlQueryHandlerAny>(
+export function newSqlQueryHandler<T extends { Row?: unknown; Params?: unknown; Sources?: string }, Handler extends SqlQueryHandlerAny>(
    handler: Handler,
 ): Handler & SqlQueryColumns<T["Row"]> {
    return new Proxy(handler, {

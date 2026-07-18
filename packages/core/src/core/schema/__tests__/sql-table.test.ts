@@ -689,7 +689,7 @@ describe("SqlTable tests", () => {
           "pk": [
             "accountId",
           ],
-          "source": "",
+          "source": "@vexnor/test:models",
           "tableInfo": {
             "alias": "parent",
             "name": "account",
@@ -887,10 +887,12 @@ describe("SqlTable tests", () => {
          Insert: { id?: string; accountId: string };
          Update: { accountId?: string };
          Delete: true;
+         Source: "test";
       }>({
          crud: { select: true, insert: true, update: true, delete: true },
          tableInfo: { name: "order", schema: "public", out: false, alias: null },
          pk: ["id"],
+         source: "test",
          columns: { id: "id", accountId: "account_id" },
          fk: [{ from: ["accountId"], to: { schema: "public", table: "account", columns: ["id"] } }],
          dbSchema: {
@@ -931,7 +933,7 @@ describe("SqlTable tests", () => {
    });
 
    test("SqlTable.resolve() finds registered tables by source:schema.table", () => {
-      const Account = newSqlTable<{ Select: { id: string }; Insert: { id: string }; Update: { id?: string }; Delete: true }>({
+      const Account = newSqlTable<{ Select: { id: string }; Insert: { id: string }; Update: { id?: string }; Delete: true; Source: "my-app:src/codegen" }>({
          crud: { select: true, insert: true, update: true, delete: true },
          tableInfo: { name: "account", schema: "public", out: false, alias: null },
          pk: ["id"],
@@ -950,7 +952,7 @@ describe("SqlTable tests", () => {
 
    test("resolveFk() resolves FK to target table instance", () => {
       const source = "fk-test:src/models";
-      const Account = newSqlTable<{ Select: { id: string }; Insert: { id: string }; Update: { id?: string }; Delete: true }>({
+      const Account = newSqlTable<{ Select: { id: string }; Insert: { id: string }; Update: { id?: string }; Delete: true; Source: "fk-test:src/models" }>({
          crud: { select: true, insert: true, update: true, delete: true },
          tableInfo: { name: "account", schema: "app", out: false, alias: null },
          pk: ["id"],
@@ -958,7 +960,7 @@ describe("SqlTable tests", () => {
          source,
       });
 
-      const Order = newSqlTable<{ Select: { id: string; accountId: string }; Insert: { id: string; accountId: string }; Update: { id?: string }; Delete: true }>({
+      const Order = newSqlTable<{ Select: { id: string; accountId: string }; Insert: { id: string; accountId: string }; Update: { id?: string }; Delete: true; Source: "fk-test:src/models" }>({
          crud: { select: true, insert: true, update: true, delete: true },
          tableInfo: { name: "order", schema: "app", out: false, alias: null },
          pk: ["id"],
@@ -972,7 +974,7 @@ describe("SqlTable tests", () => {
    });
 
    test("resolveFk() returns undefined when target table is not registered", () => {
-      const Orphan = newSqlTable<{ Select: { id: string }; Insert: { id: string }; Update: { id?: string }; Delete: true }>({
+      const Orphan = newSqlTable<{ Select: { id: string }; Insert: { id: string }; Update: { id?: string }; Delete: true; Source: "orphan-test:models" }>({
          crud: { select: true, insert: true, update: true, delete: true },
          tableInfo: { name: "orphan", schema: "app", out: false, alias: null },
          pk: ["id"],
@@ -985,7 +987,7 @@ describe("SqlTable tests", () => {
    });
 
    test("aliased tables do not register in the registry", () => {
-      const Base = newSqlTable<{ Select: { id: string }; Insert: { id: string }; Update: { id?: string }; Delete: true }>({
+      const Base = newSqlTable<{ Select: { id: string }; Insert: { id: string }; Update: { id?: string }; Delete: true; Source: "alias-test:models" }>({
          crud: { select: true, insert: true, update: true, delete: true },
          tableInfo: { name: "base", schema: "app", out: false, alias: null },
          pk: ["id"],
@@ -999,10 +1001,11 @@ describe("SqlTable tests", () => {
    });
 
    test("tables without source do not register in the registry", () => {
-      const NoSource = newSqlTable<{ Select: { id: string }; Insert: { id: string }; Update: { id?: string }; Delete: true }>({
+      const NoSource = newSqlTable<{ Select: { id: string }; Insert: { id: string }; Update: { id?: string }; Delete: true; Source: "" }>({
          crud: { select: true, insert: true, update: true, delete: true },
          tableInfo: { name: "nosource", schema: "app", out: false, alias: null },
          pk: ["id"],
+         source: "",
          columns: { id: "id" },
       });
 

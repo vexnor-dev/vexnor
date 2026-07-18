@@ -8,6 +8,7 @@ export const Account = vexnor.newSqlTable<{
    Insert: IAccountInsert;
    Update: IAccountUpdate;
    Delete: true;
+   Source: "@vexnor/test-sqlite3:src/codegen";
 }>( {
    crud: {
       select: true,

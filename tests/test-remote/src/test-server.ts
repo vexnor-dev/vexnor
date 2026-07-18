@@ -47,6 +47,7 @@ export async function createTestServer(queries: {
                QUERY_RETRYABLE_FAILURE: 503,
                QUERY_TIMEOUT: 504,
                CONNECTION_NOT_VALID: 500,
+               MULTI_SOURCE_QUERY: 400,
             };
             const status = statusMap[err.code] ?? 500;
             return c.json({ error: err.message, code: err.code }, status as never);

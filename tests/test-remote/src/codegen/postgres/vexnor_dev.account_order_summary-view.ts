@@ -6,6 +6,7 @@ import * as udt from "./vexnor_dev-enums.js";
 
 export const AccountOrderSummary = vexnor.newSqlTable<{
    Select: IAccountOrderSummarySelect;
+   Source: "@vexnor/test-remote:src/codegen/postgres";
 }>( {
    crud: {
       select: true,

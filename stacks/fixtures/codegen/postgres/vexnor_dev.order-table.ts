@@ -9,6 +9,7 @@ export const Order = vexnor.newSqlTable<{
    Insert: IOrderInsert;
    Update: IOrderUpdate;
    Delete: true;
+   Source: "@vexnor/stack-fixtures:codegen/postgres";
 }>( {
    crud: {
       select: true,

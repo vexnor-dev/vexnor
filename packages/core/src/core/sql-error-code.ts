@@ -35,6 +35,9 @@ export const SqlErrorCode = {
 
    /** Database connection is not a valid VexnorConnection or RemoteClient */
    CONNECTION_NOT_VALID: "CONNECTION_NOT_VALID",
+
+   /** Query references tables from multiple sources — cannot execute on a single-database handler. */
+   MULTI_SOURCE_QUERY: "MULTI_SOURCE_QUERY",
 } as const;
 
 export type SqlErrorCode = (typeof SqlErrorCode)[keyof typeof SqlErrorCode];

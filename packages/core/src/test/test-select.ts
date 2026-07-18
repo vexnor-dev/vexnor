@@ -29,7 +29,7 @@ export function testSelect<T extends { Select: Record<string, unknown> }, Args e
       ...Object.entries(includeMany ?? {}).map(([k]) => sql`(select '[]') as ${raw(`"${k}"`)}`),
    ];
 
-   const baseQuery = sqlSelect(table as SqlTable<{ Select: Record<string, unknown> }>, baseArgs as SqlSelectArgs<{ Select: Record<string, unknown> }>);
+   const baseQuery = sqlSelect(table as unknown as SqlTable<{ Select: Record<string, unknown> }>, baseArgs as SqlSelectArgs<{ Select: Record<string, unknown> }>);
 
    if (!includeFragments.length) {
       return baseQuery as unknown as SqlQueryExtended<{ Row: SqlSelectResultRow<T, Args>; Params: ParamsOfArgs<Args> }>;

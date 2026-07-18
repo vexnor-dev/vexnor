@@ -7,6 +7,7 @@ export const OrderItem = newSqlTable<{
    Insert: IOrderItemInsert;
    Update: IOrderItemUpdate;
    Delete: true;
+   Source: "test";
 }>({
    crud: {
       select: true,

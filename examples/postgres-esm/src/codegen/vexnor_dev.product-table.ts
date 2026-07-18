@@ -9,6 +9,7 @@ export const Product = vexnor.newSqlTable<{
    Insert: IProductInsert;
    Update: IProductUpdate;
    Delete: true;
+   Source: "@vexnor/example-postgres-esm:src/codegen";
 }>( {
    crud: {
       select: true,

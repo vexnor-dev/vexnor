@@ -5,6 +5,7 @@ import * as vexnor from "@vexnor/core";
 
 export const AccountOrderSummary = vexnor.newSqlTable<{
    Select: IAccountOrderSummarySelect;
+   Source: "@vexnor/test-remote:src/codegen/mssql";
 }>( {
    crud: {
       select: true,

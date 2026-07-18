@@ -14,10 +14,12 @@ const Task = newSqlTable<{
    Insert: { taskId?: string; title: string; isCompleted?: boolean; priority?: number };
    Update: { title?: string; isCompleted?: boolean; priority?: number };
    Delete: true;
+   Source: "test";
 }>({
    crud: { select: true, insert: true, update: true, delete: true },
    tableInfo: { name: "task", schema: "public", alias: null, out: false },
    pk: ["taskId"],
+   source: "test",
    columns: {
       taskId: "task_id",
       title: "title",

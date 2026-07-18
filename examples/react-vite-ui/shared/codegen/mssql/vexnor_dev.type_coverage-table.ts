@@ -8,6 +8,7 @@ export const TypeCoverage = vexnor.newSqlTable<{
    Insert: ITypeCoverageInsert;
    Update: ITypeCoverageUpdate;
    Delete: true;
+   Source: "vexnor-root:examples/react-vite-ui/shared/codegen/mssql";
 }>( {
    crud: {
       select: true,

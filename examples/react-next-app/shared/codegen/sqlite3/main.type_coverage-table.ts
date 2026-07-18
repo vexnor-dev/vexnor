@@ -8,6 +8,7 @@ export const TypeCoverage = vexnor.newSqlTable<{
    Insert: ITypeCoverageInsert;
    Update: ITypeCoverageUpdate;
    Delete: true;
+   Source: "@vexnor/example-react-next-app:shared/codegen/sqlite3";
 }>( {
    crud: {
       select: true,

@@ -95,6 +95,7 @@ describe("writeTableType fk and dbSchema", () => {
               Insert: IOrderItemInsert;
               Update: IOrderItemUpdate;
               Delete: true;
+              Source: "@vexnor/core:src/cli/codegen/tables/__tests__/.tmp-fk-test";
            }>( {
               crud: {
                  select: true,

@@ -17,3 +17,12 @@ export type Void<T> = keyof T extends never ? void : { [K in keyof T]: T[K] };
 
 // export type Void<T> =
 //    T extends Record<string, unknown> ? { [K in keyof T as T[K] extends void ? never : K]: Void<T[K]> } : T;
+
+
+/** Detects if a string type is a union (more than one member). */
+export type IsUnion<T, C = T> = T extends C ? ([C] extends [T] ? false : true) : never;
+
+/** Error brand for multi-source query handler access. */
+export type MultiSourceError = {
+   readonly __error: "Cannot use a single-database handler (.postgres/.mssql/.sqlite3) on a query with tables from multiple sources.";
+};

@@ -5,6 +5,7 @@ import * as vexnor from "@vexnor/core";
 
 export const AccountOrderSummary = vexnor.newSqlTable<{
    Select: IAccountOrderSummarySelect;
+   Source: "@vexnor/example-react-next-app:shared/codegen/sqlite3";
 }>( {
    crud: {
       select: true,

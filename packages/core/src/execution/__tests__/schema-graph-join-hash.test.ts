@@ -6,10 +6,11 @@ import { SqlQuery } from "#src/core/query/sql-query.js";
 import { MockPlugin, MockConnection } from "#src/test/mock-plugin.js";
 
 function makeTable(name: string, columns: Record<string, string>, opts?: { fk?: SqlTableForeignKey[]; pk?: string[]; schema?: string }) {
-   return newSqlTable<{ Select: Record<string, unknown>; Insert: Record<string, unknown>; Update: Record<string, unknown>; Delete: true }>({
+   return newSqlTable<{ Select: Record<string, unknown>; Insert: Record<string, unknown>; Update: Record<string, unknown>; Delete: true; Source: "test" }>({
       crud: { select: true, insert: true, update: true, delete: true },
       tableInfo: { name, schema: opts?.schema ?? "worldcup", alias: null, out: false },
       pk: (opts?.pk ?? ["id"]) as never[],
+      source: "test",
       fk: opts?.fk,
       columns: columns as never,
    });

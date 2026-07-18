@@ -49,6 +49,7 @@ export function fromDrizzleView<T extends AnyPgView>(
       pk: [],
       columns,
       dialect: "postgresql",
+      source: "",
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       crud: { select: true, insert: false, update: false, delete: false } as any,
    }) as FromDrizzleViewResult<T>;

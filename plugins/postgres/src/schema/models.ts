@@ -2,6 +2,7 @@ import { newSqlTable } from "@vexnor/core";
 
 export const PgType = newSqlTable<{
    Select: { oid: number; typname: string; typcategory: string; typnamespace: number; typelem: number };
+   Source: "@vexnor/postgres:schema";
 }>({
    crud: {
       select: true,
@@ -13,6 +14,7 @@ export const PgType = newSqlTable<{
       schema: "pg_catalog",
       name: "pg_type",
    },
+   source: "@vexnor/postgres:schema",
    pk: [],
    columns: {
       oid: "oid",
@@ -25,6 +27,7 @@ export const PgType = newSqlTable<{
 
 export const PgEnum = newSqlTable<{
    Select: { oid: number; enumtypid: number; enumlabel: string; enumsortorder: number };
+   Source: "@vexnor/postgres:schema";
 }>({
    crud: {
       select: true,
@@ -36,6 +39,7 @@ export const PgEnum = newSqlTable<{
       name: "pg_enum",
       schema: "pg_catalog",
    },
+   source: "@vexnor/postgres:schema",
    pk: [],
    columns: {
       oid: "oid",
@@ -47,6 +51,7 @@ export const PgEnum = newSqlTable<{
 
 export const EnumValues = newSqlTable<{
    Select: { enumtypid: number; enumlabel: string; enumsortorder: number };
+   Source: "@vexnor/postgres:schema";
 }>({
    crud: {
       select: true,
@@ -57,6 +62,7 @@ export const EnumValues = newSqlTable<{
    tableInfo: {
       name: "enum_values",
    },
+   source: "@vexnor/postgres:schema",
    pk: [],
    columns: {
       enumtypid: "enumtypid",
@@ -67,6 +73,7 @@ export const EnumValues = newSqlTable<{
 
 export const PgNamespace = newSqlTable<{
    Select: { oid: number; nspname: string };
+   Source: "@vexnor/postgres:schema";
 }>({
    crud: {
       select: true,
@@ -78,6 +85,7 @@ export const PgNamespace = newSqlTable<{
       name: "pg_namespace",
       schema: "pg_catalog",
    },
+   source: "@vexnor/postgres:schema",
    pk: [],
    columns: {
       oid: "oid",
@@ -87,6 +95,7 @@ export const PgNamespace = newSqlTable<{
 
 export const Columns = newSqlTable<{
    Select: IColumnsSelect;
+   Source: "@vexnor/postgres:schema";
 }>({
    crud: {
       select: true,
@@ -98,6 +107,7 @@ export const Columns = newSqlTable<{
       name: "columns",
       schema: "information_schema",
    },
+   source: "@vexnor/postgres:schema",
    pk: [],
    columns: {
       table_name: "table_name",
@@ -150,6 +160,7 @@ export type IColumnsSelect = {
 
 export const TableConstraints = newSqlTable<{
    Select: { constraint_name: string; table_name: string; table_schema: string; constraint_type: string };
+   Source: "@vexnor/postgres:schema";
 }>({
    crud: {
       select: true,
@@ -161,6 +172,7 @@ export const TableConstraints = newSqlTable<{
       name: "table_constraints",
       schema: "information_schema",
    },
+   source: "@vexnor/postgres:schema",
    pk: [],
    columns: {
       constraint_name: "constraint_name",
@@ -178,6 +190,7 @@ export const KeyColumnUsage = newSqlTable<{
       column_name: string;
       ordinal_position: number;
    };
+   Source: "@vexnor/postgres:schema";
 }>({
    crud: {
       select: true,
@@ -189,6 +202,7 @@ export const KeyColumnUsage = newSqlTable<{
       name: "key_column_usage",
       schema: "information_schema",
    },
+   source: "@vexnor/postgres:schema",
    pk: [],
    columns: {
       constraint_name: "constraint_name",
@@ -206,6 +220,7 @@ export const ReferentialConstraints = newSqlTable<{
       unique_constraint_name: string;
       unique_constraint_schema: string;
    };
+   Source: "@vexnor/postgres:schema";
 }>({
    crud: {
       select: true,
@@ -217,6 +232,7 @@ export const ReferentialConstraints = newSqlTable<{
       name: "referential_constraints",
       schema: "information_schema",
    },
+   source: "@vexnor/postgres:schema",
    pk: [],
    columns: {
       constraint_name: "constraint_name",
@@ -234,6 +250,7 @@ export const ConstraintColumnUsage = newSqlTable<{
       table_schema: string;
       column_name: string;
    };
+   Source: "@vexnor/postgres:schema";
 }>({
    crud: {
       select: true,
@@ -245,6 +262,7 @@ export const ConstraintColumnUsage = newSqlTable<{
       name: "constraint_column_usage",
       schema: "information_schema",
    },
+   source: "@vexnor/postgres:schema",
    pk: [],
    columns: {
       constraint_name: "constraint_name",

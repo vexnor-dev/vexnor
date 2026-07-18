@@ -1,10 +1,12 @@
-import { SqlQuery, SqlTable, newSqlQueryHandler } from "@vexnor/core";
+import { IsUnion, MultiSourceError, SqlQuery, SqlTable, newSqlQueryHandler } from "@vexnor/core";
 import { PostgresQueryHandler } from "#src/postgres-query-handler.js";
 import { newPostgresTableHandler, PostgresTableHandler } from "#src/crud/postgres-table-handler.js";
 
 declare module "@vexnor/core" {
-   interface SqlQuery<T extends { Row?: unknown; Params?: unknown }> {
-      readonly postgres: PostgresQueryHandler<T>;
+   interface SqlQuery<T extends { Row?: unknown; Params?: unknown; Sources?: string }> {
+      readonly postgres: IsUnion<T["Sources"]> extends true
+         ? MultiSourceError
+         : PostgresQueryHandler<T>;
    }
    interface SqlTable<
       T extends {
@@ -12,6 +14,7 @@ declare module "@vexnor/core" {
          Insert?: Record<string, unknown>;
          Update?: Record<string, unknown>;
          Delete?: boolean;
+         Source?: string;
       },
    > {
       readonly postgres: PostgresTableHandler<T>;

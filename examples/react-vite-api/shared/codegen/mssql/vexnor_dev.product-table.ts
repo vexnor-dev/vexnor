@@ -8,6 +8,7 @@ export const Product = vexnor.newSqlTable<{
    Insert: IProductInsert;
    Update: IProductUpdate;
    Delete: true;
+   Source: "@vexnor/example-react-vite-api:shared/codegen/mssql";
 }>( {
    crud: {
       select: true,

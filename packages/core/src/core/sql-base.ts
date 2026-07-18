@@ -8,6 +8,7 @@ export type TypeOf<S> = S extends { readonly [TYPE]?: infer R } ? R : void;
 export type ArgsOf<S> = S extends { readonly [ARGS]?: infer R } ? R : void;
 export type ParamsOf<S> = S extends { readonly [PARAMS]?: infer R } ? R : void;
 export type RowOf<S> = S extends { readonly [ROW]?: infer R } ? R : void;
+export type SourceOf<S> = S extends { readonly [SOURCE]?: infer R } ? R : never;
 
 type UnionToIntersection<U> = (U extends unknown ? (x: U) => void : never) extends (x: infer I) => void ? I : never;
 
@@ -44,6 +45,7 @@ export const ROW: unique symbol = Symbol("ROW");
 export const TYPE: unique symbol = Symbol("TYPE");
 export const PARAMS: unique symbol = Symbol("PARAMS");
 export const ARGS: unique symbol = Symbol("ARGS");
+export const SOURCE: unique symbol = Symbol("SOURCE");
 export const SQL_TOKEN: unique symbol = Symbol("SQL_TOKEN");
 export const QUERY: unique symbol = Symbol("QUERY");
 

@@ -1,10 +1,12 @@
-import { SqlQuery, SqlTable, newSqlQueryHandler } from "@vexnor/core";
+import { IsUnion, MultiSourceError, SqlQuery, SqlTable, newSqlQueryHandler } from "@vexnor/core";
 import { BetterSqlite3QueryHandler } from "#src/better-sqlite3-query-handler.js";
 import { newSqlite3TableHandler, Sqlite3TableHandler } from "#src/crud/sqlite3-table-handler.js";
 
 declare module "@vexnor/core" {
-   interface SqlQuery<T extends { Row?: unknown; Params?: unknown }> {
-      readonly sqlite: BetterSqlite3QueryHandler<T>;
+   interface SqlQuery<T extends { Row?: unknown; Params?: unknown; Sources?: string }> {
+      readonly sqlite: IsUnion<T["Sources"]> extends true
+         ? MultiSourceError
+         : BetterSqlite3QueryHandler<T>;
    }
    interface SqlTable<
       T extends {
@@ -12,6 +14,7 @@ declare module "@vexnor/core" {
          Insert?: Record<string, unknown>;
          Update?: Record<string, unknown>;
          Delete?: boolean;
+         Source?: string;
       },
    > {
       readonly sqlite: Sqlite3TableHandler<T>;
