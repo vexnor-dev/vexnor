@@ -4,9 +4,11 @@ import { newPostgresTableHandler, PostgresTableHandler } from "#src/crud/postgre
 
 declare module "@vexnor/core" {
    interface SqlQuery<T extends { Row?: unknown; Params?: unknown; Sources?: string }> {
-      readonly postgres: IsUnion<T["Sources"]> extends true
-         ? MultiSourceError
-         : PostgresQueryHandler<T>;
+      readonly postgres: [T["Sources"]] extends [never]
+         ? PostgresQueryHandler<T>
+         : IsUnion<T["Sources"]> extends true
+            ? MultiSourceError
+            : PostgresQueryHandler<T>;
    }
    interface SqlTable<
       T extends {

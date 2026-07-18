@@ -4,9 +4,11 @@ import { newMssqlTableHandler, MssqlTableHandler } from "#src/crud/mssql-table-h
 
 declare module "@vexnor/core" {
    interface SqlQuery<T extends { Row?: unknown; Params?: unknown; Sources?: string }> {
-      readonly mssql: IsUnion<T["Sources"]> extends true
-         ? MultiSourceError
-         : MssqlQueryHandler<T>;
+      readonly mssql: [T["Sources"]] extends [never]
+         ? MssqlQueryHandler<T>
+         : IsUnion<T["Sources"]> extends true
+            ? MultiSourceError
+            : MssqlQueryHandler<T>;
    }
    interface SqlTable<
       T extends {

@@ -4,9 +4,11 @@ import { newSqlite3TableHandler, Sqlite3TableHandler } from "#src/crud/sqlite3-t
 
 declare module "@vexnor/core" {
    interface SqlQuery<T extends { Row?: unknown; Params?: unknown; Sources?: string }> {
-      readonly sqlite: IsUnion<T["Sources"]> extends true
-         ? MultiSourceError
-         : BetterSqlite3QueryHandler<T>;
+      readonly sqlite: [T["Sources"]] extends [never]
+         ? BetterSqlite3QueryHandler<T>
+         : IsUnion<T["Sources"]> extends true
+            ? MultiSourceError
+            : BetterSqlite3QueryHandler<T>;
    }
    interface SqlTable<
       T extends {

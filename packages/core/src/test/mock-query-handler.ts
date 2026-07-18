@@ -40,9 +40,11 @@ export function mockHandler<T extends { Row?: unknown; Params?: unknown; Sources
 
 declare module "@vexnor/core" {
    interface SqlQuery<T extends { Row?: unknown; Params?: unknown; Sources?: string }> {
-      readonly mock: IsUnion<T["Sources"]> extends true
-         ? MultiSourceError
-         : MockQueryHandler<T>;
+      readonly mock: [T["Sources"]] extends [never]
+         ? MockQueryHandler<T>
+         : IsUnion<T["Sources"]> extends true
+            ? MultiSourceError
+            : MockQueryHandler<T>;
    }
 }
 
