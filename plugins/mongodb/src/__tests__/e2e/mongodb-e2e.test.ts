@@ -11,6 +11,7 @@ import { MongoClient, type Db } from "mongodb";
 import { param, ctx } from "@vexnor/core";
 import { collection } from "#src/collection.js";
 import { MongoQueryRegistry, serializeMongoManifest } from "#src/registry.js";
+import { runCodegen } from "#src/codegen.js";
 import { seedTestData, testAccounts, testOrders } from "./test-data-manager.js";
 import type { TestAccount, TestOrder, TestProduct } from "./test-data-manager.js";
 
@@ -428,6 +429,171 @@ describe("MongoDB E2E", () => {
          const h1 = await q1.hash;
          const h2 = await q2.hash;
          expect(h1).not.toBe(h2);
+      });
+   });
+
+   describe("codegen", () => {
+      it("generates collections from document sampling (no validator)", async () => {
+         if (skipIfNoMongo()) return;
+
+         // The seeded accounts/orders/products collections have no JSON Schema validator,
+         // so codegen falls back to document sampling.
+         const results = await runCodegen(db, {
+            uri: MONGODB_URI,
+            database: MONGODB_DATABASE,
+            outDir: "src/generated",
+            sampleSize: 100,
+            collections: ["accounts"],
+         });
+
+         expect(results).toHaveLength(1);
+         const accountsResult = results[0]!;
+         expect(accountsResult.collectionName).toBe("accounts");
+         expect(accountsResult.fileName).toBe("accounts.ts");
+
+         // Schema should have inferred the fields from seeded documents
+         expect(accountsResult.schema._id).toBe("string");
+         expect(accountsResult.schema.email).toBe("string");
+         expect(accountsResult.schema.status).toBe("string");
+         expect(accountsResult.schema.createdAt).toBe("date");
+
+         // Nested object inferred
+         expect(accountsResult.schema.name).toMatchObject({ first: "string", last: "string" });
+
+         // Generated content should be valid TypeScript
+         expect(accountsResult.content).toContain("import { collection } from '@vexnor/mongodb'");
+         expect(accountsResult.content).toContain("export interface IAccounts");
+         expect(accountsResult.content).toContain("export const Accounts = collection<IAccounts>('accounts'");
+      });
+
+      it("generates collections from JSON Schema validator", async () => {
+         if (skipIfNoMongo()) return;
+
+         // Create a collection with a JSON Schema validator
+         const validatedCollName = "codegen_test_validated";
+         try {
+            await db.dropCollection(validatedCollName);
+         } catch {
+            // ignore — may not exist
+         }
+
+         await db.createCollection(validatedCollName, {
+            validator: {
+               $jsonSchema: {
+                  bsonType: "object",
+                  required: ["name", "email", "age"],
+                  properties: {
+                     _id: { bsonType: "objectId" },
+                     name: { bsonType: "string" },
+                     email: { bsonType: "string" },
+                     age: { bsonType: "int" },
+                     score: { bsonType: "double" },
+                     active: { bsonType: "bool" },
+                     createdAt: { bsonType: "date" },
+                     tags: { bsonType: "array", items: { bsonType: "string" } },
+                     address: {
+                        bsonType: "object",
+                        properties: {
+                           street: { bsonType: "string" },
+                           city: { bsonType: "string" },
+                           zip: { bsonType: "string" },
+                        },
+                     },
+                  },
+               },
+            },
+         });
+
+         // Insert a document so the collection exists and has data
+         await db.collection(validatedCollName).insertOne({
+            name: "Test",
+            email: "test@example.com",
+            age: 25,
+            score: 95.5,
+            active: true,
+            createdAt: new Date(),
+            tags: ["a", "b"],
+            address: { street: "123 Main", city: "NYC", zip: "10001" },
+         });
+
+         const results = await runCodegen(db, {
+            uri: MONGODB_URI,
+            database: MONGODB_DATABASE,
+            outDir: "src/generated",
+            collections: [validatedCollName],
+         });
+
+         expect(results).toHaveLength(1);
+         const result = results[0]!;
+         expect(result.collectionName).toBe(validatedCollName);
+
+         // Schema should come from the JSON Schema validator, not sampling
+         expect(result.schema._id).toBe("string"); // objectId → string
+         expect(result.schema.name).toBe("string");
+         expect(result.schema.email).toBe("string");
+         expect(result.schema.age).toBe("integer"); // int → integer
+         expect(result.schema.score).toBe("number"); // double → number
+         expect(result.schema.active).toBe("boolean");
+         expect(result.schema.createdAt).toBe("date");
+         expect(result.schema.tags).toStrictEqual(["string"]);
+         expect(result.schema.address).toMatchObject({
+            street: "string",
+            city: "string",
+            zip: "string",
+         });
+
+         // Generated content should reference the collection
+         expect(result.content).toContain("export interface ICodegenTestValidated");
+         expect(result.content).toContain(`collection<ICodegenTestValidated>('${validatedCollName}'`);
+
+         // Cleanup
+         await db.dropCollection(validatedCollName);
+      });
+
+      it("respects include/exclude filters", async () => {
+         if (skipIfNoMongo()) return;
+
+         // Include only orders
+         const included = await runCodegen(db, {
+            uri: MONGODB_URI,
+            database: MONGODB_DATABASE,
+            outDir: "src/generated",
+            collections: ["orders"],
+         });
+         expect(included).toHaveLength(1);
+         expect(included[0]!.collectionName).toBe("orders");
+
+         // Exclude accounts
+         const excluded = await runCodegen(db, {
+            uri: MONGODB_URI,
+            database: MONGODB_DATABASE,
+            outDir: "src/generated",
+            exclude: ["accounts"],
+         });
+         expect(excluded.find((r) => r.collectionName === "accounts")).toBeUndefined();
+         expect(excluded.length).toBeGreaterThan(0);
+      });
+
+      it("infers array-of-objects schema from orders.items", async () => {
+         if (skipIfNoMongo()) return;
+
+         const results = await runCodegen(db, {
+            uri: MONGODB_URI,
+            database: MONGODB_DATABASE,
+            outDir: "src/generated",
+            collections: ["orders"],
+         });
+
+         const ordersResult = results[0]!;
+         expect(ordersResult.schema.items).toBeDefined();
+
+         // items should be an array-of-objects descriptor: [{ productId: 'string', ... }]
+         const itemsSchema = ordersResult.schema.items;
+         expect(Array.isArray(itemsSchema)).toBe(true);
+         const itemObj = (itemsSchema as [Record<string, unknown>])[0]!;
+         expect(itemObj.productId).toBe("string");
+         expect(itemObj.label).toBe("string");
+         expect(itemObj.quantity).toBe("number");
       });
    });
 });
