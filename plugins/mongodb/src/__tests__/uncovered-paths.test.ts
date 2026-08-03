@@ -59,6 +59,62 @@ describe("VexnorMongoDB", () => {
       expect(plugin.db).toBeNull();
    });
 
+   it("connect uses clientFactory to create connection", async () => {
+      const plugin = new VexnorMongoDB();
+      const mockDb = { databaseName: "mydb" };
+      const mockConnect = vi.fn().mockResolvedValue(undefined);
+      const mockClient = {
+         connect: mockConnect,
+         db: vi.fn().mockReturnValue(mockDb),
+         close: vi.fn().mockResolvedValue(undefined),
+      };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const clientFactory = vi.fn().mockReturnValue(mockClient) as any;
+
+      const result = await plugin.connect({ uri: "mongodb://localhost:27017", database: "mydb" }, clientFactory);
+
+      expect(clientFactory).toHaveBeenCalledWith("mongodb://localhost:27017");
+      expect(mockConnect).toHaveBeenCalled();
+      expect(mockClient.db).toHaveBeenCalledWith("mydb");
+      expect(result).toBe(mockDb);
+      expect(plugin.db).toBe(mockDb);
+
+      // Cleanup
+      await plugin.close();
+   });
+
+   it("createDefaultClient returns a MongoClient instance", async () => {
+      const plugin = new VexnorMongoDB();
+      const client = await plugin.createDefaultClient("mongodb://localhost:27017");
+      // Verify it's a real MongoClient (has connect/close/db methods)
+      expect(typeof client.connect).toBe("function");
+      expect(typeof client.close).toBe("function");
+      expect(typeof client.db).toBe("function");
+   });
+
+   it("connect without clientFactory uses createDefaultClient", async () => {
+      const plugin = new VexnorMongoDB();
+      const mockDb = { databaseName: "testdb" };
+      const mockConnect = vi.fn().mockResolvedValue(undefined);
+      const mockClient = {
+         connect: mockConnect,
+         db: vi.fn().mockReturnValue(mockDb),
+         close: vi.fn().mockResolvedValue(undefined),
+      };
+      // Spy on createDefaultClient to return our mock
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      vi.spyOn(plugin, "createDefaultClient").mockResolvedValue(mockClient as any);
+
+      const result = await plugin.connect({ uri: "mongodb://localhost:27017", database: "testdb" });
+
+      expect(plugin.createDefaultClient).toHaveBeenCalledWith("mongodb://localhost:27017");
+      expect(mockConnect).toHaveBeenCalled();
+      expect(result).toBe(mockDb);
+      expect(plugin.db).toBe(mockDb);
+
+      await plugin.close();
+   });
+
    it("vexnorMongodb default export is a VexnorMongoDB instance", () => {
       expect(vexnorMongodb).toBeInstanceOf(VexnorMongoDB);
       expect(vexnorMongodb.name).toBe(MONGODB_PLUGIN_NAME);
@@ -173,6 +229,18 @@ describe("walkFilter array branch", () => {
             },
           },
         ]
+      `);
+   });
+
+   it("handles raw scalar at top level (fallback to $literal)", () => {
+      const params: Record<string, MongoParamInfo> = {};
+      // Pass a raw scalar to walkFilter — hits final return { $literal: filter }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = walkFilter(42 as any, params);
+      expect(result).toMatchInlineSnapshot(`
+        {
+          "$literal": 42,
+        }
       `);
    });
 });
@@ -380,6 +448,13 @@ describe("codegen edge cases", () => {
       const docs = [{ price: 19.99 }];
       const result = inferSchemaFromDocuments(docs);
       expect(result.price).toBe("number");
+   });
+
+   it("inferSchemaFromDocuments with BigInt field (fallback to string)", () => {
+      // BigInt isn't Date, string, boolean, number, array, or object — hits final return "string"
+      const docs = [{ big: BigInt(9007199254740991) }];
+      const result = inferSchemaFromDocuments(docs);
+      expect(result.big).toBe("string");
    });
 });
 

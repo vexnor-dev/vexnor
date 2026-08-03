@@ -27,15 +27,23 @@ export class VexnorMongoDB {
    private _db: Db | null = null;
 
    /**
-    * Creates a connected database instance from a URI.
-    * The caller is responsible for closing via close().
+    * Creates a connected database instance.
+    * @param config - Connection URI and database name
+    * @param clientFactory - Optional factory for creating MongoClient (used in tests; defaults to importing mongodb)
     */
-   async connect(config: MongoConnectionConfig): Promise<Db> {
-      const { MongoClient: MC } = await import("mongodb");
-      this._client = new MC(config.uri);
+   async connect(config: MongoConnectionConfig, clientFactory?: (uri: string) => MongoClient): Promise<Db> {
+      this._client = clientFactory
+         ? clientFactory(config.uri)
+         : await this.createDefaultClient(config.uri);
       await this._client.connect();
       this._db = this._client.db(config.database);
       return this._db;
+   }
+
+   /** @internal — creates a MongoClient via dynamic import. Separate method for testability. */
+   async createDefaultClient(uri: string): Promise<MongoClient> {
+      const { MongoClient: MC } = await import("mongodb");
+      return new MC(uri);
    }
 
    /**
