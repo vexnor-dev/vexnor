@@ -1,16 +1,16 @@
 {
   "version": 1,
-  "generatorVersion": "1.0.0-beta.1",
+  "generatorVersion": "1.0.0-beta.3",
   "dialect": "sqlite",
   "queries": {
-    "ccf7d1c93c2b36d0d5b9ce342feb4c151fa69d38bba97a6d74a78bfbb9b77403": {
+    "01c9b4f263236091b68fe00abc96ce9359842c83fdbc49a9362a47c63057f04a": {
       "name": "deleteAccount",
       "location": "examples/react-vite-ui/shared/queries/sqlite3.ts:71:45",
-      "hash": "ccf7d1c93c2b36d0d5b9ce342feb4c151fa69d38bba97a6d74a78bfbb9b77403",
+      "hash": "01c9b4f263236091b68fe00abc96ce9359842c83fdbc49a9362a47c63057f04a",
       "template": [
         {
           "type": "text",
-          "value": "\n      \n/* driver: sqlite */\n\n      delete from \"main\".\"account\"\n      where \"account\".\"account_id\" = "
+          "value": "\n         \n/* driver: sqlite */\n\n         delete from \"main\".\"account\"\n         where \"account\".\"account_id\" = "
         },
         {
           "type": "param",
@@ -18,7 +18,7 @@
         },
         {
           "type": "text",
-          "value": "\n      returning \"account\".\"account_id\" as \"accountId\", \"account\".\"status\", \"account\".\"email\", \"account\".\"first_name\" as \"firstName\", \"account\".\"last_name\" as \"lastName\", \"account\".\"notes\", \"account\".\"created_at\" as \"createdAt\", \"account\".\"modified_at\" as \"modifiedAt\", \"account\".\"parent_id\" as \"parentId\"\n   "
+          "value": "\n         returning \"account\".\"account_id\" as \"accountId\", \"account\".\"status\", \"account\".\"email\", \"account\".\"first_name\" as \"firstName\", \"account\".\"last_name\" as \"lastName\", \"account\".\"notes\", \"account\".\"created_at\" as \"createdAt\", \"account\".\"modified_at\" as \"modifiedAt\", \"account\".\"parent_id\" as \"parentId\"\n      "
         }
       ],
       "params": {
@@ -30,14 +30,14 @@
       "row": null,
       "authorization": []
     },
-    "4e3eb8234757a575b6fe4b208c2cede4b0000ffe32dc61c86cabd45f47d24ec6": {
+    "c5ff514ab25234335e95aef0262a4902c4f71015d7d0946bea5cc7325f731227": {
       "name": "insertAccount",
       "location": "examples/react-vite-ui/shared/queries/sqlite3.ts:75:45",
-      "hash": "4e3eb8234757a575b6fe4b208c2cede4b0000ffe32dc61c86cabd45f47d24ec6",
+      "hash": "c5ff514ab25234335e95aef0262a4902c4f71015d7d0946bea5cc7325f731227",
       "template": [
         {
           "type": "text",
-          "value": "\n      \n/* driver: sqlite */\n\n      insert into \"main\".\"account\"\n         "
+          "value": "\n         \n/* driver: sqlite */\n\n         insert into \"main\".\"account\"\n            "
         },
         {
           "type": "insert",
@@ -56,7 +56,7 @@
         },
         {
           "type": "text",
-          "value": "\n         returning \"account\".\"account_id\" as \"accountId\", \"account\".\"status\", \"account\".\"email\", \"account\".\"first_name\" as \"firstName\", \"account\".\"last_name\" as \"lastName\", \"account\".\"notes\", \"account\".\"created_at\" as \"createdAt\", \"account\".\"modified_at\" as \"modifiedAt\", \"account\".\"parent_id\" as \"parentId\"\n   "
+          "value": "\n            returning \"account\".\"account_id\" as \"accountId\", \"account\".\"status\", \"account\".\"email\", \"account\".\"first_name\" as \"firstName\", \"account\".\"last_name\" as \"lastName\", \"account\".\"notes\", \"account\".\"created_at\" as \"createdAt\", \"account\".\"modified_at\" as \"modifiedAt\", \"account\".\"parent_id\" as \"parentId\"\n      "
         }
       ],
       "params": {
@@ -68,14 +68,33 @@
       "row": null,
       "authorization": []
     },
-    "a367923a378275ea0c8062157159f713a42fd6241c8927113aad0a803ffb3ac9": {
+    "91785b5bf9d093698166e063c8a41d5493fb77381a7ba721591a4ebe63dba968": {
       "name": "selectAccounts",
       "location": "examples/react-vite-ui/shared/queries/sqlite3.ts:36:46",
-      "hash": "a367923a378275ea0c8062157159f713a42fd6241c8927113aad0a803ffb3ac9",
+      "hash": "91785b5bf9d093698166e063c8a41d5493fb77381a7ba721591a4ebe63dba968",
       "template": [
         {
           "type": "text",
-          "value": "\n      \n/* driver: sqlite */\n\n      \n      select \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\", (select count(*) from \"main\".\"order\" as \"o_2\" where \"o_2\".\"account_id\" = \"a_1\".\"account_id\") as \"orderCount\"\n                ,  (select json_object('orderId', \"orderId\", 'status', \"status\", 'createdAt', \"createdAt\", 'productCount', \"productCount\") from (select \"query_4\".* from (\n   select \"o_3\".\"order_id\" as \"orderId\", \"o_3\".\"status\", \"o_3\".\"created_at\" as \"createdAt\",\n          (select count(*)\n           from \"main\".\"order_item\" as \"oi_4\"\n           where \"oi_4\".\"order_id\" = \"o_3\".\"order_id\") as \"productCount\"\n   from \"main\".\"order\" as \"o_3\"\n   where \"o_3\".\"account_id\" = \"a_1\".\"account_id\"\n   order by \"o_3\".\"created_at\" desc\n   limit 1\n) as \"query_4\" limit 1) as \"query_3\" limit 1) as \"lastOrder\"\n      from \"main\".\"account\" as \"a_1\"   \n         where "
+          "value": "\n      \n/* driver: sqlite */\n\n      \n      select \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\", (select count(*) from \"main\".\"order\" as \"o_2\" where \"o_2\".\"account_id\" = \"a_1\".\"account_id\") as \"orderCount\" "
+        },
+        {
+          "type": "windowBy",
+          "param": "windowBy",
+          "columns": {
+            "accountId": "\"a_1\".\"account_id\" as \"accountId\"",
+            "status": "\"a_1\".\"status\"",
+            "email": "\"a_1\".\"email\"",
+            "firstName": "\"a_1\".\"first_name\" as \"firstName\"",
+            "lastName": "\"a_1\".\"last_name\" as \"lastName\"",
+            "notes": "\"a_1\".\"notes\"",
+            "createdAt": "\"a_1\".\"created_at\" as \"createdAt\"",
+            "modifiedAt": "\"a_1\".\"modified_at\" as \"modifiedAt\"",
+            "parentId": "\"a_1\".\"parent_id\" as \"parentId\""
+          }
+        },
+        {
+          "type": "text",
+          "value": "\n                ,  (select json_object('orderId', \"orderId\", 'status', \"status\", 'createdAt', \"createdAt\", 'productCount', \"productCount\") from (select \"query_4\".* from (\n   select \"o_3\".\"order_id\" as \"orderId\", \"o_3\".\"status\", \"o_3\".\"created_at\" as \"createdAt\",\n          (select count(*)\n           from \"main\".\"order_item\" as \"oi_4\"\n           where \"oi_4\".\"order_id\" = \"o_3\".\"order_id\") as \"productCount\"\n   from \"main\".\"order\" as \"o_3\"\n   where \"o_3\".\"account_id\" = \"a_1\".\"account_id\"\n   order by \"o_3\".\"created_at\" desc\n   limit 1\n) as \"query_4\" limit 1) as \"query_3\" limit 1) as \"lastOrder\"\n      from \"main\".\"account\" as \"a_1\"   \n         where "
         },
         {
           "type": "filter",
@@ -142,6 +161,10 @@
         }
       ],
       "params": {
+        "windowBy": {
+          "name": "windowBy",
+          "isContext": false
+        },
         "filterBy": {
           "name": "filterBy",
           "isContext": false
@@ -170,14 +193,33 @@
       },
       "authorization": []
     },
-    "c5b27dc4fc19488b6e9d8d0fed35da09a8b66ee95720089d6e80eb574d1e33ae": {
+    "0c17216226748c97f41fc18c57b851c7e0424009cd216b8e1b0ffff2d71cabbe": {
       "name": "selectAccountsForLogin",
       "location": "examples/react-vite-ui/shared/queries/sqlite3.ts:52:54",
-      "hash": "c5b27dc4fc19488b6e9d8d0fed35da09a8b66ee95720089d6e80eb574d1e33ae",
+      "hash": "0c17216226748c97f41fc18c57b851c7e0424009cd216b8e1b0ffff2d71cabbe",
       "template": [
         {
           "type": "text",
-          "value": "\n      \n/* driver: sqlite */\n\n      \n      select \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\"\n                ,  (select coalesce(json_group_array(json_object('orderId', \"orderId\", 'status', \"status\", 'createdAt', \"createdAt\", 'modifiedAt', \"modifiedAt\", 'accountId', \"accountId\", 'productCount', \"productCount\")), '[]') from (\n   select \"o_2\".\"order_id\" as \"orderId\", \"o_2\".\"status\", \"o_2\".\"created_at\" as \"createdAt\", \"o_2\".\"modified_at\" as \"modifiedAt\", \"o_2\".\"account_id\" as \"accountId\",\n          (select count(*) from \"main\".\"order_item\" as \"oi_3\" where \"oi_3\".\"order_id\" = \"o_2\".\"order_id\") as \"productCount\"\n   from \"main\".\"order\" as \"o_2\"\n   where \"o_2\".\"account_id\" = \"a_1\".\"account_id\"\n   order by \"o_2\".\"created_at\" desc\n) as \"query_2\") as \"orders\"\n      from \"main\".\"account\" as \"a_1\"   \n         where "
+          "value": "\n      \n/* driver: sqlite */\n\n      \n      select \"a_1\".\"account_id\" as \"accountId\", \"a_1\".\"status\", \"a_1\".\"email\", \"a_1\".\"first_name\" as \"firstName\", \"a_1\".\"last_name\" as \"lastName\", \"a_1\".\"notes\", \"a_1\".\"created_at\" as \"createdAt\", \"a_1\".\"modified_at\" as \"modifiedAt\", \"a_1\".\"parent_id\" as \"parentId\" "
+        },
+        {
+          "type": "windowBy",
+          "param": "windowBy",
+          "columns": {
+            "accountId": "\"a_1\".\"account_id\" as \"accountId\"",
+            "status": "\"a_1\".\"status\"",
+            "email": "\"a_1\".\"email\"",
+            "firstName": "\"a_1\".\"first_name\" as \"firstName\"",
+            "lastName": "\"a_1\".\"last_name\" as \"lastName\"",
+            "notes": "\"a_1\".\"notes\"",
+            "createdAt": "\"a_1\".\"created_at\" as \"createdAt\"",
+            "modifiedAt": "\"a_1\".\"modified_at\" as \"modifiedAt\"",
+            "parentId": "\"a_1\".\"parent_id\" as \"parentId\""
+          }
+        },
+        {
+          "type": "text",
+          "value": "\n                ,  (select coalesce(json_group_array(json_object('orderId', \"orderId\", 'status', \"status\", 'createdAt', \"createdAt\", 'modifiedAt', \"modifiedAt\", 'accountId', \"accountId\", 'productCount', \"productCount\")), '[]') from (\n   select \"o_2\".\"order_id\" as \"orderId\", \"o_2\".\"status\", \"o_2\".\"created_at\" as \"createdAt\", \"o_2\".\"modified_at\" as \"modifiedAt\", \"o_2\".\"account_id\" as \"accountId\",\n          (select count(*) from \"main\".\"order_item\" as \"oi_3\" where \"oi_3\".\"order_id\" = \"o_2\".\"order_id\") as \"productCount\"\n   from \"main\".\"order\" as \"o_2\"\n   where \"o_2\".\"account_id\" = \"a_1\".\"account_id\"\n   order by \"o_2\".\"created_at\" desc\n) as \"query_2\") as \"orders\"\n      from \"main\".\"account\" as \"a_1\"   \n         where "
         },
         {
           "type": "filter",
@@ -212,6 +254,10 @@
         }
       ],
       "params": {
+        "windowBy": {
+          "name": "windowBy",
+          "isContext": false
+        },
         "filterBy": {
           "name": "filterBy",
           "isContext": false
@@ -236,14 +282,29 @@
       },
       "authorization": []
     },
-    "5303344dd06b503553b8cfbabf62a1d94692ff7ff3f449c3078a218b0164fbb1": {
+    "9863080acda9df4ee5d32ce6dcad2f18c2bf7c7de608c47e7056926fa37c400b": {
       "name": "selectMyOrders",
       "location": "examples/react-vite-ui/shared/queries/sqlite3.ts:65:44",
-      "hash": "5303344dd06b503553b8cfbabf62a1d94692ff7ff3f449c3078a218b0164fbb1",
+      "hash": "9863080acda9df4ee5d32ce6dcad2f18c2bf7c7de608c47e7056926fa37c400b",
       "template": [
         {
           "type": "text",
-          "value": "\n      \n/* driver: sqlite */\n\n      \n      select \"o_1\".\"order_id\" as \"orderId\", \"o_1\".\"status\", \"o_1\".\"created_at\" as \"createdAt\", \"o_1\".\"modified_at\" as \"modifiedAt\", \"o_1\".\"account_id\" as \"accountId\"\n                ,  (select coalesce(json_group_array(json_object('orderId', \"orderId\", 'productId', \"productId\", 'createdAt', \"createdAt\", 'modifiedAt', \"modifiedAt\", 'productPrice', \"productPrice\", 'discountPrice', \"discountPrice\", 'quantity', \"quantity\", 'metadata', \"metadata\")), '[]') from (\n   select \"oi_2\".\"order_id\" as \"orderId\", \"oi_2\".\"product_id\" as \"productId\", \"oi_2\".\"created_at\" as \"createdAt\", \"oi_2\".\"modified_at\" as \"modifiedAt\", \"oi_2\".\"product_price\" as \"productPrice\", \"oi_2\".\"discount_price\" as \"discountPrice\", \"oi_2\".\"quantity\", \"oi_2\".\"metadata\"\n   from \"main\".\"order_item\" as \"oi_2\"\n   where \"oi_2\".\"order_id\" = \"o_1\".\"order_id\"\n) as \"query_2\") as \"items\"\n      from \"main\".\"order\" as \"o_1\"   \n         where "
+          "value": "\n      \n/* driver: sqlite */\n\n      \n      select \"o_1\".\"order_id\" as \"orderId\", \"o_1\".\"status\", \"o_1\".\"created_at\" as \"createdAt\", \"o_1\".\"modified_at\" as \"modifiedAt\", \"o_1\".\"account_id\" as \"accountId\" "
+        },
+        {
+          "type": "windowBy",
+          "param": "windowBy",
+          "columns": {
+            "orderId": "\"o_1\".\"order_id\" as \"orderId\"",
+            "status": "\"o_1\".\"status\"",
+            "createdAt": "\"o_1\".\"created_at\" as \"createdAt\"",
+            "modifiedAt": "\"o_1\".\"modified_at\" as \"modifiedAt\"",
+            "accountId": "\"o_1\".\"account_id\" as \"accountId\""
+          }
+        },
+        {
+          "type": "text",
+          "value": "\n                ,  (select coalesce(json_group_array(json_object('orderId', \"orderId\", 'productId', \"productId\", 'createdAt', \"createdAt\", 'modifiedAt', \"modifiedAt\", 'productPrice', \"productPrice\", 'discountPrice', \"discountPrice\", 'quantity', \"quantity\", 'metadata', \"metadata\")), '[]') from (\n   select \"oi_2\".\"order_id\" as \"orderId\", \"oi_2\".\"product_id\" as \"productId\", \"oi_2\".\"created_at\" as \"createdAt\", \"oi_2\".\"modified_at\" as \"modifiedAt\", \"oi_2\".\"product_price\" as \"productPrice\", \"oi_2\".\"discount_price\" as \"discountPrice\", \"oi_2\".\"quantity\", \"oi_2\".\"metadata\"\n   from \"main\".\"order_item\" as \"oi_2\"\n   where \"oi_2\".\"order_id\" = \"o_1\".\"order_id\"\n) as \"query_2\") as \"items\"\n      from \"main\".\"order\" as \"o_1\"   \n         where "
         },
         {
           "type": "filter",
@@ -282,6 +343,10 @@
         }
       ],
       "params": {
+        "windowBy": {
+          "name": "windowBy",
+          "isContext": false
+        },
         "filterBy": {
           "name": "filterBy",
           "isContext": false

@@ -16,7 +16,7 @@
       "predev": "run-s 'serialize'",
       "dev": "vite",
       "dev:go": "run-p 'dev:go:backend' 'dev'",
-      "dev:go:backend": "VEXNOR_MANIFEST_DIR=../../examples/react-vite-ui/manifests GO_EXAMPLE_PORT=5050 SQLITE_PATH=../../@db-sqlite3/vexnor-dev.sqlite go run ../../stacks/golang/example",
+      "dev:go:backend": "cd ../../stacks/golang && VEXNOR_MANIFEST_DIR=../../examples/react-vite-ui/manifests GO_EXAMPLE_PORT=5050 SQLITE_PATH=../../@db-sqlite3/vexnor-dev.sqlite go run ./example",
       "dev:dotnet": "run-p 'dev:dotnet:backend' 'dev'",
       "dev:dotnet:backend": "VEXNOR_MANIFEST_DIR=../../examples/react-vite-ui/manifests dotnet run --project ../../stacks/dotnet/src/Vexnor.Example.Api",
       "build": "vite build",
