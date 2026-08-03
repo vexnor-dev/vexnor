@@ -121,7 +121,7 @@ jobs:
           key: ${{ runner.os }}-build-${{ hashFiles('packages/*/src/**', 'plugins/*/src/**', 'orms/*/src/**', 'tests/*/src/**', 'packages/*/tsconfig.json', 'plugins/*/tsconfig.json', 'orms/*/tsconfig.json', 'tests/*/tsconfig.json') }}
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
       - name: Bootstrap MSSQL
         uses: ./.github/actions/bootstrap-mssql
