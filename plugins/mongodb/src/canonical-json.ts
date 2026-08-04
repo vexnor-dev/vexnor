@@ -17,7 +17,6 @@ function canonicalReplacer(_key: string, value: unknown): unknown {
    if (value === null || value === undefined) return value;
    if (typeof value !== "object") return value;
    if (Array.isArray(value)) return value;
-   if (value instanceof Date) return value.toISOString();
 
    // Sort object keys for deterministic serialization
    const sorted: Record<string, unknown> = {};
