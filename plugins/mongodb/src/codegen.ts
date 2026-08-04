@@ -157,7 +157,7 @@ function inferFieldType(value: NonNullable<unknown>): FieldDescriptor | null {
    if (typeof value === "string") return "string";
    if (typeof value === "boolean") return "boolean";
    if (typeof value === "number") {
-      return Number.isInteger(value) ? "number" : "number"; // Can't reliably distinguish int vs float
+      return "number";
    }
 
    if (Array.isArray(value)) {
