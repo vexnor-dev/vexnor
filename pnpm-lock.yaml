@@ -57,6 +57,9 @@ importers:
       eslint-plugin-unused-imports:
         specifier: ^4.4.1
         version: 4.4.1(@typescript-eslint/eslint-plugin@8.63.0(@typescript-eslint/parser@8.63.0(eslint@9.39.4(jiti@2.7.0))(typescript@7.0.2))(eslint@9.39.4(jiti@2.7.0))(typescript@7.0.2))(eslint@9.39.4(jiti@2.7.0))
+      mongodb:
+        specifier: ^6.21.0
+        version: 6.21.0(socks@2.8.9)
       npm-run-all:
         specifier: ^4.1.5
         version: 4.1.5
@@ -370,6 +373,9 @@ importers:
       '@vexnor/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@vexnor/mongodb':
+        specifier: workspace:*
+        version: link:../../plugins/mongodb
       '@vexnor/mssql':
         specifier: workspace:*
         version: link:../../plugins/mssql

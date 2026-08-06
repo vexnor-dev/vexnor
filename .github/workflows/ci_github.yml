@@ -135,6 +135,9 @@ jobs:
           pnpm db-migrate:sqlite3
           pnpm db-migrate:mssql
 
+      - name: Seed MongoDB
+        run: pnpm db-seed:mongodb
+
       - name: Build
         run: pnpm build
 

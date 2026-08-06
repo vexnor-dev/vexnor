@@ -375,8 +375,8 @@ async function seed() {
                properties: {
                   _id: { bsonType: "string" },
                   label: { bsonType: "string" },
-                  price: { bsonType: "double" },
-                  discount: { bsonType: ["double", "null"] },
+                  price: { bsonType: ["double", "int"] },
+                  discount: { bsonType: ["double", "int", "null"] },
                   availability: {
                      bsonType: "object",
                      properties: {
@@ -410,9 +410,9 @@ async function seed() {
                         properties: {
                            productId: { bsonType: "string" },
                            label: { bsonType: "string" },
-                           productPrice: { bsonType: "double" },
-                           discountPrice: { bsonType: ["double", "null"] },
-                           quantity: { bsonType: "int" },
+                           productPrice: { bsonType: ["double", "int"] },
+                           discountPrice: { bsonType: ["double", "int", "null"] },
+                           quantity: { bsonType: ["int", "double"] },
                            metadata: { bsonType: ["object", "null"] },
                         },
                      },
