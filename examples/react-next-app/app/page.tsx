@@ -19,6 +19,12 @@ const databases = [
       description: "Server Component fetches directly via better-sqlite3. Mutations use Server Actions.",
       badge: "better-sqlite3",
    },
+   {
+      href: "/mongodb/accounts",
+      name: "MongoDB",
+      description: "Server Component fetches via MongoClient. Driver-typed queries with collection schema descriptors.",
+      badge: "mongodb",
+   },
 ];
 
 const highlights = [
@@ -45,7 +51,7 @@ export default function HomePage() {
       <div className="max-w-3xl mx-auto px-6 py-16">
          <h1 className="text-3xl font-semibold text-gray-900 mb-3">Vexnor — Next.js Example</h1>
          <p className="text-gray-500 text-lg mb-12">
-            Isomorphic SQL execution across PostgreSQL, MS SQL Server, and SQLite3 using Next.js App Router.
+            Isomorphic query execution across PostgreSQL, MS SQL Server, SQLite3, and MongoDB using Next.js App Router.
          </p>
 
          <section className="mb-12">
@@ -86,10 +92,11 @@ export default function HomePage() {
             <div className="rounded-lg border border-gray-200 divide-y divide-gray-100 text-sm">
                {[
                   ["shared/queries/", "Query definitions — shared between RSC and /api/db"],
-                  ["shared/db/", "DB connection singletons (pg, mssql, better-sqlite3)"],
+                  ["shared/db/", "DB connection singletons (pg, mssql, better-sqlite3, mongodb)"],
                   ["app/postgres/accounts/page.tsx", "Server Component — fetches directly, Server Actions for mutations"],
                   ["app/mssql/accounts/page.tsx", "Same pattern for MS SQL Server"],
                   ["app/sqlite3/accounts/page.tsx", "Same pattern for SQLite3"],
+                  ["app/mongodb/accounts/page.tsx", "MongoDB — driver-typed queries with collection schema descriptors"],
                   ["app/api/db/route.ts", "QueryRegistry endpoint for remote/client-side execution"],
                   ["instrumentation.ts", "Loads vexnor plugin augments before any module evaluates"],
                ].map(([path, desc]) => (
