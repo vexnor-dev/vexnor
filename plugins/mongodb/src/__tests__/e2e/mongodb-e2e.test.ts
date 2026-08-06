@@ -337,6 +337,68 @@ describe("MongoDB E2E", () => {
          );
          await restore.all({ db, params: { id: "acc-3" } });
       });
+
+      it("insertMany + deleteMany", async () => {
+         if (skipIfNoMongo()) return;
+
+         const docsParam = param<{ docs: TestAccount[] }>("docs");
+         const insertMany = accounts.insertMany(docsParam);
+         const newAccounts: TestAccount[] = [
+            {
+               _id: "acc-bulk-1",
+               status: "created",
+               email: "bulk1@example.com",
+               name: { first: "Bulk", last: "One" },
+               notes: null,
+               parent: null,
+               createdAt: new Date(),
+               modifiedAt: new Date(),
+            },
+            {
+               _id: "acc-bulk-2",
+               status: "created",
+               email: "bulk2@example.com",
+               name: { first: "Bulk", last: "Two" },
+               notes: null,
+               parent: null,
+               createdAt: new Date(),
+               modifiedAt: new Date(),
+            },
+         ];
+
+         await insertMany.all({ db, params: { docs: newAccounts } });
+
+         // Verify both exist
+         const findBulk = accounts.find({ _id: { $in: ["acc-bulk-1", "acc-bulk-2"] } });
+         const found = await findBulk.all({ db });
+         expect(found).toHaveLength(2);
+
+         // deleteMany
+         const deleteBulk = accounts.deleteMany({ _id: { $in: ["acc-bulk-1", "acc-bulk-2"] } });
+         const deleteResult = await deleteBulk.all({ db });
+         expect(deleteResult[0]!.deletedCount).toBe(2);
+      });
+
+      it("updateMany", async () => {
+         if (skipIfNoMongo()) return;
+
+         // Update all "confirmed" accounts' notes
+         const updateMany = accounts.updateMany(
+            { status: "confirmed" },
+            { $set: { notes: "batch-updated" } },
+         );
+         const result = await updateMany.all({ db });
+
+         expect(result[0]!.matchedCount).toBe(2); // acc-1 and acc-2
+         expect(result[0]!.modifiedCount).toBeGreaterThanOrEqual(1);
+
+         // Restore
+         const restore = accounts.updateMany(
+            { notes: "batch-updated" },
+            { $set: { notes: null } },
+         );
+         await restore.all({ db });
+      });
    });
 
    describe("registry integration", () => {
@@ -405,6 +467,60 @@ describe("MongoDB E2E", () => {
          const results = await findMultipleStatuses.all({ db });
 
          expect(results).toHaveLength(3); // acc-1, acc-2, acc-3
+      });
+
+      it("$lookup with typed collection ref", async () => {
+         if (skipIfNoMongo()) return;
+
+         // Use the collection object itself instead of a string in $lookup.from
+         const ordersWithAccount = orders.aggregate<TestOrder & { account: TestAccount[] }>([
+            { $lookup: { from: accounts, localField: "accountId", foreignField: "_id", as: "account" } },
+         ]);
+         const results = await ordersWithAccount.all({ db });
+
+         expect(results).toHaveLength(testOrders.length);
+         // Each order should have an account array resolved via the typed ref
+         for (const r of results) {
+            expect(r.account).toBeDefined();
+            expect(r.account.length).toBeGreaterThan(0);
+         }
+      });
+
+      it("$lookup with string collection name (both forms work)", async () => {
+         if (skipIfNoMongo()) return;
+
+         // Use a plain string in $lookup.from (traditional form)
+         const ordersWithAccount = orders.aggregate<TestOrder & { account: TestAccount[] }>([
+            { $lookup: { from: "accounts", localField: "accountId", foreignField: "_id", as: "account" } },
+         ]);
+         const results = await ordersWithAccount.all({ db });
+
+         expect(results).toHaveLength(testOrders.length);
+         for (const r of results) {
+            expect(r.account.length).toBeGreaterThan(0);
+         }
+      });
+   });
+
+   describe("isomorphic execution", () => {
+      it("executes via RemoteClient (mock)", async () => {
+         if (skipIfNoMongo()) return;
+
+         // Simulate the isomorphic pattern: same query, different db target
+         const statusParam = param<{ status: string }>("status");
+         const findByStatus = accounts.find({ status: statusParam });
+
+         // Direct execution against Db
+         const directResults = await findByStatus.all({ db, params: { status: "confirmed" } });
+         expect(directResults).toHaveLength(2);
+
+         // Remote execution via mock RemoteClient (simulates client-side)
+         const mockRemoteClient = {
+            remoteExecute: async () => directResults,
+         };
+         // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         const remoteResults = await findByStatus.all({ db: mockRemoteClient as any, params: { status: "confirmed" } });
+         expect(remoteResults).toStrictEqual(directResults);
       });
    });
 

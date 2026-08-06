@@ -25,6 +25,7 @@
    "dependencies": {
       "@tanstack/react-router": "^1.170.15",
       "@vexnor/core": "workspace:*",
+      "@vexnor/mongodb": "workspace:*",
       "@vexnor/mssql": "workspace:*",
       "@vexnor/postgres": "workspace:*",
       "@vexnor/sqlite3": "workspace:*",
