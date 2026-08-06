@@ -93,7 +93,7 @@ export function MongoAccountsGrid({ initialAccounts }: { initialAccounts: MongoA
                         </td>
                         <td className="py-2 px-3 text-gray-500 text-xs">{account.notes ?? "—"}</td>
                         <td className="py-2 px-3 text-gray-400 text-xs">
-                           {new Date(account.createdAt).toLocaleDateString()}
+                           {new Date(account.createdAt).toISOString().slice(0, 10)}
                         </td>
                         <td className="py-2 px-3 text-right">
                            <button
