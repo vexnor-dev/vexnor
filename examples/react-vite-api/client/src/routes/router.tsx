@@ -3,6 +3,7 @@ import HomePage from "../pages/home";
 import PostgresAccountsPage from "../pages/postgres-accounts";
 import MssqlAccountsPage from "../pages/mssql-accounts";
 import Sqlite3AccountsPage from "../pages/sqlite3-accounts";
+import MongoDBAccountsPage from "../pages/mongodb-accounts";
 import Sqlite3LoginPage from "../pages/sqlite3-login";
 import PostgresLoginPage from "../pages/postgres-login";
 import MssqlLoginPage from "../pages/mssql-login";
@@ -57,6 +58,7 @@ const rootRoute = createRootRoute({
             <Link to="/postgres" search={{ filter: undefined }} activeProps={{ className: "active" }}>PostgreSQL</Link>
             <Link to="/mssql" search={{ filter: undefined }} activeProps={{ className: "active" }}>MS SQL Server</Link>
             <Link to="/sqlite3" search={{ filter: undefined }} activeProps={{ className: "active" }}>SQLite3</Link>
+            <Link to="/mongodb" activeProps={{ className: "active" }}>MongoDB</Link>
          </nav>
          <Outlet />
       </div>
@@ -108,6 +110,12 @@ const sqlite3Route = createRoute({
    component: Sqlite3AccountsPage,
 });
 
+const mongodbRoute = createRoute({
+   getParentRoute: () => rootRoute,
+   path: "/mongodb",
+   component: MongoDBAccountsPage,
+});
+
 const indexRoute = createRoute({
    getParentRoute: () => rootRoute,
    path: "/",
@@ -122,6 +130,7 @@ const routeTree = rootRoute.addChildren([
    postgresRoute,
    mssqlRoute,
    sqlite3Route,
+   mongodbRoute,
 ]);
 
 export const router = createRouter({ routeTree });
