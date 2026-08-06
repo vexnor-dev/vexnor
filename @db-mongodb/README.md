@@ -5,7 +5,8 @@ MongoDB seed data for local development and examples.
 ## Prerequisites
 
 ```bash
-docker compose up -d mongo
+docker run -d --name vexnor-mongo --restart unless-stopped \
+  -p 27017:27017 -v vexnor-mongo-data:/data/db mongo:7
 ```
 
 ## Seed the database
@@ -14,23 +15,24 @@ docker compose up -d mongo
 pnpm db-seed:mongodb
 ```
 
-This creates collections (accounts, products, orders) with JSON Schema validators
-and populates them with realistic demo data matching the same entity patterns used
-in the Postgres/MSSQL/SQLite3 examples.
+Generates realistic demo data at the same scale as the Postgres/MSSQL/SQLite test fixtures:
 
-## Collections
-
-| Collection | Documents | Pattern |
-|---|---|---|
-| `accounts` | 6 | Nested object (name), nullable nested (parent), enum status |
-| `products` | 5 | Nullable nested metadata with dimensions/colors, scalar array (tags) |
-| `orders` | 6 | Embedded array of items (denormalized), cross-collection ref (accountId) |
+| Collection | Documents | Embedded | Pattern |
+|---|---|---|---|
+| `accounts` | 400 | — | 100 root + 300 children (3 per root). Nested name, nullable parent ref, enum status |
+| `products` | 20 | — | Nullable nested metadata (dimensions, colors, brand), scalar array (tags) |
+| `orders` | 800 | 1600 items | 2 per account. Embedded items array with denormalized product data |
 
 ## Indexes
 
 - `accounts.email` (unique)
 - `accounts.status`
+- `accounts.parent.accountId`
+- `accounts.createdAt` (descending)
 - `orders.accountId`
 - `orders.status`
+- `orders.createdAt` (descending)
+- `orders.items.productId`
 - `products.tags`
-- `products.availability.isAvailable`
+- `products.availability` (compound)
+- `products.price`
