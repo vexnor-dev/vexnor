@@ -18536,6 +18536,57 @@ describe("SchemaGraph", () => {
          expect(result!.joinBy.customer!.type).toBeUndefined();
       });
 
+      test("builds joinBy for all requested direct targets", () => {
+         const Invoice = makeTable("invoice", { invoiceId: "invoice_id", customerId: "customer_id", cityId: "city_id" }, {
+            pk: ["invoiceId"],
+            fk: [
+               { from: ["customerId"], to: { schema: "public", table: "customer", columns: ["customerId"] } },
+               { from: ["cityId"], to: { schema: "public", table: "city", columns: ["cityId"] } },
+            ],
+         });
+         const directTargetGraph = new SchemaGraph({ Invoice, Customer, City });
+
+         const result = directTargetGraph.joinBy("public.invoice", [
+            { table: "public.customer" },
+            { table: "public.city" },
+         ]);
+
+         expect(result?.joinBy).toMatchInlineSnapshot(`
+           {
+             "city": {
+               "on": [
+                 [
+                   "invoice.cityId",
+                   "=",
+                   "city.cityId",
+                 ],
+               ],
+             },
+             "customer": {
+               "on": [
+                 [
+                   "invoice.customerId",
+                   "=",
+                   "customer.customerId",
+                 ],
+               ],
+             },
+           }
+         `);
+         expect(result?.columns).toMatchInlineSnapshot(`
+           [
+             "invoiceId",
+             "customerId",
+             "cityId",
+             "customer.customerId",
+             "customer.addressId",
+             "customer.firstName",
+             "city.cityId",
+             "city.city",
+           ]
+         `);
+      });
+
       test("returns null for unknown root", () => {
          expect(graph.joinBy("public.nonexistent", [{ table: "public.customer" }])).toBeNull();
       });

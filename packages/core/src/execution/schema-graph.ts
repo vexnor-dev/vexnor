@@ -125,13 +125,19 @@ export class SchemaGraph {
       const rootId = this.qualifyTable(root);
       const rootName = root.tableInfo.name;
 
-      // Build FK path to the last target
-      const lastTarget = targets[targets.length - 1];
-      if (!lastTarget) return null;
-      const lastTargetId = this.qualifyTable(lastTarget.table);
-
-      const path = this.joinPath(rootId, lastTargetId);
-      if (!path) return null;
+      const path: JoinStep[] = [];
+      const seenSteps = new Set<string>();
+      for (const target of targets) {
+         const targetId = this.qualifyTable(target.table);
+         const targetPath = this.joinPath(rootId, targetId);
+         if (!targetPath) return null;
+         for (const step of targetPath) {
+            const stepKey = `${step.from.schema}.${step.from.table}.${step.from.column}->${step.to.schema}.${step.to.table}.${step.to.column}`;
+            if (seenSteps.has(stepKey)) continue;
+            seenSteps.add(stepKey);
+            path.push(step);
+         }
+      }
 
       // Build join map for Table.join()
       const joinMap: Record<string, SqlTableAny> = {};
@@ -156,7 +162,7 @@ export class SchemaGraph {
       }
 
       // Collect columns
-      const tableIds = [rootId, ...path.map((s) => `${s.to.schema}.${s.to.table}`)];
+      const tableIds = [rootId, ...path.map((s) => `${s.to.schema}.${s.to.table}`)].filter((tableId, index, values) => values.indexOf(tableId) === index);
       const columns: string[] = [];
       for (const tableId of tableIds) {
          const t = this._tables.get(tableId);
