@@ -9,7 +9,9 @@
       "MSSQL_PORT": 1433,
       "MSSQL_DATABASE": "vexnor",
       "MSSQL_USER": "vexnor_dev",
-      "MSSQL_PASSWORD": "P@ssw0rd!"
+      "MSSQL_PASSWORD": "P@ssw0rd!",
+      "MONGODB_URI": "mongodb://localhost:27017",
+      "MONGODB_DATABASE": "vexnor"
    },
    "postgres": {
       "POSTGRES_HOST": "localhost",
@@ -27,5 +29,9 @@
    },
    "sqlite3": {
       "SQLITE_PATH": "../../@db-sqlite3/vexnor-dev.sqlite"
+   },
+   "mongodb": {
+      "MONGODB_URI": "mongodb://localhost:27017",
+      "MONGODB_DATABASE": "vexnor"
    }
 }

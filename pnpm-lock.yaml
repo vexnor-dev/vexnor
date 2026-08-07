@@ -57,6 +57,9 @@ importers:
       eslint-plugin-unused-imports:
         specifier: ^4.4.1
         version: 4.4.1(@typescript-eslint/eslint-plugin@8.63.0(@typescript-eslint/parser@8.63.0(eslint@9.39.4(jiti@2.7.0))(typescript@7.0.2))(eslint@9.39.4(jiti@2.7.0))(typescript@7.0.2))(eslint@9.39.4(jiti@2.7.0))
+      mongodb:
+        specifier: ^6.21.0
+        version: 6.21.0(socks@2.8.9)
       npm-run-all:
         specifier: ^4.1.5
         version: 4.1.5
@@ -143,6 +146,9 @@ importers:
       '@vexnor/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@vexnor/mongodb':
+        specifier: workspace:*
+        version: link:../../plugins/mongodb
       '@vexnor/mssql':
         specifier: workspace:*
         version: link:../../plugins/mssql
@@ -155,6 +161,9 @@ importers:
       better-sqlite3:
         specifier: ^12.10.0
         version: 12.10.0
+      mongodb:
+        specifier: ^6.16.0
+        version: 6.21.0(socks@2.8.9)
       mssql:
         specifier: ^12.5.4
         version: 12.5.5
@@ -264,6 +273,9 @@ importers:
       '@vexnor/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@vexnor/mongodb':
+        specifier: workspace:*
+        version: link:../../plugins/mongodb
       '@vexnor/mssql':
         specifier: workspace:*
         version: link:../../plugins/mssql
@@ -279,6 +291,9 @@ importers:
       hono:
         specifier: ^4.12.25
         version: 4.12.25
+      mongodb:
+        specifier: ^6.16.0
+        version: 6.21.0(socks@2.8.9)
       mssql:
         specifier: ^12.5.5
         version: 12.5.5
@@ -358,6 +373,9 @@ importers:
       '@vexnor/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@vexnor/mongodb':
+        specifier: workspace:*
+        version: link:../../plugins/mongodb
       '@vexnor/mssql':
         specifier: workspace:*
         version: link:../../plugins/mssql
@@ -476,16 +494,6 @@ importers:
         specifier: ^4.1.5
         version: 4.1.8(@opentelemetry/api@1.9.1)(@types/node@22.19.21)(@vitest/coverage-istanbul@4.1.8)(@vitest/coverage-v8@4.1.8)(jsdom@25.0.1)(vite@8.0.16(@types/node@22.19.21)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
 
-  orms/prisma/src/__tests__/fixtures-v6-client-js/generated: {}
-
-  orms/prisma/src/__tests__/fixtures-v6/generated: {}
-
-  orms/prisma/src/__tests__/fixtures-v7-client-js/generated:
-    dependencies:
-      '@prisma/client-runtime-utils':
-        specifier: 7.8.0
-        version: 7.8.0
-
   orms/sequelize:
     dependencies:
       '@vexnor/core':
@@ -537,7 +545,7 @@ importers:
         version: 0.2.2
       typeorm:
         specifier: ^0.3.24
-        version: 0.3.30(better-sqlite3@12.10.0)(mssql@12.5.5)(mysql2@3.15.3)(pg@8.21.0)(sqlite3@5.1.7)
+        version: 0.3.30(better-sqlite3@12.10.0)(mongodb@6.21.0(socks@2.8.9))(mssql@12.5.5)(mysql2@3.15.3)(pg@8.21.0)(sqlite3@5.1.7)
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -575,6 +583,31 @@ importers:
       vite-tsconfig-paths:
         specifier: ^6.1.1
         version: 6.1.1(typescript@5.9.3)(vite@8.0.16(@types/node@22.19.21)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
+      vitest:
+        specifier: ^4.1.5
+        version: 4.1.8(@opentelemetry/api@1.9.1)(@types/node@22.19.21)(@vitest/coverage-istanbul@4.1.8)(@vitest/coverage-v8@4.1.8)(jsdom@25.0.1)(vite@8.0.16(@types/node@22.19.21)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
+
+  plugins/mongodb:
+    dependencies:
+      '@vexnor/core':
+        specifier: workspace:^
+        version: link:../../packages/core
+    devDependencies:
+      '@vitest/coverage-v8':
+        specifier: ^4.1.5
+        version: 4.1.8(vitest@4.1.8)
+      mongodb:
+        specifier: ^6.16.0
+        version: 6.21.0(socks@2.8.9)
+      npm-run-all:
+        specifier: ^4.1.5
+        version: 4.1.5
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vite-tsconfig-paths:
+        specifier: ^6.1.1
+        version: 6.1.1(typescript@7.0.2)(vite@8.0.16(@types/node@22.19.21)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
       vitest:
         specifier: ^4.1.5
         version: 4.1.8(@opentelemetry/api@1.9.1)(@types/node@22.19.21)(@vitest/coverage-istanbul@4.1.8)(@vitest/coverage-v8@4.1.8)(jsdom@25.0.1)(vite@8.0.16(@types/node@22.19.21)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
@@ -668,6 +701,9 @@ importers:
       '@vexnor/core':
         specifier: workspace:^
         version: link:../../packages/core
+      '@vexnor/mongodb':
+        specifier: workspace:^
+        version: link:../../plugins/mongodb
       '@vexnor/mssql':
         specifier: workspace:^
         version: link:../../plugins/mssql
@@ -744,7 +780,7 @@ importers:
         version: 6.37.8(mysql2@3.15.3)(pg@8.21.0)(sqlite3@5.1.7)
       typeorm:
         specifier: ^0.3.24
-        version: 0.3.30(better-sqlite3@12.10.0)(mssql@12.5.5)(mysql2@3.15.3)(pg@8.21.0)(sqlite3@5.1.7)
+        version: 0.3.30(better-sqlite3@12.10.0)(mongodb@6.21.0(socks@2.8.9))(mssql@12.5.5)(mysql2@3.15.3)(pg@8.21.0)(sqlite3@5.1.7)
       vite-tsconfig-paths:
         specifier: ^6.1.1
         version: 6.1.1(typescript@5.9.3)(vite@8.0.16(@types/node@22.19.21)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
@@ -808,7 +844,7 @@ importers:
         version: 6.37.8(mysql2@3.15.3)(pg@8.21.0)(sqlite3@5.1.7)
       typeorm:
         specifier: ^0.3.30
-        version: 0.3.30(better-sqlite3@12.10.0)(mssql@12.5.5)(mysql2@3.15.3)(pg@8.21.0)(sqlite3@5.1.7)
+        version: 0.3.30(better-sqlite3@12.10.0)(mongodb@6.21.0(socks@2.8.9))(mssql@12.5.5)(mysql2@3.15.3)(pg@8.21.0)(sqlite3@5.1.7)
       vite-tsconfig-paths:
         specifier: ^6.1.1
         version: 6.1.1(typescript@5.9.3)(vite@8.0.16(@types/node@22.19.21)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
@@ -930,7 +966,7 @@ importers:
         version: 6.37.8(mysql2@3.15.3)(pg@8.21.0)(sqlite3@5.1.7)
       typeorm:
         specifier: ^0.3.24
-        version: 0.3.30(better-sqlite3@12.10.0)(mssql@12.5.5)(mysql2@3.15.3)(pg@8.21.0)(sqlite3@5.1.7)
+        version: 0.3.30(better-sqlite3@12.10.0)(mongodb@6.21.0(socks@2.8.9))(mssql@12.5.5)(mysql2@3.15.3)(pg@8.21.0)(sqlite3@5.1.7)
       vite-tsconfig-paths:
         specifier: ^6.1.1
         version: 6.1.1(typescript@5.9.3)(vite@8.0.16(@types/node@22.19.21)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
@@ -1587,6 +1623,9 @@ packages:
 
   '@kurkle/color@0.3.4':
     resolution: {integrity: sha512-M5UknZPHRu3DEDWoipU6sE8PdkZ6Z/S+v4dD+Ke8IaNlpdSQah50lz1KtcFBa2vsdOnwbbnxJwVM4wty6udA5w==}
+
+  '@mongodb-js/saslprep@1.4.12':
+    resolution: {integrity: sha512-QAfAMwNgnYxZ2C6D1HgeP7Gc4i/uvJRim415PCIL9ptRxWMNbWeLBYb2/9R4pGKny/s1FVu2JA2cxCUBUOggrA==}
 
   '@napi-rs/wasm-runtime@1.1.5':
     resolution: {integrity: sha512-AWPoBRJ9tsnVhor4sjO7rkni+7p+2IAEFj6cx06UgP10jkQHqay/36uRV/bFkgrh18D9vb4cr8Q0Pthskgzy+Q==}
@@ -2419,6 +2458,12 @@ packages:
   '@types/validator@13.15.10':
     resolution: {integrity: sha512-T8L6i7wCuyoK8A/ZeLYt1+q0ty3Zb9+qbSSvrIVitzT3YjZqkTZ40IbRsPanlB4h1QB3JVL1SYCdR6ngtFYcuA==}
 
+  '@types/webidl-conversions@7.0.3':
+    resolution: {integrity: sha512-CiJJvcRtIgzadHCYXw7dqEnMNRjhGZlYK05Mj9OyktqV8uVT8fD2BFOB7S1uwBE3Kj2Z+4UyPmFw/Ixgw/LAlA==}
+
+  '@types/whatwg-url@11.0.5':
+    resolution: {integrity: sha512-coYR071JRaHa+xoEvvYqvnIHaVqaYrLPbsufM9BF63HkwI5Lgmy2QR8Q5K/lYDYo5AK82wOvSOS0UsLTpTG7uQ==}
+
   '@typescript-eslint/eslint-plugin@8.61.0':
     resolution: {integrity: sha512-bFNvl9ZczlVb+wR2Akszf3gHfKVj/8WanXaGJ3UstTA7brNKg0cNdk6X1Psu5V7MZ2oQtzZKOEzIUehaoxbDGw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
@@ -3055,6 +3100,10 @@ packages:
     resolution: {integrity: sha512-48xSriZYYg+8qXna9kwqjIVzuQxi+KYWp2+5nCYnYKPTr0LvD89Jqk2Or5ogxz0NUMfIjhh2lIUX/LyX9B4oIg==}
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
+
+  bson@6.10.4:
+    resolution: {integrity: sha512-WIsKqkSC0ABoBJuT1LEX+2HEvNmNKKgnTAyd0fL8qzK4SH2i9NXg+t08YtdZp/V9IZ33cxe3iV4yM0qg8lMQng==}
+    engines: {node: '>=16.20.1'}
 
   buffer-equal-constant-time@1.0.1:
     resolution: {integrity: sha512-zRpUiDwd/xk6ADqPMATG8vc9VPrkck7T07OIx0gnjmJAnHnTVXNQG3vfvWNuiZIkwu9KrKdA1iJKfsfTVxE6NA==}
@@ -4604,6 +4653,9 @@ packages:
     resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
     engines: {node: '>= 0.4'}
 
+  memory-pager@1.5.0:
+    resolution: {integrity: sha512-ZS4Bp4r/Zoeq6+NLJpP+0Zzm0pR8whtGPf1XExKLJBAczGMnSi3It14OiNCStjQjM6NU1okjQGSxgEZN8eBYKg==}
+
   memorystream@0.3.1:
     resolution: {integrity: sha512-S3UwM3yj5mtUSEfP41UZmt/0SCoVYUcU1rkXv+BQ5Ig8ndL4sPoJNBUJERafdPb5jjHJGuMgytgKvKIf58XNBw==}
     engines: {node: '>= 0.10.0'}
@@ -4694,6 +4746,36 @@ packages:
 
   moment@2.30.1:
     resolution: {integrity: sha512-uEmtNhbDOrWPFS+hdjFCBfy9f2YoyzRpwcl+DqpC6taX21FzsTLQVbMV/W7PzNSX6x/bhC1zA3c2UQ5NzH6how==}
+
+  mongodb-connection-string-url@3.0.2:
+    resolution: {integrity: sha512-rMO7CGo/9BFwyZABcKAWL8UJwH/Kc2x0g72uhDWzG48URRax5TCIcJ7Rc3RZqffZzO/Gwff/jyKwCU9TN8gehA==}
+
+  mongodb@6.21.0:
+    resolution: {integrity: sha512-URyb/VXMjJ4da46OeSXg+puO39XH9DeQpWCslifrRn9JWugy0D+DvvBvkm2WxmHe61O/H19JM66p1z7RHVkZ6A==}
+    engines: {node: '>=16.20.1'}
+    peerDependencies:
+      '@aws-sdk/credential-providers': ^3.188.0
+      '@mongodb-js/zstd': ^1.1.0 || ^2.0.0
+      gcp-metadata: ^5.2.0
+      kerberos: ^2.0.1
+      mongodb-client-encryption: '>=6.0.0 <7'
+      snappy: ^7.3.2
+      socks: ^2.7.1
+    peerDependenciesMeta:
+      '@aws-sdk/credential-providers':
+        optional: true
+      '@mongodb-js/zstd':
+        optional: true
+      gcp-metadata:
+        optional: true
+      kerberos:
+        optional: true
+      mongodb-client-encryption:
+        optional: true
+      snappy:
+        optional: true
+      socks:
+        optional: true
 
   moo@0.5.3:
     resolution: {integrity: sha512-m2fmM2dDm7GZQsY7KK2cme8agi+AAljILjQnof7p1ZMDe6dQ4bdnSMx0cPppudoeNv5hEFQirN6u+O4fDE0IWA==}
@@ -5559,6 +5641,9 @@ packages:
   source-map-js@1.2.1:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
     engines: {node: '>=0.10.0'}
+
+  sparse-bitfield@3.0.3:
+    resolution: {integrity: sha512-kvzhi7vqKTfkh0PZU+2D2PIllw2ymqJKujUcyPMd9Y75Nv4nPbGJZXNhxsgdQab2BmlDct1YnfQCguEvHr7VsQ==}
 
   spdx-correct@3.2.0:
     resolution: {integrity: sha512-kN9dJbvnySHULIluDHy32WHRUu3Og7B9sbY7tsFLctQkIqnMh3hErYgdMjTYuqmcXX+lK5T1lnUt3G7zNswmZA==}
@@ -6921,6 +7006,10 @@ snapshots:
 
   '@kurkle/color@0.3.4': {}
 
+  '@mongodb-js/saslprep@1.4.12':
+    dependencies:
+      sparse-bitfield: 3.0.3
+
   '@napi-rs/wasm-runtime@1.1.5(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)':
     dependencies:
       '@emnapi/core': 1.10.0
@@ -7802,6 +7891,12 @@ snapshots:
 
   '@types/validator@13.15.10': {}
 
+  '@types/webidl-conversions@7.0.3': {}
+
+  '@types/whatwg-url@11.0.5':
+    dependencies:
+      '@types/webidl-conversions': 7.0.3
+
   '@typescript-eslint/eslint-plugin@8.61.0(@typescript-eslint/parser@8.61.0(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3)':
     dependencies:
       '@eslint-community/regexpp': 4.12.2
@@ -8453,6 +8548,8 @@ snapshots:
       electron-to-chromium: 1.5.372
       node-releases: 2.0.47
       update-browserslist-db: 1.2.3(browserslist@4.28.2)
+
+  bson@6.10.4: {}
 
   buffer-equal-constant-time@1.0.1: {}
 
@@ -10112,6 +10209,8 @@ snapshots:
 
   math-intrinsics@1.1.0: {}
 
+  memory-pager@1.5.0: {}
+
   memorystream@0.3.1: {}
 
   merge2@1.4.1: {}
@@ -10200,6 +10299,19 @@ snapshots:
       moment: 2.30.1
 
   moment@2.30.1: {}
+
+  mongodb-connection-string-url@3.0.2:
+    dependencies:
+      '@types/whatwg-url': 11.0.5
+      whatwg-url: 14.2.0
+
+  mongodb@6.21.0(socks@2.8.9):
+    dependencies:
+      '@mongodb-js/saslprep': 1.4.12
+      bson: 6.10.4
+      mongodb-connection-string-url: 3.0.2
+    optionalDependencies:
+      socks: 2.8.9
 
   moo@0.5.3: {}
 
@@ -11210,6 +11322,10 @@ snapshots:
 
   source-map-js@1.2.1: {}
 
+  sparse-bitfield@3.0.3:
+    dependencies:
+      memory-pager: 1.5.0
+
   spdx-correct@3.2.0:
     dependencies:
       spdx-expression-parse: 3.0.1
@@ -11630,7 +11746,7 @@ snapshots:
       possible-typed-array-names: 1.1.0
       reflect.getprototypeof: 1.0.10
 
-  typeorm@0.3.30(better-sqlite3@12.10.0)(mssql@12.5.5)(mysql2@3.15.3)(pg@8.21.0)(sqlite3@5.1.7):
+  typeorm@0.3.30(better-sqlite3@12.10.0)(mongodb@6.21.0(socks@2.8.9))(mssql@12.5.5)(mysql2@3.15.3)(pg@8.21.0)(sqlite3@5.1.7):
     dependencies:
       '@sqltools/formatter': 1.2.5
       ansis: 4.3.1
@@ -11649,6 +11765,7 @@ snapshots:
       yargs: 17.7.2
     optionalDependencies:
       better-sqlite3: 12.10.0
+      mongodb: 6.21.0(socks@2.8.9)
       mssql: 12.5.5
       mysql2: 3.15.3
       pg: 8.21.0
