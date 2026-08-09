@@ -127,16 +127,20 @@ export class SchemaGraph {
 
       const path: JoinStep[] = [];
       const seenSteps = new Set<string>();
+      const connectedTableIds = new Set<string>([rootId]);
       for (const target of targets) {
          const targetId = this.qualifyTable(target.table);
-         const targetPath = this.joinPath(rootId, targetId);
+         const targetPath = this.shortestPathFromConnected(connectedTableIds, targetId);
          if (!targetPath) return null;
          for (const step of targetPath) {
             const stepKey = `${step.from.schema}.${step.from.table}.${step.from.column}->${step.to.schema}.${step.to.table}.${step.to.column}`;
             if (seenSteps.has(stepKey)) continue;
             seenSteps.add(stepKey);
             path.push(step);
+            connectedTableIds.add(`${step.from.schema}.${step.from.table}`);
+            connectedTableIds.add(`${step.to.schema}.${step.to.table}`);
          }
+         connectedTableIds.add(targetId);
       }
 
       // Build join map for Table.join()
@@ -252,6 +256,18 @@ export class SchemaGraph {
          "colKeys" in entity &&
          "pk" in entity
       );
+   }
+
+   private shortestPathFromConnected(fromIds: Set<string>, targetId: string): JoinStep[] | null {
+      if (fromIds.has(targetId)) return [];
+
+      let bestPath: JoinStep[] | null = null;
+      for (const fromId of fromIds) {
+         const candidate = this.joinPath(fromId, targetId);
+         if (!candidate) continue;
+         if (!bestPath || candidate.length < bestPath.length) bestPath = candidate;
+      }
+      return bestPath;
    }
 
    private getFkGraph(): Map<string, FkEdge[]> {
