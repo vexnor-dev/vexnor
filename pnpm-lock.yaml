@@ -494,6 +494,14 @@ importers:
         specifier: ^4.1.5
         version: 4.1.8(@opentelemetry/api@1.9.1)(@types/node@22.19.21)(@vitest/coverage-istanbul@4.1.8)(@vitest/coverage-v8@4.1.8)(jsdom@25.0.1)(vite@8.0.16(@types/node@22.19.21)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
 
+  orms/prisma/src/__tests__/fixtures-v6-client-js/generated: {}
+
+  orms/prisma/src/__tests__/fixtures-v7-client-js/generated:
+    dependencies:
+      '@prisma/client-runtime-utils':
+        specifier: 7.9.1
+        version: 7.9.1
+
   orms/sequelize:
     dependencies:
       '@vexnor/core':
@@ -726,6 +734,34 @@ importers:
       tsx:
         specifier: ^4.20.6
         version: 4.22.4
+
+  tests/test-mongodb:
+    dependencies:
+      '@vexnor/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@vexnor/mongodb':
+        specifier: workspace:*
+        version: link:../../plugins/mongodb
+      mongodb:
+        specifier: ^6.16.0
+        version: 6.21.0(socks@2.8.9)
+    devDependencies:
+      '@vitest/coverage-v8':
+        specifier: ^4.1.8
+        version: 4.1.8(vitest@4.1.8)
+      npm-run-all:
+        specifier: ^4.1.5
+        version: 4.1.5
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vite-tsconfig-paths:
+        specifier: ^6.1.1
+        version: 6.1.1(typescript@7.0.2)(vite@8.0.16(@types/node@22.19.21)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
+      vitest:
+        specifier: ^4.1.8
+        version: 4.1.8(@opentelemetry/api@1.9.1)(@types/node@22.19.21)(@vitest/coverage-istanbul@4.1.8)(@vitest/coverage-v8@4.1.8)(jsdom@25.0.1)(vite@8.0.16(@types/node@22.19.21)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
 
   tests/test-mssql:
     dependencies:
@@ -1938,6 +1974,9 @@ packages:
 
   '@prisma/client-runtime-utils@7.8.0':
     resolution: {integrity: sha512-5NQZztQ0oY/ADFkmd9gPuweH5A1/CCY8YQPorLLO0Mu6a87mY5gsnDkzmFmIHs9NFaLnZojzgddFVN4RpKYrdw==}
+
+  '@prisma/client-runtime-utils@7.9.1':
+    resolution: {integrity: sha512-mVIBGYdO5CFmK0HvjxrtfIyQQcPdb88pSCeVQriVQPVZyDovIWblpHfOgcS8QO187j3QF0ePArH8qPhp0AU2vg==}
 
   '@prisma/client@7.8.0':
     resolution: {integrity: sha512-HFp3Dawv/3sU3JtlPha90IB+48lS7zHiH4LKZPjmcE8YH5P9DOXGPvo8dqOtO7MqLDd1p2hOWMcFlRT1DMblHw==}
@@ -7371,6 +7410,8 @@ snapshots:
       - pg-native
 
   '@prisma/client-runtime-utils@7.8.0': {}
+
+  '@prisma/client-runtime-utils@7.9.1': {}
 
   '@prisma/client@7.8.0(prisma@7.8.0(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(better-sqlite3@12.10.0)(magicast@0.5.3)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@5.9.3))(typescript@5.9.3)':
     dependencies:

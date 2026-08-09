@@ -21,6 +21,9 @@ export type {
    MongoOperation,
    MongoParamInfo,
    MongoQueryMetadata,
+   DotPaths,
+   DotPathType,
+   DotPathFilter,
 } from "#src/mongo-types.js";
 
 // ─── Registry ────────────────────────────────────────────────────────────────

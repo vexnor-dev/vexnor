@@ -237,6 +237,112 @@ import { jsonMany, jsonOne } from '@vexnor/sqlite3';
 
 ---
 
+## MongoDB
+
+**Package:** `@vexnor/mongodb`  
+**Driver:** `mongodb` (official Node.js driver)  
+**Dialect:** N/A — uses driver types directly, no SQL
+
+```bash
+npm install @vexnor/core @vexnor/mongodb mongodb
+```
+
+### Connection Setup
+
+```typescript
+import { MongoClient } from 'mongodb';
+
+const client = new MongoClient(process.env.MONGODB_URI!);
+await client.connect();
+const db = client.db('myapp');
+
+const result = await query.all({ db });
+```
+
+Unlike SQL plugins, MongoDB queries execute directly — no `.mongodb` namespace needed. A MongoDB query is always MongoDB.
+
+### Collection Definition
+
+```typescript
+import { collection } from '@vexnor/mongodb';
+
+interface Order {
+  _id: string;
+  status: 'pending' | 'shipped' | 'delivered';
+  items: { productId: string; qty: number; price: number }[];
+  createdAt: Date;
+}
+
+const orders = collection<Order>('orders', {
+  source: '@myapp/api:orders',
+  schema: {
+    _id: 'string',
+    status: 'string',
+    items: [{ productId: 'string', qty: 'integer', price: 'number' }],
+    createdAt: 'date',
+  },
+});
+```
+
+### Query Construction
+
+```typescript
+import { param, ctx } from '@vexnor/core';
+
+// find — literal filter, dot-path queries, typed operators
+const q = orders.find(
+  { status: param<{ status: string }>('status'), 'items.price': { $gt: 50 } },
+  { sort: { createdAt: -1 }, limit: param<{ limit: number }>('limit') },
+);
+
+// aggregate — pipeline stages
+const revenue = orders.aggregate<{ _id: string; total: number }>([
+  { $unwind: '$items' },
+  { $group: { _id: '$status', total: { $sum: '$items.price' } } },
+]);
+
+// mutations
+const del = orders.deleteOne({ _id: param<{ id: string }>('id') });
+const ins = orders.insertOne(param<{ doc: Order }>('doc'));
+```
+
+### Execution
+
+```typescript
+const results = await q.all({ db, params: { status: 'shipped', limit: 20 } });
+const one = await q.one({ db, params: { status: 'shipped', limit: 1 } });
+const maybe = await q.any({ db, params: { status: 'shipped', limit: 1 } });
+```
+
+### Type-Safe Filters
+
+Dot-path notation is type-checked at compile time:
+
+```typescript
+orders.find({ 'items.price': { $gt: 50 } });      // ✅ valid
+orders.find({ 'items.nonExistent': 'x' });          // ❌ compile error
+orders.find({ status: { $in: ['shipped', 'delivered'] } }); // ✅ typed $in
+```
+
+See [MongoDB Guide](mongodb.md) for full documentation: aggregation pipelines, typed collection refs in `$lookup`, codegen, registry integration, cross-runtime support, and strict filter type system.
+
+### Connection Lifecycle
+
+```typescript
+process.on('SIGTERM', async () => {
+  await client.close();
+});
+```
+
+### Notes
+
+- No module augmentation needed — queries have `.all()` / `.one()` / `.any()` directly
+- Schema descriptor is required (used for hash derivation, manifest export, cross-runtime)
+- Aggregation pipelines are untyped `Document[]` — provide the result type via generic parameter
+- Browser export available for client-side isomorphic usage (excludes driver)
+
+---
+
 ## Using `connect()` with Pipelines
 
 Wrap any connection with `connect()` to attach a `SqlQueryPipeline` — adding authorization, rate limiting, and audit logging to direct queries:

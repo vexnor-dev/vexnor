@@ -8,7 +8,7 @@
  * - Array operators ($elemMatch, $in on nested arrays)
  * - Denormalized data patterns (product info embedded in order items)
  */
-import { param, ctx } from "@vexnor/core";
+import { param } from "@vexnor/core";
 import { collection } from "@vexnor/mongodb";
 
 // ─── Document types (MongoDB-native — nested, denormalized) ──────────────────
