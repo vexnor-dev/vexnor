@@ -1,12 +1,12 @@
 {
    "db": {
       "POSTGRES_HOST": "localhost",
-      "POSTGRES_PORT": 5432,
+      "POSTGRES_PORT": 5433,
       "POSTGRES_USER": "postgres",
       "POSTGRES_PASSWORD": "postgres",
       "POSTGRES_DATABASE": "postgres",
       "MSSQL_HOST": "localhost",
-      "MSSQL_PORT": 1433,
+      "MSSQL_PORT": 1434,
       "MSSQL_DATABASE": "vexnor",
       "MSSQL_USER": "vexnor_dev",
       "MSSQL_PASSWORD": "P@ssw0rd!"
@@ -27,5 +27,9 @@
    },
    "sqlite3": {
       "SQLITE_PATH": "../../@db-sqlite3/vexnor-dev.sqlite"
+   },
+   "mongodb": {
+      "MONGODB_URI": "mongodb://localhost:27018",
+      "MONGODB_DATABASE": "vexnor"
    }
 }

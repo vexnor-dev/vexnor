@@ -29,43 +29,15 @@ jobs:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DATABASE: postgres
-      POSTGRES_PORT: 5432
+      POSTGRES_PORT: 5433
       MSSQL_HOST: localhost
-      MSSQL_PORT: 1433
+      MSSQL_PORT: 1434
       MSSQL_SA_PASSWORD: P@ssw0rd!
       MSSQL_DATABASE: vexnor
       MSSQL_USER: vexnor_dev
       MSSQL_PASSWORD: P@ssw0rd!
       NODE_ENV: test
       LOG_LEVEL: debug
-
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: postgres
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-      mssql:
-        image: mcr.microsoft.com/mssql/server:2022-latest
-        env:
-          ACCEPT_EULA: Y
-          MSSQL_SA_PASSWORD: P@ssw0rd!
-        ports:
-          - 1433:1433
-        options: >-
-          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'P@ssw0rd!' -C -Q 'SELECT 1'"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 10
 
     steps:
       - name: Checkout code
@@ -108,20 +80,17 @@ jobs:
             tests/*/prisma/generated
           key: ${{ runner.os }}-build-${{ hashFiles('packages/*/src/**', 'plugins/*/src/**', 'orms/*/src/**', 'tests/*/src/**', 'packages/*/tsconfig.json', 'plugins/*/tsconfig.json', 'orms/*/tsconfig.json', 'tests/*/tsconfig.json') }}
 
+      - name: Start database containers
+        run: docker compose up -d --wait
+
+      - name: Bootstrap MSSQL
+        run: bash scripts/bootstrap-mssql.sh
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Bootstrap MSSQL
-        uses: ./.github/actions/bootstrap-mssql
-
-      - name: Wait for Postgres
-        uses: ./.github/actions/wait-for-postgres
-
       - name: Migrate databases
-        run: |
-          pnpm db-migrate:postgres
-          pnpm db-migrate:sqlite3
-          pnpm db-migrate:mssql
+        run: pnpm db:migrate
 
       - name: Build
         run: pnpm build
@@ -151,7 +120,7 @@ jobs:
             --collect:"XPlat Code Coverage" \
             --results-directory stacks/dotnet/TestResults
         env:
-          ConnectionStrings__Postgres: "Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=postgres"
+          ConnectionStrings__Postgres: "Host=localhost;Port=5433;Database=postgres;Username=postgres;Password=postgres"
 
       - name: Upload coverage artifact
         if: always()
@@ -163,6 +132,10 @@ jobs:
             coverage/coverage-summary.json
             coverage/coverage-final.json
             stacks/dotnet/TestResults/**/coverage.cobertura.xml
+
+      - name: Stop containers
+        if: always()
+        run: docker compose down
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Report — secrets scoped to reporting only
