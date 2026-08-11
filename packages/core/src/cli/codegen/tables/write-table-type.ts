@@ -97,7 +97,7 @@ export function writeTableType(writer: CodeWriter, { table }: PrintTableArgs) {
                      }
                      const nullable = col.is_nullable === "YES";
                      const parts: string[] = [
-                        `dbType: "${col.udt_name ?? col.data_type ?? "unknown"}"`,
+                        `dbType: ${JSON.stringify(col.udt_name ?? col.data_type ?? "unknown")}`,
                         `type: vexnor.SqlLiteralType.${Object.entries(SqlLiteralType).find(([, v]) => v === colType.type)?.[0] ?? "Unknown"}`,
                      ];
                      if (nullable) parts.push(`nullable: true`);

@@ -5,4 +5,3 @@ export * from "./vexnor_dev.product-table.js";
 export * from "./vexnor_dev.type_coverage-table.js";
 export * from "./vexnor_dev.account_order_summary-view.js";
 export * from "./vexnor_dev-enums.js";
-

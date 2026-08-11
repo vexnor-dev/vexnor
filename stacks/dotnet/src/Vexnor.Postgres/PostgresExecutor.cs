@@ -21,9 +21,9 @@ public sealed class PostgresExecutor : DbExecutorBase
         _dataSource = NpgsqlDataSource.Create(connectionString);
     }
 
-    protected override async Task<DbConnection> OpenConnectionAsync()
+    protected override async Task<DbConnection> OpenConnectionAsync(CancellationToken cancellationToken)
     {
-        return await _dataSource.OpenConnectionAsync();
+        return await _dataSource.OpenConnectionAsync(cancellationToken);
     }
 
     protected override string FormatParameterName(int index) => "";

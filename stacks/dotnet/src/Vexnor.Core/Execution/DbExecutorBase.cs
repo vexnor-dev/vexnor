@@ -11,7 +11,12 @@ public abstract class DbExecutorBase
     /// <summary>
     /// Creates and opens a new connection.
     /// </summary>
-    protected abstract Task<DbConnection> OpenConnectionAsync();
+    protected abstract Task<DbConnection> OpenConnectionAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Releases a connection after its command and reader have been disposed.
+    /// </summary>
+    protected virtual ValueTask ReleaseConnectionAsync(DbConnection connection) => connection.DisposeAsync();
 
     /// <summary>
     /// Adds a parameter to the command. Override to handle dialect-specific type coercion.
@@ -50,49 +55,65 @@ public abstract class DbExecutorBase
     /// <summary>
     /// Executes a query and returns all rows as dictionaries.
     /// </summary>
-    public async Task<List<Dictionary<string, object?>>> QueryAsync(SqlBuildResult query)
+    public async Task<List<Dictionary<string, object?>>> QueryAsync(
+        SqlBuildResult query,
+        CancellationToken cancellationToken = default)
     {
-        await using var connection = await OpenConnectionAsync();
-        await using var cmd = connection.CreateCommand();
-        cmd.CommandText = query.Text;
-
-        for (int i = 0; i < query.Values.Count; i++)
+        var connection = await OpenConnectionAsync(cancellationToken);
+        try
         {
-            AddParameter(cmd, i, query.Values[i]);
-        }
+            await using var cmd = connection.CreateCommand();
+            cmd.CommandText = query.Text;
 
-        await using var reader = await cmd.ExecuteReaderAsync();
-        var results = new List<Dictionary<string, object?>>();
-
-        while (await reader.ReadAsync())
-        {
-            var row = new Dictionary<string, object?>();
-            for (int i = 0; i < reader.FieldCount; i++)
+            for (int i = 0; i < query.Values.Count; i++)
             {
-                var name = reader.GetName(i);
-                var val = reader.IsDBNull(i) ? null : reader.GetValue(i);
-                row[name] = NormalizeOutput(val);
+                AddParameter(cmd, i, query.Values[i]);
             }
-            results.Add(row);
-        }
 
-        return results;
+            await using var reader = await cmd.ExecuteReaderAsync(cancellationToken);
+            var results = new List<Dictionary<string, object?>>();
+
+            while (await reader.ReadAsync(cancellationToken))
+            {
+                var row = new Dictionary<string, object?>();
+                for (int i = 0; i < reader.FieldCount; i++)
+                {
+                    var name = reader.GetName(i);
+                    var val = reader.IsDBNull(i) ? null : reader.GetValue(i);
+                    row[name] = NormalizeOutput(val);
+                }
+                results.Add(row);
+            }
+
+            return results;
+        }
+        finally
+        {
+            await ReleaseConnectionAsync(connection);
+        }
     }
 
     /// <summary>
     /// Executes a query and returns the number of affected rows.
     /// </summary>
-    public async Task<int> ExecuteAsync(SqlBuildResult query)
+    public async Task<int> ExecuteAsync(SqlBuildResult query, CancellationToken cancellationToken = default)
     {
-        await using var connection = await OpenConnectionAsync();
-        await using var cmd = connection.CreateCommand();
-        cmd.CommandText = query.Text;
-
-        for (int i = 0; i < query.Values.Count; i++)
+        var connection = await OpenConnectionAsync(cancellationToken);
+        try
         {
-            AddParameter(cmd, i, query.Values[i]);
-        }
+            await using var cmd = connection.CreateCommand();
+            cmd.CommandText = query.Text;
 
-        return await cmd.ExecuteNonQueryAsync();
+            for (int i = 0; i < query.Values.Count; i++)
+            {
+                AddParameter(cmd, i, query.Values[i]);
+            }
+
+            return await cmd.ExecuteNonQueryAsync(cancellationToken);
+        }
+        finally
+        {
+            await ReleaseConnectionAsync(connection);
+        }
     }
 }

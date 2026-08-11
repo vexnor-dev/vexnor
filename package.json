@@ -39,8 +39,8 @@
       "stack:dotnet:test": "dotnet test stacks/dotnet",
       "stack:dotnet:coverage": "dotnet test stacks/dotnet --collect:\"XPlat Code Coverage\"",
       "stack:golang:build": "cd stacks/golang && go build ./...",
-      "stack:golang:test": "cd stacks/golang && go test ./vexnor/ -count=1",
-      "stack:golang:coverage": "cd stacks/golang && go test ./vexnor/ -coverprofile=coverage.out -count=1 && go tool cover -func=coverage.out | tail -1",
+      "stack:golang:test": "cd stacks/golang && go test ./... -count=1",
+      "stack:golang:coverage": "cd stacks/golang && go test ./... -coverprofile=coverage.out -count=1 && go tool cover -func=coverage.out | tail -1",
       "stacks:build": "run-p 'stacks:*:build'",
       "stacks:test": "run-p 'stacks:*:test'"
    },
