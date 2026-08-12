@@ -734,20 +734,20 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown; Sources?: str
                q.push(...rawValue);
                break;
             case rawValue instanceof SqlParam:
-               params = { ...(params ?? {}), [rawValue.name]: rawValue };
+               params = { ...params, [rawValue.name]: rawValue };
                break;
             case rawValue instanceof SqlQueryRef:
-               if (rawValue.innerQuery.params) params = { ...(params ?? {}), ...rawValue.innerQuery.params };
+               if (rawValue.innerQuery.params) params = { ...params, ...rawValue.innerQuery.params };
                break;
             case rawValue instanceof Sql && rawValue.type === "SqlEach" && "paramName" in rawValue:
                ok(typeof rawValue.paramName === "string", `Invalid SqlEach param name: ${String(rawValue.paramName)}`);
                params = {
-                  ...(params ?? {}),
+                  ...params,
                   [rawValue.paramName]: new SqlParam({ name: rawValue.paramName, validation: null }),
                };
                break;
             case rawValue instanceof Sql && hasParams(rawValue):
-               params = { ...(params ?? {}), ...rawValue.params };
+               params = { ...params, ...rawValue.params };
                break;
          }
       }

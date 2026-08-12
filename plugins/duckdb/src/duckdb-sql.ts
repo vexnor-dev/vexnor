@@ -20,9 +20,9 @@ export function sql<Token extends SqlQueryToken = SqlQueryToken, Tokens extends 
    }>;
 }
 
-Object.defineProperty(sql, "defaults", { value: sqlBuildDefaults, writable: false });
-
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export declare namespace sql {
    export const defaults: typeof sqlBuildDefaults;
 }
+
+Object.defineProperty(sql, "defaults", { value: sqlBuildDefaults, writable: false });

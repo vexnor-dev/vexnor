@@ -7,14 +7,14 @@ namespace Vexnor.Integration.Tests;
 
 public sealed class DuckDBCrossRuntimeExecuteTests : IAsyncLifetime
 {
-    private readonly string _directory = Path.Combine(Path.GetTempPath(), $"vexnor-duckdb-manifest-{Guid.NewGuid():N}");
+    private readonly string _directory = Path.Join(Path.GetTempPath(), $"vexnor-duckdb-manifest-{Guid.NewGuid():N}");
     private readonly QueryRegistry _registry = new("postgresql");
     private DuckDBExecutor? _executor;
 
     public async Task InitializeAsync()
     {
         Directory.CreateDirectory(_directory);
-        _executor = DuckDBExecutor.FromPath(Path.Combine(_directory, "manifest.duckdb"));
+        _executor = DuckDBExecutor.FromPath(Path.Join(_directory, "manifest.duckdb"));
         _registry.LoadFile(GetFixturePath("manifest.json"));
 
         await _executor.ExecuteAsync(new SqlBuildResult("""

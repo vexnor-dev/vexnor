@@ -41,7 +41,7 @@
   "scripts": {
     "clean": "rimraf dist tsconfig.tsbuildinfo",
     "build": "tsc -b",
-    "pretest": "run-s 'build'",
+    "pretest": "run-s build",
     "test": "vitest --coverage run",
     "test:watch": "vitest --watch",
     "test:run": "vitest run"

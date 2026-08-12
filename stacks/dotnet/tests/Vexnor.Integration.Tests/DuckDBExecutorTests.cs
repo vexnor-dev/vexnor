@@ -7,13 +7,13 @@ namespace Vexnor.Integration.Tests;
 
 public sealed class DuckDBExecutorTests : IDisposable
 {
-    private readonly string _directory = Path.Combine(Path.GetTempPath(), $"vexnor-duckdb-{Guid.NewGuid():N}");
+    private readonly string _directory = Path.Join(Path.GetTempPath(), $"vexnor-duckdb-{Guid.NewGuid():N}");
     private readonly DuckDBExecutor _executor;
 
     public DuckDBExecutorTests()
     {
         Directory.CreateDirectory(_directory);
-        _executor = DuckDBExecutor.FromPath(Path.Combine(_directory, "integration.duckdb"));
+        _executor = DuckDBExecutor.FromPath(Path.Join(_directory, "integration.duckdb"));
     }
 
     [Fact]

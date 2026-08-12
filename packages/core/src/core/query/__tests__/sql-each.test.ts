@@ -33,7 +33,7 @@ describe("SqlEach", () => {
          options: { dialect: "sql", format: false },
       });
 
-      if (false) {
+      const assertParameterTypes = () => {
          // @ts-expect-error — ids is required
          query.getSql({ params: { status: "active" } });
          // @ts-expect-error — each() requires an array value
@@ -42,7 +42,8 @@ describe("SqlEach", () => {
          query.getSql({ params: { ids: ["a"] } });
          // @ts-expect-error — undeclared parameters are rejected
          void query.params.missing;
-      }
+      };
+      void assertParameterTypes;
 
       expect({
          ids: {
