@@ -481,4 +481,30 @@ describe("createRuntimeSchemaMappings", () => {
         }
       `);
    });
+
+   test("rejects relationships that reference missing catalog columns", async () => {
+      const missingSourceColumn = catalog();
+      missingSourceColumn.objects.find((object) => object.id === "beta.event_log")!
+         .relationships[0]!.columnPairs[0]!.from = "missing_tenant_id";
+      const sourceSelection = await resolveSchemaSelection({
+         catalog: missingSourceColumn,
+         request: { mode: "non-interactive", all: true },
+      });
+      expect(() => createRuntimeSchemaMappings({
+         catalog: missingSourceColumn,
+         selection: sourceSelection.scope,
+      })).toThrowErrorMatchingInlineSnapshot(`[Error: Column is missing from schema catalog object beta.event_log: missing_tenant_id]`);
+
+      const missingTargetColumn = catalog();
+      missingTargetColumn.objects.find((object) => object.id === "beta.event_log")!
+         .relationships[0]!.columnPairs[0]!.to = "missing_tenant_id";
+      const targetSelection = await resolveSchemaSelection({
+         catalog: missingTargetColumn,
+         request: { mode: "non-interactive", all: true },
+      });
+      expect(() => createRuntimeSchemaMappings({
+         catalog: missingTargetColumn,
+         selection: targetSelection.scope,
+      })).toThrowErrorMatchingInlineSnapshot(`[Error: Column is missing from schema catalog object alpha.record: missing_tenant_id]`);
+   });
 });

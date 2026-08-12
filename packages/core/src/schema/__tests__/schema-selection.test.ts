@@ -579,4 +579,95 @@ describe("resolveSchemaSelection", () => {
         }
       `);
    });
+
+   test("rejects invalid stored scopes, resolved duplicates, empty identities, and blank profiles", async () => {
+      const currentCatalog = catalog(["alpha.record", "alpha.event_log"]);
+      const initial = await resolveSchemaSelection({
+         catalog: currentCatalog,
+         request: { mode: "non-interactive", all: true },
+      });
+      const wrongSelectionVersion = structuredClone(initial.scope);
+      Reflect.set(wrongSelectionVersion, "formatVersion", 2);
+      const wrongCatalogVersion = structuredClone(initial.scope);
+      Reflect.set(wrongCatalogVersion, "catalogFormatVersion", 2);
+      const duplicatePreviousObjects = structuredClone(initial.scope);
+      duplicatePreviousObjects.objects.push(duplicatePreviousObjects.objects[0]!);
+      const deselected = structuredClone(initial.scope);
+      for (const object of deselected.objects) object.selected = false;
+
+      const cases: Array<[string, () => Promise<unknown>]> = [
+         ["duplicate resolved identity", () => resolveSchemaSelection({
+            catalog: currentCatalog,
+            request: { mode: "non-interactive", include: ["alpha.record", "record"] },
+         })],
+         ["empty identity", () => resolveSchemaSelection({
+            catalog: currentCatalog,
+            request: { mode: "non-interactive", include: [" "] },
+         })],
+         ["stored empty allowlist", async () => reconcileSchemaSelection({ catalog: currentCatalog, selection: deselected })],
+         ["selection version", () => resolveSchemaSelection({
+            catalog: currentCatalog,
+            previousSelection: wrongSelectionVersion,
+            request: { mode: "non-interactive", all: true },
+         })],
+         ["catalog version", () => resolveSchemaSelection({
+            catalog: currentCatalog,
+            previousSelection: wrongCatalogVersion,
+            request: { mode: "non-interactive", all: true },
+         })],
+         ["duplicate stored identity", () => resolveSchemaSelection({
+            catalog: currentCatalog,
+            previousSelection: duplicatePreviousObjects,
+            request: { mode: "non-interactive", all: true },
+         })],
+         ["blank profile", () => selectSchemaObjects({
+            catalog: currentCatalog,
+            profile: " ",
+            configPath: "/tmp/vexnor.config.ts",
+            request: { mode: "non-interactive", all: true },
+         })],
+      ];
+      const errors: Record<string, { name: string; message: string }> = {};
+      for (const [name, run] of cases) {
+         try {
+            await run();
+         } catch (error) {
+            if (!(error instanceof Error)) throw error;
+            errors[name] = { name: error.name, message: error.message };
+         }
+      }
+
+      expect(errors).toMatchInlineSnapshot(`
+        {
+          "blank profile": {
+            "message": "A resolved Vexnor profile is required for schema selection",
+            "name": "SchemaSelectionError",
+          },
+          "catalog version": {
+            "message": "Schema selection catalog version 2 does not match catalog version 1",
+            "name": "SchemaSelectionError",
+          },
+          "duplicate resolved identity": {
+            "message": "Duplicate include identities: alpha.record",
+            "name": "SchemaSelectionError",
+          },
+          "duplicate stored identity": {
+            "message": "Duplicate previous schema selection identities: alpha.event_log",
+            "name": "SchemaSelectionError",
+          },
+          "empty identity": {
+            "message": "Schema object identities cannot be empty",
+            "name": "SchemaSelectionError",
+          },
+          "selection version": {
+            "message": "Unsupported schema selection format version: 2",
+            "name": "SchemaSelectionError",
+          },
+          "stored empty allowlist": {
+            "message": "Stored schema selection resolved to an empty allowlist",
+            "name": "SchemaSelectionError",
+          },
+        }
+      `);
+   });
 });

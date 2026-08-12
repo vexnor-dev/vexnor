@@ -470,5 +470,207 @@ describe("createSchemaCatalog", () => {
       duplicateColumn.tables[0]!.columns.push(duplicateColumn.tables[0]!.columns[0]!);
 
       expect(() => createSchemaCatalog({ plugin, schema: duplicateColumn })).toThrowErrorMatchingInlineSnapshot(`[Error: Duplicate column in beta.line_item identity: parent_id]`);
+
+      const duplicateEnum = schema();
+      duplicateEnum.enums.push(duplicateEnum.enums[0]!);
+      expect(() => createSchemaCatalog({ plugin, schema: duplicateEnum })).toThrowErrorMatchingInlineSnapshot(`[Error: Duplicate schema enum identity: alpha.synthetic_state]`);
+
+      const conflictingPrimaryKeys = schema();
+      conflictingPrimaryKeys.tables[0]!.primary_keys[1]!.constraint_name = "pk_line_item_other";
+      expect(() => createSchemaCatalog({ plugin, schema: conflictingPrimaryKeys })).toThrowErrorMatchingInlineSnapshot(`[Error: Expected one primary-key constraint, received: pk_line_item, pk_line_item_other]`);
+   });
+
+   test("uses deterministic fallbacks for missing metadata and records undeclared plugin versions", () => {
+      const fallbackPlugin = {
+         name: "@vexnor/fallback",
+         version: "unknown",
+         driver: "fallback",
+         dialect: "fallback-sql",
+         getColumnType(currentColumn: SqlColumnInfo) {
+            return currentColumn.column_name === "left_id"
+               ? {
+                    type: SqlLiteralType.Udt,
+                    udt: "fallback_state",
+                    tsTypeSelect: "FallbackState",
+                    tsTypeInsert: "FallbackStateInput",
+                    tsImport: "@vexnor/fallback-types",
+                    isArray: true,
+                 }
+               : { type: SqlLiteralType.String };
+         },
+      };
+      const catalog = createSchemaCatalog({
+         plugin: fallbackPlugin,
+         schema: {
+            enums: [
+               {
+                  enum_schema: "beta",
+                  enum_name: "z_state",
+                  enum_values: [{ enum_label: "z", ordinal_position: 1 }],
+               },
+               {
+                  enum_schema: "alpha",
+                  enum_name: "fallback_state",
+                  enum_values: [
+                     { enum_label: "queued", ordinal_position: 1 },
+                     { enum_label: "complete", ordinal_position: 1 },
+                  ],
+               },
+            ],
+            tables: [
+               {
+                  table_schema: "alpha",
+                  table_name: "target",
+                  table_type: "table",
+                  columns: [
+                     column({ table_name: "target", column_name: "right_id", ordinal_position: 1 }),
+                     column({ table_name: "target", column_name: "left_id", ordinal_position: 1 }),
+                  ],
+                  primary_keys: [
+                     { table_schema: "alpha", table_name: "target", constraint_name: "target_pk", column_name: "right_id", ordinal_position: 1 },
+                     { table_schema: "alpha", table_name: "target", constraint_name: "target_pk", column_name: "left_id", ordinal_position: 1 },
+                  ],
+                  foreign_keys: [],
+               },
+               {
+                  table_schema: "beta",
+                  table_name: "source",
+                  table_type: "table",
+                  columns: [
+                     column({ table_schema: "beta", table_name: "source", column_name: "right_id", ordinal_position: 1, udt_name: undefined, data_type: undefined }),
+                     column({ table_schema: "beta", table_name: "source", column_name: "left_id", ordinal_position: 1, is_identity: "YES", identity_generation: "BY DEFAULT" }),
+                  ],
+                  primary_keys: [],
+                  foreign_keys: [
+                     { table_schema: "beta", table_name: "source", constraint_name: "source_target_fk", column_name: "right_id", referenced_table_schema: "alpha", referenced_table_name: "target", referenced_column_name: "right_id", ordinal_position: 1 },
+                     { table_schema: "beta", table_name: "source", constraint_name: "source_target_fk", column_name: "left_id", referenced_table_schema: "alpha", referenced_table_name: "target", referenced_column_name: "left_id", ordinal_position: 1 },
+                  ],
+               },
+            ],
+         },
+      });
+
+      expect({
+         enums: catalog.enums,
+         warnings: catalog.warnings,
+         source: catalog.objects.find((object) => object.id === "beta.source"),
+         targetPrimaryKey: catalog.objects.find((object) => object.id === "alpha.target")?.primaryKey,
+      }).toMatchInlineSnapshot(`
+        {
+          "enums": [
+            {
+              "id": "alpha.fallback_state",
+              "name": "fallback_state",
+              "schema": "alpha",
+              "values": [
+                "complete",
+                "queued",
+              ],
+            },
+            {
+              "id": "beta.z_state",
+              "name": "z_state",
+              "schema": "beta",
+              "values": [
+                "z",
+              ],
+            },
+          ],
+          "source": {
+            "capabilities": {
+              "automaticJoin": true,
+              "deletable": true,
+              "insertable": true,
+              "readable": true,
+              "stableIdentity": false,
+              "updatable": true,
+            },
+            "columns": [
+              {
+                "array": true,
+                "customType": {
+                  "import": "@vexnor/fallback-types",
+                  "insert": "FallbackStateInput",
+                  "select": "FallbackState",
+                  "udt": "fallback_state",
+                },
+                "dataType": null,
+                "default": null,
+                "domainName": null,
+                "generated": false,
+                "generationExpression": null,
+                "id": "beta.source.left_id",
+                "identity": true,
+                "identityGeneration": "BY DEFAULT",
+                "mappingName": "left_id",
+                "nativeType": "text",
+                "normalizedType": "Udt",
+                "nullable": false,
+                "ordinalPosition": 1,
+                "physicalName": "left_id",
+                "updatable": true,
+                "warnings": [],
+              },
+              {
+                "array": false,
+                "customType": null,
+                "dataType": null,
+                "default": null,
+                "domainName": null,
+                "generated": false,
+                "generationExpression": null,
+                "id": "beta.source.right_id",
+                "identity": false,
+                "identityGeneration": null,
+                "mappingName": "right_id",
+                "nativeType": "unknown",
+                "normalizedType": "string",
+                "nullable": false,
+                "ordinalPosition": 1,
+                "physicalName": "right_id",
+                "updatable": true,
+                "warnings": [],
+              },
+            ],
+            "id": "beta.source",
+            "kind": "table",
+            "mappingName": "Source",
+            "name": "source",
+            "primaryKey": null,
+            "relationships": [
+              {
+                "columnPairs": [
+                  {
+                    "from": "left_id",
+                    "to": "left_id",
+                  },
+                  {
+                    "from": "right_id",
+                    "to": "right_id",
+                  },
+                ],
+                "constraintName": "source_target_fk",
+                "fromObject": "beta.source",
+                "toObject": "alpha.target",
+              },
+            ],
+            "schema": "beta",
+            "warnings": [],
+          },
+          "targetPrimaryKey": {
+            "columns": [
+              "left_id",
+              "right_id",
+            ],
+            "constraintName": "target_pk",
+          },
+          "warnings": [
+            {
+              "code": "missing-plugin-version",
+              "message": "Plugin @vexnor/fallback did not declare a version.",
+            },
+          ],
+        }
+      `);
    });
 });
