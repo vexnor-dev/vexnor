@@ -1,5 +1,5 @@
 import { VexnorPlugin } from "#src/plugin/plugin.js";
-import { fileURLToPath } from "url";
+import { fileURLToPath, pathToFileURL } from "url";
 import { dirname, resolve } from "path";
 import { VexnorPluginAny } from "#src/plugin/plugin.js";
 
@@ -20,7 +20,7 @@ export async function loadPlugin(packageName: string): Promise<{ plugin: VexnorP
          const currentDir = dirname(fileURLToPath(import.meta.url));
          const folderName = packageName.replace("@vexnor/", "");
          pluginPath = resolve(currentDir, `../../../plugins/${folderName}/dist/index.js`);
-         plugin = await import(pluginPath);
+         plugin = await import(pathToFileURL(pluginPath).href);
       } else {
          throw error;
       }
