@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, test } from "vitest";
-import { param } from "@vexnor/core";
+import { each, param } from "@vexnor/core";
 import { sql } from "@vexnor/mssql";
 import "@vexnor/mssql";
 import { Account, Order } from "./codegen/vexnor_dev.schema.js";
@@ -13,7 +13,7 @@ describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
       ACCOUNT_ORDER_FACTOR: 2,
    });
 
-   const accountIdsParam = param<{ accountIds: string[] }>("accountIds");
+   const accountIdsParam = each<{ accountIds: string[] }>("accountIds");
 
    let allAccountIds: string[] = [];
 

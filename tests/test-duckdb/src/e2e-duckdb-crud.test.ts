@@ -112,8 +112,8 @@ describe.sequential("vexnor DuckDB CRUD e2e", () => {
       const childId = crypto.randomUUID();
       const inserted = await new DuckDBInsertFromCommand(Account, {
          FROM: coreSql`
-            select ${row(
-               val`${childId}`.as<{ accountId: string }>("accountId"),
+            select ${val`${childId}`.as<{ accountId: string }>("accountId")},
+               ${row(
                Account.$status,
                Account.$email,
                Account.$firstName,
@@ -122,7 +122,7 @@ describe.sequential("vexnor DuckDB CRUD e2e", () => {
                Account.$createdAt,
                Account.$modifiedAt,
                Account.$accountId.as("parentId"),
-            )}
+               )}
             from ${Account} where ${Account.$accountId} = ${account.accountId}
          `,
       }).execute().one({ db });

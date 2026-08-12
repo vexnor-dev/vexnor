@@ -34,7 +34,7 @@ describe("SqlQuery.getSql — uncovered paths", () => {
       expect(() => query.getSql({ options: { dialect: "not-a-dialect" as never } })).toThrow("Invalid dialect");
    });
 
-   test("getSql with array param value expands to multiple placeholders", () => {
+   test("getSql binds an array param as one value", () => {
       const query = sql`
          SELECT ${row(Account.$accountId)} FROM ${Account}
          WHERE ${Account.$accountId} = ${param<{ ids: string[] }>("ids")}
@@ -42,9 +42,11 @@ describe("SqlQuery.getSql — uncovered paths", () => {
       const result = query.getSql({ params: { ids: ["a", "b", "c"] }, options: { dialect: "postgresql" } });
       expect(result.values).toMatchInlineSnapshot(`
         [
-          "a",
-          "b",
-          "c",
+          [
+            "a",
+            "b",
+            "c",
+          ],
         ]
       `);
    });

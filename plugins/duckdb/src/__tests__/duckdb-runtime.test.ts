@@ -275,7 +275,7 @@ describe("VexnorDuckDB plugin", () => {
           "columnType": {
             "type": "boolean",
           },
-          "dialect": "postgresql",
+          "dialect": "duckdb",
           "driver": "duckdb",
           "handler": "@vexnor/duckdb",
           "library": [],

@@ -253,15 +253,27 @@ describe("SqlQuery.context", () => {
    });
 });
 
-describe("SqlQuery.getSql — array param expansion", () => {
-   test("array param expands into multiple placeholders", () => {
+describe("SqlQuery.getSql — array param binding", () => {
+   test("array param occupies one placeholder", () => {
       const q = sql`
-         SELECT ${row(Account.$$)} FROM ${Account}
-         WHERE ${Account.$accountId} IN (${param<{ ids: string[] }>("ids")})
+         SELECT ${param<{ ids: string[] }>("ids")}
       `;
       const { text, values } = q.getSql({ params: { ids: ["a", "b", "c"] } });
-      expect(values).toEqual(["a", "b", "c"]);
-      expect(text).toContain("?");
+      expect({ text, values }).toMatchInlineSnapshot(`
+        {
+          "text": "/* <query_0> */
+        SELECT
+          ?
+          /* </query_0> */",
+          "values": [
+            [
+              "a",
+              "b",
+              "c",
+            ],
+          ],
+        }
+      `);
    });
 });
 

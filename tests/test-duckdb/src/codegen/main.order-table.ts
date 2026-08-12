@@ -22,7 +22,7 @@ export const Order = vexnor.newSqlTable<{
       schema: "main",
    },
    pk: ["orderId"],
-   dialect: "postgresql",
+   dialect: "duckdb",
    source: "@vexnor/test-duckdb:src/codegen",
    columns: {
 

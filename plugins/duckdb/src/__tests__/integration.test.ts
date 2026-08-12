@@ -4,7 +4,7 @@ import { execFileSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
-import { param, row, sql, val } from "@vexnor/core";
+import { param, sql, val } from "@vexnor/core";
 import { VexnorDuckDB } from "#src/vexnor-duckdb.js";
 import "#src/duckdb-augment.js";
 
@@ -47,12 +47,10 @@ describe("DuckDB integration", () => {
       `.duckdb.run({ db, params: { id: 1, email: "duck@example.com" } });
 
       const result = await sql`
-         select ${row(
-            val`account_id`.as<{ accountId: number }>("accountId"),
-            val`email`.as<{ email: string }>("email"),
-            val`active`.as<{ active: boolean }>("active"),
-            val`created_at`.as<{ createdAt: Date }>("createdAt"),
-         )}
+         select ${val`account_id`.as<{ accountId: number }>("accountId")},
+                ${val`email`.as<{ email: string }>("email")},
+                ${val`active`.as<{ active: boolean }>("active")},
+                ${val`created_at`.as<{ createdAt: Date }>("createdAt")}
          from account
          where account_id = ${param<{ id: number }>("id")}
       `.duckdb.one({ db, params: { id: 1 } });
@@ -169,7 +167,7 @@ describe("DuckDB integration", () => {
                  schema: "main",
               },
               pk: ["articleId"],
-              dialect: "postgresql",
+              dialect: "duckdb",
               source: "@vexnor/duckdb:.tmp-codegen-integration",
               columns: {
 

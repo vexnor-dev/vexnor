@@ -22,7 +22,7 @@ export const TypeCoverage = vexnor.newSqlTable<{
       schema: "main",
    },
    pk: ["colUuid"],
-   dialect: "postgresql",
+   dialect: "duckdb",
    source: "@vexnor/test-duckdb:src/codegen",
    columns: {
 

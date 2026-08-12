@@ -739,6 +739,13 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown; Sources?: str
             case rawValue instanceof SqlQueryRef:
                if (rawValue.innerQuery.params) params = { ...(params ?? {}), ...rawValue.innerQuery.params };
                break;
+            case rawValue instanceof Sql && rawValue.type === "SqlEach" && "paramName" in rawValue:
+               ok(typeof rawValue.paramName === "string", `Invalid SqlEach param name: ${String(rawValue.paramName)}`);
+               params = {
+                  ...(params ?? {}),
+                  [rawValue.paramName]: new SqlParam({ name: rawValue.paramName, validation: null }),
+               };
+               break;
             case rawValue instanceof Sql && hasParams(rawValue):
                params = { ...(params ?? {}), ...rawValue.params };
                break;
@@ -841,18 +848,6 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown; Sources?: str
 
                const rawValue = args.params[token.name];
                const value = isContextValue(rawValue) ? null : (sqlParam.resolve(args.params as Record<string, unknown>) ?? null);
-
-               if (Array.isArray(value)) {
-                  for (let i = 0; i < value.length; i++) {
-                     if (i > 0) {
-                        tokens.push(", ");
-                     }
-
-                     tokens.push(paramFormat({ name: token.name, index: values.length }));
-                     values.push(value[i]);
-                  }
-                  break;
-               }
 
                tokens.push(paramFormat({ name: token.name, index: values.length }));
                values.push(value);
@@ -1128,5 +1123,3 @@ export type SqlQueryViewDef = {
    /** Raw window entries (for SqlQuery-based expressions). */
    readonly windowEntries: Readonly<Record<string, unknown>>;
 };
-
-

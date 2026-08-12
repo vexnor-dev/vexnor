@@ -229,7 +229,8 @@ describe("DuckDB CRUD SQL generation", () => {
           "main"."account" ("account_id", "email", "first_name", "last_name")
         VALUES
           ($1, $2, $3, $4)
-        ON CONFLICT ("account_id") DO UPDATE
+        ON CONFLICT ("account_id") DO
+        UPDATE
         SET
           "email" = excluded."email",
           "first_name" = excluded."first_name",
@@ -606,7 +607,7 @@ describe("DuckDB projection and includes", () => {
           ) /* </query_3> */ /* <query_4> */ AS "firstOrder" /* </query_4> */,
           /* <query_5> */ (
             SELECT
-              coalesce(json_group_array ("query_2"), '[]')
+              coalesce(json_group_array("query_2"), '[]')
             FROM
               (
                 /* <query_2> */

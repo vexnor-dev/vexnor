@@ -8,7 +8,7 @@ import { SqlSelectColumn } from "#src/core/query/sql-select-column.js";
 
 export type SqlBuildToken =
    | { type: "text"; value: string }
-   | { type: "param"; name: string }
+   | { type: "param"; name: string; array?: boolean }
    | { type: "value"; value: unknown }
    | { type: "operator"; operator: SqlOperatorToken };
 

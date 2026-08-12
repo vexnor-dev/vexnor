@@ -73,7 +73,7 @@ export class DuckDBQueryHandler<T extends { Row?: unknown; Params?: unknown }> e
             options: {
                ...args.options,
                tokenizer: new DuckDBTokenizer(this.source.id),
-               dialect: "postgresql",
+               dialect: "duckdb",
                paramFormat: ({ index }: { index: number }) => `$${index + 1}`,
             },
          });

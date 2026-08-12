@@ -26,7 +26,7 @@ const instanceCache = new Map<string, Promise<CachedDuckDBInstance>>();
 export class VexnorDuckDB extends VexnorPlugin<{ Config: DuckDBConnectionConfig; Connection: DuckDBConnection }> {
    readonly name = PLUGIN_NAME;
    readonly driver = "duckdb";
-   dialect = "postgresql";
+   dialect = "duckdb";
 
    getLibrary(): LibraryOutputFile[] {
       return [];

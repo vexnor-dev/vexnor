@@ -1,4 +1,4 @@
-import { col, param, row, sql } from "@vexnor/core";
+import { col, each, row, sql } from "@vexnor/core";
 import { SqlColumnInfo, SqlForeignKeyInfo, SqlPrimaryKeyInfo } from "@vexnor/core/plugin";
 import { Columns, ConstraintColumnUsage, KeyColumnUsage, ReferentialConstraints, TableConstraints } from "#src/schema/models.js";
 
@@ -6,10 +6,10 @@ export const findTableColumns = sql`
    select ${row(Columns.$table_name, Columns.$table_schema)},
           json_agg(${Columns} order by ${Columns.$ordinal_position}) as ${col<{ columns: SqlColumnInfo[] }>("columns")}
    from ${Columns}
-   where ${Columns.$table_schema} in (${param<{ schemas: string[] }>("schemas")})
+   where ${Columns.$table_schema} in (${each<{ schemas: string[] }>("schemas")})
      and ${Columns.$table_name} in (
         select table_name from information_schema.tables
-        where table_schema in (${param<{ schemas: string[] }>("schemas")})
+        where table_schema in (${each<{ schemas: string[] }>("schemas")})
           and table_type = 'BASE TABLE'
      )
    group by ${Columns.$table_name}, ${Columns.$table_schema}`;
@@ -23,7 +23,7 @@ export const findPrimaryKeys = sql`
            join ${TableConstraints} on ${KeyColumnUsage.$constraint_name} = ${TableConstraints.$constraint_name}
       and ${KeyColumnUsage.$table_schema} = ${TableConstraints.$table_schema}
    where ${TableConstraints.$constraint_type} = 'PRIMARY KEY'
-     and ${TableConstraints.$table_schema} in (${param<{ schemas: string[] }>("schemas")})
+     and ${TableConstraints.$table_schema} in (${each<{ schemas: string[] }>("schemas")})
    group by ${KeyColumnUsage.$table_name}, ${KeyColumnUsage.$table_schema}`;
 
 export const findForeignKeys = sql`
@@ -45,7 +45,7 @@ export const findForeignKeys = sql`
            join ${ConstraintColumnUsage} on ${ReferentialConstraints.$unique_constraint_name} = ${ConstraintColumnUsage.$constraint_name}
       and ${ReferentialConstraints.$unique_constraint_schema} = ${ConstraintColumnUsage.$constraint_schema}
    where ${TableConstraints.$constraint_type} = 'FOREIGN KEY'
-     and ${TableConstraints.$table_schema} in (${param<{ schemas: string[] }>("schemas")})
+     and ${TableConstraints.$table_schema} in (${each<{ schemas: string[] }>("schemas")})
    group by ${KeyColumnUsage.$table_name}, ${KeyColumnUsage.$table_schema}`;
 
 /**
@@ -69,10 +69,10 @@ export const findViewColumns = sql`
    select ${row(Columns.$table_name, Columns.$table_schema)},
           json_agg(${Columns} order by ${Columns.$ordinal_position}) as ${col<{ columns: SqlColumnInfo[] }>("columns")}
    from ${Columns}
-   where ${Columns.$table_schema} in (${param<{ schemas: string[] }>("schemas")})
+   where ${Columns.$table_schema} in (${each<{ schemas: string[] }>("schemas")})
      and ${Columns.$table_name} in (
         select table_name from information_schema.views
-        where table_schema in (${param<{ schemas: string[] }>("schemas")})
+        where table_schema in (${each<{ schemas: string[] }>("schemas")})
      )
    group by ${Columns.$table_name}, ${Columns.$table_schema}`;
 

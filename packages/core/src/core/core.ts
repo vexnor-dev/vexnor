@@ -43,6 +43,7 @@ export { set, SqlSet } from "./operators/sql-set.js";
 export { insert } from "./operators/sql-insert-x.js";
 export { SqlInsert } from "./operators/sql-insert.js";
 export { upsert, SqlUpsert } from "./operators/sql-upsert.js";
+export { each, SqlEach, SqlEachIt, type SqlEachContext } from "./operators/sql-each.js";
 
 export {
    filterBy,

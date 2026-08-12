@@ -61,6 +61,14 @@ describe("DuckDB schema and codegen", () => {
               "table_type": "view",
             },
             {
+              "foreignKeys": [],
+              "primaryKeys": [
+                "document_id",
+              ],
+              "table_name": "document_order",
+              "table_type": "table",
+            },
+            {
               "foreignKeys": [
                 {
                   "column_name": "account_id",

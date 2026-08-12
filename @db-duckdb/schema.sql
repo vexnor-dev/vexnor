@@ -92,6 +92,30 @@ CREATE TABLE type_coverage (
     CONSTRAINT type_coverage_pk PRIMARY KEY (col_uuid)
 );
 
+CREATE TABLE document_order (
+    document_id VARCHAR NOT NULL,
+    account STRUCT(account_id VARCHAR, email VARCHAR, status VARCHAR) NOT NULL,
+    status VARCHAR NOT NULL,
+    shipping STRUCT(
+        address STRUCT(
+            street VARCHAR,
+            city VARCHAR,
+            country VARCHAR,
+            geo STRUCT(latitude DOUBLE, longitude DOUBLE)
+        ),
+        carrier STRUCT(name VARCHAR, tracking_id VARCHAR)
+    ),
+    items STRUCT(
+        product STRUCT(product_id VARCHAR, label VARCHAR, category VARCHAR),
+        quantity INTEGER,
+        unit_price DOUBLE,
+        discounts STRUCT(code VARCHAR, amount DOUBLE)[]
+    )[] NOT NULL,
+    tags VARCHAR[] NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    CONSTRAINT document_order_pk PRIMARY KEY (document_id)
+);
+
 CREATE VIEW account_order_summary AS
 SELECT
     a.account_id,

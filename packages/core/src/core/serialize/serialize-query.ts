@@ -32,7 +32,7 @@ export async function serializeQuery(
    query.build(context, null, { queryType: "main" });
 
    const template = tokensToTemplate(context.tokens);
-   const params = serializeParams(query);
+   const params = serializeParams(query, template);
    const row = serializeRow(query);
 
    return {
@@ -85,7 +85,11 @@ function tokensToTemplate(tokens: ReadonlyArray<SqlBuildToken>): TemplateNode[] 
             }
             break;
          case "param":
-            nodes.push({ type: "param", name: token.name });
+            nodes.push({
+               type: "param",
+               name: token.name,
+               ...(token.array ? { array: true } : {}),
+            });
             break;
          case "value":
             nodes.push({ type: "value", value: token.value });
@@ -142,23 +146,44 @@ function operatorToNode(op: SqlOperatorToken): TemplateNode {
    }
 }
 
-function serializeParams(query: SqlQueryAny): Record<string, ParamDefinition> {
-   const params = query.params as Record<string, SqlParamAny> | null;
-   if (!params) return {};
+function serializeParams(query: SqlQueryAny, template: TemplateNode[]): Record<string, ParamDefinition> {
+   const params = (query.params as Record<string, SqlParamAny> | null) ?? {};
 
    // Find SqlFilter and SqlProjection nodes in the query for validation metadata
    const validationSchemas = extractValidationSchemas(query);
+   const arrayParams = extractArrayParams(template);
 
    const result: Record<string, ParamDefinition> = {};
    for (const [, param] of Object.entries(params)) {
       result[param.name] = {
          name: param.name,
          isContext: param.isContext,
+         ...(arrayParams.has(param.name) ? { array: true } : {}),
          ...(param.hasDefault ? { optional: true } : {}),
          ...(param.validation?.label ? { label: param.validation.label } : {}),
          ...(param.validation?.description ? { description: param.validation.description } : {}),
          ...(validationSchemas[param.name] ? { validation: validationSchemas[param.name] } : {}),
       };
+   }
+   for (const name of arrayParams) {
+      result[name] = {
+         ...(result[name] ?? { name, isContext: false }),
+         array: true,
+      };
+   }
+   return result;
+}
+
+function extractArrayParams(nodes: TemplateNode[]): Set<string> {
+   const result = new Set<string>();
+   for (const node of nodes) {
+      if (node.type === "param" && node.array) result.add(node.name);
+      if (node.type === "when") {
+         for (const name of extractArrayParams(node.onTrue)) result.add(name);
+         if (node.onFalse) {
+            for (const name of extractArrayParams(node.onFalse)) result.add(name);
+         }
+      }
    }
    return result;
 }

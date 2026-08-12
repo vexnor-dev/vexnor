@@ -19,7 +19,7 @@ export const AccountOrderSummary = vexnor.newSqlTable<{
       schema: "main",
    },
    pk: [],
-   dialect: "postgresql",
+   dialect: "duckdb",
    source: "@vexnor/test-duckdb:src/codegen",
    columns: {
 

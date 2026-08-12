@@ -1,4 +1,4 @@
-import { col, param, row, sql } from "@vexnor/core";
+import { col, each, row, sql } from "@vexnor/core";
 import { Columns, ConstraintColumnUsage, KeyColumnUsage, ReferentialConstraints, TableConstraints, Tables } from "#src/schema/models.js";
 
 const TableColumns = sql`
@@ -19,7 +19,7 @@ export const findPrimaryKeys = sql`
            JOIN ${KeyColumnUsage} ON ${TableConstraints.$constraint_name} = ${KeyColumnUsage.$constraint_name}
       AND ${TableConstraints.$table_schema} = ${KeyColumnUsage.$table_schema}
       AND ${TableConstraints.$table_name} = ${KeyColumnUsage.$table_name}
-   WHERE ${TableConstraints.$table_schema} IN (${param<{ schemas: string[] }>("schemas")})
+   WHERE ${TableConstraints.$table_schema} IN (${each<{ schemas: string[] }>("schemas")})
      AND ${TableConstraints.$constraint_type} = 'PRIMARY KEY'`;
 
 export const findForeignKeys = sql`
@@ -40,7 +40,7 @@ export const findForeignKeys = sql`
            JOIN ${ConstraintColumnUsage} ON ${ReferentialConstraints.$unique_constraint_name} = ${ConstraintColumnUsage.$constraint_name}
       AND ${ReferentialConstraints.$unique_constraint_schema} = ${ConstraintColumnUsage.$constraint_schema}
    WHERE ${TableConstraints.$constraint_type} = 'FOREIGN KEY'
-     AND ${TableConstraints.$table_schema} IN (${param<{ schemas: string[] }>("schemas")})`;
+     AND ${TableConstraints.$table_schema} IN (${each<{ schemas: string[] }>("schemas")})`;
 
 /**
  * Query all tables in the given schemas
@@ -53,7 +53,7 @@ export const findTables = sql`
                                   AS "table_columns") AS "table_columns_result"
            JOIN ${findPrimaryKeys} ON ${Tables.$table_schema} = ${findPrimaryKeys.row.$table_schema} AND
                                       ${Tables.$table_name} = ${findPrimaryKeys.row.$table_name}
-   WHERE ${Tables.$table_schema} IN (${param<{ schemas: string[] }>("schemas")})
+   WHERE ${Tables.$table_schema} IN (${each<{ schemas: string[] }>("schemas")})
      AND ${Tables.$table_type} = 'BASE TABLE'
    ORDER BY ${Tables.$table_schema}, ${Tables.$table_name}`;
 
@@ -66,6 +66,6 @@ export const findViews = sql`
    FROM ${Tables}
            OUTER APPLY (SELECT coalesce((${TableColumns.render("default")} for json path, include_null_values), '[]')
                                   AS "table_columns") AS "table_columns_result"
-   WHERE ${Tables.$table_schema} IN (${param<{ schemas: string[] }>("schemas")})
+   WHERE ${Tables.$table_schema} IN (${each<{ schemas: string[] }>("schemas")})
      AND ${Tables.$table_type} = 'VIEW'
    ORDER BY ${Tables.$table_schema}, ${Tables.$table_name}`;

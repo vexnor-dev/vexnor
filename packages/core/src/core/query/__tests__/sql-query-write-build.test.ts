@@ -66,24 +66,22 @@ describe("SqlQuery — getSql() error branches", () => {
       expect(() => q.getSql({} as never)).toThrow("Param value not provided");
    });
 
-   test("handles array param values (expands to multiple placeholders)", () => {
-      const q = sql`SELECT * FROM account WHERE id IN (${param<{ ids: string[] }>("ids")})`;
+   test("binds an array param as one value", () => {
+      const q = sql`SELECT ${param<{ ids: string[] }>("ids")}`;
       const result = q.getSql({ params: { ids: ["a", "b", "c"] } });
       expect(result.values).toMatchInlineSnapshot(`
         [
-          "a",
-          "b",
-          "c",
+          [
+            "a",
+            "b",
+            "c",
+          ],
         ]
       `);
       expect(result.text).toMatchInlineSnapshot(`
         "/* <query_0> */
         SELECT
-          *
-        FROM
-          account
-        WHERE
-          id IN (?, ?, ?) /* </query_0> */"
+          ? /* </query_0> */"
       `);
    });
 

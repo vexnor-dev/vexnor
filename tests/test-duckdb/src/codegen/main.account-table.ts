@@ -22,7 +22,7 @@ export const Account = vexnor.newSqlTable<{
       schema: "main",
    },
    pk: ["accountId"],
-   dialect: "postgresql",
+   dialect: "duckdb",
    source: "@vexnor/test-duckdb:src/codegen",
    columns: {
 

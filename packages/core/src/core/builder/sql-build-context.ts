@@ -362,10 +362,11 @@ export class SqlBuildContext {
       }
    }
 
-   addParam(param: { name: string }) {
+   addParam(param: { name: string; array?: boolean }) {
       this._tokens.push({
          type: "param",
          name: param.name,
+         ...(param.array ? { array: true } : {}),
       });
    }
 
