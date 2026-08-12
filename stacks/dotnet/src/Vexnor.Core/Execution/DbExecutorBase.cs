@@ -60,6 +60,7 @@ public abstract class DbExecutorBase
         CancellationToken cancellationToken = default)
     {
         var connection = await OpenConnectionAsync(cancellationToken);
+        List<Dictionary<string, object?>> results;
         try
         {
             await using var cmd = connection.CreateCommand();
@@ -71,7 +72,7 @@ public abstract class DbExecutorBase
             }
 
             await using var reader = await cmd.ExecuteReaderAsync(cancellationToken);
-            var results = new List<Dictionary<string, object?>>();
+            results = new List<Dictionary<string, object?>>();
 
             while (await reader.ReadAsync(cancellationToken))
             {
@@ -84,13 +85,12 @@ public abstract class DbExecutorBase
                 }
                 results.Add(row);
             }
-
-            return results;
         }
         finally
         {
             await ReleaseConnectionAsync(connection);
         }
+        return results;
     }
 
     /// <summary>
@@ -99,6 +99,7 @@ public abstract class DbExecutorBase
     public async Task<int> ExecuteAsync(SqlBuildResult query, CancellationToken cancellationToken = default)
     {
         var connection = await OpenConnectionAsync(cancellationToken);
+        int affectedRows;
         try
         {
             await using var cmd = connection.CreateCommand();
@@ -109,11 +110,12 @@ public abstract class DbExecutorBase
                 AddParameter(cmd, i, query.Values[i]);
             }
 
-            return await cmd.ExecuteNonQueryAsync(cancellationToken);
+            affectedRows = await cmd.ExecuteNonQueryAsync(cancellationToken);
         }
         finally
         {
             await ReleaseConnectionAsync(connection);
         }
+        return affectedRows;
     }
 }

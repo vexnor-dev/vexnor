@@ -9,9 +9,9 @@
       "build:dependencies": "pnpm --filter='@vexnor/core' --filter='@vexnor/duckdb' run build",
       "prepare-db": "node --import tsx src/create-test-database.ts",
       "codegen:vexnor": "node ../../packages/core/cli.mjs codegen --plugin @vexnor/duckdb --schema main --camelCaseColumns --uri ./vexnor-dev.duckdb --outDir './src/codegen'",
-      "prebuild": "run-s 'build:dependencies' 'prepare-db' 'codegen:vexnor'",
+      "prebuild": "run-s build:dependencies prepare-db codegen:vexnor",
       "build": "tsc -b",
-      "pretest": "run-s 'build'",
+      "pretest": "run-s build",
       "test": "vitest --coverage run",
       "test:watch": "vitest --watch",
       "test:run": "vitest run"

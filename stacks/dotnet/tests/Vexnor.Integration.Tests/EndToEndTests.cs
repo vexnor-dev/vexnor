@@ -1,3 +1,4 @@
+using Npgsql;
 using Vexnor.Core.Execution;
 using Vexnor.Core.Manifest;
 using Vexnor.Postgres;
@@ -162,5 +163,21 @@ public class EndToEndTests : IAsyncLifetime
         var results = await _executor.QueryAsync(sql);
         Assert.NotNull(results);
         // May be empty (no matching rows), but query executed successfully against real DB
+    }
+
+    [Fact]
+    public async Task PostgresExecutor_WithDataSource_BindsGuidAndNullParameters()
+    {
+        await using var dataSource = NpgsqlDataSource.Create(ConnectionString);
+        var executor = new PostgresExecutor(dataSource);
+        var guid = Guid.NewGuid();
+
+        var rows = await executor.QueryAsync(new SqlBuildResult(
+            "SELECT $1::uuid AS id, $2::text AS optional_value",
+            [guid.ToString(), null]));
+
+        var row = Assert.Single(rows);
+        Assert.Equal(guid.ToString(), row["id"]);
+        Assert.Null(row["optional_value"]);
     }
 }
