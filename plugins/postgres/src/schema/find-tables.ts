@@ -1,6 +1,8 @@
 import { col, param, row, sql } from "@vexnor/core";
 import { SqlColumnInfo, SqlForeignKeyInfo, SqlPrimaryKeyInfo } from "@vexnor/core/plugin";
-import { Columns, ConstraintColumnUsage, KeyColumnUsage, ReferentialConstraints, TableConstraints } from "#src/schema/models.js";
+import { Columns, KeyColumnUsage, ReferentialConstraints, TableConstraints } from "#src/schema/models.js";
+
+const ReferencedKeyColumnUsage = KeyColumnUsage.as`referenced_key_column_usage`;
 
 export const findTableColumns = sql`
    select ${row(Columns.$table_name, Columns.$table_schema)},
@@ -33,17 +35,19 @@ export const findForeignKeys = sql`
              'column_name', ${KeyColumnUsage.$column_name},
              'table_schema', ${KeyColumnUsage.$table_schema},
              'table_name', ${KeyColumnUsage.$table_name},
-             'referenced_table_schema', ${ConstraintColumnUsage.$table_schema},
-             'referenced_table_name', ${ConstraintColumnUsage.$table_name},
-             'referenced_column_name', ${ConstraintColumnUsage.$column_name}
+             'referenced_table_schema', ${ReferencedKeyColumnUsage.$table_schema},
+             'referenced_table_name', ${ReferencedKeyColumnUsage.$table_name},
+             'referenced_column_name', ${ReferencedKeyColumnUsage.$column_name},
+             'ordinal_position', ${KeyColumnUsage.$ordinal_position}
           ) order by ${KeyColumnUsage.$ordinal_position}) as ${col<{ foreign_keys: SqlForeignKeyInfo[] }>("foreign_keys")}
    from ${KeyColumnUsage}
            join ${TableConstraints} on ${KeyColumnUsage.$constraint_name} = ${TableConstraints.$constraint_name}
       and ${KeyColumnUsage.$table_schema} = ${TableConstraints.$table_schema}
            join ${ReferentialConstraints} on ${TableConstraints.$constraint_name} = ${ReferentialConstraints.$constraint_name}
       and ${TableConstraints.$table_schema} = ${ReferentialConstraints.$constraint_schema}
-           join ${ConstraintColumnUsage} on ${ReferentialConstraints.$unique_constraint_name} = ${ConstraintColumnUsage.$constraint_name}
-      and ${ReferentialConstraints.$unique_constraint_schema} = ${ConstraintColumnUsage.$constraint_schema}
+           join ${ReferencedKeyColumnUsage} on ${ReferentialConstraints.$unique_constraint_name} = ${ReferencedKeyColumnUsage.$constraint_name}
+      and ${ReferentialConstraints.$unique_constraint_schema} = ${ReferencedKeyColumnUsage.$table_schema}
+      and ${KeyColumnUsage.$position_in_unique_constraint} = ${ReferencedKeyColumnUsage.$ordinal_position}
    where ${TableConstraints.$constraint_type} = 'FOREIGN KEY'
      and ${TableConstraints.$table_schema} in (${param<{ schemas: string[] }>("schemas")})
    group by ${KeyColumnUsage.$table_name}, ${KeyColumnUsage.$table_schema}`;

@@ -15,6 +15,8 @@ export type VexnorPluginAny = VexnorPlugin<any>;
 export abstract class VexnorPlugin<T extends { Connection: unknown; Config: unknown }> {
    abstract readonly name: string;
 
+   readonly version: string = "unknown";
+
    abstract dialect: string;
 
    abstract readonly driver: string;

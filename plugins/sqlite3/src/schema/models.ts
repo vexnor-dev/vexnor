@@ -25,7 +25,7 @@ export const SqliteMaster = newSqlTable<{
 });
 
 export const PragmaTableInfo = newSqlTable<{
-   Select: { cid: number; name: string; type: string; notnull: boolean; dflt_value: string };
+   Select: { cid: number; name: string; type: string; notnull: boolean; dflt_value: string; pk: number };
    Source: "@vexnor/sqlite3:schema";
 }>({
    crud: {
@@ -45,6 +45,7 @@ export const PragmaTableInfo = newSqlTable<{
       type: "type",
       notnull: "notnull",
       dflt_value: "dflt_value",
+      pk: "pk",
    },
 });
 

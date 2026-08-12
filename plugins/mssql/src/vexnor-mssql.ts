@@ -6,6 +6,7 @@ import {
    SqlColumnInfo,
    SqlColumnType,
    SqlForeignKeyInfo,
+   SqlPrimaryKeyInfo,
    SqlSchema,
    SqlTableInfo,
    VexnorConnection,
@@ -15,14 +16,16 @@ import { MssqlQueryHandler, PLUGIN_NAME } from "./mssql-query-handler.js";
 import { SqlQueryHandler, SqlQuery } from "@vexnor/core";
 import "#src/mssql-augment.js";
 import { getColumnType } from "./get-column-type.js";
-import { findForeignKeys, findTables, findViews } from "./schema/find-tables.js";
+import { findForeignKeys, findPrimaryKeys, findTables, findViews } from "./schema/find-tables.js";
 import mssql from "mssql";
+import pkg from "../package.json" with { type: "json" };
 
 /**
  * Vexnor plugin for MS SQL Server.
  */
 export class VexnorMssql extends VexnorPlugin<{ Config: ConnectionConfig; Connection: mssql.ConnectionPool }> {
    readonly name = PLUGIN_NAME;
+   override readonly version = pkg.version;
    driver = "mssql";
    dialect = "tsql";
 
@@ -56,6 +59,15 @@ export class VexnorMssql extends VexnorPlugin<{ Config: ConnectionConfig; Connec
                console.error(err);
                throw err;
             });
+         const primaryKeyResult = await findPrimaryKeys.mssql
+            .all({
+               db: (connection.db as mssql.ConnectionPool).request(),
+               params: { schemas },
+            })
+            .catch((err) => {
+               console.error(err);
+               throw err;
+            });
          const fkResult = await findForeignKeys.mssql
             .all({
                db: (connection.db as mssql.ConnectionPool).request(),
@@ -65,6 +77,13 @@ export class VexnorMssql extends VexnorPlugin<{ Config: ConnectionConfig; Connec
                console.error(err);
                throw err;
             });
+         const primaryKeysByTable = new Map<string, SqlPrimaryKeyInfo[]>();
+         for (const primaryKey of primaryKeyResult) {
+            const key = `${primaryKey.table_schema}.${primaryKey.table_name}`;
+            const list = primaryKeysByTable.get(key) ?? [];
+            list.push(primaryKey);
+            primaryKeysByTable.set(key, list);
+         }
          const fkByTable = new Map<string, SqlForeignKeyInfo[]>();
          for (const fk of fkResult) {
             const key = `${fk.table_schema}.${fk.table_name}`;
@@ -77,6 +96,7 @@ export class VexnorMssql extends VexnorPlugin<{ Config: ConnectionConfig; Connec
                referenced_table_schema: fk.referenced_table_schema,
                referenced_table_name: fk.referenced_table_name,
                referenced_column_name: fk.referenced_column_name,
+               ordinal_position: fk.ordinal_position,
             });
             fkByTable.set(key, list);
          }
@@ -87,16 +107,7 @@ export class VexnorMssql extends VexnorPlugin<{ Config: ConnectionConfig; Connec
                table_schema: row.table_schema,
                columns:
                   typeof row.table_columns === "string" ? JSON.parse(row.table_columns || "[]") : row.table_columns,
-               primary_keys: row.primary_key
-                  ? [
-                       {
-                          constraint_name: "PK_" + row.table_name,
-                          table_schema: row.table_schema,
-                          table_name: row.table_name,
-                          column_name: row.primary_key,
-                       },
-                    ]
-                  : [],
+               primary_keys: primaryKeysByTable.get(`${row.table_schema}.${row.table_name}`) ?? [],
                foreign_keys: fkByTable.get(`${row.table_schema}.${row.table_name}`) ?? [],
             })),
             ...viewResult.map((row) => ({

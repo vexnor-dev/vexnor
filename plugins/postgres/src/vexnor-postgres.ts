@@ -16,6 +16,7 @@ import { getColumnType } from "#src/schema/get-column-type.js";
 import { PLUGIN_NAME, PostgresQueryHandler } from "#src/postgres-query-handler.js";
 import { SqlQuery, SqlQueryHandler } from "@vexnor/core";
 import "#src/postgres-augment.js";
+import pkg from "../package.json" with { type: "json" };
 
 /**
  * Vexnor plugin for postgres.
@@ -23,6 +24,7 @@ import "#src/postgres-augment.js";
  */
 export class VexnorPostgres extends VexnorPlugin<{ Config: ConnectionConfig; Connection: Pool }> {
    readonly name = PLUGIN_NAME;
+   override readonly version = pkg.version;
    driver = "postgres";
    dialect = "postgresql";
 

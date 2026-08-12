@@ -222,4 +222,5 @@ export type {
    SchemaManifestTable,
    SchemaManifestColumn,
    SchemaManifestForeignKey,
+   SerializeSchemaOptions,
 } from "./serialize/serialize-schema.js";

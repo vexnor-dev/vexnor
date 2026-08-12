@@ -37,10 +37,35 @@ describe("initCommand", () => {
 
       const configContent = await fs.readFile("vexnor.config.ts", "utf-8");
 
-      expect(configContent).toContain(`import { defineConfig } from "@vexnor/core"`);
-      expect(configContent).toContain(`plugin: "<SET ME>"`);
-      expect(configContent).toContain(`defaultProfile: "dev"`);
-      expect(configContent).toContain(`confirmMutations: true`);
+      expect(configContent).toMatchInlineSnapshot(`
+        "import { defineConfig } from "@vexnor/core";
+
+        export default defineConfig({
+           profiles: {
+              dev: {
+                 plugin: "<SET ME>",
+                 connection: {
+                    host: "localhost",
+                    port: 5432,
+                    database: "mydb",
+                    user: "postgres",
+                    password: "postgres",
+                 },
+                 generate: {
+                    schema: ["public"],
+                    outDir: "src/generated",
+                 },
+              },
+           },
+           defaultProfile: "dev",
+           exec: {
+              format: "table",
+              confirmMutations: true,
+              confirmDestructive: true,
+           },
+        });
+        "
+      `);
    });
 
    it("should create valid query config file content", async () => {

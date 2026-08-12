@@ -9,6 +9,10 @@ export interface SqlColumnInfo {
    is_updatable: "YES" | "NO";
    numeric_precision_radix?: number;
    data_type?: string;
+   generation_expression?: string | null;
+   identity_generation?: string | null;
+   is_generated?: string;
+   is_identity?: string;
    ordinal_position?: number;
    table_schema: string;
    table_name: string;
@@ -35,6 +39,7 @@ export interface SqlForeignKeyInfo {
    referenced_table_schema: string;
    referenced_table_name: string;
    referenced_column_name: string;
+   ordinal_position?: number;
    table_schema: string;
    table_name: string;
 }
@@ -58,6 +63,7 @@ export type SqlTableInfo = {
 
 export interface SqlEnumValue {
    enum_label: string;
+   ordinal_position?: number;
 }
 
 export type SqlEnumInfo = {

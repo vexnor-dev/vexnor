@@ -19,7 +19,7 @@ export default defineConfig({
             password: "postgres",
          },
          generate: {
-            schemas: ["public"],
+            schema: ["public"],
             outDir: "src/generated",
          },
       },

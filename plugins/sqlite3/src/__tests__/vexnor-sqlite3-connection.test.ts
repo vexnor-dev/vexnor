@@ -55,6 +55,7 @@ describe("VexnorSqlite3.getSchema()", () => {
              {
                "column_name": "parent_id",
                "constraint_name": "fk_child_0",
+               "ordinal_position": 1,
                "referenced_column_name": "id",
                "referenced_table_name": "parent",
                "referenced_table_schema": "main",
@@ -63,6 +64,35 @@ describe("VexnorSqlite3.getSchema()", () => {
              },
            ]
          `);
+      } finally {
+         rmSync(tmpDir, { recursive: true });
+      }
+   });
+
+   test("preserves every column of a composite primary key", async () => {
+      const BetterSqlite3 = (await import("better-sqlite3")).default;
+      const { mkdtempSync, rmSync } = await import("node:fs");
+      const { join } = await import("node:path");
+      const { tmpdir } = await import("node:os");
+      const tmpDir = mkdtempSync(join(tmpdir(), "vexnor-sqlite-composite-pk-"));
+      const dbPath = join(tmpDir, "test.db");
+      const db = new BetterSqlite3(dbPath);
+      db.exec(`
+         CREATE TABLE composite_record (
+            segment_id INTEGER NOT NULL,
+            record_id INTEGER NOT NULL,
+            payload TEXT,
+            PRIMARY KEY (segment_id, record_id)
+         );
+      `);
+
+      db.close();
+
+      try {
+         const plugin = new VexnorSqlite3();
+         const schema = await plugin.getSchema({ schemas: ["main"], uri: dbPath });
+         const compositeRecord = schema.tables.find((table) => table.table_name === "composite_record");
+         expect(compositeRecord?.primary_keys).toHaveLength(2);
       } finally {
          rmSync(tmpDir, { recursive: true });
       }

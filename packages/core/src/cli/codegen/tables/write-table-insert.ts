@@ -1,14 +1,13 @@
 import { CodeWriter } from "#src/lib/code-writer.js";
 import { ok } from "#src/lib/assert.js";
 import to from "to-case";
-import { PrintTableArgs, SqlLiteralType } from "#src/plugin/plugin.js";
-import { getCodegenContext } from "#src/cli/codegen/codegen-context.js";
+import { SqlLiteralType } from "#src/plugin/plugin.js";
+import type { SchemaCatalogObject } from "#src/schema/schema-catalog.js";
 
-export function writeTableInsert(writer: CodeWriter, { table }: PrintTableArgs) {
-   if (table.table_type === "view") return;
-   const { getTableName, getColumnName, plugin } = getCodegenContext();
-   const { columns, table_name } = table;
-   const tableTypePrefix = `I${getTableName(table_name)}`;
+export function writeTableInsert(writer: CodeWriter, { table }: { table: SchemaCatalogObject }) {
+   if (table.kind === "view") return;
+   const { columns, mappingName } = table;
+   const tableTypePrefix = `I${mappingName}`;
    const tableTypeInsert = `${tableTypePrefix}Insert`;
    const tableTypeUpdate = `${tableTypePrefix}Update`;
 
@@ -17,9 +16,9 @@ export function writeTableInsert(writer: CodeWriter, { table }: PrintTableArgs) 
       .write(`export type ${tableTypeInsert} =`)
       .inlineBlock(() => {
          columns.forEach((col) => {
-            const isNullable = col.is_nullable.toUpperCase() === "YES";
-            const columnName = getColumnName(col.column_name);
-            if (col.column_default || isNullable) {
+            const isNullable = col.nullable;
+            const columnName = col.mappingName;
+            if (col.default || isNullable) {
                writer.write(`${columnName}?:`);
             } else {
                writer.write(`${columnName}:`);
@@ -27,10 +26,13 @@ export function writeTableInsert(writer: CodeWriter, { table }: PrintTableArgs) 
 
             writer.write(" ");
 
-            const { type, udt, tsTypeSelect, tsTypeInsert } = plugin.getColumnType(col);
+            const type = col.normalizedType;
+            const udt = col.customType?.udt;
+            const tsTypeSelect = col.customType?.select;
+            const tsTypeInsert = col.customType?.insert;
             switch (type) {
                case SqlLiteralType.Udt:
-                  ok(udt, `Udt type name is missing for column ${col.column_name}: ${type}`);
+                  ok(udt, `Udt type name is missing for column ${col.physicalName}: ${type}`);
                   writer.write(`udt.${to.pascal(udt)}Udt`);
                   break;
                case SqlLiteralType.Date:
@@ -46,7 +48,7 @@ export function writeTableInsert(writer: CodeWriter, { table }: PrintTableArgs) 
                   writer.write(`unknown`);
                   break;
                case SqlLiteralType.Custom:
-                  ok(tsTypeSelect, `tsTypeSelect is required for Custom column ${col.column_name}`);
+                  ok(tsTypeSelect, `tsTypeSelect is required for Custom column ${col.physicalName}`);
                   writer.write(tsTypeInsert ?? tsTypeSelect);
                   break;
                default:

@@ -4,6 +4,7 @@ import { initCommand, InitOptions } from "#src/cli/exec/init-command.js";
 import { codegenCommand } from "#src/cli/codegen/codegen-command.js";
 import { CodegenCommandOptions } from "#src/cli/codegen/types/types.js";
 import { serializeCommand, SerializeOptions } from "#src/cli/serialize/serialize-command.js";
+import { schemaSelectCommand, SchemaSelectCommandOptions } from "#src/cli/schema/schema-select-command.js";
 
 const main = new Command();
 
@@ -40,6 +41,7 @@ main
    .option("--omit <tables...>", "Table names to omit from codegen (e.g. migration_vexnor or schema.table_name)")
    .option("-c, --config <path>", "Path to vexnor.config.ts", "vexnor.config.ts")
    .option("-p, --profile <profile>", "Profile to use from vexnor.config.ts")
+   .option("--selection-config <path>", "Override the local selection config path")
    .action(async (options: CodegenCommandOptions) => {
       await codegenCommand(options);
    });
@@ -52,6 +54,22 @@ exec
    .option("-f, --force", "Overwrite existing files")
    .action(async (options: InitOptions) => {
       await initCommand(options);
+   });
+
+const schema = main.command("schema").description("Discover and work with datasource schemas");
+
+schema
+   .command("select")
+   .description("Review and persist the schema objects exposed by a Vexnor profile")
+   .option("-c, --config <path>", "Path to vexnor.config.ts", "vexnor.config.ts")
+   .option("-p, --profile <profile>", "Profile to use from vexnor.config.ts")
+   .option("--selection-config <path>", "Override the local selection config path")
+   .option("--include <objects...>", "Select only these schema-qualified objects")
+   .option("--exclude <objects...>", "Exclude these schema-qualified objects")
+   .option("--all", "Select every discovered object")
+   .option("--save", "Persist a non-interactive selection override")
+   .action(async (options: SchemaSelectCommandOptions) => {
+      await schemaSelectCommand(options);
    });
 
 exec

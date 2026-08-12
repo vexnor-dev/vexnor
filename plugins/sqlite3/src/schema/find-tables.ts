@@ -22,16 +22,18 @@ export const findViews = sql`
 `;
 
 export const findTableColumns = sql`
-   SELECT ${row(PragmaTableInfo.$name.as("column_name"), PragmaTableInfo.$dflt_value.as("column_default"), PragmaTableInfo.$type.as("udt_name"))},
+   SELECT ${row(PragmaTableInfo.$name.as("column_name"), PragmaTableInfo.$dflt_value.as("column_default"), PragmaTableInfo.$type.as("udt_name"), PragmaTableInfo.$type.as("data_type"))},
+          ${val`${PragmaTableInfo.$cid} + 1`.as<{ ordinal_position: number }>("ordinal_position")},
           ${val`CASE WHEN "notnull" = 0 THEN 'YES' ELSE 'NO' END`.as<{ is_nullable: "YES" | "NO" }>("is_nullable")},
           ${val`'YES'`.as<{ is_updatable: "YES" | "NO" }>("is_updatable")}
    FROM pragma_table_info(${param<{ tableName: string }>("tableName")}) as ${PragmaTableInfo.render("tableAlias")}
 `;
 
 export const findPrimaryKeys = sql`
-   SELECT ${row(PragmaTableInfo.$name.as("column_name"), PragmaTableInfo.$name.as("constraint_name"), PragmaTableInfo.$cid.as("ordinal_position"))}
+   SELECT ${row(PragmaTableInfo.$name.as("column_name"), PragmaTableInfo.$pk.as("ordinal_position"))},
+          ${val`'primary'`.as<{ constraint_name: string }>("constraint_name")}
    FROM pragma_table_info(${param<{ tableName: string }>("tableName")}) as ${PragmaTableInfo.render("tableAlias")}
-   WHERE pk = 1
+   WHERE ${PragmaTableInfo.$pk} > 0
 `;
 
 export const findForeignKeys = sql`

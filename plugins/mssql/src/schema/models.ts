@@ -88,7 +88,7 @@ export const TableConstraints = newSqlTable<{
 });
 
 export const KeyColumnUsage = newSqlTable<{
-   Select: { constraint_name: string; table_name: string; table_schema: string; column_name: string };
+   Select: { constraint_name: string; table_name: string; table_schema: string; column_name: string; ordinal_position: number };
    Source: "@vexnor/mssql:schema";
 }>({
    crud: {
@@ -108,6 +108,7 @@ export const KeyColumnUsage = newSqlTable<{
       column_name: "COLUMN_NAME",
       table_name: "TABLE_NAME",
       table_schema: "TABLE_SCHEMA",
+      ordinal_position: "ORDINAL_POSITION",
    },
 });
 

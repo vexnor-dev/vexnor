@@ -1,27 +1,28 @@
 import { CodeWriter } from "#src/lib/code-writer.js";
 import { ok } from "#src/lib/assert.js";
 import to from "to-case";
-import { PrintTableArgs, SqlLiteralType } from "#src/plugin/plugin.js";
-import { getCodegenContext } from "#src/cli/codegen/codegen-context.js";
+import { SqlLiteralType } from "#src/plugin/plugin.js";
+import type { SchemaCatalogObject } from "#src/schema/schema-catalog.js";
 
-export function writeTableSelect(writer: CodeWriter, { table }: PrintTableArgs) {
-   const { table_name, columns } = table;
-   const { getTableName, getColumnName, plugin } = getCodegenContext();
-   const tableTypePrefix = `I${getTableName(table_name)}`;
+export function writeTableSelect(writer: CodeWriter, { table }: { table: SchemaCatalogObject }) {
+   const { mappingName, columns } = table;
+   const tableTypePrefix = `I${mappingName}`;
 
    writer
       .blankLine()
       .write(`export type ${tableTypePrefix}Select =`)
       .inlineBlock(() => {
          columns.forEach((col) => {
-            const isNullable = col.is_nullable === "YES";
-            const columnName = getColumnName(col.column_name);
+            const isNullable = col.nullable;
+            const columnName = col.mappingName;
             writer.write(`${columnName}: `);
 
-            const { type, udt, tsTypeSelect } = plugin.getColumnType(col);
+            const type = col.normalizedType;
+            const udt = col.customType?.udt;
+            const tsTypeSelect = col.customType?.select;
             switch (type) {
                case SqlLiteralType.Udt:
-                  ok(udt, `Udt type name is missing for column ${col.column_name}: ${type}`);
+                  ok(udt, `Udt type name is missing for column ${col.physicalName}: ${type}`);
                   writer.write(`udt.${to.pascal(udt)}Udt`);
                   break;
                case SqlLiteralType.Date:
@@ -37,7 +38,7 @@ export function writeTableSelect(writer: CodeWriter, { table }: PrintTableArgs) 
                   writer.write(`unknown`);
                   break;
                case SqlLiteralType.Custom:
-                  ok(tsTypeSelect, `tsTypeSelect is required for Custom column ${col.column_name}`);
+                  ok(tsTypeSelect, `tsTypeSelect is required for Custom column ${col.physicalName}`);
                   writer.write(tsTypeSelect);
                   break;
                default:

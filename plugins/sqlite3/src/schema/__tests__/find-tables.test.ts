@@ -37,13 +37,16 @@ describe("Find Tables tests", () => {
           "pti_1"."name" AS "column_name",
           "pti_1"."dflt_value" AS "column_default",
           "pti_1"."type" AS "udt_name",
+          "pti_1"."type" AS "data_type",
           /* <query_1> */
+          "pti_1"."cid" + 1 /* </query_1> */ AS "ordinal_position",
+          /* <query_2> */
           CASE
             WHEN "notnull" = 0 THEN 'YES'
             ELSE 'NO'
-          END /* </query_1> */ AS "is_nullable",
-          /* <query_2> */
-          'YES' /* </query_2> */ AS "is_updatable"
+          END /* </query_2> */ AS "is_nullable",
+          /* <query_3> */
+          'YES' /* </query_3> */ AS "is_updatable"
         FROM
           pragma_table_info (?) AS "pti_1"
           /* </query_0> */"
@@ -64,14 +67,16 @@ describe("Find Tables tests", () => {
         "/* <query_0> */
         SELECT
           "pti_1"."name" AS "column_name",
-          "pti_1"."name" AS "constraint_name",
-          "pti_1"."cid" AS "ordinal_position"
+          "pti_1"."pk" AS "ordinal_position",
+          /* <query_1> */
+          'primary' /* </query_1> */ AS "constraint_name"
         FROM
           pragma_table_info (?) AS "pti_1"
         WHERE
-          pk = 1
+          "pti_1"."pk" > 0
           /* </query_0> */"
       `);
+      expect((text.match(/"pk" > 0/g) ?? []).length).toBe(1);
    });
 
    test("Find Foreign Keys query should match expected SQL", () => {

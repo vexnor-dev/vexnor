@@ -25,6 +25,7 @@ export class VexnorSqlite3 extends VexnorPlugin<{
    Connection: BetterSqlite3.Database;
 }> {
    readonly name = PLUGIN_NAME;
+   override readonly version = pkg.version;
    driver = "better-sqlite3";
    dialect = "sqlite";
 
@@ -83,6 +84,7 @@ export class VexnorSqlite3 extends VexnorPlugin<{
             referenced_table_schema: table.table_schema,
             referenced_table_name: fk.referenced_table_name,
             referenced_column_name: fk.referenced_column_name,
+            ordinal_position: fk.seq + 1,
          }));
 
          newTables.push({

@@ -37,6 +37,11 @@
       "types": "./dist/execution/execution.d.ts",
       "require": "./dist/execution/execution.js"
     },
+    "./schema": {
+      "import": "./dist/schema/schema.js",
+      "types": "./dist/schema/schema.d.ts",
+      "require": "./dist/schema/schema.js"
+    },
     "./testing": {
       "import": "./dist/test/testing.js",
       "types": "./dist/test/testing.d.ts",

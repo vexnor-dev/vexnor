@@ -1,13 +1,18 @@
 import type { SqlTableAny, SqlTableForeignKey } from "#src/core/schema/sql-table.js";
 
-import type { ColumnInfo, ForeignKey, JoinResult, JoinStep, JoinType, TableInfo } from "./schema-graph-types.js";
+import type { ColumnInfo, ForeignKey, JoinResult, JoinStep, JoinType, SchemaGraphOptions, TableInfo } from "./schema-graph-types.js";
 
 interface FkEdge {
    from: string;
    to: string;
-   fromCol: string;
-   toCol: string;
+   fromCols: string[];
+   toCols: string[];
 }
+
+type CatalogTableMetadata = {
+   catalogId: string;
+   objectKind: "table" | "view";
+};
 
 /**
  * Schema introspection and FK-based join path resolution.
@@ -32,19 +37,20 @@ export class SchemaGraph {
    private readonly _tables: Map<string, SqlTableAny> = new Map();
    private _fkGraph: Map<string, FkEdge[]> | null = null;
 
-   constructor(schema: Record<string, unknown>) {
+   constructor(schema: Record<string, unknown>, options: SchemaGraphOptions = {}) {
+      const include = options.include ?? "stable-identity";
       for (const entity of Object.values(schema)) {
          if (!this.isTable(entity)) continue;
-         const t = entity as SqlTableAny;
-         if (!t.pk || (t.pk as unknown[]).length === 0) continue;
+         const t = entity;
+         if (include === "stable-identity" && (!t.pk || (t.pk as unknown[]).length === 0)) continue;
          const name = t.tableInfo.name;
-         if (name.includes("_p20") || name.includes("_p0000")) continue;
+         if (include === "stable-identity" && (name.includes("_p20") || name.includes("_p0000"))) continue;
          const key = this.qualifyTable(t);
          this._tables.set(key, t);
       }
    }
 
-   /** All table identifiers as "schema.name" (base tables with PKs, excluding partitions). */
+   /** All included table identifiers as "schema.name". */
    tables(): string[] {
       return [...this._tables.keys()].sort();
    }
@@ -68,6 +74,7 @@ export class SchemaGraph {
          column: f.from[0]!,
          targetTable: `${f.to.schema || (t.tableInfo.schema ?? "public")}.${f.to.table}`,
          targetColumn: f.to.columns[0]!,
+         ...(f.from.length > 1 ? { columns: [...f.from], targetColumns: [...f.to.columns] } : {}),
       }));
 
       return {
@@ -76,6 +83,7 @@ export class SchemaGraph {
          columns,
          pk: t.pk as string[],
          fk,
+         ...(this.isCatalogTable(t) ? { kind: t.objectKind } : {}),
       };
    }
 
@@ -91,7 +99,7 @@ export class SchemaGraph {
       if (!graph.has(from) || !graph.has(to)) return null;
 
       const visited = new Set<string>([from]);
-      const queue: { id: string; path: { fromId: string; toId: string; fromCol: string; toCol: string }[] }[] = [{ id: from, path: [] }];
+      const queue: { id: string; path: FkEdge[] }[] = [{ id: from, path: [] }];
 
       while (queue.length > 0) {
          const { id, path } = queue.shift()!;
@@ -99,14 +107,19 @@ export class SchemaGraph {
          for (const edge of edges) {
             if (visited.has(edge.to)) continue;
             visited.add(edge.to);
-            const newPath = [...path, { fromId: id, toId: edge.to, fromCol: edge.fromCol, toCol: edge.toCol }];
+            const newPath = [...path, edge];
             if (edge.to === to) {
                return newPath.map((p) => {
-                  const [fromSchema, fromTable] = this.splitId(p.fromId);
-                  const [toSchema, toTable] = this.splitId(p.toId);
+                  const [fromSchema, fromTable] = this.splitId(p.from);
+                  const [toSchema, toTable] = this.splitId(p.to);
+                  const columnPairs = p.fromCols.map((column, index) => ({
+                     from: { schema: fromSchema, table: fromTable, column },
+                     to: { schema: toSchema, table: toTable, column: p.toCols[index]! },
+                  }));
                   return {
-                     from: { schema: fromSchema, table: fromTable, column: p.fromCol },
-                     to: { schema: toSchema, table: toTable, column: p.toCol },
+                     from: columnPairs[0]!.from,
+                     to: columnPairs[0]!.to,
+                     ...(columnPairs.length > 1 ? { columnPairs } : {}),
                   };
                });
             }
@@ -133,7 +146,8 @@ export class SchemaGraph {
          const targetPath = this.shortestPathFromConnected(connectedTableIds, targetId);
          if (!targetPath) return null;
          for (const step of targetPath) {
-            const stepKey = `${step.from.schema}.${step.from.table}.${step.from.column}->${step.to.schema}.${step.to.table}.${step.to.column}`;
+            const pairs = step.columnPairs ?? [{ from: step.from, to: step.to }];
+            const stepKey = pairs.map((pair) => `${pair.from.schema}.${pair.from.table}.${pair.from.column}->${pair.to.schema}.${pair.to.table}.${pair.to.column}`).join("|");
             if (seenSteps.has(stepKey)) continue;
             seenSteps.add(stepKey);
             path.push(step);
@@ -159,8 +173,9 @@ export class SchemaGraph {
          const stepId = `${step.to.schema}.${step.to.table}`;
          const targetDef = targets.find((t) => this.qualifyTable(t.table) === stepId);
          const type = targetDef?.type && targetDef.type !== "inner" ? targetDef.type : undefined;
+         const pairs = step.columnPairs ?? [{ from: step.from, to: step.to }];
          joinByObj[step.to.table] = {
-            on: [[`${step.from.table}.${step.from.column}`, "=", `${step.to.table}.${step.to.column}`]],
+            on: pairs.map((pair) => [`${pair.from.table}.${pair.from.column}`, "=", `${pair.to.table}.${pair.to.column}`]),
             ...(type ? { type } : {}),
          };
       }
@@ -258,6 +273,11 @@ export class SchemaGraph {
       );
    }
 
+   private isCatalogTable(table: SqlTableAny): table is SqlTableAny & CatalogTableMetadata {
+      return "catalogId" in table && typeof table.catalogId === "string" &&
+         "objectKind" in table && (table.objectKind === "table" || table.objectKind === "view");
+   }
+
    private shortestPathFromConnected(fromIds: Set<string>, targetId: string): JoinStep[] | null {
       if (fromIds.has(targetId)) return [];
 
@@ -280,11 +300,12 @@ export class SchemaGraph {
          for (const fk of t.fk as SqlTableForeignKey[]) {
             const targetSchema = fk.to.schema || tableSchema;
             const targetId = `${targetSchema}.${fk.to.table}`;
-            const edge: FkEdge = { from: tableId, to: targetId, fromCol: fk.from[0]!, toCol: fk.to.columns[0]! };
+            if (!this._tables.has(targetId)) continue;
+            const edge: FkEdge = { from: tableId, to: targetId, fromCols: [...fk.from], toCols: [...fk.to.columns] };
             graph.get(tableId)!.push(edge);
             // Reverse edge for bidirectional traversal
             if (!graph.has(targetId)) graph.set(targetId, []);
-            graph.get(targetId)!.push({ from: targetId, to: tableId, fromCol: fk.to.columns[0]!, toCol: fk.from[0]! });
+            graph.get(targetId)!.push({ from: targetId, to: tableId, fromCols: [...fk.to.columns], toCols: [...fk.from] });
          }
       }
 
