@@ -535,6 +535,34 @@ describe("createLocalDataSession", () => {
       expect(onClose).toHaveBeenCalledTimes(1);
    });
 
+   test("closes the connection when read-query registration fails during creation", async () => {
+      const catalog = schemaCatalog();
+      const selection = await resolveSchemaSelection({ catalog, request: { mode: "non-interactive", all: true } });
+      const plugin = new MockPlugin({ name: SESSION_PLUGIN_NAME });
+      vi.spyOn(plugin, "newSelectQuery").mockImplementation(() => {
+         throw new Error("synthetic registration failure");
+      });
+      const close = vi.fn(async () => {});
+      const connection = new VexnorConnection({ query: vi.fn() }, close, null);
+
+      await expect(createLocalDataSession({
+         plugin,
+         connection,
+         catalog,
+         selection: selection.scope,
+         limits: { maxRows: 25, timeoutMs: 1_000, maxConcurrency: 1 },
+      })).rejects.toThrowErrorMatchingInlineSnapshot(`[Error: synthetic registration failure]`);
+      expect(close.mock.calls).toMatchInlineSnapshot(`
+        [
+          [
+            {
+              "query": [MockFunction],
+            },
+          ],
+        ]
+      `);
+   });
+
    test("cancels an in-flight query when the host signal aborts", async () => {
       let started: (() => void) | undefined;
       let release: (() => void) | undefined;

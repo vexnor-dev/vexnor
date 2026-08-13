@@ -103,8 +103,13 @@ export class LocalDataSession {
          await session.close();
          throw new LocalDataSessionCancellationError("Local data session creation was cancelled");
       }
-      await session.registerReadQueries();
-      return session;
+      try {
+         await session.registerReadQueries();
+         return session;
+      } catch (error) {
+         await session.close();
+         throw error;
+      }
    }
 
    get queries(): LocalDataQueryDescriptor[] {

@@ -5,10 +5,7 @@ import { ok } from "node:assert";
 
 export type MockResult<TRow> = { rows: TRow[] };
 export type MockConnection = {
-   query: <TRow, TResult extends MockResult<TRow> = MockResult<TRow>>(
-      sql: string,
-      params: unknown[],
-   ) => Promise<TResult>;
+   query: (sql: string, params: unknown[]) => Promise<MockResult<unknown>>;
 };
 
 export class MockPlugin extends VexnorPlugin<{

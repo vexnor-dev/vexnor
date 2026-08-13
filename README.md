@@ -379,7 +379,7 @@ See [Telemetry](docs/telemetry.md) — span shape, OTLP exporters, combining wit
 - [Schema Graph](docs/schema-graph.md) — FK-based table introspection, BFS join path resolution, AI prompt formatting
 - [Authorization](docs/authorization.md) — query authorization, audit logging, SOC2/HIPAA
 - [Telemetry](docs/telemetry.md) — OpenTelemetry integration, spans, OTLP exporters
-- [CLI](docs/cli.md) — `codegen`, `exec run`, `exec init`, config reference
+- [CLI](docs/cli.md) — `codegen`, schema selection, local stdio MCP, query execution, config reference
 - [Serialize](docs/serialize.md) — `vexnor serialize`, manifest generation for cross-runtime execution
 - [Transactions](docs/transactions.md) — `transaction()`, `savepoint()`, isolation levels, all three drivers
 - [Databases](docs/databases.md) — PostgreSQL, MS SQL Server, SQLite — driver setup and dialect notes

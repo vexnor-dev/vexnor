@@ -5,6 +5,8 @@ import { codegenCommand } from "#src/cli/codegen/codegen-command.js";
 import { CodegenCommandOptions } from "#src/cli/codegen/types/types.js";
 import { serializeCommand, SerializeOptions } from "#src/cli/serialize/serialize-command.js";
 import { schemaSelectCommand, SchemaSelectCommandOptions } from "#src/cli/schema/schema-select-command.js";
+import { schemaMcpCommand, SchemaMcpCommandOptions } from "#src/cli/schema/schema-mcp-command.js";
+import { parseNumberOption } from "#src/cli/parse-number-option.js";
 
 const main = new Command();
 
@@ -72,6 +74,20 @@ schema
       await schemaSelectCommand(options);
    });
 
+schema
+   .command("mcp")
+   .description("Serve selected read-only datasource tools over stdio MCP")
+   .option("-c, --config <path>", "Path to vexnor.config.ts", "vexnor.config.ts")
+   .option("-p, --profile <profile>", "Profile to use from vexnor.config.ts")
+   .option("--selection-config <path>", "Override the local selection config path")
+   .requiredOption("--tools <tools...>", "Explicit enabled tools: getSchema, join, fetchData")
+   .option("--max-rows <number>", "Maximum rows returned by one fetch", parseNumberOption, 100)
+   .option("--timeout-ms <number>", "Maximum query execution time in milliseconds", parseNumberOption, 30_000)
+   .option("--max-concurrency <number>", "Maximum concurrent local queries", parseNumberOption, 1)
+   .action(async (options: SchemaMcpCommandOptions) => {
+      await schemaMcpCommand(options);
+   });
+
 exec
    .command("run")
    .description("Execute a configured query")
@@ -98,4 +114,4 @@ main
       await serializeCommand(options);
    });
 
-main.parse();
+await main.parseAsync();

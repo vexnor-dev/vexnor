@@ -7,8 +7,8 @@ import type { IsUnion, MultiSourceError } from "#src/core/utils/utility-types.js
 
 export class MockQueryHandler<T extends { Row?: unknown; Params?: unknown; Sources?: string }> extends SqlQueryHandler<
    Pick<T, "Row" | "Params"> & {
-      Read: MockResult<T["Row"]>;
-      Write: MockResult<T["Row"]>;
+      Read: MockResult<unknown>;
+      Write: MockResult<unknown>;
       Connection: MockConnection;
    }
 > {
@@ -16,12 +16,12 @@ export class MockQueryHandler<T extends { Row?: unknown; Params?: unknown; Sourc
       super(q, { pluginName: "mock" });
    }
 
-   resolveRows(result: MockResult<T["Row"]>): T["Row"][] {
+   resolveRows(result: MockResult<unknown>): T["Row"][] {
       ok(result?.rows, "Expected rows in result");
       return result.rows as T["Row"][];
    }
 
-   deserialize(result: MockResult<T["Row"]>, remote: boolean): MockResult<T["Row"]> {
+   deserialize(result: MockResult<unknown>, remote: boolean): MockResult<unknown> {
       return { ...result, rows: this.deserializeRows(result.rows as T["Row"][], remote) };
    }
 
