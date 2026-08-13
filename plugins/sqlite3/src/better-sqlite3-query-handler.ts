@@ -44,9 +44,8 @@ export class BetterSqlite3QueryHandler<T extends { Row?: unknown; Params?: unkno
       super(source, { pluginName: PLUGIN_NAME });
    }
 
-   // eslint-disable-next-line unused-imports/no-unused-vars
-   resolveRows(_res: Sqlite3ReadResult<T["Row"]>): T["Row"][] {
-      throw new Error("Method not supported: better-sqlite3 result doesn't include any rows");
+   resolveRows(result: Sqlite3ReadResult<T["Row"]>): T["Row"][] {
+      return result.rows;
    }
 
    // RunResult has no rows — deserialization is a no-op for write results

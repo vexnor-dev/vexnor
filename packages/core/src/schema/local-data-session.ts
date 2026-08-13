@@ -182,6 +182,14 @@ export class LocalDataSession {
       }
    }
 
+   async fetchRows(request: LocalDataFetchRequest): Promise<unknown[]> {
+      const registered = this.registered.get(request.hash);
+      if (!registered) throw new InvalidLocalQueryParametersError(`Unknown local data query hash: ${request.hash}`);
+      const result = await this.fetchData(request);
+      if (!isRecord(result)) throw new InvalidLocalQueryParametersError("Local data query result must be an object");
+      return this.plugin.newQueryHandler(registered.query).resolveRows(result);
+   }
+
    async close(): Promise<void> {
       if (this.closePromise) return this.closePromise;
       this.closed = true;
