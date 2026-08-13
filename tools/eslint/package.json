@@ -1,0 +1,13 @@
+{
+  "name": "@vexnor/eslint-config",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "devDependencies": {
+    "@eslint/js": "^9.39.4",
+    "eslint": "^9.39.4",
+    "eslint-plugin-unused-imports": "^4.4.1",
+    "typescript": "6.0.3",
+    "typescript-eslint": "^8.63.0"
+  }
+}

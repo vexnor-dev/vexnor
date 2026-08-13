@@ -62,7 +62,7 @@ export class MssqlTokenizer extends DefaultTokenizer {
 
          // 5. Identifiers, operators, and forbidden params
          // This is the key modification: we allow '@' and '$' (for $1, $2 etc) but forbid '?'
-         const tokenMatch = remaining.match(/^[a-z_][\w]*|^[0-9]+.?[0-9]*|^[-><>=!*+\/%]+|^\$|^@/);
+         const tokenMatch = remaining.match(/^[a-z_][\w]*|^[0-9]+.?[0-9]*|^[-><>=!*+\x2f%]+|^\$|^@/);
          if (tokenMatch) {
             const token = tokenMatch[0]!;
             if (token === "?") {

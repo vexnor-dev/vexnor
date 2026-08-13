@@ -57,7 +57,7 @@ export class Sqlite3Tokenizer extends DefaultTokenizer {
             continue;
          }
 
-         const tokenMatch = remaining.match(/^[a-z_][\w]*|^[0-9]+.?[0-9]*|^[-><>=!*+\/%?&|#~]+|^\$|^@/);
+         const tokenMatch = remaining.match(/^[a-z_][\w]*|^[0-9]+.?[0-9]*|^[-><>=!*+\x2f%?&|#~]+|^\$|^@/);
          if (tokenMatch) {
             const token = tokenMatch[0]!;
             if (token === "@") {

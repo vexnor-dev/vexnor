@@ -10,7 +10,7 @@ export async function loadConfig(configPath: string): Promise<VexnorConfig> {
    }
 
    try {
-      let module: any;
+      let module: { default?: VexnorConfig; config?: VexnorConfig };
       if (configPath.endsWith(".ts")) {
          const { createServer } = await import("vite");
          const vite = await createServer({ clearScreen: false, logLevel: "error" });

@@ -938,6 +938,12 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown; Sources?: str
       Params: T["Params"];
       Sources: T["Sources"];
    }> {
+      type ViewQueryType = {
+         Row: SqlViewResultRow<T["Row"], Columns, Window>;
+         Params: T["Params"];
+         Sources: T["Sources"];
+      };
+
       const columns = options.columns as string[] | undefined;
       if (columns && columns.length === 0) {
          throw new SqlBuildError(".toView() columns must not be an empty array — at least one column is required.");
@@ -955,13 +961,13 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown; Sources?: str
       }
 
       // Create immutable clone with view definition set
-      const clone = Object.create(this) as SqlQuery<{ Row: SqlViewResultRow<T["Row"], Columns, Window>; Params: T["Params"]; Sources: T["Sources"] }>;
+      const clone = Object.create(this) as SqlQuery<ViewQueryType>;
       (clone as { view: SqlQueryViewDef }).view = Object.freeze({
          columns: columns ? new Set(columns) : undefined,
          windowExprs: Object.freeze(windowExprs),
          windowEntries: Object.freeze(window),
       });
-      return newSqlQuery(clone as any) as unknown as SqlQueryExtended<{ Row: SqlViewResultRow<T["Row"], Columns, Window>; Params: T["Params"]; Sources: T["Sources"] }>;
+      return newSqlQuery<ViewQueryType, SqlQuery<ViewQueryType>>(clone);
    }
 
    /**

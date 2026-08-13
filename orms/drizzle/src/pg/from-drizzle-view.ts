@@ -1,3 +1,4 @@
+import type { ColumnsSelection } from "drizzle-orm";
 import { getViewConfig, type PgView, type PgViewWithSelection } from "drizzle-orm/pg-core";
 import { newSqlTable, type SqlTableExtended } from "@vexnor/core";
 
@@ -29,7 +30,7 @@ export function fromDrizzleView<T extends AnyPgView>(
    view: T,
    schema?: string,
 ): FromDrizzleViewResult<T> {
-   const config = getViewConfig(view as PgView<string, boolean, Record<string, any>>);
+   const config = getViewConfig(view as PgView<string, boolean, ColumnsSelection>);
 
    if (!config.name) {
       throw new Error(

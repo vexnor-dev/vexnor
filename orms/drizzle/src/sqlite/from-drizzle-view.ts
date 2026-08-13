@@ -1,3 +1,4 @@
+import type { ColumnsSelection } from "drizzle-orm";
 import { getViewConfig, type SQLiteView, type SQLiteViewWithSelection } from "drizzle-orm/sqlite-core";
 import { newSqlTable, type SqlTableExtended } from "@vexnor/core";
 
@@ -30,7 +31,7 @@ export function fromDrizzleView<T extends AnySQLiteView>(
    view: T,
    schema?: string,
 ): FromDrizzleViewResult<T> {
-   const config = getViewConfig(view as SQLiteView<string, boolean, Record<string, any>>);
+   const config = getViewConfig(view as SQLiteView<string, boolean, ColumnsSelection>);
 
    if (!config.name) {
       throw new Error(
