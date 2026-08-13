@@ -205,6 +205,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Prepare file databases
+        run: pnpm db-prepare:files
+
       - name: Build Node.js DuckDB package
         run: pnpm --filter @vexnor/core --filter @vexnor/duckdb build
 

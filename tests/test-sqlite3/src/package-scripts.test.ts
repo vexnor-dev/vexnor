@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+
 import { describe, expect, it } from "vitest";
 
 import rootPackage from "../../../package.json" with { type: "json" };
@@ -42,6 +44,32 @@ describe("file database lifecycle", () => {
           "rootPretest": "pnpm db-prepare:files",
           "sqlitePrebuild": "run-s prepare-db build:dependencies codegen:*",
           "sqlitePrepare": "pnpm --dir ../.. db-prepare:sqlite3",
+        }
+      `);
+   });
+
+   it("prepares file databases in isolated DuckDB CI jobs", async () => {
+      const workflow = await readFile(
+         new URL("../../../.github/workflows/ci_github.yml", import.meta.url),
+         "utf8",
+      );
+      const jobStart = workflow.indexOf("  duckdb-native:");
+      const jobEnd = workflow.indexOf("\n  # ─", jobStart);
+      const nativeJob = workflow.slice(jobStart, jobEnd);
+      const prepareCommand = "run: pnpm db-prepare:files";
+      const pluginTestCommand = "run: pnpm --filter @vexnor/duckdb test";
+
+      expect({
+         prepareCommand: nativeJob.includes(prepareCommand)
+            ? prepareCommand
+            : undefined,
+         preparesBeforePluginTest:
+            nativeJob.includes(prepareCommand) &&
+            nativeJob.indexOf(prepareCommand) < nativeJob.indexOf(pluginTestCommand),
+      }).toMatchInlineSnapshot(`
+        {
+          "prepareCommand": "run: pnpm db-prepare:files",
+          "preparesBeforePluginTest": true,
         }
       `);
    });
