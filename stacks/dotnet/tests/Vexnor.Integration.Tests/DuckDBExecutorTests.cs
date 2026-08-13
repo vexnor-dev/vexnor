@@ -1,4 +1,7 @@
+using System.Reflection;
+using System.Reflection.Emit;
 using System.Text.Json;
+using DuckDB.NET.Data;
 using Vexnor.Core.Execution;
 using Vexnor.DuckDB;
 using Xunit;
@@ -30,6 +33,20 @@ public sealed class DuckDBExecutorTests : IDisposable
         var row = Assert.Single(rows);
         Assert.Equal(42, row["accountId"]);
         Assert.Equal("duck@example.com", row["email"]);
+    }
+
+    [Fact]
+    public async Task BindsNullParameters()
+    {
+        await _executor.ExecuteAsync(new SqlBuildResult(
+            "CREATE TABLE nullable_value (value VARCHAR)", []));
+        await _executor.ExecuteAsync(new SqlBuildResult(
+            "INSERT INTO nullable_value VALUES ($1)", [null]));
+
+        var rows = await _executor.QueryAsync(new SqlBuildResult(
+            "SELECT value FROM nullable_value", []));
+
+        Assert.Null(Assert.Single(rows)["value"]);
     }
 
     [Fact]
@@ -93,11 +110,51 @@ public sealed class DuckDBExecutorTests : IDisposable
     }
 
     [Fact]
+    public void NormalizesProviderFallbackValues()
+    {
+        var normalizeOutput = typeof(DuckDBExecutor).GetMethod(
+            "NormalizeOutput",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.NotNull(normalizeOutput);
+
+        var offset = new DateTimeOffset(2026, 8, 10, 12, 34, 56, 789, TimeSpan.FromHours(2));
+        Assert.Equal(
+            "2026-08-10T10:34:56.789Z",
+            normalizeOutput.Invoke(_executor, [offset]));
+
+        byte[] bytes = [1, 2, 3];
+        Assert.Same(bytes, normalizeOutput.Invoke(_executor, [bytes]));
+
+        using var stream = new MemoryStream([4, 5, 6]);
+        Assert.Equal(
+            [4, 5, 6],
+            Assert.IsType<byte[]>(normalizeOutput.Invoke(_executor, [stream])));
+
+        var value = new object();
+        Assert.Same(value, normalizeOutput.Invoke(_executor, [value]));
+
+        var namespaceLessType = AssemblyBuilder
+            .DefineDynamicAssembly(new AssemblyName("VexnorNamespaceLessTests"), AssemblyBuilderAccess.Run)
+            .DefineDynamicModule("VexnorNamespaceLessTests")
+            .DefineType("NamespaceLessValue")
+            .CreateType();
+        var namespaceLessValue = Activator.CreateInstance(namespaceLessType);
+        Assert.Same(namespaceLessValue, normalizeOutput.Invoke(_executor, [namespaceLessValue]));
+
+        var providerValue = new DuckDBParameter();
+        Assert.Equal(
+            providerValue.ToString(),
+            normalizeOutput.Invoke(_executor, [providerValue]));
+    }
+
+    [Fact]
     public async Task ValidatesConnectionModesAndDisposesIdempotently()
     {
         Assert.Throws<ArgumentException>(() => DuckDBExecutor.FromPath(" "));
         Assert.Throws<ArgumentException>(() => DuckDBExecutor.MotherDuck("", "token"));
         Assert.Throws<ArgumentException>(() => DuckDBExecutor.MotherDuck("analytics", ""));
+
+        await using var motherDuck = DuckDBExecutor.MotherDuck("analytics", "token with spaces");
 
         var executor = DuckDBExecutor.Memory();
         await executor.DisposeAsync();
@@ -139,6 +196,47 @@ public sealed class DuckDBExecutorTests : IDisposable
         Assert.Equal("item_state", enumType.EnumName);
         Assert.Equal(["open", "closed"], enumType.EnumValues.Select(value => value.EnumLabel));
         await Assert.ThrowsAsync<ArgumentException>(() => _executor.GetSchemaAsync([]));
+    }
+
+    [Fact]
+    public void RejectsInvalidSchemaMetadata()
+    {
+        var readEnumValues = typeof(DuckDBExecutor).GetMethod(
+            "ReadEnumValues",
+            BindingFlags.Static | BindingFlags.NonPublic);
+        var requiredString = typeof(DuckDBExecutor).GetMethod(
+            "RequiredString",
+            BindingFlags.Static | BindingFlags.NonPublic);
+        var optionalString = typeof(DuckDBExecutor).GetMethod(
+            "OptionalString",
+            BindingFlags.Static | BindingFlags.NonPublic);
+        Assert.NotNull(readEnumValues);
+        Assert.NotNull(requiredString);
+        Assert.NotNull(optionalString);
+
+        var nullLabels = Assert.Throws<TargetInvocationException>(() =>
+            readEnumValues.Invoke(null, [null]));
+        Assert.IsType<InvalidDataException>(nullLabels.InnerException);
+
+        var stringLabels = Assert.Throws<TargetInvocationException>(() =>
+            readEnumValues.Invoke(null, ["open"]));
+        Assert.IsType<InvalidDataException>(stringLabels.InnerException);
+
+        var enumValues = Assert.IsType<List<DuckDBEnumValue>>(
+            readEnumValues.Invoke(null, [new object?[] { null }]));
+        Assert.Equal(string.Empty, Assert.Single(enumValues).EnumLabel);
+
+        IReadOnlyDictionary<string, object?> invalidRow = new Dictionary<string, object?>
+        {
+            ["required"] = 42,
+            ["optional"] = 42
+        };
+        var invalidRequired = Assert.Throws<TargetInvocationException>(() =>
+            requiredString.Invoke(null, [invalidRow, "required"]));
+        Assert.IsType<InvalidDataException>(invalidRequired.InnerException);
+        var invalidOptional = Assert.Throws<TargetInvocationException>(() =>
+            optionalString.Invoke(null, [invalidRow, "optional"]));
+        Assert.IsType<InvalidDataException>(invalidOptional.InnerException);
     }
 
     public void Dispose()

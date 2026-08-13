@@ -38,6 +38,7 @@ export default config(
       },
       rules: {
          "@typescript-eslint/no-unused-vars": "off",
+         "no-useless-escape": ["error", { allowRegexCharacters: ["/"] }],
          "unused-imports/no-unused-imports": "error",
          "unused-imports/no-unused-vars": [
             "error",

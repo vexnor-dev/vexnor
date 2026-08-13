@@ -62,7 +62,7 @@ export class DefaultTokenizer implements ITokenizer {
          }
 
          // 5. Identifiers, operators, and forbidden params
-         const tokenMatch = remaining.match(/^[a-z_][\w]*|^[0-9]+.?[0-9]*|^[-><>=!*+\x2f%]+|^[?@]|\$[0-9]+/);
+         const tokenMatch = remaining.match(/^[a-z_][\w]*|^[0-9]+.?[0-9]*|^[-><>=!*+\/%]+|^[?@]|\$[0-9]+/);
          if (tokenMatch) {
             const token = tokenMatch[0]!;
             if ("?@".includes(token) || token.startsWith("$")) {

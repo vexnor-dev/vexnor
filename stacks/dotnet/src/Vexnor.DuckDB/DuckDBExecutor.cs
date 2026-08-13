@@ -141,7 +141,7 @@ public sealed partial class DuckDBExecutor : DbExecutorBase, IAsyncDisposable
         var result = new Dictionary<string, object?>();
         foreach (DictionaryEntry entry in dictionary)
         {
-            result[Convert.ToString(entry.Key, CultureInfo.InvariantCulture) ?? string.Empty] = NormalizeOutput(entry.Value);
+            result[Convert.ToString(entry.Key, CultureInfo.InvariantCulture)!] = NormalizeOutput(entry.Value);
         }
         return result;
     }

@@ -115,7 +115,7 @@ public sealed partial class DuckDBExecutor
 
         var result = new List<DuckDBEnumValue>();
         foreach (var label in values)
-            result.Add(new DuckDBEnumValue { EnumLabel = Convert.ToString(label, CultureInfo.InvariantCulture) ?? string.Empty });
+            result.Add(new DuckDBEnumValue { EnumLabel = Convert.ToString(label, CultureInfo.InvariantCulture)! });
         return result;
     }
 
