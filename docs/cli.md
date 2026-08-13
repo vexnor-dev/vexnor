@@ -116,7 +116,15 @@ npx vexnor schema select [options]
 | `--all` | Select every discovered object |
 | `--save` | Persist a non-interactive selection override |
 
-Run without `--include`, `--exclude`, or `--all` to review the selection interactively. For automation, provide an explicit selection and `--save`:
+Run without `--include`, `--exclude`, or `--all` to review the selection in an interactive checkbox list:
+
+- use the up/down arrow keys to navigate and Space to toggle an object;
+- press `/` to enter a case-insensitive text filter, Enter to apply it, and Escape to clear it;
+- press Tab to cycle through all, checked, and unchecked objects;
+- press `a` to select or deselect every object visible under the active filters;
+- press Enter to save the complete selection, including objects hidden by filters, or Escape to cancel.
+
+For automation, provide an explicit selection and `--save`:
 
 ```bash
 npx vexnor schema select --profile dev --include public.account public.order --save
