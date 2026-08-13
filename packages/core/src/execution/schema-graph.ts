@@ -36,9 +36,11 @@ export class SchemaGraph {
    /** Map from "schema.name" → SqlTable */
    private readonly _tables: Map<string, SqlTableAny> = new Map();
    private _fkGraph: Map<string, FkEdge[]> | null = null;
+   private readonly plugin: SchemaGraphOptions["plugin"];
 
    constructor(schema: Record<string, unknown>, options: SchemaGraphOptions = {}) {
       const include = options.include ?? "stable-identity";
+      this.plugin = options.plugin;
       for (const entity of Object.values(schema)) {
          if (!this.isTable(entity)) continue;
          const t = entity;
@@ -164,8 +166,10 @@ export class SchemaGraph {
       }
 
       // Create the query: root.join(map).select({})
-      const query = (root as unknown as { join: (m: Record<string, SqlTableAny>) => { select: (a: Record<string, unknown>) => unknown } })
-         .join(joinMap).select({});
+      const query = this.plugin
+         ? this.plugin.newSelectQuery(root, joinMap)
+         : (root as unknown as { join: (m: Record<string, SqlTableAny>) => { select: (a: Record<string, unknown>) => unknown } })
+            .join(joinMap).select({});
 
       // Build joinBy from the path
       const joinByObj: Record<string, { on: [string, string, string][]; type?: JoinType }> = {};

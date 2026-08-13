@@ -28,6 +28,8 @@ export interface SchemaGraphOptions {
     * `all-readable` includes every SqlTable supplied to the graph.
     */
    include?: "stable-identity" | "all-readable";
+   /** Plugin used to construct dialect-specific select queries. */
+   plugin?: import("#src/plugin/vexnor-plugin.js").VexnorPluginAny;
 }
 
 export interface JoinStepRef {

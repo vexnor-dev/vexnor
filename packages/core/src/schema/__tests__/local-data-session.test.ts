@@ -79,6 +79,7 @@ async function session(options?: {
    });
    const db: MockConnection = { query };
    const plugin = new MockPlugin({ name: SESSION_PLUGIN_NAME });
+   const newSelectQuery = vi.spyOn(plugin, "newSelectQuery");
    const catalog = options?.catalog ?? schemaCatalog();
    const selection = await resolveSchemaSelection({ catalog, request: { mode: "non-interactive", all: true } });
    const close = vi.fn(async () => {
@@ -97,12 +98,14 @@ async function session(options?: {
       },
       signal: options?.signal,
    });
-   return { localSession, query, close };
+   return { localSession, query, close, newSelectQuery };
 }
 
 describe("createLocalDataSession", () => {
    test("registers one read query for every selected PK, PK-less, and view mapping", async () => {
-      const { localSession, query, close } = await session();
+      const { localSession, query, close, newSelectQuery } = await session();
+
+      expect(newSelectQuery).toHaveBeenCalledTimes(3);
 
       expect({
          mappings: localSession.mappings.mappings.map(({ id, kind }) => ({ id, kind })),
@@ -297,7 +300,7 @@ describe("createLocalDataSession", () => {
    });
 
    test("registers, executes, and deduplicates selected relationship joins", async () => {
-      const { localSession, query } = await session({ catalog: schemaCatalog(true) });
+      const { localSession, query, newSelectQuery } = await session({ catalog: schemaCatalog(true) });
 
       const first = await localSession.registerJoin({
          from: "alpha.event_log",
@@ -307,6 +310,8 @@ describe("createLocalDataSession", () => {
          from: "alpha.event_log",
          targets: [{ table: "alpha.record", type: "left" }],
       });
+
+      expect(newSelectQuery).toHaveBeenCalledTimes(5);
 
       expect({ first, second, queries: localSession.queries }).toMatchInlineSnapshot(`
         {

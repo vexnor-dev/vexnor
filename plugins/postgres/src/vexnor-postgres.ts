@@ -14,7 +14,8 @@ import { findEnums } from "#src/schema/find-enums.js";
 import { findTables, findViews } from "#src/schema/find-tables.js";
 import { getColumnType } from "#src/schema/get-column-type.js";
 import { PLUGIN_NAME, PostgresQueryHandler } from "#src/postgres-query-handler.js";
-import { SqlQuery, SqlQueryHandler } from "@vexnor/core";
+import { SqlQuery, SqlQueryHandler, type SqlQueryAny, type SqlTableAny } from "@vexnor/core";
+import { PostgresSelectCommand } from "#src/crud/postgres-select-command.js";
 import "#src/postgres-augment.js";
 import pkg from "../package.json" with { type: "json" };
 
@@ -98,6 +99,13 @@ export class VexnorPostgres extends VexnorPlugin<{ Config: ConnectionConfig; Con
       const pool = "uri" in config ? new Pool({ connectionString: config.uri }) : new Pool(config);
 
       return new VexnorConnection(pool, (p) => p.end());
+   }
+
+   override newSelectQuery(
+      table: SqlTableAny,
+      joinMap?: Record<string, SqlTableAny>,
+   ): SqlQueryAny {
+      return new PostgresSelectCommand(table, {}, joinMap).build();
    }
 
    newQueryHandler<T extends { Row?: unknown; Params?: unknown; Read: object; Write: object }>(

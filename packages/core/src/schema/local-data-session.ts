@@ -1,4 +1,3 @@
-import { sqlSelect } from "#src/core/crud/sql-select.js";
 import { SqlQuery, type SqlQueryAny } from "#src/core/query/sql-query.js";
 import { SqlRunError } from "#src/core/sql-run-error.js";
 import { SqlErrorCode } from "#src/core/sql-error-code.js";
@@ -74,7 +73,7 @@ export class LocalDataSession {
          maxConcurrent: limits.maxConcurrency,
       });
       this.mappings = createRuntimeSchemaMappings({ catalog, selection });
-      this.graph = new SchemaGraph(this.mappings.schema, { include: "all-readable" });
+      this.graph = new SchemaGraph(this.mappings.schema, { include: "all-readable", plugin });
       this.abortListener = signal
          ? () => {
               void this.close();
@@ -193,7 +192,7 @@ export class LocalDataSession {
 
    private async registerReadQueries(): Promise<void> {
       for (const mapping of this.mappings.mappings) {
-         const query = sqlSelect(mapping.table, {});
+         const query = this.plugin.newSelectQuery(mapping.table);
          const hash = await query.hash;
          const descriptor: RegisteredLocalQuery = {
             objectIds: [mapping.id],

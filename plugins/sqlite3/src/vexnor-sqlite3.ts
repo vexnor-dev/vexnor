@@ -12,8 +12,9 @@ import {
 import BetterSqlite3 from "better-sqlite3";
 import { findForeignKeys, findPrimaryKeys, findTableColumns, findTables, findViews } from "#src/schema/find-tables.js";
 import { getColumnType } from "#src/schema/get-column-type.js";
-import { SqlQuery, SqlQueryHandler } from "@vexnor/core";
+import { SqlQuery, SqlQueryHandler, type SqlQueryAny, type SqlTableAny } from "@vexnor/core";
 import { BetterSqlite3QueryHandler } from "#src/better-sqlite3-query-handler.js";
+import { Sqlite3SelectCommand } from "#src/crud/sqlite3-select-command.js";
 import pkg from "../package.json" with { type: "json" };
 
 export const PLUGIN_NAME = pkg.name;
@@ -28,6 +29,13 @@ export class VexnorSqlite3 extends VexnorPlugin<{
    override readonly version = pkg.version;
    driver = "better-sqlite3";
    dialect = "sqlite";
+
+   override newSelectQuery(
+      table: SqlTableAny,
+      joinMap?: Record<string, SqlTableAny>,
+   ): SqlQueryAny {
+      return new Sqlite3SelectCommand(table, {}, joinMap).build();
+   }
 
    newQueryHandler<Args extends { Row?: unknown; Params?: unknown; Read: object; Write: object }>(
       query: SqlQuery<Pick<Args, "Row" | "Params">>,

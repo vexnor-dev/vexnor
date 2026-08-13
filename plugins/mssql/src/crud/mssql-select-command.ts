@@ -2,6 +2,7 @@
 import {
    Sql,
    SqlTable,
+   SqlTableAny,
    SqlSelectCommand,
    SqlSelectArgs,
    ParamsOfArgs,
@@ -36,14 +37,15 @@ export type MssqlSelectCommandResult<
 export class MssqlSelectCommand<
    T extends { Select: Record<string, unknown> },
    Args extends SqlSelectArgs<T>,
-> extends SqlSelectCommand<T, Args> {
+   M extends Record<string, SqlTableAny> = Record<string, never>,
+> extends SqlSelectCommand<T, Args, M> {
    private readonly includeOneArg: Record<string, SqlQueryBaseAny> | undefined;
    private readonly includeManyArg: Record<string, SqlQueryBaseAny> | undefined;
 
-   constructor(table: SqlTable<T>, args: Args) {
+   constructor(table: SqlTable<T>, args: Args, joinMap?: M) {
       const { includeOne, includeMany, ...baseArgs } = args;
 
-      super(table, baseArgs as Args, info({ driver: "transactsql" }), undefined, undefined, undefined);
+      super(table, baseArgs as Args, info({ driver: "transactsql" }), joinMap, undefined, undefined);
 
       this.includeOneArg = includeOne;
       this.includeManyArg = includeMany;

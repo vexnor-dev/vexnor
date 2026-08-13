@@ -13,7 +13,8 @@ import {
    VexnorPlugin,
 } from "@vexnor/core/plugin";
 import { MssqlQueryHandler, PLUGIN_NAME } from "./mssql-query-handler.js";
-import { SqlQueryHandler, SqlQuery } from "@vexnor/core";
+import { SqlQueryHandler, SqlQuery, type SqlQueryAny, type SqlTableAny } from "@vexnor/core";
+import { MssqlSelectCommand } from "#src/crud/mssql-select-command.js";
 import "#src/mssql-augment.js";
 import { getColumnType } from "./get-column-type.js";
 import { findForeignKeys, findPrimaryKeys, findTables, findViews } from "./schema/find-tables.js";
@@ -175,6 +176,13 @@ export class VexnorMssql extends VexnorPlugin<{ Config: ConnectionConfig; Connec
       await pool.connect();
 
       return new VexnorConnection(pool, (p: mssql.ConnectionPool) => p.close());
+   }
+
+   override newSelectQuery(
+      table: SqlTableAny,
+      joinMap?: Record<string, SqlTableAny>,
+   ): SqlQueryAny {
+      return new MssqlSelectCommand(table, {}, joinMap).build();
    }
 
    newQueryHandler<Args extends { Row?: unknown; Params?: unknown; Read: object; Write: object }>(

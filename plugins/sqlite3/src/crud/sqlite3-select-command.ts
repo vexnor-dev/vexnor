@@ -1,6 +1,7 @@
 import {
    Sql,
    SqlTable,
+   SqlTableAny,
    SqlSelectCommand,
    SqlSelectArgs,
    ParamsOfArgs,
@@ -34,18 +35,19 @@ export type Sqlite3SelectCommandResult<
 export class Sqlite3SelectCommand<
    T extends { Select: Record<string, unknown> },
    Args extends SqlSelectArgs<T>,
-> extends SqlSelectCommand<T, Args> {
+   M extends Record<string, SqlTableAny> = Record<string, never>,
+> extends SqlSelectCommand<T, Args, M> {
    private readonly includeOneArg: Record<string, SqlQueryBaseAny> | undefined;
    private readonly includeManyArg: Record<string, SqlQueryBaseAny> | undefined;
 
-   constructor(table: SqlTable<T>, args: Args) {
+   constructor(table: SqlTable<T>, args: Args, joinMap?: M) {
       const { includeOne, includeMany, ...baseArgs } = args;
 
       super(
          table,
          baseArgs as Args,
          info({ driver: "sqlite" }),
-         undefined,
+         joinMap,
          undefined,
          undefined,
       );
