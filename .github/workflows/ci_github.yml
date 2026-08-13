@@ -120,7 +120,7 @@ jobs:
       - name: Migrate databases
         run: |
           pnpm db-migrate:postgres
-          pnpm db-migrate:sqlite3
+          pnpm db-prepare:files
           pnpm db-migrate:mssql
 
       - name: Build

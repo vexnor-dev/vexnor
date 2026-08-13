@@ -15,6 +15,9 @@ importers:
 
   .:
     devDependencies:
+      '@duckdb/node-api':
+        specifier: 1.5.5-r.3
+        version: 1.5.5-r.3
       '@eslint/js':
         specifier: ^9.39.4
         version: 9.39.4
@@ -81,6 +84,9 @@ importers:
       sqlite3:
         specifier: ^5.1.7
         version: 5.1.7
+      tsx:
+        specifier: ^4.21.0
+        version: 4.22.4
       typescript:
         specifier: 7.0.2
         version: 7.0.2
@@ -140,9 +146,15 @@ importers:
 
   examples/react-next-app:
     dependencies:
+      '@duckdb/node-api':
+        specifier: 1.5.5-r.3
+        version: 1.5.5-r.3
       '@vexnor/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@vexnor/duckdb':
+        specifier: workspace:*
+        version: link:../../plugins/duckdb
       '@vexnor/mssql':
         specifier: workspace:*
         version: link:../../plugins/mssql
@@ -234,6 +246,9 @@ importers:
 
   examples/react-vite-api:
     dependencies:
+      '@duckdb/node-api':
+        specifier: 1.5.5-r.3
+        version: 1.5.5-r.3
       '@hono/node-server':
         specifier: 1.19.13
         version: 1.19.13(hono@4.12.25)
@@ -264,6 +279,9 @@ importers:
       '@vexnor/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@vexnor/duckdb':
+        specifier: workspace:*
+        version: link:../../plugins/duckdb
       '@vexnor/mssql':
         specifier: workspace:*
         version: link:../../plugins/mssql
@@ -358,6 +376,9 @@ importers:
       '@vexnor/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@vexnor/duckdb':
+        specifier: workspace:*
+        version: link:../../plugins/duckdb
       '@vexnor/mssql':
         specifier: workspace:*
         version: link:../../plugins/mssql
@@ -377,6 +398,9 @@ importers:
         specifier: ^6.1.2
         version: 6.1.2(react@19.2.7)
     devDependencies:
+      '@duckdb/node-api':
+        specifier: 1.5.5-r.3
+        version: 1.5.5-r.3
       '@testing-library/react':
         specifier: ^16.3.2
         version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)

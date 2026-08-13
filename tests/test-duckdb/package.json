@@ -6,9 +6,9 @@
    "author": "Adrian Topala",
    "license": "Apache-2.0",
    "scripts": {
-      "build:dependencies": "pnpm --filter='@vexnor/core' --filter='@vexnor/duckdb' run build",
+      "build:dependencies": "pnpm --filter @vexnor/core --filter @vexnor/duckdb run build",
       "prepare-db": "node --import tsx src/create-test-database.ts",
-      "codegen:vexnor": "node ../../packages/core/cli.mjs codegen --plugin @vexnor/duckdb --schema main --camelCaseColumns --uri ./vexnor-dev.duckdb --outDir './src/codegen'",
+      "codegen:vexnor": "node ../../packages/core/cli.mjs codegen --plugin @vexnor/duckdb --schema main --camelCaseColumns --uri ./vexnor-dev.duckdb --outDir ./src/codegen",
       "prebuild": "run-s build:dependencies prepare-db codegen:vexnor",
       "build": "tsc -b",
       "pretest": "run-s build",

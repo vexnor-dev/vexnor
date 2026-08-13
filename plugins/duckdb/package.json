@@ -7,6 +7,10 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "imports": {
+    "#src/duckdb-execution.js": {
+      "browser": "./dist/duckdb-execution.browser.js",
+      "default": "./dist/duckdb-execution.js"
+    },
     "#src/*": "./dist/*"
   },
   "exports": {

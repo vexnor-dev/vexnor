@@ -8,15 +8,18 @@ import fs from "node:fs";
 import pg from "pg";
 import mssql from "mssql";
 import BetterSqlite3 from "better-sqlite3";
+import { VexnorDuckDB } from "@vexnor/duckdb";
 import { trace } from "@opentelemetry/api";
 import pino from "pino";
 import "@vexnor/core/telemetry";
 import * as postgresQueries from "../../shared/queries/postgres.js";
 import * as mssqlQueries from "../../shared/queries/mssql.js";
 import * as sqlite3Queries from "../../shared/queries/sqlite3.js";
+import * as duckdbQueries from "../../shared/queries/duckdb.js";
 import vexnorMssql from "@vexnor/mssql";
 import vexnorPostgres from "@vexnor/postgres";
 import vexnorSqlite3 from "@vexnor/sqlite3";
+import vexnorDuckDB from "@vexnor/duckdb";
 import { SqlQueryRegistry } from "@vexnor/core/execution";
 import { handleDbError } from "./db-error.js";
 
@@ -89,9 +92,17 @@ const sqliteDb = new BetterSqlite3(
 );
 log.info({ dialect: "sqlite3", path: process.env.SQLITE_PATH ?? "../../@db-sqlite3/vexnor-dev.sqlite" }, "Database connected");
 
+const duckdbPath = path.resolve(process.cwd(), process.env.DUCKDB_PATH ?? "../../@db-duckdb/vexnor-dev.duckdb");
+const duckdbConnection = await new VexnorDuckDB().createConnection({
+   config: { mode: "file", path: duckdbPath },
+});
+const duckDb = duckdbConnection.db;
+log.info({ dialect: "duckdb", path: duckdbPath }, "Database connected");
+
 await queryRegistry.register(vexnorPostgres, postgresQueries);
 await queryRegistry.register(vexnorMssql, mssqlQueries);
 await queryRegistry.register(vexnorSqlite3, sqlite3Queries);
+await queryRegistry.register(vexnorDuckDB, duckdbQueries);
 
 queryRegistry.registerOpenTelemetry(tracer);
 
@@ -135,6 +146,13 @@ app.get("/api/health", async (c) => {
       checks.sqlite3 = err instanceof Error ? err.message : String(err);
    }
 
+   try {
+      await duckDb.run("SELECT 1");
+      checks.duckdb = "ok";
+   } catch (err) {
+      checks.duckdb = err instanceof Error ? err.message : String(err);
+   }
+
    const allOk = Object.values(checks).every((v) => v === "ok");
    return c.json({ status: allOk ? "ok" : "degraded", databases: checks }, allOk ? 200 : 503);
 });
@@ -155,6 +173,8 @@ app.post("/api/db", async (c) => {
                   return pgPool;
                case vexnorSqlite3.name:
                   return sqliteDb;
+               case vexnorDuckDB.name:
+                  return duckDb;
                default:
                   throw new Error(`Unknown plugin: ${plugin}`);
             }

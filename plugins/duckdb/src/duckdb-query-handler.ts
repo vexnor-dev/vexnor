@@ -12,34 +12,13 @@ import {
    SqlRunArgs,
    SqlRunError,
 } from "@vexnor/core";
-import {
-   type DuckDBPreparedStatement,
-   type DuckDBValue,
-   type DuckDBValueConverter,
-   JSDuckDBValueConverter,
-   type JS,
-} from "@duckdb/node-api";
 import { DuckDBTokenizer } from "#src/duckdb-tokenizer.js";
-import { bindDuckDBValue, hasComplexDuckDBValues, toDuckDBValue } from "#src/duckdb-values.js";
+import { executeDuckDBQuery, type DuckDBClient } from "#src/duckdb-execution.js";
 import pkg from "../package.json" with { type: "json" };
 
+export type { DuckDBClient } from "#src/duckdb-execution.js";
+
 export const PLUGIN_NAME = pkg.name;
-
-type DuckDBChunk = {
-   convertRows<TValue>(converter: DuckDBValueConverter<TValue>): (TValue | null)[][];
-};
-
-type DuckDBStreamResult = {
-   deduplicatedColumnNames(): string[];
-   readonly rowsChanged: number;
-   readonly statementType: number;
-   [Symbol.asyncIterator](): AsyncIterableIterator<DuckDBChunk>;
-};
-
-export type DuckDBClient = {
-   prepare(text: string): Promise<DuckDBPreparedStatement>;
-   stream(text: string, values?: DuckDBValue[]): Promise<DuckDBStreamResult>;
-};
 
 export type DuckDBQueryResult<TRow> = {
    rows: TRow[];
@@ -122,23 +101,16 @@ export class DuckDBQueryHandler<T extends { Row?: unknown; Params?: unknown }> e
          queryInput = this.getOptions(args);
          if (debug) debug(Object.freeze(queryInput));
          const { text, values } = queryInput;
-         const nativeResult = await executeDuckDBQuery(resolvedDb, text, values);
-         const names = nativeResult.deduplicatedColumnNames();
-         const rows: Record<string, JS>[] = [];
-         for await (const chunk of nativeResult) {
-            for (const values of chunk.convertRows(JSDuckDBValueConverter)) {
-               rows.push(Object.fromEntries(names.map((name, index) => [name, values[index] ?? null])));
-            }
-         }
+         const executionResult = await executeDuckDBQuery(resolvedDb, text, values);
          if (meta) {
             meta.sql = text;
             meta.params = values;
          }
          return {
-            rows: rows as RowOrDefault<T["Row"]>[],
-            rowCount: rows.length,
-            rowsChanged: nativeResult.rowsChanged,
-            statementType: nativeResult.statementType,
+            rows: executionResult.rows as RowOrDefault<T["Row"]>[],
+            rowCount: executionResult.rows.length,
+            rowsChanged: executionResult.rowsChanged,
+            statementType: executionResult.statementType,
          };
       } catch (error) {
          const queryName = await getQueryName(this.source);
@@ -154,22 +126,6 @@ export class DuckDBQueryHandler<T extends { Row?: unknown; Params?: unknown }> e
             },
          );
       }
-   }
-}
-
-async function executeDuckDBQuery(db: DuckDBClient, text: string, values: unknown[]) {
-   if (!hasComplexDuckDBValues(values)) {
-      return db.stream(text, values.map(toDuckDBValue));
-   }
-
-   const statement = await db.prepare(text);
-   try {
-      for (let index = 0; index < values.length; index++) {
-         bindDuckDBValue(statement, index + 1, values[index]);
-      }
-      return await statement.stream();
-   } finally {
-      statement.destroySync();
    }
 }
 

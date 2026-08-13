@@ -3,5 +3,6 @@ export async function register() {
       await import("@vexnor/postgres");
       await import("@vexnor/mssql");
       await import("@vexnor/sqlite3");
+      await import("@vexnor/duckdb");
    }
 }

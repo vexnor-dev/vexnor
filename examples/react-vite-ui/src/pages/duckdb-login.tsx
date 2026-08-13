@@ -1,0 +1,103 @@
+import "@vexnor/duckdb";
+import { useNavigate } from "@tanstack/react-router";
+import { Suspense, use, useEffect, useState } from "react";
+import type { IAccountSelect } from "#shared/codegen/duckdb/main.account-table.js";
+import type { IOrderSelect } from "#shared/codegen/duckdb/main.order-table.js";
+import { selectAccountsForLogin } from "#shared/queries/duckdb";
+import { useAuth } from "#src/auth-context.js";
+import { remoteClient } from "#src/remote-client.js";
+
+type LoginAccount = IAccountSelect & {
+   orders: (IOrderSelect & { productCount: number })[];
+};
+
+function makeFakeToken(accountId: string, name: string): string {
+   const header = btoa(JSON.stringify({ alg: "none" })).replace(/=/g, "");
+   const payload = btoa(JSON.stringify({ sub: accountId, name, roles: ["user"] })).replace(/=/g, "");
+   return `${header}.${payload}.signature`;
+}
+
+function AccountPickerTable({
+   promise,
+   onPick,
+}: {
+   promise: Promise<LoginAccount[]>;
+   onPick: (account: LoginAccount) => void;
+}) {
+   const accounts = use(promise);
+   const [picking, setPicking] = useState<string | null>(null);
+
+   function handlePick(account: LoginAccount) {
+      setPicking(account.accountId);
+      onPick(account);
+   }
+
+   return (
+      <div className="table-wrap">
+         <table>
+            <thead>
+               <tr>
+                  <th>Email</th>
+                  <th>First Name</th>
+                  <th>Last Name</th>
+                  <th>Orders</th>
+                  <th></th>
+               </tr>
+            </thead>
+            <tbody>
+               {accounts.length === 0 ? (
+                  <tr className="empty-row">
+                     <td colSpan={5}>No accounts found.</td>
+                  </tr>
+               ) : (
+                  accounts.map((account) => (
+                     <tr key={account.accountId}>
+                        <td>{account.email}</td>
+                        <td>{account.firstName}</td>
+                        <td>{account.lastName}</td>
+                        <td>{account.orders.length}</td>
+                        <td>
+                           <button
+                              className="btn btn-primary"
+                              disabled={picking === account.accountId}
+                              onClick={() => handlePick(account)}
+                           >
+                              {picking === account.accountId ? "Signing in…" : "Sign in as"}
+                           </button>
+                        </td>
+                     </tr>
+                  ))
+               )}
+            </tbody>
+         </table>
+      </div>
+   );
+}
+
+export default function DuckDBLoginPage() {
+   const { login } = useAuth("duckdb");
+   const navigate = useNavigate();
+   const [promise, setPromise] = useState<Promise<LoginAccount[]>>(Promise.resolve([]));
+
+   useEffect(() => {
+      setPromise(selectAccountsForLogin.all({ db: remoteClient, params: {} }));
+   }, []);
+
+   function handlePick(account: LoginAccount) {
+      login(makeFakeToken(account.accountId, `${account.firstName} ${account.lastName}`));
+      void navigate({ to: "/duckdb", search: { filter: undefined } });
+   }
+
+   return (
+      <div className="page">
+         <h1>Sign in — DuckDB</h1>
+         <p className="login-hint">
+            Pick an account to sign in as. This is a demo — the selected <code>account_id</code> becomes the runtime{" "}
+            <code>userId</code> injected server-side into queries that use <code>runtime("userId")</code>.
+         </p>
+         <Suspense fallback={<p className="loading">Loading accounts…</p>}>
+            <AccountPickerTable promise={promise} onPick={handlePick} />
+         </Suspense>
+      </div>
+   );
+}

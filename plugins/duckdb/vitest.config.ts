@@ -13,6 +13,7 @@ export default mergeConfig(sharedConfig, {
          "#src/default-query-options.js": path.resolve(__dirname, "./src/default-query-options.ts"),
          "#src/duckdb-augment.js": path.resolve(__dirname, "./src/duckdb-augment.ts"),
          "#src/duckdb-connection-config.js": path.resolve(__dirname, "./src/duckdb-connection-config.ts"),
+         "#src/duckdb-execution.js": path.resolve(__dirname, "./src/duckdb-execution.ts"),
          "#src/duckdb-query-handler.js": path.resolve(__dirname, "./src/duckdb-query-handler.ts"),
          "#src/duckdb-sql.js": path.resolve(__dirname, "./src/duckdb-sql.ts"),
          "#src/duckdb-tokenizer.js": path.resolve(__dirname, "./src/duckdb-tokenizer.ts"),

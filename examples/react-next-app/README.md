@@ -1,6 +1,6 @@
 # @vexnor/example-react-next-app
 
-A Next.js App Router example demonstrating isomorphic SQL execution with Vexnor across PostgreSQL, MS SQL Server, and SQLite3.
+A Next.js App Router example demonstrating isomorphic SQL execution with Vexnor across PostgreSQL, MS SQL Server, SQLite3, and DuckDB.
 
 ## What this shows
 
@@ -8,7 +8,7 @@ A Next.js App Router example demonstrating isomorphic SQL execution with Vexnor 
 - **Server Actions** for create/delete mutations — same query objects used on the server, no separate endpoint needed
 - **`/api/db` route** — a `QueryRegistry` endpoint that allows the same queries to be executed remotely from the client when needed
 - **Shared queries** — one query definition works across RSC, Server Actions, and remote execution
-- **Three databases** — PostgreSQL, MS SQL Server, SQLite3, each with identical query patterns
+- **Four databases** — PostgreSQL, MS SQL Server, SQLite3, and DuckDB, each with identical query patterns
 
 ## Structure
 
@@ -17,13 +17,14 @@ app/
   postgres/accounts/   # PostgreSQL accounts page
   mssql/accounts/      # MS SQL Server accounts page
   sqlite3/accounts/    # SQLite3 accounts page
+  duckdb/accounts/     # DuckDB accounts page
   api/db/              # QueryRegistry HTTP endpoint
   components/          # Shared UI components
 
 shared/
-  queries/             # Query definitions (postgres.ts, mssql.ts, sqlite3.ts)
+  queries/             # Query definitions (postgres.ts, mssql.ts, sqlite3.ts, duckdb.ts)
   db/                  # DB connection singletons
-  codegen/             # Generated types (postgres/, mssql/, sqlite3/)
+  codegen/             # Generated types (postgres/, mssql/, sqlite3/, duckdb/)
 ```
 
 ## Getting started
@@ -40,7 +41,7 @@ pnpm install
 pnpm codegen
 ```
 
-This runs codegen for all three databases in parallel. Requires the databases to be running and `env-dev.json` configured at the repo root.
+This recreates the local SQLite and DuckDB files, then runs codegen for all four databases in parallel. PostgreSQL and MS SQL Server must be running with `env-dev.json` configured at the repo root.
 
 ### 3. Run the dev server
 
@@ -48,7 +49,7 @@ This runs codegen for all three databases in parallel. Requires the databases to
 pnpm dev
 ```
 
-This builds all referenced workspace packages (`vexnor`, `@vexnor/postgres`, `@vexnor/mssql`, `@vexnor/sqlite3`) via `tsc -b` before starting Next.js.
+This builds all referenced workspace packages (`vexnor`, `@vexnor/postgres`, `@vexnor/mssql`, `@vexnor/sqlite3`, `@vexnor/duckdb`) via `tsc -b` before starting Next.js.
 
 Open [http://localhost:3000](http://localhost:3000).
 
@@ -67,3 +68,4 @@ Open [http://localhost:3000](http://localhost:3000).
 | `MSSQL_USER` | `vexnor_dev` | MS SQL Server user |
 | `MSSQL_PASSWORD` | `P@ssw0rd!` | MS SQL Server password |
 | `SQLITE_PATH` | `../../@db-sqlite3/vexnor-dev.sqlite` | Path to SQLite database file |
+| `DUCKDB_PATH` | `../../@db-duckdb/vexnor-dev.duckdb` | Path to DuckDB database file |

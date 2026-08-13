@@ -1,17 +1,17 @@
 # @vexnor/example-react-vite-api
 
-A React + Vite + Hono example demonstrating isomorphic SQL execution with Vexnor across PostgreSQL, MS SQL Server, and SQLite3.
+A React + Vite + Hono example demonstrating isomorphic SQL execution with Vexnor across PostgreSQL, MS SQL Server, SQLite3, and DuckDB.
 
 ## What this shows
 
 - **Isomorphic queries** — the same query object defined once in `shared/queries/` runs both on the server (Hono) and from the browser (via `remoteClient` → `/api/db`)
 - **`runtime()` / `runtimeValue`** — `selectMyOrders` uses `runtime("userId")` so the user ID is injected server-side from the registry context; the client passes `runtimeValue` which is stripped before the HTTP request is sent
 - **`QueryRegistry`** — the server registers all queries at startup; the client dispatches by hash, never sending raw SQL over the wire
-- **Per-DB auth sessions** — each database (postgres, mssql, sqlite3) has its own independent login session; `useAuth(db)` and `useRemoteClient(db)` are scoped per database
+- **Per-DB auth sessions** — each database (postgres, mssql, sqlite3, duckdb) has its own independent login session; `useAuth(db)` and `useRemoteClient(db)` are scoped per database
 - **Login picker** — a demo login screen for each database lets you sign in as any account; the selected `account_id` becomes the runtime `userId` injected into `selectMyOrders`
 - **`use(Promise)` + `Suspense`** — data fetching with React's built-in streaming primitives, no extra library
 - **URL search params for filtering** — `?filter=john` drives server-side SQL filtering, shareable and bookmarkable
-- **Three databases** — PostgreSQL, MS SQL Server, SQLite3, each with identical query patterns
+- **Four databases** — PostgreSQL, MS SQL Server, SQLite3, and DuckDB, each with identical query patterns
 - **`vexnor.config.ts`** — full CLI exec config; run any query directly against the example DBs with `vexnor exec run`
 
 ## Architecture
@@ -25,10 +25,13 @@ client/                          server/
     mssql-login.tsx                /api/db  (POST)
     sqlite3-accounts.tsx             │
     sqlite3-login.tsx                ▼
+    duckdb-accounts.tsx
+    duckdb-login.tsx
   components/                      shared/queries/
     account-grid.tsx                 postgres.ts  ◄── same file used by both
     my-orders.tsx                    mssql.ts
     create-account-form.tsx          sqlite3.ts
+                                      duckdb.ts
     search-input.tsx
 ```
 
@@ -36,7 +39,7 @@ client/                          server/
 
 ```
 client/src/
-  pages/           Per-database account pages + login pages (postgres, mssql, sqlite3)
+  pages/           Per-database account pages + login pages (postgres, mssql, sqlite3, duckdb)
   components/      AccountGrid, MyOrders, CreateAccountForm, SearchInput
   routes/          TanStack Router setup with search param validation
   auth-context.tsx Per-DB session state; useAuth(db), useAuthSessions()
@@ -46,11 +49,11 @@ server/src/
   server.ts        Hono server — QueryRegistry, DB connections, /api/db
 
 shared/
-  queries/         Query definitions (postgres.ts, mssql.ts, sqlite3.ts)
-                   Query exec configs (postgres.vexnor.ts, mssql.vexnor.ts, sqlite3.vexnor.ts)
-  codegen/         Generated types (postgres/, mssql/, sqlite3/)
+  queries/         Query definitions (postgres.ts, mssql.ts, sqlite3.ts, duckdb.ts)
+                   Query exec configs for all four databases
+  codegen/         Generated types (postgres/, mssql/, sqlite3/, duckdb/)
 
-vexnor.config.ts   CLI exec config — profiles for all three databases
+vexnor.config.ts   CLI exec config — profiles for all four databases
 ```
 
 ## Getting started
@@ -67,7 +70,7 @@ pnpm install
 pnpm codegen
 ```
 
-Runs codegen for all three databases in parallel. Requires the databases to be running and `env-dev.json` configured at the repo root.
+Recreates the local SQLite and DuckDB files, then runs codegen for all four databases in parallel. PostgreSQL and MS SQL Server must be running with `env-dev.json` configured at the repo root.
 
 ### 3. Run dev server + client
 
@@ -104,6 +107,7 @@ npx vexnor exec run selectAccounts -q shared/queries/sqlite3.vexnor.ts
 | `MSSQL_USER` | `vexnor_dev` | MS SQL Server user |
 | `MSSQL_PASSWORD` | `P@ssw0rd!` | MS SQL Server password |
 | `SQLITE_PATH` | `../../@db-sqlite3/vexnor-dev.sqlite` | Path to SQLite database file |
+| `DUCKDB_PATH` | `../../@db-duckdb/vexnor-dev.duckdb` | Path to DuckDB database file |
 
 ## Key files
 
@@ -118,4 +122,4 @@ npx vexnor exec run selectAccounts -q shared/queries/sqlite3.vexnor.ts
 | `client/src/pages/postgres-accounts.tsx` | Tabs: My Orders (runtime userId) + Accounts CRUD |
 | `client/src/pages/postgres-login.tsx` | Login picker — sign in as any account |
 | `client/src/components/my-orders.tsx` | Orders table driven by `runtime("userId")` |
-| `vexnor.config.ts` | CLI exec profiles for all three databases |
+| `vexnor.config.ts` | CLI exec profiles for all four databases |

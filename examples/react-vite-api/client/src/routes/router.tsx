@@ -6,23 +6,27 @@ import Sqlite3AccountsPage from "../pages/sqlite3-accounts";
 import Sqlite3LoginPage from "../pages/sqlite3-login";
 import PostgresLoginPage from "../pages/postgres-login";
 import MssqlLoginPage from "../pages/mssql-login";
+import DuckDBAccountsPage from "../pages/duckdb-accounts";
+import DuckDBLoginPage from "../pages/duckdb-login";
 import { useAuthSessions, type DbKey } from "#src/auth-context";
 
 const DB_LABELS: Record<DbKey, string> = {
    postgres: "PostgreSQL",
    mssql: "MS SQL",
    sqlite3: "SQLite3",
+   duckdb: "DuckDB",
 };
 
 const DB_LOGIN_PATHS: Record<DbKey, string> = {
    postgres: "/postgres-login",
    mssql: "/mssql-login",
    sqlite3: "/sqlite3-login",
+   duckdb: "/duckdb-login",
 };
 
 function AuthBar() {
-   const { postgres, mssql, sqlite3, logout } = useAuthSessions();
-   const sessions: Record<DbKey, ReturnType<typeof useAuthSessions>[DbKey]> = { postgres, mssql, sqlite3 };
+   const { postgres, mssql, sqlite3, duckdb, logout } = useAuthSessions();
+   const sessions: Record<DbKey, ReturnType<typeof useAuthSessions>[DbKey]> = { postgres, mssql, sqlite3, duckdb };
    const navigate = useNavigate();
 
    return (
@@ -39,7 +43,7 @@ function AuthBar() {
                ) : (
                   <>
                      {" · "}<span className="auth-bar-anon">Anonymous</span>
-                     <button className="btn btn-ghost" onClick={() => void navigate({ to: DB_LOGIN_PATHS[db] as "/postgres-login" | "/mssql-login" | "/sqlite3-login" })}>Sign in</button>
+                     <button className="btn btn-ghost" onClick={() => void navigate({ to: DB_LOGIN_PATHS[db] as "/postgres-login" | "/mssql-login" | "/sqlite3-login" | "/duckdb-login" })}>Sign in</button>
                   </>
                )}
             </span>
@@ -57,6 +61,7 @@ const rootRoute = createRootRoute({
             <Link to="/postgres" search={{ filter: undefined }} activeProps={{ className: "active" }}>PostgreSQL</Link>
             <Link to="/mssql" search={{ filter: undefined }} activeProps={{ className: "active" }}>MS SQL Server</Link>
             <Link to="/sqlite3" search={{ filter: undefined }} activeProps={{ className: "active" }}>SQLite3</Link>
+            <Link to="/duckdb" search={{ filter: undefined }} activeProps={{ className: "active" }}>DuckDB</Link>
          </nav>
          <Outlet />
       </div>
@@ -67,6 +72,12 @@ const sqlite3LoginRoute = createRoute({
    getParentRoute: () => rootRoute,
    path: "/sqlite3-login",
    component: Sqlite3LoginPage,
+});
+
+const duckdbLoginRoute = createRoute({
+   getParentRoute: () => rootRoute,
+   path: "/duckdb-login",
+   component: DuckDBLoginPage,
 });
 
 const postgresLoginRoute = createRoute({
@@ -108,6 +119,15 @@ const sqlite3Route = createRoute({
    component: Sqlite3AccountsPage,
 });
 
+const duckdbRoute = createRoute({
+   getParentRoute: () => rootRoute,
+   path: "/duckdb",
+   validateSearch: (search: Record<string, unknown>) => ({
+      filter: typeof search.filter === "string" ? search.filter : undefined,
+   }),
+   component: DuckDBAccountsPage,
+});
+
 const indexRoute = createRoute({
    getParentRoute: () => rootRoute,
    path: "/",
@@ -117,11 +137,13 @@ const indexRoute = createRoute({
 const routeTree = rootRoute.addChildren([
    indexRoute,
    sqlite3LoginRoute,
+   duckdbLoginRoute,
    postgresLoginRoute,
    mssqlLoginRoute,
    postgresRoute,
    mssqlRoute,
    sqlite3Route,
+   duckdbRoute,
 ]);
 
 export const router = createRouter({ routeTree });

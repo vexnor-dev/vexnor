@@ -19,6 +19,12 @@ const databases = [
       description: "Server Component fetches directly via better-sqlite3. Mutations use Server Actions.",
       badge: "better-sqlite3",
    },
+   {
+      href: "/duckdb/accounts",
+      name: "DuckDB",
+      description: "Server Component fetches directly via the DuckDB Neo client. Mutations use Server Actions.",
+      badge: "@duckdb/node-api",
+   },
 ];
 
 const highlights = [
@@ -45,7 +51,7 @@ export default function HomePage() {
       <div className="max-w-3xl mx-auto px-6 py-16">
          <h1 className="text-3xl font-semibold text-gray-900 mb-3">Vexnor — Next.js Example</h1>
          <p className="text-gray-500 text-lg mb-12">
-            Isomorphic SQL execution across PostgreSQL, MS SQL Server, and SQLite3 using Next.js App Router.
+            Isomorphic SQL execution across PostgreSQL, MS SQL Server, SQLite3, and DuckDB using Next.js App Router.
          </p>
 
          <section className="mb-12">
@@ -90,6 +96,7 @@ export default function HomePage() {
                   ["app/postgres/accounts/page.tsx", "Server Component — fetches directly, Server Actions for mutations"],
                   ["app/mssql/accounts/page.tsx", "Same pattern for MS SQL Server"],
                   ["app/sqlite3/accounts/page.tsx", "Same pattern for SQLite3"],
+                  ["app/duckdb/accounts/page.tsx", "Same pattern for DuckDB"],
                   ["app/api/db/route.ts", "QueryRegistry endpoint for remote/client-side execution"],
                   ["instrumentation.ts", "Loads vexnor plugin augments before any module evaluates"],
                ].map(([path, desc]) => (

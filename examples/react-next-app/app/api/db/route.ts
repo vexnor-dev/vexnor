@@ -3,12 +3,15 @@ import { SqlQueryRegistry } from "@vexnor/core/execution";
 import vexnorPostgres from "@vexnor/postgres";
 import vexnorMssql from "@vexnor/mssql";
 import vexnorSqlite3 from "@vexnor/sqlite3";
+import vexnorDuckDB from "@vexnor/duckdb";
 import { pgPool } from "@/shared/db/postgres";
 import { getMssqlPool } from "@/shared/db/mssql";
 import { sqliteDb } from "@/shared/db/sqlite3";
+import { getDuckDb } from "@/shared/db/duckdb";
 import { queries as postgresQueries } from "@/shared/queries/postgres";
 import * as mssqlQueries from "@/shared/queries/mssql";
 import * as sqlite3Queries from "@/shared/queries/sqlite3";
+import * as duckdbQueries from "@/shared/queries/duckdb";
 import { SqlExecuteMode } from "@vexnor/core";
 
 const SQL_ERROR_STATUS: Record<string, number> = {
@@ -27,6 +30,7 @@ const registry = new SqlQueryRegistry();
 await registry.register(vexnorPostgres, postgresQueries);
 await registry.register(vexnorMssql, mssqlQueries);
 await registry.register(vexnorSqlite3, sqlite3Queries);
+await registry.register(vexnorDuckDB, duckdbQueries);
 
 export async function POST(request: Request) {
    const args = (await request.json()) as {
@@ -50,6 +54,8 @@ export async function POST(request: Request) {
                   return (await getMssqlPool()).request();
                case vexnorSqlite3.name:
                   return sqliteDb;
+               case vexnorDuckDB.name:
+                  return getDuckDb();
                default:
                   throw new Error(`Unknown plugin: ${plugin}`);
             }
