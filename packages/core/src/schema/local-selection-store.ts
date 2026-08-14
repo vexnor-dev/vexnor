@@ -136,7 +136,7 @@ function validateScope(value: unknown, label: string): SchemaSelectionScope {
 function validateSelectionObject(value: unknown, label: string): SchemaSelectionObject {
    if (!isRecord(value)) throw new LocalSelectionConfigError(`${label} must be an object`);
    assertOnlyKeys(value, ["id", "kind", "selected"], label);
-   if (typeof value.id !== "string" || !/^.+\..+$/.test(value.id)) {
+   if (typeof value.id !== "string" || !isSchemaQualifiedObjectIdentity(value.id)) {
       throw new LocalSelectionConfigError(`Invalid schema-qualified object identity in ${label}`);
    }
    if (value.kind !== "table" && value.kind !== "view") {
@@ -144,6 +144,11 @@ function validateSelectionObject(value: unknown, label: string): SchemaSelection
    }
    if (typeof value.selected !== "boolean") throw new LocalSelectionConfigError(`Invalid selected state in ${label}`);
    return { id: value.id, kind: value.kind, selected: value.selected };
+}
+
+function isSchemaQualifiedObjectIdentity(value: string): boolean {
+   const separator = value.indexOf(".");
+   return separator > 0 && separator < value.length - 1;
 }
 
 function normalizeScope(scope: SchemaSelectionScope): SchemaSelectionScope {

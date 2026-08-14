@@ -103,6 +103,44 @@ describe("local selection store", () => {
       `);
    });
 
+   test("preserves qualified identities containing dots in physical names", async () => {
+      const directory = await temporaryDirectory();
+      const filePath = path.join(directory, "vexnor.local.json");
+      await writeFile(
+         filePath,
+         JSON.stringify({
+            formatVersion: LOCAL_SELECTION_FORMAT_VERSION,
+            profiles: {
+               dev: {
+                  ...scope,
+                  objects: [{ id: "alpha.event.record", kind: "table", selected: true }],
+               },
+            },
+         }),
+         "utf8",
+      );
+
+      await expect(loadLocalSelection(filePath)).resolves.toMatchInlineSnapshot(`
+        {
+          "formatVersion": 1,
+          "profiles": {
+            "dev": {
+              "catalogFingerprint": "catalog-fingerprint",
+              "catalogFormatVersion": 1,
+              "formatVersion": 1,
+              "objects": [
+                {
+                  "id": "alpha.event.record",
+                  "kind": "table",
+                  "selected": true,
+                },
+              ],
+            },
+          },
+        }
+      `);
+   });
+
    test("preserves other profiles during an atomic update", async () => {
       const directory = await temporaryDirectory();
       const filePath = path.join(directory, "vexnor.local.json");
@@ -227,6 +265,9 @@ describe("local selection store", () => {
          ["objects object", { formatVersion: 1, profiles: { dev: { ...scope, objects: {} } } }],
          ["non-object selection", { formatVersion: 1, profiles: { dev: { ...scope, objects: [null] } } }],
          ["unexpected selection field", { formatVersion: 1, profiles: { dev: { ...scope, objects: [{ ...scope.objects[0], extra: true }] } } }],
+         ["missing schema", { formatVersion: 1, profiles: { dev: { ...scope, objects: [{ ...scope.objects[0], id: ".record" }] } } }],
+         ["missing object", { formatVersion: 1, profiles: { dev: { ...scope, objects: [{ ...scope.objects[0], id: "alpha." }] } } }],
+         ["long unqualified identity", { formatVersion: 1, profiles: { dev: { ...scope, objects: [{ ...scope.objects[0], id: "a".repeat(100_000) }] } } }],
          ["object kind", { formatVersion: 1, profiles: { dev: { ...scope, objects: [{ ...scope.objects[0], kind: "materialized-view" }] } } }],
          ["selected state", { formatVersion: 1, profiles: { dev: { ...scope, objects: [{ ...scope.objects[0], selected: "yes" }] } } }],
          ["duplicate object", { formatVersion: 1, profiles: { dev: { ...scope, objects: [scope.objects[0], scope.objects[0]] } } }],
@@ -261,6 +302,18 @@ describe("local selection store", () => {
           },
           "empty profile": {
             "message": "Local selection profile name cannot be empty",
+            "name": "LocalSelectionConfigError",
+          },
+          "long unqualified identity": {
+            "message": "Invalid schema-qualified object identity in profile 'dev' object 0",
+            "name": "LocalSelectionConfigError",
+          },
+          "missing object": {
+            "message": "Invalid schema-qualified object identity in profile 'dev' object 0",
+            "name": "LocalSelectionConfigError",
+          },
+          "missing schema": {
+            "message": "Invalid schema-qualified object identity in profile 'dev' object 0",
             "name": "LocalSelectionConfigError",
           },
           "non-object scope": {
