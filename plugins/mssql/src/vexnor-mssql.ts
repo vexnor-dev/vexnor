@@ -7,6 +7,7 @@ import {
    SqlColumnType,
    SqlForeignKeyInfo,
    SqlPrimaryKeyInfo,
+   SchemaNamespace,
    SqlSchema,
    SqlTableInfo,
    VexnorConnection,
@@ -18,8 +19,24 @@ import { MssqlSelectCommand } from "#src/crud/mssql-select-command.js";
 import "#src/mssql-augment.js";
 import { getColumnType } from "./get-column-type.js";
 import { findForeignKeys, findPrimaryKeys, findTables, findViews } from "./schema/find-tables.js";
+import { findSchemas } from "./schema/find-schemas.js";
 import mssql from "mssql";
 import pkg from "../package.json" with { type: "json" };
+
+const SYSTEM_SCHEMAS = new Set([
+   "db_accessadmin",
+   "db_backupoperator",
+   "db_datareader",
+   "db_datawriter",
+   "db_ddladmin",
+   "db_denydatareader",
+   "db_denydatawriter",
+   "db_owner",
+   "db_securityadmin",
+   "guest",
+   "INFORMATION_SCHEMA",
+   "sys",
+]);
 
 /**
  * Vexnor plugin for MS SQL Server.
@@ -36,6 +53,18 @@ export class VexnorMssql extends VexnorPlugin<{ Config: ConnectionConfig; Connec
 
    getColumnType(col: SqlColumnInfo): SqlColumnType {
       return getColumnType(col);
+   }
+
+   async discoverSchemas(config: ConnectionConfig): Promise<SchemaNamespace[]> {
+      const connection = await this.createConnection({ config });
+      try {
+         const schemas = await findSchemas.mssql.all({
+            db: (connection.db as mssql.ConnectionPool).request(),
+         });
+         return schemas.map(({ name }) => ({ name, system: SYSTEM_SCHEMAS.has(name) }));
+      } finally {
+         await connection.close();
+      }
    }
 
    async getSchema(args: GetSchemaArgs<ConnectionConfig>): Promise<SqlSchema> {

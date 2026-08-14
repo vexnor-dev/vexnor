@@ -1,6 +1,7 @@
 export * from "./schema-catalog.js";
 export * from "./schema-errors.js";
 export * from "./schema-selection.js";
+export * from "./schema-namespace-discovery.js";
 export * from "./local-selection-store.js";
 export * from "./runtime-schema-mappings.js";
 export * from "./local-data-session.js";

@@ -7,6 +7,7 @@ import { reconcileSchemaSelection } from "#src/schema/schema-selection.js";
 import { SchemaConfigurationError } from "#src/schema/schema-errors.js";
 import { createLocalDataSession } from "#src/schema/local-data-session.js";
 import { startLocalDataMcpServer, type LocalDataMcpRun, type LocalDataMcpTool } from "#src/schema/local-data-mcp.js";
+import { logger } from "#src/logger.js";
 
 export type SchemaMcpCommandOptions = {
    config?: string;
@@ -47,6 +48,8 @@ export async function schemaMcpCommand(
 ): Promise<void> {
    const controller = new AbortController();
    const removeSignalHandlers = dependencies.onSignal(() => controller.abort());
+   const previousLogLevel = logger.level;
+   logger.level = "silent";
    let run: LocalDataMcpRun | undefined;
 
    try {
@@ -106,5 +109,6 @@ export async function schemaMcpCommand(
       }
    } finally {
       removeSignalHandlers();
+      logger.level = previousLogLevel;
    }
 }

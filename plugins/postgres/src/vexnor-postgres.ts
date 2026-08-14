@@ -5,12 +5,14 @@ import {
    logger,
    SqlColumnInfo,
    SqlColumnType,
+   SchemaNamespace,
    SqlSchema,
    VexnorConnection,
    VexnorPlugin,
 } from "@vexnor/core/plugin";
 import { Pool } from "pg";
 import { findEnums } from "#src/schema/find-enums.js";
+import { findSchemas } from "#src/schema/find-schemas.js";
 import { findTables, findViews } from "#src/schema/find-tables.js";
 import { getColumnType } from "#src/schema/get-column-type.js";
 import { PLUGIN_NAME, PostgresQueryHandler } from "#src/postgres-query-handler.js";
@@ -37,6 +39,19 @@ export class VexnorPostgres extends VexnorPlugin<{ Config: ConnectionConfig; Con
       return getColumnType(col);
    }
 
+   async discoverSchemas(config: ConnectionConfig): Promise<SchemaNamespace[]> {
+      const connection = await this.createConnection({ config });
+      try {
+         const schemas = await findSchemas.postgres.all({ db: connection.db });
+         return schemas.map(({ name }) => ({
+            name,
+            system: name === "information_schema" || name.startsWith("pg_"),
+         }));
+      } finally {
+         await connection.close();
+      }
+   }
+
    async getSchema(args: GetSchemaArgs<ConnectionConfig>): Promise<SqlSchema> {
       const { schemas } = args;
       const connection = await this.createConnection({ config: args });
@@ -45,11 +60,6 @@ export class VexnorPostgres extends VexnorPlugin<{ Config: ConnectionConfig; Con
          const tables = await findTables.postgres.all({
             db: connection.db,
             params: { schemas },
-            options: {
-               debug: (args) => {
-                  console.log(args.text);
-               },
-            },
          });
          const views = await findViews.postgres.all({
             db: connection.db,

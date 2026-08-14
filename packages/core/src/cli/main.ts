@@ -6,6 +6,7 @@ import { CodegenCommandOptions } from "#src/cli/codegen/types/types.js";
 import { serializeCommand, SerializeOptions } from "#src/cli/serialize/serialize-command.js";
 import { schemaSelectCommand, SchemaSelectCommandOptions } from "#src/cli/schema/schema-select-command.js";
 import { schemaMcpCommand, SchemaMcpCommandOptions } from "#src/cli/schema/schema-mcp-command.js";
+import { schemaDiscoverCommand, SchemaDiscoverCommandOptions } from "#src/cli/schema/schema-discover-command.js";
 import { parseNumberOption } from "#src/cli/parse-number-option.js";
 
 const main = new Command();
@@ -59,6 +60,15 @@ exec
    });
 
 const schema = main.command("schema").description("Discover and work with datasource schemas");
+
+schema
+   .command("discover")
+   .description("List database schemas exposed by a Vexnor profile")
+   .option("-c, --config <path>", "Path to vexnor.config.ts", "vexnor.config.ts")
+   .option("-p, --profile <profile>", "Profile to use from vexnor.config.ts")
+   .action(async (options: SchemaDiscoverCommandOptions) => {
+      await schemaDiscoverCommand(options);
+   });
 
 schema
    .command("select")

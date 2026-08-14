@@ -27,6 +27,8 @@ export abstract class VexnorPlugin<T extends { Connection: unknown; Config: unkn
 
    abstract getSchema(args: GetSchemaArgs<T["Config"]>): Promise<SqlSchema>;
 
+   discoverSchemas?(config: T["Config"]): Promise<SchemaNamespace[]>;
+
    abstract getLibrary(): LibraryOutputFile[];
 
    abstract createConnection<TContext extends Record<string, unknown> = Record<string, unknown>>(args: {
@@ -46,6 +48,11 @@ export abstract class VexnorPlugin<T extends { Connection: unknown; Config: unkn
 }
 
 export type GetSchemaArgs<T> = { schemas: string[] } & T;
+
+export type SchemaNamespace = {
+   name: string;
+   system: boolean;
+};
 
 export type SqlSchema = {
    tables: SqlTableInfo[];

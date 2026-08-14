@@ -296,3 +296,37 @@ describe("VexnorMssql.getSchema()", () => {
       }
    });
 });
+
+describe("VexnorMssql.discoverSchemas()", () => {
+   test("discovers and classifies SQL Server schemas", async () => {
+      const plugin = new VexnorMssql();
+      const schemas = await plugin.discoverSchemas({
+         host: process.env.MSSQL_HOST ?? "localhost",
+         port: Number(process.env.MSSQL_PORT ?? 1433),
+         database: process.env.MSSQL_DATABASE ?? "vexnor",
+         user: process.env.MSSQL_USER ?? "vexnor_dev",
+         password: process.env.MSSQL_PASSWORD ?? "P@ssw0rd!",
+      });
+
+      expect({
+         dbo: schemas.find(({ name }) => name === "dbo"),
+         informationSchema: schemas.find(({ name }) => name === "INFORMATION_SCHEMA"),
+         sys: schemas.find(({ name }) => name === "sys"),
+      }).toMatchInlineSnapshot(`
+        {
+          "dbo": {
+            "name": "dbo",
+            "system": false,
+          },
+          "informationSchema": {
+            "name": "INFORMATION_SCHEMA",
+            "system": true,
+          },
+          "sys": {
+            "name": "sys",
+            "system": true,
+          },
+        }
+      `);
+   });
+});

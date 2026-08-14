@@ -1,5 +1,27 @@
 import { newSqlTable } from "@vexnor/core";
 
+export const PragmaDatabaseList = newSqlTable<{
+   Select: { seq: number; name: string; file: string };
+   Source: "@vexnor/sqlite3:schema";
+}>({
+   crud: {
+      select: true,
+      insert: false,
+      update: false,
+      delete: false,
+   },
+   source: "@vexnor/sqlite3:schema",
+   pk: [],
+   tableInfo: {
+      name: "pragma_database_list",
+   },
+   columns: {
+      seq: "seq",
+      name: "name",
+      file: "file",
+   },
+});
+
 export const SqliteMaster = newSqlTable<{
    Select: { type: string; name: string; tbl_name: string; rootpage: number; sql: string };
    Source: "@vexnor/sqlite3:schema";

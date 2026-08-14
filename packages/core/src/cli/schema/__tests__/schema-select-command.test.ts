@@ -97,6 +97,10 @@ describe("schemaSelectCommand", () => {
       }).toMatchInlineSnapshot(`
         {
           "output": [
+            "Inspecting 1 schema for profile 'dev'...",
+            "Discovered 2 schema objects:",
+            "  [table] alpha.event_log (1 column)",
+            "  [table] alpha.record (1 column)",
             "Selected 1 of 2 schema objects for profile 'dev'.",
             "Selection config: <dir>/selection.json",
           ],

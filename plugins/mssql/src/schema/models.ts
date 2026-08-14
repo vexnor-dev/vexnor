@@ -1,5 +1,28 @@
 import { newSqlTable } from "@vexnor/core";
 
+export const SysSchemas = newSqlTable<{
+   Select: { name: string; schema_id: number; principal_id: number | null };
+   Source: "@vexnor/mssql:schema";
+}>({
+   crud: {
+      select: true,
+      insert: false,
+      update: false,
+      delete: false,
+   },
+   source: "@vexnor/mssql:schema",
+   pk: [],
+   tableInfo: {
+      name: "schemas",
+      schema: "sys",
+   },
+   columns: {
+      name: "name",
+      schema_id: "schema_id",
+      principal_id: "principal_id",
+   },
+});
+
 export const Tables = newSqlTable<{ Select: { table_name: string; table_schema: string; table_type: string }; Source: "@vexnor/mssql:schema" }>({
    crud: {
       select: true,

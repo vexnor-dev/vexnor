@@ -4,6 +4,7 @@ import {
    SqlColumnInfo,
    SqlColumnType,
    SqlForeignKeyInfo,
+   SchemaNamespace,
    SqlSchema,
    SqlTableInfo,
    VexnorConnection,
@@ -11,6 +12,7 @@ import {
 } from "@vexnor/core/plugin";
 import BetterSqlite3 from "better-sqlite3";
 import { findForeignKeys, findPrimaryKeys, findTableColumns, findTables, findViews } from "#src/schema/find-tables.js";
+import { findSchemas } from "#src/schema/find-schemas.js";
 import { getColumnType } from "#src/schema/get-column-type.js";
 import { SqlQuery, SqlQueryHandler, type SqlQueryAny, type SqlTableAny } from "@vexnor/core";
 import { BetterSqlite3QueryHandler } from "#src/better-sqlite3-query-handler.js";
@@ -51,6 +53,16 @@ export class VexnorSqlite3 extends VexnorPlugin<{
 
    getColumnType(col: SqlColumnInfo): SqlColumnType {
       return getColumnType(col);
+   }
+
+   async discoverSchemas(config: Sqlite3ConnectionConfig): Promise<SchemaNamespace[]> {
+      const db = new BetterSqlite3(config.uri);
+      try {
+         const schemas = await findSchemas.sqlite.all({ db, options: { dialect: "sqlite" } });
+         return schemas.map(({ name }) => ({ name, system: name === "temp" }));
+      } finally {
+         db.close();
+      }
    }
 
    async getSchema(args: Sqlite3ConnectionConfig & { schemas: string[] }): Promise<SqlSchema> {

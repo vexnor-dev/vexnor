@@ -21,6 +21,20 @@ describe("VexnorSqlite3 — createConnection", () => {
    });
 });
 
+describe("VexnorSqlite3.discoverSchemas()", () => {
+   test("discovers the main SQLite namespace", async () => {
+      const plugin = new VexnorSqlite3();
+      await expect(plugin.discoverSchemas({ uri: ":memory:" })).resolves.toMatchInlineSnapshot(`
+        [
+          {
+            "name": "main",
+            "system": false,
+          },
+        ]
+      `);
+   });
+});
+
 describe("VexnorSqlite3.getSchema()", () => {
    test("returns tables and views from in-memory database", async () => {
       const plugin = new VexnorSqlite3();

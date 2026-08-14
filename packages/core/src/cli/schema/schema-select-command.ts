@@ -48,6 +48,9 @@ export async function schemaSelectCommand(
    if (!profile.generate) throw new SchemaConfigurationError(`Vexnor profile '${profileName}' has no generate config`);
    if (profile.generate.schema.length === 0) throw new SchemaConfigurationError(`Vexnor profile '${profileName}' has no schemas to inspect`);
 
+   dependencies.write(
+      `Inspecting ${profile.generate.schema.length} ${profile.generate.schema.length === 1 ? "schema" : "schemas"} for profile '${profileName}'...`,
+   );
    const { plugin } = await dependencies.loadPlugin(profile.plugin);
    const schema = await plugin.getSchema({ ...profile.connection, schemas: profile.generate.schema });
    const catalog = createSchemaCatalog({
@@ -55,6 +58,12 @@ export async function schemaSelectCommand(
       schema,
       naming: { camelCaseColumns: profile.generate.camelCaseColumns },
    });
+   dependencies.write(`Discovered ${catalog.objects.length} schema objects:`);
+   for (const object of catalog.objects) {
+      dependencies.write(
+         `  [${object.kind}] ${object.id} (${object.columns.length} ${object.columns.length === 1 ? "column" : "columns"})`,
+      );
+   }
    const nonInteractive = options.all === true || options.include !== undefined || options.exclude !== undefined;
    const request: SchemaSelectionRequest = nonInteractive
       ? {

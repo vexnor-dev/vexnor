@@ -4,12 +4,14 @@ import { MockPlugin, type MockConnection } from "#src/test/mock-plugin.js";
 import { createSchemaCatalog } from "#src/schema/schema-catalog.js";
 import { resolveSchemaSelection } from "#src/schema/schema-selection.js";
 import { schemaMcpCommand } from "#src/cli/schema/schema-mcp-command.js";
+import { logger } from "#src/logger.js";
 
 class McpPlugin extends MockPlugin {
    readonly version = "1.0.0";
    readonly driver = "mcp-command-test";
    readonly dialect = "sql";
    readonly close = vi.fn(async () => {});
+   readonly schemaLogLevels: string[] = [];
    readonly connection: MockConnection;
 
    constructor() {
@@ -23,6 +25,8 @@ class McpPlugin extends MockPlugin {
    }
 
    async getSchema(_args: { schemas: string[] }): Promise<SqlSchema> {
+      this.schemaLogLevels.push(logger.level);
+      logger.info("MCP schema introspection must not write application logs to stdout");
       return schema();
    }
 
@@ -78,7 +82,9 @@ async function storedSelection(plugin: McpPlugin) {
 describe("schemaMcpCommand", () => {
    test("starts from the persisted selected profile and cleans up on a process signal", async () => {
       const plugin = new McpPlugin();
+      const originalLogLevel = logger.level;
       const selection = await storedSelection(plugin);
+      plugin.schemaLogLevels.length = 0;
       const removeSignalHandlers = vi.fn();
       const closeMcp = vi.fn(async () => {});
       let startArgs: Parameters<NonNullable<Parameters<typeof schemaMcpCommand>[1]>["startMcp"]>[0] | undefined;
@@ -121,6 +127,8 @@ describe("schemaMcpCommand", () => {
          closeMcp: closeMcp.mock.calls,
          closeConnection: plugin.close.mock.calls,
          removeSignalHandlers: removeSignalHandlers.mock.calls,
+         schemaLogLevels: plugin.schemaLogLevels,
+         loggerLevelRestored: logger.level === originalLogLevel,
       }).toMatchInlineSnapshot(`
         {
           "aborted": true,
@@ -143,8 +151,12 @@ describe("schemaMcpCommand", () => {
             "maxRows": 25,
             "timeoutMs": 2000,
           },
+          "loggerLevelRestored": true,
           "removeSignalHandlers": [
             [],
+          ],
+          "schemaLogLevels": [
+            "silent",
           ],
           "selected": [
             "alpha.record",
