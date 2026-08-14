@@ -5,7 +5,7 @@ import type { SchemaSelectionReview } from "#src/schema/schema-selection.js";
 const input = Object.assign(new EventEmitter(), {
    isTTY: true,
    isRaw: false,
-   isPaused: vi.fn(() => true),
+   readableFlowing: null,
    pause: vi.fn(),
    resume: vi.fn(),
    setRawMode: vi.fn((raw: boolean) => {
@@ -85,6 +85,24 @@ describe("terminal schema review TTY adapter", () => {
             ],
           ],
           "renderCount": 9,
+          "resume": 1,
+        }
+      `);
+   });
+
+   test("pauses stdin after saving when its initial flow state is indeterminate", async () => {
+      const { reviewSchemaSelectionInTerminal } = await import("#src/cli/schema/terminal-schema-review.js");
+      input.pause.mockClear();
+      input.resume.mockClear();
+
+      const result = reviewSchemaSelectionInTerminal(review);
+      await vi.waitFor(() => expect(input.listenerCount("keypress")).toBe(1));
+      input.emit("keypress", "", { name: "return", sequence: "\r" });
+      await result;
+
+      expect({ pause: input.pause.mock.calls.length, resume: input.resume.mock.calls.length }).toMatchInlineSnapshot(`
+        {
+          "pause": 1,
           "resume": 1,
         }
       `);

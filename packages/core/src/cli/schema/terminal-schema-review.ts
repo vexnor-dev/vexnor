@@ -214,7 +214,7 @@ function createTerminalSchemaReviewIo(): TerminalSchemaReviewIo {
 
    emitKeypressEvents(stdin);
    const wasRaw = stdin.isRaw;
-   const wasPaused = stdin.isPaused();
+   const wasFlowing = stdin.readableFlowing === true;
    const queuedKeys: TerminalSchemaReviewKey[] = [];
    const waitingReaders: Array<(key: TerminalSchemaReviewKey) => void> = [];
    const onKeypress = (_input: string | undefined, key: TerminalSchemaReviewKey) => {
@@ -242,7 +242,7 @@ function createTerminalSchemaReviewIo(): TerminalSchemaReviewIo {
       close() {
          stdin.off("keypress", onKeypress);
          stdin.setRawMode(wasRaw);
-         if (wasPaused) stdin.pause();
+         if (!wasFlowing) stdin.pause();
          stdout.write("\u001B[?25h\n");
       },
    };
