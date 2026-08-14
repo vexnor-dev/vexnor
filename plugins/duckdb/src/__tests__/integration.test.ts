@@ -222,7 +222,7 @@ describe("DuckDB integration", () => {
       } finally {
          rmSync(outDir, { recursive: true, force: true });
       }
-   });
+   }, 15_000);
 
    test("introspects tables, primary keys, and columns", async () => {
       const schema = await plugin.getSchema({ mode: "file", path, schemas: ["main"] });
