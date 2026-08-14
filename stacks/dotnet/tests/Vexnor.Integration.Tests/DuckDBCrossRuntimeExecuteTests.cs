@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Vexnor.Core.Execution;
+using Vexnor.Core.Manifest;
 using Vexnor.DuckDB;
 using Xunit;
 
@@ -8,14 +9,17 @@ namespace Vexnor.Integration.Tests;
 public sealed class DuckDBCrossRuntimeExecuteTests : IAsyncLifetime
 {
     private readonly string _directory = Path.Join(Path.GetTempPath(), $"vexnor-duckdb-manifest-{Guid.NewGuid():N}");
-    private readonly QueryRegistry _registry = new("postgresql");
+    private readonly QueryRegistry _registry = new("duckdb");
     private DuckDBExecutor? _executor;
 
     public async Task InitializeAsync()
     {
         Directory.CreateDirectory(_directory);
         _executor = DuckDBExecutor.FromPath(Path.Join(_directory, "manifest.duckdb"));
-        _registry.LoadFile(GetFixturePath("manifest.json"));
+        var manifest = ManifestLoader.LoadFile(GetFixturePath("manifest.json"));
+        if (manifest.Dialect != "duckdb")
+            throw new InvalidDataException($"Manifest dialect is '{manifest.Dialect}', expected 'duckdb'.");
+        _registry.Load(manifest);
 
         await _executor.ExecuteAsync(new SqlBuildResult("""
             CREATE SCHEMA vexnor_dev;
@@ -99,7 +103,7 @@ public sealed class DuckDBCrossRuntimeExecuteTests : IAsyncLifetime
     private static string GetFixturePath(string fileName)
     {
         var solutionDir = Path.GetFullPath(Path.Join("..", "..", "..", "..", ".."), AppContext.BaseDirectory);
-        return Path.GetFullPath(Path.Join("..", "fixtures", "manifests", "cross-runtime", fileName), solutionDir);
+        return Path.GetFullPath(Path.Join("..", "fixtures", "manifests", "cross-runtime", "duckdb", fileName), solutionDir);
     }
 
     private static Dictionary<string, JsonElement> LoadExpected() =>

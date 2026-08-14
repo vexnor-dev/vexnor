@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -20,11 +21,16 @@ func TestSharedTypeScriptManifestExecutesAgainstDuckDB(t *testing.T) {
 	}
 	t.Cleanup(func() { _ = executor.Close() })
 
-	registry := vexnor.NewQueryRegistry("postgresql")
-	if err := registry.LoadFile(testutil.LoadManifestPath()); err != nil {
+	manifest, err := vexnor.LoadFile(duckDBFixturePath("manifest.json"))
+	if err != nil {
 		t.Fatalf("load manifest: %v", err)
 	}
-	expected, err := testutil.LoadExpected()
+	if manifest.Dialect != "duckdb" {
+		t.Fatalf("manifest dialect = %q, want %q", manifest.Dialect, "duckdb")
+	}
+	registry := vexnor.NewQueryRegistry("duckdb")
+	registry.Load(manifest)
+	expected, err := loadDuckDBExpected()
 	if err != nil {
 		t.Fatalf("load expected results: %v", err)
 	}
@@ -89,6 +95,22 @@ func TestSharedTypeScriptManifestExecutesAgainstDuckDB(t *testing.T) {
 	if !errors.Is(err, vexnor.ErrUnknownQuery) {
 		t.Fatalf("missing query error = %v", err)
 	}
+}
+
+func duckDBFixturePath(fileName string) string {
+	return filepath.Join(filepath.Dir(testutil.LoadManifestPath()), "duckdb", fileName)
+}
+
+func loadDuckDBExpected() (map[string]*testutil.ExpectedResult, error) {
+	data, err := os.ReadFile(duckDBFixturePath("expected.json"))
+	if err != nil {
+		return nil, err
+	}
+	var results map[string]*testutil.ExpectedResult
+	if err := json.Unmarshal(data, &results); err != nil {
+		return nil, err
+	}
+	return results, nil
 }
 
 func executeManifestRows(

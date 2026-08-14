@@ -4,6 +4,7 @@ const defaultParamFormatByDialect: Record<string, SqlParamFormat> = {
    transactsql: ({ index }) => `@param_${index}`,
    tsql: ({ index }) => `@param_${index}`,
    postgresql: ({ index }) => `$${index + 1}`,
+   duckdb: ({ index }) => `$${index + 1}`,
 };
 
 const defaultParamFormat: SqlParamFormat = () => "?";
