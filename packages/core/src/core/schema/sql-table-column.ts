@@ -10,11 +10,45 @@ export type SqlTableColumnTypeArgs = {
    Type: unknown;
 };
 
+export type SqlColumnStructure =
+   | { kind: "struct"; fields: Record<string, SqlColumnStructureField> }
+   | { kind: "list"; value: SqlColumnStructure | null };
+
+export type SqlColumnStructureField = {
+   fieldName: string;
+   structure?: SqlColumnStructure;
+};
+
+type StructuredObject<Value> = NonNullable<Value> extends readonly unknown[]
+   ? never
+   : NonNullable<Value> extends Record<string, unknown>
+     ? NonNullable<Value>
+     : never;
+
+type NestedValue<Parent, Key extends keyof StructuredObject<Parent>> =
+   | StructuredObject<Parent>[Key]
+   | Extract<Parent, null | undefined>;
+
+export type SqlNestedColumnProperties<Value> = [StructuredObject<Value>] extends [never]
+   ? Record<never, never>
+   : {
+        [Key in Extract<keyof StructuredObject<Value>, string> as `$${Key}`]: SqlTableColumnReference<{
+           Key: Key;
+           Type: NestedValue<Value, Key>;
+        }>;
+     };
+
+export type SqlTableColumnReference<T extends SqlTableColumnTypeArgs> =
+   SqlTableColumn<T> & SqlNestedColumnProperties<T["Type"]>;
+
 export type SqlTableColumnOptions<T extends SqlTableColumnTypeArgs> = Pick<
    SqlTableColumn<T>,
    "columnName" | "key" | "tableInfo"
 > &
-   Partial<Pick<SqlTableColumn<T>, "format" | "jsonType">>;
+   Partial<Pick<SqlTableColumn<T>, "format" | "jsonType">> & {
+      path?: readonly string[];
+      structure?: SqlColumnStructure | null;
+   };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlTableColumnAny = SqlTableColumn<any>;
@@ -27,14 +61,18 @@ export class SqlTableColumn<T extends SqlTableColumnTypeArgs> extends Sql {
    readonly tableInfo: SqlTableIdentity;
    readonly format: SqlColumnFormat | null;
    readonly jsonType: SqlJsonType | null;
+   readonly #path: readonly string[];
+   readonly #structure: SqlColumnStructure | null;
+   readonly #nestedColumns = new Map<string, SqlTableColumnAny>();
 
-   constructor({ columnName, key, tableInfo, format, jsonType }: SqlTableColumnOptions<T>) {
+   constructor({ columnName, key, tableInfo, format, jsonType, path = [], structure = null }: SqlTableColumnOptions<T>) {
       super({
          type: "SqlTableColumn",
          ...(() => {
             const table = tableInfo.alias || tableInfo.name;
-            let hashId = `${table}.${columnName}`;
-            if (key !== columnName) hashId += ` as ${key}`;
+            const fieldName = path.at(-1) ?? columnName;
+            let hashId = `${table}.${[columnName, ...path].join(".")}`;
+            if (key !== fieldName) hashId += ` as ${key}`;
 
             return {
                id: hashId,
@@ -47,6 +85,35 @@ export class SqlTableColumn<T extends SqlTableColumnTypeArgs> extends Sql {
       this.tableInfo = tableInfo;
       this.format = format ?? null;
       this.jsonType = jsonType ?? null;
+      this.#path = path;
+      this.#structure = structure;
+   }
+
+   get path(): readonly string[] {
+      return this.#path;
+   }
+
+   get structure(): SqlColumnStructure | null {
+      return this.#structure;
+   }
+
+   getNestedColumn(key: string): SqlTableColumnAny | undefined {
+      if (this.#structure?.kind !== "struct") return undefined;
+      const field = this.#structure.fields[key];
+      if (!field) return undefined;
+
+      let result = this.#nestedColumns.get(key);
+      if (!result) {
+         result = newSqlTableColumn({
+            columnName: this.columnName,
+            key,
+            tableInfo: this.tableInfo,
+            path: [...this.#path, field.fieldName],
+            structure: field.structure ?? null,
+         });
+         this.#nestedColumns.set(key, result);
+      }
+      return result;
    }
 
    get jsonSchema(): SqlJsonSchema {
@@ -69,13 +136,15 @@ export class SqlTableColumn<T extends SqlTableColumnTypeArgs> extends Sql {
     * sql`SELECT ${row(Account.$firstName.as("name"))} FROM ${Account}`
     * // result: { name: string }
     */
-   as<Key extends string>(key: Key): SqlTableColumn<{ Key: Key; Type: T["Type"] }> {
-      return new SqlTableColumn({
+   as<Key extends string>(key: Key): SqlTableColumnReference<{ Key: Key; Type: T["Type"] }> {
+      return newSqlTableColumn({
          columnName: this.columnName,
          key,
          tableInfo: this.tableInfo,
          format: this.format,
          jsonType: this.jsonType,
+         path: this.#path,
+         structure: this.#structure,
       });
    }
 
@@ -83,7 +152,7 @@ export class SqlTableColumn<T extends SqlTableColumnTypeArgs> extends Sql {
     * Shortcut: renders as `"alias"."col"` without AS alias.
     * Use when the column is inside an expression, cast, or function.
     */
-   get raw(): SqlTableColumn<T> {
+   get raw(): SqlTableColumnReference<T> {
       return this.render("tableAlias.columnName");
    }
 
@@ -95,33 +164,37 @@ export class SqlTableColumn<T extends SqlTableColumnTypeArgs> extends Sql {
     *
     * @param format - The column format to use when building SQL.
     */
-   render(format: SqlColumnFormat): SqlTableColumn<T> {
-      return new SqlTableColumn({
+   render(format: SqlColumnFormat): SqlTableColumnReference<T> {
+      return newSqlTableColumn({
          columnName: this.columnName,
          key: this.key,
          tableInfo: this.tableInfo,
          format,
          jsonType: this.jsonType,
+         path: this.#path,
+         structure: this.#structure,
       });
    }
 
    // eslint-disable-next-line unused-imports/no-unused-vars
    write(context: SqlBuildContext, _options?: SqlBuildOptions) {
       const format = this.format ?? context.formatter.getColumnFormat(context);
+      const columnName = [this.columnName, ...this.#path].join(".");
+      const fieldName = this.#path.at(-1) ?? this.columnName;
       switch (format) {
          case "tableName.columnName AS columnAlias": {
-            if (this.key === this.columnName || !this.key) {
-               context.addQuotes(`${this.tableInfo.name}.${this.columnName}`);
+            if (this.key === fieldName || !this.key) {
+               context.addQuotes(`${this.tableInfo.name}.${columnName}`);
                break;
             }
-            context.addQuotes(`${this.tableInfo.name}.${this.columnName} as ${this.key}`);
+            context.addQuotes(`${this.tableInfo.name}.${columnName} as ${this.key}`);
             break;
          }
          case "tableName.columnName":
-            context.addQuotes(`${this.tableInfo.name}.${this.columnName}`);
+            context.addQuotes(`${this.tableInfo.name}.${columnName}`);
             break;
          case "columnName":
-            context.addQuotes(`${this.columnName}`);
+            context.addQuotes(`${columnName}`);
             break;
          case "tableName.columnAlias":
             context.addQuotes(`${this.tableInfo.name}.${this.key ?? this.columnName}`);
@@ -130,19 +203,19 @@ export class SqlTableColumn<T extends SqlTableColumnTypeArgs> extends Sql {
             context.addQuotes(`${this.key ?? this.columnName}`);
             break;
          case "tableAlias.columnName":
-            context.addQuotes(`${context.getAlias(this.tableInfo)}.${this.columnName}`);
+            context.addQuotes(`${context.getAlias(this.tableInfo)}.${columnName}`);
             break;
          case "tableAlias.columnName AS columnAlias": {
-            if (this.key === this.columnName || !this.key) {
-               context.addQuotes(`${context.getAlias(this.tableInfo)}.${this.columnName}`);
+            if (this.key === fieldName || !this.key) {
+               context.addQuotes(`${context.getAlias(this.tableInfo)}.${columnName}`);
                break;
             }
 
-            context.addQuotes(`${context.getAlias(this.tableInfo)}.${this.columnName} as ${this.key}`);
+            context.addQuotes(`${context.getAlias(this.tableInfo)}.${columnName} as ${this.key}`);
             break;
          }
          case "rawAlias.columnName":
-            context.addStrings(`${this.tableInfo.alias}.${this.columnName}`);
+            context.addStrings(`${this.tableInfo.alias}.${columnName}`);
             break;
       }
    }
@@ -153,6 +226,16 @@ export function newSqlTableColumn<
       Key: string;
       Type: unknown;
    },
->(options: SqlTableColumnOptions<T>): SqlTableColumn<T> {
-   return new SqlTableColumn(options);
+>(options: SqlTableColumnOptions<T>): SqlTableColumnReference<T> {
+   const column = new SqlTableColumn(options);
+   return new Proxy(column, {
+      get(target, property) {
+         if (Reflect.has(target, property)) {
+            const result: unknown = Reflect.get(target, property, target);
+            return property !== "constructor" && typeof result === "function" ? result.bind(target) : result;
+         }
+         if (typeof property !== "string" || !property.startsWith("$")) return undefined;
+         return target.getNestedColumn(property.slice(1));
+      },
+   }) as SqlTableColumnReference<T>;
 }

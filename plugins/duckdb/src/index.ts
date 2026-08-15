@@ -13,6 +13,7 @@ export { DuckDBInsertFromCommand, type DuckDBInsertFromCommandResult } from "#sr
 export { DuckDBUpsertCommand, type DuckDBUpsertCommandArgs, type DuckDBUpsertCommandResult } from "#src/crud/duckdb-upsert-command.js";
 export { defaultQueryOptions } from "#src/default-query-options.js";
 export { savepoint, transaction, DuckDBUnsupportedError } from "#src/duckdb-transaction.js";
+export { unnest, DuckDBUnnest, DuckDBUnnestBuilder } from "#src/duckdb-unnest.js";
 export type { DuckDBConnectionConfig } from "#src/duckdb-connection-config.js";
 
 import { vexnorDuckDB } from "#src/vexnor-duckdb.js";

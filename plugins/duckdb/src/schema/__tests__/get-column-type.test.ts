@@ -87,10 +87,25 @@ describe("DuckDB getColumnType", () => {
              "INTEGER[3]": {
                "isArray": true,
                "type": "Json",
+               "typeTree": {
+                 "kind": "list",
+                 "length": 3,
+                 "value": {
+                   "kind": "scalar",
+                   "type": "number",
+                 },
+               },
              },
              "INTEGER[]": {
                "isArray": true,
                "type": "Json",
+               "typeTree": {
+                 "kind": "list",
+                 "value": {
+                   "kind": "scalar",
+                   "type": "number",
+                 },
+               },
              },
              "INTERVAL": {
                "type": "string",
@@ -100,12 +115,42 @@ describe("DuckDB getColumnType", () => {
              },
              "MAP(VARCHAR, INTEGER)": {
                "type": "Json",
+               "typeTree": {
+                 "key": {
+                   "kind": "scalar",
+                   "type": "string",
+                 },
+                 "kind": "map",
+                 "value": {
+                   "kind": "scalar",
+                   "type": "number",
+                 },
+               },
              },
              "SMALLINT": {
                "type": "number",
              },
              "STRUCT(name VARCHAR, age INTEGER)": {
                "type": "Json",
+               "typeTree": {
+                 "fields": [
+                   {
+                     "name": "name",
+                     "value": {
+                       "kind": "scalar",
+                       "type": "string",
+                     },
+                   },
+                   {
+                     "name": "age",
+                     "value": {
+                       "kind": "scalar",
+                       "type": "number",
+                     },
+                   },
+                 ],
+                 "kind": "struct",
+               },
              },
              "TEXT": {
                "type": "string",
@@ -133,6 +178,25 @@ describe("DuckDB getColumnType", () => {
              },
              "UNION(num INTEGER, text VARCHAR)": {
                "type": "Json",
+               "typeTree": {
+                 "kind": "union",
+                 "members": [
+                   {
+                     "name": "num",
+                     "value": {
+                       "kind": "scalar",
+                       "type": "number",
+                     },
+                   },
+                   {
+                     "name": "text",
+                     "value": {
+                       "kind": "scalar",
+                       "type": "string",
+                     },
+                   },
+                 ],
+               },
              },
              "UNKNOWN_TYPE": {
                "type": "unknown",
@@ -287,6 +351,119 @@ describe("DuckDB getColumnType", () => {
           },
           "missingDataType": {
             "type": "string",
+          },
+        }
+      `);
+   });
+
+   test("describes nested structs and lists for typed code generation", () => {
+      expect(getColumnType({
+         ...base,
+         data_type: 'STRUCT(account_id VARCHAR, shipping STRUCT(address STRUCT(country VARCHAR, geo STRUCT(latitude DOUBLE))), items STRUCT(product STRUCT(product_id VARCHAR), discounts STRUCT(code VARCHAR, amount DECIMAL(18, 3))[])[])',
+         udt_name: 'STRUCT(account_id VARCHAR, shipping STRUCT(address STRUCT(country VARCHAR, geo STRUCT(latitude DOUBLE))), items STRUCT(product STRUCT(product_id VARCHAR), discounts STRUCT(code VARCHAR, amount DECIMAL(18, 3))[])[])',
+      })).toMatchInlineSnapshot(`
+        {
+          "type": "Json",
+          "typeTree": {
+            "fields": [
+              {
+                "name": "account_id",
+                "value": {
+                  "kind": "scalar",
+                  "type": "string",
+                },
+              },
+              {
+                "name": "shipping",
+                "value": {
+                  "fields": [
+                    {
+                      "name": "address",
+                      "value": {
+                        "fields": [
+                          {
+                            "name": "country",
+                            "value": {
+                              "kind": "scalar",
+                              "type": "string",
+                            },
+                          },
+                          {
+                            "name": "geo",
+                            "value": {
+                              "fields": [
+                                {
+                                  "name": "latitude",
+                                  "value": {
+                                    "kind": "scalar",
+                                    "type": "number",
+                                  },
+                                },
+                              ],
+                              "kind": "struct",
+                            },
+                          },
+                        ],
+                        "kind": "struct",
+                      },
+                    },
+                  ],
+                  "kind": "struct",
+                },
+              },
+              {
+                "name": "items",
+                "value": {
+                  "kind": "list",
+                  "value": {
+                    "fields": [
+                      {
+                        "name": "product",
+                        "value": {
+                          "fields": [
+                            {
+                              "name": "product_id",
+                              "value": {
+                                "kind": "scalar",
+                                "type": "string",
+                              },
+                            },
+                          ],
+                          "kind": "struct",
+                        },
+                      },
+                      {
+                        "name": "discounts",
+                        "value": {
+                          "kind": "list",
+                          "value": {
+                            "fields": [
+                              {
+                                "name": "code",
+                                "value": {
+                                  "kind": "scalar",
+                                  "type": "string",
+                                },
+                              },
+                              {
+                                "name": "amount",
+                                "value": {
+                                  "kind": "scalar",
+                                  "type": "string",
+                                },
+                              },
+                            ],
+                            "kind": "struct",
+                          },
+                        },
+                      },
+                    ],
+                    "kind": "struct",
+                  },
+                },
+              },
+            ],
+            "kind": "struct",
           },
         }
       `);

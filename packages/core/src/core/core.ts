@@ -135,7 +135,15 @@ export {
    type SqlJoinType,
    type ExtractJoinTables,
 } from "./schema/sql-table.js";
-export { SqlTableColumn, newSqlTableColumn, type SqlTableColumnAny } from "./schema/sql-table-column.js";
+export {
+   SqlTableColumn,
+   newSqlTableColumn,
+   type SqlColumnStructure,
+   type SqlColumnStructureField,
+   type SqlNestedColumnProperties,
+   type SqlTableColumnAny,
+   type SqlTableColumnReference,
+} from "./schema/sql-table-column.js";
 export { type SqlTableIdentity } from "./schema/sql-table-identity.js";
 export { type ValuesOf, type JsonRow } from "./schema/schema-types.js";
 export { excluded } from "./schema/sql-excluded.js";

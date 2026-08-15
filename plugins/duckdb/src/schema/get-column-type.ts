@@ -1,12 +1,19 @@
 import { SqlColumnInfo, SqlColumnType, SqlLiteralType } from "@vexnor/core/plugin";
+import { parseDuckDBType } from "#src/schema/parse-duckdb-type.js";
 
 export function getColumnType(column: SqlColumnInfo): SqlColumnType {
-   const dataType = (column.data_type ?? column.udt_name ?? "").trim().toUpperCase();
+   const typeName = (column.data_type ?? column.udt_name ?? "").trim();
+   const dataType = typeName.toUpperCase();
 
-   if (dataType.endsWith("[]") || /\[[0-9]+\]$/.test(dataType)) {
-      return { type: SqlLiteralType.Json, isArray: true };
+   if (dataType.startsWith("STRUCT(") || dataType.startsWith("MAP(") || dataType.startsWith("UNION(") || dataType.endsWith("[]") || /\[[0-9]+\]$/.test(dataType)) {
+      const typeTree = parseDuckDBType(typeName);
+      return {
+         type: SqlLiteralType.Json,
+         ...(typeTree.kind === "list" ? { isArray: true } : {}),
+         typeTree,
+      };
    }
-   if (dataType.startsWith("STRUCT(") || dataType.startsWith("MAP(") || dataType.startsWith("UNION(") || dataType === "VARIANT") {
+   if (dataType === "VARIANT") {
       return { type: SqlLiteralType.Json };
    }
    if (dataType.startsWith("ENUM(")) {

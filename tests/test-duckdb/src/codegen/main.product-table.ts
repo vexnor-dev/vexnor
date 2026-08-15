@@ -76,6 +76,12 @@ export const Product = vexnor.newSqlTable<{
        */
       tags: "tags",
    },
+   columnStructures: {
+      tags: {
+         kind: "list",
+         value: null,
+      },
+   },
    jsonSchema: {
       createdAt: "Date",
       modifiedAt: "Date",
@@ -103,7 +109,7 @@ export type IProductInsert = {
    isAvailable?: boolean;
    isPublished?: boolean;
    metadata?: unknown | null;
-   tags?: unknown | null;
+   tags?: Array<string | null> | null;
 };
 
 export type IProductUpdate = Partial<IProductInsert>;
@@ -118,7 +124,7 @@ export type IProductSelect = {
    isAvailable: boolean;
    isPublished: boolean;
    metadata: unknown | null;
-   tags: unknown | null;
+   tags: Array<string | null> | null;
 };
 
 export type IProductJson = vexnor.JsonRow<IProductSelect>;

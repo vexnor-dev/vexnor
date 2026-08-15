@@ -5,7 +5,12 @@ import { SqlTableIdentity } from "#src/core/schema/sql-table-identity.js";
 import { SqlTableFormat } from "#src/core/builder/default-formatter.js";
 import { Lazy } from "#src/lib/lazy.js";
 import { SqlTableAll } from "#src/core/charms/sql-table-all.js";
-import { newSqlTableColumn, SqlTableColumn, SqlTableColumnAny } from "#src/core/schema/sql-table-column.js";
+import {
+   newSqlTableColumn,
+   SqlColumnStructure,
+   SqlTableColumnAny,
+   SqlTableColumnReference,
+} from "#src/core/schema/sql-table-column.js";
 import { SqlTableJoin } from "#src/core/schema/sql-table-join.js";
 
 import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
@@ -48,6 +53,7 @@ export type SqlTableDbColumnSchema = {
 export type SqlTableOptions<T extends SqlTableTypeArgs> = {
    readonly columns: Record<keyof T["Select"], string>;
    readonly jsonSchema?: Partial<Record<keyof T["Select"], SqlJsonType>>;
+   readonly columnStructures?: Partial<Record<keyof T["Select"], SqlColumnStructure>>;
    readonly fk?: SqlTableForeignKey[];
    readonly dbSchema?: Partial<Record<keyof T["Select"], SqlTableDbColumnSchema>>;
 } & Pick<SqlTable<T>, "tableInfo" | "pk" | "source"> &
@@ -81,6 +87,7 @@ export class SqlTable<T extends SqlTableTypeArgs> extends Sql {
    readonly dialect: string;
    readonly source: string;
    readonly columnTypes: Partial<Record<keyof T["Select"], SqlJsonType>>;
+   declare readonly columnStructures: Partial<Record<keyof T["Select"], SqlColumnStructure>>;
    private readonly _fk: Lazy<SqlTableForeignKey[]>;
    readonly dbSchema: Partial<Record<keyof T["Select"], SqlTableDbColumnSchema>>;
    private readonly _cols: Lazy<InferTable$RowBySelect<T["Select"]>>;
@@ -115,6 +122,11 @@ export class SqlTable<T extends SqlTableTypeArgs> extends Sql {
       this.dialect = dialect || "sql";
       this.source = args instanceof SqlTable ? args.source : args.source;
       this.columnTypes = (args instanceof SqlTable ? args.columnTypes : args.jsonSchema) ?? {};
+      Object.defineProperty(this, "columnStructures", {
+         value: args.columnStructures ?? {},
+         enumerable: false,
+         configurable: true,
+      });
       const codegenFk: SqlTableForeignKey[] = (args instanceof SqlTable ? args.fk : args.fk) ?? [];
       const fkKey = `${tableInfo.schema}.${tableInfo.name}`;
       this._fk = new Lazy(() => [...codegenFk, ...(SqlTable._connections.get(fkKey) ?? [])]);
@@ -268,6 +280,8 @@ export class SqlTable<T extends SqlTableTypeArgs> extends Sql {
             dialect: this.dialect,
             source: this.source,
             jsonSchema: this.columnTypes,
+            columnStructures: this.columnStructures,
+            dbSchema: this.dbSchema,
             columns: (() => {
                const columns: Record<string, string> = {};
                for (const { key, columnName } of Object.values(this.cols)) {
@@ -284,13 +298,13 @@ export class SqlTable<T extends SqlTableTypeArgs> extends Sql {
 
    column<Key extends Extract<keyof T["Select"], string>>(
       key: Key,
-   ): SqlTableColumn<{ Key: Key; Type: T["Select"][Key] }> {
+   ): SqlTableColumnReference<{ Key: Key; Type: T["Select"][Key] }> {
       const colKey = key.includes(".") ? key.slice(key.indexOf(".") + 1) : key;
       const lookup = colKey.startsWith("$") ? colKey : `$${colKey}`;
       const result = this.cols[lookup as keyof T["Select"]];
       if (!result) throw new Error(`Column not found: ${this.tableInfo.name}.${String(key)}`);
 
-      return result as unknown as SqlTableColumnAny;
+      return result as unknown as SqlTableColumnReference<{ Key: Key; Type: T["Select"][Key] }>;
    }
 
    // eslint-disable-next-line unused-imports/no-unused-vars
@@ -338,6 +352,8 @@ export class SqlTable<T extends SqlTableTypeArgs> extends Sql {
             dialect: this.dialect,
             source: this.source,
             jsonSchema: this.columnTypes,
+            columnStructures: this.columnStructures,
+            dbSchema: this.dbSchema,
             columns: (() => {
                const columns: Record<string, string> = {};
                for (const { key, columnName } of Object.values(this.cols)) {
@@ -405,6 +421,7 @@ export class SqlTable<T extends SqlTableTypeArgs> extends Sql {
                   columnName: value,
                   tableInfo: this.tableInfo,
                   jsonType: columnTypes[key] ?? null,
+                  structure: this.columnStructures[key] ?? null,
                }),
             };
          } else {
@@ -429,6 +446,7 @@ export class SqlTable<T extends SqlTableTypeArgs> extends Sql {
                   columnName: value,
                   tableInfo: { ...this.tableInfo, out: true },
                   jsonType: columnTypes[key] ?? null,
+                  structure: this.columnStructures[key] ?? null,
                }),
             };
          } else {

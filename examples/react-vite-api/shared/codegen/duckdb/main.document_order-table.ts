@@ -61,6 +61,124 @@ export const DocumentOrder = vexnor.newSqlTable<{
        */
       createdAt: "created_at",
    },
+   columnStructures: {
+      account: {
+         kind: "struct",
+         fields: {
+            accountId: {
+               fieldName: "account_id",
+            },
+            email: {
+               fieldName: "email",
+            },
+            status: {
+               fieldName: "status",
+            },
+         },
+      },
+      shipping: {
+         kind: "struct",
+         fields: {
+            address: {
+               fieldName: "address",
+               structure: {
+                  kind: "struct",
+                  fields: {
+                     street: {
+                        fieldName: "street",
+                     },
+                     city: {
+                        fieldName: "city",
+                     },
+                     country: {
+                        fieldName: "country",
+                     },
+                     geo: {
+                        fieldName: "geo",
+                        structure: {
+                           kind: "struct",
+                           fields: {
+                              latitude: {
+                                 fieldName: "latitude",
+                              },
+                              longitude: {
+                                 fieldName: "longitude",
+                              },
+                           },
+                        },
+                     },
+                  },
+               },
+            },
+            carrier: {
+               fieldName: "carrier",
+               structure: {
+                  kind: "struct",
+                  fields: {
+                     name: {
+                        fieldName: "name",
+                     },
+                     trackingId: {
+                        fieldName: "tracking_id",
+                     },
+                  },
+               },
+            },
+         },
+      },
+      items: {
+         kind: "list",
+         value: {
+            kind: "struct",
+            fields: {
+               product: {
+                  fieldName: "product",
+                  structure: {
+                     kind: "struct",
+                     fields: {
+                        productId: {
+                           fieldName: "product_id",
+                        },
+                        label: {
+                           fieldName: "label",
+                        },
+                        category: {
+                           fieldName: "category",
+                        },
+                     },
+                  },
+               },
+               quantity: {
+                  fieldName: "quantity",
+               },
+               unitPrice: {
+                  fieldName: "unit_price",
+               },
+               discounts: {
+                  fieldName: "discounts",
+                  structure: {
+                     kind: "list",
+                     value: {
+                        kind: "struct",
+                        fields: {
+                           code: {
+                              fieldName: "code",
+                           },
+                           amount: {
+                              fieldName: "amount",
+                           },
+                        },
+                     },
+                  },
+               },
+            },
+         },
+      },
+      tags: {
+         kind: "list",
+         value: null,
+      },
+   },
    jsonSchema: {
       createdAt: "Date",
    },
@@ -76,11 +194,41 @@ export const DocumentOrder = vexnor.newSqlTable<{
 });
 export type IDocumentOrderInsert = {
    documentId: string;
-   account: unknown;
+   account:  {
+      account_id: string | null;
+      email: string | null;
+      status: string | null;
+   };
    status: string;
-   shipping?: unknown | null;
-   items: unknown;
-   tags: unknown;
+   shipping?:  {
+      address:  {
+         street: string | null;
+         city: string | null;
+         country: string | null;
+         geo:  {
+            latitude: number | null;
+            longitude: number | null;
+         } | null;
+      } | null;
+      carrier:  {
+         name: string | null;
+         tracking_id: string | null;
+      } | null;
+   } | null;
+   items: Array< {
+      product:  {
+         product_id: string | null;
+         label: string | null;
+         category: string | null;
+      } | null;
+      quantity: number | null;
+      unit_price: number | null;
+      discounts: Array< {
+         code: string | null;
+         amount: number | null;
+      } | null> | null;
+   } | null>;
+   tags: Array<string | null>;
    createdAt: Date;
 };
 
@@ -88,11 +236,41 @@ export type IDocumentOrderUpdate = Partial<IDocumentOrderInsert>;
 
 export type IDocumentOrderSelect = {
    documentId: string;
-   account: unknown;
+   account:  {
+      accountId: string | null;
+      email: string | null;
+      status: string | null;
+   };
    status: string;
-   shipping: unknown | null;
-   items: unknown;
-   tags: unknown;
+   shipping:  {
+      address:  {
+         street: string | null;
+         city: string | null;
+         country: string | null;
+         geo:  {
+            latitude: number | null;
+            longitude: number | null;
+         } | null;
+      } | null;
+      carrier:  {
+         name: string | null;
+         trackingId: string | null;
+      } | null;
+   } | null;
+   items: Array< {
+      product:  {
+         productId: string | null;
+         label: string | null;
+         category: string | null;
+      } | null;
+      quantity: number | null;
+      unitPrice: number | null;
+      discounts: Array< {
+         code: string | null;
+         amount: number | null;
+      } | null> | null;
+   } | null>;
+   tags: Array<string | null>;
    createdAt: Date;
 };
 

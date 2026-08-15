@@ -1,25 +1,17 @@
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { param, row, val } from "@vexnor/core";
-import { sql } from "@vexnor/duckdb";
-import { DocumentOrder } from "./codegen/main.document_order-table.js";
+import { sql, unnest } from "@vexnor/duckdb";
+import { DocumentOrder, IDocumentOrderInsert } from "./codegen/main.document_order-table.js";
 import { db } from "./config.js";
 
-type ParameterizedOrder = {
-   documentId: string;
-   account: { account_id: string; email: string; status: string };
-   status: string;
-   shipping: null;
-   items: {
-      product: { product_id: string; label: string; category: string };
-      quantity: number;
-      unit_price: number;
-      discounts: { code: string; amount: number }[];
-   }[];
-   tags: string[];
-   createdAt: Date;
-};
+type ParameterizedOrder = Pick<
+   IDocumentOrderInsert,
+   "documentId" | "account" | "status" | "shipping" | "items" | "tags" | "createdAt"
+>;
 
 const Orders = DocumentOrder.as("orders");
+const Items = unnest(Orders.$items).as("item");
+const Discounts = unnest(Items.$discounts).as("discount");
 
 const insertParameterizedOrder = sql`
    insert into ${DocumentOrder} (
@@ -43,49 +35,56 @@ const insertParameterizedOrder = sql`
 `;
 
 const selectParameterizedOrder = sql`
-   select ${row(Orders.$documentId.as("orderId"), Orders.$tags)},
-          ${val`item.product.product_id`.as<{ productId: string }>("productId")},
-          ${val`item.discounts`.as<{ discounts: { code: string; amount: number }[] }>("discounts")}
-   from ${Orders},
-        lateral unnest(${Orders.$items}) as item_row(item)
+   select ${row(
+      Orders.$documentId.as("orderId"),
+      Orders.$tags,
+      Items.$product.$productId.as("productId"),
+      Items.$discounts,
+   )}
+   from ${Orders}, ${Items}
    where ${Orders.$documentId} = ${param<{ documentId: string }>("documentId")}
 `;
 
 const selectNestedOrders = sql`
-   select ${row(Orders.$documentId.as("orderId"))},
-          ${val`${Orders.$account}.account_id`.as<{ accountId: string }>("accountId")},
-          ${val`${Orders.$account}.email`.as<{ accountEmail: string }>("accountEmail")},
-          ${val`${Orders.$account}.status`.as<{ accountStatus: string }>("accountStatus")},
-          ${val`${Orders.$shipping}.address.country`.as<{ shippingCountry: string | null }>("shippingCountry")},
-          ${val`${Orders.$shipping}.address.geo.latitude`.as<{ shippingLatitude: number | null }>("shippingLatitude")},
-          ${val`${Orders.$shipping}.carrier.name`.as<{ carrier: string | null }>("carrier")},
-          ${row(Orders.$status, Orders.$tags, Orders.$createdAt)}
+   select ${row(
+      Orders.$documentId.as("orderId"),
+      Orders.$account.$accountId.as("accountId"),
+      Orders.$account.$email.as("accountEmail"),
+      Orders.$account.$status.as("accountStatus"),
+      Orders.$shipping.$address.$country.as("shippingCountry"),
+      Orders.$shipping.$address.$geo.$latitude.as("shippingLatitude"),
+      Orders.$shipping.$carrier.$name.as("carrier"),
+      Orders.$status,
+      Orders.$tags,
+      Orders.$createdAt,
+   )}
    from ${Orders}
    order by ${Orders.$documentId}
 `;
 
 const selectOrderItems = sql`
-   select ${row(Orders.$documentId.as("orderId"))},
-          ${val`item.product.product_id`.as<{ productId: string }>("productId")},
-          ${val`item.product.label`.as<{ productLabel: string }>("productLabel")},
-          ${val`item.product.category`.as<{ productCategory: string }>("productCategory")},
-          ${val`item.quantity`.as<{ quantity: number }>("quantity")},
-          ${val`item.unit_price`.as<{ unitPrice: number }>("unitPrice")},
-          ${val`item.quantity * item.unit_price`.as<{ lineTotal: number }>("lineTotal")}
-   from ${Orders},
-        lateral unnest(${Orders.$items}) as item_row(item)
-   order by item.product.product_id
+   select ${row(
+      Orders.$documentId.as("orderId"),
+      Items.$product.$productId.as("productId"),
+      Items.$product.$label.as("productLabel"),
+      Items.$product.$category.as("productCategory"),
+      Items.$quantity,
+      Items.$unitPrice,
+      val`${Items.$quantity.raw} * ${Items.$unitPrice.raw}`.as<{ lineTotal: number | null }>("lineTotal"),
+   )}
+   from ${Orders}, ${Items}
+   order by ${Items.$product.$productId}
 `;
 
 const selectOrderDiscounts = sql`
-   select ${row(Orders.$documentId.as("orderId"))},
-          ${val`item.product.product_id`.as<{ productId: string }>("productId")},
-          ${val`discount.code`.as<{ code: string }>("code")},
-          ${val`discount.amount`.as<{ amount: number }>("amount")}
-   from ${Orders},
-        lateral unnest(${Orders.$items}) as item_row(item),
-        lateral unnest(item.discounts) as discount_row(discount)
-   order by item.product.product_id, discount.code
+   select ${row(
+      Orders.$documentId.as("orderId"),
+      Items.$product.$productId.as("productId"),
+      Discounts.$code,
+      Discounts.$amount,
+   )}
+   from ${Orders}, ${Items}, ${Discounts}
+   order by ${Items.$product.$productId}, ${Discounts.$code}
 `;
 
 describe.sequential("Vexnor DuckDB hierarchical data e2e", () => {

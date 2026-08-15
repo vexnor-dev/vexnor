@@ -5,6 +5,7 @@ export { DuckDBQueryHandler, type DuckDBClient, type DuckDBQueryResult, PLUGIN_N
 export { newDuckDBTableHandler } from "#src/crud/duckdb-table-handler.js";
 export type { DuckDBTableHandler } from "#src/crud/duckdb-table-handler.js";
 export { defaultQueryOptions } from "#src/default-query-options.js";
+export { unnest, DuckDBUnnest, DuckDBUnnestBuilder } from "#src/duckdb-unnest.js";
 export type { DuckDBConnectionConfig } from "#src/duckdb-connection-config.js";
 
 import "#src/duckdb-augment.js";

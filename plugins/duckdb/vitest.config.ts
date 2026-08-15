@@ -21,6 +21,7 @@ export default mergeConfig(sharedConfig, {
          "#src/duckdb-sql.js": path.resolve(__dirname, "./src/duckdb-sql.ts"),
          "#src/duckdb-tokenizer.js": path.resolve(__dirname, "./src/duckdb-tokenizer.ts"),
          "#src/duckdb-transaction.js": path.resolve(__dirname, "./src/duckdb-transaction.ts"),
+         "#src/duckdb-unnest.js": path.resolve(__dirname, "./src/duckdb-unnest.ts"),
          "#src/duckdb-values.js": path.resolve(__dirname, "./src/duckdb-values.ts"),
          "#src/schema": path.resolve(__dirname, "./src/schema"),
          "#src/vexnor-duckdb.js": path.resolve(__dirname, "./src/vexnor-duckdb.ts"),
