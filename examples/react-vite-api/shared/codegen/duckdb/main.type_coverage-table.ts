@@ -181,23 +181,6 @@ export const TypeCoverage = vexnor.newSqlTable<{
        */
       colMap: "col_map",
    },
-   columnStructures: {
-      colList: {
-         kind: "list",
-         value: null,
-      },
-      colStruct: {
-         kind: "struct",
-         fields: {
-            name: {
-               fieldName: "name",
-            },
-            score: {
-               fieldName: "score",
-            },
-         },
-      },
-   },
    jsonSchema: {
       colDate: "Date",
       colTimestampS: "Date",
@@ -235,8 +218,29 @@ export const TypeCoverage = vexnor.newSqlTable<{
       colTimestamptz: { dbType: "TIMESTAMP WITH TIME ZONE", type: vexnor.SqlLiteralType.Date },
       colInterval: { dbType: "INTERVAL", type: vexnor.SqlLiteralType.String },
       colJson: { dbType: "JSON", type: vexnor.SqlLiteralType.Json },
-      colList: { dbType: "INTEGER[]", type: vexnor.SqlLiteralType.Json },
-      colStruct: { dbType: "STRUCT(\"name\" VARCHAR, score INTEGER)", type: vexnor.SqlLiteralType.Json },
+      colList: {
+         dbType: "INTEGER[]",
+         type: vexnor.SqlLiteralType.Json,
+         structure: {
+            kind: "list",
+            value: null,
+         },
+      },
+      colStruct: {
+         dbType: "STRUCT(\"name\" VARCHAR, score INTEGER)",
+         type: vexnor.SqlLiteralType.Json,
+         structure: {
+            kind: "struct",
+            fields: {
+               name: {
+                  fieldName: "name",
+               },
+               score: {
+                  fieldName: "score",
+               },
+            },
+         },
+      },
       colMap: { dbType: "MAP(VARCHAR, INTEGER)", type: vexnor.SqlLiteralType.Json },
    },
 });

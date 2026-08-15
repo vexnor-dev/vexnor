@@ -48,12 +48,12 @@ export type SqlTableDbColumnSchema = {
    nullable?: boolean;
    default?: string;
    values?: string[];
+   structure?: SqlColumnStructure;
 };
 
 export type SqlTableOptions<T extends SqlTableTypeArgs> = {
    readonly columns: Record<keyof T["Select"], string>;
    readonly jsonSchema?: Partial<Record<keyof T["Select"], SqlJsonType>>;
-   readonly columnStructures?: Partial<Record<keyof T["Select"], SqlColumnStructure>>;
    readonly fk?: SqlTableForeignKey[];
    readonly dbSchema?: Partial<Record<keyof T["Select"], SqlTableDbColumnSchema>>;
 } & Pick<SqlTable<T>, "tableInfo" | "pk" | "source"> &
@@ -87,7 +87,6 @@ export class SqlTable<T extends SqlTableTypeArgs> extends Sql {
    readonly dialect: string;
    readonly source: string;
    readonly columnTypes: Partial<Record<keyof T["Select"], SqlJsonType>>;
-   declare readonly columnStructures: Partial<Record<keyof T["Select"], SqlColumnStructure>>;
    private readonly _fk: Lazy<SqlTableForeignKey[]>;
    readonly dbSchema: Partial<Record<keyof T["Select"], SqlTableDbColumnSchema>>;
    private readonly _cols: Lazy<InferTable$RowBySelect<T["Select"]>>;
@@ -122,11 +121,6 @@ export class SqlTable<T extends SqlTableTypeArgs> extends Sql {
       this.dialect = dialect || "sql";
       this.source = args instanceof SqlTable ? args.source : args.source;
       this.columnTypes = (args instanceof SqlTable ? args.columnTypes : args.jsonSchema) ?? {};
-      Object.defineProperty(this, "columnStructures", {
-         value: args.columnStructures ?? {},
-         enumerable: false,
-         configurable: true,
-      });
       const codegenFk: SqlTableForeignKey[] = (args instanceof SqlTable ? args.fk : args.fk) ?? [];
       const fkKey = `${tableInfo.schema}.${tableInfo.name}`;
       this._fk = new Lazy(() => [...codegenFk, ...(SqlTable._connections.get(fkKey) ?? [])]);
@@ -280,7 +274,6 @@ export class SqlTable<T extends SqlTableTypeArgs> extends Sql {
             dialect: this.dialect,
             source: this.source,
             jsonSchema: this.columnTypes,
-            columnStructures: this.columnStructures,
             dbSchema: this.dbSchema,
             columns: (() => {
                const columns: Record<string, string> = {};
@@ -352,7 +345,6 @@ export class SqlTable<T extends SqlTableTypeArgs> extends Sql {
             dialect: this.dialect,
             source: this.source,
             jsonSchema: this.columnTypes,
-            columnStructures: this.columnStructures,
             dbSchema: this.dbSchema,
             columns: (() => {
                const columns: Record<string, string> = {};
@@ -421,7 +413,7 @@ export class SqlTable<T extends SqlTableTypeArgs> extends Sql {
                   columnName: value,
                   tableInfo: this.tableInfo,
                   jsonType: columnTypes[key] ?? null,
-                  structure: this.columnStructures[key] ?? null,
+                  structure: this.dbSchema[key]?.structure ?? null,
                }),
             };
          } else {
@@ -446,7 +438,7 @@ export class SqlTable<T extends SqlTableTypeArgs> extends Sql {
                   columnName: value,
                   tableInfo: { ...this.tableInfo, out: true },
                   jsonType: columnTypes[key] ?? null,
-                  structure: this.columnStructures[key] ?? null,
+                  structure: this.dbSchema[key]?.structure ?? null,
                }),
             };
          } else {

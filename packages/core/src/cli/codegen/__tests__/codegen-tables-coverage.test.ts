@@ -232,47 +232,49 @@ describe("nested column code generation", () => {
                */
               shippingDetails: "shipping_details",
            },
-           columnStructures: {
+           dbSchema: {
               shippingDetails: {
-                 kind: "struct",
-                 fields: {
-                    address: {
-                       fieldName: "address",
-                       structure: {
-                          kind: "struct",
-                          fields: {
-                             country: {
-                                fieldName: "country",
-                             },
-                             trackingId: {
-                                fieldName: "tracking_id",
-                             },
-                             geo: {
-                                fieldName: "geo",
-                                structure: {
-                                   kind: "struct",
-                                   fields: {
-                                      latitude: {
-                                         fieldName: "latitude",
+                 dbType: "STRUCT(address STRUCT(country VARCHAR, geo STRUCT(latitude DOUBLE)), tags VARCHAR[])",
+                 type: vexnor.SqlLiteralType.Json,
+                 nullable: true,
+                 structure: {
+                    kind: "struct",
+                    fields: {
+                       address: {
+                          fieldName: "address",
+                          structure: {
+                             kind: "struct",
+                             fields: {
+                                country: {
+                                   fieldName: "country",
+                                },
+                                trackingId: {
+                                   fieldName: "tracking_id",
+                                },
+                                geo: {
+                                   fieldName: "geo",
+                                   structure: {
+                                      kind: "struct",
+                                      fields: {
+                                         latitude: {
+                                            fieldName: "latitude",
+                                         },
                                       },
                                    },
                                 },
                              },
                           },
                        },
-                    },
-                    tags: {
-                       fieldName: "tags",
-                       structure: {
-                          kind: "list",
-                          value: null,
+                       tags: {
+                          fieldName: "tags",
+                          structure: {
+                             kind: "list",
+                             value: null,
+                          },
                        },
                     },
                  },
               },
-           },
-           dbSchema: {
-              shippingDetails: { dbType: "STRUCT(address STRUCT(country VARCHAR, geo STRUCT(latitude DOUBLE)), tags VARCHAR[])", type: vexnor.SqlLiteralType.Json, nullable: true },
            },
         });"
       `);

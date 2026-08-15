@@ -72,20 +72,6 @@ export function writeTableType(writer: CodeWriter, { table }: PrintTableArgs) {
             }
             return { col, colType };
          });
-         const hasStructuredColumns = columnTypes.some(
-            ({ colType }) => colType.typeTree && isColumnStructure(colType.typeTree),
-         );
-         if (hasStructuredColumns) {
-            writer.write("columnStructures:").inlineBlock(() => {
-               for (const { col, colType } of columnTypes) {
-                  const { typeTree } = colType;
-                  if (!typeTree || !isColumnStructure(typeTree)) continue;
-                  writer.write(`${getColumnName(col.column_name)}:`);
-                  writeColumnStructure(writer, typeTree, getColumnName);
-                  writer.writeLine(",");
-               }
-            }).writeLine(",");
-         }
          const dateColumns = columnTypes.filter(({ colType }) => colType?.type === SqlLiteralType.Date);
          if (dateColumns.length) {
             writer
@@ -128,7 +114,17 @@ export function writeTableType(writer: CodeWriter, { table }: PrintTableArgs) {
                            parts.push(`values: [${enumInfo.enum_values.map((v) => `"${v.enum_label}"`).join(", ")}]`);
                         }
                      }
-                     writer.writeLine(`${colAlias}: { ${parts.join(", ")} },`);
+                     const { typeTree } = colType;
+                     if (typeTree && isColumnStructure(typeTree)) {
+                        writer.write(`${colAlias}:`).inlineBlock(() => {
+                           parts.forEach((part) => writer.writeLine(`${part},`));
+                           writer.write("structure:");
+                           writeColumnStructure(writer, typeTree, getColumnName);
+                           writer.writeLine(",");
+                        }).writeLine(",");
+                     } else {
+                        writer.writeLine(`${colAlias}: { ${parts.join(", ")} },`);
+                     }
                   });
                })
                .writeLine(",");

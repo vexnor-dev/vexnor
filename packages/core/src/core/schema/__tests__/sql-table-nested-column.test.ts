@@ -3,6 +3,7 @@ import { sql } from "#src/core/sql.js";
 import { row } from "#src/core/query/sql-select-row.js";
 import { TypeOf } from "#src/core/sql-base.js";
 import { newSqlTable } from "#src/core/schema/sql-table.js";
+import { SqlLiteralType } from "#src/plugin/sql-literal.js";
 
 const Order = newSqlTable<{
    Select: {
@@ -36,22 +37,26 @@ const Order = newSqlTable<{
       orderId: "order_id",
       shipping: "shipping",
    },
-   columnStructures: {
+   dbSchema: {
       shipping: {
-         kind: "struct",
-         fields: {
-            address: {
-               fieldName: "address",
-               structure: {
-                  kind: "struct",
-                  fields: {
-                     country: { fieldName: "country" },
-                     geo: {
-                        fieldName: "geo",
-                        structure: {
-                           kind: "struct",
-                           fields: {
-                              latitude: { fieldName: "latitude" },
+         dbType: "STRUCT(address STRUCT(country VARCHAR, geo STRUCT(latitude DOUBLE)))",
+         type: SqlLiteralType.Json,
+         structure: {
+            kind: "struct",
+            fields: {
+               address: {
+                  fieldName: "address",
+                  structure: {
+                     kind: "struct",
+                     fields: {
+                        country: { fieldName: "country" },
+                        geo: {
+                           fieldName: "geo",
+                           structure: {
+                              kind: "struct",
+                              fields: {
+                                 latitude: { fieldName: "latitude" },
+                              },
                            },
                         },
                      },

@@ -1,5 +1,5 @@
 import { describe, expect, expectTypeOf, test } from "vitest";
-import { newSqlTable, row, TypeOf } from "@vexnor/core";
+import { newSqlTable, row, SqlLiteralType, TypeOf } from "@vexnor/core";
 import { sql, unnest } from "#src/index.js";
 
 const Orders = newSqlTable<{
@@ -20,28 +20,32 @@ const Orders = newSqlTable<{
    dialect: "duckdb",
    source: "duckdb-unnest-test",
    columns: { items: "items" },
-   columnStructures: {
+   dbSchema: {
       items: {
-         kind: "list",
-         value: {
-            kind: "struct",
-            fields: {
-               product: {
-                  fieldName: "product",
-                  structure: {
-                     kind: "struct",
-                     fields: { productId: { fieldName: "product_id" } },
-                  },
-               },
-               discounts: {
-                  fieldName: "discounts",
-                  structure: {
-                     kind: "list",
-                     value: {
+         dbType: "STRUCT(product STRUCT(product_id VARCHAR), discounts STRUCT(code VARCHAR, amount DOUBLE)[])[]",
+         type: SqlLiteralType.Json,
+         structure: {
+            kind: "list",
+            value: {
+               kind: "struct",
+               fields: {
+                  product: {
+                     fieldName: "product",
+                     structure: {
                         kind: "struct",
-                        fields: {
-                           code: { fieldName: "code" },
-                           amount: { fieldName: "amount" },
+                        fields: { productId: { fieldName: "product_id" } },
+                     },
+                  },
+                  discounts: {
+                     fieldName: "discounts",
+                     structure: {
+                        kind: "list",
+                        value: {
+                           kind: "struct",
+                           fields: {
+                              code: { fieldName: "code" },
+                              amount: { fieldName: "amount" },
+                           },
                         },
                      },
                   },

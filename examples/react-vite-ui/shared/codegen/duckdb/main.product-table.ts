@@ -76,12 +76,6 @@ export const Product = vexnor.newSqlTable<{
        */
       tags: "tags",
    },
-   columnStructures: {
-      tags: {
-         kind: "list",
-         value: null,
-      },
-   },
    jsonSchema: {
       createdAt: "Date",
       modifiedAt: "Date",
@@ -96,7 +90,15 @@ export const Product = vexnor.newSqlTable<{
       isAvailable: { dbType: "BOOLEAN", type: vexnor.SqlLiteralType.Boolean, default: "CAST('t' AS BOOLEAN)" },
       isPublished: { dbType: "BOOLEAN", type: vexnor.SqlLiteralType.Boolean, default: "CAST('f' AS BOOLEAN)" },
       metadata: { dbType: "JSON", type: vexnor.SqlLiteralType.Json, nullable: true },
-      tags: { dbType: "VARCHAR[]", type: vexnor.SqlLiteralType.Json, nullable: true },
+      tags: {
+         dbType: "VARCHAR[]",
+         type: vexnor.SqlLiteralType.Json,
+         nullable: true,
+         structure: {
+            kind: "list",
+            value: null,
+         },
+      },
    },
 });
 export type IProductInsert = {
