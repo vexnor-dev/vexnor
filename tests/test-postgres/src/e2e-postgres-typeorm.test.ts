@@ -148,7 +148,7 @@ afterAll(async () => {
 
 // ─── EntitySchema tests ───────────────────────────────────────────────────────
 
-describe.sequential("e2e typeorm/pg — EntitySchema", () => {
+describe("e2e typeorm/pg — EntitySchema", { concurrent: false }, () => {
    const TAG = "typeorm-schema-pg-e2e";
    let account!: IAccount;
    let Account: ReturnType<typeof fromTypeORM<IAccount>>;
@@ -228,7 +228,7 @@ describe.sequential("e2e typeorm/pg — EntitySchema", () => {
 
 // ─── Decorator entity tests ───────────────────────────────────────────────────
 
-describe.sequential("e2e typeorm/pg — decorator entity", () => {
+describe("e2e typeorm/pg — decorator entity", { concurrent: false }, () => {
    const TAG = "typeorm-decorator-pg-e2e";
    let account!: AccountEntity;
    // eslint-disable-next-line @typescript-eslint/no-explicit-any

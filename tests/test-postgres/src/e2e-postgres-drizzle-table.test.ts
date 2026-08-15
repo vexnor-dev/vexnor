@@ -22,7 +22,7 @@ const accountDrizzle = schema.table("account", {
 
 const Account = fromDrizzleTable(accountDrizzle);
 
-describe.sequential("e2e drizzle/pg — fromDrizzleTable works against real DB", () => {
+describe("e2e drizzle/pg — fromDrizzleTable works against real DB", { concurrent: false }, () => {
    const TAG = "drizzle-pg-e2e";
    let account!: typeof accountDrizzle.$inferSelect;
 

@@ -38,7 +38,7 @@ const sqliteSelect = sqliteSql`
 const sqliteInsert = SqliteAccount.sqlite.insertRows();
 const sqliteDelete = SqliteAccount.sqlite.delete({ WHERE: sqliteSql`${SqliteAccount.$accountId} = ${param<{ accountId: string }>("accountId")}` });
 
-describe.sequential("cross-plugin — single HttpRemoteClient routes to all three databases", () => {
+describe("cross-plugin — single HttpRemoteClient routes to all three databases", { concurrent: false }, () => {
    let client: HttpRemoteClient;
    let stop: () => Promise<void>;
    let pgAccount: IPgAccountSelect;

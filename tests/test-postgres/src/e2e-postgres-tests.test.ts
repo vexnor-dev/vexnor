@@ -7,7 +7,7 @@ import { AccountStatusUdt } from "./codegen/vexnor_dev-enums.js";
 import { pool } from "./postgres-pool.js";
 import { jsonMany, sql } from "@vexnor/postgres";
 
-describe.sequential("vexnor postgres e2e tests", { concurrent: false }, () => {
+describe("vexnor postgres e2e tests", { concurrent: false }, () => {
    const rootAccounts: IAccountSelect[] = [];
    const childAccounts: IAccountSelect[] = [];
    const ROOT_COUNT = 100;

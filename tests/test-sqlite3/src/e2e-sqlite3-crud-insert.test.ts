@@ -6,7 +6,7 @@ import { sql, Sqlite3InsertRowsCommand, Sqlite3InsertFromCommand } from "@vexnor
 import { Account, IAccountInsert } from "./codegen/main.account-table.js";
 import { db } from "./config.js";
 
-describe.sequential("vexnor sqlite3 CRUD - insert", () => {
+describe("vexnor sqlite3 CRUD - insert", { concurrent: false }, () => {
    test("insertRows: single row returns full select", async () => {
       const insertData: IAccountInsert = {
          accountId: randomUUID(),

@@ -5,7 +5,7 @@ import { Account } from "./codegen/main.account-table.js";
 import { db } from "./config.js";
 import { insertAccount } from "./fixtures.js";
 
-describe.sequential("vexnor DuckDB SQL e2e", () => {
+describe("vexnor DuckDB SQL e2e", { concurrent: false }, () => {
    test("executes parameterized selects against native DuckDB", async () => {
       const inserted = await insertAccount("sql-parameter");
       const result = await sql`

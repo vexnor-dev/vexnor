@@ -5,7 +5,7 @@ import { AccountOrderSummary } from "./codegen/main.account_order_summary-view.j
 import { db } from "./config.js";
 import { insertAccount, insertOrder } from "./fixtures.js";
 
-describe.sequential("DuckDB generated view e2e", () => {
+describe("DuckDB generated view e2e", { concurrent: false }, () => {
    test("marks the generated view as select-only", () => {
       expect(AccountOrderSummary.crud).toMatchInlineSnapshot(`
         {

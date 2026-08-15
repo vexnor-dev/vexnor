@@ -6,7 +6,7 @@ import { Product } from "./codegen/main.product-table.js";
 import { db } from "./config.js";
 import { insertAccount, insertOrder, insertProduct } from "./fixtures.js";
 
-describe.sequential("DuckDB product and order-item e2e", () => {
+describe("DuckDB product and order-item e2e", { concurrent: false }, () => {
    let orderItem: IOrderItemSelect;
 
    beforeAll(async () => {

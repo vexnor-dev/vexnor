@@ -6,7 +6,7 @@ import { Account, Order } from "./codegen/vexnor_dev.schema.js";
 import { pool } from "./mssql-pool.js";
 import { TestDataManager } from "./test-data-manager.js";
 
-describe.sequential("vexnor mssql window functions (windowBy)", async (ctx) => {
+describe("vexnor mssql window functions (windowBy)", { concurrent: false }, async (ctx) => {
    const dataManager = new TestDataManager(ctx, {
       ACCOUNT_ROOT_COUNT: 3,
       ACCOUNT_CHILD_FACTOR: 1,

@@ -22,7 +22,7 @@ const deleteAccount = Account.mssql.delete({
    WHERE: sql`${Account.$accountId} = ${param<{ accountId: string }>("accountId")}`,
 });
 
-describe.sequential("mssql — remote execution via HttpRemoteClient", () => {
+describe("mssql — remote execution via HttpRemoteClient", { concurrent: false }, () => {
    let client: HttpRemoteClient;
    let stop: () => Promise<void>;
    let account: IAccountSelect;

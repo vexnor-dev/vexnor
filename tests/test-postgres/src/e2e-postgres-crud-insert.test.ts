@@ -5,7 +5,7 @@ import { TestDataManager } from "./test-data-manager.js";
 import { Account } from "./codegen/vexnor_dev.account-table.js";
 import { row, sql } from "@vexnor/core";
 
-describe.sequential("vexnor postgres CRUD - insert", async (ctx) => {
+describe("vexnor postgres CRUD - insert", { concurrent: false }, async (ctx) => {
    const dataManager = new TestDataManager(ctx, {
       ACCOUNT_ROOT_COUNT: 5,
       ACCOUNT_CHILD_FACTOR: 5,

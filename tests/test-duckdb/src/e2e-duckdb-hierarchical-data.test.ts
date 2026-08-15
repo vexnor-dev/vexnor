@@ -93,7 +93,7 @@ const selectOrderDiscounts = sql`
    order by ${Items.$product.$productId}, ${Discounts.$code}
 `;
 
-describe.sequential("Vexnor DuckDB hierarchical data e2e", () => {
+describe("Vexnor DuckDB hierarchical data e2e", { concurrent: false }, () => {
    let accountId: string;
 
    beforeAll(async () => {

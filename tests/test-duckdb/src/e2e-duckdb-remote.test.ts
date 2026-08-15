@@ -25,7 +25,7 @@ const updateNotes = sql`
    returning ${row(Account.$accountId, Account.$notes)}
 `;
 
-describe.sequential("DuckDB remote execution e2e", () => {
+describe("DuckDB remote execution e2e", { concurrent: false }, () => {
    let client: RemoteClient;
    let account: IAccountSelect;
    let writableAccount: IAccountSelect;

@@ -7,7 +7,7 @@ import { Account, IAccountSelect } from "./codegen/vexnor_dev.schema.js";
 import { pool } from "./mssql-pool.js";
 import { TestDataManager } from "./test-data-manager.js";
 
-describe.sequential("vexnor mssql CRUD - update", async (ctx) => {
+describe("vexnor mssql CRUD - update", { concurrent: false }, async (ctx) => {
    let rootAccount!: IAccountSelect;
 
    const dataManager = new TestDataManager(ctx, {

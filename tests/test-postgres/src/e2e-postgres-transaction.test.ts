@@ -5,7 +5,7 @@ import { transaction, savepoint } from "@vexnor/postgres";
 import { Account } from "./codegen/vexnor_dev.account-table.js";
 import { pool } from "./postgres-pool.js";
 
-describe.sequential("transaction() - postgres", () => {
+describe("transaction() - postgres", { concurrent: false }, () => {
    test("commits on success", async () => {
       const account = await transaction(pool, async (tx) => {
          return sql`
@@ -72,7 +72,7 @@ describe.sequential("transaction() - postgres", () => {
    });
 });
 
-describe.sequential("savepoint() - postgres", () => {
+describe("savepoint() - postgres", { concurrent: false }, () => {
    test("releases savepoint on success, outer transaction commits", async () => {
       const result = await transaction(pool, async (tx) => {
          const outer = await sql`

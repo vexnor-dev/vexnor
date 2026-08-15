@@ -9,7 +9,7 @@ import { Account, type IAccountSelect } from "./codegen/main.account-table.js";
 import { db } from "./config.js";
 import { insertAccount } from "./fixtures.js";
 
-describe.sequential("vexnor DuckDB CRUD e2e", () => {
+describe("vexnor DuckDB CRUD e2e", { concurrent: false }, () => {
    let account: IAccountSelect;
 
    beforeAll(async () => {

@@ -6,7 +6,7 @@ import { Order } from "./codegen/main.order-table.js";
 import { db } from "./config.js";
 import { insertAccount, insertOrder } from "./fixtures.js";
 
-describe.sequential("vexnor DuckDB joins and JSON e2e", () => {
+describe("vexnor DuckDB joins and JSON e2e", { concurrent: false }, () => {
    let parent: IAccountSelect;
    let child: IAccountSelect;
 

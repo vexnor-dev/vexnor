@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { sql } from "@vexnor/duckdb";
 import { db } from "./config.js";
 
-describe.sequential("DuckDB direct file query e2e", () => {
+describe("DuckDB direct file query e2e", { concurrent: false }, () => {
    const directory = join(tmpdir(), `vexnor-duckdb-files-${crypto.randomUUID()}`);
    const csvPath = join(directory, "products.csv");
    const jsonPath = join(directory, "products.json");

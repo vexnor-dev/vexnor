@@ -6,7 +6,7 @@ import { sql, Sqlite3DeleteCommand } from "@vexnor/sqlite3";
 import { Account, IAccountInsert, IAccountSelect } from "./codegen/main.account-table.js";
 import { db } from "./config.js";
 
-describe.sequential("vexnor sqlite3 CRUD - delete", () => {
+describe("vexnor sqlite3 CRUD - delete", { concurrent: false }, () => {
    const inserted: IAccountSelect[] = [];
 
    beforeAll(async () => {

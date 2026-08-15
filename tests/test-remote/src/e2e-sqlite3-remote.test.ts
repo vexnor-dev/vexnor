@@ -32,7 +32,7 @@ const deleteAccount = Account.sqlite.delete({
    WHERE: sql`${Account.$accountId} = ${param<{ accountId: string }>("accountId")}`,
 });
 
-describe.sequential("sqlite3 — remote execution via HttpRemoteClient", () => {
+describe("sqlite3 — remote execution via HttpRemoteClient", { concurrent: false }, () => {
    let client: HttpRemoteClient;
    let stop: () => Promise<void>;
    let account: IAccountSelect;

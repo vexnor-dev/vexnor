@@ -5,7 +5,7 @@ import { jsonMany, sql } from "@vexnor/mssql";
 import { pool } from "./mssql-pool.js";
 import { getTag } from "./tags.js";
 
-describe.sequential("jsonMany() tests", (ctx) => {
+describe("jsonMany() tests", { concurrent: false }, (ctx) => {
    const TAG = getTag(ctx);
    let parentAccount!: IAccountSelect;
    let orders!: IOrderSelect[];

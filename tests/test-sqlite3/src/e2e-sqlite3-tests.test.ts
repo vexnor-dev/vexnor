@@ -6,7 +6,7 @@ import { Account, IAccountSelect } from "./codegen/main.account-table.js";
 import { db } from "./config.js";
 import { TestDataManager } from "./test-data-manager.js";
 
-describe.sequential("vexnor sqlite3 e2e tests", async (ctx) => {
+describe("vexnor sqlite3 e2e tests", { concurrent: false }, async (ctx) => {
    const dataManager = new TestDataManager(ctx);
 
    const findAccountById = sql`

@@ -8,7 +8,7 @@ import {
 } from "./codegen/main.type_coverage-table.js";
 import { db } from "./config.js";
 
-describe.sequential("DuckDB native type coverage", () => {
+describe("DuckDB native type coverage", { concurrent: false }, () => {
    let inserted: ITypeCoverageSelect;
 
    beforeAll(async () => {

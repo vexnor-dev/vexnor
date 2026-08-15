@@ -7,7 +7,7 @@ import { Account, IAccountSelect, IOrderSelect, Order } from "./codegen/vexnor_d
 import { pool } from "./mssql-pool.js";
 import { TestDataManager } from "./test-data-manager.js";
 
-describe.sequential("vexnor mssql CRUD - select", async (ctx) => {
+describe("vexnor mssql CRUD - select", { concurrent: false }, async (ctx) => {
    let rootAccount!: IAccountSelect;
    let childAccount!: IAccountSelect;
    let order!: IOrderSelect;

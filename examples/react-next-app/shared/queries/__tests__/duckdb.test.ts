@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 import { getDuckDb } from "../../db/duckdb";
 import { deleteAccount, insertAccount, selectAccounts } from "../duckdb";
 
-describe.sequential("Next.js DuckDB example queries", () => {
+describe("Next.js DuckDB example queries", { concurrent: false }, () => {
    test("executes generated CRUD and typed account selection against the example database", async () => {
       const duckDb = await getDuckDb();
       const email = `next-duckdb-${crypto.randomUUID()}@example.com`;

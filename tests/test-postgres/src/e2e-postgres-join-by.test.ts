@@ -5,7 +5,7 @@ import { OrderItem, Order, Account } from "./codegen/vexnor_dev.schema.js";
 import { pool } from "./postgres-pool.js";
 import { TestDataManager } from "./test-data-manager.js";
 
-describe.sequential("joinBy — e2e postgres (multi-table join + aggregation)", async (ctx) => {
+describe("joinBy — e2e postgres (multi-table join + aggregation)", { concurrent: false }, async (ctx) => {
    const dataManager = new TestDataManager(ctx, {
       ACCOUNT_ROOT_COUNT: 3,
       ACCOUNT_CHILD_FACTOR: 0,
@@ -133,7 +133,7 @@ describe.sequential("joinBy — e2e postgres (multi-table join + aggregation)", 
    });
 });
 
-describe.sequential("JOIN: sql`` — e2e postgres (raw JOIN arg via CRUD handler)", async (ctx) => {
+describe("JOIN: sql`` — e2e postgres (raw JOIN arg via CRUD handler)", { concurrent: false }, async (ctx) => {
    const dataManager = new TestDataManager(ctx, {
       ACCOUNT_ROOT_COUNT: 2,
       ACCOUNT_CHILD_FACTOR: 0,

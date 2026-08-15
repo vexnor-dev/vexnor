@@ -4,7 +4,7 @@ import "@vexnor/postgres";
 import { Account } from "./codegen/vexnor_dev.schema.js";
 import { pool } from "./postgres-pool.js";
 
-describe.sequential("vexnor postgres table handler - upsert", () => {
+describe("vexnor postgres table handler - upsert", { concurrent: false }, () => {
    test("upsert: insert then update on conflict", async () => {
       const inserted = await Account.postgres.insertRows().one({
          db: pool,

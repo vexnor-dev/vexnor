@@ -5,7 +5,7 @@ import { Account, type IAccountSelect } from "./codegen/main.account-table.js";
 import { db } from "./config.js";
 import { insertAccount } from "./fixtures.js";
 
-describe.sequential("DuckDB windowBy e2e", () => {
+describe("DuckDB windowBy e2e", { concurrent: false }, () => {
    let accounts: IAccountSelect[];
 
    beforeAll(async () => {

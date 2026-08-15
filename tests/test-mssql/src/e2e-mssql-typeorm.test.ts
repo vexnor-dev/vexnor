@@ -150,7 +150,7 @@ afterAll(async () => {
 
 // ─── EntitySchema tests ───────────────────────────────────────────────────────
 
-describe.sequential("e2e typeorm/mssql — EntitySchema", (ctx) => {
+describe("e2e typeorm/mssql — EntitySchema", { concurrent: false }, (ctx) => {
    const TAG = getTag(ctx);
    let account!: IAccount;
    let Account: ReturnType<typeof fromTypeORM<IAccount>>;
@@ -233,7 +233,7 @@ describe.sequential("e2e typeorm/mssql — EntitySchema", (ctx) => {
 
 // ─── Decorator entity tests ───────────────────────────────────────────────────
 
-describe.sequential("e2e typeorm/mssql — decorator entity", (ctx) => {
+describe("e2e typeorm/mssql — decorator entity", { concurrent: false }, (ctx) => {
    const TAG = getTag(ctx);
    let account!: AccountEntity;
    // eslint-disable-next-line @typescript-eslint/no-explicit-any

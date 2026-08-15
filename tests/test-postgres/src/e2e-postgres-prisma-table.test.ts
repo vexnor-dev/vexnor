@@ -12,7 +12,7 @@ import { PrismaClient } from "../prisma/generated/client.js";
 import * as PrismaGenerated from "../prisma/generated/client.js";
 import { PrismaPg } from "@prisma/adapter-pg";
 
-describe.sequential("e2e prisma/pg — fromPrismaModelTable works against real DB", (ctx) => {
+describe("e2e prisma/pg — fromPrismaModelTable works against real DB", { concurrent: false }, (ctx) => {
    const TAG = getTag(ctx);
    type AccountRow = PrismaGenerated.Account;
    type AccountInsert = Pick<

@@ -22,7 +22,7 @@ const accountDrizzle = sqliteTable("account", {
 
 const Account = fromDrizzleTable(accountDrizzle, "main");
 
-describe.sequential("e2e drizzle/sqlite — fromDrizzleTable works against real DB", () => {
+describe("e2e drizzle/sqlite — fromDrizzleTable works against real DB", { concurrent: false }, () => {
    const TAG = "drizzle-sqlite-e2e";
    let account!: typeof accountDrizzle.$inferSelect;
 

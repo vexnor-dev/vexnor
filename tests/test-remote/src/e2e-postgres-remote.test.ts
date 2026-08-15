@@ -32,7 +32,7 @@ const deleteAccount = Account.postgres.delete({
    WHERE: sql`${Account.$accountId} = ${param<{ accountId: string }>("accountId")}`,
 });
 
-describe.sequential("postgres — remote execution via HttpRemoteClient", () => {
+describe("postgres — remote execution via HttpRemoteClient", { concurrent: false }, () => {
    let client: HttpRemoteClient;
    let stop: () => Promise<void>;
    let account: IAccountSelect;

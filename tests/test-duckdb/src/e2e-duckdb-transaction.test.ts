@@ -4,7 +4,7 @@ import { DuckDBUnsupportedError, savepoint, sql, transaction } from "@vexnor/duc
 import { Account } from "./codegen/main.account-table.js";
 import { db } from "./config.js";
 
-describe.sequential("transaction() - DuckDB", () => {
+describe("transaction() - DuckDB", { concurrent: false }, () => {
    test("commits native work on success", async () => {
       const email = `tx-commit-${crypto.randomUUID()}@example.com`;
       const inserted = await transaction(db, (tx) => sql`
