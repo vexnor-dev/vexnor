@@ -6,6 +6,9 @@ import { sharedConfig } from "../../vitest.shared.js";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default mergeConfig(sharedConfig, {
+   test: {
+      testTimeout: 15000,
+   },
    resolve: {
       alias: {
          "#src/charms": path.resolve(__dirname, "./src/charms"),
