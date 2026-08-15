@@ -2,6 +2,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Text.Json;
 using DuckDB.NET.Data;
+using DuckDB.NET.Native;
 using Vexnor.Core.Execution;
 using Vexnor.DuckDB;
 using Xunit;
@@ -141,10 +142,8 @@ public sealed class DuckDBExecutorTests : IDisposable
         var namespaceLessValue = Activator.CreateInstance(namespaceLessType);
         Assert.Same(namespaceLessValue, normalizeOutput.Invoke(_executor, [namespaceLessValue]));
 
-        var providerValue = new DuckDBParameter();
-        Assert.Equal(
-            providerValue.ToString(),
-            normalizeOutput.Invoke(_executor, [providerValue]));
+        var providerValue = new DuckDBInterval(1, 2, 3);
+        Assert.Equal(providerValue, normalizeOutput.Invoke(_executor, [providerValue]));
     }
 
     [Fact]

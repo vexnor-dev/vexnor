@@ -124,7 +124,6 @@ public sealed partial class DuckDBExecutor : DbExecutorBase, IAsyncDisposable
             Stream stream => ReadStream(stream),
             IDictionary dictionary => NormalizeDictionary(dictionary),
             IEnumerable sequence when value is not string => sequence.Cast<object?>().Select(NormalizeOutput).ToArray(),
-            _ when value.GetType().Namespace?.StartsWith("DuckDB.NET", StringComparison.Ordinal) == true => value.ToString(),
             _ => value
         };
     }
