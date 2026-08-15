@@ -4,7 +4,7 @@ export default defineConfig({
    test: {
       fileParallelism: true,
       isolate: false,
-      projects: ["./packages/*", "./plugins/*", "./orms/*", "./tests/*"],
+      projects: ["./vitest", "./packages/*", "./plugins/*", "./orms/*", "./tests/*"],
       typecheck: {
          enabled: true,
          checker: "tsc",
@@ -14,6 +14,12 @@ export default defineConfig({
          reportsDirectory: "./coverage",
          reporter: ["text", "html", "json", "json-summary", "clover"],
          reportOnFailure: true,
+         thresholds: {
+            statements: 97,
+            branches: 92,
+            functions: 98,
+            lines: 98,
+         },
          include: ["**/src/**/*"],
          exclude: [
             "**/__tests__/**",
