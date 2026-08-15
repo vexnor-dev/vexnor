@@ -69,6 +69,51 @@ const selected = await Account.duckdb.select({
 
 Generated tables support select, insert rows, insert from a query, update, delete, and upsert. Selects support joins, grouping, having, windows, projection, pagination, `includeOne`, and `includeMany`.
 
+## Hierarchical columns
+
+Codegen recursively types DuckDB `STRUCT`, `LIST`, fixed-array, `MAP`, and `UNION` columns. Struct fields use the same generated `$field` syntax as ordinary columns, including configured column-name conversion:
+
+```typescript
+import { row } from '@vexnor/core';
+import { sql, unnest } from '@vexnor/duckdb';
+import { Order } from './models/main.order-table.js';
+
+const Orders = Order.as('orders');
+const Items = unnest(Orders.$items).as('item');
+
+const selectOrderItems = sql`
+  SELECT ${row(
+    Orders.$orderId,
+    Orders.$shipping.$address.$country.as('shippingCountry'),
+    Items.$product.$productId.as('productId'),
+    Items.$quantity,
+  )}
+  FROM ${Orders}, ${Items}
+`;
+```
+
+`unnest()` accepts a generated list column and exposes a typed relation. It can be chained for deeper lists, for example `unnest(Items.$discounts).as('discount')`. Unknown fields and non-list arguments fail TypeScript compilation.
+
+An ordinary `param()` value occupies one placeholder, so DuckDB can bind a complete list or struct value:
+
+```typescript
+import { param } from '@vexnor/core';
+import type { IOrderInsert } from './models/main.order-table.js';
+
+type UpdateItemsParams = {
+  orderId: string;
+  items: NonNullable<IOrderInsert['items']>;
+};
+
+const updateOrderItems = sql`
+  UPDATE ${Order}
+  SET ${Order.$items} = ${param<UpdateItemsParams>('items')}
+  WHERE ${Order.$orderId} = ${param<UpdateItemsParams>('orderId')}
+`;
+```
+
+Generated select-side struct fields follow Vexnor's configured naming, such as `productId`. Insert-side struct values retain DuckDB's native field names, such as `product_id`, because those object keys are consumed by the DuckDB binder.
+
 ## Transactions
 
 ```typescript

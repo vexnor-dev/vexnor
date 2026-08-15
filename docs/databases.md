@@ -237,6 +237,86 @@ import { jsonMany, jsonOne } from '@vexnor/sqlite3';
 
 ---
 
+## DuckDB
+
+**Package:** `@vexnor/duckdb`
+
+**Driver:** `@duckdb/node-api`
+
+**Dialect:** `duckdb`
+
+```bash
+npm install @vexnor/core @vexnor/duckdb @duckdb/node-api
+```
+
+### Connection Setup
+
+```typescript
+import '@vexnor/duckdb';
+import { VexnorDuckDB } from '@vexnor/duckdb';
+
+const plugin = new VexnorDuckDB();
+const connection = await plugin.createConnection({
+  config: { mode: 'file', path: 'analytics.duckdb' },
+});
+
+const result = await query.duckdb.all({ db: connection.db });
+await connection.close();
+```
+
+### Connection Modes
+
+```typescript
+await plugin.createConnection({ config: { mode: 'memory' } });
+await plugin.createConnection({ config: { mode: 'file', path: 'analytics.duckdb' } });
+await plugin.createConnection({
+  config: {
+    mode: 'motherduck',
+    database: 'analytics',
+    token: process.env.MOTHERDUCK_TOKEN!,
+  },
+});
+```
+
+File and MotherDuck instances are shared while Vexnor connections are active. Closing the final connection releases the native instance and any file lock. In-memory connections are isolated.
+
+### Hierarchical Columns
+
+DuckDB codegen recursively types `STRUCT`, `LIST`, fixed-array, `MAP`, and `UNION` columns. Generated struct fields remain Vexnor identifiers, and `unnest()` exposes typed list items:
+
+```typescript
+import { row } from '@vexnor/core';
+import { sql, unnest } from '@vexnor/duckdb';
+
+const Orders = Order.as('orders');
+const Items = unnest(Orders.$items).as('item');
+const Discounts = unnest(Items.$discounts).as('discount');
+
+const query = sql`
+  SELECT ${row(
+    Orders.$orderId,
+    Orders.$shipping.$address.$country.as('shippingCountry'),
+    Items.$product.$productId.as('productId'),
+    Discounts.$code,
+  )}
+  FROM ${Orders}, ${Items}, ${Discounts}
+`;
+```
+
+Ordinary `param()` values bind complete lists and structs as one placeholder. Use `each()` only when an array must expand into multiple SQL placeholders, such as an `IN (...)` list.
+
+### Notes
+
+- DuckDB parameters use numbered `$1`, `$2`, ... placeholders
+- Dates, timestamps, big integers, blobs, lists, structs, maps, and JSON values use native prepared-statement binding
+- DuckDB enums are generated as TypeScript `const` enums
+- The browser export supports query construction and remote execution; native local connections require Node.js
+- DuckDB does not support savepoints
+
+See the [`@vexnor/duckdb` package guide](../plugins/duckdb/README.md) for codegen, transactions, file queries, extensions, native platform support, and bundler details.
+
+---
+
 ## Using `connect()` with Pipelines
 
 Wrap any connection with `connect()` to attach a `SqlQueryPipeline` — adding authorization, rate limiting, and audit logging to direct queries:

@@ -4,9 +4,9 @@ import { row } from "#src/core/query/sql-select-row.js";
 import { TypeOf } from "#src/core/sql-base.js";
 import { newSqlTable } from "#src/core/schema/sql-table.js";
 
-const DocumentOrder = newSqlTable<{
+const Order = newSqlTable<{
    Select: {
-      documentId: string;
+      orderId: string;
       shipping: {
          address: {
             country: string;
@@ -15,7 +15,7 @@ const DocumentOrder = newSqlTable<{
       } | null;
    };
    Insert: {
-      documentId: string;
+      orderId: string;
       shipping?: {
          address: {
             country: string;
@@ -28,12 +28,12 @@ const DocumentOrder = newSqlTable<{
    Source: "@vexnor/test:nested-columns";
 }>({
    crud: { select: true, insert: true, update: true, delete: true },
-   tableInfo: { name: "document_order", schema: "main" },
-   pk: ["documentId"],
+   tableInfo: { name: "order", schema: "main" },
+   pk: ["orderId"],
    dialect: "duckdb",
    source: "@vexnor/test:nested-columns",
    columns: {
-      documentId: "document_id",
+      orderId: "order_id",
       shipping: "shipping",
    },
    columnStructures: {
@@ -65,10 +65,10 @@ const DocumentOrder = newSqlTable<{
 
 describe("typed nested table columns", () => {
    test("renders generated nested identifiers and infers nullable result fields", () => {
-      const Orders = DocumentOrder.as("orders");
+      const Orders = Order.as("orders");
       const query = sql`
          select ${row(
-            Orders.$documentId.as("orderId"),
+            Orders.$orderId,
             Orders.$shipping.$address.$country.as("shippingCountry"),
             Orders.$shipping.$address.$geo.$latitude.as("shippingLatitude"),
          )}
@@ -85,11 +85,11 @@ describe("typed nested table columns", () => {
         {
           "text": "/* <query_0> */
         SELECT
-          "orders"."document_id" AS "orderId",
+          "orders"."order_id" AS "orderId",
           "orders"."shipping"."address"."country" AS "shippingCountry",
           "orders"."shipping"."address"."geo"."latitude" AS "shippingLatitude"
         FROM
-          "main"."document_order" AS "orders"
+          "main"."order" AS "orders"
           /* </query_0> */",
           "values": [],
         }
@@ -100,20 +100,20 @@ describe("typed nested table columns", () => {
       // eslint-disable-next-line no-constant-condition
       if (false) {
          // @ts-expect-error — address has no generated city field
-         void DocumentOrder.$shipping.$address.$city;
+         void Order.$shipping.$address.$city;
       }
 
       expect(true).toBe(true);
    });
 
    test("exposes stable nested path metadata", () => {
-      const country = DocumentOrder.$shipping.$address.$country;
+      const country = Order.$shipping.$address.$country;
       expect([
          country.path,
-         DocumentOrder.$shipping.structure?.kind,
-         country === DocumentOrder.$shipping.$address.$country,
-         Reflect.get(DocumentOrder.$documentId, "$value"),
-         Reflect.get(DocumentOrder.$shipping, "$missing"),
+         Order.$shipping.structure?.kind,
+         country === Order.$shipping.$address.$country,
+         Reflect.get(Order.$orderId, "$value"),
+         Reflect.get(Order.$shipping, "$missing"),
       ]).toMatchInlineSnapshot(`
         [
           [

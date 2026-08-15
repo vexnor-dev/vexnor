@@ -181,6 +181,23 @@ export const TypeCoverage = vexnor.newSqlTable<{
        */
       colMap: "col_map",
    },
+   columnStructures: {
+      colList: {
+         kind: "list",
+         value: null,
+      },
+      colStruct: {
+         kind: "struct",
+         fields: {
+            name: {
+               fieldName: "name",
+            },
+            score: {
+               fieldName: "score",
+            },
+         },
+      },
+   },
    jsonSchema: {
       colDate: "Date",
       colTimestampS: "Date",
@@ -252,9 +269,12 @@ export type ITypeCoverageInsert = {
    colTimestamptz: Date;
    colInterval: string;
    colJson: unknown;
-   colList: unknown;
-   colStruct: unknown;
-   colMap: unknown;
+   colList: Array<number | null>;
+   colStruct:  {
+      name: string | null;
+      score: number | null;
+   };
+   colMap: Map<string, number>;
 };
 
 export type ITypeCoverageUpdate = Partial<ITypeCoverageInsert>;
@@ -288,9 +308,15 @@ export type ITypeCoverageSelect = {
    colTimestamptz: Date;
    colInterval: string;
    colJson: unknown;
-   colList: unknown;
-   colStruct: unknown;
-   colMap: unknown;
+   colList: Array<number | null>;
+   colStruct:  {
+      name: string | null;
+      score: number | null;
+   };
+   colMap: Array< {
+      key: string;
+      value: number | null;
+   }>;
 };
 
 export type ITypeCoverageJson = vexnor.JsonRow<ITypeCoverageSelect>;

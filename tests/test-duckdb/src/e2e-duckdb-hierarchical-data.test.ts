@@ -1,31 +1,36 @@
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { param, row, val } from "@vexnor/core";
 import { sql, unnest } from "@vexnor/duckdb";
-import { DocumentOrder, IDocumentOrderInsert } from "./codegen/main.document_order-table.js";
+import { Account } from "./codegen/main.account-table.js";
+import { Order, IOrderInsert } from "./codegen/main.order-table.js";
 import { db } from "./config.js";
+import { insertAccount } from "./fixtures.js";
 
-type ParameterizedOrder = Pick<
-   IDocumentOrderInsert,
-   "documentId" | "account" | "status" | "shipping" | "items" | "tags" | "createdAt"
+type ParameterizedOrder = Required<
+   Pick<IOrderInsert, "orderId" | "accountId" | "status" | "shipping" | "items" | "tags" | "createdAt">
 >;
 
-const Orders = DocumentOrder.as("orders");
+const FIRST_ORDER_ID = "00000000-0000-4000-8000-000000000101";
+const SECOND_ORDER_ID = "00000000-0000-4000-8000-000000000102";
+const PARAMETERIZED_ORDER_ID = "00000000-0000-4000-8000-000000000103";
+
+const Orders = Order.as("orders");
 const Items = unnest(Orders.$items).as("item");
 const Discounts = unnest(Items.$discounts).as("discount");
 
 const insertParameterizedOrder = sql`
-   insert into ${DocumentOrder} (
-      ${DocumentOrder.$documentId},
-      ${DocumentOrder.$account},
-      ${DocumentOrder.$status},
-      ${DocumentOrder.$shipping},
-      ${DocumentOrder.$items},
-      ${DocumentOrder.$tags},
-      ${DocumentOrder.$createdAt}
+   insert into ${Order} (
+      ${Order.$orderId},
+      ${Order.$accountId},
+      ${Order.$status},
+      ${Order.$shipping},
+      ${Order.$items},
+      ${Order.$tags},
+      ${Order.$createdAt}
    )
    values (
-      ${param<Pick<ParameterizedOrder, "documentId">>("documentId")},
-      ${param<Pick<ParameterizedOrder, "account">>("account")},
+      ${param<Pick<ParameterizedOrder, "orderId">>("orderId")},
+      ${param<Pick<ParameterizedOrder, "accountId">>("accountId")},
       ${param<Pick<ParameterizedOrder, "status">>("status")},
       ${param<Pick<ParameterizedOrder, "shipping">>("shipping")},
       ${param<Pick<ParameterizedOrder, "items">>("items")},
@@ -36,21 +41,19 @@ const insertParameterizedOrder = sql`
 
 const selectParameterizedOrder = sql`
    select ${row(
-      Orders.$documentId.as("orderId"),
+      Orders.$orderId,
       Orders.$tags,
       Items.$product.$productId.as("productId"),
       Items.$discounts,
    )}
    from ${Orders}, ${Items}
-   where ${Orders.$documentId} = ${param<{ documentId: string }>("documentId")}
+   where ${Orders.$orderId} = ${param<{ orderId: string }>("orderId")}
 `;
 
 const selectNestedOrders = sql`
    select ${row(
-      Orders.$documentId.as("orderId"),
-      Orders.$account.$accountId.as("accountId"),
-      Orders.$account.$email.as("accountEmail"),
-      Orders.$account.$status.as("accountStatus"),
+      Orders.$orderId,
+      Orders.$accountId,
       Orders.$shipping.$address.$country.as("shippingCountry"),
       Orders.$shipping.$address.$geo.$latitude.as("shippingLatitude"),
       Orders.$shipping.$carrier.$name.as("carrier"),
@@ -59,12 +62,13 @@ const selectNestedOrders = sql`
       Orders.$createdAt,
    )}
    from ${Orders}
-   order by ${Orders.$documentId}
+   where ${Orders.$orderId} = ${FIRST_ORDER_ID} or ${Orders.$orderId} = ${SECOND_ORDER_ID}
+   order by ${Orders.$orderId}
 `;
 
 const selectOrderItems = sql`
    select ${row(
-      Orders.$documentId.as("orderId"),
+      Orders.$orderId,
       Items.$product.$productId.as("productId"),
       Items.$product.$label.as("productLabel"),
       Items.$product.$category.as("productCategory"),
@@ -73,92 +77,96 @@ const selectOrderItems = sql`
       val`${Items.$quantity.raw} * ${Items.$unitPrice.raw}`.as<{ lineTotal: number | null }>("lineTotal"),
    )}
    from ${Orders}, ${Items}
+   where ${Orders.$orderId} = ${FIRST_ORDER_ID}
    order by ${Items.$product.$productId}
 `;
 
 const selectOrderDiscounts = sql`
    select ${row(
-      Orders.$documentId.as("orderId"),
+      Orders.$orderId,
       Items.$product.$productId.as("productId"),
       Discounts.$code,
       Discounts.$amount,
    )}
    from ${Orders}, ${Items}, ${Discounts}
+   where ${Orders.$orderId} = ${FIRST_ORDER_ID}
    order by ${Items.$product.$productId}, ${Discounts.$code}
 `;
 
 describe.sequential("Vexnor DuckDB hierarchical data e2e", () => {
-   beforeAll(async () => {
-      await sql`delete from ${DocumentOrder}`.duckdb.run({ db });
+   let accountId: string;
 
-      await sql`
-         insert into ${DocumentOrder} (
-            ${DocumentOrder.$documentId},
-            ${DocumentOrder.$account},
-            ${DocumentOrder.$status},
-            ${DocumentOrder.$shipping},
-            ${DocumentOrder.$items},
-            ${DocumentOrder.$tags},
-            ${DocumentOrder.$createdAt}
-         ) values
-         (
-            '507f1f77bcf86cd799439021',
-            {'account_id': 'account-1', 'email': 'owner@example.com', 'status': 'confirmed'},
-            'paid',
-            {
-               'address': {
-                  'street': 'Main Street 1',
-                  'city': 'Berlin',
-                  'country': 'DE',
-                  'geo': {'latitude': 52.52, 'longitude': 13.405}
+   beforeAll(async () => {
+      const account = await insertAccount("hierarchical-data");
+      accountId = account.accountId;
+
+      await insertParameterizedOrder.duckdb.run({
+         db,
+         params: {
+            orderId: FIRST_ORDER_ID,
+            accountId,
+            status: "paid",
+            shipping: {
+               address: {
+                  street: "Main Street 1",
+                  city: "Berlin",
+                  country: "DE",
+                  geo: { latitude: 52.52, longitude: 13.405 },
                },
-               'carrier': {'name': 'DHL', 'tracking_id': 'track-1'}
+               carrier: { name: "DHL", tracking_id: "track-1" },
             },
-            [
+            items: [
                {
-                  'product': {'product_id': 'product-1', 'label': 'Analytics Kit', 'category': 'hardware'},
-                  'quantity': 2,
-                  'unit_price': 60,
-                  'discounts': [{'code': 'bulk', 'amount': 5}]
+                  product: { product_id: "product-1", label: "Analytics Kit", category: "hardware" },
+                  quantity: 2,
+                  unit_price: 60,
+                  discounts: [{ code: "bulk", amount: 5 }],
                },
                {
-                  'product': {'product_id': 'product-2', 'label': 'DuckDB Guide', 'category': 'book'},
-                  'quantity': 1,
-                  'unit_price': 25,
-                  'discounts': []
-               }
+                  product: { product_id: "product-2", label: "DuckDB Guide", category: "book" },
+                  quantity: 1,
+                  unit_price: 25,
+                  discounts: [],
+               },
             ],
-            ['priority', 'international'],
-            TIMESTAMP '2026-08-11 12:34:56.789'
-         ),
-         (
-            'order-2',
-            {'account_id': 'account-2', 'email': 'new@example.com', 'status': 'created'},
-            'created',
-            NULL,
-            [],
-            [],
-            TIMESTAMP '2026-08-12 00:00:00'
-         )
-      `.duckdb.run({ db });
+            tags: ["priority", "international"],
+            createdAt: new Date("2026-08-11T12:34:56.789Z"),
+         },
+      });
+      await insertParameterizedOrder.duckdb.run({
+         db,
+         params: {
+            orderId: SECOND_ORDER_ID,
+            accountId,
+            status: "created",
+            shipping: null,
+            items: [],
+            tags: [],
+            createdAt: new Date("2026-08-12T00:00:00.000Z"),
+         },
+      });
    });
 
    afterAll(async () => {
-      await sql`delete from ${DocumentOrder}`.duckdb.run({ db });
+      await sql`
+         delete from ${Order}
+         where ${Order.$orderId} = ${FIRST_ORDER_ID}
+            or ${Order.$orderId} = ${SECOND_ORDER_ID}
+            or ${Order.$orderId} = ${PARAMETERIZED_ORDER_ID}
+      `.duckdb.run({ db });
+      await sql`delete from ${Account} where ${Account.$accountId} = ${accountId}`.duckdb.run({ db });
    });
 
-   test("queries nested account and shipping fields through Vexnor", async () => {
+   test("queries nested shipping fields through Vexnor", async () => {
       const result = await selectNestedOrders.duckdb.all({ db });
+      for (const resultRow of result) expect(resultRow.accountId).toBe(accountId);
 
-      expect(result).toMatchInlineSnapshot(`
+      expect(result.map(({ accountId: _, ...stable }) => stable)).toMatchInlineSnapshot(`
         [
           {
-            "accountEmail": "owner@example.com",
-            "accountId": "account-1",
-            "accountStatus": "confirmed",
             "carrier": "DHL",
             "createdAt": 2026-08-11T12:34:56.789Z,
-            "orderId": "507f1f77bcf86cd799439021",
+            "orderId": "00000000-0000-4000-8000-000000000101",
             "shippingCountry": "DE",
             "shippingLatitude": 52.52,
             "status": "paid",
@@ -168,12 +176,9 @@ describe.sequential("Vexnor DuckDB hierarchical data e2e", () => {
             ],
           },
           {
-            "accountEmail": "new@example.com",
-            "accountId": "account-2",
-            "accountStatus": "created",
             "carrier": null,
             "createdAt": 2026-08-12T00:00:00.000Z,
-            "orderId": "order-2",
+            "orderId": "00000000-0000-4000-8000-000000000102",
             "shippingCountry": null,
             "shippingLatitude": null,
             "status": "created",
@@ -190,7 +195,7 @@ describe.sequential("Vexnor DuckDB hierarchical data e2e", () => {
         [
           {
             "lineTotal": 120,
-            "orderId": "507f1f77bcf86cd799439021",
+            "orderId": "00000000-0000-4000-8000-000000000101",
             "productCategory": "hardware",
             "productId": "product-1",
             "productLabel": "Analytics Kit",
@@ -199,7 +204,7 @@ describe.sequential("Vexnor DuckDB hierarchical data e2e", () => {
           },
           {
             "lineTotal": 25,
-            "orderId": "507f1f77bcf86cd799439021",
+            "orderId": "00000000-0000-4000-8000-000000000101",
             "productCategory": "book",
             "productId": "product-2",
             "productLabel": "DuckDB Guide",
@@ -218,7 +223,7 @@ describe.sequential("Vexnor DuckDB hierarchical data e2e", () => {
           {
             "amount": 5,
             "code": "bulk",
-            "orderId": "507f1f77bcf86cd799439021",
+            "orderId": "00000000-0000-4000-8000-000000000101",
             "productId": "product-1",
           },
         ]
@@ -229,8 +234,8 @@ describe.sequential("Vexnor DuckDB hierarchical data e2e", () => {
       await insertParameterizedOrder.duckdb.run({
          db,
          params: {
-            documentId: "order-3",
-            account: { account_id: "account-3", email: "nested@example.com", status: "confirmed" },
+            orderId: PARAMETERIZED_ORDER_ID,
+            accountId,
             status: "paid",
             shipping: null,
             items: [
@@ -249,7 +254,7 @@ describe.sequential("Vexnor DuckDB hierarchical data e2e", () => {
          },
       });
 
-      const result = await selectParameterizedOrder.duckdb.all({ db, params: { documentId: "order-3" } });
+      const result = await selectParameterizedOrder.duckdb.all({ db, params: { orderId: PARAMETERIZED_ORDER_ID } });
 
       expect(result).toMatchInlineSnapshot(`
         [
@@ -264,7 +269,7 @@ describe.sequential("Vexnor DuckDB hierarchical data e2e", () => {
                 "code": "member",
               },
             ],
-            "orderId": "order-3",
+            "orderId": "00000000-0000-4000-8000-000000000103",
             "productId": "product-3",
             "tags": [
               "parameterized",

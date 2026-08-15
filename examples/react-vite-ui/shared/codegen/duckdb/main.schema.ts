@@ -1,6 +1,5 @@
 export * from "./main.account-table.js";
 export * from "./main.account_order_summary-view.js";
-export * from "./main.document_order-table.js";
 export * from "./main.order-table.js";
 export * from "./main.order_item-table.js";
 export * from "./main.product-table.js";

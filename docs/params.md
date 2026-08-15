@@ -107,6 +107,44 @@ await query.postgres.one({
 });
 ```
 
+## Array Params: One Value vs Placeholder Expansion
+
+`param()` always represents one database value and emits one placeholder. An array passed through `param()` therefore remains one array/list value for drivers that support it, including PostgreSQL arrays and DuckDB lists:
+
+```typescript
+type Params = { tags: string[] };
+
+const updateTags = sql`
+  UPDATE ${Order}
+  SET ${Order.$tags} = ${param<Params>('tags')}
+`;
+
+await updateTags.duckdb.run({
+  db,
+  params: { tags: ['priority', 'international'] },
+});
+```
+
+Use `each()` when one JavaScript array must become multiple SQL placeholders:
+
+```typescript
+import { each } from '@vexnor/core';
+
+const findAccounts = sql`
+  SELECT ${row(Account.$$)}
+  FROM ${Account}
+  WHERE ${Account.$accountId} IN (${each<{ accountIds: string[] }>('accountIds')})
+`;
+
+await findAccounts.postgres.all({
+  db: pool,
+  params: { accountIds: ['account-1', 'account-2'] },
+});
+// ... IN ($1, $2) with values ['account-1', 'account-2']
+```
+
+This distinction is consistent across query typing, runtime metadata, direct execution, and portable query manifests: `param()` is atomic; `each()` is explicit expansion.
+
 ## Runtime Validation
 
 Attach validation rules to `param()` as a second argument. Rules are type-aware — TypeScript will only allow rules that apply to the param's type.

@@ -50,6 +50,125 @@ export const Order = vexnor.newSqlTable<{
        * account_id undefined
        */
       accountId: "account_id",
+
+      /**
+       * shipping undefined
+       */
+      shipping: "shipping",
+
+      /**
+       * items undefined
+       */
+      items: "items",
+
+      /**
+       * tags undefined
+       */
+      tags: "tags",
+   },
+   columnStructures: {
+      shipping: {
+         kind: "struct",
+         fields: {
+            address: {
+               fieldName: "address",
+               structure: {
+                  kind: "struct",
+                  fields: {
+                     street: {
+                        fieldName: "street",
+                     },
+                     city: {
+                        fieldName: "city",
+                     },
+                     country: {
+                        fieldName: "country",
+                     },
+                     geo: {
+                        fieldName: "geo",
+                        structure: {
+                           kind: "struct",
+                           fields: {
+                              latitude: {
+                                 fieldName: "latitude",
+                              },
+                              longitude: {
+                                 fieldName: "longitude",
+                              },
+                           },
+                        },
+                     },
+                  },
+               },
+            },
+            carrier: {
+               fieldName: "carrier",
+               structure: {
+                  kind: "struct",
+                  fields: {
+                     name: {
+                        fieldName: "name",
+                     },
+                     trackingId: {
+                        fieldName: "tracking_id",
+                     },
+                  },
+               },
+            },
+         },
+      },
+      items: {
+         kind: "list",
+         value: {
+            kind: "struct",
+            fields: {
+               product: {
+                  fieldName: "product",
+                  structure: {
+                     kind: "struct",
+                     fields: {
+                        productId: {
+                           fieldName: "product_id",
+                        },
+                        label: {
+                           fieldName: "label",
+                        },
+                        category: {
+                           fieldName: "category",
+                        },
+                     },
+                  },
+               },
+               quantity: {
+                  fieldName: "quantity",
+               },
+               unitPrice: {
+                  fieldName: "unit_price",
+               },
+               discounts: {
+                  fieldName: "discounts",
+                  structure: {
+                     kind: "list",
+                     value: {
+                        kind: "struct",
+                        fields: {
+                           code: {
+                              fieldName: "code",
+                           },
+                           amount: {
+                              fieldName: "amount",
+                           },
+                        },
+                     },
+                  },
+               },
+            },
+         },
+      },
+      tags: {
+         kind: "list",
+         value: null,
+      },
    },
    jsonSchema: {
       createdAt: "Date",
@@ -64,6 +183,9 @@ export const Order = vexnor.newSqlTable<{
       createdAt: { dbType: "TIMESTAMP WITH TIME ZONE", type: vexnor.SqlLiteralType.Date, default: "current_timestamp" },
       modifiedAt: { dbType: "TIMESTAMP WITH TIME ZONE", type: vexnor.SqlLiteralType.Date, default: "current_timestamp" },
       accountId: { dbType: "UUID", type: vexnor.SqlLiteralType.String },
+      shipping: { dbType: "STRUCT(address STRUCT(street VARCHAR, city VARCHAR, country VARCHAR, geo STRUCT(latitude DOUBLE, longitude DOUBLE)), carrier STRUCT(\"name\" VARCHAR, tracking_id VARCHAR))", type: vexnor.SqlLiteralType.Json, nullable: true },
+      items: { dbType: "STRUCT(product STRUCT(product_id VARCHAR, \"label\" VARCHAR, category VARCHAR), quantity INTEGER, unit_price DOUBLE, discounts STRUCT(code VARCHAR, amount DOUBLE)[])[]", type: vexnor.SqlLiteralType.Json, nullable: true },
+      tags: { dbType: "VARCHAR[]", type: vexnor.SqlLiteralType.Json, nullable: true },
    },
 });
 export type IOrderInsert = {
@@ -72,6 +194,35 @@ export type IOrderInsert = {
    createdAt?: Date;
    modifiedAt?: Date;
    accountId: string;
+   shipping?:  {
+      address:  {
+         street: string | null;
+         city: string | null;
+         country: string | null;
+         geo:  {
+            latitude: number | null;
+            longitude: number | null;
+         } | null;
+      } | null;
+      carrier:  {
+         name: string | null;
+         tracking_id: string | null;
+      } | null;
+   } | null;
+   items?: Array< {
+      product:  {
+         product_id: string | null;
+         label: string | null;
+         category: string | null;
+      } | null;
+      quantity: number | null;
+      unit_price: number | null;
+      discounts: Array< {
+         code: string | null;
+         amount: number | null;
+      } | null> | null;
+   } | null> | null;
+   tags?: Array<string | null> | null;
 };
 
 export type IOrderUpdate = Partial<IOrderInsert>;
@@ -82,6 +233,35 @@ export type IOrderSelect = {
    createdAt: Date;
    modifiedAt: Date;
    accountId: string;
+   shipping:  {
+      address:  {
+         street: string | null;
+         city: string | null;
+         country: string | null;
+         geo:  {
+            latitude: number | null;
+            longitude: number | null;
+         } | null;
+      } | null;
+      carrier:  {
+         name: string | null;
+         trackingId: string | null;
+      } | null;
+   } | null;
+   items: Array< {
+      product:  {
+         productId: string | null;
+         label: string | null;
+         category: string | null;
+      } | null;
+      quantity: number | null;
+      unitPrice: number | null;
+      discounts: Array< {
+         code: string | null;
+         amount: number | null;
+      } | null> | null;
+   } | null> | null;
+   tags: Array<string | null> | null;
 };
 
 export type IOrderJson = vexnor.JsonRow<IOrderSelect>;
