@@ -134,7 +134,102 @@ File sources remain inside DuckDB's execution engine; Vexnor does not load the c
 const csvRows = await sql`select * from read_csv_auto(${csvPath})`.duckdb.all({ db: connection.db });
 const jsonRows = await sql`select * from read_json_auto(${jsonPath})`.duckdb.all({ db: connection.db });
 const parquetRows = await sql`select * from read_parquet(${parquetPath})`.duckdb.all({ db: connection.db });
+
+// Glob patterns for multi-file queries
+const allSales = await sql`select * from read_parquet(${'/data/*.parquet'})`.duckdb.all({ db: connection.db });
 ```
+
+## ATTACH — Multi-Database Queries
+
+Attach external DuckDB files and query across databases in a single statement:
+
+```typescript
+await connection.db.run(`ATTACH 'warehouse.duckdb' AS warehouse`);
+
+// Cross-database JOIN
+const result = await sql`
+  SELECT a.email, w.stock
+  FROM account a
+  JOIN warehouse.main.inventory w ON a.account_id = w.account_id
+`.duckdb.all({ db: connection.db });
+
+// Read-only attach
+await connection.db.run(`ATTACH 'archive.duckdb' AS archive (READ_ONLY)`);
+
+await connection.db.run('DETACH warehouse');
+```
+
+## ETL Pipelines
+
+```typescript
+// COPY FROM — bulk import from files into tables
+await connection.db.run(`COPY transactions FROM 'data.csv' (FORMAT CSV, HEADER)`);
+await connection.db.run(`COPY customers FROM 'customers.parquet' (FORMAT PARQUET)`);
+
+// CREATE TABLE AS SELECT — transform and materialize
+await sql`
+  CREATE TABLE customer_summary AS
+  SELECT c.name, count(*) as orders, sum(t.amount) as total
+  FROM read_parquet(${customersPath}) c
+  JOIN read_csv_auto(${transactionsPath}) t ON c.id = t.customer_id
+  GROUP BY c.name
+`.duckdb.run({ db: connection.db });
+
+// EXPORT / IMPORT DATABASE — full backup and restore
+await connection.db.run(`EXPORT DATABASE '/backup' (FORMAT PARQUET)`);
+// ... later, in a fresh database:
+await freshConnection.db.run(`IMPORT DATABASE '/backup'`);
+```
+
+## Custom Types
+
+DuckDB columns with types that differ between insert and select export named types:
+
+```typescript
+import type { DuckDBInterval, DuckDBTimeTZ } from '@vexnor/duckdb';
+
+// DuckDBInterval = { months: number; days: number; micros: bigint }
+// DuckDBTimeTZ = { micros: bigint; offset: number }
+```
+
+Insert types accept `string` (e.g., `"1 year 2 months"` for INTERVAL, `"12:34:56+05:30"` for TIMETZ). Select types return the structured native values above.
+
+## Type Mapping
+
+| DuckDB Type | Insert TypeScript Type | Select TypeScript Type |
+|---|---|---|
+| `VARCHAR`, `TEXT`, `UUID` | `string` | `string` |
+| `INTEGER`, `SMALLINT`, `FLOAT`, `DOUBLE` | `number` | `number` |
+| `BIGINT`, `HUGEINT`, `UBIGINT`, `UHUGEINT` | `BigInt` | `BigInt` |
+| `BOOLEAN` | `boolean` | `boolean` |
+| `DATE`, `TIMESTAMP`, `TIMESTAMPTZ` | `Date` | `Date` |
+| `DECIMAL(p,s)` | `string` | `string` (lossless, no precision loss) |
+| `TIME` | `string` | `bigint` (microseconds since midnight) |
+| `TIMETZ` | `string` | `DuckDBTimeTZ` |
+| `INTERVAL` | `string` | `DuckDBInterval` |
+| `BIT` | `string` | `Uint8Array` |
+| `BLOB` | `Uint8Array` | `Uint8Array` |
+| `JSON` | `unknown` | `unknown` (raw JSON string) |
+| `STRUCT(...)` | nested object (snake_case keys) | nested object (camelCase keys) |
+| `MAP(K, V)` | `Map<K, V>` | `Array<{ key: K; value: V \| null }>` |
+| `UNION(...)` | union of member scalar types | `{ tag: string; value: T \| null }` |
+| `type[]` | `Array<T \| null>` | `Array<T \| null>` |
+| `ENUM(...)` | generated const enum type | generated const enum type |
+
+DECIMAL values are returned as strings to preserve full precision. A `DECIMAL(38,10)` value like `1234567890123456789012345678.1234567890` is kept exactly — no floating-point approximation.
+
+## DuckDB-Specific SQL Features
+
+These work through `sql` tagged templates with full parameterization:
+
+- **PIVOT / UNPIVOT** — reshape between wide and long formats
+- **QUALIFY** — filter window function results directly
+- **ASOF JOIN** — time-series joins matching the nearest preceding row
+- **LATERAL JOIN** — correlated table functions in FROM
+- **GROUPING SETS / CUBE / ROLLUP** — multi-level aggregation
+- **List comprehensions** — `[x * x for x in generate_series(1, 5)]`
+- **Struct literals** — `{'x': 1, 'y': 2}::STRUCT(x INTEGER, y INTEGER)`
+- **UNION type** — tagged sum types with `union_value()`, `union_tag()`, `union_extract()`
 
 ## Extensions
 
