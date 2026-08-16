@@ -22,6 +22,9 @@ coverage*
 .env
 mailmap.txt
 @db-sqlite3/*.sqlite
+@db-duckdb/*.duckdb
+@db-duckdb/*.duckdb.wal
+tests/test-duckdb/*.duckdb
 *.sqlite-journal
 @ignore
 .amazonq/agents/default.json

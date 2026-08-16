@@ -11,7 +11,7 @@ import { MSSQL_DATABASE, MSSQL_HOST, MSSQL_PASSWORD, MSSQL_PORT, MSSQL_USER } fr
 import { PrismaMssql } from "@prisma/adapter-mssql";
 import { Prisma, PrismaClient } from "../prisma/generated/client.js";
 
-describe.sequential("e2e prisma/mssql — fromPrismaModelTable works against real DB", (ctx) => {
+describe("e2e prisma/mssql — fromPrismaModelTable works against real DB", { concurrent: false }, (ctx) => {
    const TAG = getTag(ctx);
    type AccountRow = Prisma.AccountSelect;
    type AccountInsert = Pick<Prisma.AccountUncheckedCreateInput,

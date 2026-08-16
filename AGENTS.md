@@ -184,6 +184,7 @@ The following actions are pre-approved by the repo owner:
 
 ## Workflow context
 
+- **New worktrees**: after installing dependencies, run `pnpm db-prepare:files` to create the ignored SQLite and DuckDB databases from their tracked migrations/schema
 - **Monorepo structure**: packages/ (core), plugins/ (postgres, mssql, sqlite3), orms/ (sequelize, prisma, typeorm, drizzle), tests/ (e2e), stacks/ (.NET SDK), examples/
 - **Test command**: `pnpm test` (runs vitest --coverage for all projects)
 - **Build command**: `pnpm build` (builds all packages in dependency order)

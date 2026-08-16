@@ -202,8 +202,9 @@ internal sealed class MockDbExecutor : DbExecutorBase
         _affectedRows = affectedRows;
     }
 
-    protected override Task<DbConnection> OpenConnectionAsync()
+    protected override Task<DbConnection> OpenConnectionAsync(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var connection = new MockDbConnection(_table!, _affectedRows, cmd => LastCommand = cmd);
         return Task.FromResult<DbConnection>(connection);
     }

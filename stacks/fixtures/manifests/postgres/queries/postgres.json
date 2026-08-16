@@ -626,10 +626,10 @@
       },
       "authorization": []
     },
-    "62b42336c34d60a715acadf1ba36542d1ebe1db9027750e149cd5d3ea576fc04": {
+    "98532e700b3f1b63d837805d16abac343447a277db8645d30813fa45a2fcc0e7": {
       "name": "selectByIds",
       "location": "stacks/fixtures/queries/postgres.ts:25:28",
-      "hash": "62b42336c34d60a715acadf1ba36542d1ebe1db9027750e149cd5d3ea576fc04",
+      "hash": "98532e700b3f1b63d837805d16abac343447a277db8645d30813fa45a2fcc0e7",
       "template": [
         {
           "type": "text",
@@ -637,7 +637,8 @@
         },
         {
           "type": "param",
-          "name": "ids"
+          "name": "ids",
+          "array": true
         },
         {
           "type": "text",
@@ -647,7 +648,8 @@
       "params": {
         "ids": {
           "name": "ids",
-          "isContext": false
+          "isContext": false,
+          "array": true
         }
       },
       "row": {

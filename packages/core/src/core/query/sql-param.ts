@@ -33,6 +33,9 @@ export type LeafPaths<T, Prefix extends string = ""> = T extends Record<string, 
      }[keyof T & string]
    : never;
 
+/** Top-level parameter keys plus dot-paths to nested leaf values. */
+export type ParamPaths<T> = Extract<keyof T, string> | LeafPaths<T>;
+
 /**
  * Resolves the type at a dot-path within a nested object.
  * PathType<{ address: { city: string } }, "address.city"> → string
@@ -129,15 +132,19 @@ export class SqlParam<T extends SqlParamTypeArgs> extends Sql {
 }
 
 /**
- * Declares a named query parameter with a compile-time type.
+ * Declares one named query parameter with a compile-time type.
  *
- * Supports dot-path names for nested params: `param<P>("orderBy.field")` → `{ orderBy: { field: T } }`
- * Only leaf paths are allowed — intermediate objects are rejected at compile time.
+ * The resolved value always occupies one placeholder, including array values.
+ * Use `each()` when an array parameter must expand into multiple placeholders.
  *
- * @param key - The parameter name (dot-separated path to a leaf value).
+ * Supports top-level object values and dot-path names for nested leaf params:
+ * `param<P>("account")` binds the complete typed object, while
+ * `param<P>("orderBy.field")` resolves one nested value.
+ *
+ * @param key - A top-level parameter key or dot-separated path to a nested leaf value.
  * @param validation - The optional parameter validation
  */
-export function param<T extends Record<string, unknown>, K extends LeafPaths<T> = LeafPaths<T>>(
+export function param<T extends Record<string, unknown>, K extends ParamPaths<T> = ParamPaths<T>>(
    key: K,
    validation?: SqlParamValidation<PathType<T, K>> | null,
 ): SqlParam<{ Name: K; Type: PathType<T, K> }> {

@@ -1,6 +1,7 @@
 import { CodeWriter } from "#src/lib/code-writer.js";
 import { PrintTableArgs, SqlForeignKeyInfo, SqlLiteralType } from "#src/plugin/plugin.js";
 import { getCodegenContext } from "#src/cli/codegen/codegen-context.js";
+import { isColumnStructure, writeColumnStructure } from "#src/cli/codegen/tables/write-column-type.js";
 
 export function writeTableType(writer: CodeWriter, { table }: PrintTableArgs) {
    const { getTableName, getColumnName, plugin } = getCodegenContext();
@@ -62,7 +63,15 @@ export function writeTableType(writer: CodeWriter, { table }: PrintTableArgs) {
                });
             })
             .writeLine(",");
-         const columnTypes = columns.map((col) => ({ col, colType: plugin.getColumnType(col) }));
+         const columnTypes = columns.map((col) => {
+            const colType = plugin.getColumnType(col);
+            if (!colType) {
+               throw new Error(
+                  `plugin.getColumnType() returned undefined for column "${col.column_name}" on table "${table_name}"`,
+               );
+            }
+            return { col, colType };
+         });
          const dateColumns = columnTypes.filter(({ colType }) => colType?.type === SqlLiteralType.Date);
          if (dateColumns.length) {
             writer
@@ -92,12 +101,9 @@ export function writeTableType(writer: CodeWriter, { table }: PrintTableArgs) {
                .inlineBlock(() => {
                   columnTypes.forEach(({ col, colType }) => {
                      const colAlias = getColumnName(col.column_name);
-                     if (!colType) {
-                        throw new Error(`plugin.getColumnType() returned undefined for column "${col.column_name}" on table "${table_name}"`);
-                     }
                      const nullable = col.is_nullable === "YES";
                      const parts: string[] = [
-                        `dbType: "${col.udt_name ?? col.data_type ?? "unknown"}"`,
+                        `dbType: ${JSON.stringify(col.udt_name ?? col.data_type ?? "unknown")}`,
                         `type: vexnor.SqlLiteralType.${Object.entries(SqlLiteralType).find(([, v]) => v === colType.type)?.[0] ?? "Unknown"}`,
                      ];
                      if (nullable) parts.push(`nullable: true`);
@@ -108,7 +114,17 @@ export function writeTableType(writer: CodeWriter, { table }: PrintTableArgs) {
                            parts.push(`values: [${enumInfo.enum_values.map((v) => `"${v.enum_label}"`).join(", ")}]`);
                         }
                      }
-                     writer.writeLine(`${colAlias}: { ${parts.join(", ")} },`);
+                     const { typeTree } = colType;
+                     if (typeTree && isColumnStructure(typeTree)) {
+                        writer.write(`${colAlias}:`).inlineBlock(() => {
+                           parts.forEach((part) => writer.writeLine(`${part},`));
+                           writer.write("structure:");
+                           writeColumnStructure(writer, typeTree, getColumnName);
+                           writer.writeLine(",");
+                        }).writeLine(",");
+                     } else {
+                        writer.writeLine(`${colAlias}: { ${parts.join(", ")} },`);
+                     }
                   });
                })
                .writeLine(",");

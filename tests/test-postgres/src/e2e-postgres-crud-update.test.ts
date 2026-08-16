@@ -7,7 +7,7 @@ import { Account, IAccountSelect } from "./codegen/vexnor_dev.schema.js";
 import { pool } from "./postgres-pool.js";
 import { TestDataManager } from "./test-data-manager.js";
 
-describe.sequential("vexnor postgres CRUD - update", async (ctx) => {
+describe("vexnor postgres CRUD - update", { concurrent: false }, async (ctx) => {
    let rootAccount!: IAccountSelect;
 
    const dataManager = new TestDataManager(ctx, {

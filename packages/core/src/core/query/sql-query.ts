@@ -734,13 +734,20 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown; Sources?: str
                q.push(...rawValue);
                break;
             case rawValue instanceof SqlParam:
-               params = { ...(params ?? {}), [rawValue.name]: rawValue };
+               params = { ...params, [rawValue.name]: rawValue };
                break;
             case rawValue instanceof SqlQueryRef:
-               if (rawValue.innerQuery.params) params = { ...(params ?? {}), ...rawValue.innerQuery.params };
+               if (rawValue.innerQuery.params) params = { ...params, ...rawValue.innerQuery.params };
+               break;
+            case rawValue instanceof Sql && rawValue.type === "SqlEach" && "paramName" in rawValue:
+               ok(typeof rawValue.paramName === "string", `Invalid SqlEach param name: ${String(rawValue.paramName)}`);
+               params = {
+                  ...params,
+                  [rawValue.paramName]: new SqlParam({ name: rawValue.paramName, validation: null }),
+               };
                break;
             case rawValue instanceof Sql && hasParams(rawValue):
-               params = { ...(params ?? {}), ...rawValue.params };
+               params = { ...params, ...rawValue.params };
                break;
          }
       }
@@ -842,18 +849,6 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown; Sources?: str
                const rawValue = args.params[token.name];
                const value = isContextValue(rawValue) ? null : (sqlParam.resolve(args.params as Record<string, unknown>) ?? null);
 
-               if (Array.isArray(value)) {
-                  for (let i = 0; i < value.length; i++) {
-                     if (i > 0) {
-                        tokens.push(", ");
-                     }
-
-                     tokens.push(paramFormat({ name: token.name, index: values.length }));
-                     values.push(value[i]);
-                  }
-                  break;
-               }
-
                tokens.push(paramFormat({ name: token.name, index: values.length }));
                values.push(value);
                break;
@@ -943,6 +938,12 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown; Sources?: str
       Params: T["Params"];
       Sources: T["Sources"];
    }> {
+      type ViewQueryType = {
+         Row: SqlViewResultRow<T["Row"], Columns, Window>;
+         Params: T["Params"];
+         Sources: T["Sources"];
+      };
+
       const columns = options.columns as string[] | undefined;
       if (columns && columns.length === 0) {
          throw new SqlBuildError(".toView() columns must not be an empty array — at least one column is required.");
@@ -960,13 +961,13 @@ export class SqlQuery<T extends { Row?: unknown; Params?: unknown; Sources?: str
       }
 
       // Create immutable clone with view definition set
-      const clone = Object.create(this) as SqlQuery<{ Row: SqlViewResultRow<T["Row"], Columns, Window>; Params: T["Params"]; Sources: T["Sources"] }>;
+      const clone = Object.create(this) as SqlQuery<ViewQueryType>;
       (clone as { view: SqlQueryViewDef }).view = Object.freeze({
          columns: columns ? new Set(columns) : undefined,
          windowExprs: Object.freeze(windowExprs),
          windowEntries: Object.freeze(window),
       });
-      return newSqlQuery(clone as any) as unknown as SqlQueryExtended<{ Row: SqlViewResultRow<T["Row"], Columns, Window>; Params: T["Params"]; Sources: T["Sources"] }>;
+      return newSqlQuery<ViewQueryType, SqlQuery<ViewQueryType>>(clone);
    }
 
    /**
@@ -1128,5 +1129,3 @@ export type SqlQueryViewDef = {
    /** Raw window entries (for SqlQuery-based expressions). */
    readonly windowEntries: Readonly<Record<string, unknown>>;
 };
-
-

@@ -2,6 +2,7 @@ import { PARAMS, Sql, SqlOptions } from "#src/core/sql-base.js";
 import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
 import { SqlBuildOptions } from "#src/core/builder/sql-build-options.js";
 import { SqlQuery } from "#src/core/query/sql-query.js";
+import { SqlBuildError } from "#src/core/sql-build-error.js";
 
 /**
  * Cursor reference for the current element inside an `each()` iteration.
@@ -75,6 +76,14 @@ export class SqlEach<T extends Record<string, unknown[]>> extends Sql {
    }
 
    write(context: SqlBuildContext, options?: SqlBuildOptions | null): void {
+      if (!context.params) {
+         if (this.template || this.separator !== ", ") {
+            throw new SqlBuildError("Portable query serialization only supports each() without a template or custom separator");
+         }
+         context.addParam({ name: this.paramName, array: true });
+         return;
+      }
+
       const params = context.params as Record<string, unknown> | null;
       const array = params?.[this.paramName];
 

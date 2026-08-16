@@ -6,7 +6,7 @@ import { Account } from "./codegen/vexnor_dev.account-table.js";
 import { pool } from "./mssql-pool.js";
 
 
-describe.sequential("transaction() - mssql", () => {
+describe("transaction() - mssql", { concurrent: false }, () => {
    test("commits on success", async () => {
       const account = await transaction(pool, async (tx) => {
          return sql`
@@ -58,7 +58,7 @@ describe.sequential("transaction() - mssql", () => {
    });
 });
 
-describe.sequential("savepoint() - mssql", () => {
+describe("savepoint() - mssql", { concurrent: false }, () => {
    test("outer transaction commits, savepoint released", async () => {
       const result = await transaction(pool, async (tx) => {
          const outer = await sql`

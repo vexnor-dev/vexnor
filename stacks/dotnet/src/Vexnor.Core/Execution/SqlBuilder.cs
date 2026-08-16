@@ -983,7 +983,7 @@ public sealed class SqlBuilder
         _paramIndex++;
         return _dialect switch
         {
-            "postgresql" => $"${index + 1}",
+            "postgresql" or "duckdb" => $"${index + 1}",
             "transactsql" => $"@param_{index}",
             "sqlite" => "?",
             _ => "?",

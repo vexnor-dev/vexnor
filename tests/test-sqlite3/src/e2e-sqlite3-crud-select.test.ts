@@ -8,7 +8,7 @@ import { Account, IAccountInsert, IAccountSelect } from "./codegen/main.account-
 import { Order, IOrderInsert, IOrderSelect } from "./codegen/main.order-table.js";
 import { db } from "./config.js";
 
-describe.sequential("vexnor sqlite3 CRUD - select", () => {
+describe("vexnor sqlite3 CRUD - select", { concurrent: false }, () => {
    let rootAccount!: IAccountSelect;
    let childAccount!: IAccountSelect;
    let order!: IOrderSelect;

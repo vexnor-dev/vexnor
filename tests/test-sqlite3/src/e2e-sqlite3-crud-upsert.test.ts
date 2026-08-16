@@ -5,7 +5,7 @@ import "@vexnor/sqlite3";
 import { Account, IAccountInsert } from "./codegen/main.account-table.js";
 import { db } from "./config.js";
 
-describe.sequential("vexnor sqlite3 CRUD - upsert", () => {
+describe("vexnor sqlite3 CRUD - upsert", { concurrent: false }, () => {
    test("upsert: insert then update on conflict", async () => {
       const insert: IAccountInsert = {
          accountId: randomUUID(),

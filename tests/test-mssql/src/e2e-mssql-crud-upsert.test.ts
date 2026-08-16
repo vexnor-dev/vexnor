@@ -4,7 +4,7 @@ import "@vexnor/mssql";
 import { Account } from "./codegen/vexnor_dev.schema.js";
 import { pool } from "./mssql-pool.js";
 
-describe.sequential("vexnor mssql table handler - upsert", () => {
+describe("vexnor mssql table handler - upsert", { concurrent: false }, () => {
    test("upsert: insert then update on conflict", async () => {
       const inserted = await Account.mssql.insertRows().one({
          db: pool.request(),

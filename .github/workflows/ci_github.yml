@@ -120,7 +120,7 @@ jobs:
       - name: Migrate databases
         run: |
           pnpm db-migrate:postgres
-          pnpm db-migrate:sqlite3
+          pnpm db-prepare:files
           pnpm db-migrate:mssql
 
       - name: Build
@@ -163,6 +163,77 @@ jobs:
             coverage/coverage-summary.json
             coverage/coverage-final.json
             stacks/dotnet/TestResults/**/coverage.cobertura.xml
+
+  duckdb-native:
+    name: DuckDB native (${{ matrix.platform }})
+    runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux-x64
+            runner: ubuntu-24.04
+          - platform: linux-arm64
+            runner: ubuntu-24.04-arm
+          - platform: macos-x64
+            runner: macos-15-intel
+          - platform: macos-arm64
+            runner: macos-15
+          - platform: windows-x64
+            runner: windows-2025
+
+    env:
+      CGO_ENABLED: 1
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22.22.3'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+        with:
+          run_install: false
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Prepare file databases
+        run: pnpm db-prepare:files
+
+      - name: Build Node.js DuckDB package
+        run: pnpm --filter @vexnor/core --filter @vexnor/duckdb build
+
+      - name: Test Node.js DuckDB package
+        run: pnpm --filter @vexnor/duckdb test
+
+      - name: Test Node.js DuckDB e2e scenarios
+        run: pnpm --filter @vexnor/test-duckdb test
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Test .NET DuckDB executor
+        run: dotnet test stacks/dotnet/tests/Vexnor.Integration.Tests/Vexnor.Integration.Tests.csproj --framework net10.0 --filter FullyQualifiedName~DuckDB --nologo
+
+      - name: Setup Go
+        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        with:
+          go-version-file: stacks/golang/go.mod
+          cache-dependency-path: stacks/golang/go.sum
+
+      - name: Test Go DuckDB executor
+        working-directory: stacks/golang
+        run: go test ./duckdb
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Report — secrets scoped to reporting only

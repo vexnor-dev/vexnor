@@ -1,6 +1,6 @@
 // noinspection SqlNoDataSourceInspection,SqlResolve
 import "@vexnor/postgres";
-import { col, orderBy, param, ParamsOf, raw, row, sql } from "@vexnor/core";
+import { col, orderBy, param, ParamsOf, row, sql } from "@vexnor/core";
 import { jsonOne } from "@vexnor/postgres";
 import { Account, IAccountSelect } from "@/shared/codegen/postgres/vexnor_dev.account-table";
 import { Order } from "@/shared/codegen/postgres/vexnor_dev.order-table";

@@ -20,6 +20,7 @@ import (
 
 	vexnor "github.com/vexnor-dev/vexnor/stacks/golang/vexnor"
 
+	vexnorDuckDB "github.com/vexnor-dev/vexnor/stacks/golang/duckdb"
 	vexnorMssql "github.com/vexnor-dev/vexnor/stacks/golang/mssql"
 	vexnorPostgres "github.com/vexnor-dev/vexnor/stacks/golang/postgres"
 	vexnorSqlite3 "github.com/vexnor-dev/vexnor/stacks/golang/sqlite3"
@@ -27,14 +28,15 @@ import (
 
 // dialectConfig maps the short name to its SQL dialect identifier and manifest subdirectory.
 type dialectConfig struct {
-	Name    string // e.g. "postgres", "mssql", "sqlite3"
-	Dialect string // e.g. "postgresql", "transactsql", "sqlite"
+	Name    string // e.g. "postgres", "mssql", "sqlite3", "duckdb"
+	Dialect string // e.g. "postgresql", "transactsql", "sqlite", "duckdb"
 }
 
 var dialects = []dialectConfig{
 	{Name: "postgres", Dialect: "postgresql"},
 	{Name: "mssql", Dialect: "transactsql"},
 	{Name: "sqlite3", Dialect: "sqlite"},
+	{Name: "duckdb", Dialect: "duckdb"},
 }
 
 func main() {
@@ -93,7 +95,7 @@ func main() {
 	}
 
 	// ─── Executors ───────────────────────────────────────────────────────────────
-	executors := make(map[string]vexnor.Executor, 3)
+	executors := make(map[string]vexnor.Executor, 4)
 
 	// PostgreSQL
 	pgHost := envOr("POSTGRES_HOST", "localhost")
@@ -119,6 +121,27 @@ func main() {
 			"host", pgHost,
 			"port", pgPort,
 			"database", pgDB,
+		)
+	}
+
+	// DuckDB
+	duckdbPath := envOr("DUCKDB_PATH", filepath.Join("..", "..", "fixtures", "vexnor.duckdb"))
+	if !filepath.IsAbs(duckdbPath) {
+		duckdbPath, _ = filepath.Abs(duckdbPath)
+	}
+
+	duckdbExecutor, err := vexnorDuckDB.NewFromPath(duckdbPath)
+	if err != nil {
+		slog.Error("Failed to open DuckDB database",
+			"path", duckdbPath,
+			"error", err.Error(),
+		)
+	} else {
+		executors["duckdb"] = duckdbExecutor
+		defer duckdbExecutor.Close()
+		slog.Info("Database connected",
+			"dialect", "duckdb",
+			"path", duckdbPath,
 		)
 	}
 
@@ -326,6 +349,7 @@ func requestLogger(next http.Handler) http.Handler {
 // - Postgres expects: { rows, rowCount, command, oid }
 // - MSSQL expects:    { recordsets, rowsAffected }
 // - SQLite expects:   { rows }
+// - DuckDB expects:   { rows, rowCount, rowsChanged, statementType }
 func formatResult(backend string, result any) any {
 	rows, _ := result.([]map[string]any)
 	if rows == nil {
@@ -340,6 +364,13 @@ func formatResult(backend string, result any) any {
 	case "sqlite3":
 		return map[string]any{
 			"rows": rows,
+		}
+	case "duckdb":
+		return map[string]any{
+			"rows":          rows,
+			"rowCount":      len(rows),
+			"rowsChanged":   0,
+			"statementType": 0,
 		}
 	default: // postgres
 		return map[string]any{
@@ -360,6 +391,8 @@ func pluginToBackend(plugin string) string {
 		return "mssql"
 	case "@vexnor/sqlite3":
 		return "sqlite3"
+	case "@vexnor/duckdb":
+		return "duckdb"
 	default:
 		return ""
 	}

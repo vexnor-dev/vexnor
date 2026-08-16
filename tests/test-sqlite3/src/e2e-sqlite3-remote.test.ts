@@ -25,7 +25,7 @@ const deleteAccountRaw = sql`
    where ${Account.$accountId} = ${param<{ accountId: string }>("accountId")}
 `;
 
-describe.sequential("sqlite3 remote execution", () => {
+describe("sqlite3 remote execution", { concurrent: false }, () => {
    let remoteClient: RemoteClient;
    let account!: IAccountSelect;
    let orders!: IOrderSelect[];

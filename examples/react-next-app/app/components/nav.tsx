@@ -8,6 +8,7 @@ const links = [
    { href: "/postgres/accounts", label: "PostgreSQL" },
    { href: "/mssql/accounts", label: "MS SQL Server" },
    { href: "/sqlite3/accounts", label: "SQLite3" },
+   { href: "/duckdb/accounts", label: "DuckDB" },
 ];
 
 export function Nav() {

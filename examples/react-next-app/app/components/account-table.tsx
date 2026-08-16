@@ -7,12 +7,14 @@ import { TypeOf } from "@vexnor/core";
 import * as postgres from "@/shared/queries/postgres";
 import * as mssql from "@/shared/queries/mssql";
 import * as sqlite3 from "@/shared/queries/sqlite3";
+import * as duckdb from "@/shared/queries/duckdb";
 import { useRouter } from "next/navigation";
 
 export type AccountRow =
    | TypeOf<typeof postgres.selectAccounts>
    | TypeOf<typeof mssql.selectAccounts>
-   | TypeOf<typeof sqlite3.selectAccounts>;
+   | TypeOf<typeof sqlite3.selectAccounts>
+   | TypeOf<typeof duckdb.selectAccounts>;
 
 export function AccountTable({
    accounts,

@@ -29,7 +29,7 @@ type SqlBuilder struct {
 }
 
 // NewSqlBuilder creates a new SqlBuilder for the given SQL dialect.
-// Supported dialects: "postgresql", "transactsql", "sqlite".
+// Supported dialects: "postgresql", "transactsql", "sqlite", "duckdb".
 func NewSqlBuilder(dialect string) *SqlBuilder {
 	return &SqlBuilder{dialect: dialect}
 }
@@ -130,7 +130,7 @@ func (b *SqlBuilder) formatParam() string {
 	index := b.paramIndex
 	b.paramIndex++
 	switch b.dialect {
-	case "postgresql":
+	case "postgresql", "duckdb":
 		return fmt.Sprintf("$%d", index+1)
 	case "transactsql":
 		return fmt.Sprintf("@param_%d", index)

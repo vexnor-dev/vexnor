@@ -5,7 +5,7 @@ import { jsonMany, Sqlite3Tokenizer, sql } from "@vexnor/sqlite3";
 import { db } from "./config.js";
 import { TestDataManager } from "./test-data-manager.js";
 
-describe.sequential("jsonMany() tests", async (ctx) => {
+describe("jsonMany() tests", { concurrent: false }, async (ctx) => {
    const dataManager = new TestDataManager(ctx, {
       ACCOUNT_ROOT_COUNT: 1,
       ACCOUNT_CHILD_FACTOR: 2,

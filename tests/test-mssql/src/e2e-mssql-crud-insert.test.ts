@@ -3,7 +3,7 @@ import { ok } from "node:assert";
 import { pool } from "./mssql-pool.js";
 import { TestDataManager } from "./test-data-manager.js";
 
-describe.sequential("vexnor mssql CRUD - insert", async (ctx) => {
+describe("vexnor mssql CRUD - insert", { concurrent: false }, async (ctx) => {
    const dataManager = new TestDataManager(ctx, {
       ACCOUNT_ROOT_COUNT: 5,
       ACCOUNT_CHILD_FACTOR: 5,

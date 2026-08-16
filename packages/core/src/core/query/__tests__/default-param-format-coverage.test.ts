@@ -8,6 +8,16 @@ describe("getDefaultParamFormat — all dialects", () => {
       expect(format({ index: 4 })).toMatchInlineSnapshot(`"$5"`);
    });
 
+   test("duckdb format uses $N", () => {
+      const format = getDefaultParamFormat("duckdb");
+      expect([format({ index: 0 }), format({ index: 4 })]).toMatchInlineSnapshot(`
+        [
+          "$1",
+          "$5",
+        ]
+      `);
+   });
+
    test("transactsql format uses @param_N", () => {
       const format = getDefaultParamFormat("transactsql");
       expect(format({ index: 0 })).toMatchInlineSnapshot(`"@param_0"`);

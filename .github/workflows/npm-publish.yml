@@ -101,7 +101,7 @@ jobs:
       - name: Migrate databases
         run: |
           pnpm db-migrate:postgres
-          pnpm db-migrate:sqlite3
+          pnpm db-prepare:files
           pnpm db-migrate:mssql
 
       - name: Build
@@ -137,7 +137,7 @@ jobs:
           cp -r docs packages/core/docs
 
           # Set version on all workspace packages
-          for pkg in packages/core plugins/postgres plugins/mssql plugins/sqlite3 orms/prisma orms/drizzle orms/typeorm orms/sequelize; do
+          for pkg in packages/core plugins/postgres plugins/mssql plugins/sqlite3 plugins/duckdb orms/prisma orms/drizzle orms/typeorm orms/sequelize; do
             node -e "const f='$pkg/package.json'; const p=JSON.parse(require('fs').readFileSync(f)); p.version='$VERSION'; require('fs').writeFileSync(f, JSON.stringify(p, null, 2)+'\n')"
           done
 
@@ -152,7 +152,7 @@ jobs:
       - name: Verify package contents (dry-run)
         run: |
           echo "### Package contents" >> $GITHUB_STEP_SUMMARY
-          for pkg in packages/core plugins/postgres plugins/mssql plugins/sqlite3 orms/prisma orms/drizzle orms/typeorm orms/sequelize; do
+          for pkg in packages/core plugins/postgres plugins/mssql plugins/sqlite3 plugins/duckdb orms/prisma orms/drizzle orms/typeorm orms/sequelize; do
             echo "#### $pkg" >> $GITHUB_STEP_SUMMARY
             echo '```' >> $GITHUB_STEP_SUMMARY
             cd "$pkg"
@@ -180,6 +180,9 @@ jobs:
             plugins/sqlite3/package.json
             plugins/sqlite3/dist/
             plugins/sqlite3/README.md
+            plugins/duckdb/package.json
+            plugins/duckdb/dist/
+            plugins/duckdb/README.md
             orms/prisma/package.json
             orms/prisma/dist/
             orms/prisma/README.md
@@ -239,6 +242,7 @@ jobs:
             ["plugins/postgres"]="@vexnor/postgres"
             ["plugins/mssql"]="@vexnor/mssql"
             ["plugins/sqlite3"]="@vexnor/sqlite3"
+            ["plugins/duckdb"]="@vexnor/duckdb"
             ["orms/prisma"]="@vexnor/prisma"
             ["orms/drizzle"]="@vexnor/drizzle"
             ["orms/typeorm"]="@vexnor/typeorm"
@@ -330,7 +334,7 @@ jobs:
           RELEASE_URL: ${{ github.event.release.html_url }}
           RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
-          for pkg in packages/core plugins/postgres plugins/mssql plugins/sqlite3 orms/prisma orms/drizzle orms/typeorm orms/sequelize; do
+          for pkg in packages/core plugins/postgres plugins/mssql plugins/sqlite3 plugins/duckdb orms/prisma orms/drizzle orms/typeorm orms/sequelize; do
             printf '# %s\n\n%s\n\n%s\n' "$RELEASE_TAG" "$RELEASE_URL" "$RELEASE_BODY" > "$pkg/CHANGELOG.md"
           done
 
@@ -394,6 +398,7 @@ jobs:
           publish_if_changed "plugins/postgres"
           publish_if_changed "plugins/mssql"
           publish_if_changed "plugins/sqlite3"
+          publish_if_changed "plugins/duckdb"
           publish_if_changed "orms/prisma"
           publish_if_changed "orms/drizzle"
           publish_if_changed "orms/typeorm"

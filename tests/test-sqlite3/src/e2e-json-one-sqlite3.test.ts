@@ -5,7 +5,7 @@ import { jsonOne, sql, Sqlite3Tokenizer } from "@vexnor/sqlite3";
 import { Account, IAccountInsert } from "./codegen/main.schema.js";
 import { getTag } from "./tags.js";
 
-describe.sequential("jsonOne() tests", (ctx) => {
+describe("jsonOne() tests", { concurrent: false }, (ctx) => {
    const TAG = getTag(ctx);
 
    beforeAll(async () => {

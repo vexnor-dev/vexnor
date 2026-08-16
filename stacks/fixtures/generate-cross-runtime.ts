@@ -314,7 +314,7 @@ manifest.queries["xParamArray"] = {
       { type: "text", value: 'SELECT * FROM "main"."account" WHERE "account"."account_id" IN (' },
       { type: "param", name: "ids", array: true },
       { type: "text", value: ")" },
-   ] as any,
+   ],
    params: { ids: { name: "ids" } },
    authorization: [],
    row: null,
@@ -336,7 +336,7 @@ manifest.queries["xParamArrayMssql"] = {
       { type: "text", value: 'SELECT * FROM "main"."account" WHERE "account"."account_id" IN (' },
       { type: "param", name: "ids", array: true },
       { type: "text", value: ")" },
-   ] as any,
+   ],
    params: { ids: { name: "ids" } },
    authorization: [],
    row: null,
@@ -368,7 +368,7 @@ manifest.queries["xProjectionSimple"] = {
       { type: "text", value: "SELECT " },
       { type: "projection", param: "select", columns: projColumns },
       { type: "text", value: ' FROM "main"."account" AS "a_1"' },
-   ] as any,
+   ],
    params: { select: { name: "select" } },
    authorization: [],
    row: null,
@@ -390,7 +390,7 @@ manifest.queries["xProjectionCount"] = {
       { type: "text", value: "SELECT " },
       { type: "projection", param: "select", columns: projColumns },
       { type: "text", value: ' FROM "main"."account" AS "a_1"' },
-   ] as any,
+   ],
    params: { select: { name: "select" } },
    authorization: [],
    row: null,
@@ -434,7 +434,7 @@ manifest.queries["xProjectionAllAggregates"] = {
       { type: "text", value: "SELECT " },
       { type: "projection", param: "select", columns: projColumns },
       { type: "text", value: ' FROM "main"."account" AS "a_1"' },
-   ] as any,
+   ],
    params: { select: { name: "select" } },
    authorization: [],
    row: null,
@@ -462,7 +462,7 @@ manifest.queries["xProjectionFallback"] = {
       { type: "text", value: "SELECT " },
       { type: "projection", param: "select", columns: projColumns },
       { type: "text", value: ' FROM "main"."account" AS "a_1"' },
-   ] as any,
+   ],
    params: { select: { name: "select" } },
    authorization: [],
    row: null,
@@ -475,6 +475,35 @@ results["xProjectionFallback"] = {
    error: null,
 };
 
+// Generate a distinct DuckDB manifest through the DuckDB dialect. The query
+// definitions are intentionally shared so every runtime must build the same
+// Vexnor query tree for PostgreSQL and DuckDB instead of reusing PostgreSQL's
+// serialized output in DuckDB tests.
+const duckDBQueryEntries = Object.entries(queries).filter(([name]) => !name.includes("Mssql"));
+const duckDBManifest = await serializeManifest(
+   duckDBQueryEntries.map(([name, query]) => ({ query, name, hash: name })),
+   "duckdb",
+);
+const duckDBResults: typeof results = {};
+
+for (const [name, query] of duckDBQueryEntries) {
+   const params = testParams[name] ?? {};
+   try {
+      const { text, values } = query.getSql({ params: params as never, options: { dialect: "duckdb", format: false } });
+      duckDBResults[name] = { hash: name, text, values, params, error: null };
+   } catch (e) {
+      duckDBResults[name] = { hash: name, text: null, values: null, params, error: String(e) };
+   }
+}
+
+const generatedQueryNames = new Set(Object.keys(queries));
+for (const [name, query] of Object.entries(manifest.queries)) {
+   if (!generatedQueryNames.has(name) && !name.includes("Mssql")) {
+      duckDBManifest.queries[name] = query;
+      duckDBResults[name] = results[name]!;
+   }
+}
+
 // ─── Write outputs ───────────────────────────────────────────────────────────
 
 const outDir = "manifests/cross-runtime";
@@ -482,9 +511,16 @@ mkdirSync(outDir, { recursive: true });
 writeFileSync(`${outDir}/manifest.json`, JSON.stringify(manifest, null, 2));
 writeFileSync(`${outDir}/expected.json`, JSON.stringify(results, null, 2));
 
+const duckDBOutDir = `${outDir}/duckdb`;
+mkdirSync(duckDBOutDir, { recursive: true });
+writeFileSync(`${duckDBOutDir}/manifest.json`, JSON.stringify(duckDBManifest, null, 2));
+writeFileSync(`${duckDBOutDir}/expected.json`, JSON.stringify(duckDBResults, null, 2));
+
 console.log(`Generated ${Object.keys(results).length} test cases`);
 console.log(`Manifest: ${outDir}/manifest.json`);
 console.log(`Expected: ${outDir}/expected.json`);
+console.log(`DuckDB manifest: ${duckDBOutDir}/manifest.json`);
+console.log(`DuckDB expected: ${duckDBOutDir}/expected.json`);
 
 // Print summary
 for (const [name, result] of Object.entries(results)) {

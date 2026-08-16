@@ -1,4 +1,4 @@
-import { param, row, sql, val } from "@vexnor/core";
+import { each, row, sql, val } from "@vexnor/core";
 import { PgEnum, PgNamespace, PgType } from "#src/schema/models.js";
 import { SqlEnumValue } from "@vexnor/core/plugin";
 
@@ -16,5 +16,5 @@ export const findEnums = sql`
            join "enum_values" on ${PgType.$oid} = ${PgEnum.as`enum_values`.$enumtypid}
            join ${PgNamespace} on ${PgNamespace.$oid} = ${PgType.$typnamespace}
    where ${PgType.$typcategory} = 'E'
-     and ${PgNamespace.$nspname} in (${param<{ schemas: string[] }>("schemas")})
+     and ${PgNamespace.$nspname} in (${each<{ schemas: string[] }>("schemas")})
    group by ${PgType.$oid}, ${PgType.$typname}, ${PgType.$typelem}, ${PgNamespace.$nspname}`;

@@ -61,7 +61,7 @@ describe("PathType — type utility", () => {
    });
 });
 
-describe("param() — leaf path enforcement", () => {
+describe("param() — path typing", () => {
    test("flat param works", () => {
       const p = param<{ email: string }>("email");
       expect(p.name).toBe("email");
@@ -84,8 +84,16 @@ describe("param() — leaf path enforcement", () => {
       assertType<typeof p[typeof PARAMS]>({ email: "test@test.com" });
    });
 
+   test("top-level object param preserves the complete object type", () => {
+      const p = param<{ account: { id: string; email: string } }>("account");
+
+      assertType<typeof p[typeof PARAMS]>({
+         account: { id: "account-1", email: "owner@example.com" },
+      });
+      expect(p.name).toMatchInlineSnapshot(`"account"`);
+   });
+
    // Type-level only — these should produce compile errors if uncommented:
-   // param<{ address: { city: string } }>("address")  // ✗ not a leaf
    // param<{ name: string }>("bad")                    // ✗ not in T
 });
 

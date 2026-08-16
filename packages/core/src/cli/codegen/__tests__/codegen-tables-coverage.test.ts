@@ -107,6 +107,180 @@ describe("writeTableSelect — branch coverage", () => {
    });
 });
 
+describe("nested column code generation", () => {
+   const nestedTable = {
+      ...baseTable,
+      columns: [
+         {
+            column_name: "shipping_details",
+            is_nullable: "YES",
+            column_default: null,
+            udt_name: "STRUCT(address STRUCT(country VARCHAR, geo STRUCT(latitude DOUBLE)), tags VARCHAR[])",
+         },
+      ],
+      primary_keys: [],
+   };
+
+   beforeEach(() => {
+      mockPlugin.getColumnType.mockReset();
+      mockPlugin.getColumnType.mockReturnValue({
+         type: SqlLiteralType.Json,
+         typeTree: {
+            kind: "struct",
+            fields: [
+               {
+                  name: "address",
+                  value: {
+                     kind: "struct",
+                     fields: [
+                        { name: "country", value: { kind: "scalar", type: SqlLiteralType.String } },
+                        { name: "tracking_id", value: { kind: "scalar", type: SqlLiteralType.String } },
+                        {
+                           name: "geo",
+                           value: {
+                              kind: "struct",
+                              fields: [
+                                 { name: "latitude", value: { kind: "scalar", type: SqlLiteralType.Number } },
+                              ],
+                           },
+                        },
+                     ],
+                  },
+               },
+               {
+                  name: "tags",
+                  value: { kind: "list", value: { kind: "scalar", type: SqlLiteralType.String } },
+               },
+            ],
+         },
+      });
+   });
+
+   test("writes nested select and insert types", () => {
+      const selectWriter = new CodeWriter();
+      const insertWriter = new CodeWriter();
+      runInContext(() => {
+         writeTableSelect(selectWriter, { table: nestedTable as never });
+         writeTableInsert(insertWriter, { table: nestedTable as never });
+      });
+
+      expect(selectWriter.toString()).toMatchInlineSnapshot(`
+        "
+        export type IAccountsSelect = {
+           shippingDetails:  {
+              address:  {
+                 country: string | null;
+                 trackingId: string | null;
+                 geo:  {
+                    latitude: number | null;
+                 } | null;
+              } | null;
+              tags: Array<string | null> | null;
+           } | null;
+        };
+
+        export type IAccountsJson = vexnor.JsonRow<IAccountsSelect>;"
+      `);
+      expect(insertWriter.toString()).toMatchInlineSnapshot(`
+        "
+        export type IAccountsInsert = {
+           shippingDetails?:  {
+              address:  {
+                 country: string | null;
+                 tracking_id: string | null;
+                 geo:  {
+                    latitude: number | null;
+                 } | null;
+              } | null;
+              tags: Array<string | null> | null;
+           } | null;
+        };
+
+        export type IAccountsUpdate = Partial<IAccountsInsert>;
+        "
+      `);
+   });
+
+   test("writes nested runtime identifier metadata", () => {
+      const writer = new CodeWriter();
+      runInContext(() => writeTableType(writer, { table: nestedTable as never }));
+      expect(writer.toString()).toMatchInlineSnapshot(`
+        "export const Accounts = vexnor.newSqlTable<{
+           Select: IAccountsSelect;
+           Insert: IAccountsInsert;
+           Update: IAccountsUpdate;
+           Delete: true;
+           Source: "";
+        }>( {
+           crud: {
+              select: true,
+              insert: true,
+              update: true,
+              delete: true,
+           },
+           tableInfo: {
+              name: "accounts",
+              schema: "public",
+           },
+           pk: [],
+           dialect: "postgresql",
+           source: "",
+           columns: {
+
+              /**
+               * shipping_details STRUCT(address STRUCT(country VARCHAR, geo STRUCT(latitude DOUBLE)), tags VARCHAR[])
+               */
+              shippingDetails: "shipping_details",
+           },
+           dbSchema: {
+              shippingDetails: {
+                 dbType: "STRUCT(address STRUCT(country VARCHAR, geo STRUCT(latitude DOUBLE)), tags VARCHAR[])",
+                 type: vexnor.SqlLiteralType.Json,
+                 nullable: true,
+                 structure: {
+                    kind: "struct",
+                    fields: {
+                       address: {
+                          fieldName: "address",
+                          structure: {
+                             kind: "struct",
+                             fields: {
+                                country: {
+                                   fieldName: "country",
+                                },
+                                trackingId: {
+                                   fieldName: "tracking_id",
+                                },
+                                geo: {
+                                   fieldName: "geo",
+                                   structure: {
+                                      kind: "struct",
+                                      fields: {
+                                         latitude: {
+                                            fieldName: "latitude",
+                                         },
+                                      },
+                                   },
+                                },
+                             },
+                          },
+                       },
+                       tags: {
+                          fieldName: "tags",
+                          structure: {
+                             kind: "list",
+                             value: null,
+                          },
+                       },
+                    },
+                 },
+              },
+           },
+        });"
+      `);
+   });
+});
+
 describe("writeTableType — branch coverage", () => {
    beforeEach(() => {
       mockPlugin.getColumnType.mockReset();

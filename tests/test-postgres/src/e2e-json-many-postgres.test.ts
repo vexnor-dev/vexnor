@@ -4,7 +4,7 @@ import { Account, AccountStatusUdt, IAccountSelect, Order, IOrderSelect } from "
 import { jsonMany, sql } from "@vexnor/postgres";
 import { pool } from "./postgres-pool.js";
 
-describe.sequential("jsonMany() tests", () => {
+describe("jsonMany() tests", { concurrent: false }, () => {
    const TAG = "json-many-test";
    let parentAccount!: IAccountSelect;
    let orders!: IOrderSelect[];

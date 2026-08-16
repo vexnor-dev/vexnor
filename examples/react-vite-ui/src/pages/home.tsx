@@ -19,6 +19,12 @@ const databases = [
       badge: "better-sqlite3",
       description: "Synchronous better-sqlite3 wrapped in Promise.resolve(). Same query API as the other drivers.",
    },
+   {
+      to: "/duckdb" as const,
+      name: "DuckDB",
+      badge: "@duckdb/node-api",
+      description: "Embedded analytical SQL with the same portable manifest and remote query flow.",
+   },
 ];
 
 const highlights = [
@@ -53,7 +59,7 @@ export default function HomePage() {
       <div className="page">
          <h1>Vexnor — React + Vite + Hono</h1>
          <p style={{ color: "#6b7280", marginBottom: "40px", fontSize: "15px" }}>
-            Isomorphic SQL execution across PostgreSQL, MS SQL Server, and SQLite3.
+            Isomorphic SQL execution across PostgreSQL, MS SQL Server, SQLite3, and DuckDB.
             Same query, same API — runs on the server and from the browser.
          </p>
 

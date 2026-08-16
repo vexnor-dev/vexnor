@@ -8,9 +8,9 @@ import { Account, IAccountInsert, IAccountSelect } from "./codegen/main.account-
 import { Order, IOrderInsert, IOrderSelect } from "./codegen/main.order-table.js";
 import { db } from "./config.js";
 
-describe.sequential("windowBy — e2e sqlite3", () => {
-   let accounts: IAccountSelect[] = [];
-   let orders: IOrderSelect[] = [];
+describe("windowBy — e2e sqlite3", { concurrent: false }, () => {
+   const accounts: IAccountSelect[] = [];
+   const orders: IOrderSelect[] = [];
 
    beforeAll(async () => {
       const tag = `wfn-${randomUUID().slice(0, 8)}`;

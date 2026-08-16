@@ -5,6 +5,7 @@ using Vexnor.Core.Manifest;
 using Vexnor.Mssql;
 using Vexnor.Postgres;
 using Vexnor.Sqlite3;
+using Vexnor.DuckDB;
 
 // ─── Structured file logging ─────────────────────────────────────────────────
 var fileLogger = new FileLogger(Path.GetFullPath(Path.Join("logs", "server.log"), Directory.GetCurrentDirectory()));
@@ -36,7 +37,7 @@ var baseManifestDir = Environment.GetEnvironmentVariable("VEXNOR_MANIFEST_DIR")
 
 // Load registries per dialect
 var registries = new Dictionary<string, QueryRegistry>();
-var dialects = new[] { ("postgres", "postgresql"), ("mssql", "transactsql"), ("sqlite3", "sqlite") };
+var dialects = new[] { ("postgres", "postgresql"), ("mssql", "transactsql"), ("sqlite3", "sqlite"), ("duckdb", "duckdb") };
 
 foreach (var (name, dialect) in dialects)
 {
@@ -78,6 +79,12 @@ var sqlitePath = builder.Configuration.GetConnectionString("Sqlite3")
 executors["sqlite3"] = Sqlite3Executor.FromPath(sqlitePath);
 fileLogger.Info("Database connected", new { dialect = "sqlite3", path = sqlitePath });
 
+// DuckDB
+var duckdbPath = builder.Configuration.GetConnectionString("DuckDB")
+    ?? Path.GetFullPath(Path.Join("..", "..", "..", "fixtures", "vexnor.duckdb"), Directory.GetCurrentDirectory());
+executors["duckdb"] = DuckDBExecutor.FromPath(duckdbPath);
+fileLogger.Info("Database connected", new { dialect = "duckdb", path = duckdbPath });
+
 // ─── Endpoints ───────────────────────────────────────────────────────────────
 
 app.MapGet("/api/health", () =>
@@ -94,7 +101,18 @@ app.MapPost("/api/db", async (HttpRequest request) =>
     var json = JsonDocument.Parse(body).RootElement;
 
     var hash = json.GetProperty("hash").GetString() ?? "";
-    var backend = json.TryGetProperty("backend", out var backendEl) ? backendEl.GetString() ?? "postgres" : "postgres";
+    var backend = json.TryGetProperty("backend", out var backendEl)
+        ? backendEl.GetString() ?? "postgres"
+        : json.TryGetProperty("plugin", out var pluginEl)
+            ? pluginEl.GetString() switch
+            {
+                "@vexnor/postgres" => "postgres",
+                "@vexnor/mssql" => "mssql",
+                "@vexnor/sqlite3" => "sqlite3",
+                "@vexnor/duckdb" => "duckdb",
+                _ => "postgres"
+            }
+            : "postgres";
     var paramsElement = json.GetProperty("params");
 
     if (!registries.TryGetValue(backend, out var registry))

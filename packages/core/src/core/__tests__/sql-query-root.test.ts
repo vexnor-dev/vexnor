@@ -8,6 +8,7 @@ import { Account } from "@test-models/vexnor_dev.account-table.js";
 import { OrderItem } from "@test-models/vexnor_dev.order_item-table.js";
 import { Order } from "@test-models/vexnor_dev.order-table.js";
 import { col } from "#src/core/query/sql-select-column.js";
+import { each } from "#src/core/operators/sql-each.js";
 
 describe("sql() tests", () => {
    test("sql() select", () => {
@@ -16,7 +17,7 @@ describe("sql() tests", () => {
          select ${row(Account.$firstName, Account.$createdAt, Account.$email.as("user_email"))}, min(${Account.$email}) as ${col<{ firstEmail: string }>("firstEmail")}
          from ${Account}
          where ${Account.$email} = ${param<{ email: string }>("email")}
-           and ${Account.$firstName} in (${param<{ names: string[] }>("names")})
+           and ${Account.$firstName} in (${each<{ names: string[] }>("names")})
          group by ${Account.$email}`;
       const { values, text } = query.getSql({ params: { names, email: "test@example.com" } });
       expect(values).toMatchObject(["test@example.com", "One", "Two", "Three"]);

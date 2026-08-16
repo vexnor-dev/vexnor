@@ -8,6 +8,7 @@ import { set } from "#src/core/operators/sql-set.js";
 import { insert } from "#src/core/operators/sql-insert-x.js";
 import { filterBy } from "#src/core/operators/sql-filter-by.js";
 import { orderBy } from "#src/core/operators/sql-order-by.js";
+import { each } from "#src/core/operators/sql-each.js";
 import { Account } from "@test-models/vexnor_dev.schema.js";
 
 type P = { status: string; hasEmail: boolean; email: string };
@@ -64,6 +65,64 @@ describe("serializeQuery", () => {
           ],
         }
       `);
+   });
+
+   test("each() serializes an array parameter for portable placeholder expansion", async () => {
+      const query = sql`SELECT ${row(Account.$$)} FROM ${Account} WHERE ${Account.$accountId} IN (${each<{ ids: string[] }>("ids")})`;
+
+      const result = await serializeQuery(query, "findByIds", "postgresql");
+
+      const { hash, ...stable } = result;
+      expect(hash).toMatch(/^[0-9a-f]{64}$/);
+      expect(stable).toMatchInlineSnapshot(`
+        {
+          "authorization": [],
+          "location": null,
+          "name": "findByIds",
+          "params": {
+            "ids": {
+              "array": true,
+              "isContext": false,
+              "name": "ids",
+            },
+          },
+          "row": {
+            "createdAt": {
+              "type": "Date",
+            },
+            "modifiedAt": {
+              "type": "Date",
+            },
+          },
+          "template": [
+            {
+              "type": "text",
+              "value": " /* <query_0> */ SELECT "a_1"."account_id" as "accountId", "a_1"."status", "a_1"."email", "a_1"."first_name" as "firstName", "a_1"."last_name" as "lastName", "a_1"."notes", "a_1"."created_at" as "createdAt", "a_1"."modified_at" as "modifiedAt", "a_1"."parent_id" as "parentId" FROM "main"."account" as "a_1" WHERE "a_1"."account_id" IN (",
+            },
+            {
+              "array": true,
+              "name": "ids",
+              "type": "param",
+            },
+            {
+              "type": "text",
+              "value": ")/* </query_0> */",
+            },
+          ],
+        }
+      `);
+   });
+
+   test("templated each() rejects unsupported portable serialization", async () => {
+      const query = sql`VALUES ${each<{ ids: string[] }>("ids", sql`(${each.it()})`)}`;
+
+      await expect(serializeQuery(query, "insertIds", "postgresql")).rejects.toThrowErrorMatchingInlineSnapshot(`[SqlBuildError: Error building 'SqlQuery#2' in query '-'\\nError building 'SqlEach#1(ids)' in query 'SqlQuery#2'\\nPortable query serialization only supports each() without a template or custom separator]`);
+   });
+
+   test("each() with a custom separator rejects unsupported portable serialization", async () => {
+      const query = sql`${each<{ ids: string[] }>("ids", undefined, " OR id = ")}`;
+
+      await expect(serializeQuery(query, "matchIds", "postgresql")).rejects.toThrowErrorMatchingInlineSnapshot(`[SqlBuildError: Error building 'SqlQuery#1' in query '-'\\nError building 'SqlEach#1(ids)' in query 'SqlQuery#1'\\nPortable query serialization only supports each() without a template or custom separator]`);
    });
 
    test("when() operator", async () => {

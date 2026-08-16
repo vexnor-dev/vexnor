@@ -24,10 +24,10 @@ public sealed class Sqlite3Executor : DbExecutorBase
         return new Sqlite3Executor($"Data Source={path}");
     }
 
-    protected override async Task<DbConnection> OpenConnectionAsync()
+    protected override async Task<DbConnection> OpenConnectionAsync(CancellationToken cancellationToken)
     {
         var connection = new SqliteConnection(_connectionString);
-        await connection.OpenAsync();
+        await connection.OpenAsync(cancellationToken);
         return connection;
     }
 

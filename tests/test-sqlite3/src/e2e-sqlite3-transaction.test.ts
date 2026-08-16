@@ -6,7 +6,7 @@ import { Account } from "./codegen/main.account-table.js";
 import Database from "better-sqlite3";
 import { SQLITE_PATH } from "./config.js";
 
-describe.sequential("transaction() - sqlite3", () => {
+describe("transaction() - sqlite3", { concurrent: false }, () => {
    const db = new Database(SQLITE_PATH);
 
    afterAll(() => db.close());
@@ -61,7 +61,7 @@ describe.sequential("transaction() - sqlite3", () => {
    });
 });
 
-describe.sequential("savepoint() - sqlite3", () => {
+describe("savepoint() - sqlite3", { concurrent: false }, () => {
    const db = new Database(SQLITE_PATH);
 
    afterAll(() => db.close());

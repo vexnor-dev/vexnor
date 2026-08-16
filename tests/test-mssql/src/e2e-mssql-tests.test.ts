@@ -7,7 +7,7 @@ import { Account, IAccountSelect } from "./codegen/vexnor_dev.schema.js";
 import { pool } from "./mssql-pool.js";
 import { TestDataManager } from "./test-data-manager.js";
 
-describe.sequential("vexnor mssql e2e tests", async (ctx) => {
+describe("vexnor mssql e2e tests", { concurrent: false }, async (ctx) => {
    const dataManager = new TestDataManager(ctx);
 
    beforeAll(async () => {

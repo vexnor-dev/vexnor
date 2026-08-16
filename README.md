@@ -134,6 +134,9 @@ npm install @vexnor/core @vexnor/mssql mssql
 
 # SQLite
 npm install @vexnor/core @vexnor/sqlite3 better-sqlite3
+
+# DuckDB
+npm install @vexnor/core @vexnor/duckdb @duckdb/node-api
 ```
 
 Generate types from your database schema:
@@ -278,7 +281,7 @@ await transaction(pool, async (client) => {
 });
 ```
 
-See [Transactions](docs/transactions.md) for all three drivers and options.
+See [Transactions](docs/transactions.md) for database-specific transaction and savepoint options.
 
 ## Query Pipelines
 
@@ -371,7 +374,7 @@ See [Telemetry](docs/telemetry.md) — span shape, OTLP exporters, combining wit
 - [Cheat Sheet](docs/cheat-sheet.md) — quick reference for all composable APIs
 - [Quickstart](docs/quickstart.md) — full onboarding, all core APIs
 - [Queries](docs/queries.md) — subqueries, CTEs, recursive CTEs, window functions
-- [Params](docs/params.md) — inline injection, `param()`, runtime validation
+- [Params](docs/params.md) — inline injection, atomic `param()`, explicit `each()` expansion, runtime validation
 - [CRUD](docs/crud.md) — typed query factories, execution methods
 - [Window Functions](docs/window-functions.md) — runtime `windowBy` param, all 15 functions, frame clauses, AI agent usage
 - [Isomorphic SQL](docs/isomorphic-sql.md) — same query on server and client, how it works, comparison with REST/tRPC/GraphQL
@@ -381,13 +384,13 @@ See [Telemetry](docs/telemetry.md) — span shape, OTLP exporters, combining wit
 - [Telemetry](docs/telemetry.md) — OpenTelemetry integration, spans, OTLP exporters
 - [CLI](docs/cli.md) — `codegen`, `exec run`, `exec init`, config reference
 - [Serialize](docs/serialize.md) — `vexnor serialize`, manifest generation for cross-runtime execution
-- [Transactions](docs/transactions.md) — `transaction()`, `savepoint()`, isolation levels, all three drivers
-- [Databases](docs/databases.md) — PostgreSQL, MS SQL Server, SQLite — driver setup and dialect notes
+- [Transactions](docs/transactions.md) — `transaction()`, `savepoint()`, isolation levels, and database-specific behavior
+- [Databases](docs/databases.md) — PostgreSQL, MS SQL Server, SQLite, and DuckDB driver setup and dialect notes
 - [Plugins & Adaptors](docs/plugins.md) — Drizzle, Prisma, TypeORM, Sequelize adaptors, building your own plugin
 - [Portable Queries](docs/portable-queries.md) — conceptual overview of all portability axes (isomorphic, multi-dialect, multi-runtime)
 - [Cross-Stack Setup](docs/cross-stack-setup.md) — step-by-step guide to get TypeScript + .NET running together
 - [.NET SDK](docs/dotnet.md) — cross-runtime manifest, QueryRegistry, SqlBuilder, shared fixtures
-- [Go SDK](docs/golang.md) — cross-runtime manifest, QueryRegistry, SqlBuilder, all three databases
+- [Go SDK](docs/golang.md) — cross-runtime manifest, QueryRegistry, SqlBuilder, and SQL database executors
 - [Workflow](docs/workflow.md) — migration/upgrade guide, day-to-day dev loop
 - [CI](docs/ci.md) — CI/deployment pipeline for cross-stack projects
 
@@ -399,7 +402,7 @@ Working examples are in the [`examples/`](examples/) directory:
 |---|---|
 | [`postgres-esm`](examples/postgres-esm) | Minimal Node.js ESM script — insert, select, update with PostgreSQL |
 | [`postgres-cjs`](examples/postgres-cjs) | Same as above using CommonJS |
-| [`react-vite-api`](examples/react-vite-api) | React + Vite + Hono — isomorphic queries, `SqlQueryRegistry`, `HttpRemoteClient`, PostgreSQL + MSSQL + SQLite3 |
+| [`react-vite-api`](examples/react-vite-api) | React + Vite + Hono — isomorphic queries, `SqlQueryRegistry`, `HttpRemoteClient`, PostgreSQL + MSSQL + SQLite3 + DuckDB |
 | [`react-vite-ui`](examples/react-vite-ui) | React + Vite — generic frontend for testing backend stacks (Go, .NET, Node.js) |
 | [`react-next-app`](examples/react-next-app) | Next.js App Router — React Server Components, Server Actions, same isomorphic pattern |
 
@@ -407,7 +410,7 @@ Cross-runtime backends are in [`stacks/`](stacks/):
 
 | Stack | Description |
 |---|---|
-| [`golang`](stacks/golang) | Go query registry — loads manifests, executes against PostgreSQL + MSSQL + SQLite3 |
+| [`golang`](stacks/golang) | Go query registry — loads manifests, executes against PostgreSQL + MSSQL + SQLite3 + DuckDB |
 | [`dotnet`](stacks/dotnet) | .NET query registry — same architecture, C# implementation |
 
 ## Requirements

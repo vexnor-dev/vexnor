@@ -16,10 +16,10 @@ public sealed class MssqlExecutor : DbExecutorBase
         _connectionString = connectionString;
     }
 
-    protected override async Task<DbConnection> OpenConnectionAsync()
+    protected override async Task<DbConnection> OpenConnectionAsync(CancellationToken cancellationToken)
     {
         var connection = new SqlConnection(_connectionString);
-        await connection.OpenAsync();
+        await connection.OpenAsync(cancellationToken);
         return connection;
     }
 

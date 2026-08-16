@@ -5,7 +5,7 @@ import { jsonOne, MssqlTokenizer, sql } from "@vexnor/mssql";
 import { Account } from "./codegen/vexnor_dev.schema.js";
 import { TestDataManager } from "./test-data-manager.js";
 
-describe.sequential("jsonOne() tests", (ctx) => {
+describe("jsonOne() tests", { concurrent: false }, (ctx) => {
    const dataManager = new TestDataManager(ctx, {
       ACCOUNT_ROOT_COUNT: 1,
       ACCOUNT_CHILD_FACTOR: 2,

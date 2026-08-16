@@ -8,7 +8,7 @@ import { Account, IAccountSelect, IOrderSelect, Order } from "./codegen/vexnor_d
 import { pool } from "./postgres-pool.js";
 import { TestDataManager } from "./test-data-manager.js";
 
-describe.sequential("vexnor postgres CRUD - select", async (ctx) => {
+describe("vexnor postgres CRUD - select", { concurrent: false }, async (ctx) => {
    let rootAccount!: IAccountSelect;
    let childAccount!: IAccountSelect;
    let order!: IOrderSelect;

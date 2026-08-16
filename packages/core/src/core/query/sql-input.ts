@@ -21,7 +21,11 @@ export type SqlInputParams<T extends { Params: Record<string, unknown> }> = {
 
 export type SqlInputExtended<T> = T extends { Params: Record<string, unknown> }
    ? SqlInput<T> & SqlInputParams<T>
-   : SqlInput<{ Params: {} }>;
+   : SqlInput<{
+        // The empty-object type intentionally excludes nullish values while preserving conditional-type behavior for void.
+        // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+        Params: {};
+     }>;
 
 /**
  * Creates a typed parameter proxy for use in reusable parameterized queries.

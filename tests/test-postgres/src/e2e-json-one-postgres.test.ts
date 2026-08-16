@@ -4,7 +4,7 @@ import { Account, AccountStatusUdt } from "./codegen/vexnor_dev.schema.js";
 import { jsonOne, PostgresTokenizer, sql } from "@vexnor/postgres";
 import { pool } from "./postgres-pool.js";
 
-describe.sequential("jsonOne() tests", () => {
+describe("jsonOne() tests", { concurrent: false }, () => {
    const TAG = "json-one-test";
 
    beforeAll(async () => {

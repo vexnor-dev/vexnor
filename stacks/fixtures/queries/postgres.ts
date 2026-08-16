@@ -1,6 +1,6 @@
 // noinspection SqlNoDataSourceInspection,SqlResolve
 import "@vexnor/postgres";
-import { sql, row, param, col, ctx, set, insert, filterBy, orderBy, when } from "@vexnor/core";
+import { sql, row, param, col, ctx, each, set, insert, filterBy, orderBy, when } from "@vexnor/core";
 import { Account } from "../codegen/postgres/vexnor_dev.account-table.js";
 import { Order } from "../codegen/postgres/vexnor_dev.order-table.js";
 import { OrderItem } from "../codegen/postgres/vexnor_dev.order_item-table.js";
@@ -20,12 +20,12 @@ export const selectByMultipleParams = sql`
    AND ${Account.$status} = ${param<{ email: string; status: string }>("status")}
 `;
 
-// ─── param() — array param (IN-list expansion) ──────────────────────────────
+// ─── each() — array param (IN-list expansion) ───────────────────────────────
 
 export const selectByIds = sql`
    SELECT ${row(Account.$$)}
    FROM ${Account}
-   WHERE ${Account.$accountId} IN (${param<{ ids: string[] }>("ids")})
+   WHERE ${Account.$accountId} IN (${each<{ ids: string[] }>("ids")})
 `;
 
 // ─── filter() — dynamic WHERE from object ───────────────────────────────────

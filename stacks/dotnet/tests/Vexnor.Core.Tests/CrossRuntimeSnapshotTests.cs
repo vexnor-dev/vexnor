@@ -20,17 +20,21 @@ public class CrossRuntimeSnapshotTests
 {
     private static readonly string BaseDir = Path.GetFullPath(
         Path.Join("..", "..", "..", "..", "..", "..", "fixtures", "manifests", "cross-runtime"), AppContext.BaseDirectory);
+    private static readonly string DuckDBDir = Path.Join(BaseDir, "duckdb");
 
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
 
     private readonly QueryRegistry _registry;
     private readonly QueryRegistry _mssqlRegistry;
+    private readonly QueryRegistry _duckDBRegistry;
     private readonly Dictionary<string, ExpectedResult> _expected;
+    private readonly Dictionary<string, ExpectedResult> _duckDBExpected;
 
     public CrossRuntimeSnapshotTests()
     {
         _registry = new QueryRegistry("postgresql");
         _mssqlRegistry = new QueryRegistry("transactsql");
+        _duckDBRegistry = new QueryRegistry("duckdb");
 
         var manifestPath = Path.Join(BaseDir, "manifest.json");
         if (File.Exists(manifestPath))
@@ -42,6 +46,20 @@ public class CrossRuntimeSnapshotTests
         var expectedPath = Path.Join(BaseDir, "expected.json");
         _expected = File.Exists(expectedPath)
             ? JsonSerializer.Deserialize<Dictionary<string, ExpectedResult>>(File.ReadAllText(expectedPath), JsonOptions)!
+            : new();
+
+        var duckDBManifestPath = Path.Join(DuckDBDir, "manifest.json");
+        if (File.Exists(duckDBManifestPath))
+        {
+            var duckDBManifest = ManifestLoader.LoadFile(duckDBManifestPath);
+            if (duckDBManifest.Dialect != "duckdb")
+                throw new InvalidDataException($"Manifest dialect is '{duckDBManifest.Dialect}', expected 'duckdb'.");
+            _duckDBRegistry.Load(duckDBManifest);
+        }
+
+        var duckDBExpectedPath = Path.Join(DuckDBDir, "expected.json");
+        _duckDBExpected = File.Exists(duckDBExpectedPath)
+            ? JsonSerializer.Deserialize<Dictionary<string, ExpectedResult>>(File.ReadAllText(duckDBExpectedPath), JsonOptions)!
             : new();
     }
 
@@ -87,6 +105,29 @@ public class CrossRuntimeSnapshotTests
         }
     }
 
+    [Theory]
+    [MemberData(nameof(GetDuckDBTestCases))]
+    public void CrossRuntime_DuckDB(string testName)
+    {
+        var expected = _duckDBExpected[testName];
+        var parameters = DeserializeParams(expected.Params);
+
+        if (expected.Error != null)
+        {
+            Assert.ThrowsAny<Exception>(() => _duckDBRegistry.Build(expected.Hash!, parameters));
+            return;
+        }
+
+        var result = _duckDBRegistry.Build(expected.Hash!, parameters);
+
+        Assert.Equal(expected.Text, result.Text);
+        Assert.Equal(expected.Values!.Count, result.Values.Count);
+        for (int i = 0; i < expected.Values.Count; i++)
+        {
+            Assert.Equal(expected.Values[i]?.ToString(), result.Values[i]?.ToString());
+        }
+    }
+
     // ─── Completeness guard: manifest count == expected count ─────────────────
 
     [Fact]
@@ -102,6 +143,18 @@ public class CrossRuntimeSnapshotTests
 
         Assert.Empty(missingFromExpected);
         Assert.Empty(missingFromManifest);
+    }
+
+    [Fact]
+    public void AllDuckDBManifestEntries_HaveExpectedOutput()
+    {
+        var manifestPath = Path.Join(DuckDBDir, "manifest.json");
+        var manifestJson = JsonSerializer.Deserialize<JsonElement>(File.ReadAllText(manifestPath));
+        var manifestKeys = manifestJson.GetProperty("queries").EnumerateObject().Select(p => p.Name).ToHashSet();
+        var expectedKeys = _duckDBExpected.Keys.ToHashSet();
+
+        Assert.Empty(manifestKeys.Except(expectedKeys));
+        Assert.Empty(expectedKeys.Except(manifestKeys));
     }
 
     // ─── Test case providers ─────────────────────────────────────────────────
@@ -127,6 +180,18 @@ public class CrossRuntimeSnapshotTests
             File.ReadAllText(expectedPath), new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
 
         foreach (var name in expected.Keys.Where(k => k.Contains("Mssql")))
+            yield return [name];
+    }
+
+    public static IEnumerable<object[]> GetDuckDBTestCases()
+    {
+        var expectedPath = Path.Join(DuckDBDir, "expected.json");
+        if (!File.Exists(expectedPath)) yield break;
+
+        var expected = JsonSerializer.Deserialize<Dictionary<string, ExpectedResult>>(
+            File.ReadAllText(expectedPath), new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+
+        foreach (var name in expected.Keys)
             yield return [name];
     }
 

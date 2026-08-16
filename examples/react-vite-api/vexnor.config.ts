@@ -6,6 +6,18 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
    profiles: {
+      duckdb: {
+         plugin: "@vexnor/duckdb",
+         connection: {
+            uri: path.resolve(__dirname, process.env.DUCKDB_PATH ?? "../../@db-duckdb/vexnor-dev.duckdb"),
+         },
+         generate: {
+            schema: ["main"],
+            outDir: "shared/codegen/duckdb",
+            pascalCaseTables: true,
+            camelCaseColumns: true,
+         },
+      },
       sqlite3: {
          plugin: "@vexnor/sqlite3",
          connection: {

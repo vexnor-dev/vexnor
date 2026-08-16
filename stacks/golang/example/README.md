@@ -1,6 +1,6 @@
 # Vexnor Go Example API
 
-Minimal HTTP API demonstrating the Vexnor Go SDK — loads query manifests, connects to PostgreSQL/MSSQL/SQLite, and executes queries by hash.
+Minimal HTTP API demonstrating the Vexnor Go SDK — loads query manifests, connects to PostgreSQL/MSSQL/SQLite/DuckDB, and executes queries by hash.
 
 ## Run
 
@@ -27,6 +27,7 @@ The server starts on port 5001 by default.
 | `MSSQL_PASSWORD` | `P@ssw0rd!` | MSSQL password |
 | `MSSQL_DATABASE` | `vexnor` | MSSQL database |
 | `SQLITE_PATH` | `../../fixtures/vexnor.db` | SQLite database file path |
+| `DUCKDB_PATH` | `../../fixtures/vexnor.duckdb` | DuckDB database file path |
 
 ## Endpoints
 
@@ -39,7 +40,7 @@ curl http://localhost:5001/api/health
 ```
 
 ```json
-{"status": "ok", "queries": {"postgres": 5, "mssql": 5, "sqlite3": 5}}
+{"status": "ok", "queries": {"postgres": 5, "mssql": 5, "sqlite3": 5, "duckdb": 5}}
 ```
 
 ### POST /api/db
@@ -59,7 +60,7 @@ Request body:
 | `hash` | string | yes | Query hash from the manifest |
 | `params` | object | no | Query parameters |
 | `context` | object | no | Context values (e.g. authenticated userId) |
-| `backend` | string | no | `"postgres"`, `"mssql"`, or `"sqlite3"` (default: `"postgres"`) |
+| `backend` | string | no | `"postgres"`, `"mssql"`, `"sqlite3"`, or `"duckdb"` (default: `"postgres"`) |
 
 Response codes:
 
@@ -77,7 +78,8 @@ Response codes:
 manifests/
 ├── postgres/   ← *.json manifest files for PostgreSQL dialect
 ├── mssql/      ← *.json manifest files for MSSQL dialect
-└── sqlite3/    ← *.json manifest files for SQLite dialect
+├── sqlite3/    ← *.json manifest files for SQLite dialect
+└── duckdb/     ← *.json manifest files for DuckDB dialect
 ```
 
 Generate manifests with:

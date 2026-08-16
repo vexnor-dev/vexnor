@@ -8,7 +8,7 @@ import { OrderItem } from "./codegen/vexnor_dev.order_item-table.js";
 import { pool } from "./postgres-pool.js";
 import { TestDataManager } from "./test-data-manager.js";
 
-describe.sequential("advanced SQL - postgres", async (ctx) => {
+describe("advanced SQL - postgres", { concurrent: false }, async (ctx) => {
    const dataManager = new TestDataManager(ctx, {
       ACCOUNT_ROOT_COUNT: 10,
       ACCOUNT_CHILD_FACTOR: 3,

@@ -12,7 +12,7 @@ import { PrismaClient } from "../prisma/generated/client.js";
 import * as PrismaGenerated from "../prisma/generated/client.js";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 
-describe.sequential("e2e prisma/sqlite — fromPrismaModelTable works against real DB", (ctx) => {
+describe("e2e prisma/sqlite — fromPrismaModelTable works against real DB", { concurrent: false }, (ctx) => {
    const TAG = getTag(ctx);
    type AccountRow = PrismaGenerated.Account;
    type AccountInsert = Pick<

@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useMemo, useState } from "react";
 
-export type DbKey = "postgres" | "mssql" | "sqlite3";
+export type DbKey = "postgres" | "mssql" | "sqlite3" | "duckdb";
 
 type DbAuthState =
    | { authenticated: false; token: null }
@@ -31,6 +31,7 @@ const INITIAL: Record<DbKey, DbAuthState> = {
    postgres: UNAUTHENTICATED,
    mssql: UNAUTHENTICATED,
    sqlite3: UNAUTHENTICATED,
+   duckdb: UNAUTHENTICATED,
 };
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {

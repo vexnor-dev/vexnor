@@ -1,0 +1,32 @@
+{
+   "name": "@vexnor/test-duckdb",
+   "version": "1.0.0-beta.3",
+   "description": "Integration tests for the Vexnor DuckDB plugin",
+   "type": "module",
+   "author": "Adrian Topala",
+   "license": "Apache-2.0",
+   "scripts": {
+      "build:dependencies": "pnpm --filter @vexnor/core --filter @vexnor/duckdb run build",
+      "prepare-db": "node --import tsx src/create-test-database.ts",
+      "codegen:vexnor": "node ../../packages/core/cli.mjs codegen --plugin @vexnor/duckdb --schema main --camelCaseColumns --uri ./vexnor-dev.duckdb --outDir ./src/codegen",
+      "prebuild": "run-s build:dependencies prepare-db codegen:vexnor",
+      "build": "tsc -b",
+      "pretest": "run-s build",
+      "test": "vitest --coverage run",
+      "test:watch": "vitest --watch",
+      "test:run": "vitest run"
+   },
+   "dependencies": {
+      "@duckdb/node-api": "1.5.5-r.3",
+      "@vexnor/core": "workspace:*",
+      "@vexnor/duckdb": "workspace:*"
+   },
+   "devDependencies": {
+      "@vitest/coverage-v8": "^4.1.8",
+      "npm-run-all": "^4.1.5",
+      "tsx": "^4.21.0",
+      "typescript": "^7.0.2",
+      "vite-tsconfig-paths": "^6.1.1",
+      "vitest": "^4.1.8"
+   }
+}

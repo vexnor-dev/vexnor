@@ -3,6 +3,8 @@ package vexnor_test
 import (
 	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -226,6 +228,71 @@ func TestCrossRuntime_Mssql(t *testing.T) {
 			}
 
 			// Compare values
+			expectedValues := exp.Values
+			if expectedValues == nil {
+				expectedValues = []any{}
+			}
+			if len(result.Values) != len(expectedValues) {
+				t.Fatalf("values count mismatch for %s: got %d, want %d\n  got:  %v\n  want: %v",
+					name, len(result.Values), len(expectedValues), result.Values, expectedValues)
+			}
+			for i := range expectedValues {
+				got := formatValue(result.Values[i])
+				want := formatValue(expectedValues[i])
+				if got != want {
+					t.Errorf("values[%d] mismatch for %s: got %q, want %q", i, name, got, want)
+				}
+			}
+		})
+	}
+}
+
+func TestCrossRuntime_DuckDB(t *testing.T) {
+	manifestPath := filepath.Join(testutil.FixturesDir(), "duckdb", "manifest.json")
+	manifest, err := vexnor.LoadFile(manifestPath)
+	if err != nil {
+		t.Fatalf("failed to load DuckDB manifest: %v", err)
+	}
+	if manifest.Dialect != "duckdb" {
+		t.Fatalf("manifest dialect = %q, want %q", manifest.Dialect, "duckdb")
+	}
+	registry := vexnor.NewQueryRegistry("duckdb")
+	registry.Load(manifest)
+
+	expectedData, err := os.ReadFile(filepath.Join(testutil.FixturesDir(), "duckdb", "expected.json"))
+	if err != nil {
+		t.Fatalf("failed to load DuckDB expected.json: %v", err)
+	}
+	var expected map[string]*testutil.ExpectedResult
+	if err := json.Unmarshal(expectedData, &expected); err != nil {
+		t.Fatalf("failed to deserialize DuckDB expected.json: %v", err)
+	}
+
+	for name, exp := range expected {
+		t.Run(name, func(t *testing.T) {
+			params, err := deserializeParams(exp.Params)
+			if err != nil {
+				t.Fatalf("failed to deserialize params for %s: %v", name, err)
+			}
+
+			if exp.Error != nil {
+				if _, buildErr := registry.Build(exp.Hash, params); buildErr == nil {
+					t.Fatalf("expected error for %s, got nil", name)
+				}
+				return
+			}
+
+			result, buildErr := registry.Build(exp.Hash, params)
+			if buildErr != nil {
+				t.Fatalf("unexpected error for %s: %v", name, buildErr)
+			}
+			if exp.Text == nil {
+				t.Fatalf("expected text is nil for %s but no error expected", name)
+			}
+			if result.Text != *exp.Text {
+				t.Errorf("text mismatch for %s:\n  got:  %s\n  want: %s", name, result.Text, *exp.Text)
+			}
+
 			expectedValues := exp.Values
 			if expectedValues == nil {
 				expectedValues = []any{}

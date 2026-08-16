@@ -2,11 +2,13 @@ import { use, useTransition } from "react";
 import * as mssql from "#shared/queries/mssql";
 import * as postgres from "#shared/queries/postgres";
 import * as sqlite3 from "#shared/queries/sqlite3";
+import * as duckdb from "#shared/queries/duckdb";
 
 export type AccountRow =
    | typeof postgres.selectAccounts.rowType
    | typeof mssql.selectAccounts.rowType
-   | typeof sqlite3.selectAccounts.rowType;
+   | typeof sqlite3.selectAccounts.rowType
+   | typeof duckdb.selectAccounts.rowType;
 
 export function AccountGrid({
    promise,

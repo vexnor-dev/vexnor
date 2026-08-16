@@ -9,7 +9,7 @@ import { OrderItem, IOrderItemInsert } from "./codegen/main.order_item-table.js"
 import { Product, IProductInsert, IProductSelect } from "./codegen/main.product-table.js";
 import { db } from "./config.js";
 
-describe.sequential("joinBy — e2e sqlite3", () => {
+describe("joinBy — e2e sqlite3", { concurrent: false }, () => {
    let account!: IAccountSelect;
    let order!: IOrderSelect;
    let product!: IProductSelect;
@@ -121,7 +121,7 @@ describe.sequential("joinBy — e2e sqlite3", () => {
    });
 });
 
-describe.sequential("JOIN: sql`` — e2e sqlite3 (raw JOIN arg via CRUD handler)", () => {
+describe("JOIN: sql`` — e2e sqlite3 (raw JOIN arg via CRUD handler)", { concurrent: false }, () => {
    let account!: IAccountSelect;
    let order!: IOrderSelect;
 

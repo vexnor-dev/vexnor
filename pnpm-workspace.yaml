@@ -5,6 +5,7 @@ packages:
   - examples/**
   - tests/**
   - stacks/fixtures
+  - tools/**
   - '!**/dist/**'
   - '!**/build/**'
   - '!**/deploy/**'

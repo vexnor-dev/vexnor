@@ -73,6 +73,19 @@ export interface SqlColumnType {
    tsTypeSelect?: string;
    tsTypeInsert?: string;
    tsImport?: string;
+   typeTree?: SqlColumnTypeTree;
+}
+
+export type SqlColumnTypeTree =
+   | { kind: "scalar"; type: SqlLiteralType; udt?: string }
+   | { kind: "struct"; fields: SqlColumnTypeTreeField[] }
+   | { kind: "list"; value: SqlColumnTypeTree; length?: number }
+   | { kind: "map"; key: SqlColumnTypeTree; value: SqlColumnTypeTree }
+   | { kind: "union"; members: SqlColumnTypeTreeField[] };
+
+export interface SqlColumnTypeTreeField {
+   name: string;
+   value: SqlColumnTypeTree;
 }
 
 export interface SqlEnumValue {

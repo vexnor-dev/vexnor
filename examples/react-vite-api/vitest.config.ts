@@ -16,6 +16,11 @@ export default defineConfig({
          },
       },
       setupFiles: ["./vitest.setup.ts"],
+      server: {
+         deps: {
+            external: ["@vexnor/core", "@vexnor/duckdb", /packages\/core/, /plugins\/duckdb/],
+         },
+      },
       alias: {
          "#": path.resolve(__dirname, "client/src"),
          "#src": path.resolve(__dirname, "client/src"),

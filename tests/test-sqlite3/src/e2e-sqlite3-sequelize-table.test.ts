@@ -22,7 +22,7 @@ class AccountModel extends Model<InferAttributes<AccountModel>, InferCreationAtt
 let sequelize: Sequelize;
 let Account: ReturnType<typeof fromSequelizeTable<AccountModel>>;
 
-describe.sequential("e2e sequelize/sqlite — fromSequelizeTable works against real DB", () => {
+describe("e2e sequelize/sqlite — fromSequelizeTable works against real DB", { concurrent: false }, () => {
    const TAG = "sequelize-sqlite-e2e";
    let account!: InferAttributes<AccountModel>;
 

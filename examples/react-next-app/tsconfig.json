@@ -51,6 +51,9 @@
       },
       {
          "path": "../../plugins/sqlite3"
+      },
+      {
+         "path": "../../plugins/duckdb"
       }
    ]
 }

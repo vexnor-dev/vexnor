@@ -12,6 +12,7 @@
     <ProjectReference Include="..\Vexnor.Postgres\Vexnor.Postgres.csproj" />
     <ProjectReference Include="..\Vexnor.Mssql\Vexnor.Mssql.csproj" />
     <ProjectReference Include="..\Vexnor.Sqlite3\Vexnor.Sqlite3.csproj" />
+    <ProjectReference Include="..\Vexnor.DuckDB\Vexnor.DuckDB.csproj" />
   </ItemGroup>
 
 </Project>
