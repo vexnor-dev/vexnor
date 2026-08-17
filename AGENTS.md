@@ -100,6 +100,33 @@ This is a serious, high-quality codebase. No shortcuts. No lazy work. Ever.
 - If a third-party type is wrong or missing, use a proper type guard, a narrowing function, or a minimal local type that accurately describes the shape.
 - `as any` is only acceptable in the implementation signature of a function overload where TypeScript cannot resolve the return type — and only there.
 
+## Typed SQL authoring
+
+- Build queries from generated `SqlTable` constants and their typed `$field` references. Never replace them with handwritten table or column strings.
+- Declare result columns with `row(...)`. Use `row(Table.$$)` for the complete generated select type and compose it directly with additional typed columns as `row(Table.$$, Other.$field.as("otherField"))`.
+- `Table.$$` preserves generated hierarchical fields. DuckDB `STRUCT`, `LIST`, fixed-array, `MAP`, `UNION`, and nested combinations must remain nested in the inferred result; never flatten or enumerate them to work around inference.
+- Access an individual generated struct member through its typed path, such as `Order.$shipping.$address.$country`. Use generated mapping names at every level.
+- Alias an additional selected column when its result key could collide with a key already contributed by `Table.$$`.
+- Export reusable query result and parameter types with `TypeOf<typeof query>` and `ParamsOf<typeof query>`. Do not repeat inferred row or parameter shapes manually.
+- Do not import, declare, or imitate Vexnor's internal SQL metadata symbols. Query, result, source, and parameter metadata are carried by Vexnor's concrete SQL types.
+- Keep table interpolation and aliases typed: `${Table}` already renders an aliased table expression, and `Table.as\`alias\`` creates a named alias. Do not append a manual SQL alias after `${Table}`.
+
+## Typed SQL primitive implementation
+
+These rules apply only when implementing repository-owned Core or plugin query primitives. Application query authors must continue to follow the rule above and must not interact with internal SQL metadata symbols.
+
+- The base `Sql` class is a rendering token and intentionally owns no result, row, parameter, argument, or source metadata. Never add optional metadata markers back to `Sql`.
+- Prefer an existing typed base class such as `SqlQuery`, `SqlQueryHandler`, `SqlCharm`, `SqlSelectRow`, or `SqlSelectValue` when it already models the new primitive. Preserve the metadata contract inherited from that base.
+- A primitive that directly owns metadata must declare the corresponding symbol as a required property, never an optional property:
+  - `[TYPE]` is the value or complete result type returned by `TypeOf<T>`.
+  - `[ROW]` is the selected row contribution returned by `RowOf<T>` and composed by the `sql` tag.
+  - `[PARAMS]` is the complete named-parameter object returned by `ParamsOf<T>` and collected by query composition.
+  - `[ARGS]` is the primitive's direct argument contract returned by `ArgsOf<T>`.
+  - `[SOURCE]` is the datasource identity returned by `SourceOf<T>` and collected across a query.
+- Declare only the markers the primitive actually owns. A rendering-only token that contributes none of these types must declare none of them.
+- Required marker ownership is what makes the extractor conditionals selective. An optional marker structurally matches unrelated SQL tokens and can make TypeScript recursively traverse nested column metadata until TS2589.
+- Tests for a new typed primitive must assert each intended extractor with `expectTypeOf`, assert unrelated extractors resolve to `void` or `never`, exercise the primitive through real `sql`/`row` composition, and use `@ts-expect-error` for invalid output fields or paths. Recursive row types require nested positive and negative coverage.
+
 ## Tests are not optional
 
 - Every new feature or function must have unit tests. No exceptions.

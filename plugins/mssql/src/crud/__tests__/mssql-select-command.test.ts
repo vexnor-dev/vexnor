@@ -71,6 +71,11 @@ describe("MssqlSelectCommand — constructor and execute()", () => {
           /* </query_2> */
           /* <query_3> */
           /* </query_3> */
+        ORDER BY
+          (
+            SELECT
+              NULL
+          )
         OFFSET
           @param_0 rows
         FETCH NEXT

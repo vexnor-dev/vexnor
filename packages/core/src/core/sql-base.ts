@@ -4,11 +4,20 @@ import { isError } from "#src/lib/is-error.js";
 import { SqlJsonSchema } from "#src/core/utils/sql-json-schema.js";
 import { ok } from "#src/lib/assert.js";
 
-export type TypeOf<S> = S extends { readonly [TYPE]?: infer R } ? R : void;
-export type ArgsOf<S> = S extends { readonly [ARGS]?: infer R } ? R : void;
-export type ParamsOf<S> = S extends { readonly [PARAMS]?: infer R } ? R : void;
-export type RowOf<S> = S extends { readonly [ROW]?: infer R } ? R : void;
-export type SourceOf<S> = S extends { readonly [SOURCE]?: infer R } ? R : never;
+/** Extracts the value or result-row type explicitly carried by a Vexnor SQL token or query. */
+export type TypeOf<S> = S extends { readonly [TYPE]: infer R } ? R : void;
+
+/** Extracts the direct argument type explicitly carried by a Vexnor SQL token or query. */
+export type ArgsOf<S> = S extends { readonly [ARGS]: infer R } ? R : void;
+
+/** Extracts the complete named-parameter object explicitly carried by a Vexnor SQL token or query. */
+export type ParamsOf<S> = S extends { readonly [PARAMS]: infer R } ? R : void;
+
+/** Extracts the result-row contribution explicitly carried by a Vexnor SQL token or query. */
+export type RowOf<S> = S extends { readonly [ROW]: infer R } ? R : void;
+
+/** Extracts the generated source identifier explicitly carried by a Vexnor table or query. */
+export type SourceOf<S> = S extends { readonly [SOURCE]: infer R } ? R : never;
 
 type UnionToIntersection<U> = (U extends unknown ? (x: U) => void : never) extends (x: infer I) => void ? I : never;
 
@@ -41,6 +50,19 @@ export type ParamsOfArgs<T> = [CollectParams<T>] extends [never]
      ? CollectParams<T>
      : void;
 
+/**
+ * Internal type-metadata markers for repository-owned SQL primitive implementations.
+ *
+ * `Sql` intentionally declares none of these markers. A typed subclass declares
+ * only the metadata it owns, using required properties such as
+ * `declare readonly [ROW]: Row`. Required ownership keeps `TypeOf`, `RowOf`,
+ * `ParamsOf`, `ArgsOf`, and `SourceOf` from structurally matching unrelated SQL
+ * tokens and recursively expanding nested column metadata. Rendering-only tokens
+ * declare no metadata markers.
+ *
+ * Application query code must use Vexnor's concrete query and token types instead
+ * of importing or imitating these symbols.
+ */
 export const ROW: unique symbol = Symbol("ROW");
 export const TYPE: unique symbol = Symbol("TYPE");
 export const PARAMS: unique symbol = Symbol("PARAMS");
@@ -52,10 +74,6 @@ export const QUERY: unique symbol = Symbol("QUERY");
 export type SqlOptions = Pick<Sql, "id" | "hashId"> & Partial<Pick<Sql, "tag">> & { type?: string };
 
 export abstract class Sql {
-   declare readonly [ROW]?: unknown;
-   declare readonly [TYPE]?: unknown;
-   declare readonly [PARAMS]?: unknown;
-   declare readonly [ARGS]?: unknown;
    declare readonly [SQL_TOKEN]: never;
 
    readonly id: string;

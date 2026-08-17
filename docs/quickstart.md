@@ -11,6 +11,9 @@ npm install @vexnor/core @vexnor/mssql mssql
 
 # SQLite
 npm install @vexnor/core @vexnor/sqlite3 better-sqlite3
+
+# DuckDB
+npm install @vexnor/core @vexnor/duckdb @duckdb/node-api
 ```
 
 ## Generate Types
@@ -98,6 +101,26 @@ const account = await query.postgres.one({ db: pool });
 // account: { accountId: string; email: string }
 // account.firstName — compile error, not selected
 ```
+
+## Selecting All Columns Plus Additional Columns
+
+Pass `Table.$$` and additional typed columns to the same `row()` call. Alias an additional column when its key could collide with a field from the select-all table:
+
+```typescript
+import { param, row, sql, type ParamsOf, type TypeOf } from '@vexnor/core';
+
+const ordersWithAccount = sql`
+  SELECT ${row(Order.$$, Account.$email.as('accountEmail'))}
+  FROM ${Order}
+  JOIN ${Account} ON ${Account.$accountId} = ${Order.$accountId}
+  WHERE ${Order.$status} = ${param<{ status: string }>('status')}
+`;
+
+type OrdersWithAccountRow = TypeOf<typeof ordersWithAccount>;
+type OrdersWithAccountParams = ParamsOf<typeof ordersWithAccount>;
+```
+
+The row type is `IOrderSelect & { accountEmail: string }`. If `IOrderSelect` contains hierarchical DuckDB columns, their struct, list, map, union, and nested shapes remain unchanged. Do not enumerate or flatten those fields to preserve inference.
 
 ## Computed Columns
 
@@ -212,7 +235,7 @@ All queries expose four execution methods:
 | `.all({ db, params? })` | `T[]` | no |
 | `.run({ db, params? })` | `RunResult` | no |
 
-Works the same across all databases — swap `.postgres` for `.mssql` or `.sqlite`.
+Works the same across all databases — swap `.postgres` for `.mssql`, `.sqlite`, or `.duckdb`.
 
 All methods accept an optional `options` object:
 

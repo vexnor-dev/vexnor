@@ -12,4 +12,5 @@ export interface CodegenCommandOptions {
    port?: number;
    config?: string;
    profile?: string;
+   selectionConfig?: string;
 }

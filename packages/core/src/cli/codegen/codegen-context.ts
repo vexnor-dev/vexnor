@@ -1,8 +1,9 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 import to from "to-case";
 import { CodeWriter } from "#src/lib/code-writer.js";
-import { VexnorPluginAny, SqlEnumInfo } from "#src/plugin/plugin.js";
+import { VexnorPluginAny } from "#src/plugin/plugin.js";
 import { GenerateConfig } from "#src/config/config-types.js";
+import type { SchemaCatalogEnum } from "#src/schema/schema-catalog.js";
 
 export class CodegenContextModel {
    readonly outDir: string;
@@ -11,7 +12,8 @@ export class CodegenContextModel {
    readonly includeEnums?: boolean;
    readonly generate: GenerateConfig | null;
    readonly source: string;
-   readonly enums: SqlEnumInfo[];
+   readonly dialect: string;
+   readonly enums: SchemaCatalogEnum[];
    readonly getColumnName: (columnName: string) => string;
    readonly getTableName: (tableName: string) => string;
 
@@ -22,6 +24,7 @@ export class CodegenContextModel {
       this.includeEnums = args.includeEnums;
       this.generate = args.generate ?? null;
       this.source = args.source ?? "";
+      this.dialect = args.dialect ?? args.plugin.dialect;
       this.enums = args.enums ?? [];
       this.getColumnName = (columnName: string) => (this.camelCaseColumns ? to.camel(columnName) : columnName);
       this.getTableName = (tableName: string) => to.pascal(tableName);
@@ -53,5 +56,6 @@ export type CodegenContextArgs = {
    includeEnums?: boolean;
    generate?: GenerateConfig | null;
    source?: string;
-   enums?: SqlEnumInfo[];
+   dialect?: string;
+   enums?: SchemaCatalogEnum[];
 };

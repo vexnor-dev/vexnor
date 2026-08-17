@@ -46,7 +46,7 @@ export type PathType<T, Path extends string> = Path extends `${infer Head}.${inf
 
 export class SqlParam<T extends SqlParamTypeArgs> extends Sql {
    declare readonly [PARAMS]: PathToNested<T["Name"], T["Type"]>;
-   declare readonly [ARGS]?: T["Type"];
+   declare readonly [ARGS]: T["Type"];
 
    readonly name: T["Name"];
    readonly isContext: boolean;

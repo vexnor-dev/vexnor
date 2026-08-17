@@ -20,7 +20,7 @@ export const OrderItem = vexnor.newSqlTable<{
       name: "order_item",
       schema: "main",
    },
-   pk: ["orderId"],
+   pk: ["orderId","productId"],
    dialect: "sqlite",
    source: "@vexnor/example-react-vite-api:shared/codegen/sqlite3",
    columns: {
@@ -66,8 +66,8 @@ export const OrderItem = vexnor.newSqlTable<{
       metadata: "metadata",
    },
    fk: [
-      { from: ["orderId"], to: { schema: "main", table: "order", columns: ["orderId"] } },
       { from: ["productId"], to: { schema: "main", table: "product", columns: ["productId"] } },
+      { from: ["orderId"], to: { schema: "main", table: "order", columns: ["orderId"] } },
    ],
    dbSchema: {
       orderId: { dbType: "TEXT", type: vexnor.SqlLiteralType.String },

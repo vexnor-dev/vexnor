@@ -47,6 +47,18 @@ describe("vexnor mssql CRUD - select", { concurrent: false }, async (ctx) => {
       expect(result).toMatchObject(rootAccount);
    });
 
+   test("select: runtime limit without orderBy", async () => {
+      const limitParam = param<{ limit: number }>("limit");
+      const query = Account.mssql.select({ limit: limitParam });
+
+      const results = await query.all({
+         db: pool.request(),
+         params: { limit: 1 },
+      });
+
+      expect(results).toHaveLength(1);
+   });
+
    test("select: with ORDER_BY + offset + limit", async () => {
       ok(rootAccount, `'rootAccount' is required.`);
       const offsetParam = param<{ offset: number }>("offset");

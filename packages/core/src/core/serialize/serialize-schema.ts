@@ -34,6 +34,10 @@ export interface SchemaManifestForeignKey {
    targetTable: string;
    /** Target column (camelCase key on the target table). */
    targetColumn: string;
+   /** Complete source columns for a composite relationship. */
+   columns?: string[];
+   /** Complete target columns for a composite relationship. */
+   targetColumns?: string[];
 }
 
 /** Table definition in the schema manifest. */
@@ -44,6 +48,16 @@ export interface SchemaManifestTable {
    pk: string[];
    /** Foreign key references. */
    fk: SchemaManifestForeignKey[];
+   /** Catalog object kind when the source mapping provides it. */
+   kind?: "table" | "view";
+}
+
+export interface SerializeSchemaOptions {
+   /**
+    * `stable-identity` keeps the historical PK and partition filtering.
+    * `all-readable` includes every SqlTable supplied to the serializer.
+    */
+   include?: "stable-identity" | "all-readable";
 }
 
 /**
@@ -55,23 +69,26 @@ export interface SchemaManifestTable {
  *
  * @param schema - A record of SqlTable instances (same format SchemaGraph accepts).
  * @param dialect - The SQL dialect (e.g., "postgresql", "transactsql", "sqlite").
+ * @param options - Controls whether only stable-identity tables or every readable mapping is included.
  */
 export function serializeSchema(
    schema: Record<string, unknown>,
    dialect: string,
+   options: SerializeSchemaOptions = {},
 ): SchemaManifest {
    const tables: Record<string, SchemaManifestTable> = {};
+   const include = options.include ?? "stable-identity";
 
    for (const entity of Object.values(schema)) {
       if (!isTable(entity)) continue;
-      const t = entity as SqlTableAny;
+      const t = entity;
 
       // Skip tables without PKs (views)
-      if (!t.pk || (t.pk as unknown[]).length === 0) continue;
+      if (include === "stable-identity" && (!t.pk || (t.pk as unknown[]).length === 0)) continue;
 
       // Skip partition tables
       const name = t.tableInfo.name;
-      if (name.includes("_p20") || name.includes("_p0000")) continue;
+      if (include === "stable-identity" && (name.includes("_p20") || name.includes("_p0000"))) continue;
 
       const tableSchema = t.tableInfo.schema ?? "public";
       const key = `${tableSchema}.${name}`;
@@ -91,12 +108,14 @@ export function serializeSchema(
          column: f.from[0]!,
          targetTable: `${f.to.schema || tableSchema}.${f.to.table}`,
          targetColumn: f.to.columns[0]!,
+         ...(f.from.length > 1 ? { columns: [...f.from], targetColumns: [...f.to.columns] } : {}),
       }));
 
       tables[key] = {
          columns,
          pk: t.pk as string[],
          fk,
+         ...(isCatalogTable(t) ? { kind: t.objectKind } : {}),
       };
    }
 
@@ -121,4 +140,9 @@ function isTable(entity: unknown): entity is SqlTableAny {
       "colKeys" in entity &&
       "pk" in entity
    );
+}
+
+function isCatalogTable(table: SqlTableAny): table is SqlTableAny & { catalogId: string; objectKind: "table" | "view" } {
+   return "catalogId" in table && typeof table.catalogId === "string" &&
+      "objectKind" in table && (table.objectKind === "table" || table.objectKind === "view");
 }

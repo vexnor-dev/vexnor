@@ -92,6 +92,28 @@ const selectOrderItems = sql`
 `;
 ```
 
+`$$` selects the complete generated row and composes with additional columns without flattening recursive values:
+
+```typescript
+import { type TypeOf } from '@vexnor/core';
+import { Account } from './models/main.account-table.js';
+
+const ordersWithAccount = sql`
+  SELECT ${row(Orders.$$, Account.$email.as('accountEmail'))}
+  FROM ${Orders}
+  JOIN ${Account} ON ${Account.$accountId} = ${Orders.$accountId}
+`;
+
+type OrdersWithAccountRow = TypeOf<typeof ordersWithAccount>;
+
+declare const result: OrdersWithAccountRow;
+result.shipping?.address?.country;
+result.items?.[0]?.product?.productId;
+result.accountEmail;
+```
+
+The fields contributed by `Orders.$$` retain their generated `IOrderSelect` types, including structs, lists, fixed arrays, maps, unions, and nested combinations. Alias an additional column when its result key would collide with one of those fields. Do not enumerate or flatten recursive columns to preserve inference.
+
 `unnest()` accepts a generated list column and exposes a typed relation. It can be chained for deeper lists, for example `unnest(Items.$discounts).as('discount')`. Unknown fields and non-list arguments fail TypeScript compilation.
 
 An ordinary `param()` value occupies one placeholder, so DuckDB can bind a complete list or struct value:

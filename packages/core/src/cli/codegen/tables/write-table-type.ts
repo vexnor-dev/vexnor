@@ -1,13 +1,14 @@
 import { CodeWriter } from "#src/lib/code-writer.js";
-import { PrintTableArgs, SqlForeignKeyInfo, SqlLiteralType } from "#src/plugin/plugin.js";
+import { SqlForeignKeyInfo, SqlLiteralType } from "#src/plugin/plugin.js";
 import { getCodegenContext } from "#src/cli/codegen/codegen-context.js";
 import { isColumnStructure, writeColumnStructure } from "#src/cli/codegen/tables/write-column-type.js";
+import type { SchemaCatalogObject } from "#src/schema/schema-catalog.js";
 
-export function writeTableType(writer: CodeWriter, { table }: PrintTableArgs) {
-   const { getTableName, getColumnName, plugin } = getCodegenContext();
-   const { table_name, columns, table_schema, primary_keys, table_type, foreign_keys } = table;
-   const isView = table_type === "view";
-   const tableTypeName = getTableName(table_name);
+export function writeTableType(writer: CodeWriter, { table }: { table: SchemaCatalogObject }) {
+   const { getColumnName, dialect } = getCodegenContext();
+   const { name, columns, schema, primaryKey, kind, relationships, mappingName } = table;
+   const isView = kind === "view";
+   const tableTypeName = mappingName;
    const tableTypePrefix = `I${tableTypeName}`;
    const tableTypeSelect = `${tableTypePrefix}Select`;
    const tableTypeInsert = `${tableTypePrefix}Insert`;
@@ -38,53 +39,47 @@ export function writeTableType(writer: CodeWriter, { table }: PrintTableArgs) {
          writer
             .write("tableInfo:")
             .inlineBlock(() => {
-               writer.writeLine(`name: "${table_name}",`);
-               writer.writeLine(`schema: "${table_schema}",`);
+               writer.writeLine(`name: "${name}",`);
+               writer.writeLine(`schema: "${schema}",`);
             })
             .writeLine(",");
-         writer.writeLine(
-            `pk: [${primary_keys.length ? `"${primary_keys.map((pk) => getColumnName(pk.column_name)).join('","')}"` : ""}],`,
-         );
-         writer.writeLine(`dialect: "${getCodegenContext().plugin.dialect}",`);
+         writer.writeLine(`pk: [${primaryKey ? `"${primaryKey.columns.map(getColumnName).join('","')}"` : ""}],`);
+         writer.writeLine(`dialect: "${dialect}",`);
          writer.writeLine(`source: "${getCodegenContext().source}",`);
          writer
             .write(`columns:`)
             .inlineBlock(() => {
                columns.forEach((col) => {
-                  const colAlias = getColumnName(col.column_name);
+                  const colAlias = col.mappingName;
                   writer.blankLine();
                   writer
                      .writeLine(`/**`)
-                     .write(` * ${col.column_name} ${col.udt_name}`)
-                     .write(col.column_default ? ` default ${col.column_default}` : "")
+                     .write(` * ${col.physicalName} ${col.nativeType}`)
+                     .write(col.default ? ` default ${col.default}` : "")
                      .newLine()
                      .writeLine(` */`)
-                     .writeLine(`${colAlias}: "${col.column_name}",`);
+                     .writeLine(`${colAlias}: "${col.physicalName}",`);
                });
             })
             .writeLine(",");
-         const columnTypes = columns.map((col) => {
-            const colType = plugin.getColumnType(col);
-            if (!colType) {
-               throw new Error(
-                  `plugin.getColumnType() returned undefined for column "${col.column_name}" on table "${table_name}"`,
-               );
-            }
-            return { col, colType };
-         });
-         const dateColumns = columnTypes.filter(({ colType }) => colType?.type === SqlLiteralType.Date);
+         const dateColumns = columns.filter((column) => column.normalizedType === SqlLiteralType.Date);
          if (dateColumns.length) {
             writer
                .write(`jsonSchema:`)
                .inlineBlock(() => {
-                  dateColumns.forEach(({ col }) => {
-                     writer.writeLine(`${getColumnName(col.column_name)}: "Date",`);
+                  dateColumns.forEach((column) => {
+                     writer.writeLine(`${column.mappingName}: "Date",`);
                   });
                })
                .writeLine(",");
          }
          // Emit foreign keys (tables only, not views)
-         const fks = groupForeignKeys(foreign_keys ?? [], getColumnName);
+         const fks = relationships.map((relationship) => ({
+            from: relationship.columnPairs.map((pair) => getColumnName(pair.from)),
+            toSchema: relationship.toObject.slice(0, relationship.toObject.indexOf(".")),
+            toTable: relationship.toObject.slice(relationship.toObject.indexOf(".") + 1),
+            toColumns: relationship.columnPairs.map((pair) => getColumnName(pair.to)),
+         }));
          if (!isView && fks.length) {
             writer.writeLine(`fk: [`);
             fks.forEach((fk) => {
@@ -98,36 +93,38 @@ export function writeTableType(writer: CodeWriter, { table }: PrintTableArgs) {
          const { enums } = getCodegenContext();
          writer
             .write(`dbSchema:`)
-               .inlineBlock(() => {
-                  columnTypes.forEach(({ col, colType }) => {
-                     const colAlias = getColumnName(col.column_name);
-                     const nullable = col.is_nullable === "YES";
-                     const parts: string[] = [
-                        `dbType: ${JSON.stringify(col.udt_name ?? col.data_type ?? "unknown")}`,
-                        `type: vexnor.SqlLiteralType.${Object.entries(SqlLiteralType).find(([, v]) => v === colType.type)?.[0] ?? "Unknown"}`,
-                     ];
-                     if (nullable) parts.push(`nullable: true`);
-                     if (col.column_default != null) parts.push(`default: ${JSON.stringify(col.column_default)}`);
-                     if (colType.type === SqlLiteralType.Udt && colType.udt) {
-                        const enumInfo = enums.find((e) => e.enum_name === colType.udt);
-                        if (enumInfo) {
-                           parts.push(`values: [${enumInfo.enum_values.map((v) => `"${v.enum_label}"`).join(", ")}]`);
-                        }
+            .inlineBlock(() => {
+               columns.forEach((col) => {
+                  const colAlias = col.mappingName;
+                  const typeTree = col.typeTree;
+                  const parts: string[] = [
+                     `dbType: ${JSON.stringify(col.nativeType)}`,
+                     `type: vexnor.SqlLiteralType.${Object.entries(SqlLiteralType).find(([, value]) => value === col.normalizedType)?.[0] ?? "Unknown"}`,
+                  ];
+                  if (col.nullable) parts.push(`nullable: true`);
+                  if (col.default != null) parts.push(`default: ${JSON.stringify(col.default)}`);
+                  if (col.normalizedType === SqlLiteralType.Udt && col.customType?.udt) {
+                     const enumInfo = enums.find((entry) => entry.id === `${schema}.${col.customType?.udt}`);
+                     if (enumInfo) {
+                        parts.push(`values: [${enumInfo.values.map((value) => `"${value}"`).join(", ")}]`);
                      }
-                     const { typeTree } = colType;
-                     if (typeTree && isColumnStructure(typeTree)) {
-                        writer.write(`${colAlias}:`).inlineBlock(() => {
+                  }
+                  if (typeTree && isColumnStructure(typeTree)) {
+                     writer
+                        .write(`${colAlias}:`)
+                        .inlineBlock(() => {
                            parts.forEach((part) => writer.writeLine(`${part},`));
                            writer.write("structure:");
-                           writeColumnStructure(writer, typeTree, getColumnName);
+                           writeColumnStructure(writer, typeTree);
                            writer.writeLine(",");
-                        }).writeLine(",");
-                     } else {
-                        writer.writeLine(`${colAlias}: { ${parts.join(", ")} },`);
-                     }
-                  });
-               })
-               .writeLine(",");
+                        })
+                        .writeLine(",");
+                  } else {
+                     writer.writeLine(`${colAlias}: { ${parts.join(", ")} },`);
+                  }
+               });
+            })
+            .writeLine(",");
       })
       .write(");");
 }

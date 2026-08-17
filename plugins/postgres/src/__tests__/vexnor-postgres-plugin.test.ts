@@ -18,6 +18,10 @@ describe("VexnorPostgres plugin class", () => {
       expect(plugin.dialect).toMatchInlineSnapshot(`"postgresql"`);
    });
 
+   test("version matches the package version", () => {
+      expect(plugin.version).toMatchInlineSnapshot(`"1.0.0-beta.3"`);
+   });
+
    test("getLibrary returns empty array", () => {
       expect(plugin.getLibrary()).toMatchInlineSnapshot(`[]`);
    });

@@ -5,7 +5,7 @@ import {
    SqlQueryFormat,
    SqlQueryType,
 } from "#src/core/query/sql-query-types.js";
-import { ARGS, PARAMS, SOURCE, Sql, TYPE } from "#src/core/sql-base.js";
+import { ARGS, PARAMS, ROW, SOURCE, Sql, TYPE } from "#src/core/sql-base.js";
 import { Lazy } from "#src/lib/lazy.js";
 import { BuildSqlParams, SqlParam, SqlParamAny } from "#src/core/query/sql-param.js";
 import { SqlQueryAll, SqlQueryRow } from "#src/core/query/sql-models.js";
@@ -105,9 +105,10 @@ export function toQuery(value: unknown): SqlQueryAny | null {
 
 export class SqlQuery<T extends { Row?: unknown; Params?: unknown; Sources?: string }> extends Sql implements SqlQueryBase<T> {
    declare readonly [TYPE]: T["Row"];
+   declare readonly [ROW]: T["Row"];
    declare readonly [PARAMS]: T["Params"];
    declare readonly [ARGS]: T["Params"];
-   declare readonly [SOURCE]?: T["Sources"];
+   declare readonly [SOURCE]: T["Sources"];
 
    readonly rawStrings: TemplateStringsArray;
    readonly rawValues: unknown[];

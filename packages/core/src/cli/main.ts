@@ -4,6 +4,10 @@ import { initCommand, InitOptions } from "#src/cli/exec/init-command.js";
 import { codegenCommand } from "#src/cli/codegen/codegen-command.js";
 import { CodegenCommandOptions } from "#src/cli/codegen/types/types.js";
 import { serializeCommand, SerializeOptions } from "#src/cli/serialize/serialize-command.js";
+import { schemaSelectCommand, SchemaSelectCommandOptions } from "#src/cli/schema/schema-select-command.js";
+import { schemaMcpCommand, SchemaMcpCommandOptions } from "#src/cli/schema/schema-mcp-command.js";
+import { schemaDiscoverCommand, SchemaDiscoverCommandOptions } from "#src/cli/schema/schema-discover-command.js";
+import { parseNumberOption } from "#src/cli/parse-number-option.js";
 
 const main = new Command();
 
@@ -40,6 +44,7 @@ main
    .option("--omit <tables...>", "Table names to omit from codegen (e.g. migration_vexnor or schema.table_name)")
    .option("-c, --config <path>", "Path to vexnor.config.ts", "vexnor.config.ts")
    .option("-p, --profile <profile>", "Profile to use from vexnor.config.ts")
+   .option("--selection-config <path>", "Override the local selection config path")
    .action(async (options: CodegenCommandOptions) => {
       await codegenCommand(options);
    });
@@ -52,6 +57,45 @@ exec
    .option("-f, --force", "Overwrite existing files")
    .action(async (options: InitOptions) => {
       await initCommand(options);
+   });
+
+const schema = main.command("schema").description("Discover and work with datasource schemas");
+
+schema
+   .command("discover")
+   .description("List database schemas exposed by a Vexnor profile")
+   .option("-c, --config <path>", "Path to vexnor.config.ts", "vexnor.config.ts")
+   .option("-p, --profile <profile>", "Profile to use from vexnor.config.ts")
+   .action(async (options: SchemaDiscoverCommandOptions) => {
+      await schemaDiscoverCommand(options);
+   });
+
+schema
+   .command("select")
+   .description("Review and persist the schema objects exposed by a Vexnor profile")
+   .option("-c, --config <path>", "Path to vexnor.config.ts", "vexnor.config.ts")
+   .option("-p, --profile <profile>", "Profile to use from vexnor.config.ts")
+   .option("--selection-config <path>", "Override the local selection config path")
+   .option("--include <objects...>", "Select only these schema-qualified objects")
+   .option("--exclude <objects...>", "Exclude these schema-qualified objects")
+   .option("--all", "Select every discovered object")
+   .option("--save", "Persist a non-interactive selection override")
+   .action(async (options: SchemaSelectCommandOptions) => {
+      await schemaSelectCommand(options);
+   });
+
+schema
+   .command("mcp")
+   .description("Serve selected read-only datasource tools over stdio MCP")
+   .option("-c, --config <path>", "Path to vexnor.config.ts", "vexnor.config.ts")
+   .option("-p, --profile <profile>", "Profile to use from vexnor.config.ts")
+   .option("--selection-config <path>", "Override the local selection config path")
+   .requiredOption("--tools <tools...>", "Explicit enabled tools: getSchema, join, fetchData")
+   .option("--max-rows <number>", "Maximum rows returned by one fetch", parseNumberOption, 100)
+   .option("--timeout-ms <number>", "Maximum query execution time in milliseconds", parseNumberOption, 30_000)
+   .option("--max-concurrency <number>", "Maximum concurrent local queries", parseNumberOption, 1)
+   .action(async (options: SchemaMcpCommandOptions) => {
+      await schemaMcpCommand(options);
    });
 
 exec
@@ -80,4 +124,4 @@ main
       await serializeCommand(options);
    });
 
-main.parse();
+await main.parseAsync();

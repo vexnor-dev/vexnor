@@ -366,6 +366,31 @@ import type { DuckDBInterval, DuckDBTimeTZ } from '@vexnor/duckdb';
 
 PIVOT, UNPIVOT, QUALIFY, ASOF JOIN, LATERAL JOIN, GROUPING SETS, CUBE, ROLLUP, list comprehensions, and struct literals all work through `sql` tagged templates with full parameterization.
 
+### Hierarchical Columns
+
+Selecting all generated columns does not flatten hierarchical values. `$$` can be composed with an additional column from another table while the complete `IOrderSelect` shape is retained:
+
+```typescript
+import { type TypeOf } from '@vexnor/core';
+
+const ordersWithAccount = sql`
+  SELECT ${row(Orders.$$, Account.$email.as('accountEmail'))}
+  FROM ${Orders}
+  JOIN ${Account} ON ${Account.$accountId} = ${Orders.$accountId}
+`;
+
+type OrdersWithAccountRow = TypeOf<typeof ordersWithAccount>;
+
+declare const result: OrdersWithAccountRow;
+result.shipping?.address?.country;
+result.items?.[0]?.product?.productId;
+result.accountEmail;
+```
+
+Structs, lists, fixed arrays, maps, unions, and their nested combinations retain the generated select-side hierarchy. Alias additional columns when they would otherwise reuse a key already contributed by `Orders.$$`.
+
+Ordinary `param()` values bind complete lists and structs as one placeholder. Use `each()` only when an array must expand into multiple SQL placeholders, such as an `IN (...)` list.
+
 ### Notes
 
 - Parameters use `$1`, `$2`, ... placeholders

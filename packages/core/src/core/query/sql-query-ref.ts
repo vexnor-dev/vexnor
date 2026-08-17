@@ -1,4 +1,4 @@
-import { ARGS, PARAMS, QUERY, SOURCE, Sql, TYPE } from "#src/core/sql-base.js";
+import { ARGS, PARAMS, QUERY, ROW, SOURCE, Sql, TYPE } from "#src/core/sql-base.js";
 import { SqlQuery, SqlQueryColumns } from "#src/core/query/sql-query.js";
 import { SqlQueryOptions } from "#src/core/query/sql-query-types.js";
 import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
@@ -18,9 +18,10 @@ export type SqlQueryRefExtended<T extends { Row?: unknown; Params?: unknown; Sou
 export class SqlQueryRef<T extends { Row?: unknown; Params?: unknown; Sources?: string }> extends Sql {
    declare readonly [QUERY]: SqlQuery<T>;
    declare readonly [TYPE]: T["Row"];
+   declare readonly [ROW]: T["Row"];
    declare readonly [PARAMS]: T["Params"];
    declare readonly [ARGS]: T["Params"];
-   declare readonly [SOURCE]?: T["Sources"];
+   declare readonly [SOURCE]: T["Sources"];
 
    private readonly _rowLazy = new Lazy<SqlQueryRow<T>>(this.initRow.bind(this));
 

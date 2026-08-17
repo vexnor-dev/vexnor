@@ -199,6 +199,16 @@ export class SqlSelectRow<T extends { Row: Record<string, unknown> }> extends Sq
  * // result: { name: string }
  *
  * @example
+ * // All generated fields plus a column from another table. Hierarchical fields
+ * // contributed by Order.$$ retain their complete generated types.
+ * sql`
+ *   SELECT ${row(Order.$$, Account.$email.as("accountEmail"))}
+ *   FROM ${Order}
+ *   JOIN ${Account} ON ${Account.$accountId} = ${Order.$accountId}
+ * `
+ * // result: IOrderSelect & { accountEmail: string }
+ *
+ * @example
  * // Mixing table columns and a computed value
  * sql`
  *   SELECT ${row(

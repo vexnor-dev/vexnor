@@ -37,6 +37,11 @@
       "types": "./dist/execution/execution.d.ts",
       "require": "./dist/execution/execution.js"
     },
+    "./schema": {
+      "import": "./dist/schema/schema.js",
+      "types": "./dist/schema/schema.d.ts",
+      "require": "./dist/schema/schema.js"
+    },
     "./testing": {
       "import": "./dist/test/testing.js",
       "types": "./dist/test/testing.d.ts",
@@ -97,6 +102,8 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "@sinclair/typebox": "^0.34.52",
     "commander": "^9.1.0",
     "pino": "^7.10.0",
     "to-case": "^2.0.0",

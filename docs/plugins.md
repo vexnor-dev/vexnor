@@ -9,6 +9,7 @@ Each database plugin provides schema introspection, type mapping, and query exec
 | `@vexnor/postgres` | PostgreSQL | `pg` |
 | `@vexnor/mssql` | MS SQL Server | `mssql` |
 | `@vexnor/sqlite3` | SQLite | `better-sqlite3` |
+| `@vexnor/duckdb` | DuckDB | `@duckdb/node-api` |
 
 See [Databases](databases.md) for setup and dialect details.
 
@@ -153,7 +154,7 @@ For full Prisma adaptor details see `packages/@vexnor/prisma/README.md`.
 
 ## Custom Query Namespace
 
-You can expose a project-specific accessor (e.g. `sql`...`.myProject`) that works identically to the built-in `.postgres` / `.mssql` / `.sqlite` accessors. This is the same mechanism the plugins themselves use — there is nothing special about `.postgres`.
+You can expose a project-specific accessor (e.g. `sql`...`.myProject`) that works identically to the built-in `.postgres` / `.mssql` / `.sqlite` / `.duckdb` accessors. This is the same mechanism the plugins themselves use — there is nothing special about `.postgres`.
 
 Create a side-effect module (e.g. `src/db.ts`) that does two things:
 
@@ -238,4 +239,4 @@ class MyPlugin extends VexnorPlugin<{ Connection: MyConnection; Config: MyConfig
 }
 ```
 
-Plugins attach to `SqlQuery.prototype` at import time via module augmentation — that's how `.postgres` / `.mssql` / `.sqlite` are added to every query.
+Plugins attach to `SqlQuery.prototype` at import time via module augmentation — that's how `.postgres` / `.mssql` / `.sqlite` / `.duckdb` are added to every query.

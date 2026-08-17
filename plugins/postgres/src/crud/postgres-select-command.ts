@@ -48,8 +48,9 @@ export type PostgresSelectCommandResult<
 export class PostgresSelectCommand<
    T extends { Select: Record<string, unknown> },
    Args extends SqlSelectArgs<T>,
-> extends SqlSelectCommand<T, Args> {
-   constructor(table: SqlTable<T>, args: Args) {
+   M extends Record<string, SqlTableAny> = Record<string, never>,
+> extends SqlSelectCommand<T, Args, M> {
+   constructor(table: SqlTable<T>, args: Args, joinMap?: M) {
       const pgInfo = info({ driver: "postgres" });
 
       // Compute include hooks before calling super — super needs them for validation
@@ -71,7 +72,7 @@ export class PostgresSelectCommand<
               }
             : undefined;
 
-      super(table, baseArgs as Args, pgInfo, undefined, undefined, hooks);
+      super(table, baseArgs as Args, pgInfo, joinMap, undefined, hooks);
    }
 
    /**
