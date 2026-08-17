@@ -1,5 +1,44 @@
 # Queries
 
+## Selecting Rows and Inferring the Query Contract
+
+Use generated table and column references inside `row()`. `Table.$$` contributes the table's complete generated select type and can be combined with additional columns from another table or query:
+
+```typescript
+import { param, row, sql, type ParamsOf, type TypeOf } from '@vexnor/core';
+
+const ordersWithAccount = sql`
+  SELECT ${row(Order.$$, Account.$email.as('accountEmail'))}
+  FROM ${Order}
+  JOIN ${Account} ON ${Account.$accountId} = ${Order.$accountId}
+  WHERE ${Order.$status} = ${param<{ status: string }>('status')}
+`;
+
+export type OrdersWithAccountRow = TypeOf<typeof ordersWithAccount>;
+export type OrdersWithAccountParams = ParamsOf<typeof ordersWithAccount>;
+```
+
+`OrdersWithAccountRow` is `IOrderSelect & { accountEmail: string }`. Alias additional columns when their keys could collide with a field already selected by `$$`.
+
+Generated hierarchical fields remain hierarchical when selected through `$$`. For example, a DuckDB `shipping` struct and `items` list retain the exact nested shapes declared by `IOrderSelect`; composing another column does not flatten, widen, or discard them. Use typed nested paths such as `Order.$shipping.$address.$country` only when selecting an individual nested member.
+
+`TypeOf<typeof query>` is the canonical reusable result-row type, while `ParamsOf<typeof query>` is the canonical parameter type. Query authors and code-generating AI should not reproduce those shapes manually or interact with Vexnor's internal metadata markers.
+
+```typescript
+declare const result: OrdersWithAccountRow;
+
+result.shipping?.address?.country;
+result.items?.[0]?.product?.productId;
+result.accountEmail;
+
+// @ts-expect-error — coordinates are not a top-level selected field
+result.coordinates;
+```
+
+The same composition works across PostgreSQL, SQLite, Microsoft SQL Server through the MSSQL/TSQL plugin, and DuckDB.
+
+---
+
 ## Subqueries
 
 A `sql` query is a first-class object — it can be embedded in another `sql` tag directly.

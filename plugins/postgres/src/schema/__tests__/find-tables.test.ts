@@ -1,7 +1,27 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, expectTypeOf, test } from "vitest";
 import { findTables } from "#src/schema/find-tables.js";
+import { SqlColumnInfo, SqlForeignKeyInfo, SqlPrimaryKeyInfo } from "@vexnor/core/plugin";
+import type { Pool } from "pg";
 
 describe("Find Tables tests", () => {
+   test("retains recursive select-all output through the query handler", () => {
+      function executeFindTables(db: Pool) {
+         return findTables.postgres.all({ db, params: { schemas: ["public"] } });
+      }
+
+      type Rows = Awaited<ReturnType<typeof executeFindTables>>;
+
+      expectTypeOf<Rows>().toEqualTypeOf<
+         Array<{
+            table_name: string;
+            table_schema: string;
+            columns: SqlColumnInfo[];
+            primary_keys: SqlPrimaryKeyInfo[];
+            foreign_keys: SqlForeignKeyInfo[];
+         }>
+      >();
+   });
+
    test("Find Tables query should match expected SQL", () => {
       const { text, values } = findTables.getSql({
          params: { schemas: ["public"] },

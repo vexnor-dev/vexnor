@@ -157,7 +157,7 @@ Real SQL. Full type inference from what you select. Composable subqueries.
 
 ```typescript
 import { Account, AccountStatusUdt, Order, OrderItem } from './models/vexnor_dev.schema.js';
-import { sql, row, param, col } from '@vexnor/core';
+import { sql, row, param, col, type ParamsOf, type TypeOf } from '@vexnor/core';
 import { jsonMany } from '@vexnor/postgres';
 import '@vexnor/postgres';
 
@@ -204,6 +204,22 @@ const typed: {
 // @ts-expect-error — lastName was not selected
 accounts[0]!.lastName;
 ```
+
+Select-all composes with additional columns from another table or query. `TypeOf` and `ParamsOf` expose the exact inferred contract without repeating it manually:
+
+```typescript
+const ordersWithAccount = sql`
+  SELECT ${row(Order.$$, Account.$email.as('accountEmail'))}
+  FROM ${Order}
+  JOIN ${Account} ON ${Account.$accountId} = ${Order.$accountId}
+  WHERE ${Order.$status} = ${param<{ status: string }>('status')}
+`;
+
+export type OrdersWithAccountRow = TypeOf<typeof ordersWithAccount>;
+export type OrdersWithAccountParams = ParamsOf<typeof ordersWithAccount>;
+```
+
+`OrdersWithAccountRow` contains every field from `IOrderSelect` plus `accountEmail`. Generated hierarchical fields—including DuckDB structs, lists, maps, unions, and nested combinations—retain their complete nested types. Alias additional columns when their result keys would collide with a field already selected by `$$`.
 
 ## CRUD
 

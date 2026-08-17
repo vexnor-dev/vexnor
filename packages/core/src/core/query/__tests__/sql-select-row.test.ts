@@ -1,4 +1,4 @@
-import { assertType, describe, expect, test } from "vitest";
+import { assertType, describe, expect, expectTypeOf, test } from "vitest";
 import { InferResultRowFromColumns, row, SqlSelectRow } from "#src/core/query/sql-select-row.js";
 import { Account } from "@test-models/vexnor_dev.account-table.js";
 import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
@@ -12,6 +12,8 @@ import { IAccountSelect } from "#src/test/testing.js";
 import { SqlQuery } from "#src/core/query/sql-query.js";
 import { newSqlTableColumn, SqlTableColumn } from "#src/core/schema/sql-table-column.js";
 import { SqlTableIdentity } from "#src/core/schema/sql-table-identity.js";
+import { TypeOf } from "#src/core/sql-base.js";
+import { newSqlTable } from "#src/core/schema/sql-table.js";
 
 describe("SqlSelectRow tests", () => {
    test("infer result row from select row", () => {
@@ -158,6 +160,156 @@ describe("SqlSelectRow tests", () => {
       };
 
       expect(row).toBeDefined();
+   });
+
+   test("composes recursive table select-all output with an additional table column", () => {
+      type DuckDBRecursiveSelect = {
+         structValue: {
+            label: string | null;
+            coordinates: { latitude: number | null; longitude: number | null } | null;
+         } | null;
+         listValue: Array<{
+            itemId: string | null;
+            tags: Array<string | null> | null;
+         } | null>;
+         mapValue: Array<{
+            key: string;
+            value: { enabled: boolean | null; weights: Array<number | null> | null } | null;
+         }>;
+         unionValue: string | number | { code: string | null };
+         nestedValue: {
+            listOfMaps: Array<Array<{
+               key: string;
+               value: { payload: string | number | null } | null;
+            }> | null> | null;
+         } | null;
+      };
+      const RecursiveTable = newSqlTable<{
+         Select: DuckDBRecursiveSelect;
+         Source: "@vexnor/test:recursive-select-all";
+      }>({
+         crud: { select: true, insert: false, update: false, delete: false },
+         tableInfo: { name: "recursive_table", schema: "main" },
+         pk: [],
+         dialect: "duckdb",
+         source: "@vexnor/test:recursive-select-all",
+         columns: {
+            structValue: "struct_value",
+            listValue: "list_value",
+            mapValue: "map_value",
+            unionValue: "union_value",
+            nestedValue: "nested_value",
+         },
+      });
+      const query = sql`
+         select ${row(RecursiveTable.$$, Order.$orderId)}
+         from ${RecursiveTable}
+         join ${Order} on 1 = 1
+      `;
+
+      type QueryRow = TypeOf<typeof query>;
+      expectTypeOf<QueryRow["structValue"]>().toEqualTypeOf<DuckDBRecursiveSelect["structValue"]>();
+      expectTypeOf<QueryRow["listValue"]>().toEqualTypeOf<DuckDBRecursiveSelect["listValue"]>();
+      expectTypeOf<QueryRow["mapValue"]>().toEqualTypeOf<DuckDBRecursiveSelect["mapValue"]>();
+      expectTypeOf<QueryRow["unionValue"]>().toEqualTypeOf<DuckDBRecursiveSelect["unionValue"]>();
+      expectTypeOf<QueryRow["nestedValue"]>().toEqualTypeOf<DuckDBRecursiveSelect["nestedValue"]>();
+      expectTypeOf<QueryRow["orderId"]>().toEqualTypeOf<string>();
+
+      const rejectInvalidRecursivePaths = (value: QueryRow) => {
+         // @ts-expect-error - The composed result must not accept unknown top-level fields.
+         void value.missingValue;
+         // @ts-expect-error - Coordinates belong under structValue, not at the row root.
+         void value.coordinates;
+         // @ts-expect-error - The nested struct must retain its declared field names.
+         void value.structValue?.coordinates?.altitude;
+         // @ts-expect-error - Recursive list members use the declared output key, not the database-style key.
+         void value.listValue[0]?.item_id;
+         // @ts-expect-error - The map value struct must reject undeclared fields.
+         void value.mapValue[0]?.value?.weight;
+         if (typeof value.unionValue === "object") {
+            // @ts-expect-error - The narrowed union struct must reject undeclared members.
+            void value.unionValue.missingCode;
+         }
+         // @ts-expect-error - Deeply nested map values must retain their payload field exactly.
+         void value.nestedValue?.listOfMaps[0]?.[0]?.value?.missingPayload;
+         // @ts-expect-error - Recursive numeric leaves must not widen to string.
+         const invalidLatitude: string | null | undefined = value.structValue?.coordinates?.latitude;
+         return invalidLatitude;
+      };
+
+      expect(rejectInvalidRecursivePaths).toBeDefined();
+      // @ts-expect-error - The query must expose only fields selected by $$ plus the explicit additional column.
+      expect(query.$status).toBeUndefined();
+
+      expect({
+         postgresql: query.getSql({ options: { dialect: "postgresql" } }),
+         sqlite: query.getSql({ options: { dialect: "sqlite" } }),
+         transactsql: query.getSql({ options: { dialect: "transactsql" } }),
+         duckdb: query.getSql({ options: { dialect: "duckdb" } }),
+      }).toMatchInlineSnapshot(`
+        {
+          "duckdb": {
+            "text": "/* <query_0> */
+        SELECT
+          "rt_1"."struct_value" AS "structValue",
+          "rt_1"."list_value" AS "listValue",
+          "rt_1"."map_value" AS "mapValue",
+          "rt_1"."union_value" AS "unionValue",
+          "rt_1"."nested_value" AS "nestedValue",
+          "o_2"."order_id" AS "orderId"
+        FROM
+          "main"."recursive_table" AS "rt_1"
+          JOIN "main"."order" AS "o_2" ON 1 = 1
+          /* </query_0> */",
+            "values": [],
+          },
+          "postgresql": {
+            "text": "/* <query_0> */
+        SELECT
+          "rt_1"."struct_value" AS "structValue",
+          "rt_1"."list_value" AS "listValue",
+          "rt_1"."map_value" AS "mapValue",
+          "rt_1"."union_value" AS "unionValue",
+          "rt_1"."nested_value" AS "nestedValue",
+          "o_2"."order_id" AS "orderId"
+        FROM
+          "main"."recursive_table" AS "rt_1"
+          JOIN "main"."order" AS "o_2" ON 1 = 1
+          /* </query_0> */",
+            "values": [],
+          },
+          "sqlite": {
+            "text": "/* <query_0> */
+        SELECT
+          "rt_1"."struct_value" AS "structValue",
+          "rt_1"."list_value" AS "listValue",
+          "rt_1"."map_value" AS "mapValue",
+          "rt_1"."union_value" AS "unionValue",
+          "rt_1"."nested_value" AS "nestedValue",
+          "o_2"."order_id" AS "orderId"
+        FROM
+          "main"."recursive_table" AS "rt_1"
+          JOIN "main"."order" AS "o_2" ON 1 = 1
+          /* </query_0> */",
+            "values": [],
+          },
+          "transactsql": {
+            "text": "/* <query_0> */
+        SELECT
+          "rt_1"."struct_value" AS "structValue",
+          "rt_1"."list_value" AS "listValue",
+          "rt_1"."map_value" AS "mapValue",
+          "rt_1"."union_value" AS "unionValue",
+          "rt_1"."nested_value" AS "nestedValue",
+          "o_2"."order_id" AS "orderId"
+        FROM
+          "main"."recursive_table" AS "rt_1"
+          JOIN "main"."order" AS "o_2" ON 1 = 1
+          /* </query_0> */",
+            "values": [],
+          },
+        }
+      `);
    });
 
    test("row(...columns) should match expected type", () => {

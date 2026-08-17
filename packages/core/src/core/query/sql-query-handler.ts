@@ -14,7 +14,7 @@ import { isVexnorConnection } from "#src/plugin/vexnor-connection.js";
 import type { SqlPipelineExecutionArgs } from "#src/execution/sql-query-pipeline-plugin.js";
 import { runWithRetry } from "#src/core/query/sql-retry.js";
 import { getQueryName } from "#src/core/query/sql-query-name.js";
-import { ARGS, PARAMS, QUERY, Sql, TYPE } from "#src/core/sql-base.js";
+import { ARGS, PARAMS, QUERY, ROW, Sql, TYPE } from "#src/core/sql-base.js";
 import { SqlBuildContext } from "#src/core/builder/sql-build-context.js";
 import { SqlBuildOptions } from "#src/core/builder/sql-build-options.js";
 import { SqlParamAny } from "#src/core/query/sql-param.js";
@@ -32,6 +32,7 @@ export abstract class SqlQueryHandler<
 {
    declare readonly [QUERY]: SqlQuery<Pick<T, "Row" | "Params">>;
    declare readonly [TYPE]: T["Row"];
+   declare readonly [ROW]: T["Row"];
    declare readonly [PARAMS]: T["Params"];
    declare readonly [ARGS]: T["Params"];
 

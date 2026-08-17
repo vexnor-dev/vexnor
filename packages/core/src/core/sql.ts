@@ -35,6 +35,16 @@ export type SqlQueryToken = _SqlInlineValue_ | _SqlInlineValue_[];
  * `;
  * // findById.params: { $id: SqlParam }
  * // findById result type: IAccountSelect
+ *
+ * @example
+ * // Select all generated fields plus a column from another table.
+ * const ordersWithAccount = sql`
+ *   SELECT ${row(Order.$$, Account.$email.as("accountEmail"))}
+ *   FROM ${Order}
+ *   JOIN ${Account} ON ${Account.$accountId} = ${Order.$accountId}
+ * `;
+ * type Result = TypeOf<typeof ordersWithAccount>;
+ * // Result: IOrderSelect & { accountEmail: string }
  */
 export function sql<Token extends SqlQueryToken = SqlQueryToken, Tokens extends Token[] = Token[]>(
    rawStrings: TemplateStringsArray,

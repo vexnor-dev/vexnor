@@ -77,7 +77,7 @@ export type SqlTableExtendedAny = SqlTableExtended<any>;
 
 export class SqlTable<T extends SqlTableTypeArgs> extends Sql {
    declare readonly [TABLE]?: typeof this.tableInfo.name;
-   declare readonly [SOURCE]?: T["Source"];
+   declare readonly [SOURCE]: T["Source"];
 
    private static registry = new Map<string, SqlTableAny>();
    private static _connections = new Map<string, SqlTableForeignKey[]>();
@@ -153,7 +153,20 @@ export class SqlTable<T extends SqlTableTypeArgs> extends Sql {
       return this._out.value;
    }
 
-   /** Selects all columns from this table — equivalent to `SELECT *` but fully typed. */
+   /**
+    * Selects every generated column from this table with its complete select type.
+    *
+    * Pass `Table.$$` to `row()` by itself or compose it with additional typed
+    * columns. Structured column values retain their generated hierarchy.
+    *
+    * @example
+    * sql`
+    *   SELECT ${row(Order.$$, Account.$email.as("accountEmail"))}
+    *   FROM ${Order}
+    *   JOIN ${Account} ON ${Account.$accountId} = ${Order.$accountId}
+    * `
+    * // result: IOrderSelect & { accountEmail: string }
+    */
    get $$(): SqlTableAll<T["Select"]> {
       return this._$$.value;
    }

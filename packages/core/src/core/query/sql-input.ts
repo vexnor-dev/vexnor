@@ -6,7 +6,7 @@ import { Cache } from "#src/lib/cache.js";
 
 export class SqlInput<T extends { Params: Record<string, unknown> }> extends Sql {
    declare readonly [PARAMS]: T["Params"];
-   declare readonly [ARGS]?: T["Params"];
+   declare readonly [ARGS]: T["Params"];
 
    // eslint-disable-next-line unused-imports/no-unused-vars
    write(_context: SqlBuildContext, _options?: SqlBuildOptions) {}

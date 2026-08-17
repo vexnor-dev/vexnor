@@ -1,11 +1,12 @@
-import { assertType, describe, expect, test } from "vitest";
+import { assertType, describe, expect, expectTypeOf, test } from "vitest";
 import { Account, IAccountSelect } from "@test-models/vexnor_dev.account-table.js";
 import { InferTable$RowBySelect } from "#src/core/types/infer-types.js";
 import { newSqlTableColumn } from "#src/core/schema/sql-table-column.js";
 import { param, SqlParam } from "#src/core/query/sql-param.js";
-import { ParamsOf, ParamsOfArgs } from "#src/core/sql-base.js";
+import { ArgsOf, ParamsOf, ParamsOfArgs, RowOf, SourceOf, TypeOf } from "#src/core/sql-base.js";
 import { sql } from "#src/core/sql.js";
 import { Void } from "#src/core/utils/utility-types.js";
+import { row } from "#src/core/query/sql-select-row.js";
 
 describe("SqlBase tests", () => {
    test("InferSqlRowFromRecord", () => {
@@ -154,6 +155,29 @@ describe("SqlBase tests", () => {
       const id1 = sql`${Account}`;
       type Params = ParamsOf<typeof id1>;
       assertType<Params>(void 0);
+   });
+
+   test("extracts only explicitly owned SQL metadata", () => {
+      const accountId = param<{ accountId: string }>("accountId");
+      const query = sql`select ${row(Account.$accountId)} from ${Account} where ${Account.$accountId} = ${accountId}`;
+
+      expectTypeOf<TypeOf<typeof Account>>().toEqualTypeOf<void>();
+      expectTypeOf<RowOf<typeof Account>>().toEqualTypeOf<void>();
+      expectTypeOf<ParamsOf<typeof Account>>().toEqualTypeOf<void>();
+      expectTypeOf<ArgsOf<typeof Account>>().toEqualTypeOf<void>();
+      expectTypeOf<SourceOf<typeof Account>>().toEqualTypeOf<"test">();
+
+      expectTypeOf<TypeOf<typeof accountId>>().toEqualTypeOf<void>();
+      expectTypeOf<RowOf<typeof accountId>>().toEqualTypeOf<void>();
+      expectTypeOf<ParamsOf<typeof accountId>>().toEqualTypeOf<{ accountId: string }>();
+      expectTypeOf<ArgsOf<typeof accountId>>().toEqualTypeOf<string>();
+      expectTypeOf<SourceOf<typeof accountId>>().toEqualTypeOf<never>();
+
+      expectTypeOf<TypeOf<typeof query>>().toEqualTypeOf<{ accountId: string }>();
+      expectTypeOf<RowOf<typeof query>>().toEqualTypeOf<{ accountId: string }>();
+      expectTypeOf<ParamsOf<typeof query>>().toEqualTypeOf<{ accountId: string }>();
+      expectTypeOf<ArgsOf<typeof query>>().toEqualTypeOf<{ accountId: string }>();
+      expectTypeOf<SourceOf<typeof query>>().toEqualTypeOf<"test">();
    });
 
    test("ParamsOfKeys<{ a: SqlQuery<{Params:void}>; b: SqlQuery<{Params:{}}> }> is {}", () => {

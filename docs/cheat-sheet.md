@@ -10,7 +10,7 @@ Quick reference for all composable APIs.
 // Core — query building
 import { sql, row, col, param, ctx, raw, val, excluded, DEFAULT, filter, set, orderBy, filterBy } from '@vexnor/core';
 import { HttpRemoteClient, connect } from '@vexnor/core';
-import type { FilterOp, FilterCondition, FilterConditionList } from '@vexnor/core';
+import type { FilterOp, FilterCondition, FilterConditionList, ParamsOf, TypeOf } from '@vexnor/core';
 
 // Execution — registry, pipelines, errors
 import { SqlQueryRegistry, SqlQueryPipeline, AuditLogPlugin, TimeToLiveRateLimiter } from '@vexnor/core/execution';
@@ -22,10 +22,11 @@ import { defineConfig, defineQueryConfig } from '@vexnor/core/config';
 // Telemetry
 import '@vexnor/core/telemetry';
 
-// Plugins (side-effect imports — augment .postgres, .mssql, .sqlite3)
+// Plugins (side-effect imports — augment .postgres, .mssql, .sqlite, .duckdb)
 import '@vexnor/postgres';
 import '@vexnor/mssql';
 import '@vexnor/sqlite3';
+import '@vexnor/duckdb';
 
 // Plugin-specific helpers
 import { jsonMany, jsonOne, transaction, savepoint } from '@vexnor/postgres';
@@ -56,6 +57,9 @@ row(Account.$accountId, Account.$email)
 
 // Mix tables
 row(Account.$accountId, Order.$orderId, Order.$status)
+
+// All columns from one table plus an aliased column from another
+row(Order.$$, Account.$email.as('accountEmail'))
 ```
 
 ---
@@ -68,6 +72,8 @@ Expands to every column of the table.
 sql`SELECT ${row(Account.$$)} FROM ${Account}`
 // result: IAccountSelect (all columns)
 ```
+
+`$$` contributes the table's complete generated select type. It composes with other columns in the same `row()` call and preserves hierarchical field types. Alias any additional column whose key would collide with a field already contributed by `$$`.
 
 ---
 
@@ -162,6 +168,19 @@ const findByEmail = sql`
 await findByEmail.postgres.all({ db: pool, params: { email: 'jane@example.com' } });
 //                                                   ^^^^^^ type-checked
 ```
+
+---
+
+## `TypeOf<T>` / `ParamsOf<T>` — Query Contract
+
+Extract reusable result-row and parameter types from the query itself:
+
+```typescript
+type FindByEmailRow = TypeOf<typeof findByEmail>;
+type FindByEmailParams = ParamsOf<typeof findByEmail>;
+```
+
+Do not duplicate inferred row or parameter shapes manually. These helpers read the metadata explicitly carried by Vexnor query types; application code must not declare internal metadata markers.
 
 ---
 
