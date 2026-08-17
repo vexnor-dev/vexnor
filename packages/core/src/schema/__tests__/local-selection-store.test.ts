@@ -1,7 +1,7 @@
-import { chmod, mkdtemp, readdir, readFile, writeFile } from "node:fs/promises";
+import { chmod, mkdir, mkdtemp, readdir, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import {
    LOCAL_SELECTION_FORMAT_VERSION,
    loadLocalSelection,
@@ -9,6 +9,11 @@ import {
    saveLocalSelection,
 } from "#src/schema/local-selection-store.js";
 import type { SchemaSelectionScope } from "#src/schema/schema-selection.js";
+
+vi.mock("node:crypto", async (importOriginal) => ({
+   ...(await importOriginal<typeof import("node:crypto")>()),
+   randomUUID: () => "selection-test",
+}));
 
 const scope: SchemaSelectionScope = {
    formatVersion: 1,
@@ -417,6 +422,31 @@ describe("local selection store", () => {
             "message": "Failed to atomically write local selection config: <path>",
             "name": "LocalSelectionConfigError",
           },
+        }
+      `);
+   });
+
+   test("reports a temporary-file cleanup failure", async () => {
+      const directory = await temporaryDirectory();
+      const filePath = path.join(directory, "vexnor.local.json");
+      const temporaryPath = path.join(directory, `.vexnor.local.json.${process.pid}.selection-test.tmp`);
+      await mkdir(temporaryPath);
+      let cleanupError: { name: string; message: string } | undefined;
+
+      try {
+         await saveLocalSelection({ filePath, profile: "dev", scope });
+      } catch (error) {
+         if (!(error instanceof Error)) throw error;
+         cleanupError = {
+            name: error.name,
+            message: error.message.replace(temporaryPath, "<temporary-path>"),
+         };
+      }
+
+      expect(cleanupError).toMatchInlineSnapshot(`
+        {
+          "message": "Failed to clean up local selection temporary file: <temporary-path>",
+          "name": "LocalSelectionConfigError",
         }
       `);
    });

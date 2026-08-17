@@ -273,6 +273,17 @@ describe("createLocalDataTools", () => {
       await localSession.close();
    });
 
+   test("rejects selected objects without a registered read query", async () => {
+      const { localSession } = await session();
+      Object.defineProperty(localSession, "queries", { configurable: true, value: [] });
+      const tools = createLocalDataTools(localSession);
+
+      await expect(tools.getSchema()).rejects.toThrowErrorMatchingInlineSnapshot(
+         `[InvalidLocalQueryParametersError: Missing local read query for selected schema object: alpha.record]`,
+      );
+      await localSession.close();
+   });
+
    test("returns one selected object's complete schema and selected relationships", async () => {
       const { localSession } = await session();
       const tools = createLocalDataTools(localSession);

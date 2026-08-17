@@ -512,6 +512,140 @@ describe("createRuntimeSchemaMappings", () => {
       `);
    });
 
+   test("preserves recursive list, map, and union catalog structures in runtime mappings", async () => {
+      const currentCatalog = createSchemaCatalog({
+         plugin: {
+            ...plugin,
+            getColumnType: () => ({
+               type: SqlLiteralType.Json,
+               typeTree: {
+                  kind: "list",
+                  value: {
+                     kind: "struct",
+                     fields: [
+                        {
+                           name: "attribute_map",
+                           value: {
+                              kind: "map",
+                              key: { kind: "scalar", type: SqlLiteralType.String },
+                              value: { kind: "scalar", type: SqlLiteralType.Number },
+                           },
+                        },
+                        {
+                           name: "choice_value",
+                           value: {
+                              kind: "union",
+                              members: [
+                                 { name: "text_value", value: { kind: "scalar", type: SqlLiteralType.String } },
+                                 { name: "number_value", value: { kind: "scalar", type: SqlLiteralType.Number } },
+                              ],
+                           },
+                        },
+                     ],
+                  },
+               },
+            }),
+         },
+         schema: {
+            enums: [],
+            tables: [{
+               table_schema: "alpha",
+               table_name: "recursive_record",
+               table_type: "table",
+               columns: [column("alpha", "recursive_record", "nested_values")],
+               primary_keys: [],
+               foreign_keys: [],
+            }],
+         },
+         naming: { camelCaseColumns: true },
+      });
+      const selection = await resolveSchemaSelection({
+         catalog: currentCatalog,
+         request: { mode: "non-interactive", all: true },
+      });
+      const table = createRuntimeSchemaMappings({ catalog: currentCatalog, selection: selection.scope }).mappings[0]!
+         .table;
+
+      expect({
+         typeTree: currentCatalog.objects[0]!.columns[0]!.typeTree,
+         dbSchema: table.dbSchema.nestedValues,
+      }).toMatchInlineSnapshot(`
+        {
+          "dbSchema": {
+            "dbType": "text",
+            "structure": {
+              "kind": "list",
+              "value": {
+                "fields": {
+                  "attributeMap": {
+                    "fieldName": "attribute_map",
+                  },
+                  "choiceValue": {
+                    "fieldName": "choice_value",
+                  },
+                },
+                "kind": "struct",
+              },
+            },
+            "type": "Json",
+          },
+          "typeTree": {
+            "kind": "list",
+            "length": null,
+            "value": {
+              "fields": [
+                {
+                  "mappingName": "attributeMap",
+                  "physicalName": "attribute_map",
+                  "value": {
+                    "key": {
+                      "kind": "scalar",
+                      "type": "string",
+                      "udt": null,
+                    },
+                    "kind": "map",
+                    "value": {
+                      "kind": "scalar",
+                      "type": "number",
+                      "udt": null,
+                    },
+                  },
+                },
+                {
+                  "mappingName": "choiceValue",
+                  "physicalName": "choice_value",
+                  "value": {
+                    "kind": "union",
+                    "members": [
+                      {
+                        "mappingName": "textValue",
+                        "physicalName": "text_value",
+                        "value": {
+                          "kind": "scalar",
+                          "type": "string",
+                          "udt": null,
+                        },
+                      },
+                      {
+                        "mappingName": "numberValue",
+                        "physicalName": "number_value",
+                        "value": {
+                          "kind": "scalar",
+                          "type": "number",
+                          "udt": null,
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+              "kind": "struct",
+            },
+          },
+        }
+      `);
+   });
+
    test("builds a selected graph containing PK-less tables and views with complete composite join paths", async () => {
       const currentCatalog = catalog();
       const selection = await resolveSchemaSelection({
@@ -691,6 +825,27 @@ describe("createRuntimeSchemaMappings", () => {
          }),
       ).toThrowErrorMatchingInlineSnapshot(
          `[Error: Column is missing from schema catalog object alpha.record: missing_tenant_id]`,
+      );
+
+      const missingTargetObject = catalog();
+      const originalObjects = missingTargetObject.objects;
+      let objectReads = 0;
+      Object.defineProperty(missingTargetObject, "objects", {
+         configurable: true,
+         get() {
+            objectReads += 1;
+            return objectReads === 1
+               ? originalObjects
+               : originalObjects.filter((object) => object.id !== "alpha.record");
+         },
+      });
+      expect(() =>
+         createRuntimeSchemaMappings({
+            catalog: missingTargetObject,
+            selection: targetSelection.scope,
+         }),
+      ).toThrowErrorMatchingInlineSnapshot(
+         `[Error: Relationship target is missing from schema catalog: alpha.record]`,
       );
    });
 });

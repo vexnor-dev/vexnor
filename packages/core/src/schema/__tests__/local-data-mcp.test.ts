@@ -342,6 +342,43 @@ describe("startLocalDataMcpServer", () => {
       await run.closed;
    });
 
+   test("dispatches join requests through the MCP tool boundary", async () => {
+      const { client, run } = await connectClient(["join"]);
+
+      expect(await client.callTool({
+         name: "join",
+         arguments: {
+            root: { schema: "alpha", table: "record" },
+            targets: [{ schema: "alpha", table: "record" }],
+         },
+      })).toMatchInlineSnapshot(`
+        {
+          "content": [
+            {
+              "text": "{"objectIds":["alpha.record"],"name":"join_3e52a76f019304cd","plugin":"@vexnor/mcp-test","hash":"3e52a76f019304cdf9d519164c54a07488af693fe94aa09c6ca8ce21f26d69ff","columns":["record_id"],"kind":"join","joinBy":{}}",
+              "type": "text",
+            },
+          ],
+          "structuredContent": {
+            "columns": [
+              "record_id",
+            ],
+            "hash": "3e52a76f019304cdf9d519164c54a07488af693fe94aa09c6ca8ce21f26d69ff",
+            "joinBy": {},
+            "kind": "join",
+            "name": "join_3e52a76f019304cd",
+            "objectIds": [
+              "alpha.record",
+            ],
+            "plugin": "@vexnor/mcp-test",
+          },
+        }
+      `);
+
+      await client.close();
+      await run.closed;
+   });
+
    test("returns typed local errors without exposing unexpected execution failures", async () => {
       const { client, run, session, query } = await connectClient(["getSchema", "fetchData"]);
 

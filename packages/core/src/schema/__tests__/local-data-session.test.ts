@@ -450,6 +450,22 @@ describe("createLocalDataSession", () => {
       await localSession.close();
    });
 
+   test("rejects a relationship result that does not contain a Vexnor query", async () => {
+      const { localSession } = await session({ catalog: schemaCatalog(true) });
+      Object.defineProperty(localSession.graph, "joinBy", {
+         configurable: true,
+         value: () => ({ query: {} }),
+      });
+
+      await expect(localSession.registerJoin({
+         from: "alpha.event_log",
+         targets: [{ table: "alpha.record" }],
+      })).rejects.toThrowErrorMatchingInlineSnapshot(
+         `[MissingRelationshipPathError: Resolved relationship path did not produce a Vexnor query]`,
+      );
+      await localSession.close();
+   });
+
    test("enforces the concurrency budget", async () => {
       let release: (() => void) | undefined;
       const pending = new Promise<void>((resolve) => { release = resolve; });
