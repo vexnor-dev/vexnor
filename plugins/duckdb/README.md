@@ -134,7 +134,102 @@ File sources remain inside DuckDB's execution engine; Vexnor does not load the c
 const csvRows = await sql`select * from read_csv_auto(${csvPath})`.duckdb.all({ db: connection.db });
 const jsonRows = await sql`select * from read_json_auto(${jsonPath})`.duckdb.all({ db: connection.db });
 const parquetRows = await sql`select * from read_parquet(${parquetPath})`.duckdb.all({ db: connection.db });
+
+// Glob patterns for multi-file queries
+const allSales = await sql`select * from read_parquet(${'/data/*.parquet'})`.duckdb.all({ db: connection.db });
 ```
+
+## ATTACH — Multi-Database Queries
+
+Attach external DuckDB files and query across databases in a single statement:
+
+```typescript
+await connection.db.run(`ATTACH 'warehouse.duckdb' AS warehouse`);
+
+// Cross-database JOIN
+const result = await sql`
+  SELECT a.email, w.stock
+  FROM account a
+  JOIN warehouse.main.inventory w ON a.account_id = w.account_id
+`.duckdb.all({ db: connection.db });
+
+// Read-only attach
+await connection.db.run(`ATTACH 'archive.duckdb' AS archive (READ_ONLY)`);
+
+await connection.db.run('DETACH warehouse');
+```
+
+## ETL Pipelines
+
+```typescript
+// COPY FROM — bulk import from files into tables
+await connection.db.run(`COPY transactions FROM 'data.csv' (FORMAT CSV, HEADER)`);
+await connection.db.run(`COPY customers FROM 'customers.parquet' (FORMAT PARQUET)`);
+
+// CREATE TABLE AS SELECT — transform and materialize
+await sql`
+  CREATE TABLE customer_summary AS
+  SELECT c.name, count(*) as orders, sum(t.amount) as total
+  FROM read_parquet(${customersPath}) c
+  JOIN read_csv_auto(${transactionsPath}) t ON c.id = t.customer_id
+  GROUP BY c.name
+`.duckdb.run({ db: connection.db });
+
+// EXPORT / IMPORT DATABASE — full backup and restore
+await connection.db.run(`EXPORT DATABASE '/backup' (FORMAT PARQUET)`);
+// ... later, in a fresh database:
+await freshConnection.db.run(`IMPORT DATABASE '/backup'`);
+```
+
+## Custom Types
+
+DuckDB columns with types that differ between insert and select export named types:
+
+```typescript
+import type { DuckDBInterval, DuckDBTimeTZ } from '@vexnor/duckdb';
+
+// DuckDBInterval = { months: number; days: number; micros: bigint }
+// DuckDBTimeTZ = { micros: bigint; offset: number }
+```
+
+Insert types accept `string` (e.g., `"1 year 2 months"` for INTERVAL, `"12:34:56+05:30"` for TIMETZ). Select types return the structured native values above.
+
+## Type Mapping
+
+| DuckDB Type | Insert TypeScript Type | Select TypeScript Type |
+|---|---|---|
+| `VARCHAR`, `TEXT`, `UUID` | `string` | `string` |
+| `INTEGER`, `SMALLINT`, `FLOAT`, `DOUBLE` | `number` | `number` |
+| `BIGINT`, `HUGEINT`, `UBIGINT`, `UHUGEINT` | `BigInt` | `BigInt` |
+| `BOOLEAN` | `boolean` | `boolean` |
+| `DATE`, `TIMESTAMP`, `TIMESTAMPTZ` | `Date` | `Date` |
+| `DECIMAL(p,s)` | `string` | `string` (lossless, no precision loss) |
+| `TIME` | `string` | `bigint` (microseconds since midnight) |
+| `TIMETZ` | `string` | `DuckDBTimeTZ` |
+| `INTERVAL` | `string` | `DuckDBInterval` |
+| `BIT` | `string` | `Uint8Array` |
+| `BLOB` | `Uint8Array` | `Uint8Array` |
+| `JSON` | `unknown` | `unknown` (raw JSON string) |
+| `STRUCT(...)` | nested object (snake_case keys) | nested object (camelCase keys) |
+| `MAP(K, V)` | `Map<K, V>` | `Array<{ key: K; value: V \| null }>` |
+| `UNION(...)` | union of member scalar types | `{ tag: string; value: T \| null }` |
+| `type[]` | `Array<T \| null>` | `Array<T \| null>` |
+| `ENUM(...)` | generated const enum type | generated const enum type |
+
+DECIMAL values are returned as strings to preserve full precision. A `DECIMAL(38,10)` value like `1234567890123456789012345678.1234567890` is kept exactly — no floating-point approximation.
+
+## DuckDB-Specific SQL Features
+
+These work through `sql` tagged templates with full parameterization:
+
+- **PIVOT / UNPIVOT** — reshape between wide and long formats
+- **QUALIFY** — filter window function results directly
+- **ASOF JOIN** — time-series joins matching the nearest preceding row
+- **LATERAL JOIN** — correlated table functions in FROM
+- **GROUPING SETS / CUBE / ROLLUP** — multi-level aggregation
+- **List comprehensions** — `[x * x for x in generate_series(1, 5)]`
+- **Struct literals** — `{'x': 1, 'y': 2}::STRUCT(x INTEGER, y INTEGER)`
+- **UNION type** — tagged sum types with `union_value()`, `union_tag()`, `union_extract()`
 
 ## Extensions
 
@@ -173,3 +268,165 @@ The Go client requires a working CGO toolchain. Install a C/C++ compiler for the
 ## Bundlers
 
 The package's `sideEffects` metadata preserves the module augmentation that registers `.duckdb`. Do not remove or narrow those entries. The browser export provides query construction and remote-execution support; local DuckDB connections require a supported native Node.js runtime.
+
+## Query Patterns
+
+Common patterns for AI-assisted query generation.
+
+### Raw SQL with typed results
+
+```typescript
+import { row } from '@vexnor/core';
+import { sql } from '@vexnor/duckdb';
+import { Account } from './codegen/main.account-table.js';
+
+// Select specific columns — result type is inferred from row()
+const accounts = await sql`
+  SELECT ${row(Account.$accountId, Account.$email, Account.$status)}
+  FROM ${Account}
+  WHERE ${Account.$status} = ${'confirmed'}
+  ORDER BY ${Account.$email} ASC
+  LIMIT ${10}
+`.duckdb.all({ db });
+// Type: { accountId: string; email: string; status: AccountStatusUdt }[]
+```
+
+### Parameterized queries with reusable params
+
+```typescript
+import { param, row } from '@vexnor/core';
+import { sql } from '@vexnor/duckdb';
+
+type FindAccountParams = { email: string; limit: number };
+
+const findByEmail = sql`
+  SELECT ${row(Account.$$)}
+  FROM ${Account}
+  WHERE ${Account.$email} = ${param<FindAccountParams>('email')}
+  LIMIT ${param<FindAccountParams>('limit')}
+`;
+
+const results = await findByEmail.duckdb.all({
+  db,
+  params: { email: 'user@example.com', limit: 5 },
+});
+```
+
+### CRUD operations
+
+```typescript
+// INSERT — returns inserted rows with server-generated defaults
+const inserted = await Account.duckdb.insertRows().one({
+  db,
+  params: { rows: [{ email: 'new@example.com', firstName: 'New', lastName: 'User' }] },
+});
+
+// SELECT with filtering, ordering, pagination
+const page = await Account.duckdb.select({
+  WHERE: sql`${Account.$status} = ${'confirmed'}`,
+  ORDER_BY: sql`${Account.$createdAt} DESC`,
+}).all({ db, params: { limit: 20, offset: 0 } });
+
+// UPDATE — returns updated row
+const updated = await Account.duckdb.update({
+  WHERE: sql`${Account.$accountId} = ${param<{ id: string }>('id')}`,
+}).one({ db, params: { id: accountId, set: { status: 'confirmed' } } });
+
+// DELETE — returns deleted row
+const deleted = await Account.duckdb.delete({
+  WHERE: sql`${Account.$accountId} = ${accountId}`,
+}).one({ db });
+
+// UPSERT — insert or update on conflict
+const upserted = await Account.duckdb.upsert({
+  CONFLICT_ON: [Account.$accountId],
+}).one({ db, params: { rows: [{ accountId: id, email: 'upsert@example.com', firstName: 'Up', lastName: 'Sert' }] } });
+```
+
+### JOIN queries
+
+```typescript
+import { SqlTable, row, sql as coreSql } from '@vexnor/core';
+import { sql } from '@vexnor/duckdb';
+
+// Declarative joinBy — type-safe multi-table queries
+SqlTable.register(Account);
+SqlTable.register(Order);
+
+const query = Order.join({ account: Account }).select({});
+const orders = await query.duckdb.all({
+  db,
+  params: {
+    joinBy: { account: { on: [['_.accountId', '=', 'account.accountId']] } },
+    orderBy: { createdAt: 'DESC' },
+    limit: 10,
+  },
+});
+
+// Raw SQL join — full control
+const result = await coreSql`
+  SELECT ${row(Order.$$)}
+  FROM ${Order}
+  JOIN ${Account} ON ${Account.$accountId} = ${Order.$accountId}
+  WHERE ${Account.$email} = ${'user@example.com'}
+`.duckdb.all({ db });
+```
+
+### JSON aggregation (nested includes)
+
+```typescript
+import { DuckDBSelectCommand, jsonMany, jsonOne, sql } from '@vexnor/duckdb';
+import { row } from '@vexnor/core';
+
+// includeOne — correlated 1:1 subquery as nested object
+// includeMany — correlated 1:N subquery as nested array
+const accountsWithOrders = await new DuckDBSelectCommand(Account, {
+  WHERE: sql`${Account.$status} = ${'confirmed'}`,
+  includeMany: {
+    orders: new DuckDBSelectCommand(Order, {
+      WHERE: sql`${Order.$accountId} = ${Account.out.$accountId}`,
+    }).execute(),
+  },
+}).execute().all({ db, params: {} });
+// Type: { ...IAccountSelect; orders: IOrderSelect[] }[]
+
+// Or with raw SQL jsonMany/jsonOne charms:
+const ordersQuery = sql`
+  SELECT ${row(Order.$$)} FROM ${Order}
+  WHERE ${Order.$accountId} = ${Account.out.$accountId}
+`;
+const result = await sql`
+  SELECT ${row(Account.$$)}, ${jsonMany(ordersQuery).as('orders')}
+  FROM ${Account}
+  WHERE ${Account.$accountId} = ${accountId}
+`.duckdb.one({ db });
+```
+
+### File-based analytics
+
+```typescript
+import { sql } from '@vexnor/duckdb';
+
+// Join parquet + CSV + in-memory table in one query
+const report = await sql`
+  SELECT
+    a.email,
+    r.region_name,
+    sum(s.amount)::DOUBLE as total_sales
+  FROM account a
+  JOIN read_parquet(${salesParquetPath}) s ON a.account_id = s.customer_id
+  JOIN read_csv_auto(${regionsCsvPath}) r ON s.region_code = r.code
+  GROUP BY a.email, r.region_name
+  ORDER BY total_sales DESC
+  LIMIT ${10}
+`.duckdb.all({ db });
+
+// Window functions
+const ranked = await sql`
+  SELECT
+    ${row(Account.$email, Account.$createdAt)},
+    row_number() OVER (ORDER BY ${Account.$createdAt} DESC) as rank
+  FROM ${Account}
+  QUALIFY rank <= 5
+`.duckdb.all({ db });
+```
