@@ -27,7 +27,7 @@ export const Account = vexnor.newSqlTable<{
    columns: {
 
       /**
-       * account_id undefined default uuid()
+       * account_id UUID default uuid()
        */
       accountId: "account_id",
 
@@ -37,37 +37,37 @@ export const Account = vexnor.newSqlTable<{
       status: "status",
 
       /**
-       * email undefined
+       * email VARCHAR
        */
       email: "email",
 
       /**
-       * first_name undefined
+       * first_name VARCHAR
        */
       firstName: "first_name",
 
       /**
-       * last_name undefined
+       * last_name VARCHAR
        */
       lastName: "last_name",
 
       /**
-       * notes undefined
+       * notes VARCHAR
        */
       notes: "notes",
 
       /**
-       * created_at undefined default current_timestamp
+       * created_at TIMESTAMP WITH TIME ZONE default current_timestamp
        */
       createdAt: "created_at",
 
       /**
-       * modified_at undefined default current_timestamp
+       * modified_at TIMESTAMP WITH TIME ZONE default current_timestamp
        */
       modifiedAt: "modified_at",
 
       /**
-       * parent_id undefined
+       * parent_id UUID
        */
       parentId: "parent_id",
    },

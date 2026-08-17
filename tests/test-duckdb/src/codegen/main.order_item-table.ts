@@ -27,42 +27,42 @@ export const OrderItem = vexnor.newSqlTable<{
    columns: {
 
       /**
-       * order_id undefined
+       * order_id UUID
        */
       orderId: "order_id",
 
       /**
-       * product_id undefined
+       * product_id UUID
        */
       productId: "product_id",
 
       /**
-       * created_at undefined default current_timestamp
+       * created_at TIMESTAMP WITH TIME ZONE default current_timestamp
        */
       createdAt: "created_at",
 
       /**
-       * modified_at undefined default current_timestamp
+       * modified_at TIMESTAMP WITH TIME ZONE default current_timestamp
        */
       modifiedAt: "modified_at",
 
       /**
-       * product_price undefined
+       * product_price DECIMAL(18,2)
        */
       productPrice: "product_price",
 
       /**
-       * discount_price undefined
+       * discount_price DECIMAL(18,2)
        */
       discountPrice: "discount_price",
 
       /**
-       * quantity undefined
+       * quantity INTEGER
        */
       quantity: "quantity",
 
       /**
-       * metadata undefined
+       * metadata JSON
        */
       metadata: "metadata",
    },

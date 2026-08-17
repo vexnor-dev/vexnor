@@ -27,52 +27,52 @@ export const Product = vexnor.newSqlTable<{
    columns: {
 
       /**
-       * product_id undefined default uuid()
+       * product_id UUID default uuid()
        */
       productId: "product_id",
 
       /**
-       * created_at undefined default current_timestamp
+       * created_at TIMESTAMP WITH TIME ZONE default current_timestamp
        */
       createdAt: "created_at",
 
       /**
-       * modified_at undefined default current_timestamp
+       * modified_at TIMESTAMP WITH TIME ZONE default current_timestamp
        */
       modifiedAt: "modified_at",
 
       /**
-       * label undefined
+       * label VARCHAR
        */
       label: "label",
 
       /**
-       * price undefined
+       * price DECIMAL(18,2)
        */
       price: "price",
 
       /**
-       * discount undefined
+       * discount DECIMAL(18,2)
        */
       discount: "discount",
 
       /**
-       * is_available undefined default CAST('t' AS BOOLEAN)
+       * is_available BOOLEAN default CAST('t' AS BOOLEAN)
        */
       isAvailable: "is_available",
 
       /**
-       * is_published undefined default CAST('f' AS BOOLEAN)
+       * is_published BOOLEAN default CAST('f' AS BOOLEAN)
        */
       isPublished: "is_published",
 
       /**
-       * metadata undefined
+       * metadata JSON
        */
       metadata: "metadata",
 
       /**
-       * tags undefined
+       * tags VARCHAR[]
        */
       tags: "tags",
    },
