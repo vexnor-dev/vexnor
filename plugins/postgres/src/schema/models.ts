@@ -189,6 +189,7 @@ export const KeyColumnUsage = newSqlTable<{
       table_schema: string;
       column_name: string;
       ordinal_position: number;
+      position_in_unique_constraint: number | null;
    };
    Source: "@vexnor/postgres:schema";
 }>({
@@ -210,6 +211,7 @@ export const KeyColumnUsage = newSqlTable<{
       table_schema: "table_schema",
       column_name: "column_name",
       ordinal_position: "ordinal_position",
+      position_in_unique_constraint: "position_in_unique_constraint",
    },
 });
 

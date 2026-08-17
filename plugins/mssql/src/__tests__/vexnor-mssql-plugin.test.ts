@@ -17,6 +17,10 @@ describe("VexnorMssql plugin class", () => {
       expect(plugin.dialect).toMatchInlineSnapshot(`"tsql"`);
    });
 
+   test("version matches the package version", () => {
+      expect(plugin.version).toMatchInlineSnapshot(`"1.0.0-beta.3"`);
+   });
+
    test("getLibrary returns empty array", () => {
       expect(plugin.getLibrary()).toMatchInlineSnapshot(`[]`);
    });
@@ -121,14 +125,16 @@ describe("VexnorMssql.getSchema()", () => {
       const plugin = new VexnorMssql();
       const mockTableResult = {
          recordsets: [[
-            { table_name: "account", table_schema: "dbo", table_columns: JSON.stringify([{ column_name: "id", udt_name: "int" }]), primary_key: "id" },
-            { table_name: "product", table_schema: "dbo", table_columns: JSON.stringify([{ column_name: "id", udt_name: "int" }]), primary_key: "id" },
+            { table_name: "account", table_schema: "dbo", table_columns: JSON.stringify([{ column_name: "tenant_id", udt_name: "int" }, { column_name: "account_id", udt_name: "int" }]) },
+            { table_name: "event_log", table_schema: "dbo", table_columns: JSON.stringify([{ column_name: "message", udt_name: "varchar" }]) },
+            { table_name: "product", table_schema: "dbo", table_columns: JSON.stringify([{ column_name: "id", udt_name: "int" }]) },
          ]],
          recordset: [
-            { table_name: "account", table_schema: "dbo", table_columns: JSON.stringify([{ column_name: "id", udt_name: "int" }]), primary_key: "id" },
-            { table_name: "product", table_schema: "dbo", table_columns: JSON.stringify([{ column_name: "id", udt_name: "int" }]), primary_key: "id" },
+            { table_name: "account", table_schema: "dbo", table_columns: JSON.stringify([{ column_name: "tenant_id", udt_name: "int" }, { column_name: "account_id", udt_name: "int" }]) },
+            { table_name: "event_log", table_schema: "dbo", table_columns: JSON.stringify([{ column_name: "message", udt_name: "varchar" }]) },
+            { table_name: "product", table_schema: "dbo", table_columns: JSON.stringify([{ column_name: "id", udt_name: "int" }]) },
          ],
-         rowsAffected: [2],
+         rowsAffected: [3],
          output: {},
       };
       const mockViewResult = {
@@ -139,17 +145,31 @@ describe("VexnorMssql.getSchema()", () => {
          rowsAffected: [1],
          output: {},
       };
+      const mockPrimaryKeyResult = {
+         recordsets: [[
+            { table_schema: "dbo", table_name: "account", constraint_name: "pk_account", column_name: "tenant_id", ordinal_position: 1 },
+            { table_schema: "dbo", table_name: "account", constraint_name: "pk_account", column_name: "account_id", ordinal_position: 2 },
+            { table_schema: "dbo", table_name: "product", constraint_name: "pk_product", column_name: "id", ordinal_position: 1 },
+         ]],
+         recordset: [
+            { table_schema: "dbo", table_name: "account", constraint_name: "pk_account", column_name: "tenant_id", ordinal_position: 1 },
+            { table_schema: "dbo", table_name: "account", constraint_name: "pk_account", column_name: "account_id", ordinal_position: 2 },
+            { table_schema: "dbo", table_name: "product", constraint_name: "pk_product", column_name: "id", ordinal_position: 1 },
+         ],
+         rowsAffected: [3],
+         output: {},
+      };
       const mockFkResult = {
          recordsets: [[
-            { table_schema: "dbo", table_name: "account", column_name: "parent_id", constraint_name: "fk_parent", referenced_table_schema: "dbo", referenced_table_name: "account", referenced_column_name: "id" },
+            { table_schema: "dbo", table_name: "account", column_name: "parent_id", constraint_name: "fk_parent", referenced_table_schema: "dbo", referenced_table_name: "account", referenced_column_name: "account_id", ordinal_position: 1 },
          ]],
-         recordset: [{ table_schema: "dbo", table_name: "account", column_name: "parent_id", constraint_name: "fk_parent", referenced_table_schema: "dbo", referenced_table_name: "account", referenced_column_name: "id" }],
+         recordset: [{ table_schema: "dbo", table_name: "account", column_name: "parent_id", constraint_name: "fk_parent", referenced_table_schema: "dbo", referenced_table_name: "account", referenced_column_name: "account_id", ordinal_position: 1 }],
          rowsAffected: [1],
          output: {},
       };
 
       let callCount = 0;
-      const mockResults = [mockTableResult, mockViewResult, mockFkResult];
+      const mockResults = [mockTableResult, mockViewResult, mockPrimaryKeyResult, mockFkResult];
       const mockRequest = {
          input: vi.fn().mockReturnThis(),
          query: vi.fn().mockImplementation(() => {
@@ -169,15 +189,34 @@ describe("VexnorMssql.getSchema()", () => {
 
       try {
          const schema = await plugin.getSchema({ schemas: ["dbo"], host: "localhost", database: "test", user: "sa", password: "pass" } as never);
-         expect(schema.tables).toHaveLength(3);
+         expect(schema.tables).toHaveLength(4);
          expect(schema.tables[0]!.table_type).toBe("table");
          expect(schema.tables[0]!.table_name).toBe("account");
+         expect(schema.tables[0]!.primary_keys).toMatchInlineSnapshot(`
+           [
+             {
+               "column_name": "tenant_id",
+               "constraint_name": "pk_account",
+               "ordinal_position": 1,
+               "table_name": "account",
+               "table_schema": "dbo",
+             },
+             {
+               "column_name": "account_id",
+               "constraint_name": "pk_account",
+               "ordinal_position": 2,
+               "table_name": "account",
+               "table_schema": "dbo",
+             },
+           ]
+         `);
          expect(schema.tables[0]!.foreign_keys).toMatchInlineSnapshot(`
            [
              {
                "column_name": "parent_id",
                "constraint_name": "fk_parent",
-               "referenced_column_name": "id",
+               "ordinal_position": 1,
+               "referenced_column_name": "account_id",
                "referenced_table_name": "account",
                "referenced_table_schema": "dbo",
                "table_name": "account",
@@ -185,11 +224,14 @@ describe("VexnorMssql.getSchema()", () => {
              },
            ]
          `);
-         expect(schema.tables[1]!.table_name).toBe("product");
+         expect(schema.tables[1]!.table_name).toBe("event_log");
+         expect(schema.tables[1]!.primary_keys).toMatchInlineSnapshot(`[]`);
          expect(schema.tables[1]!.foreign_keys).toMatchInlineSnapshot(`[]`);
-         expect(schema.tables[2]!.table_type).toBe("view");
-         expect(schema.tables[2]!.table_name).toBe("account_summary");
+         expect(schema.tables[2]!.table_name).toBe("product");
          expect(schema.tables[2]!.foreign_keys).toMatchInlineSnapshot(`[]`);
+         expect(schema.tables[3]!.table_type).toBe("view");
+         expect(schema.tables[3]!.table_name).toBe("account_summary");
+         expect(schema.tables[3]!.foreign_keys).toMatchInlineSnapshot(`[]`);
          expect(schema.enums).toMatchInlineSnapshot(`[]`);
       } finally {
          createSpy.mockRestore();
@@ -203,7 +245,7 @@ describe("VexnorMssql.getSchema()", () => {
          input: vi.fn().mockReturnThis(),
          query: vi.fn().mockImplementation(() => {
             callCount++;
-            if (callCount === 3) return Promise.reject(new Error("FK query failed"));
+            if (callCount === 4) return Promise.reject(new Error("FK query failed"));
             return Promise.resolve({
                recordsets: [[]],
                recordset: [],
@@ -223,5 +265,68 @@ describe("VexnorMssql.getSchema()", () => {
          createSpy.mockRestore();
          consoleSpy.mockRestore();
       }
+   });
+
+   test("handles primary-key query errors gracefully", async () => {
+      const plugin = new VexnorMssql();
+      let callCount = 0;
+      const mockRequest = {
+         input: vi.fn().mockReturnThis(),
+         query: vi.fn().mockImplementation(() => {
+            callCount++;
+            if (callCount === 3) return Promise.reject(new Error("Primary-key query failed"));
+            return Promise.resolve({
+               recordsets: [[]],
+               recordset: [],
+               rowsAffected: [0],
+               output: {},
+            });
+         }),
+      };
+      const mockPool = { request: () => mockRequest, driver: "tedious", close: vi.fn() };
+      const createSpy = vi.spyOn(plugin, "createConnection").mockResolvedValue({ db: mockPool, close: vi.fn() } as never);
+      const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+      try {
+         await expect(plugin.getSchema({ schemas: ["dbo"], uri: "test://localhost" } as never)).rejects.toThrow("Primary-key query failed");
+         expect(consoleSpy).toHaveBeenCalled();
+      } finally {
+         createSpy.mockRestore();
+         consoleSpy.mockRestore();
+      }
+   });
+});
+
+describe("VexnorMssql.discoverSchemas()", () => {
+   test("discovers and classifies SQL Server schemas", async () => {
+      const plugin = new VexnorMssql();
+      const schemas = await plugin.discoverSchemas({
+         host: process.env.MSSQL_HOST ?? "localhost",
+         port: Number(process.env.MSSQL_PORT ?? 1433),
+         database: process.env.MSSQL_DATABASE ?? "vexnor",
+         user: process.env.MSSQL_USER ?? "vexnor_dev",
+         password: process.env.MSSQL_PASSWORD ?? "P@ssw0rd!",
+      });
+
+      expect({
+         dbo: schemas.find(({ name }) => name === "dbo"),
+         informationSchema: schemas.find(({ name }) => name === "INFORMATION_SCHEMA"),
+         sys: schemas.find(({ name }) => name === "sys"),
+      }).toMatchInlineSnapshot(`
+        {
+          "dbo": {
+            "name": "dbo",
+            "system": false,
+          },
+          "informationSchema": {
+            "name": "INFORMATION_SCHEMA",
+            "system": true,
+          },
+          "sys": {
+            "name": "sys",
+            "system": true,
+          },
+        }
+      `);
    });
 });

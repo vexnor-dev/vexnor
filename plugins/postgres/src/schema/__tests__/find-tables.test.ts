@@ -74,26 +74,29 @@ describe("Find Tables tests", () => {
                   'table_name',
                   "kcu_4"."table_name",
                   'referenced_table_schema',
-                  "ccu_5"."table_schema",
+                  "referenced_key_column_usage"."table_schema",
                   'referenced_table_name',
-                  "ccu_5"."table_name",
+                  "referenced_key_column_usage"."table_name",
                   'referenced_column_name',
-                  "ccu_5"."column_name"
+                  "referenced_key_column_usage"."column_name",
+                  'ordinal_position',
+                  "kcu_4"."ordinal_position"
                 )
                 ORDER BY
                   "kcu_4"."ordinal_position"
               ) AS "foreign_keys"
             FROM
               "information_schema"."key_column_usage" AS "kcu_4"
-              JOIN "information_schema"."table_constraints" AS "tc_6" ON "kcu_4"."constraint_name" = "tc_6"."constraint_name"
-              AND "kcu_4"."table_schema" = "tc_6"."table_schema"
-              JOIN "information_schema"."referential_constraints" AS "rc_7" ON "tc_6"."constraint_name" = "rc_7"."constraint_name"
-              AND "tc_6"."table_schema" = "rc_7"."constraint_schema"
-              JOIN "information_schema"."constraint_column_usage" AS "ccu_5" ON "rc_7"."unique_constraint_name" = "ccu_5"."constraint_name"
-              AND "rc_7"."unique_constraint_schema" = "ccu_5"."constraint_schema"
+              JOIN "information_schema"."table_constraints" AS "tc_5" ON "kcu_4"."constraint_name" = "tc_5"."constraint_name"
+              AND "kcu_4"."table_schema" = "tc_5"."table_schema"
+              JOIN "information_schema"."referential_constraints" AS "rc_6" ON "tc_5"."constraint_name" = "rc_6"."constraint_name"
+              AND "tc_5"."table_schema" = "rc_6"."constraint_schema"
+              JOIN "information_schema"."key_column_usage" AS "referenced_key_column_usage" ON "rc_6"."unique_constraint_name" = "referenced_key_column_usage"."constraint_name"
+              AND "rc_6"."unique_constraint_schema" = "referenced_key_column_usage"."table_schema"
+              AND "kcu_4"."position_in_unique_constraint" = "referenced_key_column_usage"."ordinal_position"
             WHERE
-              "tc_6"."constraint_type" = 'FOREIGN KEY'
-              AND "tc_6"."table_schema" IN ($4)
+              "tc_5"."constraint_type" = 'FOREIGN KEY'
+              AND "tc_5"."table_schema" IN ($4)
             GROUP BY
               "kcu_4"."table_name",
               "kcu_4"."table_schema" /* </query_3> */
@@ -118,5 +121,6 @@ describe("Find Tables tests", () => {
           "public",
         ]
       `);
+      expect((text.match(/position_in_unique_constraint/g) ?? []).length).toBeGreaterThan(0);
    });
 });

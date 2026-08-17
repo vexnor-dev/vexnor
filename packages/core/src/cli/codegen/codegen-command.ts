@@ -11,6 +11,9 @@ import { writeLibrary } from "#src/cli/codegen/library/write-library.js";
 import { writeIndex } from "#src/cli/codegen/write-index.js";
 import { loadConfig } from "#src/config/load-config.js";
 import { GenerateConfig } from "#src/config/config-types.js";
+import { createSchemaCatalog, type SchemaCatalog } from "#src/schema/schema-catalog.js";
+import { loadLocalSelection, resolveLocalSelectionPath } from "#src/schema/local-selection-store.js";
+import { reconcileSchemaSelection, type SchemaSelectionResult } from "#src/schema/schema-selection.js";
 
 export async function codegenCommand(options: CodegenCommandOptions) {
    const {
@@ -34,7 +37,7 @@ export async function codegenCommand(options: CodegenCommandOptions) {
    }
 
    const { plugin } = await loadPlugin(pluginName);
-   const { enums, tables: allTables } = await (() => {
+   const schema = await (() => {
       if (uri) {
          return plugin.getSchema({ uri, schemas });
       }
@@ -50,23 +53,32 @@ export async function codegenCommand(options: CodegenCommandOptions) {
       });
    })();
 
-   const tables = omit?.length
-      ? allTables.filter(({ table_name, table_schema }) => {
+   const catalog = createSchemaCatalog({
+      plugin,
+      schema,
+      naming: { camelCaseColumns },
+   });
+   const savedSelection = await resolveCodegenSelection(options, catalog);
+   const selectedIds = savedSelection && new Set(savedSelection.selectedObjects.map((object) => object.id));
+   const tables = catalog.objects
+      .filter(({ id }) => selectedIds?.has(id) ?? true)
+      .filter(({ name, schema }) => {
+         if (!omit?.length) return true;
            return !omit.some((entry) => {
               const [a, b] = entry.split(".");
-              return b ? a === table_schema && b === table_name : a === table_name;
+              return b ? a === schema && b === name : a === name;
            });
-        })
-      : allTables;
+      });
 
    const context = new CodegenContextModel({
       outDir,
       plugin,
       camelCaseColumns,
-      includeEnums: enums.length > 0,
+      includeEnums: catalog.enums.length > 0,
       generate,
       source: await resolveSource(outDir),
-      enums,
+      dialect: catalog.plugin.dialect,
+      enums: catalog.enums,
    });
 
    const files = await fs.readdir(outDir);
@@ -78,9 +90,9 @@ export async function codegenCommand(options: CodegenCommandOptions) {
       const { outDir } = getCodegenContext();
       ok(outDir, "outDir is not defined");
       ok(tables, "tables are not defined");
-      ok(enums, "enums are not defined");
+      ok(catalog.enums, "enums are not defined");
 
-      const enumFiles = await printEnums({ enums });
+      const enumFiles = await printEnums({ enums: catalog.enums });
       const tableFiles = await printTables({
          tables,
       });
@@ -93,6 +105,24 @@ export async function codegenCommand(options: CodegenCommandOptions) {
          schemaFiles,
       });
    });
+}
+
+export async function resolveCodegenSelection(
+   options: Pick<CodegenCommandOptions, "config" | "profile" | "selectionConfig">,
+   catalog: SchemaCatalog,
+): Promise<SchemaSelectionResult | null> {
+   const configPath = path.resolve(options.config ?? "vexnor.config.ts");
+   let config;
+   try {
+      config = await loadConfig(configPath);
+   } catch {
+      return null;
+   }
+   const profileName = options.profile ?? config.defaultProfile;
+   if (!profileName || !config.profiles[profileName]) return null;
+   const local = await loadLocalSelection(resolveLocalSelectionPath(configPath, options.selectionConfig));
+   const selection = local.profiles[profileName];
+   return selection ? reconcileSchemaSelection({ catalog, selection }) : null;
 }
 
 export async function resolveGenerateConfig(options: CodegenCommandOptions): Promise<GenerateConfig | null> {

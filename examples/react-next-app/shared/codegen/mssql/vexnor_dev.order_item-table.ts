@@ -20,7 +20,7 @@ export const OrderItem = vexnor.newSqlTable<{
       name: "order_item",
       schema: "vexnor_dev",
    },
-   pk: ["productId"],
+   pk: ["orderId","productId"],
    dialect: "tsql",
    source: "@vexnor/example-react-next-app:shared/codegen/mssql",
    columns: {

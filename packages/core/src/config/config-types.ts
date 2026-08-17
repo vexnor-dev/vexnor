@@ -11,6 +11,7 @@ export interface VexnorConfig {
 }
 
 export interface ProfileConfig {
+   plugin?: string;
    connection: ConnectionConfig;
    generate?: GenerateConfig;
 }

@@ -1,23 +1,21 @@
 import { CodeWriter } from "#src/lib/code-writer.js";
-import { PrintTableArgs } from "#src/plugin/plugin.js";
-import { getCodegenContext } from "#src/cli/codegen/codegen-context.js";
 import { writeColumnType } from "#src/cli/codegen/tables/write-column-type.js";
+import type { SchemaCatalogObject } from "#src/schema/schema-catalog.js";
 
-export function writeTableSelect(writer: CodeWriter, { table }: PrintTableArgs) {
-   const { table_name, columns } = table;
-   const { getTableName, getColumnName, plugin } = getCodegenContext();
-   const tableTypePrefix = `I${getTableName(table_name)}`;
+export function writeTableSelect(writer: CodeWriter, { table }: { table: SchemaCatalogObject }) {
+   const { mappingName, columns } = table;
+   const tableTypePrefix = `I${mappingName}`;
 
    writer
       .blankLine()
       .write(`export type ${tableTypePrefix}Select =`)
       .inlineBlock(() => {
          columns.forEach((col) => {
-            const isNullable = col.is_nullable === "YES";
-            const columnName = getColumnName(col.column_name);
+            const isNullable = col.nullable;
+            const columnName = col.mappingName;
             writer.write(`${columnName}: `);
 
-            writeColumnType(writer, plugin.getColumnType(col), "select", col.column_name);
+            writeColumnType(writer, col, "select");
             writer.write(`${isNullable ? " | null" : ""};`).newLine();
          });
       })

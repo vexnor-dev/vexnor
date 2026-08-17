@@ -2,29 +2,30 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import to from "to-case";
 import { writeTable } from "#src/cli/codegen/tables/write-table.js";
-import { SqlOutputFile, SqlTableInfo } from "#src/plugin/plugin.js";
+import { SqlOutputFile } from "#src/plugin/plugin.js";
 import { getCodegenContext } from "#src/cli/codegen/codegen-context.js";
 import { logger } from "#src/logger.js";
+import type { SchemaCatalogObject } from "#src/schema/schema-catalog.js";
 
 export interface WriteTablesArgs {
-   tables: SqlTableInfo[];
+   tables: SchemaCatalogObject[];
 }
 
 export async function printTables({ tables }: WriteTablesArgs): Promise<SqlOutputFile[]> {
    const files: SqlOutputFile[] = [];
-   const { outDir, getTableName } = getCodegenContext();
+   const { outDir } = getCodegenContext();
    for (const table of tables) {
-      const { table_name, table_schema } = table;
+      const { name, schema, mappingName } = table;
       const output = writeTable({ table });
-      const fileName = `${to.snake(table_schema)}.${to.snake(table_name)}-${table.table_type === "view" ? "view" : "table"}`;
+      const fileName = `${to.snake(schema)}.${to.snake(name)}-${table.kind === "view" ? "view" : "table"}`;
       const filePath = path.join(outDir, `${fileName}.ts`);
       files.push({
-         moduleName: table_name,
+         moduleName: name,
          fileName,
-         schemaName: table_schema,
-         tableTypeName: getTableName(table_name),
+         schemaName: schema,
+         tableTypeName: mappingName,
       });
-      logger.debug({ tableSchema: table_schema, tableName: table_name, filePath }, "Writing table file");
+      logger.debug({ tableSchema: schema, tableName: name, filePath }, "Writing table file");
       await fs.writeFile(filePath, output, { encoding: "utf8" });
       await fs.stat(filePath);
    }

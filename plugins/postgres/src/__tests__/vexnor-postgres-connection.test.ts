@@ -57,9 +57,44 @@ describe("VexnorPostgres — additional getColumnType branches", () => {
    });
 });
 
+describe("VexnorPostgres.discoverSchemas()", () => {
+   test("discovers and classifies PostgreSQL namespaces", async () => {
+      const plugin = new VexnorPostgres();
+      const schemas = await plugin.discoverSchemas({
+         host: process.env.POSTGRES_HOST ?? "localhost",
+         port: Number(process.env.POSTGRES_PORT ?? 5432),
+         database: process.env.POSTGRES_DATABASE ?? "postgres",
+         user: process.env.POSTGRES_USER ?? "postgres",
+         password: process.env.POSTGRES_PASSWORD ?? "postgres",
+      });
+
+      expect({
+         informationSchema: schemas.find(({ name }) => name === "information_schema"),
+         pgCatalog: schemas.find(({ name }) => name === "pg_catalog"),
+         public: schemas.find(({ name }) => name === "public"),
+      }).toMatchInlineSnapshot(`
+        {
+          "informationSchema": {
+            "name": "information_schema",
+            "system": true,
+          },
+          "pgCatalog": {
+            "name": "pg_catalog",
+            "system": true,
+          },
+          "public": {
+            "name": "public",
+            "system": false,
+          },
+        }
+      `);
+   });
+});
+
 describe("VexnorPostgres.getSchema()", () => {
    test("returns tables, views, and enums from mocked connection", async () => {
       const plugin = new VexnorPostgres();
+      const consoleLog = vi.spyOn(console, "log").mockImplementation(() => undefined);
 
       const mockTables = [{ table_name: "account", table_schema: "public", columns: [{ column_name: "id", udt_name: "uuid" }], primary_keys: [{ constraint_name: "pk", table_schema: "public", table_name: "account", column_name: "id" }] }];
       const mockViews = [{ table_name: "account_summary", table_schema: "public", columns: [{ column_name: "total", udt_name: "int4" }] }];
@@ -90,8 +125,10 @@ describe("VexnorPostgres.getSchema()", () => {
          expect(schema.tables[1]!.table_name).toBe("account_summary");
          expect(schema.enums).toHaveLength(1);
          expect(schema.enums[0]!.enum_name).toBe("status");
+         expect(consoleLog.mock.calls).toMatchInlineSnapshot(`[]`);
       } finally {
          createSpy.mockRestore();
+         consoleLog.mockRestore();
       }
    });
 });

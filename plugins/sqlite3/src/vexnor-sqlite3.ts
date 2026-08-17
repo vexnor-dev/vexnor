@@ -4,6 +4,7 @@ import {
    SqlColumnInfo,
    SqlColumnType,
    SqlForeignKeyInfo,
+   SchemaNamespace,
    SqlSchema,
    SqlTableInfo,
    VexnorConnection,
@@ -11,9 +12,11 @@ import {
 } from "@vexnor/core/plugin";
 import BetterSqlite3 from "better-sqlite3";
 import { findForeignKeys, findPrimaryKeys, findTableColumns, findTables, findViews } from "#src/schema/find-tables.js";
+import { findSchemas } from "#src/schema/find-schemas.js";
 import { getColumnType } from "#src/schema/get-column-type.js";
-import { SqlQuery, SqlQueryHandler } from "@vexnor/core";
+import { SqlQuery, SqlQueryHandler, type SqlQueryAny, type SqlTableAny } from "@vexnor/core";
 import { BetterSqlite3QueryHandler } from "#src/better-sqlite3-query-handler.js";
+import { Sqlite3SelectCommand } from "#src/crud/sqlite3-select-command.js";
 import pkg from "../package.json" with { type: "json" };
 
 export const PLUGIN_NAME = pkg.name;
@@ -25,8 +28,16 @@ export class VexnorSqlite3 extends VexnorPlugin<{
    Connection: BetterSqlite3.Database;
 }> {
    readonly name = PLUGIN_NAME;
+   override readonly version = pkg.version;
    driver = "better-sqlite3";
    dialect = "sqlite";
+
+   override newSelectQuery(
+      table: SqlTableAny,
+      joinMap?: Record<string, SqlTableAny>,
+   ): SqlQueryAny {
+      return new Sqlite3SelectCommand(table, {}, joinMap).build();
+   }
 
    newQueryHandler<Args extends { Row?: unknown; Params?: unknown; Read: object; Write: object }>(
       query: SqlQuery<Pick<Args, "Row" | "Params">>,
@@ -42,6 +53,16 @@ export class VexnorSqlite3 extends VexnorPlugin<{
 
    getColumnType(col: SqlColumnInfo): SqlColumnType {
       return getColumnType(col);
+   }
+
+   async discoverSchemas(config: Sqlite3ConnectionConfig): Promise<SchemaNamespace[]> {
+      const db = new BetterSqlite3(config.uri);
+      try {
+         const schemas = await findSchemas.sqlite.all({ db, options: { dialect: "sqlite" } });
+         return schemas.map(({ name }) => ({ name, system: name === "temp" }));
+      } finally {
+         db.close();
+      }
    }
 
    async getSchema(args: Sqlite3ConnectionConfig & { schemas: string[] }): Promise<SqlSchema> {
@@ -83,6 +104,7 @@ export class VexnorSqlite3 extends VexnorPlugin<{
             referenced_table_schema: table.table_schema,
             referenced_table_name: fk.referenced_table_name,
             referenced_column_name: fk.referenced_column_name,
+            ordinal_position: fk.seq + 1,
          }));
 
          newTables.push({

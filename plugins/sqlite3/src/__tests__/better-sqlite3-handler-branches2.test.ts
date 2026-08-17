@@ -5,10 +5,16 @@ import { BetterSqlite3QueryHandler } from "#src/better-sqlite3-query-handler.js"
 import "#src/sqlite3-augment.js";
 
 describe("BetterSqlite3QueryHandler — branches", () => {
-   test("resolveRows throws — not supported for better-sqlite3", () => {
+   test("resolveRows returns better-sqlite3 read rows", () => {
       const query = sql`SELECT ${row(Account.$$)} FROM ${Account}`;
       const handler = new BetterSqlite3QueryHandler(query as never);
-      expect(() => handler.resolveRows({ rows: [] })).toThrow("Method not supported");
+      expect(handler.resolveRows({ rows: [{ accountId: "1" }] })).toMatchInlineSnapshot(`
+        [
+          {
+            "accountId": "1",
+          },
+        ]
+      `);
    });
 
    test("isReadResult returns true for object with rows array", () => {

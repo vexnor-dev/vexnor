@@ -96,6 +96,98 @@ Each generated table includes:
 
 ---
 
+## `vexnor schema select`
+
+Reviews the objects discovered for one datasource profile and persists the objects that local tools may expose. Selections are stored in `vexnor.local.json` by default.
+
+```bash
+npx vexnor schema select [options]
+```
+
+### Options
+
+| Option | Description |
+|--------|-------------|
+| `-c, --config <path>` | Path to `vexnor.config.ts` (default: `vexnor.config.ts`) |
+| `-p, --profile <profile>` | Profile to use; defaults to `defaultProfile` |
+| `--selection-config <path>` | Override the local selection config path |
+| `--include <objects...>` | Select only these schema-qualified objects |
+| `--exclude <objects...>` | Exclude these schema-qualified objects |
+| `--all` | Select every discovered object |
+| `--save` | Persist a non-interactive selection override |
+
+Run without `--include`, `--exclude`, or `--all` to review the selection in an interactive checkbox list:
+
+- use the up/down arrow keys to navigate and Space to toggle an object;
+- press `/` to enter a case-insensitive text filter, Enter to apply it, and Escape to clear it;
+- press Tab to cycle through all, checked, and unchecked objects;
+- press `a` to select or deselect every object visible under the active filters;
+- press Enter to save the complete selection, including objects hidden by filters, or Escape to cancel.
+
+For automation, provide an explicit selection and `--save`:
+
+```bash
+npx vexnor schema select --profile dev --include public.account public.order --save
+```
+
+When the live schema changes, run the command again to review reconciled additions, removals, and changes before exposing them.
+
+---
+
+## `vexnor schema mcp`
+
+Starts a local stdio MCP server for a persisted datasource selection. The command does not listen on a network port and does not expose a tool unless it is named explicitly in `--tools`.
+
+```bash
+npx vexnor schema mcp --profile dev --tools getSchema join
+```
+
+Run `vexnor schema select` for the profile first. Startup fails closed if the profile has no persisted selection or the selection no longer reconciles safely with the live catalog.
+
+### Options
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `-c, --config <path>` | Path to `vexnor.config.ts` | `vexnor.config.ts` |
+| `-p, --profile <profile>` | Profile to use; defaults to `defaultProfile` | — |
+| `--selection-config <path>` | Override the local selection config path | `vexnor.local.json` beside the config |
+| `--tools <tools...>` | Explicit enabled tools: `getSchema`, `join`, `fetchData` | required |
+| `--max-rows <number>` | Database-side maximum rows returned by one fetch | `100` |
+| `--timeout-ms <number>` | Maximum query execution time in milliseconds | `30000` |
+| `--max-concurrency <number>` | Maximum concurrent local queries | `1` |
+
+`getSchema` exposes only selected metadata. `join` registers structured read-only queries through known selected relationships. `fetchData` executes only an opaque query hash already registered by the session; it never accepts SQL. Enable `fetchData` only when the MCP client needs row access:
+
+```bash
+# Metadata and query construction only
+npx vexnor schema mcp --profile dev --tools getSchema join
+
+# Metadata, query construction, and bounded row access
+npx vexnor schema mcp \
+  --profile dev \
+  --tools getSchema join fetchData \
+  --max-rows 50 \
+  --timeout-ms 10000 \
+  --max-concurrency 1
+```
+
+Use a read-only database account for the profile. Do not put credentials in MCP arguments or prompts; keep them in the profile's environment-backed connection config. Stopping the client, pressing Ctrl-C, or sending SIGTERM closes the MCP transport and datasource connection.
+
+### Codex
+
+Codex can launch the local CLI directly. This one-shot form leaves the user's persistent Codex MCP configuration unchanged:
+
+```bash
+codex exec --ignore-user-config \
+  -c 'mcp_servers.vexnor.command="npx"' \
+  -c 'mcp_servers.vexnor.args=["vexnor","schema","mcp","--profile","dev","--tools","getSchema","join"]' \
+  'Use the vexnor tools to summarize the selected schema.'
+```
+
+Add `fetchData` to the MCP arguments only when the task needs bounded local row access.
+
+---
+
 ## `vexnor exec init`
 
 Scaffolds `vexnor.config.ts` and a starter `queries.vexnor.ts` in the current directory.
@@ -213,6 +305,7 @@ import { defineConfig } from '@vexnor/core/config';
 export default defineConfig({
   profiles: {
     dev: {
+      plugin: '@vexnor/postgres',
       connection: {
         host: process.env.POSTGRES_HOST,
         port: 5432,
@@ -230,6 +323,7 @@ export default defineConfig({
       },
     },
     prod: {
+      plugin: '@vexnor/postgres',
       connection: {
         uri: process.env.DATABASE_URL,
       },
@@ -262,6 +356,7 @@ interface VexnorConfig {
 }
 
 interface ProfileConfig {
+  plugin?: string;
   connection: ConnectionConfig;
   generate?: GenerateConfig;
 }

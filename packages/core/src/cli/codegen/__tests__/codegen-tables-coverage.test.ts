@@ -4,11 +4,15 @@ import { writeTableInsert } from "#src/cli/codegen/tables/write-table-insert.js"
 import { writeTableSelect } from "#src/cli/codegen/tables/write-table-select.js";
 import { writeTableType } from "#src/cli/codegen/tables/write-table-type.js";
 import { CodegenContext, CodegenContextModel } from "#src/cli/codegen/codegen-context.js";
-import { SqlLiteralType } from "#src/plugin/plugin.js";
+import { SqlLiteralType, type SqlColumnInfo, type SqlColumnType, type SqlTableInfo } from "#src/plugin/plugin.js";
+import { createSchemaCatalog, type SchemaCatalogObject } from "#src/schema/schema-catalog.js";
 
 const mockPlugin = {
+   name: "@vexnor/test",
+   version: "1.0.0-test",
+   driver: "test",
    dialect: "postgresql",
-   getColumnType: vi.fn(),
+   getColumnType: vi.fn<(column: SqlColumnInfo) => SqlColumnType>(),
 };
 
 function makeContext(opts = {}) {
@@ -26,7 +30,30 @@ function runInContext<T>(fn: () => T): T {
    return CodegenContext.run(makeContext(), fn);
 }
 
-const baseTable = {
+interface TestTable {
+   table_name: string;
+   table_schema: string;
+   table_type: string;
+   primary_keys: { column_name: string }[];
+   columns: {
+      column_name: string;
+      is_nullable: string;
+      column_default: string | null;
+      udt_name?: string;
+      data_type?: string;
+   }[];
+   foreign_keys?: {
+      constraint_name: string;
+      column_name: string;
+      table_schema: string;
+      table_name: string;
+      referenced_table_schema: string;
+      referenced_table_name: string;
+      referenced_column_name: string;
+   }[];
+}
+
+const baseTable: TestTable = {
    table_name: "accounts",
    table_schema: "public",
    table_type: "table",
@@ -43,30 +70,63 @@ const baseTable = {
    ],
 };
 
+function catalogTable(table: TestTable): SchemaCatalogObject {
+   const schemaTable: SqlTableInfo = {
+      table_name: table.table_name,
+      table_schema: table.table_schema,
+      table_type: table.table_type === "view" ? "view" : "table",
+      columns: table.columns.map((column, index) => ({
+         column_default: column.column_default,
+         column_name: column.column_name,
+         is_nullable: column.is_nullable === "YES" ? "YES" : "NO",
+         is_updatable: table.table_type === "view" ? "NO" : "YES",
+         ordinal_position: index + 1,
+         table_name: table.table_name,
+         table_schema: table.table_schema,
+         udt_name: column.udt_name,
+         ...("data_type" in column ? { data_type: column.data_type } : {}),
+      })),
+      primary_keys: table.primary_keys.map((primaryKey, index) => ({
+         constraint_name: `pk_${table.table_name}`,
+         column_name: primaryKey.column_name,
+         ordinal_position: index + 1,
+         table_name: table.table_name,
+         table_schema: table.table_schema,
+      })),
+      foreign_keys: table.foreign_keys ?? [],
+   };
+
+   return createSchemaCatalog({
+      plugin: mockPlugin,
+      schema: { enums: [], tables: [schemaTable] },
+      naming: { camelCaseColumns: true },
+   }).objects[0]!;
+}
+
 describe("writeTableInsert — branch coverage", () => {
    beforeEach(() => {
-      mockPlugin.getColumnType.mockReset();
+      mockPlugin.getColumnType.mockReset().mockReturnValue({ type: SqlLiteralType.String });
    });
 
    test("skips views", () => {
       const writer = new CodeWriter();
-      runInContext(() => writeTableInsert(writer, { table: { ...baseTable, table_type: "view" } as never }));
+      runInContext(() => writeTableInsert(writer, { table: catalogTable({ ...baseTable, table_type: "view" }) }));
       expect(writer.toString()).toBe("");
    });
 
    test("writes all column type branches", () => {
       mockPlugin.getColumnType
-         .mockReturnValueOnce({ type: "string" })  // account_id
-         .mockReturnValueOnce({ type: "string" })  // email
-         .mockReturnValueOnce({ type: SqlLiteralType.Date })  // created_at
-         .mockReturnValueOnce({ type: SqlLiteralType.Udt, udt: "account_status" })  // status
-         .mockReturnValueOnce({ type: SqlLiteralType.Json })  // data
-         .mockReturnValueOnce({ type: SqlLiteralType.Buffer })  // avatar
-         .mockReturnValueOnce({ type: SqlLiteralType.Bit })  // is_active
-         .mockReturnValueOnce({ type: SqlLiteralType.Custom, tsTypeSelect: "number", tsTypeInsert: "number | string" });  // score
+         .mockReturnValueOnce({ type: "string" }) // account_id
+         .mockReturnValueOnce({ type: "string" }) // email
+         .mockReturnValueOnce({ type: SqlLiteralType.Date }) // created_at
+         .mockReturnValueOnce({ type: SqlLiteralType.Udt, udt: "account_status" }) // status
+         .mockReturnValueOnce({ type: SqlLiteralType.Json }) // data
+         .mockReturnValueOnce({ type: SqlLiteralType.Buffer }) // avatar
+         .mockReturnValueOnce({ type: SqlLiteralType.Bit }) // is_active
+         .mockReturnValueOnce({ type: SqlLiteralType.Custom, tsTypeSelect: "number", tsTypeInsert: "number | string" }); // score
 
       const writer = new CodeWriter();
-      runInContext(() => writeTableInsert(writer, { table: baseTable as never }));
+      runInContext(() => writeTableInsert(writer, { table: catalogTable(baseTable) }));
       const output = writer.toString();
       expect(output).toContain("IAccountsInsert");
       expect(output).toContain("Date");
@@ -81,7 +141,7 @@ describe("writeTableInsert — branch coverage", () => {
 
 describe("writeTableSelect — branch coverage", () => {
    beforeEach(() => {
-      mockPlugin.getColumnType.mockReset();
+      mockPlugin.getColumnType.mockReset().mockReturnValue({ type: SqlLiteralType.String });
    });
 
    test("writes all column type branches", () => {
@@ -96,7 +156,7 @@ describe("writeTableSelect — branch coverage", () => {
          .mockReturnValueOnce({ type: SqlLiteralType.Custom, tsTypeSelect: "number" });
 
       const writer = new CodeWriter();
-      runInContext(() => writeTableSelect(writer, { table: baseTable as never }));
+      runInContext(() => writeTableSelect(writer, { table: catalogTable(baseTable) }));
       const output = writer.toString();
       expect(output).toContain("IAccountsSelect");
       expect(output).toContain("Date");
@@ -139,9 +199,7 @@ describe("nested column code generation", () => {
                            name: "geo",
                            value: {
                               kind: "struct",
-                              fields: [
-                                 { name: "latitude", value: { kind: "scalar", type: SqlLiteralType.Number } },
-                              ],
+                              fields: [{ name: "latitude", value: { kind: "scalar", type: SqlLiteralType.Number } }],
                            },
                         },
                      ],
@@ -160,8 +218,9 @@ describe("nested column code generation", () => {
       const selectWriter = new CodeWriter();
       const insertWriter = new CodeWriter();
       runInContext(() => {
-         writeTableSelect(selectWriter, { table: nestedTable as never });
-         writeTableInsert(insertWriter, { table: nestedTable as never });
+         const table = catalogTable(nestedTable);
+         writeTableSelect(selectWriter, { table });
+         writeTableInsert(insertWriter, { table });
       });
 
       expect(selectWriter.toString()).toMatchInlineSnapshot(`
@@ -203,7 +262,7 @@ describe("nested column code generation", () => {
 
    test("writes nested runtime identifier metadata", () => {
       const writer = new CodeWriter();
-      runInContext(() => writeTableType(writer, { table: nestedTable as never }));
+      runInContext(() => writeTableType(writer, { table: catalogTable(nestedTable) }));
       expect(writer.toString()).toMatchInlineSnapshot(`
         "export const Accounts = vexnor.newSqlTable<{
            Select: IAccountsSelect;
@@ -283,7 +342,7 @@ describe("nested column code generation", () => {
 
 describe("writeTableType — branch coverage", () => {
    beforeEach(() => {
-      mockPlugin.getColumnType.mockReset();
+      mockPlugin.getColumnType.mockReset().mockReturnValue({ type: SqlLiteralType.String });
    });
 
    test("writes table type for regular table with Date columns", () => {
@@ -298,7 +357,7 @@ describe("writeTableType — branch coverage", () => {
          .mockReturnValueOnce({ type: "string" });
 
       const writer = new CodeWriter();
-      runInContext(() => writeTableType(writer, { table: baseTable as never }));
+      runInContext(() => writeTableType(writer, { table: catalogTable(baseTable) }));
       const output = writer.toString();
       expect(output).toContain("newSqlTable");
       expect(output).toContain("Insert:");
@@ -313,7 +372,7 @@ describe("writeTableType — branch coverage", () => {
 
       const viewTable = { ...baseTable, table_type: "view", primary_keys: [] };
       const writer = new CodeWriter();
-      runInContext(() => writeTableType(writer, { table: viewTable as never }));
+      runInContext(() => writeTableType(writer, { table: catalogTable(viewTable) }));
       const output = writer.toString();
       expect(output).toContain("newSqlTable");
       expect(output).not.toContain("Insert:");
@@ -327,9 +386,9 @@ describe("writeTableType — branch coverage", () => {
 
       const noPkTable = { ...baseTable, primary_keys: [] };
       const writer = new CodeWriter();
-      runInContext(() => writeTableType(writer, { table: noPkTable as never }));
+      runInContext(() => writeTableType(writer, { table: catalogTable(noPkTable) }));
       const output = writer.toString();
-      expect(output).toContain('pk: []');
+      expect(output).toContain("pk: []");
       expect(output).not.toContain("jsonSchema:");
    });
 
@@ -344,7 +403,7 @@ describe("writeTableType — branch coverage", () => {
          ],
       };
       const writer = new CodeWriter();
-      runInContext(() => writeTableType(writer, { table: tableWithDefaults as never }));
+      runInContext(() => writeTableType(writer, { table: catalogTable(tableWithDefaults) }));
       const output = writer.toString();
       expect(output).toContain("default gen_random_uuid()");
    });
@@ -352,7 +411,7 @@ describe("writeTableType — branch coverage", () => {
 
 describe("writeTableType — config flag branches", () => {
    beforeEach(() => {
-      mockPlugin.getColumnType.mockReset();
+      mockPlugin.getColumnType.mockReset().mockReturnValue({ type: SqlLiteralType.String });
    });
 
    test("always emits dbSchema", () => {
@@ -367,7 +426,7 @@ describe("writeTableType — config flag branches", () => {
       });
 
       const writer = new CodeWriter();
-      CodegenContext.run(ctx, () => writeTableType(writer, { table: baseTable as never }));
+      CodegenContext.run(ctx, () => writeTableType(writer, { table: catalogTable(baseTable) }));
       const output = writer.toString();
       expect(output).toContain("dbSchema:");
    });
@@ -386,20 +445,30 @@ describe("writeTableType — config flag branches", () => {
       const tableWithFk = {
          ...baseTable,
          foreign_keys: [
-            { constraint_name: "fk_test", column_name: "status", table_schema: "public", table_name: "accounts", referenced_table_schema: "public", referenced_table_name: "statuses", referenced_column_name: "id" },
+            {
+               constraint_name: "fk_test",
+               column_name: "status",
+               table_schema: "public",
+               table_name: "accounts",
+               referenced_table_schema: "public",
+               referenced_table_name: "statuses",
+               referenced_column_name: "id",
+            },
          ],
       };
 
       const writer = new CodeWriter();
-      CodegenContext.run(ctx, () => writeTableType(writer, { table: tableWithFk as never }));
+      CodegenContext.run(ctx, () => writeTableType(writer, { table: catalogTable(tableWithFk) }));
       const output = writer.toString();
       expect(output).toContain("fk:");
    });
 });
 
 describe("writeTableType — error handling", () => {
-   test("throws when plugin.getColumnType returns undefined", () => {
-      mockPlugin.getColumnType.mockReturnValue(undefined);
+   test("propagates plugin column-type failures while building the catalog", () => {
+      mockPlugin.getColumnType.mockImplementationOnce(() => {
+         throw new Error("synthetic type mapping failure");
+      });
 
       const ctx = new CodegenContextModel({
          outDir: "/tmp",
@@ -409,10 +478,9 @@ describe("writeTableType — error handling", () => {
          generate: null,
       });
 
-      const writer = new CodeWriter();
       expect(() => {
-         CodegenContext.run(ctx, () => writeTableType(writer, { table: baseTable as never }));
-      }).toThrow('plugin.getColumnType() returned undefined for column "account_id" on table "accounts"');
+         CodegenContext.run(ctx, () => catalogTable(baseTable));
+      }).toThrow("synthetic type mapping failure");
    });
 });
 
@@ -431,7 +499,7 @@ describe("CodegenContextModel — defaults", () => {
          outDir: "/tmp",
          plugin: mockPlugin as never,
          source: "my-pkg:src/codegen",
-         enums: [{ enum_schema: "public", enum_name: "status", enum_values: [{ enum_label: "active" }] }],
+         enums: [{ id: "public.status", schema: "public", name: "status", values: ["active"] }],
       });
       expect(ctx.source).toMatchInlineSnapshot(`"my-pkg:src/codegen"`);
       expect(ctx.enums).toHaveLength(1);
@@ -440,7 +508,7 @@ describe("CodegenContextModel — defaults", () => {
 
 describe("writeTableType — dbSchema edge cases", () => {
    beforeEach(() => {
-      mockPlugin.getColumnType.mockReset();
+      mockPlugin.getColumnType.mockReset().mockReturnValue({ type: SqlLiteralType.String });
    });
 
    test("handles column with no udt_name and no data_type", () => {
@@ -449,13 +517,19 @@ describe("writeTableType — dbSchema edge cases", () => {
       const tableWithBareCol = {
          ...baseTable,
          columns: [
-            { column_name: "bare_col", is_nullable: "NO", column_default: null, udt_name: undefined, data_type: undefined },
+            {
+               column_name: "bare_col",
+               is_nullable: "NO",
+               column_default: null,
+               udt_name: undefined,
+               data_type: undefined,
+            },
          ],
          primary_keys: [],
       };
 
       const writer = new CodeWriter();
-      runInContext(() => writeTableType(writer, { table: tableWithBareCol as never }));
+      runInContext(() => writeTableType(writer, { table: catalogTable(tableWithBareCol) }));
       const output = writer.toString();
       expect(output).toContain('dbType: "unknown"');
    });
@@ -466,19 +540,25 @@ describe("writeTableType — dbSchema edge cases", () => {
       const tableWithDataType = {
          ...baseTable,
          columns: [
-            { column_name: "col", is_nullable: "NO", column_default: null, udt_name: undefined, data_type: "character varying" },
+            {
+               column_name: "col",
+               is_nullable: "NO",
+               column_default: null,
+               udt_name: undefined,
+               data_type: "character varying",
+            },
          ],
          primary_keys: [],
       };
 
       const writer = new CodeWriter();
-      runInContext(() => writeTableType(writer, { table: tableWithDataType as never }));
+      runInContext(() => writeTableType(writer, { table: catalogTable(tableWithDataType) }));
       const output = writer.toString();
       expect(output).toContain('dbType: "character varying"');
    });
 
    test("handles unknown SqlLiteralType value", () => {
-      mockPlugin.getColumnType.mockReturnValue({ type: "some_unknown_type" });
+      mockPlugin.getColumnType.mockReturnValue({ type: SqlLiteralType.Unknown });
 
       const table = {
          ...baseTable,
@@ -489,7 +569,7 @@ describe("writeTableType — dbSchema edge cases", () => {
       };
 
       const writer = new CodeWriter();
-      runInContext(() => writeTableType(writer, { table: table as never }));
+      runInContext(() => writeTableType(writer, { table: catalogTable(table) }));
       const output = writer.toString();
       expect(output).toContain("SqlLiteralType.Unknown");
    });
@@ -499,14 +579,12 @@ describe("writeTableType — dbSchema edge cases", () => {
 
       const table = {
          ...baseTable,
-         columns: [
-            { column_name: "col", is_nullable: "NO", column_default: null, udt_name: "text" },
-         ],
+         columns: [{ column_name: "col", is_nullable: "NO", column_default: null, udt_name: "text" }],
          primary_keys: [],
       };
 
       const writer = new CodeWriter();
-      runInContext(() => writeTableType(writer, { table: table as never }));
+      runInContext(() => writeTableType(writer, { table: catalogTable(table) }));
       const output = writer.toString();
       expect(output).not.toContain("nullable:");
       expect(output).not.toContain("default:");
@@ -517,14 +595,12 @@ describe("writeTableType — dbSchema edge cases", () => {
 
       const table = {
          ...baseTable,
-         columns: [
-            { column_name: "col", is_nullable: "NO", column_default: null, udt_name: "my_type" },
-         ],
+         columns: [{ column_name: "col", is_nullable: "NO", column_default: null, udt_name: "my_type" }],
          primary_keys: [],
       };
 
       const writer = new CodeWriter();
-      runInContext(() => writeTableType(writer, { table: table as never }));
+      runInContext(() => writeTableType(writer, { table: catalogTable(table) }));
       const output = writer.toString();
       expect(output).toContain("SqlLiteralType.Udt");
       expect(output).not.toContain("values:");

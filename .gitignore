@@ -20,6 +20,7 @@ deploy*
 test-results
 coverage*
 .env
+vexnor.local.json
 mailmap.txt
 @db-sqlite3/*.sqlite
 @db-duckdb/*.duckdb

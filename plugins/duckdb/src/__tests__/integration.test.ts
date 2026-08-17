@@ -172,12 +172,12 @@ describe("DuckDB integration", () => {
               columns: {
 
                  /**
-                  * article_id undefined
+                  * article_id UUID
                   */
                  articleId: "article_id",
 
                  /**
-                  * title undefined
+                  * title VARCHAR
                   */
                  title: "title",
 
@@ -187,7 +187,7 @@ describe("DuckDB integration", () => {
                  state: "state",
 
                  /**
-                  * published_at undefined
+                  * published_at TIMESTAMP
                   */
                  publishedAt: "published_at",
               },

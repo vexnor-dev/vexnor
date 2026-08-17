@@ -9,6 +9,8 @@ export interface ForeignKey {
    column: string;
    targetTable: string;
    targetColumn: string;
+   columns?: string[];
+   targetColumns?: string[];
 }
 
 export interface TableInfo {
@@ -17,6 +19,17 @@ export interface TableInfo {
    columns: ColumnInfo[];
    pk: string[];
    fk: ForeignKey[];
+   kind?: "table" | "view";
+}
+
+export interface SchemaGraphOptions {
+   /**
+    * `stable-identity` keeps the historical PK and partition filtering.
+    * `all-readable` includes every SqlTable supplied to the graph.
+    */
+   include?: "stable-identity" | "all-readable";
+   /** Plugin used to construct dialect-specific select queries. */
+   plugin?: import("#src/plugin/vexnor-plugin.js").VexnorPluginAny;
 }
 
 export interface JoinStepRef {
@@ -28,6 +41,7 @@ export interface JoinStepRef {
 export interface JoinStep {
    from: JoinStepRef;
    to: JoinStepRef;
+   columnPairs?: Array<{ from: JoinStepRef; to: JoinStepRef }>;
 }
 
 export type JoinType = "inner" | "left" | "right" | "full" | "cross";
