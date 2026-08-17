@@ -267,8 +267,13 @@ await connection.close();
 ### Connection Modes
 
 ```typescript
+// In-memory (isolated, no file lock)
 await plugin.createConnection({ config: { mode: 'memory' } });
+
+// File-backed (shared instance while connections are active)
 await plugin.createConnection({ config: { mode: 'file', path: 'analytics.duckdb' } });
+
+// MotherDuck (cloud-hosted DuckDB)
 await plugin.createConnection({
   config: {
     mode: 'motherduck',
@@ -280,28 +285,88 @@ await plugin.createConnection({
 
 File and MotherDuck instances are shared while Vexnor connections are active. Closing the final connection releases the native instance and any file lock. In-memory connections are isolated.
 
-### Hierarchical Columns
+### CSV, JSON, and Parquet Files
 
-DuckDB codegen recursively types `STRUCT`, `LIST`, fixed-array, `MAP`, and `UNION` columns. Generated struct fields remain Vexnor identifiers, and `unnest()` exposes typed list items:
+DuckDB queries external files directly without loading them into application memory:
 
 ```typescript
-import { row } from '@vexnor/core';
-import { sql, unnest } from '@vexnor/duckdb';
+import { sql } from '@vexnor/duckdb';
 
-const Orders = Order.as('orders');
-const Items = unnest(Orders.$items).as('item');
-const Discounts = unnest(Items.$discounts).as('discount');
+const sales = await sql`SELECT * FROM read_parquet(${parquetPath})`.duckdb.all({ db });
+const logs = await sql`SELECT * FROM read_csv_auto(${csvPath})`.duckdb.all({ db });
+const events = await sql`SELECT * FROM read_json_auto(${jsonPath})`.duckdb.all({ db });
 
-const query = sql`
-  SELECT ${row(
-    Orders.$orderId,
-    Orders.$shipping.$address.$country.as('shippingCountry'),
-    Items.$product.$productId.as('productId'),
-    Discounts.$code,
-  )}
-  FROM ${Orders}, ${Items}, ${Discounts}
-`;
+// Glob patterns for multi-file queries
+const allSales = await sql`SELECT * FROM read_parquet(${'/data/sales/*.parquet'})`.duckdb.all({ db });
 ```
+
+### ATTACH — Multi-Database Queries
+
+```typescript
+await db.run(`ATTACH 'warehouse.duckdb' AS warehouse`);
+
+const result = await sql`
+  SELECT a.email, w.inventory_count
+  FROM account a
+  JOIN warehouse.main.stock w ON a.account_id = w.account_id
+`.duckdb.all({ db });
+
+await db.run('DETACH warehouse');
+```
+
+### ETL Pipelines
+
+```typescript
+// Bulk import
+await db.run(`COPY transactions FROM 'data.csv' (FORMAT CSV, HEADER)`);
+
+// CREATE TABLE AS SELECT
+await sql`
+  CREATE TABLE monthly_summary AS
+  SELECT date_trunc('month', tx_date) as month, sum(amount) as total
+  FROM read_csv_auto(${csvPath})
+  GROUP BY 1
+`.duckdb.run({ db });
+
+// Multi-source: parquet + CSV → joined → written to attached DB
+await sql`
+  INSERT INTO target.main.enriched_sales
+  SELECT s.*, r.region_name
+  FROM read_parquet(${salesPath}) s
+  JOIN read_csv_auto(${regionsPath}) r ON s.region_code = r.code
+`.duckdb.run({ db });
+```
+
+### Custom Types
+
+```typescript
+import type { DuckDBInterval, DuckDBTimeTZ } from '@vexnor/duckdb';
+// DuckDBInterval = { months: number; days: number; micros: bigint }
+// DuckDBTimeTZ = { micros: bigint; offset: number }
+```
+
+### Type Mapping
+
+| DuckDB Type | Insert Type | Select Type |
+|---|---|---|
+| `VARCHAR`, `UUID` | `string` | `string` |
+| `INTEGER`, `FLOAT`, `DOUBLE` | `number` | `number` |
+| `BIGINT`, `HUGEINT` | `BigInt` | `BigInt` |
+| `DECIMAL(p,s)` | `string` | `string` (lossless) |
+| `TIME` | `string` | `bigint` (microseconds) |
+| `TIMETZ` | `string` | `DuckDBTimeTZ` |
+| `INTERVAL` | `string` | `DuckDBInterval` |
+| `BIT` | `string` | `Uint8Array` |
+| `BLOB` | `Uint8Array` | `Uint8Array` |
+| `STRUCT(...)` | nested object | nested object |
+| `MAP(K, V)` | `Map<K, V>` | `Array<{ key; value }>` |
+| `UNION(...)` | union of member types | `{ tag: string; value: T }` |
+
+### DuckDB-Specific SQL
+
+PIVOT, UNPIVOT, QUALIFY, ASOF JOIN, LATERAL JOIN, GROUPING SETS, CUBE, ROLLUP, list comprehensions, and struct literals all work through `sql` tagged templates with full parameterization.
+
+### Hierarchical Columns
 
 Selecting all generated columns does not flatten hierarchical values. `$$` can be composed with an additional column from another table while the complete `IOrderSelect` shape is retained:
 
@@ -328,13 +393,12 @@ Ordinary `param()` values bind complete lists and structs as one placeholder. Us
 
 ### Notes
 
-- DuckDB parameters use numbered `$1`, `$2`, ... placeholders
-- Dates, timestamps, big integers, blobs, lists, structs, maps, and JSON values use native prepared-statement binding
-- DuckDB enums are generated as TypeScript `const` enums
-- The browser export supports query construction and remote execution; native local connections require Node.js
+- Parameters use `$1`, `$2`, ... placeholders
 - DuckDB does not support savepoints
+- `upsert()` uses `ON CONFLICT DO UPDATE`
+- The browser export supports query construction and remote execution; local connections require Node.js
 
-See the [`@vexnor/duckdb` package guide](../plugins/duckdb/README.md) for codegen, transactions, file queries, extensions, native platform support, and bundler details.
+See the [`@vexnor/duckdb` package guide](../plugins/duckdb/README.md) for hierarchical columns, unnest, transactions, extensions, native platform support, and bundler details.
 
 ---
 
