@@ -27,157 +27,157 @@ export const TypeCoverage = vexnor.newSqlTable<{
    columns: {
 
       /**
-       * col_uuid undefined default uuid()
+       * col_uuid UUID default uuid()
        */
       colUuid: "col_uuid",
 
       /**
-       * col_boolean undefined
+       * col_boolean BOOLEAN
        */
       colBoolean: "col_boolean",
 
       /**
-       * col_tinyint undefined
+       * col_tinyint TINYINT
        */
       colTinyint: "col_tinyint",
 
       /**
-       * col_smallint undefined
+       * col_smallint SMALLINT
        */
       colSmallint: "col_smallint",
 
       /**
-       * col_integer undefined
+       * col_integer INTEGER
        */
       colInteger: "col_integer",
 
       /**
-       * col_bigint undefined
+       * col_bigint BIGINT
        */
       colBigint: "col_bigint",
 
       /**
-       * col_hugeint undefined
+       * col_hugeint HUGEINT
        */
       colHugeint: "col_hugeint",
 
       /**
-       * col_utinyint undefined
+       * col_utinyint UTINYINT
        */
       colUtinyint: "col_utinyint",
 
       /**
-       * col_usmallint undefined
+       * col_usmallint USMALLINT
        */
       colUsmallint: "col_usmallint",
 
       /**
-       * col_uinteger undefined
+       * col_uinteger UINTEGER
        */
       colUinteger: "col_uinteger",
 
       /**
-       * col_ubigint undefined
+       * col_ubigint UBIGINT
        */
       colUbigint: "col_ubigint",
 
       /**
-       * col_uhugeint undefined
+       * col_uhugeint UHUGEINT
        */
       colUhugeint: "col_uhugeint",
 
       /**
-       * col_real undefined
+       * col_real FLOAT
        */
       colReal: "col_real",
 
       /**
-       * col_double undefined
+       * col_double DOUBLE
        */
       colDouble: "col_double",
 
       /**
-       * col_decimal undefined
+       * col_decimal DECIMAL(18,4)
        */
       colDecimal: "col_decimal",
 
       /**
-       * col_varchar undefined
+       * col_varchar VARCHAR
        */
       colVarchar: "col_varchar",
 
       /**
-       * col_char undefined
+       * col_char VARCHAR
        */
       colChar: "col_char",
 
       /**
-       * col_blob undefined
+       * col_blob BLOB
        */
       colBlob: "col_blob",
 
       /**
-       * col_bit undefined
+       * col_bit BIT
        */
       colBit: "col_bit",
 
       /**
-       * col_date undefined
+       * col_date DATE
        */
       colDate: "col_date",
 
       /**
-       * col_time undefined
+       * col_time TIME
        */
       colTime: "col_time",
 
       /**
-       * col_timestamp_s undefined
+       * col_timestamp_s TIMESTAMP_S
        */
       colTimestampS: "col_timestamp_s",
 
       /**
-       * col_timestamp_ms undefined
+       * col_timestamp_ms TIMESTAMP_MS
        */
       colTimestampMs: "col_timestamp_ms",
 
       /**
-       * col_timestamp undefined
+       * col_timestamp TIMESTAMP
        */
       colTimestamp: "col_timestamp",
 
       /**
-       * col_timestamp_ns undefined
+       * col_timestamp_ns TIMESTAMP_NS
        */
       colTimestampNs: "col_timestamp_ns",
 
       /**
-       * col_timestamptz undefined
+       * col_timestamptz TIMESTAMP WITH TIME ZONE
        */
       colTimestamptz: "col_timestamptz",
 
       /**
-       * col_interval undefined
+       * col_interval INTERVAL
        */
       colInterval: "col_interval",
 
       /**
-       * col_json undefined
+       * col_json JSON
        */
       colJson: "col_json",
 
       /**
-       * col_list undefined
+       * col_list INTEGER[]
        */
       colList: "col_list",
 
       /**
-       * col_struct undefined
+       * col_struct STRUCT("name" VARCHAR, score INTEGER)
        */
       colStruct: "col_struct",
 
       /**
-       * col_map undefined
+       * col_map MAP(VARCHAR, INTEGER)
        */
       colMap: "col_map",
    },

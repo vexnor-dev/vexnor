@@ -24,22 +24,22 @@ export const AccountOrderSummary = vexnor.newSqlTable<{
    columns: {
 
       /**
-       * account_id undefined
+       * account_id UUID
        */
       accountId: "account_id",
 
       /**
-       * email undefined
+       * email VARCHAR
        */
       email: "email",
 
       /**
-       * first_name undefined
+       * first_name VARCHAR
        */
       firstName: "first_name",
 
       /**
-       * last_name undefined
+       * last_name VARCHAR
        */
       lastName: "last_name",
 
@@ -49,12 +49,12 @@ export const AccountOrderSummary = vexnor.newSqlTable<{
       status: "status",
 
       /**
-       * order_count undefined
+       * order_count BIGINT
        */
       orderCount: "order_count",
 
       /**
-       * latest_order_at undefined
+       * latest_order_at TIMESTAMP WITH TIME ZONE
        */
       latestOrderAt: "latest_order_at",
    },

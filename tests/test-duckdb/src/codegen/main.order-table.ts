@@ -27,7 +27,7 @@ export const Order = vexnor.newSqlTable<{
    columns: {
 
       /**
-       * order_id undefined default uuid()
+       * order_id UUID default uuid()
        */
       orderId: "order_id",
 
@@ -37,32 +37,32 @@ export const Order = vexnor.newSqlTable<{
       status: "status",
 
       /**
-       * created_at undefined default current_timestamp
+       * created_at TIMESTAMP WITH TIME ZONE default current_timestamp
        */
       createdAt: "created_at",
 
       /**
-       * modified_at undefined default current_timestamp
+       * modified_at TIMESTAMP WITH TIME ZONE default current_timestamp
        */
       modifiedAt: "modified_at",
 
       /**
-       * account_id undefined
+       * account_id UUID
        */
       accountId: "account_id",
 
       /**
-       * shipping undefined
+       * shipping STRUCT(address STRUCT(street VARCHAR, city VARCHAR, country VARCHAR, geo STRUCT(latitude DOUBLE, longitude DOUBLE)), carrier STRUCT("name" VARCHAR, tracking_id VARCHAR))
        */
       shipping: "shipping",
 
       /**
-       * items undefined
+       * items STRUCT(product STRUCT(product_id VARCHAR, "label" VARCHAR, category VARCHAR), quantity INTEGER, unit_price DOUBLE, discounts STRUCT(code VARCHAR, amount DOUBLE)[])[]
        */
       items: "items",
 
       /**
-       * tags undefined
+       * tags VARCHAR[]
        */
       tags: "tags",
    },
