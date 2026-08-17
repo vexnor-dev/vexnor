@@ -268,3 +268,165 @@ The Go client requires a working CGO toolchain. Install a C/C++ compiler for the
 ## Bundlers
 
 The package's `sideEffects` metadata preserves the module augmentation that registers `.duckdb`. Do not remove or narrow those entries. The browser export provides query construction and remote-execution support; local DuckDB connections require a supported native Node.js runtime.
+
+## Query Patterns
+
+Common patterns for AI-assisted query generation.
+
+### Raw SQL with typed results
+
+```typescript
+import { row } from '@vexnor/core';
+import { sql } from '@vexnor/duckdb';
+import { Account } from './codegen/main.account-table.js';
+
+// Select specific columns — result type is inferred from row()
+const accounts = await sql`
+  SELECT ${row(Account.$accountId, Account.$email, Account.$status)}
+  FROM ${Account}
+  WHERE ${Account.$status} = ${'confirmed'}
+  ORDER BY ${Account.$email} ASC
+  LIMIT ${10}
+`.duckdb.all({ db });
+// Type: { accountId: string; email: string; status: AccountStatusUdt }[]
+```
+
+### Parameterized queries with reusable params
+
+```typescript
+import { param, row } from '@vexnor/core';
+import { sql } from '@vexnor/duckdb';
+
+type FindAccountParams = { email: string; limit: number };
+
+const findByEmail = sql`
+  SELECT ${row(Account.$$)}
+  FROM ${Account}
+  WHERE ${Account.$email} = ${param<FindAccountParams>('email')}
+  LIMIT ${param<FindAccountParams>('limit')}
+`;
+
+const results = await findByEmail.duckdb.all({
+  db,
+  params: { email: 'user@example.com', limit: 5 },
+});
+```
+
+### CRUD operations
+
+```typescript
+// INSERT — returns inserted rows with server-generated defaults
+const inserted = await Account.duckdb.insertRows().one({
+  db,
+  params: { rows: [{ email: 'new@example.com', firstName: 'New', lastName: 'User' }] },
+});
+
+// SELECT with filtering, ordering, pagination
+const page = await Account.duckdb.select({
+  WHERE: sql`${Account.$status} = ${'confirmed'}`,
+  ORDER_BY: sql`${Account.$createdAt} DESC`,
+}).all({ db, params: { limit: 20, offset: 0 } });
+
+// UPDATE — returns updated row
+const updated = await Account.duckdb.update({
+  WHERE: sql`${Account.$accountId} = ${param<{ id: string }>('id')}`,
+}).one({ db, params: { id: accountId, set: { status: 'confirmed' } } });
+
+// DELETE — returns deleted row
+const deleted = await Account.duckdb.delete({
+  WHERE: sql`${Account.$accountId} = ${accountId}`,
+}).one({ db });
+
+// UPSERT — insert or update on conflict
+const upserted = await Account.duckdb.upsert({
+  CONFLICT_ON: [Account.$accountId],
+}).one({ db, params: { rows: [{ accountId: id, email: 'upsert@example.com', firstName: 'Up', lastName: 'Sert' }] } });
+```
+
+### JOIN queries
+
+```typescript
+import { SqlTable, row, sql as coreSql } from '@vexnor/core';
+import { sql } from '@vexnor/duckdb';
+
+// Declarative joinBy — type-safe multi-table queries
+SqlTable.register(Account);
+SqlTable.register(Order);
+
+const query = Order.join({ account: Account }).select({});
+const orders = await query.duckdb.all({
+  db,
+  params: {
+    joinBy: { account: { on: [['_.accountId', '=', 'account.accountId']] } },
+    orderBy: { createdAt: 'DESC' },
+    limit: 10,
+  },
+});
+
+// Raw SQL join — full control
+const result = await coreSql`
+  SELECT ${row(Order.$$)}
+  FROM ${Order}
+  JOIN ${Account} ON ${Account.$accountId} = ${Order.$accountId}
+  WHERE ${Account.$email} = ${'user@example.com'}
+`.duckdb.all({ db });
+```
+
+### JSON aggregation (nested includes)
+
+```typescript
+import { DuckDBSelectCommand, jsonMany, jsonOne, sql } from '@vexnor/duckdb';
+import { row } from '@vexnor/core';
+
+// includeOne — correlated 1:1 subquery as nested object
+// includeMany — correlated 1:N subquery as nested array
+const accountsWithOrders = await new DuckDBSelectCommand(Account, {
+  WHERE: sql`${Account.$status} = ${'confirmed'}`,
+  includeMany: {
+    orders: new DuckDBSelectCommand(Order, {
+      WHERE: sql`${Order.$accountId} = ${Account.out.$accountId}`,
+    }).execute(),
+  },
+}).execute().all({ db, params: {} });
+// Type: { ...IAccountSelect; orders: IOrderSelect[] }[]
+
+// Or with raw SQL jsonMany/jsonOne charms:
+const ordersQuery = sql`
+  SELECT ${row(Order.$$)} FROM ${Order}
+  WHERE ${Order.$accountId} = ${Account.out.$accountId}
+`;
+const result = await sql`
+  SELECT ${row(Account.$$)}, ${jsonMany(ordersQuery).as('orders')}
+  FROM ${Account}
+  WHERE ${Account.$accountId} = ${accountId}
+`.duckdb.one({ db });
+```
+
+### File-based analytics
+
+```typescript
+import { sql } from '@vexnor/duckdb';
+
+// Join parquet + CSV + in-memory table in one query
+const report = await sql`
+  SELECT
+    a.email,
+    r.region_name,
+    sum(s.amount)::DOUBLE as total_sales
+  FROM account a
+  JOIN read_parquet(${salesParquetPath}) s ON a.account_id = s.customer_id
+  JOIN read_csv_auto(${regionsCsvPath}) r ON s.region_code = r.code
+  GROUP BY a.email, r.region_name
+  ORDER BY total_sales DESC
+  LIMIT ${10}
+`.duckdb.all({ db });
+
+// Window functions
+const ranked = await sql`
+  SELECT
+    ${row(Account.$email, Account.$createdAt)},
+    row_number() OVER (ORDER BY ${Account.$createdAt} DESC) as rank
+  FROM ${Account}
+  QUALIFY rank <= 5
+`.duckdb.all({ db });
+```
