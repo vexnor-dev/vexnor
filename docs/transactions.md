@@ -59,20 +59,20 @@ await transaction(pool, async (client) => {
 
 ### `savepoint(client, callback)`
 
-Creates a savepoint inside an existing transaction. If the callback throws, rolls back to the savepoint and returns `undefined`. If it succeeds, releases the savepoint and returns the result.
+Creates a savepoint inside an existing transaction. If the callback throws, rolls back to the savepoint and re-throws the error. If it succeeds, releases the savepoint and returns the result.
 
 ```typescript
 await transaction(pool, async (client) => {
   await sql`INSERT INTO ${Order} ${insert(Order)}`.postgres.one({ db: client, params: { rows: [order] } });
 
-  const item = await savepoint(client, async (c) => {
-    // if this throws, only this savepoint is rolled back
-    return sql`INSERT INTO ${OrderItem} ${insert(OrderItem)}`.postgres.one({ db: c, params: { rows: [item] } });
-  });
-
-  if (!item) {
-    // savepoint was rolled back — handle gracefully
-    console.warn('Order item insert failed, continuing without it');
+  try {
+    const item = await savepoint(client, async (c) => {
+      // if this throws, only this savepoint is rolled back
+      return sql`INSERT INTO ${OrderItem} ${insert(OrderItem)}`.postgres.one({ db: c, params: { rows: [item] } });
+    });
+  } catch (err) {
+    // savepoint was rolled back — outer transaction remains healthy
+    console.warn('Order item insert failed, continuing without it:', err);
   }
 });
 ```
@@ -141,7 +141,7 @@ await transaction(pool, async (tx) => {
 
 ### `savepoint(tx, callback)`
 
-Creates a named savepoint (`SAVE TRANSACTION`) inside an existing transaction. If the callback throws, issues `ROLLBACK TRANSACTION <name>` and returns `undefined`. MSSQL has no `RELEASE SAVEPOINT` — savepoints are released automatically on commit.
+Creates a named savepoint (`SAVE TRANSACTION`) inside an existing transaction. If the callback throws, issues `ROLLBACK TRANSACTION <name>` and re-throws the error. MSSQL has no `RELEASE SAVEPOINT` — savepoints are released automatically on commit.
 
 ```typescript
 await transaction(pool, async (tx) => {
@@ -179,7 +179,7 @@ Options:
 
 | Option | Type | Default |
 |---|---|---|
-| `behavior` | `"DEFERRED" \| "IMMEDIATE" \| "EXCLUSIVE"` | `"DEFERRED"` |
+| `behavior` | `"DEFERRED" | "IMMEDIATE" | "EXCLUSIVE"` | `"DEFERRED"` |
 
 #### Transaction Behaviors
 
@@ -196,7 +196,7 @@ await transaction(database, async (db) => {
 
 ### `savepoint(db, callback)`
 
-Creates a savepoint inside an existing transaction. If the callback throws, rolls back to the savepoint and returns `undefined`. If it succeeds, releases the savepoint and returns the result.
+Creates a savepoint inside an existing transaction. If the callback throws, rolls back to the savepoint and re-throws the error. If it succeeds, releases the savepoint and returns the result.
 
 ```typescript
 await transaction(database, async (db) => {
@@ -236,22 +236,21 @@ try {
 
 ### Savepoint Error Recovery
 
-Savepoints return `undefined` on failure instead of throwing — allowing partial-failure workflows:
+Savepoints roll back to the savepoint and re-throw, keeping the parent transaction healthy for recovery:
 
 ```typescript
 await transaction(pool, async (client) => {
   const results = [];
 
   for (const item of items) {
-    const result = await savepoint(client, async (c) => {
-      return sql`INSERT INTO ${OrderItem} ${insert(OrderItem)}`.postgres.one({ db: c, params: { rows: [item] } });
-    });
-
-    if (result) {
+    try {
+      const result = await savepoint(client, async (c) => {
+        return sql`INSERT INTO ${OrderItem} ${insert(OrderItem)}`.postgres.one({ db: c, params: { rows: [item] } });
+      });
       results.push(result);
-    } else {
+    } catch (err) {
       // This item failed — the rest of the transaction continues
-      console.warn(`Failed to insert item ${item.name}`);
+      console.warn(`Failed to insert item ${item.name}:`, err);
     }
   }
 

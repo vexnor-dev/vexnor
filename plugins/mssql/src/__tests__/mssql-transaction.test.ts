@@ -90,10 +90,11 @@ describe("savepoint (mssql)", () => {
       `);
    });
 
-   test("issues ROLLBACK TRANSACTION on error (named)", async () => {
+   test("issues ROLLBACK TRANSACTION and rethrows on error (named)", async () => {
       const { tx, queries } = makeSavepointTx();
-      const result = await savepoint(tx, "sp1", async () => { throw new Error("fail"); });
-      expect(result).toBeUndefined();
+      await expect(
+         savepoint(tx, "sp1", async () => { throw new Error("fail"); }),
+      ).rejects.toThrow("fail");
       expect(queries).toMatchInlineSnapshot(`
         [
           "SAVE TRANSACTION sp1",
@@ -109,9 +110,11 @@ describe("savepoint (mssql)", () => {
       expect(queries[1]).toBeUndefined();
    });
 
-   test("rolls back auto-generated savepoint on error", async () => {
+   test("rolls back and rethrows auto-generated savepoint on error", async () => {
       const { tx, queries } = makeSavepointTx();
-      await savepoint(tx, async () => { throw new Error("no"); });
+      await expect(
+         savepoint(tx, async () => { throw new Error("no"); }),
+      ).rejects.toThrow("no");
       expect(queries[0]).toMatch(/^SAVE TRANSACTION sp_[a-z0-9]+$/);
       expect(queries[1]).toMatch(/^ROLLBACK TRANSACTION sp_[a-z0-9]+$/);
    });

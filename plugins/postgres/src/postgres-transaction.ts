@@ -59,7 +59,7 @@ export async function transaction<T>(
 /**
  * Creates a savepoint within an existing transaction and runs a callback inside it.
  *
- * If the callback throws, rolls back to the savepoint and returns `undefined`.
+ * If the callback throws, rolls back to the savepoint and re-throws the error.
  * If it succeeds, releases the savepoint and returns the result.
  *
  * @param client - The `PoolClient` obtained from `transaction()`.
@@ -70,7 +70,7 @@ export async function savepoint<T>(
    client: PoolClient,
    callbackOrName: ((client: PoolClient) => Promise<T>) | string,
    callback?: (client: PoolClient) => Promise<T>,
-): Promise<T | undefined> {
+): Promise<T> {
    let name: string;
    let fn: (client: PoolClient) => Promise<T>;
    if (typeof callbackOrName === "string") {
@@ -86,8 +86,8 @@ export async function savepoint<T>(
       const result = await fn(client);
       await client.query(`RELEASE SAVEPOINT ${name}`);
       return result;
-   } catch {
+   } catch (err) {
       await client.query(`ROLLBACK TO SAVEPOINT ${name}`);
-      return undefined;
+      throw err;
    }
 }
