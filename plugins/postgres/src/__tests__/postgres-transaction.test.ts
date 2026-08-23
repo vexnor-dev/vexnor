@@ -94,12 +94,13 @@ describe("savepoint (postgres)", () => {
       `);
    });
 
-   test("rolls back to named savepoint on error", async () => {
+   test("rolls back to named savepoint and rethrows on error", async () => {
       const client = makeMockClient();
-      const result = await savepoint(client, "sp1", async () => {
-         throw new Error("fail");
-      });
-      expect(result).toBeUndefined();
+      await expect(
+         savepoint(client, "sp1", async () => {
+            throw new Error("fail");
+         }),
+      ).rejects.toThrow("fail");
       expect(client.queries).toMatchInlineSnapshot(`
         [
           "SAVEPOINT sp1",
@@ -115,11 +116,13 @@ describe("savepoint (postgres)", () => {
       expect(client.queries[1]).toMatch(/^RELEASE SAVEPOINT sp_[a-z0-9]+$/);
    });
 
-   test("rolls back to auto-generated savepoint on error", async () => {
+   test("rolls back to auto-generated savepoint and rethrows on error", async () => {
       const client = makeMockClient();
-      await savepoint(client, async () => {
-         throw new Error("fail");
-      });
+      await expect(
+         savepoint(client, async () => {
+            throw new Error("fail");
+         }),
+      ).rejects.toThrow("fail");
       expect(client.queries[1]).toMatch(/^ROLLBACK TO SAVEPOINT sp_[a-z0-9]+$/);
    });
 });
