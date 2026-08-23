@@ -75,14 +75,19 @@ describe("savepoint (sqlite3)", () => {
       expect(row.val).toBe("sp");
    });
 
-   test("rolls back to named savepoint on error", async () => {
+   test("rolls back to named savepoint and rethrows on error", async () => {
+      let innerError: unknown;
       await transaction(db, async (d) => {
-         const result = await savepoint(d, "sp_fail", async (d2) => {
-            d2.prepare("INSERT INTO t VALUES (11, 'fail')").run();
-            throw new Error("oops");
-         });
-         expect(result).toBeUndefined();
+         try {
+            await savepoint(d, "sp_fail", async (d2) => {
+               d2.prepare("INSERT INTO t VALUES (11, 'fail')").run();
+               throw new Error("oops");
+            });
+         } catch (error) {
+            innerError = error;
+         }
       });
+      expect(innerError).toMatchInlineSnapshot(`[Error: oops]`);
       const row = db.prepare("SELECT val FROM t WHERE id = 11").get();
       expect(row).toBeUndefined();
    });
@@ -99,14 +104,19 @@ describe("savepoint (sqlite3)", () => {
       expect(row.val).toBe("auto");
    });
 
-   test("rolls back auto-named savepoint on error", async () => {
+   test("rolls back auto-named savepoint and rethrows on error", async () => {
+      let innerError: unknown;
       await transaction(db, async (d) => {
-         const result = await savepoint(d, async (d2) => {
-            d2.prepare("INSERT INTO t VALUES (13, 'nope')").run();
-            throw new Error("no");
-         });
-         expect(result).toBeUndefined();
+         try {
+            await savepoint(d, async (d2) => {
+               d2.prepare("INSERT INTO t VALUES (13, 'nope')").run();
+               throw new Error("no");
+            });
+         } catch (error) {
+            innerError = error;
+         }
       });
+      expect(innerError).toMatchInlineSnapshot(`[Error: no]`);
       const row = db.prepare("SELECT val FROM t WHERE id = 13").get();
       expect(row).toBeUndefined();
    });

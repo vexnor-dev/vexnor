@@ -46,7 +46,7 @@ export async function transaction<T>(
 /**
  * Creates a savepoint within an existing SQLite transaction and runs a callback inside it.
  *
- * If the callback throws, rolls back to the savepoint and returns `undefined`.
+ * If the callback throws, rolls back to the savepoint and re-throws the error.
  * If it succeeds, releases the savepoint and returns the result.
  *
  * @param db - The `better-sqlite3` `Database` instance.
@@ -57,7 +57,7 @@ export async function savepoint<T>(
    db: Database,
    callbackOrName: ((db: Database) => Promise<T>) | string,
    callback?: (db: Database) => Promise<T>,
-): Promise<T | undefined> {
+): Promise<T> {
    let name: string;
    let fn: (db: Database) => Promise<T>;
    if (typeof callbackOrName === "string") {
@@ -73,8 +73,8 @@ export async function savepoint<T>(
       const result = await fn(db);
       db.prepare(`RELEASE SAVEPOINT ${name}`).run();
       return result;
-   } catch {
+   } catch (err) {
       db.prepare(`ROLLBACK TO SAVEPOINT ${name}`).run();
-      return undefined;
+      throw err;
    }
 }

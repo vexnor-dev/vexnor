@@ -124,7 +124,7 @@ Supported isolation levels: `READ_UNCOMMITTED`, `READ_COMMITTED`, `REPEATABLE_RE
 
 ### `savepoint`
 
-Creates a named savepoint within an existing transaction. Rolls back to the savepoint and returns `undefined` if the callback throws. MSSQL savepoints are released automatically on commit.
+Creates a named savepoint within an existing transaction. If the callback throws, rolls back to the savepoint and re-throws the error. MSSQL savepoints are released automatically on commit.
 
 ```typescript
 import { transaction, savepoint } from '@vexnor/mssql';

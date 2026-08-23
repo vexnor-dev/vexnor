@@ -95,21 +95,26 @@ describe("savepoint() - mssql", { concurrent: false }, () => {
                VALUES ${insert.values(Account, "rows")}
          `.one({ db: tx.request(), params: { rows: [{ email: "sp-outer-err@test.com", firstName: "Sp", lastName: "OuterErr" }] } });
 
-         const inner = await savepoint(tx, async (req2) => {
-            await sql`
-               INSERT INTO ${Account}
-                  (${insert.cols(Account, "rows")})
-                  OUTPUT ${row(Account.as("inserted").$$)}
-                  VALUES ${insert.values(Account, "rows")}
-            `.one({ db: req2, params: { rows: [{ email: "sp-inner-err@test.com", firstName: "Sp", lastName: "InnerErr" }] } });
-            throw new Error("savepoint rollback");
-         });
+         let innerError: unknown;
+         try {
+            await savepoint(tx, async (req2) => {
+               await sql`
+                  INSERT INTO ${Account}
+                     (${insert.cols(Account, "rows")})
+                     OUTPUT ${row(Account.as("inserted").$$)}
+                     VALUES ${insert.values(Account, "rows")}
+               `.one({ db: req2, params: { rows: [{ email: "sp-inner-err@test.com", firstName: "Sp", lastName: "InnerErr" }] } });
+               throw new Error("savepoint rollback");
+            });
+         } catch (error) {
+            innerError = error;
+         }
 
-         return { outer, inner };
+         return { outer, innerError };
       });
 
       expect(result.outer.email).toMatchInlineSnapshot(`"sp-outer-err@test.com"`);
-      expect(result.inner).toMatchInlineSnapshot(`undefined`);
+      expect(result.innerError).toMatchInlineSnapshot(`[Error: savepoint rollback]`);
 
       await sql`DELETE FROM ${Account} WHERE ${Account.$accountId} = ${result.outer.accountId}`.mssql.run({ db: pool.request() });
    });
@@ -123,21 +128,27 @@ describe("savepoint() - mssql", { concurrent: false }, () => {
                VALUES ${insert.values(Account, "rows")}
          `.one({ db: tx.request(), params: { rows: [{ email: "sp-named@test.com", firstName: "Sp", lastName: "Named" }] } });
 
-         await savepoint(tx, "my_savepoint", async (req2) => {
-            await sql`
-               INSERT INTO ${Account}
-                  (${insert.cols(Account, "rows")})
-                  OUTPUT ${row(Account.as("inserted").$$)}
-                  VALUES ${insert.values(Account, "rows")}
-            `.mssql.run({ db: req2, params: { rows: [{ email: "sp-named-inner@test.com", firstName: "Sp", lastName: "NamedInner" }] } });
-            throw new Error("rollback named savepoint");
-         });
+         let innerError: unknown;
+         try {
+            await savepoint(tx, "my_savepoint", async (req2) => {
+               await sql`
+                  INSERT INTO ${Account}
+                     (${insert.cols(Account, "rows")})
+                     OUTPUT ${row(Account.as("inserted").$$)}
+                     VALUES ${insert.values(Account, "rows")}
+               `.mssql.run({ db: req2, params: { rows: [{ email: "sp-named-inner@test.com", firstName: "Sp", lastName: "NamedInner" }] } });
+               throw new Error("rollback named savepoint");
+            });
+         } catch (error) {
+            innerError = error;
+         }
 
-         return outer;
+         return { outer, innerError };
       });
 
-      expect(result.email).toMatchInlineSnapshot(`"sp-named@test.com"`);
+      expect(result.outer.email).toMatchInlineSnapshot(`"sp-named@test.com"`);
+      expect(result.innerError).toMatchInlineSnapshot(`[Error: rollback named savepoint]`);
 
-      await sql`DELETE FROM ${Account} WHERE ${Account.$accountId} = ${result.accountId}`.mssql.run({ db: pool.request() });
+      await sql`DELETE FROM ${Account} WHERE ${Account.$accountId} = ${result.outer.accountId}`.mssql.run({ db: pool.request() });
    });
 });

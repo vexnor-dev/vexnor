@@ -54,7 +54,7 @@ export async function transaction<T>(
 /**
  * Creates a named savepoint within an existing MSSQL transaction and runs a callback inside it.
  *
- * If the callback throws, rolls back to the savepoint and returns `undefined`.
+ * If the callback throws, rolls back to the savepoint and re-throws the error.
  * If it succeeds, returns the result (MSSQL savepoints are released automatically on commit).
  *
  * @param tx - The `Transaction` obtained from `transaction()`.
@@ -65,7 +65,7 @@ export async function savepoint<T>(
    tx: InstanceType<typeof Transaction>,
    callbackOrName: ((request: Request) => Promise<T>) | string,
    callback?: (request: Request) => Promise<T>,
-): Promise<T | undefined> {
+): Promise<T> {
    let name: string;
    let fn: (request: Request) => Promise<T>;
    if (typeof callbackOrName === "string") {
@@ -81,8 +81,8 @@ export async function savepoint<T>(
       const result = await fn(tx.request());
       // MSSQL has no RELEASE SAVEPOINT — savepoints are released automatically on commit
       return result;
-   } catch {
+   } catch (err) {
       await tx.request().query(`ROLLBACK TRANSACTION ${name}`);
-      return undefined;
+      throw err;
    }
 }

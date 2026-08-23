@@ -103,19 +103,24 @@ describe("savepoint() - postgres", { concurrent: false }, () => {
             RETURNING ${row(Account.$$)}
          `.one({ db: tx, params: { rows: [{ email: "sp-outer-err@test.com", firstName: "Sp", lastName: "OuterErr" }] } });
 
-         const inner = await savepoint(tx, async (tx2) => {
-            await sql`
-               INSERT INTO ${Account} ${insert(Account, "rows")}
-               RETURNING ${row(Account.$$)}
-            `.one({ db: tx2, params: { rows: [{ email: "sp-inner-err@test.com", firstName: "Sp", lastName: "InnerErr" }] } });
-            throw new Error("savepoint rollback");
-         });
+         let innerError: unknown;
+         try {
+            await savepoint(tx, async (tx2) => {
+               await sql`
+                  INSERT INTO ${Account} ${insert(Account, "rows")}
+                  RETURNING ${row(Account.$$)}
+               `.one({ db: tx2, params: { rows: [{ email: "sp-inner-err@test.com", firstName: "Sp", lastName: "InnerErr" }] } });
+               throw new Error("savepoint rollback");
+            });
+         } catch (err) {
+            innerError = err;
+         }
 
-         return { outer, inner };
+         return { outer, innerError };
       });
 
       expect(result.outer.email).toMatchInlineSnapshot(`"sp-outer-err@test.com"`);
-      expect(result.inner).toMatchInlineSnapshot(`undefined`);
+      expect(result.innerError).toMatchInlineSnapshot(`[Error: savepoint rollback]`);
 
       await sql`DELETE FROM ${Account} WHERE ${Account.$accountId} = ${result.outer.accountId}`.postgres.run({ db: pool });
    });
@@ -127,18 +132,24 @@ describe("savepoint() - postgres", { concurrent: false }, () => {
             RETURNING ${row(Account.$$)}
          `.one({ db: tx, params: { rows: [{ email: "sp-named@test.com", firstName: "Sp", lastName: "Named" }] } });
 
-         await savepoint(tx, "my_savepoint", async (tx2) => {
-            await sql`
-               INSERT INTO ${Account} ${insert(Account, "rows")}
-            `.postgres.run({ db: tx2, params: { rows: [{ email: "sp-named-inner@test.com", firstName: "Sp", lastName: "NamedInner" }] } });
-            throw new Error("rollback named savepoint");
-         });
+         let innerError: unknown;
+         try {
+            await savepoint(tx, "my_savepoint", async (tx2) => {
+               await sql`
+                  INSERT INTO ${Account} ${insert(Account, "rows")}
+               `.postgres.run({ db: tx2, params: { rows: [{ email: "sp-named-inner@test.com", firstName: "Sp", lastName: "NamedInner" }] } });
+               throw new Error("rollback named savepoint");
+            });
+         } catch (err) {
+            innerError = err;
+         }
 
-         return outer;
+         return { outer, innerError };
       });
 
-      expect(result.email).toMatchInlineSnapshot(`"sp-named@test.com"`);
+      expect(result.outer.email).toMatchInlineSnapshot(`"sp-named@test.com"`);
+      expect(result.innerError).toMatchInlineSnapshot(`[Error: rollback named savepoint]`);
 
-      await sql`DELETE FROM ${Account} WHERE ${Account.$accountId} = ${result.accountId}`.postgres.run({ db: pool });
+      await sql`DELETE FROM ${Account} WHERE ${Account.$accountId} = ${result.outer.accountId}`.postgres.run({ db: pool });
    });
 });
