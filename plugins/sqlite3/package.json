@@ -1,7 +1,7 @@
 {
   "name": "@vexnor/sqlite3",
   "version": "1.0.0-beta.3",
-  "description": "SQLite3 plugin for vexnor using better-sqlite3",
+  "description": "SQLite plugin for Vexnor — the typesafe, AI-native SQL framework. Schema introspection, typed execution, and the MCP agent surface for SQLite via better-sqlite3.",
   "type": "module",
   "module": "dist/index.js",
   "main": "dist/index.js",
@@ -22,7 +22,9 @@
     "sqlite3",
     "better-sqlite3",
     "sql",
-    "plugin"
+    "plugin",
+    "ai",
+    "mcp"
   ],
   "author": "Adrian Topala",
   "license": "Apache-2.0",

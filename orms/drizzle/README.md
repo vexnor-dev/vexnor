@@ -2,6 +2,8 @@
 
 Drizzle ORM adaptor for Vexnor.
 
+Bring an existing Drizzle schema into Vexnor's typed-SQL and AI-agent surface without running codegen against a live database.
+
 Converts Drizzle table and view definitions into Vexnor runtime tables — no codegen against a live database required. Use this as an onramp from an existing Drizzle schema.
 
 **For long-term stability**, generate mappings with `vexnor codegen` instead. ORM-based adaptors depend on Drizzle's internal APIs which can change between versions.

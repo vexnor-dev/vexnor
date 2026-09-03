@@ -2,6 +2,8 @@
 
 SQLite plugin for Vexnor.
 
+Brings the Vexnor typed-SQL and AI-agent surface to SQLite via `better-sqlite3` — schema introspection for codegen and the MCP server, typed execution, and transactions.
+
 Provides schema introspection, type mapping, query execution, JSON aggregation, and transaction support for SQLite via `better-sqlite3`.
 
 ## Install

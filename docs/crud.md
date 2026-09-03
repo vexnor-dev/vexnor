@@ -4,13 +4,15 @@ Generated tables expose typed query factories on the plugin property (`.postgres
 
 ## Execution Methods
 
-All queries share four execution methods:
+All queries share these execution methods:
 
-| Method | Returns | Throws if empty |
-|--------|---------|-----------------|| `.one({ db, params? })` | `T` | yes |
-| `.any({ db, params? })` | `T \| null` | no |
-| `.all({ db, params? })` | `T[]` | no |
-| `.run({ db, params? })` | void | no |
+| Method | Returns | Notes |
+|--------|---------|-------|
+| `.one({ db, params? })` | `T` | Throws unless exactly one row is returned (empty **or** multiple rows throw) |
+| `.first({ db, params? })` | `T \| undefined` | First row, or `undefined` if none |
+| `.any({ db, params? })` | `T \| undefined` | First row, or `undefined` if none |
+| `.all({ db, params? })` | `T[]` | All rows |
+| `.run({ db, params? })` | `QueryResult` | Executes and returns the raw driver result with deserialized rows |
 
 ---
 
@@ -105,6 +107,43 @@ const accounts = await Account.postgres.select({
 ```
 
 `includeMany` → `T[]`, `includeOne` → `T | null`. The key name becomes the result property.
+
+---
+
+## Joins
+
+Vexnor gives you two ways to join, differing by how the result is **shaped**:
+
+| Shape | API | Result | Use when |
+|-------|-----|--------|----------|
+| **Nested** | [`includeMany` / `includeOne`](#includemany-and-includeone) | Related rows embedded in each parent row as a typed JSON array (`T[]`) or object (`T \| null`), via lateral joins. One row per parent. | You want each parent row with its children grouped together. |
+| **Flat** | `Table.join({...})` | One wider row where every joined table's columns are addressable as `"alias.col"`. | You need to filter, sort, or select on the joined tables' columns directly. |
+
+The nested form is documented in [`includeMany` and `includeOne`](#includemany-and-includeone) above. The flat form is `Table.join({...})`:
+
+```typescript
+Order.join({ account: Account })  // inner join; the map key becomes the table alias
+  .select({})
+  .all({
+    db: pool,
+    params: {
+      joinBy: { account: { on: [["_.accountId", "=", "account.accountId"]] } },
+      filterBy: [{ "account.email": ["like", "%@vip.com"] }],
+      orderBy: { "account.lastName": "ASC" },
+      select: { orderId: true, email: "account.email" },
+    },
+  });
+// FROM "order" AS "o_1"
+// JOIN "account" AS "a_2" ON "o_1"."account_id" = "a_2"."account_id"
+// WHERE "a_2"."email" LIKE ?
+```
+
+- **Alias** — each key in the map is the alias the joined table is addressed by (`account.email`). The root table is addressed by `_`.
+- **Join type** — a bare table value is an inner join; pass a tuple for an outer join: `Order.join({ account: [Account, "left"] })`. Types: `"inner" | "left" | "right" | "full" | "cross"`.
+- **Combined columns** — after `.join(...)`, the query's `filterBy` / `orderBy` / `select` param types accept the joined columns as `"alias.col"` alongside the root's bare columns.
+- **`joinBy`** — the `on` conditions are supplied at runtime as `[leftCol, op, rightCol]` tuples. Operators: `= < <= > >= <>`. When `joinBy` is `null`, no JOIN is emitted and only root columns are selected.
+
+This is the same primitive the [AI Integration](ai-integration.md#composing-joins) `join` tool composes at runtime — the schema graph resolves the `joinBy` conditions from foreign keys automatically.
 
 ---
 

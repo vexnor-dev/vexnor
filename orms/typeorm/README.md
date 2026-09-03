@@ -2,6 +2,8 @@
 
 TypeORM adaptor for Vexnor.
 
+Bring existing TypeORM entities into Vexnor's typed-SQL and AI-agent surface without running codegen against a live database.
+
 Converts TypeORM entity repositories into Vexnor runtime tables — no codegen against a live database required. Use this as an onramp from an existing TypeORM setup.
 
 **For long-term stability**, generate mappings with `vexnor codegen` instead. ORM-based adaptors depend on TypeORM's metadata APIs which can change between versions.

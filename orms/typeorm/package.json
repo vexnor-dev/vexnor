@@ -1,7 +1,7 @@
 {
   "name": "@vexnor/typeorm",
   "version": "1.0.0-beta.3",
-  "description": "TypeORM adaptor for vexnor — convert TypeORM entities to vexnor runtime tables",
+  "description": "TypeORM adaptor for Vexnor — convert TypeORM entities to Vexnor runtime tables and bring them into Vexnor's typesafe, AI-native SQL framework.",
   "type": "module",
   "module": "dist/index.js",
   "main": "dist/index.js",

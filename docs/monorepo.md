@@ -6,10 +6,11 @@ This repository is a `pnpm` monorepo.
 
 ```text
 packages/
-  vexnor/              — Core library: sql tag, query builder, pipeline, registry, CLI, telemetry
+  vexnor/              — Core library: sql tag, typed SQL, pipeline, registry, schema graph, MCP, CLI, telemetry
   @vexnor/postgres/     — PostgreSQL plugin (pg driver)
   @vexnor/mssql/        — MS SQL Server plugin (mssql/tedious driver)
   @vexnor/sqlite3/      — SQLite plugin (better-sqlite3 driver)
+  @vexnor/duckdb/       — DuckDB plugin (@duckdb/node-api client)
   @vexnor/drizzle/      — Drizzle ORM adaptor
   @vexnor/prisma/       — Prisma adaptor
   @vexnor/typeorm/      — TypeORM adaptor

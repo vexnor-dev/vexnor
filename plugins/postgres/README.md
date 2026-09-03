@@ -2,6 +2,8 @@
 
 PostgreSQL plugin for Vexnor.
 
+Brings the Vexnor typed-SQL and AI-agent surface to PostgreSQL — schema introspection for codegen and the MCP server, typed execution, JSON aggregation, and transactions.
+
 Provides schema introspection, type mapping, query execution, JSON aggregation, and transaction support for PostgreSQL.
 
 ## Install
