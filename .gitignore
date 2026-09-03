@@ -30,6 +30,7 @@ tests/test-duckdb/*.duckdb
 @ignore
 .amazonq/agents/default.json
 .ai/mcp/mcp.json
+.kiro/
 
 **/prisma/generated/
 **/__tests__/fixtures-*/generated/
