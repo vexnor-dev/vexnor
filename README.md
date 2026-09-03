@@ -400,36 +400,40 @@ import { SqlQueryPipeline, AuditLogPlugin, TimeToLiveRateLimiter, SqlQueryRegist
 
 type AppContext = { userId: string; roles: string[] };
 
-const pipeline = new SqlQueryPipeline<{ Context: AppContext }>();
+// A registry owns a pipeline. Configure authorization, rate limiting, and
+// audit logging directly on it — they apply to every query it executes.
+const registry = new SqlQueryRegistry<AppContext>();
 
 // Authorization — runs before every .authorize()-tagged query, throw to deny
-pipeline.registerAuthorization(({ query, context, name }) => {
+registry.registerAuthorization(({ query, context, name }) => {
   if (!context.roles.includes(query.authorization!)) {
     throw new Error(`Forbidden: ${name} requires '${query.authorization}'`);
   }
 });
 
 // Rate limiting — built-in per-query and per-user concurrency caps
-pipeline.use(new TimeToLiveRateLimiter({
+registry.use(new TimeToLiveRateLimiter({
   contextKeyResolver: (ctx) => ctx.userId,
   maxConcurrent: 50,
   maxConcurrentPerContext: 5,
 }));
 
 // Audit log — fires on every execution, including failures and auth denials
-pipeline.use(new AuditLogPlugin({
+registry.use(new AuditLogPlugin({
   contextLogResolver: ({ userId }) => ({ userId }), // never logs raw context
   onLog: ({ name, durationMs, error, context }) => {
     logger.info({ name, durationMs, error, ...context });
   },
 }));
 
-// Use with SqlQueryRegistry
-const registry = new SqlQueryRegistry<AppContext>();
-registry.use(auditPlugin);
-registry.registerAuthorization(authHook);
+// No registry? Build a standalone pipeline and attach it to a connection
+// directly — same plugins, same guarantees — for workers, scripts, or tests.
+const pipeline = new SqlQueryPipeline<{ Context: AppContext }>();
+pipeline.registerAuthorization(({ query, context }) => {
+  if (!context.roles.includes(query.authorization!)) throw new Error('Forbidden');
+});
+pipeline.use(new AuditLogPlugin({ onLog: ({ name, durationMs }) => logger.info({ name, durationMs }) }));
 
-// Or attach to a direct connection — same pipeline, same guarantees
 const db = connect<AppContext>(pool, { pipeline });
 const accounts = await findActiveAccounts.postgres.all({ db, params: { userId, roles } });
 ```
