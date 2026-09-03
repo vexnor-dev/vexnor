@@ -4,13 +4,15 @@ Generated tables expose typed query factories on the plugin property (`.postgres
 
 ## Execution Methods
 
-All queries share four execution methods:
+All queries share these execution methods:
 
-| Method | Returns | Throws if empty |
-|--------|---------|-----------------|| `.one({ db, params? })` | `T` | yes |
-| `.any({ db, params? })` | `T \| null` | no |
-| `.all({ db, params? })` | `T[]` | no |
-| `.run({ db, params? })` | void | no |
+| Method | Returns | Notes |
+|--------|---------|-------|
+| `.one({ db, params? })` | `T` | Throws unless exactly one row is returned (empty **or** multiple rows throw) |
+| `.first({ db, params? })` | `T \| undefined` | First row, or `undefined` if none |
+| `.any({ db, params? })` | `T \| undefined` | First row, or `undefined` if none |
+| `.all({ db, params? })` | `T[]` | All rows |
+| `.run({ db, params? })` | `QueryResult` | Executes and returns the raw driver result with deserialized rows |
 
 ---
 

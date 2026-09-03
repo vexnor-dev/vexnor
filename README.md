@@ -403,7 +403,7 @@ See [Transactions](docs/transactions.md) for database-specific transaction and s
 Every query execution flows through a `SqlQueryPipeline` — a composable object that sequences authorization, rate limiting, audit logging, and observability in a single place. `SqlQueryRegistry` owns one by default; you can also attach a pipeline directly to any connection via `connect()` for background workers, scripts, or tests.
 
 ```typescript
-import { connect } from '@vexnor/core';
+import { connect } from '@vexnor/core/plugin';
 import { SqlQueryPipeline, AuditLogPlugin, TimeToLiveRateLimiter, SqlQueryRegistry } from '@vexnor/core/execution';
 
 type AppContext = { userId: string; roles: string[] };
