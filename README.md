@@ -188,12 +188,19 @@ The client never sends SQL. It sends a stable hash that identifies a pre-registe
 Every interpolated value in a `sql` template becomes a parameterized placeholder (`$1`, `?`) — never concatenated into the SQL string. This isn't a convention you have to follow; it's enforced by the tagged template architecture. There is no API that accepts a user string and puts it into a query.
 
 ```typescript
-// The value goes into the driver's parameter array, not the SQL text
+// A classic injection attempt, straight from user input:
+const email = "'; DROP TABLE accounts; --";
+
 const accounts = await sql`
   SELECT ${row(Account.$$)} FROM ${Account}
   WHERE ${Account.$email} = ${param<{ email: string }>('email')}
-`.postgres.all({ db: pool, params: { email: userInput } });
-// Generated: SELECT ... WHERE "email" = $1  — values: [userInput]
+`.postgres.all({ db: pool, params: { email } });
+
+// The value is NOT concatenated into the SQL. It becomes bound parameter $1:
+//   text:   SELECT ... FROM "account" WHERE "email" = $1
+//   values: ["'; DROP TABLE accounts; --"]
+// The database treats the whole string as a literal to compare against "email".
+// It matches no one, drops no table — the payload can never change the query's structure.
 ```
 
 In isomorphic mode, the browser never sends SQL at all — only a query hash. Even a compromised client cannot inject arbitrary SQL.
