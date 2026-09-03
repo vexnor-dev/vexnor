@@ -57,13 +57,16 @@ Built for AI agents: they discover your schema over a local stdio MCP server, re
 You don't have to write SQL to be productive. Generated tables come with typed CRUD factories — `select`, `insertRows`, `update`, `delete`, `upsert` — that cover the everyday 80%. They're fully typed, they compose, and they run through the same pipeline as everything else.
 
 ```typescript
-// Read with a JOIN, grouping, filtering, sorting, and pagination — no SQL string
-const accounts = await Account.postgres.select({
-  JOIN: sql`JOIN ${Order} ON ${Order.$accountId} = ${Account.$accountId}`,
-  GROUP_BY: sql`${Account.$accountId}`,
-  ORDER_BY: sql`${Account.$createdAt} DESC`,
-  limit: param<{ limit: number }>('limit'),
-}).all({ db: pool, params: { limit: 20 } });
+// Read with filtering, sorting, and pagination — no SQL string
+const accounts = await Account.postgres.select({}).all({
+  db: pool,
+  params: {
+    filterBy: [{ status: ["in", "active", "confirmed"] }],
+    orderBy: { createdAt: "DESC" },
+    limit: 20,
+  },
+});
+// accounts: IAccountSelect[]
 ```
 
 **Joins come in two shapes — pick by how you want the result.** Both are real joins; the difference is whether related data comes back nested or flat.
@@ -126,20 +129,7 @@ await Account.postgres.upsert({ CONFLICT_ON: [Account.$email] }).all({
 });
 ```
 
-And every `select()` accepts runtime `filterBy` / `orderBy` / `limit` / `offset` with zero extra code — the same surface an AI agent or a dynamic UI uses:
-
-```typescript
-const accounts = await Account.postgres.select({}).all({
-  db: pool,
-  params: {
-    filterBy: [{ status: ["in", "active", "confirmed"] }, { createdAt: [">=", "2024-01-01"] }],
-    orderBy: { createdAt: "DESC" },
-    limit: 25,
-    offset: 0,
-  },
-});
-// accounts: IAccountSelect[]
-```
+And that runtime `filterBy` / `orderBy` / `limit` / `offset` surface — shown in the read example above — is the same one an AI agent or a dynamic UI uses: filters compose (multiple conditions are AND'd, with `or` groups and operators like `["in", ...]`, `[">=", ...]`, `["like", ...]`), all validated against the schema before any SQL is built. See [AI Integration](#ai-integration).
 
 → See [CRUD](docs/crud.md) for every factory, clause, and execution method.
 
