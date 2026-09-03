@@ -2,6 +2,8 @@
 
 Prisma adaptor for Vexnor.
 
+Bring existing Prisma models into Vexnor's typed-SQL and AI-agent surface without running codegen against a live database.
+
 It converts Prisma model metadata (`PrismaModel`) into Vexnor runtime tables/views.
 
 ## Install

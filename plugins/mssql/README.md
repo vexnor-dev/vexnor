@@ -2,6 +2,8 @@
 
 MS SQL Server plugin for Vexnor.
 
+Brings the Vexnor typed-SQL and AI-agent surface to MS SQL Server — schema introspection for codegen and the MCP server, typed execution, `FOR JSON PATH` aggregation, and transactions.
+
 Provides schema introspection, type mapping, query execution, JSON aggregation, and transaction support for MS SQL Server.
 
 ## Install

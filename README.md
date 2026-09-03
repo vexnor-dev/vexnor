@@ -1,13 +1,34 @@
-# vexnor
+<div align="center">
 
-Typesafe, real SQL data framework for AI-native apps.
+# Vexnor
 
-Write SQL with full type inference — execute server-side or browser-side with zero API layer. Let AI agents discover your schema, resolve FK paths, and compose typed queries at runtime. The query is the contract.
+### Typesafe, real SQL data framework for AI-native apps
+
+**Write real SQL with full type inference. Run it on the server or the browser with zero API layer. Let AI agents discover your schema and compose typed queries at runtime — without ever emitting raw SQL.**
+
+_The query is the contract._
 
 [![CI](https://github.com/vexnor-dev/vexnor/actions/workflows/ci_github.yml/badge.svg)](https://github.com/vexnor-dev/vexnor/actions/workflows/ci_github.yml)
 [![codecov](https://codecov.io/gh/vexnor-dev/vexnor/branch/main/graph/badge.svg)](https://codecov.io/gh/vexnor-dev/vexnor)
 [![npm version](https://img.shields.io/npm/v/@vexnor/core.svg)](https://www.npmjs.com/package/@vexnor/core)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
+[Quickstart](docs/quickstart.md) · [AI Integration](#ai-integration) · [Isomorphic SQL](docs/isomorphic-sql.md) · [Documentation](#documentation) · [Examples](#examples)
+
+</div>
+
+---
+
+## Why Vexnor
+
+- **🧠 Real SQL, fully typed** — write actual SQL in a tagged template; result rows and required params are inferred at compile time from what you `select()`. No DSL, no query-builder chains, no hand-written types.
+- **🌐 Isomorphic, zero API layer** — the same query object runs server-side against your database or browser-side over HTTP. No REST endpoints, no tRPC procedures, no GraphQL resolvers to maintain.
+- **🔒 SQL injection is structurally impossible** — every interpolated value becomes a bound parameter. It's enforced by the architecture, not by discipline. In the browser, clients send only a query hash — never SQL.
+- **🤖 AI-native by design** — a built-in MCP server lets agents discover your schema, resolve FK join paths, and compose typed, read-only queries at runtime, bounded by row/timeout/concurrency budgets.
+- **🗄️ Four databases, one API** — PostgreSQL, MS SQL Server, SQLite, and DuckDB behind a single typed surface, with per-dialect SQL generated for you.
+- **🚀 Cross-runtime** — serialize queries to portable manifests and execute the same contract from TypeScript, .NET, and Go.
+
+---
 
 ```typescript
 // Define once
@@ -28,7 +49,7 @@ const accounts = await selectAccounts.postgres.all({ db: remoteClient });
 
 Result types and required params are **inferred at compile time** from what you select — no manual type annotations, no codegen step after schema changes.
 
-For AI agents: `SchemaGraph` discovers tables, resolves FK join paths via BFS, and composes typed multi-table queries at runtime — no predefined endpoints, no manual SQL. The schema graph IS the API.
+Built for AI agents: they discover your schema over a local stdio MCP server, resolve FK join paths, and compose typed queries at runtime — never emitting raw SQL. See [AI Integration](#ai-integration).
 
 Mix raw SQL with CRUD — compose subqueries into typed includes:
 
@@ -259,12 +280,40 @@ const found = await Account.postgres.select({}).all({
 // found: IAccountSelect[]
 ```
 
-## AI Agent CRUD
+## AI Integration
 
-Runtime filtering, sorting, and pagination — no query definitions needed. An AI agent (or any dynamic caller) can construct queries from column metadata alone:
+Vexnor lets AI agents talk to your database through a bounded, read-only surface where SQL injection is structurally impossible. An agent discovers your schema, resolves join paths, composes typed queries, and reads data — without ever emitting raw SQL. The schema graph IS the API.
+
+**MCP server** — `vexnor schema mcp` starts a local stdio Model Context Protocol server for a persisted schema selection. It listens on no network port and exposes no tool unless named explicitly in `--tools`:
+
+```bash
+# Metadata and safe query construction only
+npx vexnor schema mcp --profile dev --tools getSchema join
+
+# Add bounded row access, with budgets
+npx vexnor schema mcp --profile dev \
+  --tools getSchema join fetchData \
+  --max-rows 50 --timeout-ms 10000 --max-concurrency 1
+```
+
+- `getSchema` — exposes only the selected schema metadata, with per-object capabilities and limitations.
+- `join` — registers a read-only query composed through known relationships.
+- `fetchData` — executes only an opaque query hash already registered by the session; it never accepts SQL.
+
+**Schema discovery** — `SchemaGraph` builds an FK graph from your generated tables, resolves BFS shortest-path joins between any two tables, and emits compact descriptions tailored for an LLM system prompt:
 
 ```typescript
-// AI agent fetches data with runtime filtering, sorting, and pagination
+import { SchemaGraph } from '@vexnor/core/execution';
+import * as schema from './models';
+
+const graph = new SchemaGraph(schema);
+graph.formatOverview();                 // one line per table, for an LLM prompt
+graph.joinPath('public.payment', 'public.city');  // resolved FK path the agent didn't have to know
+```
+
+**Runtime CRUD** — an agent constructs queries from column metadata alone, with no query definition per filter combination. Every operator is validated against the table schema before any SQL is built:
+
+```typescript
 const accounts = await Account.postgres.select({}).all({
   db: pool,
   params: {
@@ -280,7 +329,9 @@ const accounts = await Account.postgres.select({}).all({
 });
 ```
 
-All operators (`in`, `>=`, `like`, `between`, `isNull`, `isNotNull`, etc.) are validated at runtime against the table schema. Invalid columns or operators throw before any SQL is built.
+All operators (`in`, `>=`, `like`, `between`, `isNull`, `isNotNull`, etc.) are validated at runtime against the table schema. Invalid columns or operators throw before any SQL is built, and every value is parameterized.
+
+→ See [AI Integration](docs/ai-integration.md) for the full picture: MCP tools and budgets, schema discovery and prompt formatting, runtime projections (`viewBy`) and windows (`windowBy`), machine-readable schema manifests, and the security model.
 
 ## Transactions
 
@@ -389,6 +440,7 @@ See [Telemetry](docs/telemetry.md) — span shape, OTLP exporters, combining wit
 
 - [Cheat Sheet](docs/cheat-sheet.md) — quick reference for all composable APIs
 - [Quickstart](docs/quickstart.md) — full onboarding, all core APIs
+- [AI Integration](docs/ai-integration.md) — MCP server, schema discovery, runtime CRUD for agents, and the security model
 - [Queries](docs/queries.md) — subqueries, CTEs, recursive CTEs, window functions
 - [Params](docs/params.md) — inline injection, atomic `param()`, explicit `each()` expansion, runtime validation
 - [CRUD](docs/crud.md) — typed query factories, execution methods

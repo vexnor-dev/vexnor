@@ -1,7 +1,7 @@
 {
   "name": "@vexnor/sequelize",
   "version": "1.0.0-beta.3",
-  "description": "Sequelize adaptor for vexnor — convert Sequelize models/views to vexnor runtime tables",
+  "description": "Sequelize adaptor for Vexnor — convert Sequelize models/views to Vexnor runtime tables and bring them into Vexnor's typesafe, AI-native SQL framework.",
   "type": "module",
   "module": "dist/index.js",
   "main": "dist/index.js",

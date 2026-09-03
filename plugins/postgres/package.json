@@ -1,7 +1,7 @@
 {
   "name": "@vexnor/postgres",
   "version": "1.0.0-beta.3",
-  "description": "PostgreSQL plugin for vexnor supporting pg and postgres.js drivers",
+  "description": "PostgreSQL plugin for Vexnor — the typesafe, AI-native SQL framework. Schema introspection, typed execution, and the MCP agent surface for PostgreSQL (pg and postgres.js drivers).",
   "type": "module",
   "module": "dist/index.js",
   "main": "dist/index.js",
@@ -26,7 +26,9 @@
     "pg",
     "postgres.js",
     "sql",
-    "plugin"
+    "plugin",
+    "ai",
+    "mcp"
   ],
   "author": "Adrian Topala",
   "license": "Apache-2.0",

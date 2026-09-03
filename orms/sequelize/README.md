@@ -2,6 +2,8 @@
 
 Sequelize adaptor for Vexnor.
 
+Bring existing Sequelize models into Vexnor's typed-SQL and AI-agent surface without running codegen against a live database.
+
 Converts Sequelize model definitions into Vexnor runtime tables — no codegen against a live database required. Use this as an onramp from an existing Sequelize setup.
 
 **For long-term stability**, generate mappings with `vexnor codegen` instead. ORM-based adaptors depend on Sequelize's metadata APIs which can change between versions.

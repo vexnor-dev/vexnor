@@ -2,6 +2,8 @@
 
 DuckDB plugin for Vexnor using the official `@duckdb/node-api` client.
 
+Brings the Vexnor typed-SQL and AI-agent surface to DuckDB — schema introspection for codegen and the MCP server, typed execution, and analytics/ETL queries over files and databases.
+
 It provides parameterized query execution, schema introspection and codegen, typed CRUD factories, JSON aggregation, transactions, portable query serialization, and direct queries over DuckDB-supported files.
 
 ## Install
