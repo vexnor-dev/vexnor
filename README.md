@@ -66,7 +66,9 @@ const accounts = await Account.postgres.select({
 }).all({ db: pool, params: { limit: 20 } });
 ```
 
-Attach related rows as typed nested arrays or objects with `includeMany` / `includeOne` — lateral joins, generated for you:
+**Joins come in two shapes — pick by how you want the result.** Both are real joins; the difference is whether related data comes back nested or flat.
+
+**Nested** — `includeMany` / `includeOne` attach related rows *inside* each parent row via lateral joins, as a typed JSON array or object. One row per parent:
 
 ```typescript
 // A small subquery to attach (any sql`` query works)
@@ -85,7 +87,7 @@ const accounts = await Account.postgres.select({
 // (IAccountSelect & { orders: {...}[]; lastOrder: {...} | null })[] — inferred
 ```
 
-Or compose a **flat join** with `Table.join({...})`: every joined table's columns become addressable as `"alias.col"`, so you filter, sort, and project across all of them from one combined surface — the join is resolved for you:
+**Flat** — `Table.join({...})` produces one wider row where every joined table's columns are addressable as `"alias.col"`, so you filter, sort, and project across all of them. The join is resolved for you:
 
 ```typescript
 // Compose Order + Account into one wider query
@@ -102,7 +104,7 @@ const orders = await Order.join({ account: Account })  // inner; use [Account, "
   });
 ```
 
-Use `includeMany` / `includeOne` when you want related rows **nested** inside each parent row (a JSON array or object). Use `Table.join(...)` when you want a **flat, wider row** and need to filter, sort, or select on the joined tables' columns directly. This same `Table.join(...)` composition is what powers the [AI Integration](#ai-integration) `join` tool.
+Rule of thumb: reach for **nested** (`includeMany`/`includeOne`) when you want each parent with its children grouped together; reach for **flat** (`Table.join`) when you need to filter, sort, or select on the joined tables' columns directly. This same `Table.join(...)` composition is what powers the [AI Integration](#ai-integration) `join` tool.
 
 Write operations are just as typed:
 

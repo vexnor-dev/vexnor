@@ -112,7 +112,14 @@ const accounts = await Account.postgres.select({
 
 ## Joins
 
-`includeMany` / `includeOne` attach related rows **nested** inside each parent row. When you instead want a **flat, wider row** — where every joined table's columns are addressable for `filterBy`, `orderBy`, and `select` — compose a join with `Table.join({...})`.
+Vexnor gives you two ways to join, differing by how the result is **shaped**:
+
+| Shape | API | Result | Use when |
+|-------|-----|--------|----------|
+| **Nested** | [`includeMany` / `includeOne`](#includemany-and-includeone) | Related rows embedded in each parent row as a typed JSON array (`T[]`) or object (`T \| null`), via lateral joins. One row per parent. | You want each parent row with its children grouped together. |
+| **Flat** | `Table.join({...})` | One wider row where every joined table's columns are addressable as `"alias.col"`. | You need to filter, sort, or select on the joined tables' columns directly. |
+
+The nested form is documented in [`includeMany` and `includeOne`](#includemany-and-includeone) above. The flat form is `Table.join({...})`:
 
 ```typescript
 Order.join({ account: Account })  // inner join; the map key becomes the table alias
