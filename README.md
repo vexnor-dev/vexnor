@@ -43,8 +43,8 @@ const selectAccounts = sql`
 const accounts = await selectAccounts.postgres.all({ db: pool });
 // accounts: { accountId: string; email: string }[] — inferred from row()
 
-// Browser — same query, same call, dispatched over HTTP instead
-const sameAccounts = await selectAccounts.postgres.all({ db: remoteClient });
+// Browser — dispatched over HTTP, same call site
+const accounts = await selectAccounts.postgres.all({ db: remoteClient });
 // Same type, same code — no API layer in between
 ```
 
