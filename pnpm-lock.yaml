@@ -250,8 +250,8 @@ importers:
         specifier: 1.5.5-r.3
         version: 1.5.5-r.3
       '@hono/node-server':
-        specifier: 1.19.13
-        version: 1.19.13(hono@4.12.25)
+        specifier: 1.19.15
+        version: 1.19.15(hono@4.12.25)
       '@opentelemetry/api':
         specifier: ^1.9.1
         version: 1.9.1
@@ -914,8 +914,8 @@ importers:
   tests/test-remote:
     dependencies:
       '@hono/node-server':
-        specifier: ^1.14.4
-        version: 1.19.13(hono@4.12.25)
+        specifier: ^1.19.15
+        version: 1.19.15(hono@4.12.25)
       '@sinclair/typebox':
         specifier: ^0.34.41
         version: 0.34.49
@@ -1551,8 +1551,8 @@ packages:
     peerDependencies:
       hono: ^4
 
-  '@hono/node-server@1.19.13':
-    resolution: {integrity: sha512-TsQLe4i2gvoTtrHje625ngThGBySOgSK3Xo2XRYOdqGN1teR8+I7vchQC46uLJi8OF62YTYA3AhSpumtkhsaKQ==}
+  '@hono/node-server@1.19.15':
+    resolution: {integrity: sha512-Za2ai6TLdKjUvnur+eenO6nuYYipVAEhyCAdaV8IRvmU9kK8crOZUSYvIXn72E4f8fJqyAbpcJuTsYYmZp9Deg==}
     engines: {node: '>=18.14.1'}
     peerDependencies:
       hono: ^4
@@ -7432,7 +7432,7 @@ snapshots:
     dependencies:
       hono: 4.12.25
 
-  '@hono/node-server@1.19.13(hono@4.12.25)':
+  '@hono/node-server@1.19.15(hono@4.12.25)':
     dependencies:
       hono: 4.12.25
 
@@ -7594,7 +7594,7 @@ snapshots:
 
   '@modelcontextprotocol/sdk@1.30.0(zod@4.4.3)':
     dependencies:
-      '@hono/node-server': 1.19.13(hono@4.12.25)
+      '@hono/node-server': 1.19.15(hono@4.12.25)
       ajv: 8.20.0
       ajv-formats: 3.0.1(ajv@8.20.0)
       content-type: 1.0.5
