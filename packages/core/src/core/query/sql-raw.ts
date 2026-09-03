@@ -23,8 +23,9 @@ export class SqlRaw extends Sql {
 /**
  * Injects an unquoted raw SQL string directly into the query.
  *
- * Use sparingly — the value is emitted as-is with no escaping. Prefer
- * parameterized values or column references wherever possible.
+ * Use sparingly — the value is emitted as-is with no escaping. Never pass
+ * user input or other untrusted runtime values. Prefer parameterized values
+ * or generated column references wherever possible.
  *
  * @param value - The raw SQL fragment to emit.
  */

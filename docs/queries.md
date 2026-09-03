@@ -426,6 +426,41 @@ Useful for debugging, logging, and the CLI `--dry-run` mode.
 
 ---
 
+## `raw()` — Trusted SQL Fragments
+
+Writing SQL text inside a `sql` tagged template does not bypass parameterization. Values interpolated normally still become bound parameters. `raw()` is different: it writes its argument directly into the SQL text, exactly as provided, with no escaping or parameterization.
+
+Use `raw()` only for SQL fragments selected entirely by trusted application code:
+
+```typescript
+import { raw, row, sql } from '@vexnor/core';
+
+const lockClause = shouldLock
+  ? raw('FOR UPDATE SKIP LOCKED')
+  : raw.BLANK;
+
+const query = sql`
+  SELECT ${row(Account.$$)}
+  FROM ${Account}
+  ${lockClause}
+`;
+```
+
+Both possible fragments above are developer-controlled constants. Do not pass user input, request data, agent output, environment values, configuration values, or any other untrusted runtime string to `raw()`:
+
+```typescript
+// Unsafe: request.query.orderBy is emitted as SQL and can inject arbitrary syntax.
+const query = sql`
+  SELECT ${row(Account.$$)}
+  FROM ${Account}
+  ORDER BY ${raw(request.query.orderBy)}
+`;
+```
+
+Use generated table and column references for identifiers, `param()` or ordinary interpolation for values, and structured operators such as `orderBy` for runtime query choices. Calling `raw()` explicitly moves responsibility for SQL correctness and injection safety to the caller.
+
+---
+
 ## Query Composition Patterns
 
 ### Reusable Fragments
