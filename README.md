@@ -13,7 +13,7 @@ _The query is the contract._
 [![npm version](https://img.shields.io/npm/v/@vexnor/core.svg)](https://www.npmjs.com/package/@vexnor/core)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-[Quickstart](docs/quickstart.md) · [AI Integration](#ai-integration) · [Isomorphic SQL](docs/isomorphic-sql.md) · [Documentation](#documentation) · [Examples](#examples)
+[Quickstart](docs/quickstart.md) · [CRUD](#start-with-crud--no-sql-required) · [AI Integration](#ai-integration) · [Isomorphic SQL](docs/isomorphic-sql.md) · [Documentation](#documentation) · [Examples](#examples)
 
 </div>
 
@@ -22,6 +22,7 @@ _The query is the contract._
 ## Why Vexnor
 
 - **🧠 Real SQL, fully typed** — write actual SQL in a tagged template; result rows and required params are inferred at compile time from what you `select()`. No DSL, no query-builder chains, no hand-written types.
+- **🧩 Powerful CRUD, zero SQL** — typed `select` / `insert` / `update` / `delete` / `upsert` factories cover the everyday 80%. Joins, grouping, nested includes, filtering, sorting, and pagination — no SQL string required. Drop into raw SQL only for the hard 20%.
 - **🌐 Isomorphic, zero API layer** — the same query object runs server-side against your database or browser-side over HTTP. No REST endpoints, no tRPC procedures, no GraphQL resolvers to maintain.
 - **🔒 SQL injection is structurally impossible** — every interpolated value becomes a bound parameter. It's enforced by the architecture, not by discipline. In the browser, clients send only a query hash — never SQL.
 - **🤖 AI-native by design** — a built-in MCP server lets agents discover your schema, resolve FK join paths, and compose typed, read-only queries at runtime, bounded by row/timeout/concurrency budgets.
@@ -51,7 +52,79 @@ Result types and required params are **inferred at compile time** from what you 
 
 Built for AI agents: they discover your schema over a local stdio MCP server, resolve FK join paths, and compose typed queries at runtime — never emitting raw SQL. See [AI Integration](#ai-integration).
 
-Mix raw SQL with CRUD — compose subqueries into typed includes:
+## Start With CRUD — No SQL Required
+
+You don't have to write SQL to be productive. Generated tables come with typed CRUD factories — `select`, `insertRows`, `update`, `delete`, `upsert` — that cover the everyday 80%. They're fully typed, they compose, and they run through the same pipeline as everything else.
+
+```typescript
+// Read with a JOIN, grouping, filtering, sorting, and pagination — no SQL string
+const accounts = await Account.postgres.select({
+  JOIN: sql`JOIN ${Order} ON ${Order.$accountId} = ${Account.$accountId}`,
+  GROUP_BY: sql`${Account.$accountId}`,
+  ORDER_BY: sql`${Account.$createdAt} DESC`,
+  limit: param<{ limit: number }>('limit'),
+}).all({ db: pool, params: { limit: 20 } });
+```
+
+Attach related rows as typed nested arrays or objects with `includeMany` / `includeOne` — lateral joins, generated for you:
+
+```typescript
+// A small subquery to attach (any sql`` query works)
+const RecentOrders = sql`
+  SELECT ${row(Order.$orderId, Order.$status)}
+  FROM ${Order}
+  WHERE ${Order.$accountId} = ${Account.out.$accountId}
+  ORDER BY ${Order.$createdAt} DESC
+`;
+
+const accounts = await Account.postgres.select({
+  WHERE: sql`${Account.$status} = 'ACTIVE'`,
+  includeMany: { orders: RecentOrders },   // orders: {...}[]
+  includeOne: { lastOrder: RecentOrders },  // lastOrder: {...} | null
+}).all({ db: pool });
+// (IAccountSelect & { orders: {...}[]; lastOrder: {...} | null })[] — inferred
+```
+
+Write operations are just as typed:
+
+```typescript
+await Account.postgres.insertRows().all({
+  db: pool,
+  params: { rows: [{ email: 'jane@example.com', firstName: 'Jane', lastName: 'Doe' }] },
+});
+
+await Account.postgres.update({
+  WHERE: sql`${Account.$accountId} = ${param<{ accountId: string }>('accountId')}`,
+}).all({ db: pool, params: { accountId, set: { status: 'ACTIVE' } } });
+
+await Account.postgres.delete({ WHERE: sql`${Account.$status} = 'INACTIVE'` }).run({ db: pool });
+
+await Account.postgres.upsert({ CONFLICT_ON: [Account.$email] }).all({
+  db: pool,
+  params: { rows: [{ email: 'jane@example.com', firstName: 'Jane', lastName: 'Doe' }] },
+});
+```
+
+And every `select()` accepts runtime `filterBy` / `orderBy` / `limit` / `offset` with zero extra code — the same surface an AI agent or a dynamic UI uses:
+
+```typescript
+const accounts = await Account.postgres.select({}).all({
+  db: pool,
+  params: {
+    filterBy: [{ status: ["in", "active", "confirmed"] }, { createdAt: [">=", "2024-01-01"] }],
+    orderBy: { createdAt: "DESC" },
+    limit: 25,
+    offset: 0,
+  },
+});
+// accounts: IAccountSelect[]
+```
+
+→ See [CRUD](docs/crud.md) for every factory, clause, and execution method.
+
+## Drop Into Raw SQL When You Need It
+
+When a query outgrows CRUD — window functions, recursive CTEs, hand-tuned joins — reach for real SQL. It's the same typed, composable object, so you only pay for the complexity you actually need. Compose subqueries into typed includes:
 
 ```typescript
 // A reusable SQL subquery
@@ -86,21 +159,6 @@ const myOrders = sql`
 `.authorize('user');
 // In registry: userId is resolved from the authenticated request context
 // .authorize('user') — query won't execute without a registered authorization hook
-```
-
-Zero-SQL CRUD — same types, same pipeline:
-
-```typescript
-// Zero-config select with runtime filtering, sorting, and pagination
-const accounts = await Account.postgres.select({}).all({
-  db: pool,
-  params: {
-    filterBy: [{ email: ["like", "%@example.com"] }],
-    orderBy: { createdAt: "DESC" },
-    limit: 10,
-  },
-});
-// accounts: IAccountSelect[]
 ```
 
 The client never sends SQL. It sends a stable hash that identifies a pre-registered query. The server looks it up, runs it, and returns typed results. No REST endpoints, no tRPC procedures, no GraphQL resolvers — the query is the API.
@@ -174,7 +232,7 @@ npx vexnor codegen \
 
 ## Typed SQL Queries
 
-Real SQL. Full type inference from what you select. Composable subqueries.
+When you do reach for raw SQL, this is the full power: real SQL, full type inference from what you select, and subqueries that compose into typed nested results.
 
 ```typescript
 import { Account, AccountStatusUdt, Order, OrderItem } from './models/vexnor_dev.schema.js';
@@ -241,44 +299,6 @@ export type OrdersWithAccountParams = ParamsOf<typeof ordersWithAccount>;
 ```
 
 `OrdersWithAccountRow` contains every field from `IOrderSelect` plus `accountEmail`. Generated hierarchical fields—including DuckDB structs, lists, maps, unions, and nested combinations—retain their complete nested types. Alias additional columns when their result keys would collide with a field already selected by `$$`.
-
-## CRUD
-
-No SQL needed for the common case. Same subqueries compose into CRUD factories:
-
-```typescript
-// SELECT with includes
-const accounts = await Account.postgres.select({
-  WHERE: sql`${Account.$status} = ${AccountStatusUdt.ACTIVE}`,
-  GROUP_BY: sql`${Account.$accountId}, ${Account.$email}`,
-  includeMany: { orders: AccountOrders },
-}).all({
-  db: pool,
-  params: { limit: 5 },
-});
-// (IAccountSelect & { orders: IOrderSelect[] })[]
-
-// INSERT
-const inserted = await Account.postgres.insertRows().all({
-  db: pool,
-  params: {
-    rows: [{ email: 'jane@example.com', firstName: 'Jane', lastName: 'Doe' }],
-  },
-});
-// inserted: IAccountSelect[]
-
-// Zero-config select with runtime filtering, sorting, and pagination
-const found = await Account.postgres.select({}).all({
-  db: pool,
-  params: {
-    filterBy: [{ status: ["in", "active", "confirmed"] }],
-    orderBy: { createdAt: "DESC" },
-    limit: 25,
-    offset: 0,
-  },
-});
-// found: IAccountSelect[]
-```
 
 ## AI Integration
 
