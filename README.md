@@ -253,7 +253,6 @@ npx vexnor codegen \
   --schema public \
   --uri $DATABASE_URL \
   --outDir src/models \
-   \
   --camelCaseColumns
 ```
 
@@ -262,7 +261,7 @@ npx vexnor codegen \
 When you do reach for raw SQL, this is the full power: real SQL, full type inference from what you select, and subqueries that compose into typed nested results.
 
 ```typescript
-import { Account, AccountStatusUdt, Order, OrderItem } from './models/vexnor_dev.schema.js';
+import { Account, AccountStatusUdt, Order, OrderItem, type IOrderItemSelect } from './models/vexnor_dev.schema.js';
 import { sql, row, param, col, type ParamsOf, type TypeOf } from '@vexnor/core';
 import { jsonMany } from '@vexnor/postgres';
 import '@vexnor/postgres';
@@ -422,8 +421,9 @@ const registry = new SqlQueryRegistry<AppContext>();
 
 // Authorization — runs before every .authorize()-tagged query, throw to deny
 registry.registerAuthorization(({ query, context, name }) => {
-  if (!context.roles.includes(query.authorization!)) {
-    throw new Error(`Forbidden: ${name} requires '${query.authorization}'`);
+  // query.authorization is a string[] of tags; require the caller to hold them all
+  if (!query.authorization.every((tag) => context.roles.includes(tag))) {
+    throw new Error(`Forbidden: ${name} requires ${query.authorization.join(', ')}`);
   }
 });
 
@@ -446,7 +446,7 @@ registry.use(new AuditLogPlugin({
 // directly — same plugins, same guarantees — for workers, scripts, or tests.
 const pipeline = new SqlQueryPipeline<{ Context: AppContext }>();
 pipeline.registerAuthorization(({ query, context }) => {
-  if (!context.roles.includes(query.authorization!)) throw new Error('Forbidden');
+  if (!query.authorization.every((tag) => context.roles.includes(tag))) throw new Error('Forbidden');
 });
 pipeline.use(new AuditLogPlugin({ onLog: ({ name, durationMs }) => logger.info({ name, durationMs }) }));
 
