@@ -154,23 +154,32 @@ const accounts = await Account.postgres.select({
 // { accountId: string; email: string; ...; orders: { orderId: string; status: string; createdAt: Date }[] }[]
 ```
 
-Parameters and context values — validated at runtime, injected from pipeline context:
+Parameters and context values — both validated at runtime:
 
 ```typescript
-// param() — caller provides, validated at build time
+// param() — the caller always supplies the value
 const findByEmail = sql`
   SELECT ${row(Account.$$)} FROM ${Account}
   WHERE ${Account.$email} = ${param<{ email: string }>('email')}
 `.postgres.all({ db: pool, params: { email: 'jane@example.com' } });
 
-// ctx() — injected from SqlQueryRegistry/pipeline context, never sent from the client
+// ctx() — a value that comes from trusted server context, not caller input
 const myOrders = sql`
   SELECT ${row(Order.$$)} FROM ${Order}
   WHERE ${Order.$accountId} = ${ctx<{ userId: string }>('userId')}
-`.authorize('user');
-// In registry: userId is resolved from the authenticated request context
-// .authorize('user') — query won't execute without a registered authorization hook
+`;
+
+// Server-side / direct execution — you supply the ctx value like any param
+await myOrders.postgres.all({ db: pool, params: { userId: session.userId } });
+
+// Isomorphic execution — the client passes the contextValue sentinel, which the
+// remote client strips before sending; the registry injects the real userId
+// server-side from the authenticated request context. It never leaves the client.
+import { contextValue } from '@vexnor/core';
+await myOrders.postgres.all({ db: remoteClient, params: { userId: contextValue } });
 ```
+
+`param()` and `ctx()` both appear in the query's inferred params; the difference is *where the value is trusted to come from* — the caller (`param`) vs. server context (`ctx`). Authorization is a separate concern — see [Query Pipelines](#query-pipelines) for `.authorize()`.
 
 The client never sends SQL. It sends a stable hash that identifies a pre-registered query. The server looks it up, runs it, and returns typed results. No REST endpoints, no tRPC procedures, no GraphQL resolvers — the query is the API.
 
