@@ -45,13 +45,12 @@ const accounts = await selectAccounts.postgres.all({ db: pool });
 
 // Browser — dispatched over HTTP, same call site
 const accounts = await selectAccounts.postgres.all({ db: remoteClient });
-// Same type, same code — no API layer in between.
-// The server that resolves the hash can be any runtime: Node.js, .NET, or Go.
+// Same type, same code — no API layer in between
 ```
 
 Result types and required params are **inferred at compile time** from what you select — no manual type annotations, no codegen step after schema changes.
 
-The client sends only the query's stable hash — never SQL. Any backend can resolve and run it: a Node.js server via `SqlQueryRegistry`, or a **.NET** or **Go** service that loads a serialized manifest. Same query, same parameters, same results, across stacks. See [Portable Queries](docs/portable-queries.md).
+The backend that executes the query can be written in any stack — Node.js, .NET, and Go are supported today. Same query, same parameters, same results, across stacks. See [Portable Queries](docs/portable-queries.md).
 
 Built for AI agents: they discover your schema over a local stdio MCP server, resolve FK join paths, and compose typed queries at runtime — never emitting raw SQL. See [AI Integration](#ai-integration).
 
