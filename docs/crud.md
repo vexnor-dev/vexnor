@@ -108,6 +108,36 @@ const accounts = await Account.postgres.select({
 
 ---
 
+## Joins
+
+`includeMany` / `includeOne` attach related rows **nested** inside each parent row. When you instead want a **flat, wider row** — where every joined table's columns are addressable for `filterBy`, `orderBy`, and `select` — compose a join with `Table.join({...})`.
+
+```typescript
+Order.join({ account: Account })  // inner join; the map key becomes the table alias
+  .select({})
+  .all({
+    db: pool,
+    params: {
+      joinBy: { account: { on: [["_.accountId", "=", "account.accountId"]] } },
+      filterBy: [{ "account.email": ["like", "%@vip.com"] }],
+      orderBy: { "account.lastName": "ASC" },
+      select: { orderId: true, email: "account.email" },
+    },
+  });
+// FROM "order" AS "o_1"
+// JOIN "account" AS "a_2" ON "o_1"."account_id" = "a_2"."account_id"
+// WHERE "a_2"."email" LIKE ?
+```
+
+- **Alias** — each key in the map is the alias the joined table is addressed by (`account.email`). The root table is addressed by `_`.
+- **Join type** — a bare table value is an inner join; pass a tuple for an outer join: `Order.join({ account: [Account, "left"] })`. Types: `"inner" | "left" | "right" | "full" | "cross"`.
+- **Combined columns** — after `.join(...)`, the query's `filterBy` / `orderBy` / `select` param types accept the joined columns as `"alias.col"` alongside the root's bare columns.
+- **`joinBy`** — the `on` conditions are supplied at runtime as `[leftCol, op, rightCol]` tuples. Operators: `= < <= > >= <>`. When `joinBy` is `null`, no JOIN is emitted and only root columns are selected.
+
+This is the same primitive the [AI Integration](ai-integration.md#composing-joins) `join` tool composes at runtime — the schema graph resolves the `joinBy` conditions from foreign keys automatically.
+
+---
+
 ## Runtime Filter (`params.filterBy`)
 
 Every `select()` query automatically accepts a `filterBy` param at runtime — no compile-time changes needed. This enables AI agents and dynamic UIs to filter by any column subset, using any operator, without pre-defining the query for each combination.

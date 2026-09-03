@@ -63,6 +63,43 @@ The `formatOverview` / `formatTable` / `formatRelationships` methods produce com
 
 → See [Schema Graph](schema-graph.md) for the full API and `JoinResult` shape.
 
+## Composing Joins
+
+You define which tables the agent can see; the agent figures out how to join them. When the agent calls the `join` tool with a root and targets, the backend resolves the foreign-key path through the schema graph and composes the join server-side — the agent never writes SQL.
+
+Under the hood, `SchemaGraph.join` / `SchemaGraph.joinBy` delegate to the same dedicated join primitive you use in application code:
+
+```ts
+// What the backend builds for the agent — the dedicated Table.join(...) primitive
+Order.join({ account: Account }).select({});
+```
+
+`SchemaGraph.joinBy(from, targets)` (string identifiers) and `SchemaGraph.join({ root, targets })` (table instances) both return a `JoinResult`:
+
+```ts
+interface JoinResult {
+  query: unknown;   // the composed select query, ready to register
+  joinBy: Record<string, { on: [string, string, string][]; type?: JoinType }>;  // resolved ON conditions
+  tables: string[]; // ordered table IDs in the join
+  columns: string[]; // combined column set — root cols bare, joined cols as "table.col"
+}
+```
+
+`columns` is the flat, combined column set across every joined table, and `joinBy` is the ready-to-run set of ON conditions. The agent then filters, sorts, and projects against `columns` — never against SQL.
+
+The `getSchema` tool advertises, per object, whether an automatic join path exists (`capabilities.automaticJoin`) and flags `no-known-selected-relationship` when it doesn't — so the agent knows in advance which joins it can compose from the selected tables.
+
+### End-to-end flow
+
+1. **You expose a selection.** `vexnor schema select` persists the tables the agent may see; `vexnor schema mcp --tools getSchema join fetchData` serves only those, read-only.
+2. **The agent discovers the schema.** `getSchema` returns tables, columns, relationships, and per-object capabilities.
+3. **The agent composes a join.** It calls `join` with a root and targets. The backend resolves the FK path, builds `Table.join(...).select({})`, registers it, and returns `{ hash, columns, joinBy }`.
+4. **The agent reads data.** It calls `fetchData` with that `hash` plus `select` / `filterBy` / `orderBy` referencing the combined `columns`. The session re-injects the cached `joinBy`, generates the parameterized SQL, enforces the budgets, and returns typed rows.
+
+The agent supplies only structured intent — a root, targets, columns, and filters. Vexnor owns SQL generation end to end.
+
+→ See [Schema Graph — Join Resolution](schema-graph.md#join-resolution) and [CRUD — Joins](crud.md#joins).
+
 ## Runtime CRUD for Agents
 
 An agent (or any dynamic caller) can construct queries from column metadata alone — no predefined query per filter combination. Every `select()` query automatically accepts `filterBy`, `orderBy`, `limit`, and `offset` params at runtime.

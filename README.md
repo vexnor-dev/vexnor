@@ -85,6 +85,25 @@ const accounts = await Account.postgres.select({
 // (IAccountSelect & { orders: {...}[]; lastOrder: {...} | null })[] — inferred
 ```
 
+Or compose a **flat join** with `Table.join({...})`: every joined table's columns become addressable as `"alias.col"`, so you filter, sort, and project across all of them from one combined surface — the join is resolved for you:
+
+```typescript
+// Compose Order + Account into one wider query
+const orders = await Order.join({ account: Account })  // inner; use [Account, "left"] for outer
+  .select({})
+  .all({
+    db: pool,
+    params: {
+      joinBy: { account: { on: [["_.accountId", "=", "account.accountId"]] } },
+      filterBy: [{ "account.email": ["like", "%@vip.com"] }],  // WHERE on the joined table
+      orderBy: { "account.lastName": "ASC" },                  // ORDER BY on the joined table
+      select: { orderId: true, email: "account.email" },       // project across both
+    },
+  });
+```
+
+Use `includeMany` / `includeOne` when you want related rows **nested** inside each parent row (a JSON array or object). Use `Table.join(...)` when you want a **flat, wider row** and need to filter, sort, or select on the joined tables' columns directly. This same `Table.join(...)` composition is what powers the [AI Integration](#ai-integration) `join` tool.
+
 Write operations are just as typed:
 
 ```typescript
@@ -350,6 +369,15 @@ const accounts = await Account.postgres.select({}).all({
 ```
 
 All operators (`in`, `>=`, `like`, `between`, `isNull`, `isNotNull`, etc.) are validated at runtime against the table schema. Invalid columns or operators throw before any SQL is built, and every value is parameterized.
+
+**How the flow works** — you define which tables the agent can see; the agent figures out the rest:
+
+1. **You expose a selection.** `vexnor schema select` persists the subset of tables the agent is allowed to see, and `vexnor schema mcp --tools getSchema join fetchData` serves only those, read-only.
+2. **The agent discovers the schema.** It calls `getSchema` and gets the tables, columns, relationships, and per-object capabilities (including whether an automatic join path exists).
+3. **The agent composes a join — the backend generates the query.** It calls `join` with a root table and targets. Vexnor resolves the FK path through the schema graph, builds the join server-side via `Table.join(...).select({})`, registers it, and returns a query `hash`, the combined `columns`, and the `joinBy` conditions. The agent never writes SQL.
+4. **The agent reads data.** It calls `fetchData` with that `hash` plus `select` / `filterBy` / `orderBy` referencing the combined columns. The backend re-injects the join conditions, generates the parameterized SQL, enforces the row/timeout/concurrency budgets, and returns typed rows.
+
+The agent only ever supplies structured intent — a root, targets, columns, filters. Vexnor owns SQL generation end to end, so the same structural injection-safety that protects your app protects the agent surface too.
 
 → See [AI Integration](docs/ai-integration.md) for the full picture: MCP tools and budgets, schema discovery and prompt formatting, runtime projections (`viewBy`) and windows (`windowBy`), machine-readable schema manifests, and the security model.
 
