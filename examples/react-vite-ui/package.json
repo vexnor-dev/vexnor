@@ -24,7 +24,7 @@
       "dev:dotnet": "run-p 'dev:dotnet:backend' 'dev'",
       "dev:dotnet:backend": "VEXNOR_MANIFEST_DIR=../../examples/react-vite-ui/manifests ConnectionStrings__Sqlite3=../../@db-sqlite3/vexnor-dev.sqlite ConnectionStrings__DuckDB=../../@db-duckdb/vexnor-dev.duckdb dotnet run --project ../../stacks/dotnet/src/Vexnor.Example.Api",
       "build": "vite build",
-      "build:tsc": "tsc --noEmit"
+      "build:tsc": "tsc -b"
    },
    "dependencies": {
       "@tanstack/react-router": "^1.170.15",

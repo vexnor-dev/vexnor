@@ -81,7 +81,7 @@ export default function PostgresLoginPage() {
    const [promise, setPromise] = useState<Promise<LoginAccount[]>>(Promise.resolve([]));
 
    useEffect(() => {
-      setPromise(selectAccountsForLogin.all({ db: remoteClient }) as Promise<LoginAccount[]>);
+      setPromise(selectAccountsForLogin.all({ db: remoteClient, params: {} }));
    }, []);
 
    function handlePick(account: LoginAccount) {
