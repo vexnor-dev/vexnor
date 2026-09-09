@@ -9,6 +9,7 @@
       "esModuleInterop": true,
       "skipLibCheck": true,
       "noEmit": true,
+      "types": ["vite/client"],
       "paths": {
          "#shared/*": ["./shared/*"],
          "#src/*": ["./src/*"]
