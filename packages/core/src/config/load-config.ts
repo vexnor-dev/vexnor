@@ -1,6 +1,9 @@
 import { pathToFileURL } from "url";
 import { VexnorConfig } from "#src/config/config-types.js";
 import { access } from "fs/promises";
+import { register } from "tsx/esm/api";
+
+register();
 
 export async function loadConfig(configPath: string): Promise<VexnorConfig> {
    try {
@@ -11,15 +14,8 @@ export async function loadConfig(configPath: string): Promise<VexnorConfig> {
 
    try {
       let module: { default?: VexnorConfig; config?: VexnorConfig };
-      if (configPath.endsWith(".ts")) {
-         const { createServer } = await import("vite");
-         const vite = await createServer({ clearScreen: false, logLevel: "error" });
-         module = await vite.ssrLoadModule(configPath);
-         await vite.close();
-      } else {
-         const fileUrl = pathToFileURL(configPath).href;
-         module = await import(fileUrl);
-      }
+      const fileUrl = pathToFileURL(configPath).href;
+      module = await import(fileUrl);
 
       const config = module.default || module.config;
 
