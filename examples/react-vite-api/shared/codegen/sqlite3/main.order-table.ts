@@ -9,7 +9,7 @@ export const Order = vexnor.newSqlTable<{
    Update: IOrderUpdate;
    Delete: true;
    Source: "@vexnor/example-react-vite-api:shared/codegen/sqlite3";
-}>( {
+}>({
    crud: {
       select: true,
       insert: true,
@@ -24,7 +24,6 @@ export const Order = vexnor.newSqlTable<{
    dialect: "sqlite",
    source: "@vexnor/example-react-vite-api:shared/codegen/sqlite3",
    columns: {
-
       /**
        * order_id TEXT default lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-4' || substr(lower(hex(randomblob(2))),2) || '-' || substr('89ab',abs(random()) % 4 + 1, 1) || substr(lower(hex(randomblob(2))),2) || '-' || lower(hex(randomblob(6)))
        */

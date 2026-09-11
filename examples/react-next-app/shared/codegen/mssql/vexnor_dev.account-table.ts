@@ -9,7 +9,7 @@ export const Account = vexnor.newSqlTable<{
    Update: IAccountUpdate;
    Delete: true;
    Source: "@vexnor/example-react-next-app:shared/codegen/mssql";
-}>( {
+}>({
    crud: {
       select: true,
       insert: true,
@@ -24,7 +24,6 @@ export const Account = vexnor.newSqlTable<{
    dialect: "tsql",
    source: "@vexnor/example-react-next-app:shared/codegen/mssql",
    columns: {
-
       /**
        * account_id uniqueidentifier default (newid())
        */

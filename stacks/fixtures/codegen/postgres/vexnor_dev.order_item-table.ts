@@ -10,7 +10,7 @@ export const OrderItem = vexnor.newSqlTable<{
    Update: IOrderItemUpdate;
    Delete: true;
    Source: "@vexnor/stack-fixtures:codegen/postgres";
-}>( {
+}>({
    crud: {
       select: true,
       insert: true,
@@ -25,7 +25,6 @@ export const OrderItem = vexnor.newSqlTable<{
    dialect: "postgresql",
    source: "@vexnor/stack-fixtures:codegen/postgres",
    columns: {
-
       /**
        * order_id uuid
        */

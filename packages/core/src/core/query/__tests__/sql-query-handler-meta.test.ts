@@ -171,12 +171,12 @@ describe("SqlQueryHandler.validateParams — cross-param awareness", () => {
       }
    });
 
-   it("orderBy still rejects truly invalid keys", () => {
+   it("orderBy still rejects truly invalid keys", async () => {
       const handler = new MockQueryHandler(
          sqlSelect(Account, {}),
       );
       const db = createMockDb([]);
-      expect(
+      await expect(
          handler.all({ db, params: { orderBy: { totallyFake: "ASC" } } as never }),
       ).rejects.toThrow("Invalid param 'orderBy'");
    });

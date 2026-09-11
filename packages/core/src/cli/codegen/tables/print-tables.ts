@@ -26,7 +26,7 @@ export async function printTables({ tables }: WriteTablesArgs): Promise<SqlOutpu
          tableTypeName: mappingName,
       });
       logger.debug({ tableSchema: schema, tableName: name, filePath }, "Writing table file");
-      await fs.writeFile(filePath, output, { encoding: "utf8" });
+      await fs.writeFile(filePath, `${output.replace(/\s+$/, "")}\n`, { encoding: "utf8" });
       await fs.stat(filePath);
    }
 

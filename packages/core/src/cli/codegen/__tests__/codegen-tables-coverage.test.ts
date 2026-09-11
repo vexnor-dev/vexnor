@@ -270,7 +270,7 @@ describe("nested column code generation", () => {
            Update: IAccountsUpdate;
            Delete: true;
            Source: "";
-        }>( {
+        }>({
            crud: {
               select: true,
               insert: true,
@@ -285,7 +285,6 @@ describe("nested column code generation", () => {
            dialect: "postgresql",
            source: "",
            columns: {
-
               /**
                * shipping_details STRUCT(address STRUCT(country VARCHAR, geo STRUCT(latitude DOUBLE)), tags VARCHAR[])
                */

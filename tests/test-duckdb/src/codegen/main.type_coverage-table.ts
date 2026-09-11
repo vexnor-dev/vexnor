@@ -10,7 +10,7 @@ export const TypeCoverage = vexnor.newSqlTable<{
    Update: ITypeCoverageUpdate;
    Delete: true;
    Source: "@vexnor/test-duckdb:src/codegen";
-}>( {
+}>({
    crud: {
       select: true,
       insert: true,
@@ -25,7 +25,6 @@ export const TypeCoverage = vexnor.newSqlTable<{
    dialect: "duckdb",
    source: "@vexnor/test-duckdb:src/codegen",
    columns: {
-
       /**
        * col_uuid UUID default uuid()
        */

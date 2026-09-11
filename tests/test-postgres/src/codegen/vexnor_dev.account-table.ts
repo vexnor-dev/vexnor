@@ -10,7 +10,7 @@ export const Account = vexnor.newSqlTable<{
    Update: IAccountUpdate;
    Delete: true;
    Source: "@vexnor/test-postgres:src/codegen";
-}>( {
+}>({
    crud: {
       select: true,
       insert: true,
@@ -25,7 +25,6 @@ export const Account = vexnor.newSqlTable<{
    dialect: "postgresql",
    source: "@vexnor/test-postgres:src/codegen",
    columns: {
-
       /**
        * account_id uuid default gen_random_uuid()
        */

@@ -9,7 +9,7 @@ export const OrderItem = vexnor.newSqlTable<{
    Update: IOrderItemUpdate;
    Delete: true;
    Source: "@vexnor/test-sqlite3:src/codegen";
-}>( {
+}>({
    crud: {
       select: true,
       insert: true,
@@ -24,7 +24,6 @@ export const OrderItem = vexnor.newSqlTable<{
    dialect: "sqlite",
    source: "@vexnor/test-sqlite3:src/codegen",
    columns: {
-
       /**
        * order_id TEXT
        */

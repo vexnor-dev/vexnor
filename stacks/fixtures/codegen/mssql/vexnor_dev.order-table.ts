@@ -9,7 +9,7 @@ export const Order = vexnor.newSqlTable<{
    Update: IOrderUpdate;
    Delete: true;
    Source: "@vexnor/stack-fixtures:codegen/mssql";
-}>( {
+}>({
    crud: {
       select: true,
       insert: true,
@@ -24,7 +24,6 @@ export const Order = vexnor.newSqlTable<{
    dialect: "tsql",
    source: "@vexnor/stack-fixtures:codegen/mssql",
    columns: {
-
       /**
        * order_id uniqueidentifier default (newid())
        */

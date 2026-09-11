@@ -10,7 +10,7 @@ export const TypeCoverage = vexnor.newSqlTable<{
    Update: ITypeCoverageUpdate;
    Delete: true;
    Source: "@vexnor/example-react-vite-api:shared/codegen/duckdb";
-}>( {
+}>({
    crud: {
       select: true,
       insert: true,
@@ -25,7 +25,6 @@ export const TypeCoverage = vexnor.newSqlTable<{
    dialect: "duckdb",
    source: "@vexnor/example-react-vite-api:shared/codegen/duckdb",
    columns: {
-
       /**
        * col_uuid UUID default uuid()
        */

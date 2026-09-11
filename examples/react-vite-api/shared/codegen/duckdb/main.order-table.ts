@@ -10,7 +10,7 @@ export const Order = vexnor.newSqlTable<{
    Update: IOrderUpdate;
    Delete: true;
    Source: "@vexnor/example-react-vite-api:shared/codegen/duckdb";
-}>( {
+}>({
    crud: {
       select: true,
       insert: true,
@@ -25,7 +25,6 @@ export const Order = vexnor.newSqlTable<{
    dialect: "duckdb",
    source: "@vexnor/example-react-vite-api:shared/codegen/duckdb",
    columns: {
-
       /**
        * order_id UUID default uuid()
        */

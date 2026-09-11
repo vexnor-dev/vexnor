@@ -33,7 +33,7 @@
       "@prisma/client": "^7.8.0",
       "@prisma/adapter-better-sqlite3": "^7.8.0",
       "@types/better-sqlite3": "^7.6.13",
-      "@vitest/coverage-v8": "^4.1.5",
+      "@vitest/coverage-v8": "^5.0.0",
       "drizzle-orm": "^1.0.0-beta.20",
       "prisma": "^7.8.0",
       "reflect-metadata": "^0.2.2",

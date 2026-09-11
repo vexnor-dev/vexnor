@@ -10,7 +10,7 @@ export const Account = vexnor.newSqlTable<{
    Update: IAccountUpdate;
    Delete: true;
    Source: "@vexnor/example-react-vite-api:shared/codegen/duckdb";
-}>( {
+}>({
    crud: {
       select: true,
       insert: true,
@@ -25,7 +25,6 @@ export const Account = vexnor.newSqlTable<{
    dialect: "duckdb",
    source: "@vexnor/example-react-vite-api:shared/codegen/duckdb",
    columns: {
-
       /**
        * account_id UUID default uuid()
        */

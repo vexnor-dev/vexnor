@@ -10,7 +10,7 @@ export const Product = vexnor.newSqlTable<{
    Update: IProductUpdate;
    Delete: true;
    Source: "@vexnor/example-postgres-esm:src/codegen";
-}>( {
+}>({
    crud: {
       select: true,
       insert: true,
@@ -25,7 +25,6 @@ export const Product = vexnor.newSqlTable<{
    dialect: "postgresql",
    source: "@vexnor/example-postgres-esm:src/codegen",
    columns: {
-
       /**
        * product_id uuid default gen_random_uuid()
        */

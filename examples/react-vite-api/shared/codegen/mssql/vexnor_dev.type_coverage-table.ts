@@ -9,7 +9,7 @@ export const TypeCoverage = vexnor.newSqlTable<{
    Update: ITypeCoverageUpdate;
    Delete: true;
    Source: "@vexnor/example-react-vite-api:shared/codegen/mssql";
-}>( {
+}>({
    crud: {
       select: true,
       insert: true,
@@ -24,7 +24,6 @@ export const TypeCoverage = vexnor.newSqlTable<{
    dialect: "tsql",
    source: "@vexnor/example-react-vite-api:shared/codegen/mssql",
    columns: {
-
       /**
        * col_uniqueidentifier uniqueidentifier default (newid())
        */

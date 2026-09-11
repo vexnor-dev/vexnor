@@ -6,7 +6,7 @@ import * as vexnor from "@vexnor/core";
 export const AccountOrderSummary = vexnor.newSqlTable<{
    Select: IAccountOrderSummarySelect;
    Source: "@vexnor/example-react-vite-api:shared/codegen/sqlite3";
-}>( {
+}>({
    crud: {
       select: true,
       insert: false,
@@ -21,7 +21,6 @@ export const AccountOrderSummary = vexnor.newSqlTable<{
    dialect: "sqlite",
    source: "@vexnor/example-react-vite-api:shared/codegen/sqlite3",
    columns: {
-
       /**
        * account_id TEXT
        */

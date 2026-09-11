@@ -7,7 +7,7 @@ import * as udt from "./main-enums.js";
 export const AccountOrderSummary = vexnor.newSqlTable<{
    Select: IAccountOrderSummarySelect;
    Source: "@vexnor/example-react-vite-api:shared/codegen/duckdb";
-}>( {
+}>({
    crud: {
       select: true,
       insert: false,
@@ -22,7 +22,6 @@ export const AccountOrderSummary = vexnor.newSqlTable<{
    dialect: "duckdb",
    source: "@vexnor/example-react-vite-api:shared/codegen/duckdb",
    columns: {
-
       /**
        * account_id UUID
        */
