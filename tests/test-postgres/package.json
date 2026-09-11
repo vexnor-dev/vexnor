@@ -32,7 +32,7 @@
       "@prisma/adapter-pg": "^7.8.0",
       "@prisma/client": "^7.8.0",
       "@types/pg": "^8.20.0",
-      "@vitest/coverage-v8": "^4.1.8",
+      "@vitest/coverage-v8": "^5.0.0",
       "drizzle-orm": "1.0.0-rc.4-5d5b77c",
       "env-cmd": "^10.1.0",
       "prisma": "^7.8.0",

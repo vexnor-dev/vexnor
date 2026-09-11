@@ -33,7 +33,7 @@
       "@prisma/adapter-mssql": "^7.8.0",
       "@prisma/client": "^7.8.0",
       "@types/mssql": "^12.3.0",
-      "@vitest/coverage-v8": "^4.1.5",
+      "@vitest/coverage-v8": "^5.0.0",
       "drizzle-orm": "^1.0.0-beta.20",
       "prisma": "^7.8.0",
       "reflect-metadata": "^0.2.2",
