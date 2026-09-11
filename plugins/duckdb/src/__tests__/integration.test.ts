@@ -155,7 +155,7 @@ describe("DuckDB integration", () => {
               Update: IArticleUpdate;
               Delete: true;
               Source: "@vexnor/duckdb:.tmp-codegen-integration";
-           }>( {
+           }>({
               crud: {
                  select: true,
                  insert: true,
@@ -170,7 +170,6 @@ describe("DuckDB integration", () => {
               dialect: "duckdb",
               source: "@vexnor/duckdb:.tmp-codegen-integration",
               columns: {
-
                  /**
                   * article_id UUID
                   */
@@ -217,7 +216,8 @@ describe("DuckDB integration", () => {
               publishedAt: Date | null;
            };
 
-           export type IArticleJson = vexnor.JsonRow<IArticleSelect>;"
+           export type IArticleJson = vexnor.JsonRow<IArticleSelect>;
+           "
          `);
       } finally {
          rmSync(outDir, { recursive: true, force: true });
