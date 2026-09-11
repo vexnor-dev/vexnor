@@ -96,7 +96,7 @@ describe("writeTableType fk and dbSchema", () => {
               Update: IOrderItemUpdate;
               Delete: true;
               Source: "@vexnor/core:src/cli/codegen/tables/__tests__/.tmp-fk-test";
-           }>( {
+           }>({
               crud: {
                  select: true,
                  insert: true,
@@ -111,7 +111,6 @@ describe("writeTableType fk and dbSchema", () => {
               dialect: "postgres",
               source: "@vexnor/core:src/cli/codegen/tables/__tests__/.tmp-fk-test",
               columns: {
-
                  /**
                   * order_id uuid
                   */
@@ -162,7 +161,8 @@ describe("writeTableType fk and dbSchema", () => {
               createdAt: Date | null;
            };
 
-           export type IOrderItemJson = vexnor.JsonRow<IOrderItemSelect>;"
+           export type IOrderItemJson = vexnor.JsonRow<IOrderItemSelect>;
+           "
          `);
       } finally {
          await rm(outDir, { recursive: true, force: true });

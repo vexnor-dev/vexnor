@@ -15,12 +15,14 @@ const RESERVED_WORDS = new Set(["public", "private", "protected", "static", "cla
 export async function writeIndex({ schemaFiles, libraryFiles }: WriteIndexArgs): Promise<void> {
    const { outDir, newWriter } = getCodegenContext();
    const writer = newWriter();
-   for (const file of schemaFiles) {
+   const sortedSchemaFiles = [...schemaFiles].sort((left, right) => left.fileName.localeCompare(right.fileName));
+   for (const file of sortedSchemaFiles) {
       const alias = RESERVED_WORDS.has(file.moduleName) ? `${file.moduleName}Schema` : file.moduleName;
       writer.writeLine(`export * as ${alias} from "./${file.fileName}.js";`);
    }
 
-   for (const file of libraryFiles) {
+   const sortedLibraryFiles = [...libraryFiles].sort((left, right) => left.fileName.localeCompare(right.fileName));
+   for (const file of sortedLibraryFiles) {
       writer.writeLine(`export * from "./${file.fileName}.js";`);
    }
 

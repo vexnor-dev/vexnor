@@ -72,6 +72,19 @@ export class CodeWriter {
       return this;
    }
 
+   /**
+    * Like {@link inlineBlock} but opens with `{` directly (no leading space),
+    * for callers that have already written the preceding token (e.g. `(`).
+    */
+   inlineBlockBare(writeBody: () => void): this {
+      this.write("{").newLine();
+      this.indentLevel++;
+      writeBody();
+      this.indentLevel--;
+      this.write("}");
+      return this;
+   }
+
    genericBlock(writeBody: () => void): this {
       this.write("<{").newLine();
       this.indentLevel++;

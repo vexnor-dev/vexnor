@@ -134,7 +134,7 @@ describe("codegenCommand output", () => {
               Update: IAccountUpdate;
               Delete: true;
               Source: "@vexnor/core:src/cli/codegen/__tests__/.tmp-codegen-test";
-           }>( {
+           }>({
               crud: {
                  select: true,
                  insert: true,
@@ -149,7 +149,6 @@ describe("codegenCommand output", () => {
               dialect: "postgres",
               source: "@vexnor/core:src/cli/codegen/__tests__/.tmp-codegen-test",
               columns: {
-
                  /**
                   * account_id uuid
                   */
@@ -220,11 +219,12 @@ describe("codegenCommand output", () => {
               metadata: unknown | null;
            };
 
-           export type IAccountJson = vexnor.JsonRow<IAccountSelect>;"
+           export type IAccountJson = vexnor.JsonRow<IAccountSelect>;
+           "
          `);
          expect(files["public.schema.ts"]).toMatchInlineSnapshot(`
-           "export * from "./public.account-table.js";
-           export * from "./public-enums.js";
+           "export * from "./public-enums.js";
+           export * from "./public.account-table.js";
            "
          `);
          expect(files["index.ts"]).toMatchInlineSnapshot(`
@@ -261,7 +261,7 @@ describe("codegenCommand output", () => {
               Update: IAccountUpdate;
               Delete: true;
               Source: "@vexnor/core:src/cli/codegen/__tests__/.tmp-codegen-test-nocase";
-           }>( {
+           }>({
               crud: {
                  select: true,
                  insert: true,
@@ -276,7 +276,6 @@ describe("codegenCommand output", () => {
               dialect: "postgres",
               source: "@vexnor/core:src/cli/codegen/__tests__/.tmp-codegen-test-nocase",
               columns: {
-
                  /**
                   * account_id uuid
                   */
@@ -347,7 +346,8 @@ describe("codegenCommand output", () => {
               metadata: unknown | null;
            };
 
-           export type IAccountJson = vexnor.JsonRow<IAccountSelect>;"
+           export type IAccountJson = vexnor.JsonRow<IAccountSelect>;
+           "
          `);
       } finally {
          await rm(outDir, { recursive: true, force: true });

@@ -26,7 +26,7 @@ export function writeTableType(writer: CodeWriter, { table }: { table: SchemaCat
          writer.writeLine(`Source: "${getCodegenContext().source}";`);
       })
       .write(`(`)
-      .inlineBlock(() => {
+      .inlineBlockBare(() => {
          writer
             .write(`crud:`)
             .inlineBlock(() => {
@@ -49,9 +49,9 @@ export function writeTableType(writer: CodeWriter, { table }: { table: SchemaCat
          writer
             .write(`columns:`)
             .inlineBlock(() => {
-               columns.forEach((col) => {
+               columns.forEach((col, index) => {
                   const colAlias = col.mappingName;
-                  writer.blankLine();
+                  if (index > 0) writer.blankLine();
                   writer
                      .writeLine(`/**`)
                      .write(` * ${col.physicalName} ${col.nativeType}`)
