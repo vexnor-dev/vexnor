@@ -90,7 +90,7 @@
   },
   "scripts": {
     "clean": "rimraf dist tsconfig.tsbuildinfo",
-    "build": "tsc -b",
+    "build": "tsc -p tsconfig.build.json",
     "prepack:1-copy-readme": "copyfiles -f \"../../README.md\" .",
     "prepack:2-copy-docs": "copyfiles -u 2 \"../../docs/**\" docs",
     "prepack": "run-s 'build' 'prepack:*'",
