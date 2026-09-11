@@ -344,6 +344,7 @@ jobs:
           NPM_CONFIG_PROVENANCE: "true"
         run: |
           NPM_TAG="${{ steps.version.outputs.npm_tag }}"
+          VERSION="${{ steps.version.outputs.version }}"
           DRY_RUN="${{ inputs.dry_run || 'false' }}"
 
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ inputs.tag }}" ]; then
@@ -367,31 +368,45 @@ jobs:
 
           PUBLISHED=""
           SKIPPED=""
+          FAILED=""
 
+          # Publish a single package if its files changed since the previous tag
+          # and the exact name@version is not already on the registry. A failed
+          # publish is recorded but does NOT abort the remaining packages, so a
+          # partially-completed release can always be re-run to completion.
           publish_if_changed() {
             local pkg_dir="$1"
+            local pkg_name
+            pkg_name=$(node -e "console.log(JSON.parse(require('fs').readFileSync('$pkg_dir/package.json')).name)")
 
-            # If no previous tag exists, publish everything
-            if [ -z "$PREV_TAG" ]; then
-              if [ "$DRY_RUN" = "true" ]; then
-                echo "✅ $pkg_dir — WOULD publish (no previous tag)"
-              else
-                npx npm@latest publish --ignore-scripts "./$pkg_dir" --access public --tag "$NPM_TAG" --provenance
-              fi
+            # If a previous tag exists and nothing changed for this package, skip.
+            if [ -n "$PREV_TAG" ] && [ -z "$(cd _source && git diff --name-only "$PREV_TAG...$CURRENT_TAG" -- "$pkg_dir")" ]; then
+              echo "⏭️  $pkg_dir — skipped (no changes)"
+              SKIPPED="${SKIPPED}  ⏭️ $pkg_dir (no changes)\n"
+              return
+            fi
+
+            # Idempotency guard: if this exact version is already published, skip
+            # so re-running a partial release does not fail with E403
+            # "cannot publish over the previously published versions".
+            if npm view "${pkg_name}@${VERSION}" version >/dev/null 2>&1; then
+              echo "⏭️  $pkg_dir — skipped (${pkg_name}@${VERSION} already published)"
+              SKIPPED="${SKIPPED}  ⏭️ $pkg_dir (${pkg_name}@${VERSION} already published)\n"
+              return
+            fi
+
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "✅ $pkg_dir — WOULD publish ${pkg_name}@${VERSION}"
               PUBLISHED="${PUBLISHED}  ✅ $pkg_dir\n"
               return
             fi
 
-            if [ -n "$(cd _source && git diff --name-only "$PREV_TAG...$CURRENT_TAG" -- "$pkg_dir")" ]; then
-              if [ "$DRY_RUN" = "true" ]; then
-                echo "✅ $pkg_dir — WOULD publish"
-              else
-                npx npm@latest publish --ignore-scripts "./$pkg_dir" --access public --tag "$NPM_TAG" --provenance
-              fi
+            if npx npm@latest publish --ignore-scripts "./$pkg_dir" --access public --tag "$NPM_TAG" --provenance; then
+              echo "✅ $pkg_dir — published ${pkg_name}@${VERSION}"
               PUBLISHED="${PUBLISHED}  ✅ $pkg_dir\n"
             else
-              echo "⏭️  $pkg_dir — skipped (no changes)"
-              SKIPPED="${SKIPPED}  ⏭️ $pkg_dir (no changes)\n"
+              echo "::error::Failed to publish ${pkg_name}@${VERSION} ($pkg_dir)"
+              FAILED="${FAILED}  ❌ $pkg_dir (${pkg_name}@${VERSION})\n"
             fi
           }
 
@@ -413,10 +428,20 @@ jobs:
             printf "$PUBLISHED" >> $GITHUB_STEP_SUMMARY
           fi
           if [ -n "$SKIPPED" ]; then
-            echo "**Skipped (no changes since $PREV_TAG):**" >> $GITHUB_STEP_SUMMARY
+            echo "**Skipped:**" >> $GITHUB_STEP_SUMMARY
             printf "$SKIPPED" >> $GITHUB_STEP_SUMMARY
           fi
-          if [ -z "$PUBLISHED" ]; then
-            echo "⚠️ No packages were published — no changes detected since $PREV_TAG"
+          if [ -n "$FAILED" ]; then
+            echo "**Failed:**" >> $GITHUB_STEP_SUMMARY
+            printf "$FAILED" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ -z "$PUBLISHED" ] && [ -z "$FAILED" ]; then
+            echo "⚠️ No packages were published — nothing changed or all versions already exist"
             echo "⚠️ No packages were published" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Fail the job if any package failed to publish, after attempting all.
+          if [ -n "$FAILED" ]; then
+            echo "::error::One or more packages failed to publish. See the Failed list above."
+            exit 1
           fi
