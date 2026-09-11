@@ -9,7 +9,7 @@ export const Product = vexnor.newSqlTable<{
    Update: IProductUpdate;
    Delete: true;
    Source: "@vexnor/test-mssql:src/codegen";
-}>( {
+}>({
    crud: {
       select: true,
       insert: true,
@@ -24,7 +24,6 @@ export const Product = vexnor.newSqlTable<{
    dialect: "tsql",
    source: "@vexnor/test-mssql:src/codegen",
    columns: {
-
       /**
        * product_id uniqueidentifier default (newid())
        */

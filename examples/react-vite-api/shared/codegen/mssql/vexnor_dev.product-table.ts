@@ -9,7 +9,7 @@ export const Product = vexnor.newSqlTable<{
    Update: IProductUpdate;
    Delete: true;
    Source: "@vexnor/example-react-vite-api:shared/codegen/mssql";
-}>( {
+}>({
    crud: {
       select: true,
       insert: true,
@@ -24,7 +24,6 @@ export const Product = vexnor.newSqlTable<{
    dialect: "tsql",
    source: "@vexnor/example-react-vite-api:shared/codegen/mssql",
    columns: {
-
       /**
        * product_id uniqueidentifier default (newid())
        */

@@ -7,7 +7,7 @@ import * as udt from "./vexnor_dev-enums.js";
 export const AccountOrderSummary = vexnor.newSqlTable<{
    Select: IAccountOrderSummarySelect;
    Source: "@vexnor/stack-fixtures:codegen/postgres";
-}>( {
+}>({
    crud: {
       select: true,
       insert: false,
@@ -22,7 +22,6 @@ export const AccountOrderSummary = vexnor.newSqlTable<{
    dialect: "postgresql",
    source: "@vexnor/stack-fixtures:codegen/postgres",
    columns: {
-
       /**
        * account_id uuid
        */

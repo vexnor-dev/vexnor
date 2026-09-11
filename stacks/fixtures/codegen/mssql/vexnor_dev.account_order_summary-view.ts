@@ -6,7 +6,7 @@ import * as vexnor from "@vexnor/core";
 export const AccountOrderSummary = vexnor.newSqlTable<{
    Select: IAccountOrderSummarySelect;
    Source: "@vexnor/stack-fixtures:codegen/mssql";
-}>( {
+}>({
    crud: {
       select: true,
       insert: false,
@@ -21,7 +21,6 @@ export const AccountOrderSummary = vexnor.newSqlTable<{
    dialect: "tsql",
    source: "@vexnor/stack-fixtures:codegen/mssql",
    columns: {
-
       /**
        * account_id uniqueidentifier
        */

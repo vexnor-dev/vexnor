@@ -9,7 +9,7 @@ export const Account = vexnor.newSqlTable<{
    Update: IAccountUpdate;
    Delete: true;
    Source: "@vexnor/test-sqlite3:src/codegen";
-}>( {
+}>({
    crud: {
       select: true,
       insert: true,
@@ -24,7 +24,6 @@ export const Account = vexnor.newSqlTable<{
    dialect: "sqlite",
    source: "@vexnor/test-sqlite3:src/codegen",
    columns: {
-
       /**
        * account_id TEXT default lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-4' || substr(lower(hex(randomblob(2))),2) || '-' || substr('89ab',abs(random()) % 4 + 1, 1) || substr(lower(hex(randomblob(2))),2) || '-' || lower(hex(randomblob(6)))
        */

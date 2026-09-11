@@ -9,7 +9,7 @@ export const TypeCoverage = vexnor.newSqlTable<{
    Update: ITypeCoverageUpdate;
    Delete: true;
    Source: "@vexnor/test-mssql:src/codegen";
-}>( {
+}>({
    crud: {
       select: true,
       insert: true,
@@ -24,7 +24,6 @@ export const TypeCoverage = vexnor.newSqlTable<{
    dialect: "tsql",
    source: "@vexnor/test-mssql:src/codegen",
    columns: {
-
       /**
        * col_uniqueidentifier uniqueidentifier default (newid())
        */

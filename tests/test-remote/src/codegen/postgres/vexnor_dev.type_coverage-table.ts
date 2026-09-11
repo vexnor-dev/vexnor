@@ -10,7 +10,7 @@ export const TypeCoverage = vexnor.newSqlTable<{
    Update: ITypeCoverageUpdate;
    Delete: true;
    Source: "@vexnor/test-remote:src/codegen/postgres";
-}>( {
+}>({
    crud: {
       select: true,
       insert: true,
@@ -25,7 +25,6 @@ export const TypeCoverage = vexnor.newSqlTable<{
    dialect: "postgresql",
    source: "@vexnor/test-remote:src/codegen/postgres",
    columns: {
-
       /**
        * col_uuid uuid default gen_random_uuid()
        */
