@@ -19,10 +19,10 @@
       "build": "tsc -b"
    },
    "dependencies": {
-      "@hono/node-server": "^1.19.15",
+      "@hono/node-server": "^1.19.17",
       "@sinclair/typebox": "^0.34.41",
       "better-sqlite3": "^12.4.1",
-      "hono": "^4.7.10",
+      "hono": "^4.13.5",
       "mssql": "^12.5.2",
       "pg": "^8.16.3",
       "@vexnor/core": "workspace:*",
@@ -40,6 +40,6 @@
       "pino-pretty": "^13.0.0",
       "typescript": "^7.0.2",
       "vite-tsconfig-paths": "^6.1.1",
-      "vitest": "^4.1.5"
+      "vitest": "^5.0.0"
    }
 }
